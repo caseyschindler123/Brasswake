@@ -43,5 +43,7 @@ The main agent owns classification, acceptance criteria, task decomposition, int
 
 ## Decision log
 
+- 2026-11-22: The 28-floor dungeon rebuild adds all-floor interaction coverage across phone Chromium, phone WebKit and desktop. Increased the build job limit from 15 to 30 minutes to retain that coverage alongside existing simulations and browser installation. Deployment retains its 15-minute budget; no test selection or assertion is skipped to fit the old limit.
+
 - 2026-11-22: Casey chose automatic Codex classification and automatic deployment for both simple and complex implementation tasks. Complexity determines planning and verification depth. Root AGENTS.md makes the workflow automatic; executable local/CI checks gate release, followed by live commit and browser verification.
 - 2026-11-22: Casey required deliberate, cost-effective subagent selection by the main agent and relevant UI testing only. This framework-only change needs tooling verification and live commit/HTML checks, not a game UI pass. Future game changes select browser tests automatically.

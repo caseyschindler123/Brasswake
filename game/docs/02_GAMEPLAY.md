@@ -1,6 +1,6 @@
 # Brasswake: gameplay reference
 
-Last updated: 2026-11-22. This describes the published soundtrack and the dungeon rebuild candidate. The retained artifact preview is `1795364400-6a70`. This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn.
+Last updated: 2026-11-22. This describes the integrated soundtrack and the dungeon rebuild candidate. The retained artifact preview is `1795364400-6a70`. This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn.
 
 ## 1. Premise and goals
 

@@ -39,8 +39,9 @@ async function canvasClick(f, x, y) {
   await f.locator('#stage canvas.over').click({position:point});
 }
 async function assertTexture(f) {
-  await f.waitForFunction(()=>Scene.debug().map.chunks.size>0);
-  const samples=await f.evaluate(async()=>{
+  let samples=[];
+  await expect.poll(async()=>{
+    samples=await f.evaluate(async()=>{
     const {map:m,CS,TS}=Scene.debug(),im=new Image();im.src='art/'+DungeonArt.image;await im.decode();
     const atlas=document.createElement('canvas');atlas.width=im.width;atlas.height=im.height;const g=atlas.getContext('2d');g.drawImage(im,0,0);
     const samples=[];
@@ -54,8 +55,9 @@ async function assertTexture(f) {
       }
     }
     return samples;
-  });
-  expect(samples.length).toBeGreaterThan(0);
+    });
+    return samples.length;
+  },{message:'Wait for eight rendered dungeon floor samples'}).toBe(8);
   for(const sample of samples)expect(sample.actual).toEqual(sample.expected);
 }
 async function walk(f, goal, stats, adjacent=true) {

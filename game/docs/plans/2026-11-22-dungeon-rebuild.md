@@ -69,7 +69,7 @@ These names are authored content targets. Briefs and floor data are the editable
 - 17 focused dungeon layout/progression/controller tests pass. Original guided dungeon/chest/dojo flow and dungeon visual fixture pass on phone Chromium. Full expeditions are in progress.
 - All 15 raw images were generated with the unchanged existing image script, model and high quality settings. Full packed contacts were opened, including both orientations of all eight gate themes. Five art-tool tests passed; deterministic replay matched all three atlas hashes and coordinate JS; exact manifest check reports 489 files, zero missing/extra/different. Final packed atlases contain 32 material textures, 48 props/barriers and 16 static creatures. New creatures use rotated living sprites for fallen bodies; no separate walk/fall sheets are claimed.
 - New raw outputs are archived with original names under `SQL Game/dungeon_2026-11-22/out`, with working copies in ignored `work/dungeon-art/out`; briefs and recorded input hashes/crops are checked in under `arttools/dungeon_*`.
-- The other sound/magic task committed independently as `7956eaa`; its work is preserved. The later published soundtrack commit `c1235ee` was integrated without replacing dungeon code, assets or tests. The merged packed manifest contains 514 assets; the earlier 489 count above describes the dungeon-only extension before that integration.
+- The other sound/magic task committed independently as `7956eaa`; its work is preserved. The later integrated soundtrack commit `c1235ee` was integrated without replacing dungeon code, assets or tests. The merged packed manifest contains 514 assets; the earlier 489 count above describes the dungeon-only extension before that integration.
 
 - Visual review caught the legacy floor-decoration loop repainting the generated dungeon textures. Dungeon maps now bypass that loop; browser tests compare sampled chunk pixels with the packed material atlas.
 - Full expeditions use an immutable release-candidate snapshot on their own Node loopback server. A reusable `npm run test:dungeons` runner is committed; its syntax/list-only build validation lists exactly eight expeditions and verifies snapshot metadata.
@@ -88,6 +88,7 @@ These names are authored content targets. Briefs and floor data are the editable
 | Sealed Stacks | 4 | 3,978 | 13 | 20.3 |
 
 - Opened and inspected all eight phone entrances, all eight second floors, all 12 deeper-floor views and all eight explored maps. Material and creature art passed. Map review caught the surface-town coachmark covering dungeon headings; dungeon Map now suppresses that coachmark, and the release component tests assert it stays hidden. Final phone/desktop screenshots and release checks remain pending below. The post-expedition changes are the soundtrack integration and this map overlay correction; they do not change movement, combat, population, floor graphs or rewards.
+- The inherited soundtrack CI run 45082948566 failed before deployment on Linux WebKit MP3 cue-duration handling. The soundtrack owner corrected this in ec29131 by shipping lossless PCM WAV cues and retaining the strict duration assertion; that correction is integrated. Production dungeon rules/assets are unchanged. The expanded CI matrix receives 30 minutes instead of 15, retaining all tests.
 
 ## Risks and release receipt
 
