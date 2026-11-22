@@ -197,7 +197,7 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
     - rare 12/1
     - epic 20/4
     - legendary 30/12 (circle 5+)
-- **Special dyes** (iridescent, pearl, ember, frost, witchlight, voidblack, cloth of gold) unlock as rare drops and colour clothing or the weapon glow.
+- **Special dyes** (iridescent, pearl, ember, frost, witchlight, voidblack, cloth of gold) unlock as rare drops and colour clothing or the weapon glow. A notification names the dye and points to Hero → Appearance; it leaves the current fight, loot or bank screen intact.
 
 ## 9. Spending (the sinks)
 
@@ -282,6 +282,8 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
 
 ## Decision log
 
+- 2026-11-22: The repeat audit caught a rare dye discovery replacing the bank screen 900ms after a kill. Discovery now uses a non-blocking notification naming the dye and Hero → Appearance. Unlocks still save immediately and drop odds are unchanged. Regression coverage forces the reward during banking so it cannot depend on random luck.
+- 2026-11-22: The audit's card-room retest found that poker rejected a leading comment before a valid COUNT and spent the street's read. The follow-up accepts commented counts through the same SQL comment handling as other queries; the one-read-per-street rule is unchanged. Wheel count queries and blackjack actions were also exercised, and the shared painted controls were visually reviewed on phone and desktop.
 - 2026-11-22: Release `playability-audit-2026-11-22` repairs valid commented queries being rejected, sandbox SELECT results disappearing after leading comments, and Format corrupting block comments/quoted names. Combat title/buttons wrap on phones; combat error guidance and fishing/card controls have light text on dark backgrounds. Rules, payouts, progression and save format are unchanged. Pages commit/hash are recorded by release.json; artifact preview unchanged.
 
 - 2026-11-22: Pass 29 (`1795364400-6a70`): Tallyport's tavern, shop and bank are walk-in rooms. To give them usable floor space their footprints grew (tavern 6×4 → 7×7, shop 5×4 → 6×5, bank 5×4 → 6×6) and their painted art is scaled up to the new width. Keepers moved indoors; a Shopkeeper was added in the shop. Other towns keep their old layout. Save format unchanged.

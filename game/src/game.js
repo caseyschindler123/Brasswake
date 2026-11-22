@@ -959,7 +959,7 @@
   function pkRead() { const h = PK.h; if (PK.busy || h.over || h.to !== 0 || PK.readSt === h.street) return; PK.reading = true; pkDraw(); }
   function pkAsk() {
     const h = PK.h, sql = $('#sql').value.trim(); if (!sql || !PK.reading) return; let out;
-    if (!Poker.isCount(sql)) out = { err: 'The house answers only a count: SELECT COUNT(*) FROM …' };
+    if (!Poker.isCount(Engine.uncomment(sql))) out = { err: 'The house answers only a count: SELECT COUNT(*) FROM …' };
     else { const db = Engine.scratch(pkT().script), r = db.read(sql); db.close(); if (r.err) out = { err: r.err }; else if (r.rows.length !== 1 || r.cols.length !== 1) out = { err: 'A read must come back as one number.' }; else { const n = +r.rows[0][0]; out = { ans: n > 10 ? 'more than 10' : String(n) }; } }
     PK.readSt = h.street; PK.reads.unshift({ sql, ans: out.ans, err: out.err, st: h.street }); PK.reading = false; PK.draft = ''; pkDraw();
   }
@@ -1357,7 +1357,7 @@
     { id: 'witch', n: 'Witchlight', base: '#3e9a4a', k: 'glow', c: '#7dff8a' }, { id: 'void', n: 'Voidblack', base: '#221a2c', k: 'glow', c: '#a070ff' }, { id: 'gold', n: 'Cloth of gold', base: '#e0b84a' }];
   const spec = id => SPECIAL.find(x => x.id === id);
   function maybeDye(p) { if (rnd() >= p) return; S.dyeU = S.dyeU || []; const left = SPECIAL.filter(x => !S.dyeU.includes(x.id)); if (!left.length) return; const d = pick(left); S.dyeU.push(d.id); save();
-    setTimeout(() => sheet(`<p class="eyebrow">A rare find</p><h2>A vial of ${esc(d.n)} dye</h2><p class="story">${d.k === 'iri' ? 'The colour slides from one shade to the next as the vial turns.' : d.k === 'glow' ? 'It gives off its own light, even with the stopper in.' : 'It catches the light like metal.'} Use it on your clothes${d.k === 'glow' ? ' or your weapon' : ''} from Appearance on the Hero tab.</p><div class="row end"><button class="btn quiet" data-a="closesheet">Later</button><button class="btn solid" data-a="looks">Try it on</button></div>`), 900); }
+    toast(`Found ${d.n} dye. Use it from Hero → Appearance.`); }
   const DYES = [null, '#b23a2e', '#3a5aa8', '#3e7a40', '#6a3e8a', '#3c3c40', '#7a5232', '#c89a3a', '#2a3a6a'], DYEN = ['Undyed', 'Red', 'Blue', 'Green', 'Purple', 'Black', 'Brown', 'Gold', 'Navy'];
   // where each of the eight old heroes lands: [hair, colour, beard, hat]
   const LOOKAPP = { warrior: [[0, 1, -1, -1], [7, 3, -1, -1]], thief: [[1, 0, 5, 3], [6, 0, -1, -1]], mage: [[2, 5, 1, 4], [8, 0, -1, -1]], crafter: [[-1, 1, 0, -1], [6, 2, -1, -1]] };
@@ -1572,7 +1572,7 @@
     app.classList.add('artload'); el.hidden = false; el.textContent = 'Loading art'; Scene.preload(S.region || 1, (n, t) => { el.textContent = `Loading art ${n} of ${t}`; }).then(fin, fin); setTimeout(fin, 30000);
   }
   function start(hot) { purgeOld(); A = (hot && hot.acct && hot.acct.v === 6 && Object.assign(freshA(), hot.acct)) || loadA() || freshA(); loadCur(); cmdBackfill(); title(); artLoad(); if (hot && hot.tab) tab = hot.tab; sel = S.region; render(); setTimeout(bootEngine, 30); cloudInit(); }
-  if (location.protocol === 'file:' || location.hostname === 'localhost') window.__bw = { get A() { return A; }, makeItem, gain, odds, dropBody, insFee, trainCost, makePscr, homeSheet, get DU() { return DU; }, get FI() { return FI; }, errandFor, get PK() { return PK; }, get WH() { return WH; }, get BJ() { return BJ; }, get Q() { return Q; }, get F() { return F; }, KB, get S() { return S; }, get DG() { return DG; }, get SB() { return SB; }, get TR() { return TR; }, setCE: e => { CE = e; }, HOST, SH, START, ACT, render, save, odds, gain, diffOf };
+  if (location.protocol === 'file:' || location.hostname === 'localhost') window.__bw = { get A() { return A; }, makeItem, gain, odds, dropBody, insFee, trainCost, makePscr, maybeDye, homeSheet, get DU() { return DU; }, get FI() { return FI; }, errandFor, get PK() { return PK; }, get WH() { return WH; }, get BJ() { return BJ; }, get Q() { return Q; }, get F() { return F; }, KB, get S() { return S; }, get DG() { return DG; }, get SB() { return SB; }, get TR() { return TR; }, setCE: e => { CE = e; }, HOST, SH, START, ACT, render, save, odds, gain, diffOf };
   // speech and story use curly quotes; SQL, code and table data keep straight ones
   const cq = t => t.replace(/"/g, (m, i) => (i === 0 || /[\s(\[\u2014\u2013-]/.test(t[i - 1])) ? '\u201c' : '\u201d'), RAW = 'pre,code,textarea,input,script,style,td,th,.qbox,.code,.sqlhl,[data-raw]';
   function curl(n) { if (n.nodeType === 3) { if (n.data.indexOf('"') < 0) return; const p = n.parentElement; if (!p || p.closest(RAW)) return; const v = cq(n.data); if (v !== n.data) n.data = v; } else if (n.nodeType === 1 && !n.matches(RAW)) for (const c of n.childNodes) curl(c); }

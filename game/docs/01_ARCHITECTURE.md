@@ -171,6 +171,8 @@ GitHub Pages uses the Actions publishing source. The publication payload is buil
 
 ## Decision log
 
+- 2026-11-22: Removed the delayed `maybeDye` sheet mutation after a repeat WebKit run reproduced it replacing an active bank sheet. Dye discovery uses the existing notification system; the localhost-only debug surface exposes `maybeDye` for deterministic reward/UI regression coverage. No save change.
+- 2026-11-22: Follow-up to `playability-audit-2026-11-22`: `Engine.uncomment` supplies shared comment removal for poker's count-only gate before its scratch query runs. A valid commented count now returns an answer and consumes exactly one read, with Chromium/WebKit/desktop regression coverage. The poker rules module remains independent of the SQL engine.
 - 2026-11-22: Playability audit release `playability-audit-2026-11-22` (Pages source commit in release.json): repaired comment-aware SQL splitting, sandbox read detection, technique detection around quoted text, and formatting of block comments/quoted identifiers. Added browser regressions for major gameplay flows and combat/fishing readability. Save format and packed art unchanged; the artifact preview remains pass 29.
 
 - 2026-11-22: Casey chose automatic Codex classification and release for both task classes, deliberate cost-effective delegation, and UI testing only when relevant. Root AGENTS.md and 05_CODING_WORKFLOW.md define the defaults. npm run verify shares local/CI checks and selects UI coverage from actual game impact; release.json identifies the source commit and built HTML hash. This framework release preserves the existing game HTML/version; release success is tracked by its source commit and the post-deployment receipt.

@@ -22,9 +22,11 @@ const Engine = (() => {
   function bare(sql) {
     return clean(sql).replace(MASKED, ' ').replace(/\s+/g, ' ').trim().toUpperCase();
   }
+  // Rule-specific validators see code without comments; quoted contents stay.
+  const uncomment = sql => clean(sql).replace(MASKED, part => /^(--|\/\*)/.test(part) ? ' ' : part);
   function statements(sql) {
     const out = []; let cur = '', q = null;
-    const source = clean(sql).replace(MASKED, part => /^(--|\/\*)/.test(part) ? ' ' : part);
+    const source = uncomment(sql);
     for (let i = 0; i < source.length; i++) {
       const ch = source[i];
       if (q) { cur += ch; if (ch === q) { if (q !== ']' && source[i + 1] === q) cur += source[++i]; else q = null; } }
@@ -176,6 +178,6 @@ const Engine = (() => {
     const d = new SQL.Database(); d.exec(script); d.run('PRAGMA query_only = ON');
     return { read(sql) { const ss = statements(sql); if (!ss.length) return { err: 'Write a query first.' }; if (ss.length > 1) return { err: 'One statement at a time.' }; if (!/^\s*SELECT\b/i.test(ss[0])) return { err: 'Start with SELECT.' }; try { return select(d, ss[0]); } catch (e) { return { err: friendly(e) }; } }, close() { d.close(); } };
   }
-  return { init, scratch, check, grade, shareOf, target, runRead, runSandbox, resetSandbox, skillsUsed, bare, clean, atlas, peek, judge, sandboxScript, ready: () => !!ro };
+  return { init, scratch, check, grade, shareOf, target, runRead, runSandbox, resetSandbox, skillsUsed, bare, clean, uncomment, atlas, peek, judge, sandboxScript, ready: () => !!ro };
 })();
 if (typeof module !== 'undefined') module.exports = Engine;

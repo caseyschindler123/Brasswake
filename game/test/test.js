@@ -55,6 +55,7 @@ init().then(SQL => {
   if (Engine.runSandbox('CREATE TABLE comment_test (v TEXT); /* insert; */ INSERT INTO comment_test VALUES (\'a;b\'); -- select;\n SELECT v FROM comment_test').rows?.[0]?.[0] !== 'a;b') fail('commented sandbox script');
   if (!Engine.skillsUsed(Engine.bare("SELECT '--' AS note FROM items JOIN vendors ON 1=1")).includes('join')) fail('literal hides technique');
   if (Engine.skillsUsed(Engine.bare('SELECT 1 AS "JOIN" /* WHERE */')).includes('join')) fail('quoted identifier teaches technique');
+  if (Engine.uncomment("/* count; */ SELECT '--' AS note -- done;") !== "  SELECT '--' AS note  ") fail('comment removal preserves literal');
   for (const sql of [
     'SELECT name /* keep; this */ FROM items',
     "-- a note;\nSELECT 'it''s;--text' AS note; -- trailing note",

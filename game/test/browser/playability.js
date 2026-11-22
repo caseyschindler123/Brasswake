@@ -86,6 +86,13 @@ test('combat errors remain readable, correct attacks win, and loot can be banked
   expect(await f.evaluate(() => __bw.S.stats.kills)).toBeGreaterThan(0);
   await f.evaluate(() => { __bw.ACT.closesheet(); __bw.setCE(Scene.find(e => e.kind === 'banker' && e.r === 1)); __bw.ACT.bankopen(); });
   await coach(f);
+  // Force the rare reward that previously replaced this sheet 900ms later.
+  await f.evaluate(() => __bw.maybeDye(1));
+  await f.waitForTimeout(1100);
+  await expect(f.locator('#sheet')).toContainText('Your account');
+  await expect(f.locator('#toast')).toContainText('dye. Use it from Hero');
+  expect(await f.evaluate(() => __bw.S.dyeU.length)).toBeGreaterThan(0);
+  await screenshot(page, info, 'dye-keeps-bank-open');
   const money = await f.evaluate(() => __bw.S.gold + __bw.S.bank.gold);
   await f.locator('[data-a=bdep]').click();
   expect(await f.evaluate(() => __bw.S.bank.gold)).toBe(money);
@@ -158,5 +165,26 @@ test('fishing, dungeon keys and chest, and dojo practice remain playable', async
   await f.locator('[data-a=dudone]').click();
   await f.evaluate(() => __bw.HOST.interact(Scene.find(e => e.kind === 'hallexit')));
   expect(await f.evaluate(() => Scene.inHall())).toBe(0);
+  expect(errors).toEqual([]);
+});
+
+test('poker accepts a commented count without wasting the read', async ({ page }, info) => {
+  const errors = observeErrors(page), f = await game(page);
+  await f.evaluate(() => { __bw.S.gold = 500; __bw.ACT.pksit({ r: '1', n: '100' }); });
+  await coach(f);
+  await f.waitForFunction(() => __bw.PK.h.over || (!__bw.PK.busy && __bw.PK.h.to === 0), null, { timeout: 30000 });
+  // If everyone folded before reaching the player, deal the next hand with
+  // the player first to act. This changes only seating, not cards or rules.
+  if (await f.evaluate(() => __bw.PK.h.over)) {
+    await f.evaluate(() => { __bw.PK.btn = 2; });
+    await f.locator('[data-a=pknext]').click();
+  }
+  await f.locator('[data-a=pkread]').click();
+  await run(f, '/* my read; */ SELECT /* count; */ COUNT(*) FROM hands; -- done;');
+  const read = await f.evaluate(() => __bw.PK.reads[0]);
+  expect(read.err).toBeUndefined();
+  expect(read.ans).toMatch(/^(\d+|more than 10)$/);
+  await expect(f.locator('[data-a=pkread]')).toBeDisabled();
+  await screenshot(page, info, 'poker-commented-count');
   expect(errors).toEqual([]);
 });
