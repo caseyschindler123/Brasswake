@@ -3,7 +3,7 @@ const http = require('node:http');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const game = path.resolve(__dirname, '..');
-const dist = path.join(game, 'dist');
+const dist = path.resolve(game, process.env.BW_DIST || 'dist');
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript',
   '.json': 'application/json', '.webp': 'image/webp', '.png': 'image/png',
   '.jpg': 'image/jpeg', '.woff2': 'font/woff2', '.mp3': 'audio/mpeg', '.css': 'text/css' };
@@ -40,4 +40,6 @@ const server = http.createServer(async (req, res) => {
     res.end(error.code === 'ENOENT' ? 'Not found' : String(error));
   }
 });
-server.listen(8781, '127.0.0.1', () => console.log('Browser fixture: http://localhost:8781'));
+const port=Number(process.env.BW_TEST_PORT || 8781);
+if(!Number.isInteger(port)||port<1024||port>65535)throw new Error('Invalid local test port');
+server.listen(port, '127.0.0.1', () => console.log('Browser fixture: http://localhost:'+port));

@@ -72,6 +72,29 @@ Last updated: 2026-11-22 (Pages playability audit release; retained artifact pre
 - **Corpses:** unlooted ones stay 300 s and looted ones 90 s. Your own body lasts 10 minutes.
 - **Creature size** (`MSC` in scene_a.js, 1 = a grown man): rodents and birds about 0.3–0.45, wolves 0.6, people 0.83 (normalised), golems 1.1–1.2, frost giant 1.5, dragon 1.6 (capped).
 
+### Dungeons
+
+Release `dungeon-rebuild-2026-11-22` replaces the shared four-room corridor with 28 stable, authored tile floors. `src/dungeons.js` owns room diagrams, named chambers, connections, crossings, territories and entity anchors. Every floor is 124×109 tiles, with 16–19 named spaces, 2,692–3,742 connected safe tiles and 26–32 ordinary creatures. The closed-door route from the entry to the next stairs or final keeper spans 201–315 cardinal steps. These are measured geometry counts, not measured playtime.
+
+| Dungeon | Floors |
+|---|---|
+| Bilge Vaults | Rope Cellars; Flooded Stores; Drowned Court |
+| Sunken Sluice | Gatehouse; Reed Channels; Root Reservoir |
+| Old Barrows | Outer Tombs; Kings' Passage; Burial Court |
+| Tanglewarren | Rootways; Silk Galleries; Wyrm Hollow |
+| Slagdeep | Cooling Works; Foundry; Ventworks; Crucible |
+| Crystal Vaults | Shard Caves; Resonant Galleries; Mirror Wells; Crystal Heart |
+| Ice Halls | Lower Galleries; Frozen Cistern; Wind Passages; Winter Court |
+| Sealed Stacks | Closed Reading Rooms; Record Stores; Restricted Wing; Old Archive |
+
+- **Exploration:** floors have loops, optional branches, readable discoveries, hidden caches and controls that open shortcuts. Controls and secret-door props can be investigated nearby; their gates always have dry bypasses. Water, lava and hazardous crossings are blocked except for their walkable bridges. They do not inflict unavoidable damage. New textures and props distinguish flooded cellars, sluices, barrows, root tunnels, foundries, crystal caves, ice halls and archive rooms.
+- **Navigation:** stairs connect reciprocal landings. The HUD labels the floor and current chamber; the corner map reveals nearby terrain as you walk. Map opens the explored current floor, discovered destinations with directions, floor names and seal progress. Ground taps more than three tiles away run inside these large dungeons; world movement retains its five-tile threshold.
+- **Inhabitants:** two new species per dungeon (16 total) join four suitable existing species and the named keeper. Creatures roam their room territory; skirmishers attack on sight, while the keeper and other inhabitants can be approached deliberately. Ordinary creatures respawn after 5 minutes and floor lieutenants/keepers after 15 minutes, away from the player and clear of occupied spawn anchors. Keepers remain repeatable after their lost table has been collected. Static creature sprites use the existing rotated-sprite fallback when no separate fallen artwork exists.
+- **Combat:** dungeon species use regional bounty templates for SQL, including valid template metadata for hunt errands. Skirmishers have 1.1× normal health, armored creatures 1.35×, casters 0.95× and brutes 1.6×. Armored creatures reduce non-spell damage by 20%; casters swing three times per round. Lieutenants use 1.8× health and elite rewards; keepers use 2.4×. Difficulty adds two points per floor; lieutenants/keepers use the elite difficulty, with another six points for keepers, capped at 100.
+- **Vault:** defeat the lieutenant on each earlier floor to recover its seal, then defeat the final keeper. Those seals and keeper victory unlock the final chest. Seals, keeper unlock and reward claims reset on the next local calendar day. Each cache and final vault pays once per character per day. Vault rewards retain the existing named-rare pity system. A cache gives `10 × Circle + 8` gold, two materials and an uncommon-or-better item. The lost table remains a one-time main-character story reward after defeating the keeper.
+- **Persistence:** mapped passages, opened shortcuts, read notes, kill/respawn times, unexpired corpse contents, seals and reward claims save per character and dungeon. Reload and save-code import restore the floor and a safe position; leaving returns to the surface entrance. Dungeon deaths leave belongings at that surface entrance for the existing ten-minute recovery window. Characters, equipment and banks migrate from the previous save version.
+- **First day:** the Bilge entrance has a separate cellar rat and starter chest during the guided visit. One guardian unlocks this nearby chest; the other floors remain available after the guide. Leaving and returning before claiming it preserves this step.
+
 ## 4. Characters, skills and paths
 
 - **Paths:** each path sets the starting skills, weapon and pages.
@@ -162,7 +185,7 @@ Last updated: 2026-11-22 (Pages playability audit release; retained artifact pre
   - First kill: (60 × circle + 40) gold and 2 sigils.
   - Repeat kills: 40% of the gold and 1 sigil.
   - Also: the unique the first time, otherwise a rare or better; the bless chance above; power scrolls in circles 5+ (60% first, 15% repeat); 50% Scroll of Study.
-- **Dungeon vault chest:** 30 × circle + 20 gold, 4–6 materials, 1–2 sigils, a rare+ item, a rare Spell page, 6% bless, 30% Study scroll, 12% special dye.
+- **Dungeon vault chest**, once per character per day after the floor seals and keeper: 30 × circle + 20 gold, 4–6 materials, 1–2 sigils, a rare+ item, a rare Spell page, 6% bless, 30% Study scroll, 12% special dye. Each floor also has an optional daily cache (see Dungeons).
 - **Exercises (contracts):** 84 in all, 9–12 per circle.
   - First completion **per account**: (15 × circle + 10) gold × 1.2 if clean (−0.25 with hint 2, ×0.25 at hint 3), 1 material, 30% item.
   - Repeats teach but pay nothing.
@@ -282,6 +305,8 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
 - **A shaped world with islands and a capital:** the world generator draws a real landmass (irregular coast, bays, headlands, offshore islands) in place of the current rectangle, with a couple of towns on islands reached by ferry from a port, and one large capital port city with a big market square, many specialist shops, landmarks and city walls. Working assumptions until Casey decides: the capital is Aldermoot (it already holds the council), and the island towns are to be chosen. The landmass, coast and islands are code, drawn with existing ground textures (V) plus the new coast textures and props. Ferries reverse the earlier skip of boats only for island crossings; there is no free sailing. Art requested in the same run; nothing designed in code yet.
 
 ## Decision log
+
+- 2026-11-22: Release `dungeon-rebuild-2026-11-22` rebuilds all eight dungeons as 28 authored, extensible floors using UO's multilevel hunting-ground model. Added 16 species, themed terrain/props, optional shortcuts/secrets/caches, explored maps, daily vault seals and persistent expeditions. Existing characters migrate to account v7/character v6; no wipe. Dungeon hunts no longer crash on victory, and keeper/chest anchors cannot overlap. UI expedition evidence and deployment receipt are tracked in the full rebuild plan.
 
 - 2026-11-22: Release `magic-and-sound-2026-11-22` gives the eight existing spell Circles distinct images and sounds, stronger rare-page presentation, and arrival-timed projectile impacts. Added creature-family, crafting, fishing, footstep, room-door and transaction feedback. Fixed duplicate healing, weapon sound selection and chase-death cues. These are presentation changes; progression, damage, saves and music tracks are unchanged.
 

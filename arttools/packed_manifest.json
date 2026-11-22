@@ -450,6 +450,33 @@
     ]
   },
   {
+    "path": "art/dun/gates.webp",
+    "size": 69710,
+    "sha256": "46107c9f74f5b8fc656f6e6f6cc265cd1428074a73e8119cf2b6e4e912abfcd3",
+    "dimensions": [
+      1024,
+      224
+    ]
+  },
+  {
+    "path": "art/dun/kit.webp",
+    "size": 543764,
+    "sha256": "662206487b25edeb35bce36d9de91ed1710f07db39863ff56af0db9edf4209e0",
+    "dimensions": [
+      1024,
+      1296
+    ]
+  },
+  {
+    "path": "art/dun/mobs.webp",
+    "size": 71710,
+    "sha256": "03364d65947679deaf6e5a0ad850ea4e8b5442b75b5a6e75fa65e7e1bd66595b",
+    "dimensions": [
+      1024,
+      156
+    ]
+  },
+  {
     "path": "art/f/F01_1.webp",
     "size": 36988,
     "sha256": "b8273ffe83984652d40300d0fbf2115c8ca5b0a425f40ad2e3ad39f5e756a124",

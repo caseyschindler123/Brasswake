@@ -48,7 +48,7 @@ The accepted local packed files and dimensions are recorded in `arttools/packed_
 
 ## What it is
 
-The game is one self-contained HTML page, `dist/index.html`, about 0.9 MB, plus 486 asset files in `dist/art/`. Both are published together as a Claude artifact:
+The game is one self-contained HTML page, `dist/index.html`, about 0.95 MB, plus 489 asset files in `dist/art/`. Both are published together as a Claude artifact:
 - slug `3c61f5cf-5c3e-4ea3-92c3-8f59472dd858`
 - https://claude.ai/artifact/8TU29g27SqEknG1MYuJB3u
 
@@ -63,6 +63,10 @@ There is no framework and no bundler. Plain ES2019 JavaScript modules are writte
 | `build.js` | Concatenates `src/*.js` in order into `shell.html` with `style.css` inlined, writes `dist/index.html` and `release.json` (source commit and HTML SHA-256), and copies `art/` to `dist/art/`. `BW_DIST` and `BW_ART_JS` build against stand-in art. |
 | `src/world.js` | `World`: the Ledger database, a fictional trading company. Schema (employees, customers, vendors, items, orders, order_lines, invoices, purchase_orders, po_lines, and more) and deterministic seed data. |
 | `src/quests.js` | `Content`: every piece of static content. Regions, contracts (exercises), bounties, bosses, rumors, uniques, monsters, lairs, dungeons, rivals, recipes, pages and books, food, settlers, houses, paint, fish, folk and talk lines. It also runs under Node, which the tests use. |
+| `src/dungeons.js` | `Dungeons`: editable diagrams, room names, tile crossings, encounter territories, species and stable entity anchors for all 28 dungeon floors. Pure deterministic compilation, also available under Node. |
+| `src/dungeon_progress.js`, `src/dungeon_play.js` | `DungeonProgress` owns pure save/reward/respawn rules; `DungeonPlay` owns dungeon interactions, combat profiles and travel through an explicit game adapter. |
+| `src/scene_dungeon.js` | Scene part between `scene_a.js` and `scene_b.js` inside the same IIFE: builds dungeon maps, spawns inhabitants, paints textures, opens passages and maintains the explored minimap. |
+| `src/artdungeon.js` | Generated `DungeonArt` atlas rectangles. Rebuild with `arttools/dungeon_art.py`; never edit coordinates by hand. |
 | `src/engine.js` | `Engine`: runs SQL on a read-only copy plus a sandbox, grades a query against the answer (correct / close / partial / wrong, with row overlap), and detects which SQL techniques a query used. |
 | `src/deep.js` | `Deep`: the Lost Ledger story layer. Nine lost tables, twelve Great Truths, Ilva's letter. |
 | `src/dojo.js` | `Dojo`: dojo masters, students, travellers, Sorrel Ashby, prizes, lines. |
@@ -101,7 +105,7 @@ Art tools live in repo-root `arttools/`, including `build_art.py`, `slice.py`, t
 
 ## State and saves
 
-- **Account `A`** (save version 6, localStorage key `brasswake.acct.v6`, cloud doc `data/users/{id}/acct`), with these fields:
+- **Account `A`** (save version 7, localStorage key `brasswake.acct.v7`, cloud doc `data/users/{id}/acct`), with these fields:
   - `v`, `rev`, `at`
   - `cur`: active slot
   - `main`: the slot whose character carries the story
@@ -111,7 +115,10 @@ Art tools live in repo-root `arttools/`, including `build_art.py`, `slice.py`, t
   - `paid`: exercises and Great Truths already paid out
   - `djp`: dojo champion and master payouts already made
   - `cmds`: learned commands, `{ lessonKey: 1 taught | 2 learned }`, keyed by the lesson ids in `CMDS` (quests.js). Added without a version bump: `freshA()` supplies it and `cmdBackfill()` fills it from each slot's `seen`/`done` on boot, after a newer cloud save replaces the local one, and after a save-code import. Any new path that replaces `A` must call it too.
-- **Character `S`**: the active slot, migrated through `migrate()`. On load, `linkS` points `S.homes` and `S.codex` at the account's arrays. `slotOut` strips them before storing. Banks are per character (`S.bank`).
+- **Character `S`** (version 6): the active slot, migrated through `migrate()`. On load, `linkS` points `S.homes` and `S.codex` at the account's arrays. `slotOut` strips them before storing. Banks are per character (`S.bank`).
+- **Dungeon state:** `S.dungeon` is the active `{r,f,x,y,back,tutorial}` expedition; `S.dungeons[r]` stores a version, local reward day, explored tile indices per floor, opened gates, read notes, kill timestamps, unexpired corpse contents, daily floor seals, keeper unlock and claimed container ids. `DG` is an ephemeral game adapter for the current expedition. Scene receives plain progress data through HOST and never reads S. `save()` snapshots explored terrain/corpses and current position; reload/import/cloud replacement/slot selection restore a valid floor and safe coordinate.
+- **Migration:** v7 reads the existing v6 account key when no v7 account exists and migrates character v5 to v6 with dungeon defaults. Save codes, hot reload and newer cloud accounts accept v6/v7. Characters, homes, equipment and banks are preserved; there is no wipe. New writes use v7.
+- **Death transaction:** a fatal fight drops belongings and records `S.deathPending` plus the healer surface position before saving the defeat screen. Reload resolves that pending wake before restoring any dungeon. Normal waking clears it without charging or dropping equipment twice. Surface returns materialize only the current slot's saved remains. Movement autosaves are throttled/debounced, page hide/visibility flushes the latest state, and export snapshots discoveries before serializing the account.
 - `save()` bumps both revs, writes localStorage, and schedules a cloud flush through `window.claude.use('db')` when available. The newest `rev` wins.
 - **Changing the save format:** bump the version, make `freshA()` and `fresh()` defaults cover the new fields, and record it in the decision log. Old save keys starting with `brasswake.save` are purged on boot. Casey doesn't need old saves kept.
 - **Hot reload** (`window.claude.hot`) snapshots `{ acct: A, tab }`.
@@ -123,6 +130,7 @@ Art tools live in repo-root `arttools/`, including `build_art.py`, `slice.py`, t
 1. In `game/`, install locked dependencies with `npm ci`, then run `npm run verify`. It checks packed art, engine/content (`ALL GOOD`), poker, casino, workflow tooling, and the build. It selects browser testing for relevant game changes; framework/docs-only changes skip UI. On a new machine use `npm run test:install` when UI checks are needed; CI installs browsers only when selected. Build output is `dist/index.html`, `dist/release.json`, and a copy of `game/art/` under `dist/art/`.
 2. For art-tool or rebuild changes, additionally run `python -I arttools/test_arttools.py` from the repo root in the pinned art environment, then the art verifier. Check all four generated `game/src/art*.js` against the saved pre-rebuild files when rebuilding existing art.
 3. When UI coverage is relevant, Playwright exercises creation, SQL, navigation, save export/import, and reload on phone Chromium/WebKit at 390×720 and desktop Chromium at 1280×800, and captures the eight visual fixtures. Open affected screenshots in ignored `game/test-results/` before reporting visual success. For manual art review, `python -I game/test/serve_art.py` still serves `http://localhost:8779/__visual?scene=title`; scenes are `title`, `tallyport`, `fight`, `bag`, `paperdoll`, `dungeon`, `dojo`, and `interior`, using disposable accounts and local sql.js. Neither fixture nor test server enters the game build. Framework/docs-only changes do not need UI review.
+   - `npm run test:dungeons` runs all eight complete dungeon expeditions in phone Chromium, using actual canvas movement and visible controls after initial character/surface setup. The runner builds into a fresh ignored snapshot and serves it through the Node fixture on a separate loopback port, so another build cannot truncate assets being read by a browser. It records candidate commit/HTML hash and JSON expedition evidence under `work/`; screenshots go to `game/test-results-expeditions/`. `BW_UI_WORKERS` adjusts concurrency; `-- --list` validates setup without playing. Regular `npm run verify` runs all-floor component fixtures in all three browser projects, including exact packed-texture pixel checks, migration, atomic death and body recovery. Prepared component positions and frozen unrelated patrols do not count as complete expeditions.
 4. Existing `test/p8.py`, `p9.py`, `dbg.py` and scenario scripts document playthroughs and expose debug handles through localhost-only `window.__bw`. They retain older Linux path/browser assumptions; use the current local visual harness or port those paths before invoking them on Windows. `__bw` must remain unavailable on hosted production origins. Do not describe unrun legacy tests as passing.
 5. Update the relevant master docs and their Decision logs, then commit source, packed art, manifests and tools. Never commit raw art, sliced pieces, environments, or build output. Push `main` to `https://github.com/caseyschindler123/Brasswake` to test and deploy automatically. See the deployment workflow below.
 
@@ -171,6 +179,8 @@ GitHub Pages uses the Actions publishing source. The publication payload is buil
 - **Multiplayer:** discussed and set aside.
 
 ## Decision log
+
+- 2026-11-22: Release `dungeon-rebuild-2026-11-22` adds deterministic dungeon content, separate scene/rule/progress modules and three independent atlases. Account v7/character v6 preserve v6/v5 saves while adding persistent expedition state. Dungeon layout/controller tests join `npm run verify`; rendered UI expeditions walk all eight dungeons with actual movement, combat, interactions, stair travel, loot and reload, using disposable prepared characters. Deployment is tracked by the exact Pages source commit and HTML hash.
 
 - 2026-11-22: Release `magic-and-sound-2026-11-22` adds shared `Effects`, eight code-native spell images/timbres and rare variants, deferred projectile impact presentation, contextual creature/activity/movement/currency cues, and sound regressions in the common verification gate. Fixed actual-weapon routing, duplicate post-fight healing and missing chase-death sound. Existing music, balance, saves and packed assets are unchanged. Pages release identity is its source commit in `release.json`.
 

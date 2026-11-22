@@ -734,3 +734,6 @@ img.scene { width: 100%; border-radius: 8px; margin: 6px 0; }
 /* Painted oak buttons and the dark fishing/card screens need light labels. */
 body.ui #enc.pk .btn:not(.solid) { color: #f5e2b8; text-shadow: 0 1px 0 #1b1008; }
 #enc.pk .gain span:nth-child(even) { color: #a4e5c5; }
+.dungeon-map { position: relative; margin: 12px 0; background: #090d13; border: 3px solid #8a7047; }
+.dungeon-map img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.dungeon-map .me { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px #253340; }

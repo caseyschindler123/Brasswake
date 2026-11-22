@@ -9,22 +9,22 @@
   function RNG(seed) { let a = seed >>> 0; const f = () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; return { pick: x => x[Math.floor(f() * x.length)], int: (x, y) => x + Math.floor(f() * (y - x + 1)) }; }
 
   let S, tab = 'world', sceneUp = false, sub = 'work', lsub = 'sandbox', sel = null, ready = false, engineErr = '', COLS = {}, benchSlot = 'weapon', con = { sql: '', res: null };
-  const fresh = () => ({ v: 5, wv: 2, seen: {}, gd: -1, gn: 0, bank: { gold: 0, items: [] }, homes: [], runes: 0, tabs: {}, tw: {}, vault: {}, letter: 0, archive: 0, cache: {}, campT: 0, meat: 0, met: {}, pk: { n: 0, net: 0 }, food: {}, er: { a: {}, d: {}, n: 0 }, poi: {}, fishd: {}, fishlog: {}, cs: {}, known: {}, name: '', tut: 0, pages: {}, scr: {}, jr: {}, hints: 1, page: null, gold: 30, path: null, look: null, hp: 50, sk: {}, wsk: null, been: { 1: 1 }, skills: {}, done: {}, seen: {}, boss: {}, rum: {}, inv: [], eq: {}, codex: {}, mats: {}, tonics: 1, streak: 0, best: 0, stats: { q: 0, ok: 0, kills: 0, steals: 0, dungeons: 0, falls: 0 }, region: 1, pos: null, intro: 0, mv: 0, talked: 0, rival: {}, dpity: {}, rounds: null, stall: null, won: 0, rev: 0, at: 0 });
-  const migrate = o => { if (!o || o.v !== 5) return fresh(); const f = fresh(), s = Object.assign(f, o); if (!o.seen && o.tut >= 3) s.seen = { fight: 1, fprompt: 1, bag: 1, hero: 1, map: 1, ledger: 1, shop: 1 }; if (!o.g && o.tut >= 3) s.g = 'done'; if (s.casino) { s.gold += s.casino.stack || 0; s.casino = null; } if (o.wv !== 2) { s.pos = null; s.wv = 2; } s.stats = Object.assign(fresh().stats, s.stats || {}); return s; };
+  const fresh = () => ({ v: 6, wv: 2, dungeon: null, dungeons: {}, deathPending: null, seen: {}, gd: -1, gn: 0, bank: { gold: 0, items: [] }, homes: [], runes: 0, tabs: {}, tw: {}, vault: {}, letter: 0, archive: 0, cache: {}, campT: 0, meat: 0, met: {}, pk: { n: 0, net: 0 }, food: {}, er: { a: {}, d: {}, n: 0 }, poi: {}, fishd: {}, fishlog: {}, cs: {}, known: {}, name: '', tut: 0, pages: {}, scr: {}, jr: {}, hints: 1, page: null, gold: 30, path: null, look: null, hp: 50, sk: {}, wsk: null, been: { 1: 1 }, skills: {}, done: {}, seen: {}, boss: {}, rum: {}, inv: [], eq: {}, codex: {}, mats: {}, tonics: 1, streak: 0, best: 0, stats: { q: 0, ok: 0, kills: 0, steals: 0, dungeons: 0, falls: 0 }, region: 1, pos: null, intro: 0, mv: 0, talked: 0, rival: {}, dpity: {}, rounds: null, stall: null, won: 0, rev: 0, at: 0 });
+  const migrate = o => { if (!o || ![5,6].includes(o.v)) return fresh(); const f = fresh(), s = Object.assign(f, o, {v:6}); if (!o.seen && o.tut >= 3) s.seen = { fight: 1, fprompt: 1, bag: 1, hero: 1, map: 1, ledger: 1, shop: 1 }; if (!o.g && o.tut >= 3) s.g = 'done'; if (s.casino) { s.gold += s.casino.stack || 0; s.casino = null; } if (o.wv !== 2) { s.pos = null; s.wv = 2; } s.stats = Object.assign(fresh().stats, s.stats || {}); return s; };
 
   /* ---------- saving: this device first, then the player's Claude account when available ---------- */
   const Cloud = { ref: null, state: 'device', busy: false, dirty: false, timer: 0 };
   /* the account: five character slots. The first character made is the main and carries the story. Houses and named rares are shared; each character keeps its own bank */
-  const AKEY = 'brasswake.acct.v6', NSLOT = 5;
-  const freshA = () => ({ v: 6, rev: 0, at: 0, cur: -1, main: -1, slots: Array(NSLOT).fill(null), homes: [], codex: {}, paid: {}, djp: {}, cmds: {} });
+  const AKEY = 'brasswake.acct.v7', NSLOT = 5;
+  const freshA = () => ({ v: 7, rev: 0, at: 0, cur: -1, main: -1, slots: Array(NSLOT).fill(null), homes: [], codex: {}, paid: {}, djp: {}, cmds: {} });
   let A = null;
   const isMain = () => !!A && A.cur >= 0 && A.cur === A.main, mainName = () => (A && A.main >= 0 && A.slots[A.main] && A.slots[A.main].name) || 'your main character';
   const linkS = s => { s.homes = A.homes; s.codex = A.codex; return s; }, slotOut = s => { const o = Object.assign({}, s); delete o.homes; delete o.codex; return o; };
   function purgeOld() { try { for (let i = localStorage.length - 1; i >= 0; i--) { const k = localStorage.key(i); if (k && k.indexOf('brasswake.save') === 0) localStorage.removeItem(k); } } catch (e) { } }
-  function loadA() { try { const t = localStorage.getItem(AKEY), o = t ? JSON.parse(t) : null; return o && o.v === 6 ? Object.assign(freshA(), o) : null; } catch (e) { return null; } }
-  function loadCur() { S = linkS(A.cur >= 0 && A.slots[A.cur] ? migrate(A.slots[A.cur]) : fresh()); if (!(S.hp > 0)) S.hp = maxHp(); }
+  function loadA() { try { const t = localStorage.getItem(AKEY) || localStorage.getItem('brasswake.acct.v6'), o = t ? JSON.parse(t) : null; return o && [6,7].includes(o.v) ? Object.assign(freshA(), o, {v:7}) : null; } catch (e) { return null; } }
+  function loadCur() { S = linkS(A.cur >= 0 && A.slots[A.cur] ? migrate(A.slots[A.cur]) : fresh()); if(S.deathPending){S.region=S.deathPending.r;S.pos=S.deathPending.at;S.dungeon=null;S.hp=maxHp();S.deathPending=null;} if (!(S.hp > 0)) S.hp = maxHp(); }
   function syncA() { if (A && A.cur >= 0 && S && S.path) A.slots[A.cur] = slotOut(S); }
-  function save() { if (!A) A = freshA(); if (A.cur >= 0 && S && S.path) { S.rev++; S.at = now(); syncA(); } A.rev++; A.at = now(); try { localStorage.setItem(AKEY, JSON.stringify(A)); } catch (e) { } if (Cloud.ref) { Cloud.dirty = true; clearTimeout(Cloud.timer); Cloud.timer = setTimeout(flush, 2500); } }
+  function save() { if (sceneUp && DG && Scene.inDungeon()) DP.snapshot(); if (!A) A = freshA(); if (A.cur >= 0 && S && S.path) { S.rev++; S.at = now(); syncA(); } A.rev++; A.at = now(); try { localStorage.setItem(AKEY, JSON.stringify(A)); } catch (e) { } if (Cloud.ref) { Cloud.dirty = true; clearTimeout(Cloud.timer); Cloud.timer = setTimeout(flush, 2500); } }
   async function flush() {
     if (Cloud.busy || !Cloud.dirty || !Cloud.ref) return; Cloud.busy = true; Cloud.dirty = false;
     try { syncA(); await Cloud.ref.set({ json: JSON.stringify(A), rev: A.rev, at: A.at }); Cloud.state = 'account'; }
@@ -39,7 +39,7 @@
       const ref = db.doc('data/users/' + id + '/acct');
       try { const old = db.doc('data/users/' + id + '/save'), o = await old.get(); if (o.exists && old.delete) await old.delete(); } catch (e) { }   // saves from before the account existed are gone
       const snap = await Promise.race([ref.get(), new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 10000))]);
-      if (snap.exists) { const d = snap.data(); const remote = d && d.json ? JSON.parse(d.json) : null; if (remote && remote.v === 6 && (remote.rev || 0) > (A.rev || 0)) { A = Object.assign(freshA(), remote); loadCur(); cmdBackfill(); try { localStorage.setItem(AKEY, JSON.stringify(A)); } catch (e) { } Q = null; F = null; $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; DG = null; if (sceneUp) Scene.load(S.pos, S.pos ? S.region : 'dock'); toast('Loaded your saved game'); if (!$('#title').hidden) title(); } }
+      if (snap.exists) { const d = snap.data(); const remote = d && d.json ? JSON.parse(d.json) : null; if (remote && [6,7].includes(remote.v) && (remote.rev || 0) > (A.rev || 0)) { A = Object.assign(freshA(), remote, {v:7}); loadCur(); cmdBackfill(); try { localStorage.setItem(AKEY, JSON.stringify(A)); } catch (e) { } Q = null; F = null; $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; DG = null; if (sceneUp) {Scene.load(S.pos, S.pos ? S.region : 'dock');if(S.dungeon)DP.restore();surfaceBodies();} toast('Loaded your saved game'); if (!$('#title').hidden) title(); } }
       Cloud.ref = ref; Cloud.state = 'account'; if (A.rev > 0) { Cloud.dirty = true; flush(); }
       render();
     } catch (e) { Cloud.state = 'device'; }
@@ -447,6 +447,9 @@
 
   /* ---------- on the map: fights, thefts and duels. A panel along the bottom, one question at a time. ---------- */
   let F = null, CE = null, DG = null;
+  const DP = DungeonPlay.create({state:()=>S,run:()=>DG,setRun:v=>DG=v,day:dayKey,now,scene:Scene,close:closeSheet,hud:renderHud,surface:surfaceBodies,save,guideId:()=>gid(),
+    guideStart:()=>{S.gd++;save();setTimeout(()=>gSay('"Beat the cellar rat, then open the chest beside the stairs. The deeper floors can wait."'),600);},guideChest:()=>setTimeout(()=>gDone('chest'),50),
+    difficulty:diffOf,foe:mkFoe,fight:openF,toast,dialog:dlg,sheet,main:isMain,haveTable:r=>haveT(r),takeTable,grant,item:makeItem,rarity:rollRarity,luck,random:rnd,int:rint,unique:uniq,spoils:spoilsHTML,escape:esc,dye:maybeDye});
   function barsF() { if (!F) return; const b = F.foe ? [{ e: 'me', pct: S.hp / maxHp() }] : []; if (F.foe && F.ent) b.push({ e: F.ent, pct: F.foe.hp / F.foe.max, name: F.title }); Scene.FX.bars(b); }
   function fitPanel() { if (F) requestAnimationFrame(() => { if (F) Scene.FX.inset($('#fight').offsetHeight); }); }
   function openF(cfg) { closeSay(); closeSheet(); F = Object.assign({ st: 'choose', round: 0, busy: false, hint: 0, hints: [], tries: 0, chips: '', after: '' }, cfg); Scene.FX.lock(true); if (F.ent) Scene.FX.face(F.ent); $('#fight').hidden = false; $('#nav').hidden = true; $('#ctx').hidden = true; $('#app').classList.add('infight'); Scene.resume(); barsF(); drawF(); if (F.act === 'fight' && S.tut >= 1) coach('fight'); }
@@ -466,9 +469,20 @@
   const deathNote = () => { const D = S.lastDeath; if (!D) return; S.lastDeath = null; if (D.ins.length) toast(`Insurance paid: ${D.fee} gold from the bank`); if (D.broke.length) toast(`Not enough in the bank to cover ${D.broke.join(', ')}`); if (D.lost.length) toast(`On your body: ${D.lost.join(', ')}`); };
   const insFee = it => Math.max(5, Math.round(price(it) * .2));
   function placeBody() { const B = S.remains; if (!B) return; const left = B.until - Date.now(); if (left <= 0) { S.remains = null; return; } if (Scene.inDungeonMap()) return; if (Scene.find(e => e.mine)) return; Scene.remains(B.x, B.y, B.loot, left / 1000); }
+  function surfaceBodies() { if(!sceneUp)return;Scene.clearRemains();placeBody(); }
+  function prepareDeath() {
+    if(S.deathPending)return;
+    if(DG)DP.snapshot();dropBody();
+    const r=S.region,t=Scene.towns()[r],at=[t[0]-13,t[1]+10];
+    S.deathPending={r,at};S.pos=at;S.dungeon=null;DG=null;
+  }
+  function wakeFromDeath() {
+    prepareDeath();const d=S.deathPending;S.hp=maxHp();S.region=d.r;S.pos=d.at;S.deathPending=null;S.dungeon=null;DG=null;
+    Scene.load(S.pos,S.region);surfaceBodies();save();
+  }
   function closeF() {
     unCoach('fight', 'fprompt', 'stealth'); const f = F; if (!f) return; F = null; $('#fight').hidden = true; $('#fight').innerHTML = ''; $('#nav').hidden = false; $('#app').classList.remove('infight'); Scene.FX.lock(false); Scene.FX.bars([]); Scene.FX.inset(0); if (f.ent) { Scene.FX.free(f.ent); f.ent.calm = 12; } closeSheet();
-    if (f.kick) { dropBody(); S.hp = maxHp(); DG = null; const t = Scene.towns()[S.region]; Scene.load([t[0] - 13, t[1] + 10], S.region); placeBody(); save(); toast(S.remains ? 'You wake at the healer’s. Your things are where you fell.' : 'You wake at the healer’s, patched up'); deathNote(); }
+    if (f.kick) { wakeFromDeath(); toast(S.remains ? 'You wake at the healer’s. Dungeon belongings wait at the entrance; other belongings stay where you fell.' : 'You wake at the healer’s, patched up'); deathNote(); }
     Scene.refresh(); render(); if (f.kind === 'boss' && f.r === 8 && S.won && !S.ended) { S.ended = 1; save(); setTimeout(ending, 500); }
   }
   function taskFor(page) {
@@ -529,7 +543,7 @@
     if (F.act !== 'fight') { const sid = F.act === 'steal' ? 'stealing' : bestWeapon(), o = odds(rv(sid) + (F.bonus || 0), F.diff, res.grade, res.share), g = gain(sid, F.diff, q); if (g) gl.push(g);
       F.pline = `${o.p}% chance`; F.st = 'after'; F.busy = true; drawF(); const win = rnd() * 100 < o.p, end = () => { if (!F) return; F.busy = false; chip(win ? 'hit' : 'ouch', win ? 'success' : 'failed'); win ? winF(res, gl) : loseF(res, gl); }; return FAST() ? end() : setTimeout(end, 500); }
     const p = F.page, sid = pageSkill(p), W = WEAP[sid], gr = F.shown ? 'wrong' : F.hint >= 2 && res.grade === 'correct' ? 'close' : res.grade, o0 = odds(rv(sid), F.diff, gr, res.share), o = { p: Math.max(2, o0.p - (F.hint === 1 ? HPEN : 0)) }, g = F.shown ? 0 : gain(sid, F.diff, q * (F.hint ? .6 : 1)), f = F.foe, e = F.ent, free = W.opening && F.round === 1, steps = [], NR = ROUNDS(); if (g) gl.push(g);
-    const mult = power(p.c) * resist(p.c, F.r) * (1 + dmgPct(sid) / 100), n = W.swings + (p.rare && p.book === 'arms' ? 1 : 0), back = Math.max(0, f.swings - (p.rare && p.book === 'spell' ? 1 : 0));
+    const mult = power(p.c) * resist(p.c, F.r) * (1 + dmgPct(sid) / 100) * (F.drole === 'armored' && p.book !== 'spell' ? DungeonPlay.ARMORED_DAMAGE : 1), n = W.swings + (p.rare && p.book === 'arms' ? 1 : 0), back = Math.max(0, f.swings - (p.rare && p.book === 'spell' ? 1 : 0));
     F.pline = `${o.p}% a swing${NR > 1 ? ` · ${NR} rounds` : ''}`; F.st = 'after'; F.busy = true; drawF();
     for (let r = 0; r < NR; r++) { if (NR > 1) steps.push(() => { if (f.hp <= 0 || S.hp <= 0) return false; chip('lab rd', 'Round ' + (r + 1)); return false; });
     for (let i = 0; i < n; i++) steps.push(() => { if (f.hp <= 0) return false; Scene.FX.swing('me', e, p.book === 'spell' ? 'spell' : sid, p.book === 'spell' ? Effects.spell(p.c, p.rare) : null); if (rnd() * 100 < o.p) { const d = Math.max(1, Math.round((rint(W.dmg[0], W.dmg[1]) + rv(sid) / 8) * mult)); f.hp -= d; chip('hit', d); Scene.FX.hit(e, d, '#ffe9a0'); } else { chip('miss', 'miss'); Scene.FX.hit(e, 'miss', '#cfd6d8'); } barsF(); });
@@ -550,7 +564,7 @@
       }
       if (gid() === 'fight' && k === 'monster' && !st) { const rw = makeItem('common', 1, 'weapon', pick(['swords', 'fencing'])); rw.name = 'Rusty ' + WEAP[rw.w].n; o.items = [rw]; }
       if (!st) maybeDye(F.kind === 'boss' ? .35 : F.keeper ? .3 : F.kind === 'dungeon' ? .04 : .015 + luck() / 4000);
-      head = st ? 'Clean lift' : F.title + ' falls'; if (st) F.ent.alert = 6; else { Scene.corpse(F.ent, o); body = true; for (const k in S.er.a) { const a = S.er.a[k]; if (a.type === 'hunt' && a.tpl === F.inst.tpl && a.have < a.n) { a.have++; toast(`${a.from}: ${a.have} of ${a.n} ${a.x}s`); } } F.body = F.ent; F.ent = null; if (dn && DG) { if (F.keeper) { DG.keeper = 1; S.vault[t] = 1; } else DG.left--; } if (S.tut === 1) S.tut = 2; if (gid() === 'fight') { S.gd++; gEnter(true); } } }
+      head = st ? 'Clean lift' : F.title + ' falls'; if (st) F.ent.alert = 6; else { if(dn)DP.victory(F.ent); Scene.corpse(F.ent, o); body = true; for (const k in S.er.a) { const a = S.er.a[k]; if (a.type === 'hunt' && a.tpl === F.inst.tpl && a.have < a.n) { a.have++; toast(`${a.from}: ${a.have} of ${a.n} ${a.x}s`); } } F.body = F.ent; F.ent = null; if (dn && DG) DP.snapshot(); if (S.tut === 1) S.tut = 2; if (gid() === 'fight') { S.gd++; gEnter(true); } } }
     else if (k === 'rival') { const v = S.rival[t];
       if (F.act === 'steal') { o.gold = v.gold; o.items.push(v.item); o.sigils = 1; o.scrolls.push('h' + t + 'r'); S.stats.steals++; head = 'Purse and prize lifted'; note = `${F.title} will not notice until morning.`; } else { o.gold = Math.round(v.gold / 2); head = 'Duel won'; note = `${F.title} pays the wager and leaves town for a while.`; } v.taken = true; v.away = 4; }
     else { const first = !S.boss[t], b = F.boss; S.boss[t] = S.boss[t] || now(); S.stats.kills++; o.gold = (60 * t + 40) * (first ? 1 : .4); o.sigils = first ? 2 : 1; o.items.push(first ? uniq(b.drop) : makeItem(rollRarity(lk, 2), t)); if (rnd() < (first ? .3 : .08)) o.bless = 1; if (t >= 5 && rnd() < (first ? .6 : .15)) o.pscr = [makePscr(t)]; if (rnd() < .5) o.gscr = 1; head = first ? `The mark of the ${CIRCLE[t]} Circle` : b.name + ' yields again'; note = b.win; if (t === 8 && first) S.won = now(); }
@@ -563,6 +577,7 @@
     if (F.kind === 'rival') { fine = Math.min(S.gold, (F.act === 'steal' ? 15 : 10) * t); S.gold -= fine; S.rival[t].away = 4; S.rival[t].taken = true; head = F.act === 'steal' ? 'Caught' : 'Duel lost'; msg = `${F.title} ${F.act === 'steal' ? 'catches your hand in the purse' : 'answers first'}. You pay ${fine} gold.`; }
     else if (F.act === 'steal') { fine = Math.min(S.gold, 5 * t); S.gold -= fine; F.ent.alert = 8; F.ent.unseen = false; head = 'Caught'; msg = `It caught you. You drop ${fine} gold.`; }
     else { S.stats.falls++; F.kick = true; head = 'You fall'; const worn = new Set(Object.values(S.eq || {})), n = S.inv.filter(it => !worn.has(it.id)).length + Object.keys(S.scr || {}).length; const bare = Object.values(S.eq || {}).map(itemById).filter(it => it && !it.unique && !it.bless && !it.ins).length; msg = S.gold || n || bare ? `Your gold, your bag${bare ? ' and any gear that is not blessed or insured' : ''} stay on your body. You have ten minutes to get back to it.` : 'You had nothing on you to lose.'; }
+    if(F.kick)prepareDeath();
     tick(); save(); renderHud(); barsF();
     F.after = `<h3 class="lost">${head}</h3><p>${esc(msg)}</p>${gainLine(gl)}${res.ok ? '' : answerHTML(F.task)}<div class="row end"><button class="btn solid" data-a="fdone">${F.kick ? 'Wake up' : 'Continue'}</button></div>`; F.st = 'after'; drawF();
   }
@@ -593,21 +608,15 @@
     contract: d => { const c = CONTRACTS.find(x => x.id === d.id); openQ({ kind: 'contract', id: c.id, r: c.r, task: c, title: c.title, lesson: c.lesson || null, first: !!c.lesson && !S.done[c.id] && !S.seen[c.id] }); if (c.lesson) { S.seen[c.id] = 1; cmdTeach(c.id); if (c.id === 'c101') cmdTeach('intro'); } },
     round: d => { const inst = rounds().tasks[+d.i]; if (inst.done) return; const t = makeTask(inst); openQ({ kind: 'rounds', r: t.r, inst, task: t, title: 'Daily drill · ' + t.title }); },
     rumor: d => { const r = RUMORS.find(x => x.id === d.id); openQ({ kind: 'rumor', id: r.id, r: r.r, drop: r.drop, task: Object.assign({ kind: 'read' }, r), title: 'Rumor · ' + r.title, noHint: true }); },
-    monster: (e, amb) => { const inst = e.inst, animal = inst.tpl[0] === 'a', t = animal ? 1 : (inst.c || e.r), diff = animal ? 4 : diffOf(t, inst.elite); if (inst.lair) { S.lairs = S.lairs || {}; S.lairs[inst.lair] = 1; } openF({ kind: 'monster', act: 'fight', r: t, inst, ent: e, diff, animal, sig: animal ? null : inst.tpl, title: inst.nm || ((inst.elite ? 'Gilded ' : '') + MONSTERS[inst.tpl][0]), lead: !!inst.lead, noHint: !!inst.elite, foe: animal ? { hp: 18, max: 18, diff, swings: 1 } : mkFoe(t, diff, inst.elite ? 2 : 1), coach: '' }); },
+    monster: (e, amb) => { if(e.inst && e.inst.dungeon)return DP.fight(e); const inst = e.inst, animal = inst.tpl[0] === 'a', t = animal ? 1 : (inst.c || e.r), diff = animal ? 4 : diffOf(t, inst.elite); if (inst.lair) { S.lairs = S.lairs || {}; S.lairs[inst.lair] = 1; } openF({ kind: 'monster', act: 'fight', r: t, inst, ent: e, diff, animal, sig: animal ? null : inst.tpl, title: inst.nm || ((inst.elite ? 'Gilded ' : '') + MONSTERS[inst.tpl][0]), lead: !!inst.lead, noHint: !!inst.elite, foe: animal ? { hp: 18, max: 18, diff, swings: 1 } : mkFoe(t, diff, inst.elite ? 2 : 1), coach: '' }); },
     rival: d => { const e = CE, t = e.r, R = RIVALS[t - 1], v = rival(t); if (v.away > 0) return; const diff = diffOf(t, true), st = d.m !== 'duel', sh = bestPage('shadow'); if (st && !sh) return toast('You own no page from the Book of Shadows'); if (d.m === 'sneak' && !sneak(diff)) return;
       const c = st ? Math.min(sh.c, t) : t, b = pick(BOUNTIES.filter(x => x.r === c && !/^b80[123]/.test(x.id))), bonus2 = st ? 10 + (sh.rare ? 15 : 0) - 12 * Math.max(0, t - sh.c) : 0;
       openF({ kind: 'rival', act: st ? 'steal' : 'duel', st: 'prompt', r: t, diff, ent: e, title: R.name, noHint: true, page: st ? sh : null, verb: st ? 'Steal' : 'Answer', kc: c, bonus: bonus2, task: makeTask({ tpl: b.id, seed: seeded(b.id) }), oddsLine: `${odds(rv(st ? 'stealing' : bestWeapon()) + bonus2, diff, 'correct').p}% if correct · one try` }); },
     boss: () => { const e = CE; if (!e || e.kind !== 'boss') return; const t = e.r, b = BOSSES[t - 1], diff = diffOf(t, false, true); closeCard(); openF({ kind: 'boss', act: 'fight', boss: b, r: t, diff, ent: e, title: b.name, noHint: true, foe: mkFoe(t, diff, 3.5, true), tasks: n => Object.assign({ kind: 'read', title: b.name }, b.phases[n % b.phases.length](RNG(rid()))) }); },
-    dungeon: () => { const r = CE.r, pool = BOUNTIES.filter(b => b.r === r).sort(() => rnd() - .5), ids = [0, 1, 2].map(i => pool[i % pool.length].id); DG = { r, done: false, left: gid() === 'vault' ? 1 : 3, tpls: ids, back: Scene.pos() }; if (gid() === 'vault') { S.gd++; save(); setTimeout(() => gSay('"Stay close. Beat the first guardian and the chest at the back opens. Leave the rest."'), 600); } closeSheet(); Scene.enterDungeon(r, ids.map(id => ({ tpl: id, name: MONSTERS[id][0] }))); save(); },
-    guard: e => { const r = DG.r, tpl = DG.tpls[e.i], diff = diffOf(r, true); openF({ kind: 'dungeon', act: 'fight', r, diff, ent: e, sig: tpl, title: e.name, noHint: true, foe: mkFoe(r, diff, 1.5) }); },
-    keeper: e => { const r = DG.r, tpl = DG.tpls[2], diff = diffOf(r, true) + 6; openF({ kind: 'dungeon', keeper: 1, act: 'fight', r, diff, ent: e, sig: tpl, title: e.name, foe: mkFoe(r, diff, 2.4) }); },
-    chest: e => { Scene.FX.treasure(e.x, e.y);
-      if (DG.done) return toast('The chest is empty'); if (DG.left > 0) return dlg(e, `Locked. ${DG.left === 1 ? 'One guardian still holds' : DG.left + ' guardians still hold'} a key.`, [bye]);
-      if (gid() === 'chest') setTimeout(() => gDone('chest'), 50); else maybeDye(.12); const t = DG.r, lk = luck(), o = { gold: 30 * t + 20, mats: { [t]: rint(4, 6) }, sigils: 1 + (rnd() < .4 ? 1 : 0), items: [makeItem(rollRarity(lk, 2), t)], scrolls: ['s' + t + 'r'], bless: rnd() < .06 ? 1 : 0, gscr: rnd() < .3 ? 1 : 0 }, u = 'u_w' + t; let note = '';
-      if (!S.codex[u]) { S.dpity[t] = (S.dpity[t] || 0) + 1; if (rnd() < .2 * (1 + lk / 100) || S.dpity[t] >= 5) { o.items.push(uniq(u)); S.dpity[t] = 0; note = 'At the bottom of the chest: a named rare.'; } }
-      DG.done = true; S.stats.dungeons++; const g = grant(o); save(); renderHud(); Scene.refresh();
-      sheet(`<p class="eyebrow">${esc(DUNGEONS[t - 1].name)}</p><h2>The vault chest</h2>${note ? `<p class="story">${note}</p>` : ''}${spoilsHTML(g)}<div class="row end"><button class="btn solid" data-a="closesheet">Take it</button></div>`);
-    }
+    dungeon: () => DP.enter(CE.r),
+    guard: e => DP.fight(e),
+    keeper: e => DP.fight(e),
+    chest: e => DP.reward(e),
   };
 
   /* ---------- screens ---------- */
@@ -627,7 +636,7 @@
     if (tab === 'ledger' && lsub === 'sandbox') { const ta = $('#con-sql'); if (ta) ta.value = con.sql; }
     coach({ map: 'map', ledger: 'ledger', hero: 'hero', bag: 'bag' }[tab]); if (S.gn && S.gn === tab) { S.gn = 0; save(); renderNav(); }
   }
-  function bootScene() { if (!sceneUp) { Scene.init($('#stage'), HOST); sceneUp = true; soundUp(); Scene.showBlocked(S.showb); } $('#st-load').hidden = true; Scene.load(S.pos, S.pos || S.tut ? S.region : 'dock'); S.region = Scene.region(); S.been[S.region] = 1; homesUp(); applyGifts(); placeBody(); if (gOn()) gEnter(true, true); document.body.classList.toggle('ui', !!(ART && ArtData.ui)); if (!$('#title').hidden) Scene.pause(); }
+  function bootScene() { if (!sceneUp) { Scene.init($('#stage'), HOST); sceneUp = true; soundUp(); Scene.showBlocked(S.showb); } $('#st-load').hidden = true; Scene.load(S.pos, S.pos || S.tut ? S.region : 'dock'); S.region = Scene.region(); S.been[S.region] = 1; homesUp(); applyGifts(); if(S.dungeon)DP.restore(); surfaceBodies(); if (gOn()) gEnter(true, true); document.body.classList.toggle('ui', !!(ART && ArtData.ui)); if (!$('#title').hidden) Scene.pause(); }
   const ART = typeof ArtData !== 'undefined', LOOKS = { warrior: ['G10_1', 'G10_2'], thief: ['G10_3', 'G10_4'], mage: ['G11_1', 'G11_2'], crafter: ['G11_3', 'G11_4'] }, LOOK0 = { warrior: 0, thief: 2, mage: 4, crafter: 6 };
   const WSTART = { warrior: 'swords', thief: 'fencing', mage: 'magery', crafter: 'swords' }, NAMES = ['Edrik', 'Mara', 'Corin', 'Sable', 'Aldous', 'Ysanne', 'Brogan', 'Wren'];
   /* ---------- title, character creation, cold open ---------- */
@@ -642,7 +651,7 @@
     showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box tt-slots"><h1>Brasswake</h1><p class="tt-sub">Pulled from the sea, entered in the Trials, and taught SQL from the first line</p>${A.slots.map(row).join('')}${any ? '<button class="tt-link" data-a="delpick">Delete a character</button>' : ''}<p class="tt-note">Your characters share your houses and what is in them. Each keeps their own bank.</p></div>`);
   }
   function delPick() { showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box tt-slots"><h1>Delete who?</h1>${A.slots.map((c, i) => c ? `<button class="tt-btn quiet" data-a="delslot" data-i="${i}">${esc(c.name)}<small>${i === A.main ? 'Main: the Trials start over with your next new character' : 'Supporting'}</small></button>` : '').join('')}<button class="tt-btn" data-a="totitle">Back</button></div>`); }
-  function playSlot(i) { if (!A.slots[i]) return; if (i !== A.cur) { save(); A.cur = i; loadCur(); DG = null; Q = null; F = null; CE = null; S.pos = S.pos || null; $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; tab = 'world'; sel = S.region; save(); if (sceneUp) { Scene.load(S.pos, S.pos || S.tut ? S.region : 'dock'); Scene.refresh(); } } hideTitle(); render(); renderHud(); }
+  function playSlot(i) { if (!A.slots[i]) return; if (i !== A.cur) { save(); A.cur = i; loadCur(); DG = null; Q = null; F = null; CE = null; S.pos = S.pos || null; $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; tab = 'world'; sel = S.region; save(); if (sceneUp) { Scene.load(S.pos, S.pos || S.tut ? S.region : 'dock'); if(S.dungeon)DP.restore(); surfaceBodies(); Scene.refresh(); } } hideTitle(); render(); renderHud(); }
   function create() {
     CR = CR || { path: null, look: null, name: '' };
     showTitle(`<div class="cr"><h2>Who were you back home?</h2><p class="cr-note">A young name people had started to talk about. Pick what you were known for.</p><label class="cr-name"><span>Name</span><input id="cr-name" maxlength="16" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Your name" value="${esc(CR.name || '')}"></label>
@@ -658,7 +667,18 @@
   const wait = () => `<p class="loading">${engineErr ? esc(engineErr) : 'The Ledger is opening…'}</p>`;
 
   let MAPURL = null;
+  function vDungeonMap() {
+    const m=Scene.debug().map,p=DP.current(),at=Scene.pos(),def=Dungeons.get(DG.r);
+    const rooms=m.layout.rooms.filter(R=>m.discovered[R.cy*m.w+R.cx]);
+    const places=m.ents.filter(e=>e.kind!=='corpse'&&m.discovered[e.y*m.w+e.x]&&(['dtravel','dcache','chest','ltable','keeper','dlever','dsecret'].includes(e.kind)||e.lieutenant));
+    return `<section class="place"><p class="eyebrow">${esc(def.name)} · Floor ${DG.f+1} of ${def.floors.length}</p><h1>${esc(m.layout.name)}</h1></section>
+      <div class="dungeon-map"><img alt="Explored passages on this dungeon floor" src="${m.mini.toDataURL()}"><i class="me" style="left:${100*at[0]/m.w}%;top:${100*at[1]/m.h}%"></i></div>
+      <div class="card"><p class="eyebrow">Your expedition</p><p>${esc(objective())}</p><p class="cap2">White marks your position. Blue marks stairs; gold marks discoveries. Unexplored passages are dark.</p><div class="row"><button class="btn solid" data-a="tab" data-t="world">Return to dungeon</button></div></div>
+      <div class="card"><h2>Floors</h2><ul class="tale plain">${def.floors.map((floor,i)=>`<li>${i+1}. ${esc(floor.name)} <small>${i===DG.f?'You are here':p.seen[i]?'Visited':'Unexplored'}${p.seals[i]?' · seal recovered':''}</small></li>`).join('')}</ul></div>
+      <div class="card"><h2>Discovered places</h2>${places.length?`<ul class="tale plain">${places.map(e=>`<li>${esc(e.name)} <small>${Math.round(Math.hypot(e.x-at[0],e.y-at[1]))} paces ${compass({x:at[0],y:at[1]},e)}</small></li>`).join('')}</ul>`:'<p>Walk farther to map the passages.</p>'}<p class="cap2">${rooms.length} of ${m.layout.rooms.length} chambers mapped.</p></div>`;
+  }
   function vMap() {
+    if(DG&&Scene.debug().map.dungeonFloor)return vDungeonMap();
     const cur = sel || S.region, [W, H] = Scene.size, mini = sceneUp && Scene.mini(); if (mini && !MAPURL) { try { MAPURL = mini.toDataURL(); } catch (e) { } }
     const TW = sceneUp ? Scene.towns() : null, pos = sceneUp && !Scene.inDungeon() ? Scene.pos() : S.pos;
     const pins = TW ? REGIONS.map(r => { const t = TW[r.id]; return `<button class="pin${unlocked(r.id) ? '' : ' locked'}${r.id === cur ? ' sel' : ''}${S.boss[r.id] ? ' beaten' : ''}" style="left:${100 * t[0] / W}%;top:${100 * t[1] / H}%" data-a="sel" data-r="${r.id}" aria-label="${esc(r.name)}"><b>${ROMAN[r.id]}</b><span>${esc(r.name)}</span></button>`; }).join('') : '';
@@ -904,6 +924,7 @@
   function objective() {
     if (!S.path) return 'Choose your path';
     if (gOn()) return GD[S.gd].ob;
+    if(DG){const p=DP.current(),missing=DungeonProgress.missing(p,Dungeons.get(DG.r).floors.length);return 'Floor '+(DG.f+1)+' · '+(p.claimed.vault?'Vault collected · explore or leave':missing.length?missing.length+' floor seals to recover':!p.keeper?'Find and defeat the keeper':'Open the vault chest');}
     const t = S.region, left = totalIn(t) - doneIn(t);
     if (!S.boss[t] && doneIn(t) * 2 >= totalIn(t) && (t < 8 || Object.keys(S.boss).length >= 7)) return `Stand before ${BOSSES[t - 1].name}`;
     if (left) return `${region(t).name}: ${doneIn(t)} of ${totalIn(t)} exercises`;
@@ -1277,7 +1298,7 @@
       dlg(e, TALK.rival[t - 1], [{ t: 'Duel', n: `win ${Math.round(v.gold / 2)} gold · ${odds(rv(bestWeapon()), d, 'correct').p}% if correct`, a: 'start', d: { k: 'rival', m: 'duel' } }, so, bye], lootHTML(v.item) + (np ? scrollHTML(pageById(pid)) : '') + `<p class="cap2">Carries ${v.gold} gold.</p>`);
     },
     boss(e) { if (!isMain()) return dlg(e, `"I test the one on the Trials roll. That’s ${mainName()}, not you."`, [bye]); bossCard(e); },
-    stairs(e) { dlg(e, DUNGEONS[e.r - 1].blurb, [{ t: 'Descend', n: '3 guardians, 1 chest · leave any time', a: 'start', d: { k: 'dungeon' } }, { t: 'Leave', a: 'closesheet' }]); },
+    stairs(e) { dlg(e, DUNGEONS[e.r - 1].blurb, [{ t: 'Descend', n: Dungeons.get(e.r).floors.length + ' floors · hunting grounds, secrets and a vault', a: 'start', d: { k: 'dungeon' } }, { t: 'Leave', a: 'closesheet' }]); },
     mon(e) { if (!ready) return toast(engineErr || 'The Ledger is still opening'); START.monster(e); },
     node(e) { const t = e.r; S.mats[t] = have(t) + 1; Scene.kill(e); save(); toast(`+1 ${MATS[t]}`); },
     dojo(e) { if (ready) enterDojo(e.r); }, hallexit() { leaveDojo(); },
@@ -1292,8 +1313,9 @@
     rnote(e) { if (!isMain()) return toast(`A note pinned with a dagger. It’s addressed to ${mainName()}.`); const r = e.r; S.djn = S.djn || {}; S.djn[r] = 1; save(); sheet(`<p class="eyebrow">Pinned to a post with a dagger</p><h2>A note</h2>${ART && ArtData.dojo ? '<img class="scene" alt="" src="art/bg/DJ03.jpg">' : ''}<p class="story">${esc(Dojo.NOTES[r - 2])}</p><div class="row end"><button class="btn quiet" data-a="closesheet">Leave it</button></div>`); },
     guard(e) { if (ready) START.guard(e); },
  chest(e) { START.chest(e); }, keeper(e) { if (gOn()) return dlg(tamsin(), '"Not yet. That’s the keeper. Corin went at it too early."', [bye]); if (ready) START.keeper(e); },
-    ltable(e) { if (!isMain()) return toast(`The scroll is meant for ${mainName()}’s Ledger.`); const r = e.r; if (haveT(r)) return toast('The pedestal is empty. The table is in your Ledger.'); if (!DG || !DG.keeper) return dlg(e, `${LAIRMON['k' + r]} stands between you and the scroll.`, [bye]); e.ok = 'pi_pedestal0'; e.sv = -1; takeTable(r); Scene.refresh(); },
-    exit(e) { dlg(e, 'Stairs up to daylight. The dungeon changes each time you come back.', [{ t: 'Climb out', a: 'exitdungeon' }, { t: 'Stay', a: 'closesheet' }]); },
+    ltable: e => DP.table(e),
+    dtravel: e => DP.interact(e), dcache: e => DP.interact(e), dlever: e => DP.interact(e), dgate: e => DP.interact(e), dsecret: e => DP.interact(e), dlore: e => DP.interact(e),
+    exit(e) { dlg(e, 'Stairs up to daylight. Your discoveries are kept when you leave.', [{ t: 'Climb out', a: 'exitdungeon' }, { t: 'Stay', a: 'closesheet' }]); },
     page(e) { if (!isMain()) return toast(`A page of Ilva Thorne’s journal. ${mainName()} is the one following her trail.`); const t = e.r, first = !S.jr[t]; S.jr[t] = 1; if (first) save(); sheet(`<p class="eyebrow">Ilva Thorne’s journal · page ${t} of 8</p><h2>${esc(region(t).name)}</h2><p class="story">${esc(JOURNAL[t - 1])}</p>${(() => { const T = Deep.TRUTHS.find(x => x.from === 'page' + t); return T && S.letter ? `<p class="cap2">In the margin, a Great Truth: <b>${esc(T.title)}</b>. It is in your Ledger.</p>` : ''; })()}<p class="cap2">${Object.keys(S.jr).length} of 8 pages found. They are kept in your Journal.</p><div class="row end"><button class="btn solid" data-a="closesheet">Keep it</button></div>`); },
     journal() {
       const t = S.region, r = region(t), all = CONTRACTS.filter(c => c.r === t), fk = FOLK[t - 1], pages = [1, 2, 3, 4, 5, 6, 7, 8].filter(k => S.jr[k]), marks = [1, 2, 3, 4, 5, 6, 7, 8].filter(k => S.boss[k]);
@@ -1312,7 +1334,7 @@
     tpls: r => BOUNTIES.filter(b => b.r === r).map(b => b.id), habitat: t => HAB[t] || 'open', wild: (r, h) => (WILD[r] || []).filter(w => w[1] === h || (h === 'coast' && w[1] === 'water') || (h === 'water' && w[1] === 'coast')).map(w => w[0]), hunts: t => !!HUNT[t], cacheOpen: id => S.cache[id] === dayKey(),
     aggro: () => S.tut >= 3 && !Q && !F && !SB && $('#sheet').hidden && tab === 'world' && $('#title').hidden, chasing: () => !Q && !F && $('#title').hidden,
     ambush(e) { if (Q || F || !ready) return; CE = e; e.unseen = false; closeSheet(); if (tab !== 'world') ACT.tab({ t: 'world' });
-      if (e.chase > 0) { e.chase = 0; const d = rint(3, 6) + 2 * e.r; S.hp -= d; Scene.FX.hit('me', '−' + d, '#f08070'); if (S.hp <= 0) { S.hp = 0; S.stats.falls++; dropBody(); S.hp = maxHp(); DG = null; const t = Scene.towns()[S.region]; Scene.load([t[0] - 13, t[1] + 10], S.region); placeBody(); save(); renderHud(); toast('It caught you. You wake at the healer’s. Your things are where you fell.'); deathNote(); return; } save(); renderHud(); }
+      if (e.chase > 0) { e.chase = 0; const d = rint(3, 6) + 2 * e.r; S.hp -= d; Scene.FX.hit('me', '−' + d, '#f08070'); if (S.hp <= 0) { S.hp = 0; S.stats.falls++; wakeFromDeath(); renderHud(); toast('It caught you. You wake at the healer’s. Your things are where you fell.'); deathNote(); return; } save(); renderHud(); }
       START.monster(e, ''); }, spawn: tpl => ({ tpl, elite: tpl[0] === 'b' && rnd() < 0.09 }), monName: inst => inst.nm || MONSTERS[inst.tpl][0], lairs: () => LAIRS, lairName: k => LAIRMON[k], townsfolk: r => FOLKN.slice(r % 5).concat(FOLKN.slice(0, r % 5)), folkIdx: n => Math.max(0, FOLKN.indexOf(n)), chestOpen: () => !!(DG && DG.done),
     guide() { if (!S.path || Q || F || DU || !gOn()) return null; const g = GD[S.gd]; if (Scene.inHall()) return g.hall ? g.hall() : null; if (Scene.inDungeon() !== (g.id === 'chest')) return null; return g.arrow ? g.arrow() : null; },
     mark(e) {
@@ -1325,8 +1347,9 @@
     interact(e) { if (Q || F || DU) return; CE = e; (SH[e.kind] || (() => { }))(e); if (gid() === 'folk' && /^(folk|npc|home|tavern|healer|registrar|stallkeep|shopkeep|banker|rival|casino)$/.test(e.kind) && !(e.kind === 'npc' && e.i === 0)) { S.gd++; save(); gEnter(); } },
     entered(r) { if (S.region === r && S.been[r]) return; S.region = r; S.been[r] = 1; sel = r; save(); },
     sound: (name, detail) => Sound.sfx(name, detail),
-    moved(x, y, dun, run) { if (gOn()) gMoved(x, y, dun, run); if (!dun) { S.pos = [x, y]; if (S.mv % 3 === 0) { S.lairs = S.lairs || {}; for (const L of Scene.sites()) if (L.kind === 'lair' && !S.lairs[L.id] && Math.hypot(L.x - x, L.y - y) < 11) { S.lairs[L.id] = 1; save(); toast(`Found: ${L.name}. It is on your map now.`); coach('lair'); } } } S.mv = (S.mv || 0) + 1; if (S.mv % 5 === 0 && S.hp < maxHp()) { heal(1 + Math.floor(rv('healing') / 40), true); renderHud(); } },
-    hud(n) { const ob = objective(), k = (n ? n.kind + n.name : '') + ob + (F ? 'f' : ''); if (k === HOST._k) return; HOST._k = k; const b = $('#ctx'); b.hidden = !n || !!F; if (n) b.textContent = ({ banker: 'Bank: ', guide: 'Talk: ', lookout: 'Climb: ', dojo: 'Go in: ', hallexit: 'Leave: ', master: 'Talk: ', student: 'Talk: ', sorrel: 'Talk: ', traveler: 'Talk: ', odalys: 'Talk: ', foe: 'Talk: ', dummy: 'Practice: ', bracket: 'Read: ', rnote: 'Read: ', npc: 'Talk: ', folk: 'Talk: ', tavern: 'Talk: ', healer: 'Talk: ', registrar: 'Talk: ', stallkeep: 'Trade: ', shopkeep: 'Trade: ', rival: 'Approach: ', boss: 'Face: ', mon: 'Engage: ', guard: 'Engage: ', node: 'Gather: ', board: 'Read: ', bench: 'Use: ', stairs: 'Enter: ', chest: 'Open: ', exit: 'Use: ', page: 'Read: ', camp: 'Rest: ', peddler: 'Trade: ', cache: 'Open: ', corpse: 'Loot: ', casino: 'Enter: ', home: 'Talk: ', fish: 'Fish: ', stock: '', poi: (n.sub || 'Look') + ': ' }[n.kind] || '') + n.name; $('#obj').textContent = ob; }
+    dungeonState: () => DG ? DP.current() : null,
+    moved(x, y, dun, run) { if (dun && DG)DP.moved(x,y); if (gOn()) gMoved(x, y, dun, run); if (!dun) { S.pos = [x, y]; if (S.mv % 3 === 0) { S.lairs = S.lairs || {}; for (const L of Scene.sites()) if (L.kind === 'lair' && !S.lairs[L.id] && Math.hypot(L.x - x, L.y - y) < 11) { S.lairs[L.id] = 1; save(); toast(`Found: ${L.name}. It is on your map now.`); coach('lair'); } } } S.mv = (S.mv || 0) + 1; if (S.mv % 5 === 0 && S.hp < maxHp()) { heal(1 + Math.floor(rv('healing') / 40), true); renderHud(); } },
+    hud(n) { const ob = objective(), k = (n ? n.kind + n.name : '') + ob + (F ? 'f' : ''); if (k === HOST._k) return; HOST._k = k; const b = $('#ctx'); b.hidden = !n || !!F; if (n) b.textContent = ({ banker: 'Bank: ', guide: 'Talk: ', lookout: 'Climb: ', dojo: 'Go in: ', hallexit: 'Leave: ', master: 'Talk: ', student: 'Talk: ', sorrel: 'Talk: ', traveler: 'Talk: ', odalys: 'Talk: ', foe: 'Talk: ', dummy: 'Practice: ', bracket: 'Read: ', rnote: 'Read: ', npc: 'Talk: ', folk: 'Talk: ', tavern: 'Talk: ', healer: 'Talk: ', registrar: 'Talk: ', stallkeep: 'Trade: ', shopkeep: 'Trade: ', rival: 'Approach: ', boss: 'Face: ', mon: 'Engage: ', guard: 'Engage: ', keeper: 'Face: ', dtravel:'Use: ', dcache:'Open: ', dlever:'Use: ', dgate:'Inspect: ', dsecret:'Investigate: ', dlore:'Read: ', ltable:'Take: ', node: 'Gather: ', board: 'Read: ', bench: 'Use: ', stairs: 'Enter: ', chest: 'Open: ', exit: 'Use: ', page: 'Read: ', camp: 'Rest: ', peddler: 'Trade: ', cache: 'Open: ', corpse: 'Loot: ', casino: 'Enter: ', home: 'Talk: ', fish: 'Fish: ', stock: '', poi: (n.sub || 'Look') + ': ' }[n.kind] || '') + n.name; $('#obj').textContent = ob; }
   };
 
   function heroTables() {
@@ -1428,7 +1451,7 @@
     const X = Scene.FX, sw = X.swing;
     X.swing = (a, b, kind, style) => {
       if (a === 'me') { if (kind === 'hit') kind = armsSkill(); if (kind === 'spell' && !style) style = Effects.spell(DU ? DU.c || DU.r : F && F.page ? F.page.c : 1, F && F.page && F.page.rare); }
-      else if (kind === 'hit') { const family = Effects.creature(a && a.name); if (family === 'spirit' || family === 'dragon') { kind = 'spell'; style = Effects.spell(family === 'dragon' ? 5 : a.r || 6); } else if (family === 'bow') kind = 'archery'; }
+      else if (kind === 'hit') { const family = Effects.creature(a && a.name); if(a && a.inst && a.inst.dungeon && a.inst.role==='caster'){kind='spell';style=Effects.spell(a.r || 6);} else if (family === 'spirit' || family === 'dragon') { kind = 'spell'; style = Effects.spell(family === 'dragon' ? 5 : a.r || 6); } else if (family === 'bow') kind = 'archery'; }
       return sw(a, b, kind, style);
     };
     for (const k of Object.keys(ACT).filter(k => /^(buy|sell)|^(bdep|bwd)$/.test(k))) { const fn = ACT[k]; ACT[k] = (...args) => { const gold = S.gold, result = fn(...args); if (S.gold !== gold) Sound.sfx('coins'); return result; }; }
@@ -1440,7 +1463,7 @@
     snd: d => { const p = Sound.pref(); if (d.k === 'mu') Sound.setMu(!p.mu); else Sound.setFx(!p.fx); render(); },
     tab: d => { if (F) return; tab = d.t; if (tab === 'map') sel = S.region; closeSheet(); render(); $('#view').scrollTop = 0; },
     sub: d => { sub = d.s; render(); }, lsub: d => { lsub = d.s; render(); }, sel: d => { sel = +d.r; render(); },
-    travel: d => { const r = +d.r; if (!unlocked(r) || !sceneUp) return; DG = null; const t = Scene.towns()[r]; tab = 'world'; Scene.load([t[0], t[1] + 3], r); S.region = r; sel = r; save(); render(); },
+    travel: d => { const r = +d.r; if (!unlocked(r) || !sceneUp) return; DG = null; S.dungeon = null; const t = Scene.towns()[r]; tab = 'world'; Scene.load([t[0], t[1] + 3], r); S.region = r; sel = r; save(); render(); },
     journal: () => { if (!F) SH.journal(); }, act: () => Scene.act(), talk: () => CE && SH[CE.kind](CE), shop: () => CE && SH.stallkeep(CE), chat: () => { const e = CE; if (!e) return; closeSheet(); dlg(e, pick(e.kind === 'tavern' ? GOSSIP.concat(TALK.hint) : TALK.bark.concat(TALK.hint)), [{ t: 'Back to the goods', a: 'talk' }, bye]); },
     eat: d => { const k = (d && d.k) || 'meat'; if (!(foodN(k) > 0) || S.hp >= maxHp() || (F && (F.busy || F.over))) return; addFood(k, -1); const n = heal(FOOD[k][1]); save(); renderHud(); toast(`+${n} health`); if (F) { barsF(); drawF(); } else render(); },
     buymeat: d => { const c = +d.c; if (S.gold < c) return; S.gold -= c; S.meat = (S.meat || 0) + 1; save(); renderHud(); toast('Bought a trail ration'); if (CE && SH[CE.kind]) SH[CE.kind](CE); },
@@ -1481,7 +1504,7 @@
     tonic: () => { if ((F && (F.busy || F.over)) || S.tonics < 1 || S.hp >= maxHp()) return; S.tonics--; const n = heal(30); save(); renderHud(); toast(`+${n} health`); if (F) { barsF(); drawF(); } else render(); },
     buytonic: d => { const c = +d.c; if (S.gold < c) return; S.gold -= c; S.tonics++; save(); renderHud(); toast('Bought a Healing Draught'); if (CE && SH[CE.kind]) SH[CE.kind](CE); else closeSheet(); },
     rest: d => { const cost = +d.c || 4 * here(); if (S.gold < cost || S.hp >= maxHp()) return; S.gold -= cost; S.hp = maxHp(); save(); renderHud(); closeSheet(); toast('Rested. Full health'); },
-    exitdungeon: () => { const b = DG && DG.back; DG = null; closeSheet(); Scene.load(b || S.pos, S.region); },
+    exitdungeon: () => DP.exit(), dtravel: d => DP.travel(d.id), dopen: d => DP.open(d.id),
     contract: d => { if (!ready) return toast(engineErr || 'The Ledger is still opening'); START.contract(d); },
     start: d => { if (!ready) return toast(engineErr || 'The Ledger is still opening'); START[d.k](d); },
     closesheet: closeSheet, run: () => { if (DU) return duRun(); if (TR) return trRun(); if (FI) fiRun(); else if (WH) whRun(); else if (BJ) bjRun(); else if (PK) pkAsk(); else if (Q) runQ(); else if (F) runF(); },
@@ -1521,7 +1544,7 @@
     hpad: d => { const h = homeById(d.h); if (!h || h.pad || !(S.runes > 0)) return; S.runes--; h.pad = 1; Scene.dropHome(h.id); Scene.addHome(h); save(); toast('The pad is set. Teleport here from the Map.'); homeSheet(h); },
     hput: d => { const h = homeById(d.h); if (!h || h.chest.length >= hCap(h)) return toast('The chest is full'); const i = S.inv.findIndex(it => it.id === d.id); if (i < 0) return; h.chest.push(S.inv.splice(i, 1)[0]); save(); homeSheet(h); },
     htake: d => { const h = homeById(d.h); if (!h) return; if (S.inv.length >= 60) return toast('Your bag is full'); const i = h.chest.findIndex(it => it.id === d.id); if (i < 0) return; S.inv.push(h.chest.splice(i, 1)[0]); save(); homeSheet(h); },
-    tphome: d => { const h = homeById(d.h); if (!h || !h.pad) return; if (F || Q) return toast('Not in a fight.'); if (sceneUp && Scene.find(e => e.chase > 0)) return toast('Not while something is chasing you.'); const p = Scene.homeDoor(h.id); DG = null; tab = 'world'; Scene.load(p || [h.x, h.y + h.h + 1], h.r); S.region = h.r; save(); render(); toast('You step off the pad at ' + h.name + '.'); },
+    tphome: d => { const h = homeById(d.h); if (!h || !h.pad) return; if (F || Q) return toast('Not in a fight.'); if (sceneUp && Scene.find(e => e.chase > 0)) return toast('Not while something is chasing you.'); const p = Scene.homeDoor(h.id); DG = null; S.dungeon = null; tab = 'world'; Scene.load(p || [h.x, h.y + h.h + 1], h.r); S.region = h.r; save(); render(); toast('You step off the pad at ' + h.name + '.'); },
     bdep: () => { if (gid() === 'bank') setTimeout(() => { closeSheet(); gDone('bank'); }, 700); S.bank.gold += S.gold; toast(`Deposited ${S.gold} gold`); S.gold = 0; save(); renderHud(); bankSheet(); },
     bwd: d => { const n = d.n === 'all' ? S.bank.gold : Math.min(+d.n, S.bank.gold); S.bank.gold -= n; S.gold += n; save(); renderHud(); bankSheet(); },
     bstore: d => { if (S.bank.items.length >= BANK_SLOTS) return toast('The bank box is full'); const i = S.inv.findIndex(it => it.id === d.id); if (i < 0 || Object.values(S.eq).includes(d.id)) return; S.bank.items.push(S.inv.splice(i, 1)[0]); save(); bankSheet(); },
@@ -1557,10 +1580,10 @@
     conrun: () => { con.sql = $('#con-sql').value; heroTables(); con.res = Engine.runSandbox(con.sql); $('#con-out').innerHTML = conHTML(con.res); },
     conq: d => { $('#con-sql').value = d.q; ACT.conrun(); },
     conreset: () => { Engine.resetSandbox(); con.res = null; render(); toast('Sandbox restored to the original ledger'); },
-    export: () => { syncA(); const code = btoa(unescape(encodeURIComponent(JSON.stringify(A)))); sheet(`<h2>Save code</h2><p class="cap2">Copy this somewhere safe. Loading it on any device restores all your characters and houses.</p><label class="vh" for="savebox">Save code</label><textarea id="savebox" class="savebox" readonly>${code}</textarea><div class="row end"><button class="btn solid" data-a="copy">Copy</button></div>`); },
+    export: () => { if(DG)DP.snapshot(); syncA(); const code = btoa(unescape(encodeURIComponent(JSON.stringify(A)))); sheet(`<h2>Save code</h2><p class="cap2">Copy this somewhere safe. Loading it on any device restores all your characters and houses.</p><label class="vh" for="savebox">Save code</label><textarea id="savebox" class="savebox" readonly>${code}</textarea><div class="row end"><button class="btn solid" data-a="copy">Copy</button></div>`); },
     copy: async () => { const b = $('#savebox'); try { await navigator.clipboard.writeText(b.value); toast('Copied'); } catch (e) { b.focus(); b.select(); toast('Select all and copy'); } },
     import: () => sheet(`<h2>Load a save code</h2><p class="cap2">This replaces all your characters and houses.</p><label class="vh" for="savebox">Save code</label><textarea id="savebox" class="savebox" placeholder="Paste a save code"></textarea><div class="row end"><button class="btn solid" data-a="doimport">Load</button></div>`),
-    doimport: () => { try { const o = JSON.parse(decodeURIComponent(escape(atob($('#savebox').value.trim())))); if (!o || o.v !== 6) throw 0; const rev = Math.max(A.rev, o.rev || 0); A = Object.assign(freshA(), o); A.rev = rev; loadCur(); cmdBackfill(); DG = null; Q = null; F = null; save(); closeSheet(); if (A.cur < 0) return title(); hideTitle(); if (sceneUp) Scene.load(S.pos, S.pos ? S.region : 'dock'); render(); toast('Game loaded'); } catch (e) { toast('That is not a valid save code'); } },
+    doimport: () => { try { const o = JSON.parse(decodeURIComponent(escape(atob($('#savebox').value.trim())))); if (!o || ![6,7].includes(o.v)) throw 0; const rev = Math.max(A.rev, o.rev || 0); A = Object.assign(freshA(), o, {v:7}); A.rev = rev; loadCur(); cmdBackfill(); DG = null; Q = null; F = null; save(); closeSheet(); if (A.cur < 0) return title(); hideTitle(); if (sceneUp) {Scene.load(S.pos, S.pos ? S.region : 'dock');if(S.dungeon)DP.restore();surfaceBodies();} render(); toast('Game loaded'); } catch (e) { toast('That is not a valid save code'); } },
     reset: () => { closeSheet(); tab = 'world'; render(); title(); }
   };
   document.addEventListener('click', e => { const el = e.target.closest('[data-a]'); if (!el || el.disabled || ghost(e)) return; const f = ACT[el.dataset.a]; if (f) f(el.dataset, el, e); });
@@ -1578,8 +1601,10 @@
     if (!ART || !Scene.preload) return; const el = $('#artload'), app = $('#app'); let done = false; const fin = () => { if (done) return; done = true; app.classList.remove('artload'); el.hidden = true; };
     app.classList.add('artload'); el.hidden = false; el.textContent = 'Loading art'; Scene.preload(S.region || 1, (n, t) => { el.textContent = `Loading art ${n} of ${t}`; }).then(fin, fin); setTimeout(fin, 30000);
   }
-  function start(hot) { purgeOld(); A = (hot && hot.acct && hot.acct.v === 6 && Object.assign(freshA(), hot.acct)) || loadA() || freshA(); loadCur(); cmdBackfill(); title(); artLoad(); if (hot && hot.tab) tab = hot.tab; sel = S.region; render(); setTimeout(bootEngine, 30); cloudInit(); }
-  if (location.protocol === 'file:' || location.hostname === 'localhost') window.__bw = { get A() { return A; }, makeItem, gain, odds, dropBody, insFee, trainCost, makePscr, maybeDye, homeSheet, get DU() { return DU; }, get FI() { return FI; }, errandFor, get PK() { return PK; }, get WH() { return WH; }, get BJ() { return BJ; }, get Q() { return Q; }, get F() { return F; }, KB, get S() { return S; }, get DG() { return DG; }, get SB() { return SB; }, get TR() { return TR; }, setCE: e => { CE = e; }, HOST, SH, START, ACT, render, save, odds, gain, diffOf };
+  window.addEventListener('pagehide',()=>{if(S && S.path)save();});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden && S && S.path)save();});
+  function start(hot) { purgeOld(); A = (hot && hot.acct && [6,7].includes(hot.acct.v) && Object.assign(freshA(), hot.acct, {v:7})) || loadA() || freshA(); loadCur(); cmdBackfill(); title(); artLoad(); if (hot && hot.tab) tab = hot.tab; sel = S.region; render(); setTimeout(bootEngine, 30); cloudInit(); }
+  if (location.protocol === 'file:' || location.hostname === 'localhost') window.__bw = { get A() { return A; }, makeItem, gain, odds, dropBody, insFee, trainCost, makePscr, maybeDye, homeSheet, get DU() { return DU; }, get FI() { return FI; }, errandFor, get PK() { return PK; }, get WH() { return WH; }, get BJ() { return BJ; }, get Q() { return Q; }, get F() { return F; }, KB, get S() { return S; }, get DG() { return DG; }, DP, get SB() { return SB; }, get TR() { return TR; }, setCE: e => { CE = e; }, HOST, SH, START, ACT, render, save, odds, gain, diffOf };
   // speech and story use curly quotes; SQL, code and table data keep straight ones
   const cq = t => t.replace(/"/g, (m, i) => (i === 0 || /[\s(\[\u2014\u2013-]/.test(t[i - 1])) ? '\u201c' : '\u201d'), RAW = 'pre,code,textarea,input,script,style,td,th,.qbox,.code,.sqlhl,[data-raw]';
   function curl(n) { if (n.nodeType === 3) { if (n.data.indexOf('"') < 0) return; const p = n.parentElement; if (!p || p.closest(RAW)) return; const v = cq(n.data); if (v !== n.data) n.data = v; } else if (n.nodeType === 1 && !n.matches(RAW)) for (const c of n.childNodes) curl(c); }

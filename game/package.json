@@ -10,6 +10,7 @@
     "test:casino": "node test/house_test.js",
     "test:install": "node test/install-browsers.js",
     "test:ui": "playwright test",
+    "test:dungeons": "node test/dungeon-expeditions.js",
     "test:live": "node test/live.js",
     "verify": "node test/verify.js"
   },

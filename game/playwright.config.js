@@ -12,7 +12,7 @@ module.exports = defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: 0,
-  workers: 2,
+  workers: process.env.BW_UI_WORKERS ? Number(process.env.BW_UI_WORKERS) : 2,
   outputDir: live ? 'test-results-live' : 'test-results',
   reporter: [['list'], ['html', { outputFolder: live ? 'playwright-report-live' : 'playwright-report', open: 'never' }]],
   use: {

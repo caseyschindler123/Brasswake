@@ -84,6 +84,20 @@ Every prompt starts with the global style line kept in `art_prompts.json`:
 
 ## Generating art
 
+### Dungeon kit (2026-11-22)
+
+Release `dungeon-rebuild-2026-11-22` adds an independent dungeon kit. Fifteen new raw sheets keep the original names DT01–08 (opaque 2×2 material sheets), DP01–03 (transparent 4×4 prop/barrier sheets) and DM01–04 (transparent 2×2 creature sheets). This isolated run uses `arttools/dungeon_prompts.json`, the same global style and a byte-identical copy of the existing `make_art.py`, with its model and high quality settings unchanged. Casey's full-rebuild request authorizes these new images; the master prompt file and all existing raw output remain untouched. The first terrain/prop/creature sheets were generated and visually inspected before the remaining run. All 15 succeeded.
+
+The new packer `arttools/dungeon_art.py` reads recorded source hashes/crops from `arttools/dungeon_art_inputs.json`. It packs 32 material textures, 48 transparent props/barriers and 16 living creatures into `game/art/dun/kit.webp` (1024×1296), `game/art/dun/mobs.webp` (1024×156) and `game/art/dun/gates.webp` (1024×224), generating `game/src/artdungeon.js`. Materials use reviewed repeat crops and edge cross-fades; connected-component masks retain silhouettes crossing nominal cell boundaries. Props stay isolated, alpha is preserved, and sprite scales come from `Dungeons.species`. Existing atlases are not repacked. No additional walking/fallen sheets are claimed; creatures without fallen art use the existing rotated living-sprite fallback.
+
+Original raw PNGs, the unchanged generation script and its new-only prompt file are archived in `C:\Users\caseys\source\SQL Game\dungeon_2026-11-22`; working copies remain in ignored `work/dungeon-art/out`. The separate directory avoids collisions with the older dojo DP sheets. Reproduce the accepted output in the pinned Pillow 12 environment:
+
+```powershell
+work/.venv-live/Scripts/python.exe -I arttools/dungeon_art.py work/dungeon-art/out
+```
+
+The accepted manifest now has 489 files. Deterministic replay matched all three atlas hashes and generated coordinates; all material/prop/barrier/creature contact sheets were opened and reviewed. Dungeon materials are drawn as repeating tiles in coherent room-sized areas, with separate wall, liquid, bridge and decoration layers, so changing a layout needs no whole-floor image.
+
 The local agent generates requested images directly with `C:\Users\caseys\source\SQL Game\kit\make_art.py`. There is no hand-off to another agent and Casey does not paste requests elsewhere. Raw output stays under `SQL Game`, with current PNGs in `kit/out/`. Running the art rebuild does not run this image script.
 
 1. **Use the master prompt base:** `SQL Game/kit/art_prompts.json`. `art/base/art_prompts.json` is a read-only snapshot. The master currently has 74 sections; its style and first 51 sections match the snapshot. Preserve the additional sections and Casey's prompt fixes.
@@ -174,6 +188,8 @@ Buildings keep their painted outsides; the kit draws what you see inside (see 02
 - Cloak, glove and boot layers aren't drawn on the body yet.
 
 ## Decision log
+
+- 2026-11-22: Release `dungeon-rebuild-2026-11-22` adds 15 approved dungeon source sheets and three separately packed atlases, with recorded input hashes/crops and generated coordinates. The existing script, model, quality, master prompts and old assets are unchanged. Full contacts were visually reviewed and replayed byte-for-byte; new assets extend the packed baseline to 489 files.
 
 - 2026-11-22: Release `magic-and-sound-2026-11-22` uses code-native canvas magic effects with distinct silhouettes for all eight spell Circles and rare variants. Existing sprite art is retained; no paid image generation, art-master change or asset-baseline update. Phone and desktop screenshots are part of release verification.
 
