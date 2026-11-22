@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brasswake art review</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a1712}iframe{border:0;width:100%;height:100%}#status{position:fixed;inset:0;display:grid;place-content:center;background:#eee0c3;color:#33291e;font:18px sans-serif;padding:20px}#status[hidden]{display:none}</style>
+</head><body><div id="status" role="status">Preparing visual test…</div><iframe title="Brasswake"></iframe>
+<script>
+/* A test fixture only. This page is served by serve_art.py, never build.js.
+   Its dedicated localhost origin contains disposable test accounts. */
+const scene = new URLSearchParams(location.search).get('scene') || 'title';
+const scenes = ['title','tallyport','fight','bag','paperdoll','dungeon','dojo','interior'];
+const frame = document.querySelector('iframe'), status = document.querySelector('#status');
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+async function until(test, label) {
+  for (let i=0;i<300;i++) { if (test()) return; await delay(100); }
+  throw new Error('Timed out: '+label);
+}
+// This origin is reserved for this test fixture; production saves use another origin.
+localStorage.removeItem('brasswake.acct.v6');
+frame.onload = async () => {
+  try {
+    if (!scenes.includes(scene)) throw new Error('Unknown visual scene');
+    const w=frame.contentWindow, d=w.document;
+    // Scene is a global const, not a property on window. This fixture reads
+    // that existing debug surface; production source and build stay untouched.
+    const sc=w.eval('Scene');
+    await until(()=>w.__bw, 'game boot');
+    await delay(1000);
+    if (scene !== 'title') {
+      const click = selector => { const button=d.querySelector(selector); if(!button) throw new Error('Missing control: '+selector); button.click(); };
+      click('[data-a=newslot]'); click('[data-a=pick][data-look="4"]'); click('[data-a=begin]');
+      await delay(450); click('[data-a=beat]'); click('[data-a=beat]'); click('[data-a=ashore]');
+      await delay(500);
+      const bw=w.__bw;
+      bw.ACT.gskip(); bw.ACT.closesheet(); bw.S.tut=3; bw.S.tabs={bag:1,hero:1,map:1,ledger:1};
+      await until(()=>sc.debug().map, 'world map');
+      const town=sc.towns()[1]; sc.load([town[0],town[1]+3],1);
+      await delay(1800);
+      if (scene==='bag') bw.ACT.tab({t:'bag'});
+      if (scene==='paperdoll') { bw.ACT.tab({t:'hero'}); bw.ACT.looks(); }
+      if (scene==='fight') {
+        const e=sc.find(e=>e.kind==='mon' && e.r===1 && !e.inst.elite && e.inst.tpl!=='b101');
+        if(!e) throw new Error('No region-one fight fixture');
+        sc.warp(e.x+1,e.y); e.unseen=true; bw.HOST.interact(e);
+      }
+      if (scene==='dungeon') {
+        bw.S.hp=60;
+        const e=sc.find(e=>e.kind==='stairs' && e.r===1);
+        sc.warp(e.x,e.y+1); bw.setCE(e); bw.START.dungeon();
+        await until(()=>sc.inDungeon(), 'dungeon entry');
+      }
+      if (scene==='dojo') {
+        const spot=sc.spots().dojo1; sc.warp(spot[0],spot[1]+2);
+        bw.HOST.interact(sc.find(e=>e.kind==='dojo' && e.r===1));
+        await until(()=>sc.inHall(), 'dojo entry');
+      }
+      if (scene==='interior') {
+        const room=sc.debug().map.blds.find(b=>b.enter && b.slot==='tavern');
+        if(!room) throw new Error('No Tallyport tavern fixture');
+        sc.load([room.x+room.room.door,room.y+room.h-2],1);
+      }
+      await delay(2200);
+    }
+    await d.fonts.ready;
+    document.body.dataset.ready=scene;
+    document.title='Brasswake · '+scene+' · 390×720 art review';
+    status.hidden=true;
+  } catch(error) { status.textContent=String(error.stack||error); document.body.dataset.error=String(error); }
+};
+frame.src='/index.html?visual_test=1';
+</script></body></html>

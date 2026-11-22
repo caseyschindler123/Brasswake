@@ -1,0 +1,77 @@
+BRASSWAKE LOCAL REBUILD REPORT - 2026-11-22
+
+RESULT
+486 packed asset files: 484 byte-identical to live 1795364400-6a70; 2 accepted WebP encoding/library differences. Missing: none. Extra: none.
+All four game/src/art*.js are byte-identical to the original extracted repo. The rebuilt index.html also matches the live hash exactly.
+All 499 recorded sheet entries were replayed exactly. All required sheets, including the 32 later creature sheets, are present. No existing art was regenerated.
+Raw file sizes/mtimes and protected raw Python/JSON hashes are unchanged. Every selected raw PNG hash, the prompt snapshot, fonts and music were verified unchanged.
+
+ACCEPTED DIFFERENCES
+icons.webp: 1024x1024, live 566666 bytes, rebuilt 573250 bytes (+6584).
+  Original geometry derived from unchanged artdata.js and original packer constants matches exactly.
+  Expected SHA256: 25e0fd396bd9bd13e7736c4dba7d3f0d23007a435a60707f13ad74d3a98868bb
+  Actual SHA256: 348548ad24cd77864c764e062ab203a36a31541d0a5af3624e2d92c6e0269b71
+mobs.webp: 800x1584, live 560080 bytes, rebuilt 563108 bytes (+3028).
+  Original geometry derived from unchanged artdata.js and original packer constants matches exactly.
+  Expected SHA256: fd4d6d0685efb79871d5538184098457eaad7c7f4e0865bdb39da769d4599366
+  Actual SHA256: 883b4f845c570ea8a57eeaffbc7c05fb067dbd75c4054c371c5497fb9d3394f5
+Classification: accepted under Casey's 2026-11-22 baseline policy after coordinate, geometry and visual checks. Encoding/library differences are the accepted explanation; without live bytes no direct pixel difference or pixel-equality claim is made.
+Accepted hashes and dimensions: arttools/packed_manifest.json. Old live hashes are preserved. Per-file old-live comparison: arttools/rebuild_comparison.json.
+
+VALIDATION
+Art-tools regression tests: 3 passed. Node build passed. node test/test.js printed ALL GOOD.
+All 486 source assets decoded/hashed successfully; accepted-baseline verification: 486 exact, 0 missing, 0 extra, 0 different.
+Eight screenshots inspected at 390x720 CSS px: title, Tallyport, fight, bag, paper doll, dungeon, dojo and Tallyport tavern interior.
+No missing art, obvious sprite misalignment or wrong-facing rows observed. Browser error log is empty. The local server recorded no art errors; its only non-art 404 was /favicon.ico.
+Screenshot contact sheet: work/shots/visual-review.jpg; originals: work/shots/01-title.jpg through 08-interior.jpg.
+The visual fixture uses a disposable dedicated localhost account and local installed sql.js for test requests only. It is not included in dist and does not change the production build.
+
+TOOLS AND SCRIPT CHANGES
+arttools/art_paths.py (new): repo-relative defaults, environment overrides, read-only recursive sheet discovery with current kit/out precedence and frozen input indices.
+arttools/build_art.py (new): required-sheet preflight, slice/UI/main/dojo/body/kit ordering, per-stage logs and input/font/music hash checks; outputs confined to repo and slices to work/.
+arttools/slice.py: recorded-box mode preserving foot/cell metadata, original cleanup, whole-image handling, range-size and missing-record checks, supported new-sheet detection; default slices go under work/.
+arttools/ui_pack.py: recursive/frozen raw input selection and default game/art/ui output.
+arttools/pack.py: portable paths and environment overrides, LF/UTF-8 generated JS, later creature extension merged before JS serialization; original packing, quality and layout rules retained.
+arttools/add_creatures.py: importable append_creatures function while retaining the old CLI; original crop, fallen-name mapping, atlas extension and re-encoding rules retained.
+arttools/dojo_pack.py and body_pack.py: portable output/JS paths, recursive/frozen raw input selection, LF/UTF-8 JS; original art calculations retained.
+arttools/kit_pack.py: portable game/art output and BW_KIT_JS, recursive/frozen raw inputs, LF/UTF-8 JS; original kit calculations retained.
+arttools/mock.py: replaced obsolete cloud-only preview paths with local raw/ground/output arguments and work/ defaults.
+arttools/verify_art.py (new): complete hash/size comparison, optional dimension metadata, hash-validated reference-image RGBA maximum/per-channel/differing-pixel comparisons.
+arttools/test_arttools.py (new): regression coverage for recorded crop replay/alpha/metadata, mountain handling, new-sheet fallback, source precedence and pixel-difference calculation.
+arttools/requirements.txt (new): Pillow 12.0.0, numpy 2.5.5, scipy 1.18.1. Pillow 13 diagnostics changed some resized outputs, so 12 is pinned. No system-wide installs.
+game/build.js: create dist before writing a clean-checkout build.
+game/test/serve_art.py and visual_art.html (new): localhost-only visual review server and reproducible eight-scene test fixture.
+.gitattributes (new): LF text for reproducible generated JS across Windows checkouts; binary asset attributes.
+.gitignore: ignore work/ and all art/sliced content except manifest.json. node_modules and game/dist remain ignored.
+
+MASTER DOCS
+Applied the four current documents from brasswake-docs.zip. game/docs is now the master copy. game/STYLE.md is byte-identical to 04_WRITING_STYLE.md.
+01_ARCHITECTURE.md: repository ownership, Starting a new session, storage table, art rebuild/baseline, source layout, build/test/publish, remaining hosting plan, dated decisions. Removed cloud-only restore/base64 backup steps. Artifact patch publishing retained while the artifact remains in use.
+03_ART_STYLE.md: direct script-driven image generation, master prompt and output locations, approval/test-kit/name rules, Where art lives, local packing stages, validation/baseline, current Tallyport kit state, dated decisions.
+02_GAMEPLAY.md and 04_WRITING_STYLE.md are unchanged from the uploaded ZIP. PROJECT_INSTRUCTIONS.md now points to the repo masters and local ownership, with a dated log entry.
+README.md and REBUILD_ART.md describe the current commands, baseline, storage and validation workflow.
+
+RAW INVENTORY AND PROMPTS
+SQL Game has 878 current unique sheet IDs. The full inventory and PNG hashes are in ignored work/inventory_report.txt, work/inventory.json and work/raw_pngs.csv.
+22 legacy ZIPs were each extracted to a separate new folder under ignored work/extracted. The uploaded docs ZIP was extracted separately under work/docs-upload before applying its four files.
+Master SQL Game/kit/art_prompts.json differs from art/base/art_prompts.json: 74 sections versus 51; style and first 51 sections match exactly. Neither was changed.
+Image script SQL Game/kit/make_art.py, its model and its generation quality settings were not changed. No paid image run started. No API keys written to files or chat.
+
+PIPELINE TIMINGS
+slice: 129.16 seconds; exit 0
+ui_pack: 1.27 seconds; exit 0
+pack: 970.06 seconds; exit 0
+dojo_pack: 54.7 seconds; exit 0
+body_pack: 166.58 seconds; exit 0
+kit_pack: 6.09 seconds; exit 0
+
+GIT
+Repository: https://github.com/caseyschindler123/Brasswake. GitHub Pages: https://caseyschindler123.github.io/Brasswake/. Pushes to main validate the packed-art baseline, run locked dependency installation and tests, build and deploy game/dist. No raw art, sliced pieces, dependencies, environments or dist output are committed. Casey explicitly authorized repository creation, push and hosting.
+Final tracked-tree and whole-folder byte sizes are recorded in ignored work/final_metrics.json and the completion reply.
+
+DEPLOYMENT CHANGES
+.github/workflows/pages.yml: push/main and manual deploy; PR checks; Node 24; pinned official actions; separate build/deploy jobs; least-required Pages permissions; no stored personal token.
+arttools/check_packed_art.js: dependency-free CI validation of all accepted asset sizes and SHA256 hashes.
+game/package.json: npm build and test scripts. game/test/test.js: failed checks now set exit code 1 so CI cannot publish a failing test run.
+.gitattributes: stable LF for HTML, CSS, YAML, JSON, scripts and docs across Windows and CI.
+Pre-existing trailing whitespace in untouched fake7.py, game.js, full.py, full2.py and play.py is preserved to avoid unrelated source changes; changed/new-file whitespace checks pass.

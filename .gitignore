@@ -1,0 +1,8 @@
+node_modules/
+game/dist/
+game/shots/
+__pycache__/
+*.pyc
+work/
+art/sliced/*
+!art/sliced/manifest.json

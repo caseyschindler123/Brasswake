@@ -1,0 +1,4 @@
+# Versions used for the Windows rebuild. Encoder version affects image hashes.
+Pillow==12.0.0
+numpy==2.5.5
+scipy==1.18.1
