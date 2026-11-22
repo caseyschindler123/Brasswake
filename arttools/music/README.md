@@ -2,7 +2,7 @@
 
 The game ships 28 tracks/cues: 11 Suno themes (three retained and eight prepared
 from already-downloaded pairs), plus 17 original locally composed MIDI pieces.
-Normal game builds use committed MP3s and need no Python, synthesizer, Suno login
+Normal game builds use committed MP3 loops and PCM WAV cues and need no Python, synthesizer, Suno login
 or music-generation service.
 
 ## Editable original music
@@ -21,7 +21,7 @@ python -I arttools/music/build_soundtrack.py --ffmpeg <ffmpeg.exe> --only-origin
 python -I arttools/music/test_soundtrack.py --ffmpeg <ffmpeg.exe>
 ```
 
-To audition a hand-edited MIDI score as a WAV without replacing committed MP3s:
+To audition a hand-edited MIDI score as a WAV without replacing committed audio:
 
 ```powershell
 python -I arttools/music/build_soundtrack.py --ffmpeg <ffmpeg.exe> --render-midi arttools/music/midi/m_title.mid work/title-preview.wav
@@ -45,9 +45,11 @@ python -I arttools/music/build_soundtrack.py --ffmpeg <ffmpeg.exe> --sources <so
 The preparer compares phrase/seam metrics between the two downloaded takes,
 selects a repeating passage, and bakes a 0.4-second linear crossfade plus copied
 wrap tail. Original loops also wrap sustained-note/release energy. Every new
-MP3 is measured and normalized near -18 LUFS using constant gain to preserve
+audio file is measured and normalized near -18 LUFS using constant gain to preserve
 tail amplitude, with true-peak headroom. Originals use 128 kb/s and the richer
-Suno audio uses 192 kb/s, at 44.1 kHz stereo.
+Suno audio uses 192 kb/s, at 44.1 kHz stereo. Victory/death cues use 16-bit
+PCM WAV to preserve exact duration across browser decoders; Linux WebKit decoded
+the MP3 cue with different padding. The strict decoded-duration check remains.
 
 `soundtrack.json` records selected sources, source/output/MIDI hashes, exact
 loop bounds, measured loudness/peak and decoded seam/tail quality. After any

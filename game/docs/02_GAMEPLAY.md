@@ -284,7 +284,7 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
 
 ## Decision log
 
-- 2026-11-22: Soundtrack release `soundtrack-2026-11-22`: Casey chose existing downloaded Suno music plus original locally composed MIDI for missing themes to avoid additional export fees. Completed 28 music contexts/cues; preserved saves, balance and the existing three tracks. MIDI sources remain editable; prepared MP3s play in the browser.
+- 2026-11-22: Soundtrack release `soundtrack-2026-11-22`: Casey chose existing downloaded Suno music plus original locally composed MIDI for missing themes to avoid additional export fees. Completed 28 music contexts/cues; preserved saves, balance and the existing three tracks. MIDI sources remain editable; prepared MP3 loops and PCM WAV cues play in the browser.
 
 - 2026-11-22: Release `magic-and-sound-2026-11-22` gives the eight existing spell Circles distinct images and sounds, stronger rare-page presentation, and arrival-timed projectile impacts. Added creature-family, crafting, fishing, footstep, room-door and transaction feedback. Fixed duplicate healing, weapon sound selection and chase-death cues. These are presentation changes; progression, damage, saves and music tracks are unchanged.
 

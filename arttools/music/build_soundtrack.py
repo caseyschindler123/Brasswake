@@ -403,8 +403,9 @@ def encode(ffmpeg,audio,out,work,bitrate=128):
     gain=min(-18-float(measured['input_i']),-2.7-float(measured['input_tp']))
     af=f'volume={gain:.6f}dB'
     out.parent.mkdir(parents=True,exist_ok=True)
+    codec=['-c:a','pcm_s16le'] if out.suffix=='.wav' else ['-c:a','libmp3lame','-b:a',f'{bitrate}k','-write_xing','1']
     run(ffmpeg,'-v','error','-y','-i',wav,'-af',af,'-ar',SR,'-ac','2',
-        '-map_metadata','-1','-c:a','libmp3lame','-b:a',f'{bitrate}k','-write_xing','1',out)
+        '-map_metadata','-1',*codec,out)
     stats=loudness(ffmpeg,out)
     decoded=decode(ffmpeg,out)
     peak=float(np.max(np.abs(decoded)))
@@ -510,7 +511,7 @@ def build(args):
         description='25 new assets; existing m_tallyport, m_bilge and m_combat remain unchanged.',
         toolchain=dict(python='3.12',numpy=np.__version__,scipy=__import__('scipy').__version__,
                        ffmpeg=run(args.ffmpeg,'-version').stdout.decode().splitlines()[0],
-                       encoder='libmp3lame stereo, originals 128 kb/s and Suno preparations 192 kb/s; gapless Xing header',
+                       encoder='Looping MP3: libmp3lame stereo, originals 128 kb/s and Suno preparations 192 kb/s; gapless Xing header. One-shot cues: 16-bit stereo PCM WAV for exact cross-platform duration.',
                        renderer='Original deterministic band-limited additive/FM synthesis; no samples or SoundFonts',
                        normalization='EBU R128 measurement, constant gain to -18 LUFS with -2.7 dBTP ceiling, post-encode verification'),
         retained=['m_tallyport','m_bilge','m_combat'],tracks={})
@@ -526,7 +527,8 @@ def build(args):
             origin=dict(kind='original-midi',author='Brasswake soundtrack, authored 2026-11-22',
                         provenance='Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.',
                         midiSHA256=hashlib.sha256(midi.read_bytes()).hexdigest(),bars=bars)
-            entry=new_entry(args.ffmpeg,ROOT/'game'/'art'/'mu'/(ident+'.mp3'),audio,period,work,origin,loop,midi,s)
+            suffix='.mp3' if loop else '.wav'
+            entry=new_entry(args.ffmpeg,ROOT/'game'/'art'/'mu'/(ident+suffix),audio,period,work,origin,loop,midi,s)
             # A cue plays the entire natural release, rather than its MIDI gate end.
             if not loop: entry['b']=entry['duration']
             catalog['tracks'][ident]=entry
