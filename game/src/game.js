@@ -52,7 +52,7 @@
   const CAP = 400, skCap = id => (S.pcap && S.pcap[id]) || 100, gainBoost = () => (S.boost || 0) > Date.now(), rv = id => S.sk[id] || 0, rpgName = id => RPG.find(x => x[0] === id)[1];
   const total = () => Math.round(Object.values(S.sk).reduce((a, b) => a + b, 0) * 10) / 10;
   const maxHp = () => 50 + Math.round(total() / 8);
-  const heal = n => { const b = S.hp; S.hp = Math.max(0, Math.min(maxHp(), Math.round(S.hp + n))); if (S.hp > b && typeof Scene !== 'undefined') Scene.FX.heal(); return S.hp - b; };
+  const heal = (n, quiet) => { const b = S.hp; S.hp = Math.max(0, Math.min(maxHp(), Math.round(S.hp + n))); if (!quiet && S.hp > b && typeof Scene !== 'undefined') Scene.FX.heal(); return S.hp - b; };
   const diffOf = (t, elite, boss) => Math.min(100, (t - 1) * 12 + 8 + (elite ? 8 : 0) + (boss ? 14 : 0));
   const bestWeapon = () => Object.keys(WEAP).reduce((a, b) => rv(b) > rv(a) ? b : a, 'swords');
   const mkFoe = (t, diff, mult, boss) => { const hp = Math.round((30 + 6 * t) * mult); return { hp, max: hp, diff, swings: boss ? 3 : 2 }; };
@@ -339,6 +339,7 @@
   function grant(o) {
     const gold = Math.round((o.gold || 0) * (o.raw ? 1 : 1 + bonus('gold') / 100)); S.gold += gold;   /* o.raw: your own gold back from your body is not a find */ for (const k in (o.mats || {})) S.mats[k] = have(k) + o.mats[k]; if (o.sigils) S.mats.sigil = have('sigil') + o.sigils; if (o.meat) S.meat = (S.meat || 0) + o.meat; for (const k in (o.food || {})) addFood(k, o.food[k]); if (o.hide) S.mats.hide = have('hide') + o.hide; if (o.runes) S.runes = (S.runes || 0) + o.runes; if (o.bless) S.blessd = (S.blessd || 0) + o.bless; if (o.gscr) S.gscr = (S.gscr || 0) + o.gscr; (o.pscr || []).forEach(x => (S.pscr = S.pscr || []).push(x));
     const scr = (o.scrolls || []).filter(id => !owned(id) && !S.scr[id]); scr.forEach(addScroll);
+    if (!o.raw && ((o.items || []).some(it => it.unique || it.rarity === 'epic' || it.rarity === 'legendary') || scr.some(id => pageById(id).rare))) Sound.sfx('reward');
     return { gold, mats: o.mats || {}, sigils: o.sigils || 0, meat: o.meat || 0, hide: o.hide || 0, runes: o.runes || 0, bless: o.bless || 0, gscr: o.gscr || 0, pscr: o.pscr || [], food: o.food || {}, items: (o.items || []).map(give).filter(Boolean), scrolls: scr.map(pageById) };
   }
   const gainLine = g => g && g.length ? `<p class="gline">${g.map(x => `${rpgName(x.id)} ${x.capped ? 'at cap' : '+' + (x.after - x.before).toFixed(1)}`).join(' · ')}</p>` : '';
@@ -435,6 +436,7 @@
   }
   function craftRoll(res) {
     const t = Q.r, x = Q.recipe, pg = bestPage('craft'), o = odds(rv(Q.csk), Q.diff, res.grade, res.share), win = rnd() * 100 < o.p, gl = [], g0 = gain(Q.csk, Q.diff, { correct: 1, close: .6, partial: .4, wrong: 0 }[res.grade]); if (g0) gl.push(g0); let body;
+    Sound.sfx(win ? Q.csk === 'alchemy' ? 'alchemy' : 'smith' : 'craftFail');
     if (win) { const exc = res.ok && rnd() * 100 < rv(Q.csk) + (pg && pg.rare ? 20 : 0), out = { items: [] }; let head; S.mats[t] = have(t) - x.mats; if (x.sigils) S.mats.sigil = have('sigil') - x.sigils;
       if (x.id === 'scroll') { S.hints += exc ? 2 : 1; head = exc ? 'Two Hint Keys' : 'A Hint Key'; } else if (x.id === 'tonic') { S.tonics += exc ? 2 : 1; head = exc ? 'Two Healing Draughts' : 'A Healing Draught'; }
       else { const it = makeItem(x.id, t, Q.slot, Q.slot === 'weapon' ? (S.path === 'mage' ? 'magery' : armsSkill()) : null); if (exc) { for (const q in it.stats) it.stats[q] = Math.round(it.stats[q] * 1.25); it.name = 'Exceptional ' + it.name; } out.items.push(it); head = exc ? 'Exceptional work' : 'Well made'; }
@@ -450,6 +452,7 @@
   function openF(cfg) { closeSay(); closeSheet(); F = Object.assign({ st: 'choose', round: 0, busy: false, hint: 0, hints: [], tries: 0, chips: '', after: '' }, cfg); Scene.FX.lock(true); if (F.ent) Scene.FX.face(F.ent); $('#fight').hidden = false; $('#nav').hidden = true; $('#ctx').hidden = true; $('#app').classList.add('infight'); Scene.resume(); barsF(); drawF(); if (F.act === 'fight' && S.tut >= 1) coach('fight'); }
   const BODY_MS0 = 10 * 60 * 1000; let BODY_MS = BODY_MS0;
   function dropBody() {
+    Sound.sfx('death');
     if (gOn() && S.gd <= gix('bank')) return;
     // worn gear falls with you unless it is blessed or insured; insurance is paid from the bank, per item, per death
     const keep = new Set(), D = S.lastDeath = { lost: [], ins: [], fee: 0, broke: [] };
@@ -465,7 +468,7 @@
   function placeBody() { const B = S.remains; if (!B) return; const left = B.until - Date.now(); if (left <= 0) { S.remains = null; return; } if (Scene.inDungeonMap()) return; if (Scene.find(e => e.mine)) return; Scene.remains(B.x, B.y, B.loot, left / 1000); }
   function closeF() {
     unCoach('fight', 'fprompt', 'stealth'); const f = F; if (!f) return; F = null; $('#fight').hidden = true; $('#fight').innerHTML = ''; $('#nav').hidden = false; $('#app').classList.remove('infight'); Scene.FX.lock(false); Scene.FX.bars([]); Scene.FX.inset(0); if (f.ent) { Scene.FX.free(f.ent); f.ent.calm = 12; } closeSheet();
-    if (f.kick) { Sound.sfx('death'); dropBody(); S.hp = maxHp(); DG = null; const t = Scene.towns()[S.region]; Scene.load([t[0] - 13, t[1] + 10], S.region); placeBody(); save(); toast(S.remains ? 'You wake at the healer’s. Your things are where you fell.' : 'You wake at the healer’s, patched up'); deathNote(); }
+    if (f.kick) { dropBody(); S.hp = maxHp(); DG = null; const t = Scene.towns()[S.region]; Scene.load([t[0] - 13, t[1] + 10], S.region); placeBody(); save(); toast(S.remains ? 'You wake at the healer’s. Your things are where you fell.' : 'You wake at the healer’s, patched up'); deathNote(); }
     Scene.refresh(); render(); if (f.kind === 'boss' && f.r === 8 && S.won && !S.ended) { S.ended = 1; save(); setTimeout(ending, 500); }
   }
   function taskFor(page) {
@@ -529,7 +532,7 @@
     const mult = power(p.c) * resist(p.c, F.r) * (1 + dmgPct(sid) / 100), n = W.swings + (p.rare && p.book === 'arms' ? 1 : 0), back = Math.max(0, f.swings - (p.rare && p.book === 'spell' ? 1 : 0));
     F.pline = `${o.p}% a swing${NR > 1 ? ` · ${NR} rounds` : ''}`; F.st = 'after'; F.busy = true; drawF();
     for (let r = 0; r < NR; r++) { if (NR > 1) steps.push(() => { if (f.hp <= 0 || S.hp <= 0) return false; chip('lab rd', 'Round ' + (r + 1)); return false; });
-    for (let i = 0; i < n; i++) steps.push(() => { if (f.hp <= 0) return false; Scene.FX.swing('me', e, p.book === 'spell' ? 'spell' : 'hit'); if (rnd() * 100 < o.p) { const d = Math.max(1, Math.round((rint(W.dmg[0], W.dmg[1]) + rv(sid) / 8) * mult)); f.hp -= d; chip('hit', d); Scene.FX.hit(e, d, '#ffe9a0'); } else { chip('miss', 'miss'); Scene.FX.hit(e, 'miss', '#cfd6d8'); } barsF(); });
+    for (let i = 0; i < n; i++) steps.push(() => { if (f.hp <= 0) return false; Scene.FX.swing('me', e, p.book === 'spell' ? 'spell' : sid, p.book === 'spell' ? Effects.spell(p.c, p.rare) : null); if (rnd() * 100 < o.p) { const d = Math.max(1, Math.round((rint(W.dmg[0], W.dmg[1]) + rv(sid) / 8) * mult)); f.hp -= d; chip('hit', d); Scene.FX.hit(e, d, '#ffe9a0'); } else { chip('miss', 'miss'); Scene.FX.hit(e, 'miss', '#cfd6d8'); } barsF(); });
     if (!(free && r === 0)) { steps.push(() => { if (f.hp <= 0) return false; chip('lab', esc(F.title) + ':'); return false; });
       for (let i = 0; i < back; i++) steps.push(() => { if (f.hp <= 0 || S.hp <= 0) return false; Scene.FX.swing(e, 'me', 'hit'); if (rnd() * 100 < Math.max(20, Math.min(85, 50 + (f.diff - rv(sid))))) { const d = Math.max(1, Math.round((rint(3, 6) + 2 * F.r + (F.boss ? 2 : 0)) * (1 - Math.min(60, bonus('def')) / 100))); S.hp = Math.max(0, S.hp - d); chip('ouch', '−' + d); Scene.FX.hit('me', '−' + d, '#ff8a70'); } else { chip('miss', 'miss'); Scene.FX.hit('me', 'miss', '#cfd6d8'); } barsF(); renderHud(); }); } }
     play(steps, () => { if (!F) return; F.busy = false; if (f.hp <= 0) return winF(res, gl); if (S.hp <= 0) return loseF(res, gl);
@@ -1024,7 +1027,7 @@
   const fishLeft = fid => { const d = S.fishd[fid]; return d && d.day === dayKey() ? Math.max(0, 4 - d.n) : 4; };
   function fishOpen(e, i) {
     if (!fishLeft(e.fid)) return toast('The fish here have gone quiet until tomorrow'); const r = e.r, c = Math.max(1, Math.min(8, i === 0 ? r - 2 : i === 1 ? r : r + 1)), tpl = pick(BOUNTIES.filter(b => b.r === c)).id;
-    closeSay(); closeSheet(); FI = { e, r, i, c, task: makeTask({ tpl, seed: seeded(tpl) }), res: null, out: null, err: '', draft: '' }; Scene.pause(); $('#enc').hidden = false; $('#nav').hidden = true; fiDraw();
+    Sound.sfx('fishCast'); closeSay(); closeSheet(); FI = { e, r, i, c, task: makeTask({ tpl, seed: seeded(tpl) }), res: null, out: null, err: '', draft: '' }; Scene.pause(); $('#enc').hidden = false; $('#nav').hidden = true; fiDraw();
   }
   function fiRun() {
     const sql = $('#sql').value; if (!sql.trim() || FI.res) return; FI.draft = sql; const res = Engine.grade(FI.task, sql); if (res.err) { FI.err = res.err; return fiDraw(); }
@@ -1037,6 +1040,7 @@
     else if (deep >= 1 && fs >= FISHNEED.rare && u < .2) { sp = F4[3]; ic = ['glowfish', 'eel', 'carp', 'crab'][r % 4]; G.gold = 34 * r; S.fishlog[sp] = (S.fishlog[sp] || 0) + 1; t = `${sp}. People fish this water all their lives and never see one. A collector pays you on the spot.`; }
     else if (deep >= 1 && fs >= FISHNEED.good && u < .62) { sp = F4[2]; ic = r % 2 ? 'bigfish' : 'pike'; G.food.bigfish = 1; S.fishlog[sp] = (S.fishlog[sp] || 0) + 1; t = `A ${sp}, and a good one.`; }
     else { sp = F4[u < .5 ? 0 : 1]; ic = u < .5 ? 'fish' : 'perch'; G.food.fish = 1; S.fishlog[sp] = (S.fishlog[sp] || 0) + 1; t = `A ${sp}.`; }
+    Sound.sfx(sp || ic && !['boot', 'weed', 'rustkey'].includes(ic) ? 'fishCatch' : 'fishEmpty');
     const gn = gain('fishing', Math.min(95, diff), res.ok ? 1 : res.grade === 'close' ? .5 : .25), got = grant(G); FI.res = res; FI.out = { t, got, gn, ic }; if (gid() === 'fish') setTimeout(() => gDone('fish'), 1500); save(); renderHud(); fiDraw();
   }
   function fiClose() { FI = null; $('#enc').hidden = true; $('#enc').innerHTML = ''; $('#nav').hidden = false; Scene.refresh(); render(); }
@@ -1320,7 +1324,8 @@
     },
     interact(e) { if (Q || F || DU) return; CE = e; (SH[e.kind] || (() => { }))(e); if (gid() === 'folk' && /^(folk|npc|home|tavern|healer|registrar|stallkeep|shopkeep|banker|rival|casino)$/.test(e.kind) && !(e.kind === 'npc' && e.i === 0)) { S.gd++; save(); gEnter(); } },
     entered(r) { if (S.region === r && S.been[r]) return; S.region = r; S.been[r] = 1; sel = r; save(); },
-    moved(x, y, dun, run) { if (gOn()) gMoved(x, y, dun, run); if (!dun) { S.pos = [x, y]; if (S.mv % 3 === 0) { S.lairs = S.lairs || {}; for (const L of Scene.sites()) if (L.kind === 'lair' && !S.lairs[L.id] && Math.hypot(L.x - x, L.y - y) < 11) { S.lairs[L.id] = 1; save(); toast(`Found: ${L.name}. It is on your map now.`); coach('lair'); } } } S.mv = (S.mv || 0) + 1; if (S.mv % 5 === 0 && S.hp < maxHp()) { heal(1 + Math.floor(rv('healing') / 40)); renderHud(); } },
+    sound: (name, detail) => Sound.sfx(name, detail),
+    moved(x, y, dun, run) { if (gOn()) gMoved(x, y, dun, run); if (!dun) { S.pos = [x, y]; if (S.mv % 3 === 0) { S.lairs = S.lairs || {}; for (const L of Scene.sites()) if (L.kind === 'lair' && !S.lairs[L.id] && Math.hypot(L.x - x, L.y - y) < 11) { S.lairs[L.id] = 1; save(); toast(`Found: ${L.name}. It is on your map now.`); coach('lair'); } } } S.mv = (S.mv || 0) + 1; if (S.mv % 5 === 0 && S.hp < maxHp()) { heal(1 + Math.floor(rv('healing') / 40), true); renderHud(); } },
     hud(n) { const ob = objective(), k = (n ? n.kind + n.name : '') + ob + (F ? 'f' : ''); if (k === HOST._k) return; HOST._k = k; const b = $('#ctx'); b.hidden = !n || !!F; if (n) b.textContent = ({ banker: 'Bank: ', guide: 'Talk: ', lookout: 'Climb: ', dojo: 'Go in: ', hallexit: 'Leave: ', master: 'Talk: ', student: 'Talk: ', sorrel: 'Talk: ', traveler: 'Talk: ', odalys: 'Talk: ', foe: 'Talk: ', dummy: 'Practice: ', bracket: 'Read: ', rnote: 'Read: ', npc: 'Talk: ', folk: 'Talk: ', tavern: 'Talk: ', healer: 'Talk: ', registrar: 'Talk: ', stallkeep: 'Trade: ', shopkeep: 'Trade: ', rival: 'Approach: ', boss: 'Face: ', mon: 'Engage: ', guard: 'Engage: ', node: 'Gather: ', board: 'Read: ', bench: 'Use: ', stairs: 'Enter: ', chest: 'Open: ', exit: 'Use: ', page: 'Read: ', camp: 'Rest: ', peddler: 'Trade: ', cache: 'Open: ', corpse: 'Loot: ', casino: 'Enter: ', home: 'Talk: ', fish: 'Fish: ', stock: '', poi: (n.sub || 'Look') + ': ' }[n.kind] || '') + n.name; $('#obj').textContent = ob; }
   };
 
@@ -1420,11 +1425,13 @@
   function soundUp() {
     Sound.init(() => !sceneUp || !S ? null : { fight: !!(F && F.act === 'fight' && !F.over), dun: Scene.inDungeonMap() ? Scene.mapRegion() : 0, region: S.region });
     const g = Engine.grade; Engine.grade = (t, q) => { const r = g(t, q); if (r && !r.err && r.grade) Sound.sfx(r.grade); return r; };
-    const X = Scene.FX, sw = X.swing, ht = X.hit, hl = X.heal, tr = X.treasure;
-    X.swing = (a, b, kind) => { Sound.sfx(kind === 'spell' ? 'cast' : a !== 'me' ? 'swing' : { fencing: 'thrust', archery: 'bow', magery: 'cast' }[bestWeapon()] || 'swing'); return sw(a, b, kind); };
-    X.hit = (b, txt, col) => { const t = String(txt); Sound.sfx(t === 'miss' || t === '0' ? 'miss' : t[0] === '+' ? 'heal' : b === 'me' ? 'hurt' : 'hit'); return ht(b, txt, col); };
-    X.heal = (...a) => { Sound.sfx('heal'); return hl(...a); };
-    X.treasure = (...a) => { Sound.sfx('coins'); return tr(...a); };
+    const X = Scene.FX, sw = X.swing;
+    X.swing = (a, b, kind, style) => {
+      if (a === 'me') { if (kind === 'hit') kind = armsSkill(); if (kind === 'spell' && !style) style = Effects.spell(DU ? DU.c || DU.r : F && F.page ? F.page.c : 1, F && F.page && F.page.rare); }
+      else if (kind === 'hit') { const family = Effects.creature(a && a.name); if (family === 'spirit' || family === 'dragon') { kind = 'spell'; style = Effects.spell(family === 'dragon' ? 5 : a.r || 6); } else if (family === 'bow') kind = 'archery'; }
+      return sw(a, b, kind, style);
+    };
+    for (const k of Object.keys(ACT).filter(k => /^(buy|sell)|^(bdep|bwd)$/.test(k))) { const fn = ACT[k]; ACT[k] = (...args) => { const gold = S.gold, result = fn(...args); if (S.gold !== gold) Sound.sfx('coins'); return result; }; }
     document.addEventListener('click', e => { if (e.target.closest && e.target.closest('.btn')) Sound.sfx('click'); }, true);
   }
 

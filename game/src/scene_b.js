@@ -136,7 +136,7 @@
     const fh = 6 * K, fr = mk(W, fh); fillTex(fr, kitPiece('t_stone'), 0, 0, W, fh); fr.getContext('2d').clearRect(R.door * T * K, 0, T * K, fh); fr.hr = 1;
     return o.ra = { v: artVer, fl, wl, sd, fr }; }
   // Fade the building in or out as the hero crosses its footprint.
-  function roomFade(o, dt) { const inside = P && map === world && P.x >= o.x && P.x < o.x + o.w && P.y >= o.y && P.y < o.y + o.h; o.fa += ((inside ? 0 : 1) - o.fa) * Math.min(1, dt * 7); if (Math.abs(o.fa - (inside ? 0 : 1)) < .01) o.fa = inside ? 0 : 1; return o.fa; }
+  function roomFade(o, dt) { const inside = P && map === world && P.x >= o.x && P.x < o.x + o.w && P.y >= o.y && P.y < o.y + o.h; if (o.inside != null && inside !== o.inside) emit('door'); o.inside = inside; o.fa += ((inside ? 0 : 1) - o.fa) * Math.min(1, dt * 7); if (Math.abs(o.fa - (inside ? 0 : 1)) < .01) o.fa = inside ? 0 : 1; return o.fa; }
   function dress(e) { e.sv = artVer; if (e.wk || e.ak) { e.spr = (e.wk && artWalk(e.wk)) || (e.ak && artFolk(e.ak)) || e.spr; if (e.hop && e.spr && !e.spr.l) e.spr.one = 1; } else if (e.kind === 'mon') e.spr = monSprite(e.inst.lk || e.inst.tpl); else if (e.kind === 'stock') e.spr = monSprite(e.tpl); else if (e.kind === 'guard') e.spr = monSprite(e.tpl); else if (e.kind === 'boss') e.spr = bossSprite(e.r); if (e.ok) e.obj = spr(e.ok, e.r); }
   // rings spreading on the water where the fish are
   const RIP = []; function ripple(t) { if (!RIP.length) for (let f = 0; f < 6; f++) { const c = mk(22, 12), g = c.getContext('2d'); g.strokeStyle = `rgba(255,255,255,${.75 - f * .11})`; g.lineWidth = 1; g.beginPath(); g.ellipse(11, 6, 2 + f * 1.7, 1 + f * .9, 0, 0, 6.283); g.stroke(); if (f < 3) { g.fillStyle = 'rgba(255,255,255,.8)'; g.fillRect(10, 5, 2, 1); } RIP.push(c); } return RIP[Math.floor(t / 170) % 6]; }
@@ -500,7 +500,7 @@
   function step(dt) {
     clock = (clock + dt / 600) % 1;
     for (const a of anims) { a.t += dt; a.f(Math.min(1, a.t / a.d)); if (a.t >= a.d && a.end) a.end(); } anims = anims.filter(a => a.t < a.d);
-    if (P.atk > 0) P.atk -= dt; for (const f of floats) f.t += dt; floats = floats.filter(f => f.t < 1); for (const s of slashes) s.t += dt; slashes = slashes.filter(s => s.t < (s.d || .2)); for (const s of shots) s.t += dt; shots = shots.filter(s => { if (s.t < .22) return true; slashes.push({ x: s.tx, y: s.ty, t: 0, row: 2, f: 3, d: .24 }); return false; });   // a bolt bursts where it lands
+    if (P.atk > 0) P.atk -= dt; advanceEffects(dt);
     if (!locked) {
       if (P.path.length) { const [nx, ny] = P.path[0]; if (blocked(nx, ny)) { P.path = P.target ? pathTo(P.target.x, P.target.y, true) : []; } else { const dx = nx - P.fx, dy = ny - P.fy, d = Math.hypot(dx, dy), sp = (P.run ? RUN * (host.runMul ? host.runMul() : 1) : WALK) * dt; { const sx = nx - P.x, sy = ny - P.y; P.dg = sx && sy ? (sy > 0 ? 'd' : 'u') + (sx > 0 ? 'r' : 'l') : null; if (sx || sy) P.d8 = D8(sx, sy); } P.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 's' : 'l') : (dy > 0 ? 'f' : 'b'); P.walk += dt * (P.run ? 13 : 9); P.wd = (P.wd || 0) + Math.min(sp, d); if (d <= sp) { P.fx = P.x = nx; P.fy = P.y = ny; P.path.shift(); onTile(); if (!P.path.length && P.target) arrive(); } else { P.fx += dx / d * sp; P.fy += dy / d * sp; } } } else P.walk = 0;
       if (hold && !P.target) { hold[2] += dt; if (hold[2] > .2) { if (P.path.length > 1) P.path.length = 1; if (!P.path.length) { const hx = (P.fx * T + 8 - cam.x) * zoom, hy = (P.fy * T + 8 - cam.y) * zoom, vx = hold[0] - hx, vy = hold[1] - hy;
@@ -546,7 +546,11 @@
     if (banner) { banner.t -= dt; if (banner.t <= 0) banner = null; }
     if (!map.pending) fade = Math.max(0, fade - dt * 2.2);
   }
-  function onTile() { host.moved(P.x, P.y, map.dungeon, P.run); }
+  function onTile() {
+    const k = map.t[P.y * map.w + P.x], room = (map.blds || []).find(o => o.enter && P.x >= o.x && P.x < o.x + o.w && P.y >= o.y && P.y < o.y + o.h);
+    const surface = room ? room.room.fl === 'flag' ? 'stone' : 'wood' : map.hall || k === 6 ? 'wood' : map.dungeon || k === 3 || k === 7 ? 'stone' : 'earth';
+    emit('step', surface); host.moved(P.x, P.y, map.dungeon, P.run);
+  }
 
   /* ---------- drawing ---------- */
   const OBJK = [null, 'tree0', 'tree1', 'tree2', 'rock0', 'rock1', 'bush', 'flowers', null, null, 'bones'];
@@ -587,11 +591,15 @@
     list.sort((a, c2) => a[0] - c2[0]);
     for (const [, im, px, py, flip, sc, fl, al, rot, fx] of list) { if (!im) continue; const X = Math.round((px - ox0) * K) / K, Y = Math.round((py - oy0) * K) / K, w = lw(im) * (sc || 1), h = lh(im) * (sc || 1); if (al != null && al < 1) g.globalAlpha = al; if (im.sm) { g.imageSmoothingEnabled = true; if (flip) { g.save(); g.translate(X + w, Y); g.scale(-1, 1); g.drawImage(im, 0, 0, w, h); g.restore(); } else g.drawImage(im, X, Y, w, h); g.imageSmoothingEnabled = false; continue; } if (rot) { g.fillStyle = 'rgba(0,0,0,.22)'; g.beginPath(); g.ellipse(X + w / 2, Y + h - 1, h * .46, 3, 0, 0, 7); g.fill(); g.save(); g.translate(X + w / 2 - h / 2, Y + h - w / 2); g.rotate(Math.PI / 2); g.drawImage(im, -w / 2, -h, w, h); g.restore(); g.globalAlpha = 1; continue; } if (flip) { g.save(); g.translate(X + w, Y); g.scale(-1, 1); g.drawImage(im, 0, 0, w, h); if (fl) { g.globalCompositeOperation = 'lighter'; g.drawImage(im, 0, 0, w, h); } g.restore(); } else { g.drawImage(im, X, Y, w, h); if (fl) { g.globalCompositeOperation = 'lighter'; g.drawImage(im, X, Y, w, h); g.globalCompositeOperation = 'source-over'; } } if (fx) dollFx(g, fx, im.mask, X, Y, w, h, flip, now); g.globalAlpha = 1; }
     // blows and bolts
-    for (const s of slashes) { const u = s.t / (s.d || .2), X = s.x * T + 8 - ox0, Y = s.y * T + 4 - oy0 - (s.rise || 0) * u * T, one = s.f != null, fi = artFx(s.row || 0, one ? s.f : Math.min(3, Math.floor(u * 4)));
+    for (const s of slashes) { const u = s.t / (s.d || .2), X = s.x * T + 8 - ox0, Y = s.y * T + 4 - oy0 - (s.rise || 0) * u * T;
+      if (s.style) { g.save(); g.translate(X, Y); Effects.drawMagic(g, s.style, s.phase, u); g.restore(); continue; }
+      const one = s.f != null, fi = artFx(s.row || 0, one ? s.f : Math.min(3, Math.floor(u * 4)));
       if (fi) { const k = one ? .65 + .35 * Math.min(1, u * 3) : 1; g.save(); g.globalAlpha = one ? Math.min(1, (1 - u) * 2.5) : 1; if (s.flip && !s.row) { g.translate(2 * X, 0); g.scale(-1, 1); } g.drawImage(fi, X - lw(fi) * k / 2, Y - lh(fi) * k / 2, lw(fi) * k, lh(fi) * k); g.restore(); continue; } if (s.row) continue; g.strokeStyle = `rgba(255,255,240,${1 - u})`; g.lineWidth = 2.5; g.lineCap = 'round'; g.beginPath(); g.arc(X + (s.flip ? 4 : -4), Y, 9, (s.flip ? Math.PI : 0) - 1.1 + u * 1.6, (s.flip ? Math.PI : 0) + .2 + u * 1.6); g.stroke(); }
-    for (const s of shots) { const u = s.t / .22, X = (s.x + (s.tx - s.x) * u) * T + 8 - ox0, Y = (s.y + (s.ty - s.y) * u) * T + 2 - oy0, fb = artFx(2, u < .2 ? 0 : 1 + (Math.floor(s.t * 24) & 1));
-      if (fb) { g.save(); if (u < .2) g.translate(s.x * T + 8 - ox0, s.y * T + 2 - oy0); else { g.translate(X, Y); g.rotate(Math.atan2(s.ty - s.y, s.tx - s.x)); } const k = u < .2 ? .7 : .8; g.drawImage(fb, -lw(fb) * k * (u < .2 ? .5 : .78), -lh(fb) * k / 2, lw(fb) * k, lh(fb) * k); g.restore(); continue; }   // forms at the caster, then flies head first
-      const gr = g.createRadialGradient(X, Y, 0, X, Y, 7); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.4, 'rgba(140,190,255,.9)'); gr.addColorStop(1, 'rgba(90,120,255,0)'); g.fillStyle = gr; g.fillRect(X - 7, Y - 7, 14, 14); }
+    for (const s of shots) { const u = Math.min(1, s.t / FLIGHT), X = (s.x + (s.tx - s.x) * u) * T + 8 - ox0, Y = (s.y + (s.ty - s.y) * u) * T + 2 - oy0;
+      g.save(); g.translate(X, Y); g.rotate(Math.atan2(s.ty - s.y, s.tx - s.x));
+      if (s.style) Effects.drawMagic(g, s.style, 'flight', u);
+      else { g.strokeStyle = '#e8d4a3'; g.lineWidth = 1; g.beginPath(); g.moveTo(-9, 0); g.lineTo(7, 0); g.lineTo(3, -2); g.moveTo(7, 0); g.lineTo(3, 2); g.stroke(); }
+      g.restore(); }
     for (const f of flies) { const X = f.x * T - ox0, Y = f.y * T - oy0, al = Math.min(1, f.l * 2, f.bird ? 1 : (f.l > 1 ? 1 : f.l)), wf = Math.floor(now / (f.bird ? 110 : 70) + f.s * 9) % 4, im = artFx2(f.bird ? 3 : 2, wf); g.globalAlpha = al;
       if (f.bird) { g.fillStyle = 'rgba(0,0,0,.16)'; g.beginPath(); g.ellipse(X + 5, Y + 22, 4, 1.6, 0, 0, 7); g.fill(); }   // its shadow on the ground far below
       if (im) { const k = f.bird ? .4 : .26, w = lw(im) * k, h = lh(im) * k; g.save(); g.translate(X, Y); g.rotate(Math.atan2(f.vy, f.vx) + Math.PI / 2); g.drawImage(im, -w / 2, -h / 2, w, h); g.restore(); }
@@ -643,7 +651,7 @@
   function place(x, y) { if (map && map.solid[y * map.w + x]) { let best = null; for (let rr = 1; rr < 16 && !best; rr++) for (let dy = -rr; dy <= rr && !best; dy++) for (let dx = -rr; dx <= rr; dx++) { const i = (y + dy) * map.w + x + dx; if (x + dx > 0 && y + dy > 0 && x + dx < map.w && y + dy < map.h && !map.solid[i] && !map.occ.has(i) && (!map.seen || map.seen[i])) { best = [x + dx, y + dy]; break; } } if (best) { x = best[0]; y = best[1]; } }   // the world can gain a building where a saved game left the hero
     P = { x, y, fx: x, fy: y, dir: 'f', path: [], walk: 0, target: null, spr: heroArt() }; }
   let flies = [], flyT = 0, SHOWB = false;
-  function go(m, x, y) { map = m; place(x, y); fade = 1; parts = []; flies = []; anims = []; floats = []; bars = []; locked = false; curReg = m.dungeon ? m.r : (m.reg[y * m.w + x] || 1); curB = m.dungeon ? m.r : (m.b[y * m.w + x] || curReg); curT = null; ambNow = m.pal[curB].amb; need(curReg); host.entered(curReg); if (AD && !packs(curReg).every(have)) { m.pending = true; const t = setTimeout(() => { m.pending = false; }, 5000); Promise.all(packs(curReg).map(n => img(n).p)).then(() => { clearTimeout(t); m.pending = false; if (P) P.spr = heroArt(); }); } banner = { a: m.hall ? 'The dojo' : m.dungeon ? host.dungeonName(m.r) : host.regionName(curReg), b: m.hall ? host.regionName(m.r) : m.dungeon ? 'walk in, walk out' : host.regionSub(curReg), t: 3.2 }; }
+  function go(m, x, y) { map = m; place(x, y); fade = 1; parts = []; flies = []; anims = []; floats = []; slashes = []; shots = []; bars = []; locked = false; curReg = m.dungeon ? m.r : (m.reg[y * m.w + x] || 1); curB = m.dungeon ? m.r : (m.b[y * m.w + x] || curReg); curT = null; ambNow = m.pal[curB].amb; need(curReg); host.entered(curReg); if (AD && !packs(curReg).every(have)) { m.pending = true; const t = setTimeout(() => { m.pending = false; }, 5000); Promise.all(packs(curReg).map(n => img(n).p)).then(() => { clearTimeout(t); m.pending = false; if (P) P.spr = heroArt(); }); } banner = { a: m.hall ? 'The dojo' : m.dungeon ? host.dungeonName(m.r) : host.regionName(curReg), b: m.hall ? host.regionName(m.r) : m.dungeon ? 'walk in, walk out' : host.regionSub(curReg), t: 3.2 }; }
   function load(pos, r) {
     if (!world) world = genWorld(); for (const [, c] of world.chunks) c.width = c.height = 0; world.chunks.clear();
     const free = (x, y) => x > 0 && y > 0 && x < WW && y < WH && !world.solid[y * WW + x] && world.seen[y * WW + x] && !world.occ.has(y * WW + x);
@@ -698,15 +706,50 @@
   const backdrop = (r, dun) => AD ? 'art/bg/I' + String(dun ? 8 + r : r).padStart(2, '0') + '.jpg' : '';
   // fights are played on the map: the host asks for lunges, hits and health bars
   const who = a => a === 'me' ? P : a;
+  const emit = (name, detail) => { if (host && host.sound) host.sound(name, detail); };
+  const FLIGHT = .26;
+  function advanceEffects(dt) {
+    for (const f of floats) f.t += dt; floats = floats.filter(f => f.t < 1);
+    for (const s of slashes) s.t += dt; slashes = slashes.filter(s => s.t < (s.d || .2));
+    for (const s of shots) s.t += dt;
+    shots = shots.filter(s => {
+      if (s.t < FLIGHT) return true;
+      const miss = s.impact && (String(s.impact.txt) === 'miss' || String(s.impact.txt) === '0');
+      if (s.style) slashes.push({ x: s.tx, y: s.ty, t: 0, style: s.style, phase: miss ? 'fizzle' : 'impact', d: .36 });
+      if (s.impact) landHit(s.impact.b, s.impact.txt, s.impact.col, s.style);
+      return false;
+    });
+  }
+  function landHit(b, txt, col, style) {
+    const B = who(b); if (!B) return; const text = String(txt), healing = text[0] === '+', miss = text === 'miss' || text === '0';
+    if (!healing) emit(miss ? 'miss' : style ? 'spellHit' : b === 'me' ? 'hurt' : 'hit', style);
+    if (!miss && !healing) {
+      B.flash = .16; if (!style) slashes.push(b === 'me' ? { x: B.fx, y: B.fy, t: 0, row: 3, f: 2, d: .3 } : { x: B.fx, y: B.fy, t: 0, row: 1 });
+      anims.push({ t: 0, d: .16, f: u => { B.ax = Math.sin(u * Math.PI * 3) * .07; }, end: () => { B.ax = 0; } });
+    }
+    floats.push({ e: b, txt: text, col: col || '#fff', t: 0, dx: (Math.random() - .5) * 26 });
+  }
   const FX = {
-    heal() { if (map && P) slashes.push({ x: P.fx, y: P.fy - .5, t: 0, row: 3, f: 0, d: .9, rise: .8 }); }, treasure(x, y) { if (map) slashes.push({ x, y: y - .4, t: 0, row: 3, f: 3, d: .8, rise: .6 }); },
+    heal() { if (map && P) { emit('heal'); slashes.push({ x: P.fx, y: P.fy - .5, t: 0, row: 3, f: 0, d: .9, rise: .8 }); } }, treasure(x, y) { if (map) { emit('coins'); slashes.push({ x, y: y - .4, t: 0, row: 3, f: 3, d: .8, rise: .6 }); } },
     lock(v) { locked = !!v; hold = null; if (P) { P.path = []; P.target = null; P.keys = null; } }, inset(px) { inset = px || 0; }, bars(b) { bars = b || []; },
     face(e) { const dx = e.x - P.x, dy = e.y - P.y; P.dg = null; P.d8 = D8(Math.sign(dx), Math.sign(dy)); P.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 's' : 'l') : (dy > 0 ? 'f' : 'b'); e.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'l' : 's') : (dy > 0 ? 'b' : 'f'); e.busy = 1; e.tx = null; e.fx = e.x; e.fy = e.y; },
     free(e) { if (e) e.busy = 0; },
-    swing(a, b, kind) { const A = who(a), B = who(b); if (a === 'me') P.atk = .3; const dx = B.fx - A.fx, dy = B.fy - A.fy, d = Math.hypot(dx, dy) || 1; if (kind === 'spell') { shots.push({ x: A.fx, y: A.fy, tx: B.fx, ty: B.fy, t: 0 }); return; } anims.push({ t: 0, d: .2, f: u => { const s = Math.sin(u * Math.PI) * .45; A.ax = dx / d * s; A.ay = dy / d * s; }, end: () => { A.ax = A.ay = 0; } }); slashes.push({ x: B.fx, y: B.fy, t: 0, flip: dx < 0 }); },
-    hit(b, txt, col) { const B = who(b); if (txt !== 'miss') { B.flash = .16; slashes.push(b === 'me' ? { x: B.fx, y: B.fy, t: 0, row: 3, f: 2, d: .3 } : { x: B.fx, y: B.fy, t: 0, row: 1 }); anims.push({ t: 0, d: .16, f: u => { B.ax = Math.sin(u * Math.PI * 3) * .07; }, end: () => { B.ax = 0; } }); } floats.push({ e: b, txt: String(txt), col: col || '#fff', t: 0, dx: (Math.random() - .5) * 26 }); }
+    swing(a, b, kind, style) {
+      const A = who(a), B = who(b); if (!A || !B) return; if (a === 'me') P.atk = .3;
+      const dx = B.fx - A.fx, dy = B.fy - A.fy, d = Math.hypot(dx, dy) || 1;
+      if (kind === 'spell') {
+        if (a !== 'me') emit('creature', Effects.creature(A.name));
+        style = style || Effects.spell(1); emit('cast', style);
+        slashes.push({ x: A.fx, y: A.fy, t: 0, style, phase: 'cast', d: FLIGHT });
+        shots.push({ x: A.fx, y: A.fy, tx: B.fx, ty: B.fy, target: b, style, t: 0 }); return;
+      }
+      emit(a !== 'me' ? 'creature' : kind === 'fencing' ? 'thrust' : kind === 'archery' ? 'bow' : 'swing', a !== 'me' ? Effects.creature(A.name) : null);
+      if (kind === 'archery') { shots.push({ x: A.fx, y: A.fy, tx: B.fx, ty: B.fy, target: b, t: 0 }); return; }
+      anims.push({ t: 0, d: .2, f: u => { const s = Math.sin(u * Math.PI) * .45; A.ax = dx / d * s; A.ay = dy / d * s; }, end: () => { A.ax = A.ay = 0; } }); slashes.push({ x: B.fx, y: B.fy, t: 0, flip: dx < 0 });
+    },
+    hit(b, txt, col) { const s = shots.find(s => s.target === b && !s.impact); if (s && String(txt)[0] !== '+') s.impact = { b, txt, col }; else landHit(b, txt, col); }
   };
   return { preload, init, load, remains, emptied, chase: (e, secs) => { if (e) { e.chase = secs; e.wait = 1.3; e.calm = 0; e.alert = 8; e.busy = 0; } }, inDungeonMap: () => !!(map && map.dungeon), mapRegion: () => map ? (map.dungeon ? map.r : 0) : 0, enterDungeon, backdrop, kill, corpse, refresh, resume, pause, portrait, act, FX, towns: () => TOWN, terr: () => world ? world.terr : [], sites: () => world ? world.sites : [], spots: () => world ? world.spots : {}, mini: () => world && world.mini, size: [WW, WH],
-    pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ map, P, world, spr, CS, TS, GCL, gpat, gclass, bldSpr }),
+    pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ map, P, world, spr, CS, TS, GCL, gpat, gclass, bldSpr, effects: { shots, slashes, floats }, advanceEffects, draw }),
     warp(x, y) { load([x, y]); }, hop(x, y) { go(map, x, y); }, guidePut, guideOff, guideEnt: () => GUIDE, drawDoll, dollKey: () => artVer, enterHall, inHall: () => map && map.hall ? map.r : 0, hallAdd: o => map ? addEnt(map, Object.assign({ r: map.r }, o)) : null, hallMove: (e, x, y) => { if (!map || !e) return; const k = e.y * map.w + e.x; if (map.occ.get(k) === e) map.occ.delete(k); e.x = e.fx = x; e.y = e.fy = y; e.tx = null; map.occ.set(y * map.w + x, e); }, ents: () => map ? map.ents : [], fsReady: () => !!(AD && AD.dojo && (IMG['dj/fs.webp'] || img('dj/fs.webp')) && have('dj/fs.webp')) };
 })();

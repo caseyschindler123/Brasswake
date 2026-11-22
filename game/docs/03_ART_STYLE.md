@@ -78,6 +78,10 @@ Every prompt starts with the global style line kept in `art_prompts.json`:
 
 **Town names in prompts:** `art_prompts.json` still uses the old town names in some bank and dojo prompts. The pictures carry no text, so nothing needs redoing. Ask Casey before changing those names in the prompt master; packing does not change prompts.
 
+## Spell effects
+
+`src/effects.js` draws compact canvas cast rings, projectiles and impacts for the eight existing spell Circles. Their silhouettes are electricity, frost dart, sun beam, branching lightning, flame, crystal shards, swirling snow and orbiting fragments; colours follow those materials. Rare pages add an outer ring and trailing sparks. Effects stay around the caster/target and avoid full-screen flashes. Existing packed art still supplies weapon strikes and green healing sparkles. This release adds no raster assets and does not change prompts, raw art, packing coordinates or accepted asset hashes.
+
 ## Generating art
 
 The local agent generates requested images directly with `C:\Users\caseys\source\SQL Game\kit\make_art.py`. There is no hand-off to another agent and Casey does not paste requests elsewhere. Raw output stays under `SQL Game`, with current PNGs in `kit/out/`. Running the art rebuild does not run this image script.
@@ -170,6 +174,8 @@ Buildings keep their painted outsides; the kit draws what you see inside (see 02
 - Cloak, glove and boot layers aren't drawn on the body yet.
 
 ## Decision log
+
+- 2026-11-22: Release `magic-and-sound-2026-11-22` uses code-native canvas magic effects with distinct silhouettes for all eight spell Circles and rare variants. Existing sprite art is retained; no paid image generation, art-master change or asset-baseline update. Phone and desktop screenshots are part of release verification.
 
 - 2026-11-22: GitHub Actions deploys only built game/dist from committed packed art. Raw images and slices remain local; CI checks the accepted packed manifest and never invokes the image script or raw-art rebuild.
 
