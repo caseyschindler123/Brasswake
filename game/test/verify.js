@@ -17,6 +17,7 @@ for (const [label, args] of [
   ['Poker', ['test/pk_test.js']],
   ['Casino', ['test/house_test.js']],
   ['Sound and magic', ['--test', 'test/effects.test.js']],
+  ['Music routing, assets and playback lifecycle', ['--test', 'test/music.test.js']],
   ['Build', ['build.js']],
   ['Workflow tooling', ['--test', 'test/workflow.test.js', 'test/server.test.js']],
 ]) {

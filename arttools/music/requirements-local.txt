@@ -1,0 +1,5 @@
+# Local authoring/rendering only; never required by the browser or game build.
+numpy==2.5.5
+scipy==1.18.1
+# Optional ffmpeg binary distributor; a compatible existing ffmpeg also works.
+imageio-ffmpeg==0.6.0

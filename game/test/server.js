@@ -40,4 +40,4 @@ const server = http.createServer(async (req, res) => {
     res.end(error.code === 'ENOENT' ? 'Not found' : String(error));
   }
 });
-server.listen(8781, '127.0.0.1', () => console.log('Browser fixture: http://localhost:8781'));
+server.listen(Number(process.env.BW_TEST_PORT || 8781), '127.0.0.1', () => console.log('Browser fixture: http://localhost:' + server.address().port));

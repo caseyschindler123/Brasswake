@@ -1,6 +1,6 @@
 # Brasswake: art style and art pipeline
 
-Last updated: 2026-11-22. This covers how every image looks, how it is requested, and how it gets into the game.
+Last updated: 2026-11-22. This covers image style, asset preparation, music sources and how they get into the game.
 
 ## The look in one paragraph
 
@@ -129,11 +129,13 @@ Every required sheet is present. Recursive discovery prefers current `kit/out` o
 
 ## Music
 
-- **Source:** Casey makes tracks in Suno (Custom mode, Instrumental on) from prompts written here, and attaches the MP3s. Check Suno's plan terms before the game is ever shared or sold.
-- **Prompt shape:** `1990s PC fantasy RPG <town|dungeon|battle> theme, General MIDI soundfont sound, <place and mood>, <lead and backing instruments>, <key>, <bpm>, <energy>, loopable, no fade out, instrumental`. Exclude styles: `vocals, choir, EDM, trap, electric guitar, modern drums`. No artist or game names (Suno rejects them).
-- **Planned set (about 28):** a theme per town and per dungeon, 4–5 shared wilderness themes, combat (2), a victory sting, tavern, dojo, card room, title, death.
-- **Making loops:** `arttools/music/` (see its README). It finds a beat-matched loop, bakes a 0.3 s crossfade and a 1 s tail, normalises to -18 LUFS, and writes `m_<name>.mp3` (about 1 MB a minute). Loop points go into `MUSIC` in `src/audio.js`.
-- **Files in the game:** `art/mu/m_tallyport.mp3`, `m_bilge.mp3`, `m_combat.mp3`.
+- **Source:** the three existing Suno tracks and eight prepared Suno downloads (one take per new town plus the Sunken Sluice) remain in use. The other 17 themes are original locally authored Standard MIDI scores, rendered with an original deterministic additive/FM/plucked instrument synthesizer. No samples, SoundFonts, additional Suno exports or paid generation are needed. Editable scores live in `arttools/music/midi/`.
+- **Sound:** restrained 1990s PC fantasy RPG ensembles: recorder/oboe/clarinet, plucked lute/harp, warm bowed strings, modest brass and acoustic percussion. Instrumental, steady dynamics and recurring A/B phrases; location themes leave room for reading and sound effects.
+- **Suno prompt shape:** `1990s PC fantasy RPG <town|dungeon|battle> theme, General MIDI soundfont sound, <place and mood>, <lead and backing instruments>, <key>, <bpm>, <energy>, loopable, no fade out, instrumental`. Exclude vocals, choir, EDM, trap, electric guitar and modern drums; no artist or game names. Compare takes on Suno before any future export.
+- **Complete set (28):** eight town themes, eight dungeon themes, four shared wilderness themes, two combat themes, tavern, dojo, card room, title, victory and death. The first 26 loop; victory/death are one-shot cues.
+- **Rebuild and provenance:** `arttools/music/build_soundtrack.py`, its pinned local requirements, regression script and README define the pipeline. `soundtrack.json` records exact a/b timing, score or selected Suno song, source/output hashes, MIDI hash, sample rate, measured levels and seam quality. The original three MP3s remain unchanged. Raw downloads and intermediate WAVs stay local under ignored `work/`.
+- **Output:** browser-compatible 44.1 kHz stereo MP3 under `game/art/mu/`, normalized around -18 LUFS with peak headroom. Loop files include a decoder safety tail copied from their start; Suno loops use a prepared crossfade. Playback metadata in `src/audio.js` must match the catalog. The accepted packed manifest includes audio files and is updated deliberately for these additions.
+- **Testing:** re-decode actual output for loudness, peak, seam/tail and non-silence checks; validate MIDI determinism and note timing. Browser tests decode every MP3, check loop bounds and tail length, exercise music transitions and persistent mute. Final speaker balance and real iPhone playback require device listening.
 
 ## Building kit: Tallyport and remaining integration
 
@@ -174,6 +176,8 @@ Buildings keep their painted outsides; the kit draws what you see inside (see 02
 - Cloak, glove and boot layers aren't drawn on the body yet.
 
 ## Decision log
+
+- 2026-11-22: `soundtrack-2026-11-22`: Casey authorized using existing music and composing missing themes locally. Kept 11 Suno themes (3 existing, 8 downloaded), added 17 original editable MIDI scores and rendered all new assets locally. No additional exports or paid music generation.
 
 - 2026-11-22: Release `magic-and-sound-2026-11-22` uses code-native canvas magic effects with distinct silhouettes for all eight spell Circles and rare variants. Existing sprite art is retained; no paid image generation, art-master change or asset-baseline update. Phone and desktop screenshots are part of release verification.
 

@@ -2269,6 +2269,131 @@
     "sha256": "e8b72f694913e7c466104b13028f8281270e8ac8d26cf1de122e1b8e7fd28bfb"
   },
   {
+    "path": "art/mu/m_aldermoot.mp3",
+    "size": 1319122,
+    "sha256": "b645de5a66f18432ad3947945826d3b600d3f88a127afec75d76d7bf812a63fc"
+  },
+  {
+    "path": "art/mu/m_barrows.mp3",
+    "size": 924568,
+    "sha256": "870ad085237e1ca82d61f1034152c7d43b8b19ddc580dcc5869346d14b3c45d9"
+  },
+  {
+    "path": "art/mu/m_brackwater.mp3",
+    "size": 1319122,
+    "sha256": "ea2b68da0dd740d3dc519e691c8ac1d3ff4d5adbec3a52b848d29308f1b068ba"
+  },
+  {
+    "path": "art/mu/m_cards.mp3",
+    "size": 688839,
+    "sha256": "ff7b11c93be3415a5b1789d2d9c1d5447253535c61fb565effa9b941054cc784"
+  },
+  {
+    "path": "art/mu/m_cinderwick.mp3",
+    "size": 1176180,
+    "sha256": "caf0c1dd39d9208cccd626d608f3480981200868a9b3b653affed3b77690a0c9"
+  },
+  {
+    "path": "art/mu/m_crystal.mp3",
+    "size": 874413,
+    "sha256": "4d12eb7f8a8b832b4cbe2489971fce70fcf73a60806254ff30cf96530bab9487"
+  },
+  {
+    "path": "art/mu/m_death.mp3",
+    "size": 183109,
+    "sha256": "4899e66815614430608082366874b527229370729e0a279039be6556e3d2f58d"
+  },
+  {
+    "path": "art/mu/m_dojo.mp3",
+    "size": 719350,
+    "sha256": "3c6312b6cf8e569ef90b5f06fdb716647a3906ecfcba0b7e663a9acf3851ea27"
+  },
+  {
+    "path": "art/mu/m_examiner.mp3",
+    "size": 732307,
+    "sha256": "e848058b2fa0afa1aff545e8d897f0ab3163385e3cd73dc3858192e8b80b20e8"
+  },
+  {
+    "path": "art/mu/m_four_fords.mp3",
+    "size": 1098439,
+    "sha256": "6681a66dac68b6212183af0e2d5258955ba88d9175aa937262f689ee9312c8d5"
+  },
+  {
+    "path": "art/mu/m_haverly.mp3",
+    "size": 1101574,
+    "sha256": "5f6ce76214abfadaa62267c6e58fd294fbfe5c6cf15c8e2f423093f7d4ba18c1"
+  },
+  {
+    "path": "art/mu/m_highwatch.mp3",
+    "size": 1104709,
+    "sha256": "149989445714c9d4470cbf2bb0061d96a611dd545128196fc1f7a882aff20033"
+  },
+  {
+    "path": "art/mu/m_ice.mp3",
+    "size": 1011922,
+    "sha256": "1ce510dc050ed4119c05002bfbfc38a07e6e15941240fbebbcaf5a5a994a012d"
+  },
+  {
+    "path": "art/mu/m_kell.mp3",
+    "size": 1315360,
+    "sha256": "405af7d747870aa81287711fa301a9ffd144b113f3c78b3e8424fea83ee27a7b"
+  },
+  {
+    "path": "art/mu/m_slagdeep.mp3",
+    "size": 719350,
+    "sha256": "ebee5db5395b0669951d71e264aa276820abc8132b068eabeb8b6860b4154bf7"
+  },
+  {
+    "path": "art/mu/m_stacks.mp3",
+    "size": 829692,
+    "sha256": "275cc0529f89028de883bc2d0f5510ddefce35b41928e2c0e54924c8bebe7d27"
+  },
+  {
+    "path": "art/mu/m_sunken_sluice.mp3",
+    "size": 887788,
+    "sha256": "e5b94c1ace1d999d30f647badd47e270f428663c8ad80e3a48b1e2f5db7fd598"
+  },
+  {
+    "path": "art/mu/m_tanglewarren.mp3",
+    "size": 752369,
+    "sha256": "bbf99067efff6aa22319f3fce1ba41422c651947717d45c4737fe88877b2ac56"
+  },
+  {
+    "path": "art/mu/m_tavern.mp3",
+    "size": 712245,
+    "sha256": "36faebdcf8c60b49f5c0aa6684abdfb46d7085165d1cc8d442d36c65ffe25a81"
+  },
+  {
+    "path": "art/mu/m_title.mp3",
+    "size": 829692,
+    "sha256": "aa17ecfa2161913451415e6142fb3e645ee9f1a37c406ce5150fd07e8feaaa00"
+  },
+  {
+    "path": "art/mu/m_victory.mp3",
+    "size": 99099,
+    "sha256": "cf640e5d71f628b66fdf31ae4bc3fdf2feaef5f4fea11dd7749c0feb89bfad40"
+  },
+  {
+    "path": "art/mu/m_wild_coast.mp3",
+    "size": 789150,
+    "sha256": "e03afc7563d53868449f55498d239e37dd2b43e3c3192dc7e236e9461509bb8b"
+  },
+  {
+    "path": "art/mu/m_wild_fields.mp3",
+    "size": 843902,
+    "sha256": "0dd5afdc4c3060fadd4c558761210f448fd112a022962cf22f15a06f1117b2b9"
+  },
+  {
+    "path": "art/mu/m_wild_north.mp3",
+    "size": 898655,
+    "sha256": "b7ebcff66ffdf0f6a53ed2805ce701afb15cdde6b537d9930328983edd7b0cea"
+  },
+  {
+    "path": "art/mu/m_wild_stone.mp3",
+    "size": 808794,
+    "sha256": "51e2d6112101430e00d3819ffe5263e54bd6b75319d2befd5d4861d2388614f9"
+  },
+  {
     "path": "art/o1.webp",
     "size": 62118,
     "sha256": "bd03a438d70b3354d8fe41222cea5472179a1b6e17a4fbd5c8b0bc73a29604ed",

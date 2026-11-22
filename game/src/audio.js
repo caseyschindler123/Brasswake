@@ -1,86 +1,292 @@
 /* ===== Sound: looping music by place and situation, synthesized sound effects ===== */
 const Sound = (() => {
   /* Music files live in art/mu/. a and b are the loop start and end in seconds:
-     the file plays from 0, then loops a..b. Each file carries one extra second
-     after b (a copy of the audio at a), so a small decoder offset stays seamless. */
+     the file plays from 0, then loops a..b. Each looping file carries a copied safety tail
+     after b, so a small decoder offset stays seamless. One-shot cues play once. */
   const MUSIC = {
-    m_tallyport: { a: 10.658, b: 159.6553, v: 1 },
-    m_bilge: { a: 14.721, b: 69.5739, v: 1 },
-    m_combat: { a: 22.361, b: 75.5065, v: 1 }
+    "m_tallyport": {
+      "a": 10.658,
+      "b": 159.6553,
+      "v": 1
+    },
+    "m_bilge": {
+      "a": 14.721,
+      "b": 69.5739,
+      "v": 1
+    },
+    "m_combat": {
+      "a": 22.361,
+      "b": 75.5065,
+      "v": 1
+    },
+    "m_barrows": {
+      "a": 0,
+      "b": 56.47059,
+      "v": 1,
+      "loop": true
+    },
+    "m_tanglewarren": {
+      "a": 0,
+      "b": 45.714308,
+      "v": 1,
+      "loop": true
+    },
+    "m_slagdeep": {
+      "a": 0,
+      "b": 43.636349,
+      "v": 1,
+      "loop": true
+    },
+    "m_crystal": {
+      "a": 0,
+      "b": 53.333311,
+      "v": 1,
+      "loop": true
+    },
+    "m_ice": {
+      "a": 0,
+      "b": 61.935488,
+      "v": 1,
+      "loop": true
+    },
+    "m_stacks": {
+      "a": 0,
+      "b": 50.526327,
+      "v": 1,
+      "loop": true
+    },
+    "m_wild_coast": {
+      "a": 0,
+      "b": 48,
+      "v": 1,
+      "loop": true
+    },
+    "m_wild_fields": {
+      "a": 0,
+      "b": 51.428594,
+      "v": 1,
+      "loop": true
+    },
+    "m_wild_stone": {
+      "a": 0,
+      "b": 49.230794,
+      "v": 1,
+      "loop": true
+    },
+    "m_wild_north": {
+      "a": 0,
+      "b": 54.857143,
+      "v": 1,
+      "loop": true
+    },
+    "m_examiner": {
+      "a": 0,
+      "b": 44.44449,
+      "v": 1,
+      "loop": true
+    },
+    "m_tavern": {
+      "a": 0,
+      "b": 43.2,
+      "v": 1,
+      "loop": true
+    },
+    "m_dojo": {
+      "a": 0,
+      "b": 43.636349,
+      "v": 1,
+      "loop": true
+    },
+    "m_cards": {
+      "a": 0,
+      "b": 41.739138,
+      "v": 1,
+      "loop": true
+    },
+    "m_title": {
+      "a": 0,
+      "b": 50.526327,
+      "v": 1,
+      "loop": true
+    },
+    "m_victory": {
+      "a": 0,
+      "b": 6.137937,
+      "v": 1,
+      "loop": false
+    },
+    "m_death": {
+      "a": 0,
+      "b": 11.375011,
+      "v": 1,
+      "loop": false
+    },
+    "m_brackwater": {
+      "a": 0,
+      "b": 53.638776,
+      "v": 1,
+      "loop": true
+    },
+    "m_haverly": {
+      "a": 0,
+      "b": 44.582313,
+      "v": 1,
+      "loop": true
+    },
+    "m_four_fords": {
+      "a": 0,
+      "b": 44.442313,
+      "v": 1,
+      "loop": true
+    },
+    "m_cinderwick": {
+      "a": 0,
+      "b": 47.694467,
+      "v": 1,
+      "loop": true
+    },
+    "m_kell": {
+      "a": 0,
+      "b": 53.498776,
+      "v": 1,
+      "loop": true
+    },
+    "m_highwatch": {
+      "a": 0,
+      "b": 44.722313,
+      "v": 1,
+      "loop": true
+    },
+    "m_aldermoot": {
+      "a": 0,
+      "b": 53.638776,
+      "v": 1,
+      "loop": true
+    },
+    "m_sunken_sluice": {
+      "a": 0,
+      "b": 35.66585,
+      "v": 1,
+      "loop": true
+    }
   };
-  /* Which track plays where. Regions are 1..8. Missing entries play nothing yet. */
-  const TOWN_MU = { 1: 'm_tallyport' }, DUN_MU = { 1: 'm_bilge' }, COMBAT_MU = 'm_combat';
-  const MU_VOL = 0.55, FX_VOL = 0.7, XFADE = 1.6, CACHE = 2, PREF = 'brasswake.sound';
-
+  const TOWN_MU = ['m_tallyport', 'm_brackwater', 'm_haverly', 'm_four_fords', 'm_cinderwick', 'm_kell', 'm_highwatch', 'm_aldermoot'];
+  const DUN_MU = ['m_bilge', 'm_sunken_sluice', 'm_barrows', 'm_tanglewarren', 'm_slagdeep', 'm_crystal', 'm_ice', 'm_stacks'];
+  const WILD_MU = ['m_wild_coast', 'm_wild_fields', 'm_wild_stone', 'm_wild_north'];
+  const VENUE_MU = { tavern: 'm_tavern', dojo: 'm_dojo', cards: 'm_cards' };
+  const COMBAT_MU = 'm_combat';
+  function trackFor(s) {
+    if (!s) return null;
+    if (s.title) return 'm_title';
+    if (s.fight) return s.boss ? 'm_examiner' : COMBAT_MU;
+    if (s.dun) return DUN_MU[s.dun - 1] || null;
+    if (VENUE_MU[s.venue]) return VENUE_MU[s.venue];
+    if (!(s.region >= 1 && s.region <= 8)) return null;
+    return s.town === false ? WILD_MU[Math.floor((s.region - 1) / 2)] : TOWN_MU[s.region - 1];
+  }
+  const MU_VOL = .55, FX_VOL = .7, XFADE = 1.6, CACHE = 2, PREF = 'brasswake.sound';
   let ctx = null, master = null, muBus = null, fxBus = null, noiseBuf = null, src = () => null, timer = 0;
   let pref = { mu: 1, fx: 1 };
   try { const p = JSON.parse(localStorage.getItem(PREF) || 'null'); if (p) pref = Object.assign(pref, p); } catch (e) { }
   const savePref = () => { try { localStorage.setItem(PREF, JSON.stringify(pref)); } catch (e) { } };
-
-  const buf = {}, order = [], loading = {};
-  const pos = {};      /* where each track was when it last stopped, for resuming */
-  let cur = null;      /* { id, node, gain, t0, off } */
-  let want = null;
+  const buf = {}, order = [], retry = {}, pos = {};
+  let cur = null, want = null, pending = null, cueId = null, cueDeadline = 0;
 
   function makeCtx() {
     if (ctx) return ctx;
     const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
     try { ctx = new AC(); } catch (e) { return null; }
-    /* iOS 17+: play through the silent switch, like a game would */
     try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { }
     master = ctx.createGain();
     const limiter = ctx.createDynamicsCompressor(); limiter.threshold.value = -8; limiter.knee.value = 12; limiter.ratio.value = 6; limiter.attack.value = .003; limiter.release.value = .12;
     master.connect(limiter); limiter.connect(ctx.destination);
     muBus = ctx.createGain(); muBus.gain.value = pref.mu ? MU_VOL : 0; muBus.connect(master);
     fxBus = ctx.createGain(); fxBus.gain.value = pref.fx ? FX_VOL : 0; fxBus.connect(master);
-    const n = ctx.sampleRate; noiseBuf = ctx.createBuffer(1, n, n); const d = noiseBuf.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    const n = ctx.sampleRate; noiseBuf = ctx.createBuffer(1, n, n);
+    const d = noiseBuf.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
     return ctx;
   }
-  /* Browsers start audio only after a touch. Resume on every touch until running. */
-  function unlock() { const c = makeCtx(); if (c && c.state !== 'running') c.resume().catch(() => { }); }
+  function unlock() {
+    const c = makeCtx();
+    if (!c) return;
+    if (c.state !== 'running') c.resume().then(tick).catch(() => { }); else tick();
+  }
   document.addEventListener('pointerdown', unlock, true);
   document.addEventListener('touchend', unlock, true);
   document.addEventListener('keydown', unlock, true);
-  document.addEventListener('visibilitychange', () => { if (!ctx) return; if (document.hidden) ctx.suspend().catch(() => { }); else ctx.resume().catch(() => { }); });
+  document.addEventListener('visibilitychange', () => {
+    if (!ctx) return;
+    if (document.hidden) { tick(); ctx.suspend().catch(() => { }); }
+    else ctx.resume().then(tick).catch(() => { });
+  });
 
+  function trimCache() {
+    while (order.length > CACHE) {
+      const old = order.find(k => k !== want && (!cur || cur.id !== k));
+      if (!old) break;
+      order.splice(order.indexOf(old), 1); delete buf[old];
+    }
+  }
   function load(id) {
-    if (buf[id]) return Promise.resolve(buf[id]);
-    if (loading[id]) return loading[id];
-    return loading[id] = fetch('art/mu/' + id + '.mp3').then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+    pending = id;
+    const abort = new AbortController(), timeout = setTimeout(() => abort.abort(), 8000);
+    fetch('art/mu/' + id + '.mp3', { signal: abort.signal })
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
       .then(ab => new Promise((res, rej) => ctx.decodeAudioData(ab, res, rej)))
       .then(b => {
-        buf[id] = b; order.push(id); delete loading[id];
-        /* decoded music is large (about 30 MB per minute of stereo), so keep only a few */
-        while (order.length > CACHE) { const old = order.find(k => k !== id && k !== want && (!cur || cur.id !== k)); if (!old) break; order.splice(order.indexOf(old), 1); delete buf[old]; }
-        return b;
+        /* One-shots play the whole buffer; rounded duration is not a loop boundary. */
+        if (MUSIC[id].loop !== false && !(b.duration >= MUSIC[id].b)) throw new Error('Music loop exceeds decoded duration');
+        buf[id] = b; order.push(id); trimCache();
       })
-      .catch(() => { delete loading[id]; return null; });
+      .catch(() => { retry[id] = ctx.currentTime + 10; if (want === id) stopCur(XFADE); })
+      .finally(() => { clearTimeout(timeout); pending = null; tick(); });
   }
-  const where = c => { const m = MUSIC[c.id], t = c.off + ctx.currentTime - c.t0; return t < m.b ? t : m.a + (t - m.a) % (m.b - m.a); };
+  const where = c => {
+    const m = MUSIC[c.id], t = c.off + ctx.currentTime - c.t0;
+    return m.loop === false ? 0 : t < m.b ? t : m.a + (t - m.a) % (m.b - m.a);
+  };
   function stopCur(fade) {
-    if (!cur) return; const c = cur; cur = null;
-    try { pos[c.id] = where(c); } catch (e) { }
-    const t = ctx.currentTime; c.gain.gain.cancelScheduledValues(t); c.gain.gain.setValueAtTime(c.gain.gain.value, t); c.gain.gain.linearRampToValueAtTime(0, t + fade);
+    if (!cur) return;
+    const c = cur; cur = null; pos[c.id] = where(c);
+    const t = ctx.currentTime; c.gain.gain.cancelScheduledValues(t);
+    c.gain.gain.setValueAtTime(c.gain.gain.value, t); c.gain.gain.linearRampToValueAtTime(0, t + fade);
     try { c.node.stop(t + fade + .05); } catch (e) { }
   }
   function startTrack(id) {
     const b = buf[id], m = MUSIC[id]; if (!b || !m) return;
-    const node = ctx.createBufferSource(); node.buffer = b; node.loop = true; node.loopStart = m.a; node.loopEnd = m.b;
+    const node = ctx.createBufferSource(); node.buffer = b; node.loop = m.loop !== false;
+    node.loopStart = m.a; node.loopEnd = m.b;
     const g = ctx.createGain(); g.gain.value = 0; node.connect(g); g.connect(muBus);
-    /* resume a track we left recently (UO restarts; picking up mid-tune feels less repetitive) */
-    const off = id === COMBAT_MU ? 0 : (pos[id] || 0);
-    node.start(0, off); const t = ctx.currentTime; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(m.v, t + XFADE);
+    const off = id === COMBAT_MU || id === 'm_examiner' || !node.loop ? 0 : (pos[id] || 0);
+    node.onended = () => {
+      node.disconnect(); g.disconnect();
+      if (cur && cur.node === node) { cur = null; if (!node.loop) { cueId = null; tick(); } }
+    };
+    node.start(0, off);
+    const t = ctx.currentTime; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(m.v, t + (node.loop ? XFADE : .06));
     cur = { id, node, gain: g, t0: t, off };
   }
   function tick() {
-    if (!ctx || ctx.state !== 'running') return;
-    let s = null; try { s = src(); } catch (e) { s = null; }
-    const id = !s ? null : s.fight ? COMBAT_MU : s.dun ? (DUN_MU[s.dun] || null) : (TOWN_MU[s.region] || null);
-    want = id;
+    if (!ctx) return;
+    if (!pref.mu || document.hidden) { want = cueId = null; stopCur(.15); return; }
+    if (ctx.state !== 'running') return;
+    let s = null; try { s = src(); } catch (e) { }
+    const base = trackFor(s);
+    if (cueId && ((s && (s.title || s.fight)) || ((!cur || cur.id !== cueId) && ctx.currentTime > cueDeadline))) cueId = null;
+    const id = cueId || base; want = id;
     if (cur && cur.id === id) return;
     if (!id) { stopCur(XFADE); return; }
-    if (buf[id]) { stopCur(id === COMBAT_MU ? .5 : XFADE); startTrack(id); }
-    else load(id).then(() => { if (want === id && (!cur || cur.id !== id)) { stopCur(XFADE); startTrack(id); } });
+    if (buf[id]) {
+      stopCur(MUSIC[id].loop === false || id === COMBAT_MU || id === 'm_examiner' ? .3 : XFADE);
+      startTrack(id); trimCache();
+    } else if (!pending && !(retry[id] > ctx.currentTime)) load(id);
+  }
+  function cue(id) {
+    if (!ctx || ctx.state !== 'running' || !pref.mu || document.hidden) return false;
+    let active = null; try { active = src(); } catch (e) { }
+    if (!trackFor(active)) return false;
+    cueId = id; cueDeadline = ctx.currentTime + 4;
+    return true;
   }
 
   /* ---------- sound effects, synthesized ---------- */
@@ -149,6 +355,8 @@ const Sound = (() => {
   };
   const recent = {};
   function sfx(name, detail) {
+    /* One musical phrase; effects-only cues remain available when music is muted. */
+    if ((name === 'win' || name === 'death') && cue(name === 'win' ? 'm_victory' : 'm_death')) return;
     if (!ctx || ctx.state !== 'running' || !pref.fx || !SFX[name]) return;
     /* Only repetitive world events are throttled; query and combat outcomes remain audible. */
     const gap = { step: .14, door: .35, click: .025 }[name] || 0, t = ctx.currentTime;
@@ -156,11 +364,12 @@ const Sound = (() => {
     recent[name] = t; try { SFX[name](detail); } catch (e) { }
   }
 
-  function setMu(on) { pref.mu = on ? 1 : 0; savePref(); if (muBus) muBus.gain.setTargetAtTime(on ? MU_VOL : 0, ctx.currentTime, .15); }
+  function setMu(on) { pref.mu = on ? 1 : 0; savePref(); if (muBus) { muBus.gain.setTargetAtTime(on ? MU_VOL : 0, ctx.currentTime, .15); tick(); } }
   function setFx(on) { pref.fx = on ? 1 : 0; savePref(); if (fxBus) fxBus.gain.setTargetAtTime(on ? FX_VOL : 0, ctx.currentTime, .05); }
-  /* source() returns { fight, dun, region } or null for silence */
+  /* source() returns title/fight/boss/dun/region/town/venue, or null for silence. */
   function init(source) { src = source; if (!timer) timer = setInterval(tick, 400); }
-  return { init, sfx, setMu, setFx, pref: () => Object.assign({}, pref), state: () => ctx ? ctx.state : 'none', playing: () => cur ? cur.id : null, MUSIC, effects: () => Object.keys(SFX),
+  return { init, sfx, setMu, setFx, pref: () => Object.assign({}, pref), state: () => ctx ? ctx.state : 'none', playing: () => cur ? cur.id : null, MUSIC, trackFor, effects: () => Object.keys(SFX),
+    status: () => ({ wanted: want, playing: cur ? cur.id : null, pending, cached: order.slice(), cue: cueId }),
     /* test hook: runs every effect once and returns the names that threw */
     _check: () => !ctx ? ['no context'] : Object.keys(SFX).filter(k => { try { SFX[k](); return false; } catch (e) { return true; } }) };
 })();

@@ -1,0 +1,1183 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-22",
+  "description": "25 new assets; existing m_tallyport, m_bilge and m_combat remain unchanged.",
+  "toolchain": {
+    "python": "3.12",
+    "numpy": "2.5.5",
+    "scipy": "1.18.1",
+    "ffmpeg": "ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers",
+    "encoder": "libmp3lame stereo, originals 128 kb/s and Suno preparations 192 kb/s; gapless Xing header",
+    "renderer": "Original deterministic band-limited additive/FM synthesis; no samples or SoundFonts",
+    "normalization": "EBU R128 measurement, constant gain to -18 LUFS with -2.7 dBTP ceiling, post-encode verification"
+  },
+  "retained": [
+    "m_tallyport",
+    "m_bilge",
+    "m_combat"
+  ],
+  "tracks": {
+    "m_barrows": {
+      "a": 0,
+      "b": 56.47059,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_barrows.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "5f3559fe62837591bc6fa47d9338685d0e08b346009c33f378cc5f3380cf76a8",
+        "bars": 16
+      },
+      "duration": 57.72059,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 924568,
+      "sha256": "870ad085237e1ca82d61f1034152c7d43b8b19ddc580dcc5869346d14b3c45d9",
+      "integratedLUFS": -18.45,
+      "truePeakDBTP": -8.43,
+      "samplePeakDBFS": -8.431,
+      "midi": "arttools/music/midi/m_barrows.mid",
+      "score": {
+        "title": "Lanterns under the Barrows",
+        "key": "D minor",
+        "bpm": 68,
+        "meter": "4/4",
+        "lead": "oboe",
+        "backing": "harp",
+        "pad": "cello"
+      },
+      "quality": {
+        "seamJump": 0.0026166,
+        "localDerivativeP999": 0.0294349,
+        "wrapTailRMSDifference": 0.0002942,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_tanglewarren": {
+      "a": 0,
+      "b": 45.714308,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_tanglewarren.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "9c347b2c2671ed7f1355914ba89f68f5ef843f52d92701064ab2b59ec9087118",
+        "bars": 16
+      },
+      "duration": 46.964308,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 752369,
+      "sha256": "bbf99067efff6aa22319f3fce1ba41422c651947717d45c4737fe88877b2ac56",
+      "integratedLUFS": -18.45,
+      "truePeakDBTP": -9.68,
+      "samplePeakDBFS": -9.68,
+      "midi": "arttools/music/midi/m_tanglewarren.mid",
+      "score": {
+        "title": "A Thread among Roots",
+        "key": "E dorian",
+        "bpm": 84,
+        "meter": "4/4",
+        "lead": "clarinet",
+        "backing": "lute",
+        "pad": "strings"
+      },
+      "quality": {
+        "seamJump": 0.0018329,
+        "localDerivativeP999": 0.0240701,
+        "wrapTailRMSDifference": 0.000446,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_slagdeep": {
+      "a": 0,
+      "b": 43.636349,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_slagdeep.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "dc2b9adc63a8f5f708df3c27199b02d455089994165e7f961356a9d14745e4b9",
+        "bars": 16
+      },
+      "duration": 44.886349,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 719350,
+      "sha256": "ebee5db5395b0669951d71e264aa276820abc8132b068eabeb8b6860b4154bf7",
+      "integratedLUFS": -18.44,
+      "truePeakDBTP": -8.75,
+      "samplePeakDBFS": -8.756,
+      "midi": "arttools/music/midi/m_slagdeep.mid",
+      "score": {
+        "title": "The Forge below Stone",
+        "key": "C phrygian",
+        "bpm": 88,
+        "meter": "4/4",
+        "lead": "horn",
+        "backing": "dulcimer",
+        "pad": "cello"
+      },
+      "quality": {
+        "seamJump": 0.0040279,
+        "localDerivativeP999": 0.0217916,
+        "wrapTailRMSDifference": 0.0005808,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_crystal": {
+      "a": 0,
+      "b": 53.333311,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_crystal.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "411953bcb4e5e1af3e19b8ba9bab99ecda4517c703093f76cd45fcb0e7277ca8",
+        "bars": 16
+      },
+      "duration": 54.583311,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 874413,
+      "sha256": "4d12eb7f8a8b832b4cbe2489971fce70fcf73a60806254ff30cf96530bab9487",
+      "integratedLUFS": -18.45,
+      "truePeakDBTP": -7.57,
+      "samplePeakDBFS": -7.58,
+      "midi": "arttools/music/midi/m_crystal.mid",
+      "score": {
+        "title": "Prisms in the Dark",
+        "key": "F lydian",
+        "bpm": 72,
+        "meter": "4/4",
+        "lead": "celesta",
+        "backing": "harp",
+        "pad": "strings"
+      },
+      "quality": {
+        "seamJump": 0.0031977,
+        "localDerivativeP999": 0.0302844,
+        "wrapTailRMSDifference": 0.000821,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_ice": {
+      "a": 0,
+      "b": 61.935488,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_ice.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "001b06b3729070f54e3ab576747c91437ab53377dfb1e86e663fb4fe6edbf09f",
+        "bars": 16
+      },
+      "duration": 63.185488,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 1011922,
+      "sha256": "1ce510dc050ed4119c05002bfbfc38a07e6e15941240fbebbcaf5a5a994a012d",
+      "integratedLUFS": -18.45,
+      "truePeakDBTP": -8.74,
+      "samplePeakDBFS": -8.745,
+      "midi": "arttools/music/midi/m_ice.mid",
+      "score": {
+        "title": "Blue Halls",
+        "key": "B minor",
+        "bpm": 62,
+        "meter": "4/4",
+        "lead": "flute",
+        "backing": "celesta",
+        "pad": "strings"
+      },
+      "quality": {
+        "seamJump": 0.0011507,
+        "localDerivativeP999": 0.0271133,
+        "wrapTailRMSDifference": 0.0002022,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_stacks": {
+      "a": 0,
+      "b": 50.526327,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_stacks.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "ea1584738a346294f45ec6bb488ed3b11035a5bec3008eb78edba89030245eee",
+        "bars": 16
+      },
+      "duration": 51.776327,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 829692,
+      "sha256": "275cc0529f89028de883bc2d0f5510ddefce35b41928e2c0e54924c8bebe7d27",
+      "integratedLUFS": -18.44,
+      "truePeakDBTP": -9.04,
+      "samplePeakDBFS": -9.044,
+      "midi": "arttools/music/midi/m_stacks.mid",
+      "score": {
+        "title": "Margins of the Lost Ledger",
+        "key": "A harmonic minor",
+        "bpm": 76,
+        "meter": "4/4",
+        "lead": "bassoon",
+        "backing": "harp",
+        "pad": "cello"
+      },
+      "quality": {
+        "seamJump": 0.0041978,
+        "localDerivativeP999": 0.0280226,
+        "wrapTailRMSDifference": 0.0007967,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_wild_coast": {
+      "a": 0,
+      "b": 48.0,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_wild_coast.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "b4d1aeb97a7ec193e4e9e994f0d3d1f6b7da2cd76453d2def195d997e8ea3fe7",
+        "bars": 16
+      },
+      "duration": 49.25,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 789150,
+      "sha256": "e03afc7563d53868449f55498d239e37dd2b43e3c3192dc7e236e9461509bb8b",
+      "integratedLUFS": -18.45,
+      "truePeakDBTP": -9.05,
+      "samplePeakDBFS": -9.05,
+      "midi": "arttools/music/midi/m_wild_coast.mid",
+      "score": {
+        "title": "Salt Roads",
+        "key": "G mixolydian",
+        "bpm": 80,
+        "meter": "4/4",
+        "lead": "flute",
+        "backing": "lute",
+        "pad": "strings"
+      },
+      "quality": {
+        "seamJump": 0.0005887,
+        "localDerivativeP999": 0.0243626,
+        "wrapTailRMSDifference": 0.0009904,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_wild_fields": {
+      "a": 0,
+      "b": 51.428594,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_wild_fields.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "7ff7baa24412a3dcc600633a8090b5d136c035b2081e638def5afdbe345c763c",
+        "bars": 24
+      },
+      "duration": 52.678594,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 843902,
+      "sha256": "0dd5afdc4c3060fadd4c558761210f448fd112a022962cf22f15a06f1117b2b9",
+      "integratedLUFS": -18.44,
+      "truePeakDBTP": -8.23,
+      "samplePeakDBFS": -8.233,
+      "midi": "arttools/music/midi/m_wild_fields.mid",
+      "score": {
+        "title": "The Green Mileposts",
+        "key": "C major",
+        "bpm": 84,
+        "meter": "3/4",
+        "lead": "recorder",
+        "backing": "harp",
+        "pad": "cello"
+      },
+      "quality": {
+        "seamJump": 0.0010806,
+        "localDerivativeP999": 0.0296096,
+        "wrapTailRMSDifference": 0.0003331,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_wild_stone": {
+      "a": 0,
+      "b": 49.230794,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_wild_stone.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "e7849868dfeb2d2e22c3d61b443da9ebcf8fe8bd10c39a251a39d3460b67b56c",
+        "bars": 16
+      },
+      "duration": 50.480794,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 808794,
+      "sha256": "51e2d6112101430e00d3819ffe5263e54bd6b75319d2befd5d4861d2388614f9",
+      "integratedLUFS": -18.44,
+      "truePeakDBTP": -8.91,
+      "samplePeakDBFS": -8.905,
+      "midi": "arttools/music/midi/m_wild_stone.mid",
+      "score": {
+        "title": "Ash on the Cairns",
+        "key": "F sharp minor",
+        "bpm": 78,
+        "meter": "4/4",
+        "lead": "horn",
+        "backing": "lute",
+        "pad": "cello"
+      },
+      "quality": {
+        "seamJump": 0.0023629,
+        "localDerivativeP999": 0.0293626,
+        "wrapTailRMSDifference": 0.0005444,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_wild_north": {
+      "a": 0,
+      "b": 54.857143,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_wild_north.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "df006fd29706a898841429bc98e5ce5add19be8842aad21e91335975136e3f24",
+        "bars": 16
+      },
+      "duration": 56.107143,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 898655,
+      "sha256": "b7ebcff66ffdf0f6a53ed2805ce701afb15cdde6b537d9930328983edd7b0cea",
+      "integratedLUFS": -18.45,
+      "truePeakDBTP": -8.56,
+      "samplePeakDBFS": -8.56,
+      "midi": "arttools/music/midi/m_wild_north.mid",
+      "score": {
+        "title": "Pines beyond the Pass",
+        "key": "E minor",
+        "bpm": 70,
+        "meter": "4/4",
+        "lead": "oboe",
+        "backing": "harp",
+        "pad": "strings"
+      },
+      "quality": {
+        "seamJump": 0.0019283,
+        "localDerivativeP999": 0.0403311,
+        "wrapTailRMSDifference": 0.00057,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_examiner": {
+      "a": 0,
+      "b": 44.44449,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_examiner.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "6afd0a079d6dc0cdec04d8f00afee111464de29715b0c207f44b691784f62623",
+        "bars": 20
+      },
+      "duration": 45.69449,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 732307,
+      "sha256": "e848058b2fa0afa1aff545e8d897f0ab3163385e3cd73dc3858192e8b80b20e8",
+      "integratedLUFS": -18.45,
+      "truePeakDBTP": -8.8,
+      "samplePeakDBFS": -8.798,
+      "midi": "arttools/music/midi/m_examiner.mid",
+      "score": {
+        "title": "The Last Audit",
+        "key": "D harmonic minor",
+        "bpm": 108,
+        "meter": "4/4",
+        "lead": "horn",
+        "backing": "dulcimer",
+        "pad": "strings"
+      },
+      "quality": {
+        "seamJump": 0.0029641,
+        "localDerivativeP999": 0.0255487,
+        "wrapTailRMSDifference": 0.001131,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_tavern": {
+      "a": 0,
+      "b": 43.2,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_tavern.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "281046a7398344cce887dd19d23d0aaca4b76766a1e0258d1a5d2fa037243ef5",
+        "bars": 24
+      },
+      "duration": 44.45,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 712245,
+      "sha256": "36faebdcf8c60b49f5c0aa6684abdfb46d7085165d1cc8d442d36c65ffe25a81",
+      "integratedLUFS": -18.45,
+      "truePeakDBTP": -9.9,
+      "samplePeakDBFS": -9.899,
+      "midi": "arttools/music/midi/m_tavern.mid",
+      "score": {
+        "title": "The Bent Copper",
+        "key": "D major",
+        "bpm": 100,
+        "meter": "3/4",
+        "lead": "recorder",
+        "backing": "lute",
+        "pad": "bass"
+      },
+      "quality": {
+        "seamJump": 0.0025993,
+        "localDerivativeP999": 0.0317703,
+        "wrapTailRMSDifference": 0.0007495,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_dojo": {
+      "a": 0,
+      "b": 43.636349,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_dojo.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "00f6b6f950f7b4e3e642766c895f5e295177a32a2bc311f2f40ed60e74451f30",
+        "bars": 16
+      },
+      "duration": 44.886349,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 719350,
+      "sha256": "3c6312b6cf8e569ef90b5f06fdb716647a3906ecfcba0b7e663a9acf3851ea27",
+      "integratedLUFS": -18.44,
+      "truePeakDBTP": -9.19,
+      "samplePeakDBFS": -9.19,
+      "midi": "arttools/music/midi/m_dojo.mid",
+      "score": {
+        "title": "Practice before Dawn",
+        "key": "A dorian",
+        "bpm": 88,
+        "meter": "4/4",
+        "lead": "flute",
+        "backing": "lute",
+        "pad": "cello"
+      },
+      "quality": {
+        "seamJump": 0.002053,
+        "localDerivativeP999": 0.0237877,
+        "wrapTailRMSDifference": 0.0006398,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_cards": {
+      "a": 0,
+      "b": 41.739138,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_cards.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "984455fc2c311931038a0d756d2649cdde4b88b5d44652923cc856926ae3fe4f",
+        "bars": 16
+      },
+      "duration": 42.989138,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 688839,
+      "sha256": "ff7b11c93be3415a5b1789d2d9c1d5447253535c61fb565effa9b941054cc784",
+      "integratedLUFS": -18.45,
+      "truePeakDBTP": -9.6,
+      "samplePeakDBFS": -9.604,
+      "midi": "arttools/music/midi/m_cards.mid",
+      "score": {
+        "title": "The Crooked Wheel",
+        "key": "G harmonic minor",
+        "bpm": 92,
+        "meter": "4/4",
+        "lead": "clarinet",
+        "backing": "lute",
+        "pad": "bass"
+      },
+      "quality": {
+        "seamJump": 0.0044621,
+        "localDerivativeP999": 0.0301991,
+        "wrapTailRMSDifference": 0.000861,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_title": {
+      "a": 0,
+      "b": 50.526327,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_title.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "aa09b1e258f9d0af4afe0bfcc26664d7b1af25fcca3fa7bfde0dba0c6d8827da",
+        "bars": 16
+      },
+      "duration": 51.776327,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 829692,
+      "sha256": "aa17ecfa2161913451415e6142fb3e645ee9f1a37c406ce5150fd07e8feaaa00",
+      "integratedLUFS": -18.45,
+      "truePeakDBTP": -9.56,
+      "samplePeakDBFS": -9.561,
+      "midi": "arttools/music/midi/m_title.mid",
+      "score": {
+        "title": "Brasswake: A Ledger and a Lantern",
+        "key": "B flat major",
+        "bpm": 76,
+        "meter": "4/4",
+        "lead": "horn",
+        "backing": "harp",
+        "pad": "strings"
+      },
+      "quality": {
+        "seamJump": 0.0054757,
+        "localDerivativeP999": 0.0395755,
+        "wrapTailRMSDifference": 0.0008017,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_victory": {
+      "a": 0,
+      "b": 6.137937,
+      "v": 1,
+      "loop": false,
+      "path": "game/art/mu/m_victory.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "182fd5adb2e83a04341013b4c0be5031636fc56f32e84a52f3d9394fa3a51130",
+        "bars": 2
+      },
+      "duration": 6.137937,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 99099,
+      "sha256": "cf640e5d71f628b66fdf31ae4bc3fdf2feaef5f4fea11dd7749c0feb89bfad40",
+      "integratedLUFS": -18.44,
+      "truePeakDBTP": -6.74,
+      "samplePeakDBFS": -6.744,
+      "midi": "arttools/music/midi/m_victory.mid",
+      "score": {
+        "title": "A Page Won",
+        "key": "D major",
+        "bpm": 116,
+        "meter": "4/4",
+        "lead": "horn",
+        "backing": "harp",
+        "pad": "strings"
+      }
+    },
+    "m_death": {
+      "a": 0,
+      "b": 11.375011,
+      "v": 1,
+      "loop": false,
+      "path": "game/art/mu/m_death.mp3",
+      "origin": {
+        "kind": "original-midi",
+        "author": "Brasswake soundtrack, authored 2026-11-22",
+        "provenance": "Explicit written motifs/harmony in build_soundtrack.py; original local synthesis, no third-party audio inputs.",
+        "midiSHA256": "acd1d0a1378455e0710a6339239b6a79ba922ea1a7936456fb2c7b1c8c68b889",
+        "bars": 2.5
+      },
+      "duration": 11.375011,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 183109,
+      "sha256": "4899e66815614430608082366874b527229370729e0a279039be6556e3d2f58d",
+      "integratedLUFS": -18.44,
+      "truePeakDBTP": -6.7,
+      "samplePeakDBFS": -6.7,
+      "midi": "arttools/music/midi/m_death.mid",
+      "score": {
+        "title": "The Ledger Remembers",
+        "key": "E minor",
+        "bpm": 64,
+        "meter": "4/4",
+        "lead": "oboe",
+        "backing": "harp",
+        "pad": "strings"
+      }
+    },
+    "m_brackwater": {
+      "a": 0,
+      "b": 53.638776,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_brackwater.mp3",
+      "origin": {
+        "kind": "user-supplied-suno",
+        "title": "01 Brackwater - Town",
+        "take": 2,
+        "songURL": "https://suno.com/song/c202a694-e637-4348-8074-dd8cee346ea8",
+        "sourceFile": "01 Brackwater - Town.mp3",
+        "sourceSHA256": "8a9d6a43f162133503a917e4222e3e403875f8c1b0ff6242aa1756db2d57cb46",
+        "model": "v6",
+        "sourceDate": "2026-11-22",
+        "provenance": "Previously downloaded by Casey; source is read-only. No new generation/download activity.",
+        "selection": {
+          "a": 15.549999999999988,
+          "b": 69.18877551020407,
+          "score": 0.9475095688287565,
+          "phraseSimilarity": 0.9510584538060194,
+          "energyLogMismatch": 0.02957404147719069,
+          "estimatedBPM": 143.555,
+          "periodBeats": 128
+        },
+        "candidates": [
+          {
+            "take": 1,
+            "songURL": "https://suno.com/song/422c356d-6f8f-4592-84eb-14a315613eb2",
+            "a": 8.549999999999995,
+            "b": 59.21662131519274,
+            "score": 0.9339866584299572,
+            "phraseSimilarity": 0.9353031769021156,
+            "energyLogMismatch": 0.01097098726798649,
+            "estimatedBPM": 76.0,
+            "periodBeats": 64
+          },
+          {
+            "take": 2,
+            "songURL": "https://suno.com/song/c202a694-e637-4348-8074-dd8cee346ea8",
+            "a": 15.549999999999988,
+            "b": 69.18877551020407,
+            "score": 0.9475095688287565,
+            "phraseSimilarity": 0.9510584538060194,
+            "energyLogMismatch": 0.02957404147719069,
+            "estimatedBPM": 143.555,
+            "periodBeats": 128
+          }
+        ],
+        "crossfadeSeconds": 0.4
+      },
+      "duration": 54.888776,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 1319122,
+      "sha256": "ea2b68da0dd740d3dc519e691c8ac1d3ff4d5adbec3a52b848d29308f1b068ba",
+      "integratedLUFS": -18.27,
+      "truePeakDBTP": -7.1,
+      "samplePeakDBFS": -7.188,
+      "quality": {
+        "seamJump": 0.0144042,
+        "localDerivativeP999": 0.0346281,
+        "wrapTailRMSDifference": 0.0015551,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_haverly": {
+      "a": 0,
+      "b": 44.582313,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_haverly.mp3",
+      "origin": {
+        "kind": "user-supplied-suno",
+        "title": "02 Haverly - Town",
+        "take": 2,
+        "songURL": "https://suno.com/song/94a0d220-0a60-49de-834e-379e67fe10d3",
+        "sourceFile": "02 Haverly - Town (1).mp3",
+        "sourceSHA256": "3b0324b0768085c631fd9ba9544735aaf8b7f81a877cd52da34542da0624973a",
+        "model": "v6",
+        "sourceDate": "2026-11-22",
+        "provenance": "Previously downloaded by Casey; source is read-only. No new generation/download activity.",
+        "selection": {
+          "a": 24.649999999999977,
+          "b": 69.23231292517005,
+          "score": 0.9286129259984287,
+          "phraseSimilarity": 0.9431397959472275,
+          "energyLogMismatch": 0.1210572495733238,
+          "estimatedBPM": 129.199,
+          "periodBeats": 96
+        },
+        "candidates": [
+          {
+            "take": 1,
+            "songURL": "https://suno.com/song/8282df7e-e2b4-4e04-94fd-237911f03a59",
+            "a": 28.499999999999975,
+            "b": 87.94308390022674,
+            "score": 0.913729819204171,
+            "phraseSimilarity": 0.9177468527654411,
+            "energyLogMismatch": 0.03347527967725113,
+            "estimatedBPM": 129.199,
+            "periodBeats": 128
+          },
+          {
+            "take": 2,
+            "songURL": "https://suno.com/song/94a0d220-0a60-49de-834e-379e67fe10d3",
+            "a": 24.649999999999977,
+            "b": 69.23231292517005,
+            "score": 0.9286129259984287,
+            "phraseSimilarity": 0.9431397959472275,
+            "energyLogMismatch": 0.1210572495733238,
+            "estimatedBPM": 129.199,
+            "periodBeats": 96
+          }
+        ],
+        "crossfadeSeconds": 0.4
+      },
+      "duration": 45.832313,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 1101574,
+      "sha256": "5f6ce76214abfadaa62267c6e58fd294fbfe5c6cf15c8e2f423093f7d4ba18c1",
+      "integratedLUFS": -18.27,
+      "truePeakDBTP": -6.09,
+      "samplePeakDBFS": -6.133,
+      "quality": {
+        "seamJump": 0.0403958,
+        "localDerivativeP999": 0.0376513,
+        "wrapTailRMSDifference": 0.0042396,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_four_fords": {
+      "a": 0,
+      "b": 44.442313,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_four_fords.mp3",
+      "origin": {
+        "kind": "user-supplied-suno",
+        "title": "03 Four Fords - Town",
+        "take": 2,
+        "songURL": "https://suno.com/song/de5fde06-b5eb-4064-98df-e14fc721ca31",
+        "sourceFile": "03 Four Fords - Town (1).mp3",
+        "sourceSHA256": "49c72c34a5e535dc741d646f2a4cd22f2cf99f3ccbe59a7da1d7a33247cfbdd8",
+        "model": "v6",
+        "sourceDate": "2026-11-22",
+        "provenance": "Previously downloaded by Casey; source is read-only. No new generation/download activity.",
+        "selection": {
+          "a": 17.649999999999984,
+          "b": 62.092312925170056,
+          "score": 0.9236281870972453,
+          "phraseSimilarity": 0.9334590544836685,
+          "energyLogMismatch": 0.08192389488686062,
+          "estimatedBPM": 129.199,
+          "periodBeats": 96
+        },
+        "candidates": [
+          {
+            "take": 1,
+            "songURL": "https://suno.com/song/a7a8d4f2-f4fa-4571-99d0-30fed0f8230e",
+            "a": 26.74999999999998,
+            "b": 64.64496598639454,
+            "score": 0.8692745688725381,
+            "phraseSimilarity": 0.877120863949106,
+            "energyLogMismatch": 0.06538579230473304,
+            "estimatedBPM": 76.0,
+            "periodBeats": 48
+          },
+          {
+            "take": 2,
+            "songURL": "https://suno.com/song/de5fde06-b5eb-4064-98df-e14fc721ca31",
+            "a": 17.649999999999984,
+            "b": 62.092312925170056,
+            "score": 0.9236281870972453,
+            "phraseSimilarity": 0.9334590544836685,
+            "energyLogMismatch": 0.08192389488686062,
+            "estimatedBPM": 129.199,
+            "periodBeats": 96
+          }
+        ],
+        "crossfadeSeconds": 0.4
+      },
+      "duration": 45.692313,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 1098439,
+      "sha256": "6681a66dac68b6212183af0e2d5258955ba88d9175aa937262f689ee9312c8d5",
+      "integratedLUFS": -18.27,
+      "truePeakDBTP": -7.12,
+      "samplePeakDBFS": -7.117,
+      "quality": {
+        "seamJump": 0.0148999,
+        "localDerivativeP999": 0.0277819,
+        "wrapTailRMSDifference": 0.002184,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_cinderwick": {
+      "a": 0,
+      "b": 47.694467,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_cinderwick.mp3",
+      "origin": {
+        "kind": "user-supplied-suno",
+        "title": "04 Cinderwick - Town",
+        "take": 2,
+        "songURL": "https://suno.com/song/9b0971d3-e11f-4110-933e-529439c4e3a7",
+        "sourceFile": "04 Cinderwick - Town (1).mp3",
+        "sourceSHA256": "81f972abd1c4fdeee7be5dfc6d52938d02c5be93755975ab09a9cabdd007ecbf",
+        "model": "v6",
+        "sourceDate": "2026-11-22",
+        "provenance": "Previously downloaded by Casey; source is read-only. No new generation/download activity.",
+        "selection": {
+          "a": 22.549999999999983,
+          "b": 70.2444671201814,
+          "score": 0.9491454568327887,
+          "phraseSimilarity": 0.9492156010021322,
+          "energyLogMismatch": 0.0005845347445291847,
+          "estimatedBPM": 80.75,
+          "periodBeats": 64
+        },
+        "candidates": [
+          {
+            "take": 1,
+            "songURL": "https://suno.com/song/ea22821b-a315-4ae8-90db-5be3b64e6ec6",
+            "a": 28.849999999999973,
+            "b": 86.66700680272108,
+            "score": 0.8653636618816692,
+            "phraseSimilarity": 0.8660774627782261,
+            "energyLogMismatch": 0.005948340804640083,
+            "estimatedBPM": 99.384,
+            "periodBeats": 96
+          },
+          {
+            "take": 2,
+            "songURL": "https://suno.com/song/9b0971d3-e11f-4110-933e-529439c4e3a7",
+            "a": 22.549999999999983,
+            "b": 70.2444671201814,
+            "score": 0.9491454568327887,
+            "phraseSimilarity": 0.9492156010021322,
+            "energyLogMismatch": 0.0005845347445291847,
+            "estimatedBPM": 80.75,
+            "periodBeats": 64
+          }
+        ],
+        "crossfadeSeconds": 0.4
+      },
+      "duration": 48.944467,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 1176180,
+      "sha256": "caf0c1dd39d9208cccd626d608f3480981200868a9b3b653affed3b77690a0c9",
+      "integratedLUFS": -18.27,
+      "truePeakDBTP": -6.31,
+      "samplePeakDBFS": -6.326,
+      "quality": {
+        "seamJump": 0.0062748,
+        "localDerivativeP999": 0.0327403,
+        "wrapTailRMSDifference": 0.0026024,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_kell": {
+      "a": 0,
+      "b": 53.498776,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_kell.mp3",
+      "origin": {
+        "kind": "user-supplied-suno",
+        "title": "05 Kell - Town",
+        "take": 1,
+        "songURL": "https://suno.com/song/12f515f4-7d82-44ca-b4d3-6226657116ad",
+        "sourceFile": "05 Kell - Town.mp3",
+        "sourceSHA256": "7a47f71cdb72da0e3ca80b52d16a2fadaf10e2cb3d29fc60c3181e0b0fb077bd",
+        "model": "v6",
+        "sourceDate": "2026-11-22",
+        "provenance": "Previously downloaded by Casey; source is read-only. No new generation/download activity.",
+        "selection": {
+          "a": 24.99999999999998,
+          "b": 78.49877551020407,
+          "score": 0.9228471705194239,
+          "phraseSimilarity": 0.9289916064867946,
+          "energyLogMismatch": 0.051203633061422824,
+          "estimatedBPM": 71.777,
+          "periodBeats": 64
+        },
+        "candidates": [
+          {
+            "take": 1,
+            "songURL": "https://suno.com/song/12f515f4-7d82-44ca-b4d3-6226657116ad",
+            "a": 24.99999999999998,
+            "b": 78.49877551020407,
+            "score": 0.9228471705194239,
+            "phraseSimilarity": 0.9289916064867946,
+            "energyLogMismatch": 0.051203633061422824,
+            "estimatedBPM": 71.777,
+            "periodBeats": 64
+          },
+          {
+            "take": 2,
+            "songURL": "https://suno.com/song/766c0261-d4c6-4757-a9f9-19aa4178c905",
+            "a": 25.34999999999998,
+            "b": 87.90523809523808,
+            "score": 0.7821913118675615,
+            "phraseSimilarity": 0.8016532125901874,
+            "energyLogMismatch": 0.16218250602188197,
+            "estimatedBPM": 92.285,
+            "periodBeats": 96
+          }
+        ],
+        "crossfadeSeconds": 0.4
+      },
+      "duration": 54.748776,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 1315360,
+      "sha256": "405af7d747870aa81287711fa301a9ffd144b113f3c78b3e8424fea83ee27a7b",
+      "integratedLUFS": -18.27,
+      "truePeakDBTP": -5.89,
+      "samplePeakDBFS": -5.891,
+      "quality": {
+        "seamJump": 0.0094949,
+        "localDerivativeP999": 0.0175541,
+        "wrapTailRMSDifference": 0.0014345,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_highwatch": {
+      "a": 0,
+      "b": 44.722313,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_highwatch.mp3",
+      "origin": {
+        "kind": "user-supplied-suno",
+        "title": "06 Highwatch - Town",
+        "take": 1,
+        "songURL": "https://suno.com/song/a7cd5e2a-de5f-42d5-bae7-2558336d5989",
+        "sourceFile": "06 Highwatch - Town.mp3",
+        "sourceSHA256": "461d34276d42ba4d660b1baa6ebeac7a58aec30e10e80137db0b500446aa86e2",
+        "model": "v6",
+        "sourceDate": "2026-11-22",
+        "provenance": "Previously downloaded by Casey; source is read-only. No new generation/download activity.",
+        "selection": {
+          "a": 20.799999999999983,
+          "b": 65.52231292517006,
+          "score": 0.9423228738872177,
+          "phraseSimilarity": 0.9499323102846243,
+          "energyLogMismatch": 0.06341196997838865,
+          "estimatedBPM": 86.133,
+          "periodBeats": 64
+        },
+        "candidates": [
+          {
+            "take": 1,
+            "songURL": "https://suno.com/song/a7cd5e2a-de5f-42d5-bae7-2558336d5989",
+            "a": 20.799999999999983,
+            "b": 65.52231292517006,
+            "score": 0.9423228738872177,
+            "phraseSimilarity": 0.9499323102846243,
+            "energyLogMismatch": 0.06341196997838865,
+            "estimatedBPM": 86.133,
+            "periodBeats": 64
+          },
+          {
+            "take": 2,
+            "songURL": "https://suno.com/song/22538c6d-6735-4582-9e11-89f66170f5ca",
+            "a": 27.099999999999977,
+            "b": 71.82231292517005,
+            "score": 0.9069491435157534,
+            "phraseSimilarity": 0.920891087687456,
+            "energyLogMismatch": 0.11618286809752176,
+            "estimatedBPM": 86.133,
+            "periodBeats": 64
+          }
+        ],
+        "crossfadeSeconds": 0.4
+      },
+      "duration": 45.972313,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 1104709,
+      "sha256": "149989445714c9d4470cbf2bb0061d96a611dd545128196fc1f7a882aff20033",
+      "integratedLUFS": -18.26,
+      "truePeakDBTP": -6.71,
+      "samplePeakDBFS": -6.709,
+      "quality": {
+        "seamJump": 0.0119078,
+        "localDerivativeP999": 0.0220891,
+        "wrapTailRMSDifference": 0.0010999,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_aldermoot": {
+      "a": 0,
+      "b": 53.638776,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_aldermoot.mp3",
+      "origin": {
+        "kind": "user-supplied-suno",
+        "title": "07 Aldermoot - Town",
+        "take": 2,
+        "songURL": "https://suno.com/song/d4611b64-f6df-41a6-b7a2-ac95d7fac391",
+        "sourceFile": "07 Aldermoot - Town (1).mp3",
+        "sourceSHA256": "9c685cb1e2e4e7a9743960d61611531e3e6d83f76fcbf47cf768884a3a578813",
+        "model": "v6",
+        "sourceDate": "2026-11-22",
+        "provenance": "Previously downloaded by Casey; source is read-only. No new generation/download activity.",
+        "selection": {
+          "a": 26.74999999999998,
+          "b": 80.38877551020407,
+          "score": 0.9249506490108542,
+          "phraseSimilarity": 0.9290857830759108,
+          "energyLogMismatch": 0.034459450542138566,
+          "estimatedBPM": 71.777,
+          "periodBeats": 64
+        },
+        "candidates": [
+          {
+            "take": 1,
+            "songURL": "https://suno.com/song/8cecc1ef-c672-4bb2-b1ac-4296295b2ff5",
+            "a": 25.34999999999998,
+            "b": 67.10015873015871,
+            "score": 0.8839060027822716,
+            "phraseSimilarity": 0.897886530894007,
+            "energyLogMismatch": 0.11650440093112845,
+            "estimatedBPM": 92.285,
+            "periodBeats": 64
+          },
+          {
+            "take": 2,
+            "songURL": "https://suno.com/song/d4611b64-f6df-41a6-b7a2-ac95d7fac391",
+            "a": 26.74999999999998,
+            "b": 80.38877551020407,
+            "score": 0.9249506490108542,
+            "phraseSimilarity": 0.9290857830759108,
+            "energyLogMismatch": 0.034459450542138566,
+            "estimatedBPM": 71.777,
+            "periodBeats": 64
+          }
+        ],
+        "crossfadeSeconds": 0.4
+      },
+      "duration": 54.888776,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 1319122,
+      "sha256": "b645de5a66f18432ad3947945826d3b600d3f88a127afec75d76d7bf812a63fc",
+      "integratedLUFS": -18.26,
+      "truePeakDBTP": -5.83,
+      "samplePeakDBFS": -5.834,
+      "quality": {
+        "seamJump": 0.0080561,
+        "localDerivativeP999": 0.0299217,
+        "wrapTailRMSDifference": 0.0021604,
+        "tailSeconds": 1.25
+      }
+    },
+    "m_sunken_sluice": {
+      "a": 0,
+      "b": 35.66585,
+      "v": 1,
+      "loop": true,
+      "path": "game/art/mu/m_sunken_sluice.mp3",
+      "origin": {
+        "kind": "user-supplied-suno",
+        "title": "08 The Sunken Sluice - Dungeon",
+        "take": 2,
+        "songURL": "https://suno.com/song/9231fc7b-a093-4eee-bb96-ce830c86c69e",
+        "sourceFile": "08 The Sunken Sluice - Dungeon (1).mp3",
+        "sourceSHA256": "e41982e8c3195ed47ac4f900eab917efbcec5ef29567364562fb7296caf13bd9",
+        "model": "v6",
+        "sourceDate": "2026-11-22",
+        "provenance": "Previously downloaded by Casey; source is read-only. No new generation/download activity.",
+        "selection": {
+          "a": 21.84999999999998,
+          "b": 57.51585034013603,
+          "score": 0.9444276485053846,
+          "phraseSimilarity": 0.9488420602225142,
+          "energyLogMismatch": 0.036786764309412315,
+          "estimatedBPM": 80.75,
+          "periodBeats": 48
+        },
+        "candidates": [
+          {
+            "take": 1,
+            "songURL": "https://suno.com/song/9cfb564d-c8a1-4781-97ed-ebf80f093fc8",
+            "a": 30.24999999999997,
+            "b": 74.83231292517004,
+            "score": 0.9020019813800734,
+            "phraseSimilarity": 0.9025556343338538,
+            "energyLogMismatch": 0.004613774614836317,
+            "estimatedBPM": 86.133,
+            "periodBeats": 64
+          },
+          {
+            "take": 2,
+            "songURL": "https://suno.com/song/9231fc7b-a093-4eee-bb96-ce830c86c69e",
+            "a": 21.84999999999998,
+            "b": 57.51585034013603,
+            "score": 0.9444276485053846,
+            "phraseSimilarity": 0.9488420602225142,
+            "energyLogMismatch": 0.036786764309412315,
+            "estimatedBPM": 80.75,
+            "periodBeats": 48
+          }
+        ],
+        "crossfadeSeconds": 0.4
+      },
+      "duration": 36.91585,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 887788,
+      "sha256": "e5b94c1ace1d999d30f647badd47e270f428663c8ad80e3a48b1e2f5db7fd598",
+      "integratedLUFS": -18.26,
+      "truePeakDBTP": -7.65,
+      "samplePeakDBFS": -7.649,
+      "quality": {
+        "seamJump": 0.0245665,
+        "localDerivativeP999": 0.0265265,
+        "wrapTailRMSDifference": 0.0012607,
+        "tailSeconds": 1.25
+      }
+    }
+  }
+}

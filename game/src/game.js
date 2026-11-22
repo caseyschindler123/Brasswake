@@ -1408,7 +1408,7 @@
       <details class="lesson"><summary>Commands learned · ${Object.keys(CMDS).filter(k => cmdSet()[k] === 2).length} of ${Object.keys(CMDS).length}</summary><div class="lb"><ul class="skills">${Object.keys(CMDS).map(k => `<li><span class="nm"><b>${cmdSet()[k] === 2 ? esc(cmdTitle(k)) : cmdSet()[k] ? esc(cmdTitle(k)) + ' <small>taught, not used yet</small>' : '?'}</b></span><span class="val">${cmdSet()[k] === 2 ? '✓' : ''}</span></li>`).join('')}</ul><p class="cap2">A command joins the Commands panel when its lesson opens. Using it correctly once earns a Hint Key.</p></div></details>
       ${djTokens()}<section class="sec"><h2>Worn gear</h2><div class="grid doll">${SLOTS.map(s => { const it = itemById(S.eq[s]); return it ? `<button class="cell rar-${it.rarity}" data-a="item" data-id="${it.id}" aria-label="${esc(it.name)}">${ico(it.ic)}<em>${s}</em></button>` : `<span class="cell empty"><em>${s}</em></span>`; }).join('')}</div><div class="kv" style="margin-top:12px"><span>Book of Arms uses</span><span>${rpgName(w)}</span><span>Damage with it</span><span>+${dmgPct(w)}%</span><span>Defence</span><span>${Math.min(60, bonus('def'))}%</span><span>Gold bonus</span><span>+${bonus('gold')}%</span><span>Skill gain bonus</span><span>+${learnPct()}%</span><span>Luck (with streak ${S.streak})</span><span>+${luck()}%</span></div></section>
       <section class="sec"><h2>Record</h2><div class="kv" style="margin-top:10px"><span>Queries run</span><span>${S.stats.q}</span><span>Correct</span><span>${S.stats.ok} (${acc}%)</span><span>Exercises</span><span>${Object.keys(S.done).length} / ${CONTRACTS.length}</span><span>Marks</span><span>${Object.keys(S.boss).length} / 8</span><span>Journal pages</span><span>${Object.keys(S.jr).length} / 8</span><span>Creatures</span><span>${S.stats.kills}</span><span>Thefts</span><span>${S.stats.steals}</span><span>Dungeon chests</span><span>${S.stats.dungeons}</span><span>Times fallen</span><span>${S.stats.falls}</span><span>Best streak</span><span>${S.best}</span></div></section>
-      <section class="sec"><h2>Sound</h2><p class="note">Music plays in Tallyport, the Bilge Vaults and fights so far. If you hear nothing, tap the screen once and check the volume.</p><div class="row" style="margin-top:10px"><button class="btn sm quiet" data-a="snd" data-k="mu">Music: ${Sound.pref().mu ? 'on' : 'off'}</button><button class="btn sm quiet" data-a="snd" data-k="fx">Effects: ${Sound.pref().fx ? 'on' : 'off'}</button></div></section>
+      <section class="sec"><h2>Sound</h2><p class="note">Music follows towns, wilderness, dungeons and fights. If you hear nothing, tap the screen once and check your device volume.</p><div class="row" style="margin-top:10px"><button class="btn sm quiet" data-a="snd" data-k="mu">Music: ${Sound.pref().mu ? 'on' : 'off'}</button><button class="btn sm quiet" data-a="snd" data-k="fx">Effects: ${Sound.pref().fx ? 'on' : 'off'}</button></div></section>
       <section class="sec"><h2>Save</h2><p class="note">${Cloud.state === 'account' ? 'Saved to your Claude account as you play, and on this device.' : 'Saved on this device. Account sync is not available in this view, so copy a save code before switching devices.'}</p><div class="row" style="margin-top:10px"><button class="btn sm quiet" data-a="export">Save code</button><button class="btn sm quiet" data-a="import">Load a code</button><button class="btn sm wax" data-a="reset">Switch character</button></div></section>`;
   }
   function vBag() {
@@ -1423,7 +1423,16 @@
 
   /* ---------- sound: what plays where (see src/audio.js) ---------- */
   function soundUp() {
-    Sound.init(() => !sceneUp || !S ? null : { fight: !!(F && F.act === 'fight' && !F.over), dun: Scene.inDungeonMap() ? Scene.mapRegion() : 0, region: S.region });
+    Sound.init(() => {
+      if (!$('#title').hidden) return { title: true };
+      if (!sceneUp || !S || !S.path) return null;
+      const c = Scene.musicContext(); if (!c) return null;
+      c.fight = !!(F && F.act === 'fight' && !F.over); c.boss = !!(F && F.boss);
+      const talking = !$('#say').hidden || (!$('#sheet').hidden && !!$('#sheet .shop-head'));
+      if (PK || WH || BJ || (talking && CE && CE.kind === 'casino')) c.venue = 'cards';
+      else if (talking && CE && CE.kind === 'tavern') c.venue = 'tavern';
+      return c;
+    });
     const g = Engine.grade; Engine.grade = (t, q) => { const r = g(t, q); if (r && !r.err && r.grade) Sound.sfx(r.grade); return r; };
     const X = Scene.FX, sw = X.swing;
     X.swing = (a, b, kind, style) => {
