@@ -2326,9 +2326,9 @@
     "sha256": "4d12eb7f8a8b832b4cbe2489971fce70fcf73a60806254ff30cf96530bab9487"
   },
   {
-    "path": "art/mu/m_death.mp3",
-    "size": 183109,
-    "sha256": "4899e66815614430608082366874b527229370729e0a279039be6556e3d2f58d"
+    "path": "art/mu/m_death.wav",
+    "size": 2006630,
+    "sha256": "9e0d03b97fccbc84d980fa8df1003cd10b9259f9e6dec6e5bf2de57312a9d277"
   },
   {
     "path": "art/mu/m_dojo.mp3",
@@ -2396,9 +2396,9 @@
     "sha256": "aa17ecfa2161913451415e6142fb3e645ee9f1a37c406ce5150fd07e8feaaa00"
   },
   {
-    "path": "art/mu/m_victory.mp3",
-    "size": 99099,
-    "sha256": "cf640e5d71f628b66fdf31ae4bc3fdf2feaef5f4fea11dd7749c0feb89bfad40"
+    "path": "art/mu/m_victory.wav",
+    "size": 1082810,
+    "sha256": "024b29f879a59917ce494c18ab93fab93ca80726cf14921ebd2fa9b0ffb5f326"
   },
   {
     "path": "art/mu/m_wild_coast.mp3",

@@ -230,7 +230,7 @@ const Sound = (() => {
   function load(id) {
     pending = id;
     const abort = new AbortController(), timeout = setTimeout(() => abort.abort(), 8000);
-    fetch('art/mu/' + id + '.mp3', { signal: abort.signal })
+    fetch('art/mu/' + id + (MUSIC[id].loop === false ? '.wav' : '.mp3'), { signal: abort.signal })
       .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
       .then(ab => new Promise((res, rej) => ctx.decodeAudioData(ab, res, rej)))
       .then(b => {

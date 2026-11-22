@@ -84,6 +84,7 @@ test('cache stays at two tracks and ambience resumes after combat', async () => 
 test('musical victory cue respects music independently of effects and returns to ambience', async () => {
   const f = fixture(); await f.complete(); f.Sound.setFx(false); f.ctx.currentTime = 12;
   f.Sound.sfx('win'); f.tick(); await f.complete(f.Sound.MUSIC.m_victory.b - .0000005);
+  assert.match(f.calls.at(-1).url, /m_victory\.wav$/);
   assert.equal(f.Sound.playing(), 'm_victory'); const cue = f.sources.at(-1); assert.equal(cue.loop, false);
   f.ctx.currentTime = 20; cue.onended(); assert.equal(f.Sound.playing(), 'm_tallyport');
   assert.equal(f.sources.at(-1).offset, 12);
@@ -94,7 +95,7 @@ test('new combat cancels a cue and late cue loads expire instead of playing out 
   const f = fixture(); await f.complete(); f.Sound.setFx(false);
   f.Sound.sfx('win'); f.tick(); f.ctx.currentTime = 6; await f.complete();
   assert.equal(f.Sound.playing(), 'm_tallyport');
-  f.Sound.sfx('death'); f.tick(); await f.complete(); assert.equal(f.Sound.playing(), 'm_death');
+  f.Sound.sfx('death'); f.tick(); await f.complete(); assert.equal(f.Sound.playing(), 'm_death'); assert.match(f.calls.at(-1).url, /m_death\.wav$/);
   f.set({ fight: true, boss: true }); await f.complete(); assert.equal(f.Sound.playing(), 'm_examiner');
 });
 
@@ -121,16 +122,19 @@ test('hidden tabs stop music, suppress requests, and safely resume current ambie
   assert.equal(f.Sound.playing(), 'm_bilge');
 });
 
-test('every soundtrack entry has a committed MP3 and valid bounded metadata', () => {
+test('every soundtrack entry has a committed audio file and valid bounded metadata', () => {
   const { Sound } = fixture();
   const catalog = JSON.parse(fs.readFileSync(path.join(__dirname, '../../arttools/music/soundtrack.json'), 'utf8'));
   assert.equal(Object.keys(catalog.tracks).length, 25);
   for (const [id, meta] of Object.entries(Sound.MUSIC)) {
     assert.ok(meta.a >= 0 && meta.b > meta.a && meta.v > 0 && meta.v <= 1);
     assert.ok(meta.b < 200, id);
-    const bytes = fs.readFileSync(path.join(__dirname, '../art/mu', id + '.mp3'));
+    const bytes = fs.readFileSync(path.join(__dirname, '../art/mu', id + (meta.loop === false ? '.wav' : '.mp3')));
     assert.ok(bytes.length > 1000, id);
-    assert.ok(bytes.subarray(0, 3).toString() === 'ID3' || (bytes[0] === 255 && (bytes[1] & 224) === 224), id);
+    if (meta.loop === false) {
+      assert.equal(bytes.subarray(0, 4).toString(), 'RIFF', id);
+      assert.equal(bytes.subarray(8, 12).toString(), 'WAVE', id);
+    } else assert.ok(bytes.subarray(0, 3).toString() === 'ID3' || (bytes[0] === 255 && (bytes[1] & 224) === 224), id);
     const entry = catalog.tracks[id];
     if (entry) {
       for (const field of ['a', 'b', 'v', 'loop']) assert.equal(meta[field], entry[field], id + ': ' + field);

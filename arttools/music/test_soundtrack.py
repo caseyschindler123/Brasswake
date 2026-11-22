@@ -1,4 +1,4 @@
-"""Bounded soundtrack regressions; --ffmpeg also checks every actual MP3.
+"""Bounded soundtrack regressions; --ffmpeg also checks every actual audio.
 
   python -I arttools/music/test_soundtrack.py
   python -I arttools/music/test_soundtrack.py --ffmpeg /path/to/ffmpeg.exe
@@ -90,7 +90,7 @@ class AssetTests(unittest.TestCase):
         original=0; source=0
         for ident,entry in tracks.items():
             path=music.ROOT/entry['path']
-            self.assertEqual(path.name,ident+'.mp3')
+            self.assertEqual(path.name,ident+('.mp3' if entry['loop'] else '.wav'))
             self.assertEqual(entry['sha256'],hashlib.sha256(path.read_bytes()).hexdigest())
             self.assertEqual(path.stat().st_size,entry['bytes'])
             self.assertEqual(entry['v'],1)
@@ -104,6 +104,11 @@ class AssetTests(unittest.TestCase):
                 self.assertGreaterEqual(entry['duration']-entry['b'],1)
             else:
                 self.assertEqual(entry['b'],entry['duration'])
+                sr,pcm=music.wavfile.read(path)
+                self.assertEqual(sr,music.SR)
+                self.assertEqual(pcm.dtype,np.dtype('int16'))
+                self.assertEqual(pcm.shape[1],2)
+                self.assertLessEqual(abs(len(pcm)/sr-entry['duration']),1/sr)
                 self.assertGreater(entry['duration'],3)
                 self.assertLess(entry['duration'],16)
             origin=entry['origin']
@@ -120,8 +125,8 @@ class AssetTests(unittest.TestCase):
                 self.assertEqual(len(origin['candidates']),2)
         self.assertEqual((original,source),(17,8))
 
-    def test_actual_mp3_levels_lengths_and_loop_tails(self):
-        if not FFMPEG: self.skipTest('Pass --ffmpeg for actual MP3 decode and level checks')
+    def test_actual_audio_levels_lengths_and_loop_tails(self):
+        if not FFMPEG: self.skipTest('Pass --ffmpeg for actual audio decode and level checks')
         for ident,entry in self.catalog['tracks'].items():
             with self.subTest(track=ident):
                 path=music.ROOT/entry['path']

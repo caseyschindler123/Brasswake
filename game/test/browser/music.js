@@ -19,12 +19,12 @@ test('all 28 music files decode with valid loops and audible finite samples', as
     if (!AC) return { available: false, count: Object.keys(Sound.MUSIC).length };
     const ctx = Offline ? new AC(2, 1, 44100) : new AC({ sampleRate: 44100 }), rows = [];
     for (const [id, meta] of Object.entries(Sound.MUSIC)) {
-      const response = await fetch('art/mu/' + id + '.mp3');
+      const response = await fetch('art/mu/' + id + (meta.loop === false ? '.wav' : '.mp3'));
       if (!response.ok) throw Error(id + ': HTTP ' + response.status);
       const b = await ctx.decodeAudioData(await response.arrayBuffer());
       if (meta.loop !== false && b.duration < meta.b) throw Error(id + ': invalid loop end ' + b.duration + ' < ' + meta.b);
-      // Cue metadata is rounded to microseconds; a decoder can differ by one output frame.
-      if (meta.loop === false && Math.abs(b.duration - meta.b) > 1 / b.sampleRate) throw Error(id + ': cue duration disagrees with decoded audio');
+      // PCM cues retain exact frames on every decoder; metadata is rounded to microseconds.
+      if (meta.loop === false && Math.abs(b.duration - meta.b) > 1 / b.sampleRate) throw Error(id + ': cue duration ' + b.duration + ' disagrees with ' + meta.b);
       if (meta.loop !== false && b.duration - meta.b < .85) throw Error(id + ': missing decoder safety tail');
       let energy = 0, peak = 0;
       for (let c = 0; c < b.numberOfChannels; c++) {

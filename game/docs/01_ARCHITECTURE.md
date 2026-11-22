@@ -85,7 +85,7 @@ There is no framework and no bundler. Plain ES2019 JavaScript modules are writte
 | `PLAN_LIVING_WORLD.md` | Pass-by-pass engineering notes. |
 | `docs/` | Master context documents and project memory, maintained in this repository. |
 
-Art tools live in repo-root `arttools/`, including `build_art.py`, `slice.py`, the packers, `verify_art.py`, contact-sheet tools and stand-in generators. Music tools, editable original MIDI scores and the measured soundtrack catalog are in `arttools/music/`; the art rebuild does not run them. The new pipeline locally renders original instruments and prepares existing Suno downloads into MP3s; it never contacts Suno. Audio source and asset regressions run in the release gate. See 03_ART_STYLE.md for inputs and generation rules.
+Art tools live in repo-root `arttools/`, including `build_art.py`, `slice.py`, the packers, `verify_art.py`, contact-sheet tools and stand-in generators. Music tools, editable original MIDI scores and the measured soundtrack catalog are in `arttools/music/`; the art rebuild does not run them. The new pipeline locally renders original instruments and prepares existing Suno downloads into MP3 loops and PCM WAV cues; it never contacts Suno. Audio source and asset regressions run in the release gate. See 03_ART_STYLE.md for inputs and generation rules.
 
 ## Runtime structure
 
@@ -211,3 +211,5 @@ GitHub Pages uses the Actions publishing source. The publication payload is buil
 - 2026-11-22: Planned a move to a public GitHub repo and a hosted static site that works offline (see "Planned, not built"). Casey chose public; he isn't concerned about the music being public. Multiplayer set aside for now.
 - 2026-11-22: Casey chose to have his PC agent rebuild the packed art from his raw art instead of copying it out of the artifact ("start this the right way"). Repo starter zip sent: source matching live `1795364400-6a70` (built `index.html` byte-identical), fonts and music, `REBUILD_ART.md`, live hash list.
 - 2026-11-22: Casey decided his local agent (which can generate images itself) takes over the repo, the packed-art rebuild and the context documents, so he doesn't have to relay between agents. The repo's `game/docs/` becomes the master copy of these documents.
+
+- 2026-11-22: Release verification caught MP3 cue-duration differences on Linux WebKit. Victory/death now use lossless PCM WAV; loop formats and the strict one-frame cue-duration regression remain unchanged.
