@@ -16,15 +16,19 @@ const Engine = (() => {
     return String(sql || '').replace(/[‘’‛′]/g, "'").replace(/[“”″]/g, '"')
       .replace(/ /g, ' ').replace(/—/g, '--').replace(/–/g, '-').replace(/…/g, '...').trim();
   }
-  // strip literals + comments so keyword detection can't be fooled
+  // Match quoted SQL before comments: '--' inside a value is ordinary text.
+  const MASKED = /'(?:[^']|'')*'|"(?:[^"]|"")*"|`(?:[^`]|``)*`|\[[^\]]*\]|--[^\n]*|\/\*[\s\S]*?(?:\*\/|$)/g;
+  // strip literals, quoted identifiers and comments for technique detection
   function bare(sql) {
-    return clean(sql).replace(/--[^\n]*/g, ' ').replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/'(?:[^']|'')*'/g, "''").replace(/\s+/g, ' ').trim().toUpperCase();
+    return clean(sql).replace(MASKED, ' ').replace(/\s+/g, ' ').trim().toUpperCase();
   }
   function statements(sql) {
     const out = []; let cur = '', q = null;
-    for (const ch of clean(sql)) {
-      if (q) { cur += ch; if (ch === q) q = null; }
-      else if (ch === "'" || ch === '"') { q = ch; cur += ch; }
+    const source = clean(sql).replace(MASKED, part => /^(--|\/\*)/.test(part) ? ' ' : part);
+    for (let i = 0; i < source.length; i++) {
+      const ch = source[i];
+      if (q) { cur += ch; if (ch === q) { if (q !== ']' && source[i + 1] === q) cur += source[++i]; else q = null; } }
+      else if (ch === "'" || ch === '"' || ch === '`' || ch === '[') { q = ch === '[' ? ']' : ch; cur += ch; }
       else if (ch === ';') { if (cur.trim()) out.push(cur.trim()); cur = ''; }
       else cur += ch;
     }

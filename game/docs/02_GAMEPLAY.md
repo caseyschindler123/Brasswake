@@ -1,6 +1,6 @@
 # Brasswake: gameplay reference
 
-Last updated: 2026-11-22 (walk-in rooms in Tallyport; live build `1795364400-6a70`). This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn.
+Last updated: 2026-11-22 (Pages playability audit release; retained artifact preview `1795364400-6a70`). This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn.
 
 ## 1. Premise and goals
 
@@ -244,6 +244,8 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
 
 ## 12. Other systems
 
+- **SQL editing:** queries may include line (`--`) and block (`/* ... */`) comments. Format retains comments and quoted names; comment punctuation does not create extra statements. The sandbox shows SELECT results even when the query starts with a comment. Combat controls wrap below the title when needed, and feedback/fishing controls use readable colors on dark panels.
+
 - **Walk-in rooms** (Tallyport only; `ROOMS` and `setRoom` in scene_b.js): the tavern (7×7 tiles), shop (6×5) and bank (6×6) are rooms you walk into. The outer ring of the footprint is wall and the door is the fourth tile of the front row. Stepping onto the footprint fades the painted building out over about a fifth of a second and shows the room in the same place: floor, a back wall 2.5 tiles tall with windows and decorations, thin side walls, a low front wall with the door gap, and furniture that blocks its tiles. The tavern keeper stands behind the bar, the banker behind the bank counter, and a new Shopkeeper (same stock as the stallkeeper) behind the shop counter. The plaza stall and stallkeeper are unchanged. Tallyport's other buildings and the other seven towns are not enterable yet.
 - **Guided first day** (`GD`, Tamsin): walk, run, talk, Odalys's lesson, the gull, loot, bag, stall, page, bank, the harbour tower, an optional pier cast, the Bilge Vaults, the Examiner's ring. Tabs unlock as you go, and you can skip it.
 - **Fishing:** a skill and a cast screen. SQL answers decide the catch, and higher skill unlocks rare fish and sunken things.
@@ -279,6 +281,8 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
 - **A shaped world with islands and a capital:** the world generator draws a real landmass (irregular coast, bays, headlands, offshore islands) in place of the current rectangle, with a couple of towns on islands reached by ferry from a port, and one large capital port city with a big market square, many specialist shops, landmarks and city walls. Working assumptions until Casey decides: the capital is Aldermoot (it already holds the council), and the island towns are to be chosen. The landmass, coast and islands are code, drawn with existing ground textures (V) plus the new coast textures and props. Ferries reverse the earlier skip of boats only for island crossings; there is no free sailing. Art requested in the same run; nothing designed in code yet.
 
 ## Decision log
+
+- 2026-11-22: Release `playability-audit-2026-11-22` repairs valid commented queries being rejected, sandbox SELECT results disappearing after leading comments, and Format corrupting block comments/quoted names. Combat title/buttons wrap on phones; combat error guidance and fishing/card controls have light text on dark backgrounds. Rules, payouts, progression and save format are unchanged. Pages commit/hash are recorded by release.json; artifact preview unchanged.
 
 - 2026-11-22: Pass 29 (`1795364400-6a70`): Tallyport's tavern, shop and bank are walk-in rooms. To give them usable floor space their footprints grew (tavern 6×4 → 7×7, shop 5×4 → 6×5, bank 5×4 → 6×6) and their painted art is scaled up to the new width. Keepers moved indoors; a Shopkeeper was added in the shop. Other towns keep their old layout. Save format unchanged.
 - 2026-11-22: Another session published `1795356532-b223` (regional wildlife, new lair creature sets for L6b, L7b, L8a, L8b, new creature and corpse atlases) without updating these docs. Recorded here from the code; pass 29 was built on top of it.

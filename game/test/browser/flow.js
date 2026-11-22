@@ -40,7 +40,7 @@ async function playerFlow(page, info) {
   await page.locator('#nav [data-t="ledger"]').click();
   await dismissCoach(page);
   await page.locator('[data-a="lsub"][data-s="sandbox"]').click();
-  await page.locator('#con-sql').fill('SELECT 42 AS release_check');
+  await page.locator('#con-sql').fill('/* release check; */ SELECT 42 AS release_check; -- finished;');
   await page.locator('[data-a="conrun"]').click();
   await expect(page.locator('#con-out')).toContainText('release_check');
   await expect(page.locator('#con-out td').first()).toHaveText('42');

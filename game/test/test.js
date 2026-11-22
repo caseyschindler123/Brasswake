@@ -1,6 +1,7 @@
 const init = require('../node_modules/sql.js/dist/sql-asm.js');
 globalThis.World = require('../src/world.js');
 const Engine = require('../src/engine.js'), Content = require('../src/quests.js');
+const SqlEd = require('../src/sqled.js');
 let seed = 7; const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
 const R = { pick: a => a[Math.floor(rnd() * a.length)], int: (a, b) => a + Math.floor(rnd() * (b - a + 1)) };
 let bad = 0; const fail = (...a) => { bad++; console.log('FAIL', ...a); };
@@ -43,6 +44,29 @@ init().then(SQL => {
   const ids = new Set(); [...Content.CONTRACTS, ...Content.BOUNTIES, ...Content.BOSSES, ...Content.RUMORS, ...Content.UNIQUES].forEach(x => { if (ids.has(x.id)) fail('dup id', x.id); ids.add(x.id); });
   for (const x of [...Content.BOSSES, ...Content.RUMORS]) if (!Content.UNIQUES.find(u => u.id === x.drop)) fail('missing drop', x.id);
   // judge sanity
+  // Queries edited on a phone retain their meaning around comments and quotes.
+  const commented = "/* first; task */ SELECT name FROM items; -- done;";
+  if (!Engine.check({ sql: 'SELECT name FROM items' }, commented).ok) fail('commented read');
+  if (!Engine.runRead('SELECT 1; SELECT 2').err) fail('multiple reads accepted');
+  if (!Engine.runRead('/* note */ DELETE FROM items').err) fail('commented write accepted');
+  if (Engine.runRead('-- only; a note').err !== 'Write a query first.') fail('comment-only query');
+  const sb = Engine.runSandbox('/* practice; */ SELECT 42 AS answer; -- done;');
+  if (sb.rows?.[0]?.[0] !== 42) fail('commented sandbox result');
+  if (Engine.runSandbox('CREATE TABLE comment_test (v TEXT); /* insert; */ INSERT INTO comment_test VALUES (\'a;b\'); -- select;\n SELECT v FROM comment_test').rows?.[0]?.[0] !== 'a;b') fail('commented sandbox script');
+  if (!Engine.skillsUsed(Engine.bare("SELECT '--' AS note FROM items JOIN vendors ON 1=1")).includes('join')) fail('literal hides technique');
+  if (Engine.skillsUsed(Engine.bare('SELECT 1 AS "JOIN" /* WHERE */')).includes('join')) fail('quoted identifier teaches technique');
+  for (const sql of [
+    'SELECT name /* keep; this */ FROM items',
+    "-- a note;\nSELECT 'it''s;--text' AS note; -- trailing note",
+    'SELECT name AS "order by;--" FROM items LIMIT 1',
+    'SELECT name AS [order by;--] FROM items LIMIT 1',
+    'SELECT name AS `order by;--` FROM items LIMIT 1',
+    'SELECT name FROM items WHERE item_id BETWEEN /* lower */ 1 AND 3',
+  ]) {
+    const fmt = SqlEd.format(sql), a = Engine.runRead(sql), b = Engine.runRead(fmt);
+    if (a.err || b.err || JSON.stringify(a) !== JSON.stringify(b)) fail('format changes query', sql, fmt, a.err, b.err);
+    if (sql.includes('keep; this') && !fmt.includes('/* keep; this */')) fail('format loses comment');
+  }
   const j = (a, b, o) => Engine.judge({ cols: ['a', 'b'], rows: a }, { cols: ['a', 'b'], rows: b }, o).ok;
   if (!j([[1, 'x'], [2, 'y']], [[2, 'y'], [1, 'x']])) fail('judge unordered');
   if (j([[1, 'x'], [2, 'y']], [[2, 'y'], [1, 'x']], [0])) fail('judge ordered');

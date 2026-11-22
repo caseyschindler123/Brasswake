@@ -12,7 +12,9 @@ const SqlEd = (() => {
     while (i < s.length) {
       const c = s[i], rest = s.slice(i); let m;
       if (c === "'") { let j = i + 1; while (j < s.length) { if (s[j] === "'") { if (s[j + 1] === "'") { j += 2; continue; } j++; break; } j++; } out.push(['str', s.slice(i, j)]); i = j; continue; }
+      if (c === '"' || c === '`' || c === '[') { const end = c === '[' ? ']' : c; let j = i + 1; while (j < s.length) { if (s[j] === end) { if (end !== ']' && s[j + 1] === end) { j += 2; continue; } j++; break; } j++; } out.push(['id', s.slice(i, j)]); i = j; continue; }
       if (rest.startsWith('--')) { const j = s.indexOf('\n', i); const e = j < 0 ? s.length : j; out.push(['cm', s.slice(i, e)]); i = e; continue; }
+      if (rest.startsWith('/*')) { const j = s.indexOf('*/', i + 2), e = j < 0 ? s.length : j + 2; out.push(['cm', s.slice(i, e)]); i = e; continue; }
       if ((m = /^\s+/.exec(rest))) { out.push(['ws', m[0]]); i += m[0].length; continue; }
       if ((m = /^\d+(\.\d+)?/.exec(rest))) { out.push(['num', m[0]]); i += m[0].length; continue; }
       if ((m = /^[A-Za-z_][A-Za-z0-9_]*/.exec(rest))) { out.push(['w', m[0]]); i += m[0].length; continue; }
@@ -36,7 +38,7 @@ const SqlEd = (() => {
   /* Format: capitals for keywords, each clause on its own line, long select lists one column a line, AND/OR on their own line, subqueries indented. */
   const CLAUSE = ['select', 'from', 'where', 'group by', 'having', 'order by', 'limit', 'join', 'left join', 'right join', 'inner join', 'left outer join', 'cross join', 'union', 'union all', 'values', 'set', 'with', 'insert into', 'update', 'delete from', 'create table', 'create view', 'create index', 'window'];
   function format(src) {
-    const tk = tokens(src.trim()).filter(t => t[0] !== 'ws' && t[0] !== 'cm').map(([t, v]) => [t, t === 'w' && KW.has(v.toLowerCase()) ? v.toUpperCase() : v]);
+    const tk = tokens(src.trim()).filter(t => t[0] !== 'ws').map(([t, v]) => [t, t === 'w' && KW.has(v.toLowerCase()) ? v.toUpperCase() : v]);
     // function names in capitals when a bracket follows
     for (let i = 0; i < tk.length; i++) if (tk[i][0] === 'w' && FN.has(tk[i][1].toLowerCase()) && tk[i + 1] && tk[i + 1][1] === '(') tk[i][1] = tk[i][1].toUpperCase();
     // join multi-word clauses into one token
@@ -49,6 +51,7 @@ const SqlEd = (() => {
     let inWhere = false;
     for (let i = 0; i < W.length; i++) {
       const [t, v] = W[i], prev = W[i - 1];
+      if (t === 'cm') { nl(); line = pad() + v; nl(); continue; }
       if (t === 'cl' && stack.length && stack[stack.length - 1] === 'p') { put(v); continue; }
       if (t === 'cl') { nl(); line = pad() + v; inWhere = /WHERE|HAVING|ON|JOIN/.test(v); if (v === 'SELECT') { sel = selLong(i) ? depth : null; if (sel !== null) { nl(); line = pad() + IND; } } else sel = null; continue; }
       if (v === '(' ) { const nx = W[i + 1]; put(v, !(prev && (prev[0] === 'w' || prev[1] === ')') && !(prev[0] === 'w' && KW.has(prev[1].toLowerCase()) && !FN.has(prev[1].toLowerCase()))) || (W[i - 2] && W[i - 2][0] === 'cl' && /INSERT|CREATE/.test(W[i - 2][1]))); if (nx && nx[0] === 'cl' && /SELECT|WITH/.test(nx[1])) { stack.push(sel); depth++; sel = null; } else stack.push('p'); continue; }

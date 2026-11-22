@@ -725,3 +725,12 @@ img.scene { width: 100%; border-radius: 8px; margin: 6px 0; }
 .kb .row.last .k.ksy { flex: 1 1 0; font: 700 22px var(--mono); }
 .klist .ltop { margin-top: 6px; grid-template-columns: repeat(3, 1fr) 1.6fr; } .klist .li.lsym { font: 600 13px var(--title); letter-spacing: .08em; color: #8a6a3a; } .klist .li.lsym.on { background: #f0deb0; }
 .klist .lsyms { margin-top: 6px; } .klist .lnone { margin: 10px 2px 0; }
+/* Keep combat labels readable beside the full set of hint controls on phones. */
+.f-head { flex-wrap: wrap; }
+.f-head > div:first-child { flex: 1 1 160px; }
+.f-head > .f-btns { flex: 0 1 auto; flex-wrap: wrap; max-width: 100%; }
+#fight.st-prompt .cap2 { color: #d8c8a0; }
+#fight.st-prompt { max-height: calc(100% - 24px); }
+/* Painted oak buttons and the dark fishing/card screens need light labels. */
+body.ui #enc.pk .btn:not(.solid) { color: #f5e2b8; text-shadow: 0 1px 0 #1b1008; }
+#enc.pk .gain span:nth-child(even) { color: #a4e5c5; }

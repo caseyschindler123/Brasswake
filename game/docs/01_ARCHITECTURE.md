@@ -2,7 +2,7 @@
 
 The repository is the source of truth for source code, packed art, tools and project memory. `game/docs/` holds the master context documents. Casey's local agent maintains the repo, art pipeline and docs directly. The base64 backup and Claude project copies are no longer the development source. The PC checkout is `C:\Users\caseys\source\Brasswake`; the remote is `https://github.com/caseyschindler123/Brasswake`. The hosted game is at `https://caseyschindler123.github.io/Brasswake/`.
 
-Last updated: 2026-11-22. Live build: pass 29 (walk-in rooms in Tallyport), version `1795364400-6a70`. (Two publishes carry the label "Pass 26": the audio one and the keyboard one. Go by version id.)
+Last updated: 2026-11-22. Pages releases are identified by the source commit and HTML hash in `release.json`. The playability audit release adds SQL comment handling and readable combat/fishing controls. The retained artifact preview is pass 29 (walk-in rooms in Tallyport), version `1795364400-6a70`. (Two artifact publishes carry the label "Pass 26": the audio one and the keyboard one. Go by version id.)
 
 ## Starting a new session
 
@@ -117,6 +117,8 @@ Art tools live in repo-root `arttools/`, including `build_art.py`, `slice.py`, t
 
 ## Build, test, publish
 
+`Engine` splits SQL statements outside quoted strings/identifiers and comments. Comments do not count as statements or hide later techniques; sandbox reads with leading comments still return rows. `SqlEd` preserves comments and quoted identifiers during formatting. Browser regressions in `test/browser/playability.js` cover commented contract/sandbox queries, repeat payouts, combat and loot, banking, death protection/recovery, fishing, dungeon keys/chests, and dojo practice using disposable local fixture accounts. Stronger skills and direct location setup make these system checks bounded; they do not measure progression balance.
+
 1. In `game/`, install locked dependencies with `npm ci`, then run `npm run verify`. It checks packed art, engine/content (`ALL GOOD`), poker, casino, workflow tooling, and the build. It selects browser testing for relevant game changes; framework/docs-only changes skip UI. On a new machine use `npm run test:install` when UI checks are needed; CI installs browsers only when selected. Build output is `dist/index.html`, `dist/release.json`, and a copy of `game/art/` under `dist/art/`.
 2. For art-tool or rebuild changes, additionally run `python -I arttools/test_arttools.py` from the repo root in the pinned art environment, then the art verifier. Check all four generated `game/src/art*.js` against the saved pre-rebuild files when rebuilding existing art.
 3. When UI coverage is relevant, Playwright exercises creation, SQL, navigation, save export/import, and reload on phone Chromium/WebKit at 390×720 and desktop Chromium at 1280×800, and captures the eight visual fixtures. Open affected screenshots in ignored `game/test-results/` before reporting visual success. For manual art review, `python -I game/test/serve_art.py` still serves `http://localhost:8779/__visual?scene=title`; scenes are `title`, `tallyport`, `fight`, `bag`, `paperdoll`, `dungeon`, `dojo`, and `interior`, using disposable accounts and local sql.js. Neither fixture nor test server enters the game build. Framework/docs-only changes do not need UI review.
@@ -168,6 +170,8 @@ GitHub Pages uses the Actions publishing source. The publication payload is buil
 - **Multiplayer:** discussed and set aside.
 
 ## Decision log
+
+- 2026-11-22: Playability audit release `playability-audit-2026-11-22` (Pages source commit in release.json): repaired comment-aware SQL splitting, sandbox read detection, technique detection around quoted text, and formatting of block comments/quoted identifiers. Added browser regressions for major gameplay flows and combat/fishing readability. Save format and packed art unchanged; the artifact preview remains pass 29.
 
 - 2026-11-22: Casey chose automatic Codex classification and release for both task classes, deliberate cost-effective delegation, and UI testing only when relevant. Root AGENTS.md and 05_CODING_WORKFLOW.md define the defaults. npm run verify shares local/CI checks and selects UI coverage from actual game impact; release.json identifies the source commit and built HTML hash. This framework release preserves the existing game HTML/version; release success is tracked by its source commit and the post-deployment receipt.
 
