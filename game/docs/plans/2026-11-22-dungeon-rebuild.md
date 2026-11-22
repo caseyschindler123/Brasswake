@@ -6,6 +6,8 @@ Status: implementation and art complete; browser traversal/visual verification i
 
 Casey requested the entire rebuild, including all required images and additional monsters, followed by playing every dungeon through the real UI. Deliver all eight together; no prototype release. Use UO's stable geography, multiple levels, memorable hunting territories, branching routes and growing danger as the model. Preserve existing unrelated sound/magic work. Existing art/prompt master and model/quality settings stay untouched; request any remaining specific art authorization required by the existing pipeline before a paid full run.
 
+Reference: the official [Destard guide](https://uo.com/wiki/ultima-online-wiki/world/dungeons/destard/) describes three connected levels with distinct monster territories, large caverns, side passages and treasure areas; the [Deceit guide](https://uo.com/wiki/ultima-online-wiki/world/dungeons/dungeon-deceit/) describes branching rooms and four levels. These establish the design model, not an unverified claim that Brasswake copies their exact tile dimensions.
+
 ## Scope and acceptance
 
 - Replace the shared four-room random corridor with 28 authored, editable tile floors across eight distinct dungeons. Floor dimensions and topology are data, not hard-coded scene rules. At least 12 named spaces, two loops and three optional branches per ordinary floor; at least 1,200 connected walkable tiles per floor. Main-route travel must span at least 150 tiles across meaningful destinations, with optional exploration extending it.
@@ -67,10 +69,25 @@ These names are authored content targets. Briefs and floor data are the editable
 - 17 focused dungeon layout/progression/controller tests pass. Original guided dungeon/chest/dojo flow and dungeon visual fixture pass on phone Chromium. Full expeditions are in progress.
 - All 15 raw images were generated with the unchanged existing image script, model and high quality settings. Full packed contacts were opened, including both orientations of all eight gate themes. Five art-tool tests passed; deterministic replay matched all three atlas hashes and coordinate JS; exact manifest check reports 489 files, zero missing/extra/different. Final packed atlases contain 32 material textures, 48 props/barriers and 16 static creatures. New creatures use rotated living sprites for fallen bodies; no separate walk/fall sheets are claimed.
 - New raw outputs are archived with original names under `SQL Game/dungeon_2026-11-22/out`, with working copies in ignored `work/dungeon-art/out`; briefs and recorded input hashes/crops are checked in under `arttools/dungeon_*`.
-- The other sound/magic task committed independently as `7956eaa`; its work is preserved.
+- The other sound/magic task committed independently as `7956eaa`; its work is preserved. The later published soundtrack commit `c1235ee` was integrated without replacing dungeon code, assets or tests. The merged packed manifest contains 514 assets; the earlier 489 count above describes the dungeon-only extension before that integration.
 
 - Visual review caught the legacy floor-decoration loop repainting the generated dungeon textures. Dungeon maps now bypass that loop; browser tests compare sampled chunk pixels with the packed material atlas.
 - Full expeditions use an immutable release-candidate snapshot on their own Node loopback server. A reusable `npm run test:dungeons` runner is committed; its syntax/list-only build validation lists exactly eight expeditions and verifies snapshot metadata.
+- One overlapping six-worker release check was stopped after page-load timeouts while eight walking browsers were active. No gameplay assertions were relaxed. Final verification runs the integrated release with two workers, separately from full walking; the earlier attempt is not a passed gate. The soundtrack changes affect music/context only; dungeon layouts, art and gameplay are unchanged from the frozen walking candidate.
+- All eight complete phone Chromium expeditions passed, with zero skips, retries or failures. Snapshot HTML SHA-256: `584076219d830fe2a8961da8790563d9867f99e758e88570c2e23cc54146da28`. Original JSON and screenshots are retained in ignored `work/dungeon-final-evidence.json` and `game/test-results-final-expeditions/`. Prepared magery/healing-100 characters, region-appropriate spell pages and legendary gear shortened combat; presentation waits were accelerated, movement and combat rules were unchanged. These timings include concurrent-browser overhead and do not establish natural character-progression balance.
+
+| Complete expedition | Floors | Recorded tile steps | Fights / SQL queries | In-test minutes |
+|---|---:|---:|---:|---:|
+| Bilge Vaults | 3 | 2,660 | 14 | 13.8 |
+| Sunken Sluice | 3 | 2,626 | 34 | 15.0 |
+| Old Barrows | 3 | 2,954 | 6 | 15.1 |
+| Tanglewarren | 3 | 2,896 | 30 | 16.2 |
+| Slagdeep | 4 | 3,652 | 42 | 19.7 |
+| Crystal Vaults | 4 | 3,536 | 15 | 18.8 |
+| Ice Halls | 4 | 3,300 | 22 | 17.9 |
+| Sealed Stacks | 4 | 3,978 | 13 | 20.3 |
+
+- Opened and inspected all eight phone entrances, all eight second floors, all 12 deeper-floor views and all eight explored maps. Material and creature art passed. Map review caught the surface-town coachmark covering dungeon headings; dungeon Map now suppresses that coachmark, and the release component tests assert it stays hidden. Final phone/desktop screenshots and release checks remain pending below. The post-expedition changes are the soundtrack integration and this map overlay correction; they do not change movement, combat, population, floor graphs or rewards.
 
 ## Risks and release receipt
 

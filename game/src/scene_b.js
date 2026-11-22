@@ -743,7 +743,16 @@
     },
     hit(b, txt, col) { const s = shots.find(s => s.target === b && !s.impact); if (s && String(txt)[0] !== '+') s.impact = { b, txt, col }; else landHit(b, txt, col); }
   };
-  return { preload, init, load, clearRemains: () => { if(world)world.ents=world.ents.filter(e=>!e.mine);if(map && map!==world)map.ents=map.ents.filter(e=>!e.mine); }, remains, emptied, chase: (e, secs) => { if (e) { e.chase = secs; e.wait = 1.3; e.calm = 0; e.alert = 8; e.busy = 0; } }, inDungeonMap: () => !!(map && map.dungeon), mapRegion: () => map ? (map.dungeon ? map.r : 0) : 0, enterDungeon, dungeonRefresh: p => { if(map && map.dungeonFloor)dungeonApply(map,p); }, backdrop, kill, corpse, refresh, resume, pause, portrait, act, FX, towns: () => TOWN, terr: () => world ? world.terr : [], sites: () => world ? world.sites : [], spots: () => world ? world.spots : {}, mini: () => world && world.mini, size: [WW, WH],
+  function musicContext() {
+    if (!map || !P) return null;
+    if (map.hall) return { region: map.r, town: true, venue: 'dojo' };
+    if (map.dungeon) return { region: map.r, dun: map.r };
+    const r = map.reg[P.y * map.w + P.x] || curReg || 1, t = TOWN[r];
+    const room = map.blds.find(b => b.enter && P.x >= b.x && P.x < b.x + b.w && P.y >= b.y && P.y < b.y + b.h);
+    return { region: r, town: P.x >= t[0] - 26 && P.x <= t[0] + 26 && P.y >= t[1] - 21 && P.y <= t[1] + 17,
+      venue: room && room.slot === 'tavern' ? 'tavern' : null };
+  }
+  return { preload, init, load, clearRemains: () => { if(world)world.ents=world.ents.filter(e=>!e.mine);if(map && map!==world)map.ents=map.ents.filter(e=>!e.mine); }, remains, emptied, musicContext, chase: (e, secs) => { if (e) { e.chase = secs; e.wait = 1.3; e.calm = 0; e.alert = 8; e.busy = 0; } }, inDungeonMap: () => !!(map && map.dungeon), mapRegion: () => map ? (map.dungeon ? map.r : 0) : 0, enterDungeon, dungeonRefresh: p => { if(map && map.dungeonFloor)dungeonApply(map,p); }, backdrop, kill, corpse, refresh, resume, pause, portrait, act, FX, towns: () => TOWN, terr: () => world ? world.terr : [], sites: () => world ? world.sites : [], spots: () => world ? world.spots : {}, mini: () => world && world.mini, size: [WW, WH],
     pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, bldSpr, effects: { shots, slashes, floats }, advanceEffects, draw }),
     warp(x, y) { load([x, y]); }, hop(x, y) { go(map, x, y); }, guidePut, guideOff, guideEnt: () => GUIDE, drawDoll, dollKey: () => artVer, enterHall, inHall: () => map && map.hall ? map.r : 0, hallAdd: o => map ? addEnt(map, Object.assign({ r: map.r }, o)) : null, hallMove: (e, x, y) => { if (!map || !e) return; const k = e.y * map.w + e.x; if (map.occ.get(k) === e) map.occ.delete(k); e.x = e.fx = x; e.y = e.fy = y; e.tx = null; map.occ.set(y * map.w + x, e); }, ents: () => map ? map.ents : [], fsReady: () => !!(AD && AD.dojo && (IMG['dj/fs.webp'] || img('dj/fs.webp')) && have('dj/fs.webp')) };
 })();

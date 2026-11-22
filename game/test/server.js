@@ -41,5 +41,5 @@ const server = http.createServer(async (req, res) => {
   }
 });
 const port=Number(process.env.BW_TEST_PORT || 8781);
-if(!Number.isInteger(port)||port<1024||port>65535)throw new Error('Invalid local test port');
-server.listen(port, '127.0.0.1', () => console.log('Browser fixture: http://localhost:'+port));
+if(!Number.isInteger(port)||(port!==0&&port<1024)||port>65535)throw new Error('Invalid local test port');
+server.listen(port, '127.0.0.1', () => console.log('Browser fixture: http://localhost:'+server.address().port));

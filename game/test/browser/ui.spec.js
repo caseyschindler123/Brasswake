@@ -3,6 +3,7 @@ const { observeErrors, playerFlow, screenshot } = require('./flow');
 require('./playability');
 require('./sound');
 require('./dungeons');
+require('./music');
 
 // Local tests use the installed SQL engine and local game fonts. The live test
 // deliberately uses the real hosted dependencies without these substitutions.

@@ -4,14 +4,16 @@ const { spawn } = require('node:child_process');
 const path = require('node:path');
 
 test('localhost tooling serves the built game and isolated fixtures safely', { timeout: 15000 }, async t => {
-  const child = spawn(process.execPath, [path.join(__dirname, 'server.js')], { stdio: ['ignore', 'pipe', 'pipe'] });
+  const child = spawn(process.execPath, [path.join(__dirname, 'server.js')], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, BW_TEST_PORT: '0' } });
   t.after(() => child.kill());
-  await new Promise((resolve, reject) => {
-    child.stdout.once('data', resolve);
+  const ready = await new Promise((resolve, reject) => {
+    child.stdout.once('data', data => resolve(data.toString()));
     child.once('error', reject);
     child.once('exit', code => reject(new Error('Test server exited before readiness: ' + code)));
   });
-  const base = 'http://127.0.0.1:8781';
+  const port = ready.match(/http:\/\/localhost:(\d+)/)?.[1];
+  assert.ok(port, 'The fixture reports its selected port');
+  const base = 'http://127.0.0.1:' + port;
   const health = await fetch(base + '/__health');
   assert.equal(health.status, 200);
   const production = await (await fetch(base + '/index.html')).text();

@@ -1,6 +1,7 @@
 require('./test/browser-path');
 const { defineConfig } = require('@playwright/test');
 const live = process.env.BW_LIVE === '1';
+const localURL = 'http://localhost:' + (process.env.BW_TEST_PORT || 8781);
 const phone = { viewport: { width: 390, height: 720 }, deviceScaleFactor: 1,
   isMobile: true, hasTouch: true };
 
@@ -16,7 +17,7 @@ module.exports = defineConfig({
   outputDir: live ? 'test-results-live' : 'test-results',
   reporter: [['list'], ['html', { outputFolder: live ? 'playwright-report-live' : 'playwright-report', open: 'never' }]],
   use: {
-    baseURL: live ? process.env.BW_BASE_URL : 'http://localhost:8781',
+    baseURL: live ? process.env.BW_BASE_URL : localURL,
     actionTimeout: 15000,
     navigationTimeout: 45000,
     trace: 'retain-on-failure',
@@ -29,7 +30,7 @@ module.exports = defineConfig({
   ],
   webServer: live ? undefined : {
     command: 'node test/server.js',
-    url: 'http://localhost:8781/__health',
+    url: localURL + '/__health',
     reuseExistingServer: false,
     timeout: 15000,
   },
