@@ -6,16 +6,17 @@ Last updated: 2026-11-22. Live build: pass 29 (walk-in rooms in Tallyport), vers
 
 ## Starting a new session
 
-Read these master docs before changing their topic: 01 architecture, 02 gameplay, 03 art, 04 writing. `game/STYLE.md` is a byte-for-byte copy of `game/docs/04_WRITING_STYLE.md`; update the master first and copy it when writing rules change.
+Root `AGENTS.md` applies `05_CODING_WORKFLOW.md`: Codex classifies, plans, develops, runs relevant checks, updates docs, commits, pushes, deploys, and verifies the release. Both task classes deploy automatically. The main agent delegates only when bounded independent work justifies its cost. Game UI testing applies only when relevant; tooling-only changes skip it.
+
+Read these master docs before changing their topic: 01 architecture, 02 gameplay, 03 art, 04 writing, 05 coding workflow. `game/STYLE.md` is a byte-for-byte copy of `game/docs/04_WRITING_STYLE.md`; update the master first and copy it when writing rules change.
 
 On a new machine, clone the repository using the URL Casey supplies, then install, build and test:
 
 ```powershell
 git clone https://github.com/caseyschindler123/Brasswake.git Brasswake
 cd Brasswake/game
-npm install
-node build.js
-node test/test.js
+npm ci
+npm run verify
 ```
 
 The test must print `ALL GOOD`. On this PC, use the existing checkout. Edit `game/src/`, build and test, update the relevant master docs and their dated Decision log, then commit. Never hand-edit `game/dist/index.html`. Push to `main` to run validation and deploy through GitHub Actions; pull requests validate without deploying. The base64 restore and backup workflow is retired.
@@ -59,7 +60,7 @@ There is no framework and no bundler. Plain ES2019 JavaScript modules are writte
 
 | Path | Role |
 |---|---|
-| `build.js` | Concatenates `src/*.js` in order into `shell.html` with `style.css` inlined, creates the output directory, writes `dist/index.html`, and copies `art/` to `dist/art/`. `BW_DIST` and `BW_ART_JS` build against stand-in art. |
+| `build.js` | Concatenates `src/*.js` in order into `shell.html` with `style.css` inlined, writes `dist/index.html` and `release.json` (source commit and HTML SHA-256), and copies `art/` to `dist/art/`. `BW_DIST` and `BW_ART_JS` build against stand-in art. |
 | `src/world.js` | `World`: the Ledger database, a fictional trading company. Schema (employees, customers, vendors, items, orders, order_lines, invoices, purchase_orders, po_lines, and more) and deterministic seed data. |
 | `src/quests.js` | `Content`: every piece of static content. Regions, contracts (exercises), bounties, bosses, rumors, uniques, monsters, lairs, dungeons, rivals, recipes, pages and books, food, settlers, houses, paint, fish, folk and talk lines. It also runs under Node, which the tests use. |
 | `src/engine.js` | `Engine`: runs SQL on a read-only copy plus a sandbox, grades a query against the answer (correct / close / partial / wrong, with row overlap), and detects which SQL techniques a query used. |
@@ -74,7 +75,7 @@ There is no framework and no bundler. Plain ES2019 JavaScript modules are writte
 | `src/game.js` | Everything else, about 280 KB. `soundUp()` wires `Sound` in: the music source, a wrapper on `Engine.grade` (grade sounds), wrappers on `Scene.FX.swing/hit/heal/treasure`, and a click sound on `.btn`.<ul><li>state `S` and the account `A`, save and cloud sync</li><li>combat, skills, items, the economy</li><li>the guided first day (`GD`), dojo tournaments and duels (`DU`), fishing</li><li>houses, banks, appearance, all sheets and menus</li><li>the action table `ACT`, interaction handlers `SH`, and `HOST` for the scene</li></ul> |
 | `src/style.css`, `shell.html` | Styles (a painted-UI skin at the end) and the page shell. |
 | `test/scenarios/` | Scenario scripts for `dbg.py` (guided day, dojo, death and bless, houses, account slots, sizes, looks, spawns, names). |
-| `test/` | Tests (below). |
+| `test/` | Engine/content, poker, casino, and workflow tests. `verify.js` is the shared release gate; `select-tests.js` selects relevant UI tests. `server.js`, `browser/`, and `playwright.config.js` provide browser coverage; `live.js` verifies a published release. |
 | `STYLE.md` | Writing rules (= `docs/04_WRITING_STYLE.md`). |
 | `PLAN_LIVING_WORLD.md` | Pass-by-pass engineering notes. |
 | `docs/` | Master context documents and project memory, maintained in this repository. |
@@ -116,9 +117,9 @@ Art tools live in repo-root `arttools/`, including `build_art.py`, `slice.py`, t
 
 ## Build, test, publish
 
-1. In `game/`, run `npm install`, `node build.js` and `node test/test.js`. Build output is `dist/index.html` plus a copy of `game/art/` under `dist/art/`. The content/engine test must print `ALL GOOD`.
-2. From the repo root, run `python -I arttools/test_arttools.py` in the pinned art environment, then the art verifier. Check all four generated `game/src/art*.js` against the saved pre-rebuild files when rebuilding existing art.
-3. Run `python -I game/test/serve_art.py` from the repo root to serve `game/dist/` on localhost. Open `http://localhost:8779/__visual?scene=title` at 390×720 CSS pixels. The test-only fixture supports `title`, `tallyport`, `fight`, `bag`, `paperdoll`, `dungeon`, `dojo`, and `interior`, uses a fresh test account on this dedicated origin, and supplies installed sql.js locally. It is never included in the game build. Check loaded assets, sprite placement and facing. Keep screenshots and browser error logs in ignored `work/` or `game/shots/`; look at them before reporting success.
+1. In `game/`, install locked dependencies with `npm ci`, then run `npm run verify`. It checks packed art, engine/content (`ALL GOOD`), poker, casino, workflow tooling, and the build. It selects browser testing for relevant game changes; framework/docs-only changes skip UI. On a new machine use `npm run test:install` when UI checks are needed; CI installs browsers only when selected. Build output is `dist/index.html`, `dist/release.json`, and a copy of `game/art/` under `dist/art/`.
+2. For art-tool or rebuild changes, additionally run `python -I arttools/test_arttools.py` from the repo root in the pinned art environment, then the art verifier. Check all four generated `game/src/art*.js` against the saved pre-rebuild files when rebuilding existing art.
+3. When UI coverage is relevant, Playwright exercises creation, SQL, navigation, save export/import, and reload on phone Chromium/WebKit at 390×720 and desktop Chromium at 1280×800, and captures the eight visual fixtures. Open affected screenshots in ignored `game/test-results/` before reporting visual success. For manual art review, `python -I game/test/serve_art.py` still serves `http://localhost:8779/__visual?scene=title`; scenes are `title`, `tallyport`, `fight`, `bag`, `paperdoll`, `dungeon`, `dojo`, and `interior`, using disposable accounts and local sql.js. Neither fixture nor test server enters the game build. Framework/docs-only changes do not need UI review.
 4. Existing `test/p8.py`, `p9.py`, `dbg.py` and scenario scripts document playthroughs and expose debug handles through localhost-only `window.__bw`. They retain older Linux path/browser assumptions; use the current local visual harness or port those paths before invoking them on Windows. `__bw` must remain unavailable on hosted production origins. Do not describe unrun legacy tests as passing.
 5. Update the relevant master docs and their Decision logs, then commit source, packed art, manifests and tools. Never commit raw art, sliced pieces, environments, or build output. Push `main` to `https://github.com/caseyschindler123/Brasswake` to test and deploy automatically. See the deployment workflow below.
 
@@ -153,9 +154,9 @@ The public repository is `https://github.com/caseyschindler123/Brasswake` and Gi
 
 ### Automatic deployment
 
-`.github/workflows/pages.yml` runs on pushes to `main`, pull requests targeting `main`, and manual dispatch. Its build job uses Node 24, checks `game/art/` against `arttools/packed_manifest.json`, runs `npm ci` and `npm test`, and builds `game/dist/` with `npm run build`. The test process exits nonzero for failed checks. The deploy job runs only for `main`, after the build succeeds, uploads `game/dist/` as a Pages artifact and publishes through the `github-pages` environment. Official actions are pinned to verified commit SHAs. No personal token or custom deployment secret is stored in the repo or workflow.
+`.github/workflows/pages.yml` runs on pushes to `main`, pull requests targeting `main`, and manual dispatch. Its build job uses Node 24, installs locked dependencies, and runs `npm run verify`, the same gate used locally. It runs fixed non-UI checks, builds, and selects browser testing for game source/assets, runtime dependencies, or changed rendered HTML. Development-only dependency/tooling/docs changes skip browser testing. Metadata-only build changes skip it when a baseline build produces identical HTML; missing evidence defaults to UI coverage. CI supplies the previous push SHA or PR base and installs browsers only when needed. Required-check failures block deployment. The deploy job publishes only on `main` after validation succeeds, then verifies the exact live commit and HTML hash. Relevant game changes also run a hosted player flow. Reports and any screenshots are retained for 14 days as separate Actions artifacts. Official actions are pinned to verified commit SHAs; no personal token or custom deployment secret is stored in the repo or workflow.
 
-GitHub Pages uses the Actions publishing source. The only publication payload is built HTML plus committed packed art, fonts and music. Raw art, slices, environments and local test screenshots are not uploaded. To change art, rebuild locally and update the accepted manifest deliberately after validation, then commit the packed files. A missing or changed committed asset makes CI fail.
+GitHub Pages uses the Actions publishing source. The publication payload is built HTML, release metadata, and committed packed art, fonts and music. Raw art, slices, environments and local test screenshots are not published. To change art, rebuild locally and update the accepted manifest deliberately after validation, then commit the packed files. A missing or changed committed asset makes CI fail.
 
 `npm run build` and `npm test` are also available in `game/`. `node arttools/check_packed_art.js` checks assets without Python or raw art. Local Git credentials use the already-authenticated GitHub CLI through a repository-local credential helper; no credential value is written to files.
 
@@ -167,6 +168,8 @@ GitHub Pages uses the Actions publishing source. The only publication payload is
 - **Multiplayer:** discussed and set aside.
 
 ## Decision log
+
+- 2026-11-22: Casey chose automatic Codex classification and release for both task classes, deliberate cost-effective delegation, and UI testing only when relevant. Root AGENTS.md and 05_CODING_WORKFLOW.md define the defaults. npm run verify shares local/CI checks and selects UI coverage from actual game impact; release.json identifies the source commit and built HTML hash. This framework release preserves the existing game HTML/version; release success is tracked by its source commit and the post-deployment receipt.
 
 - 2026-11-22: Casey authorized autonomous creation of the public GitHub repository and Pages hosting. Pushes to main now validate committed art, install locked dependencies, test and build before deploying game/dist through GitHub Actions. Pull requests validate without deployment; raw art remains local. Offline support remains planned.
 

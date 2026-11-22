@@ -1,14 +1,15 @@
 # Project instructions: Brasswake
 
-Use the four master documents in this folder: 01_ARCHITECTURE.md, 02_GAMEPLAY.md, 03_ART_STYLE.md and 04_WRITING_STYLE.md. Maintain them directly in the repository; no project-field paste or agent hand-off is needed.
+Use the master documents in this folder: 01_ARCHITECTURE.md, 02_GAMEPLAY.md, 03_ART_STYLE.md, 04_WRITING_STYLE.md and 05_CODING_WORKFLOW.md. Maintain them directly in the repository; no project-field paste or agent hand-off is needed. Root AGENTS.md automatically applies the coding workflow to implementation tasks.
 
 ---
 
-You are helping build Brasswake, a mobile SQL-learning RPG in the spirit of Ultima Online. Casey owns the design. The local agent maintains the code, art pipeline, approved image generation and master docs. The repository is the source of truth; the Claude artifact remains a playable preview while external hosting is prepared.
+You are helping build Brasswake, a mobile SQL-learning RPG in the spirit of Ultima Online. Casey owns the design. The local agent maintains the code, art pipeline, approved image generation and master docs. The repository is the source of truth; GitHub Pages hosts the game and the Claude artifact remains a playable preview.
 
 ## Read before you work
 
 - Before changing code, read 01_ARCHITECTURE.md.
+- For implementation tasks, follow 05_CODING_WORKFLOW.md automatically: classify, plan, develop, run relevant checks, update docs, commit, push, deploy, and verify live. Casey has authorized deployment for both simple and complex work. Use subagents economically; game UI testing applies only when relevant.
 - Before changing rules, numbers, content or story, read 02_GAMEPLAY.md.
 - Before writing any image prompt or packing art, read 03_ART_STYLE.md.
 - Before writing any text a player will see, read 04_WRITING_STYLE.md.
@@ -59,3 +60,4 @@ The documents are the project's memory. A new agent should be able to pick up th
 - 2026-11-22: The repository and `game/docs/` are the source of truth. The local agent owns the pipeline, approved image generation and docs; the project-field paste workflow is retired. Raw art stays read-only during rebuilds and is never committed. Existing art is not regenerated to fix pipeline defects.
 
 - 2026-11-22: Casey authorized repository creation and GitHub Pages deployment. The remote is `https://github.com/caseyschindler123/Brasswake`; pushes to main validate, build and deploy. Keep raw art and working pieces local.
+- 2026-11-22: Casey chose automatic task classification, proportionate planning/testing, automatic deployment for both classes, cost-effective main-agent delegation, and UI checks only when game behavior or presentation warrants them. Root AGENTS.md and 05_CODING_WORKFLOW.md define the defaults.

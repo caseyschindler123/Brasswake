@@ -5,12 +5,21 @@
   "main": "index.js",
   "scripts": {
     "build": "node build.js",
-    "test": "node test/test.js"
+    "test": "node test/test.js",
+    "test:poker": "node test/pk_test.js",
+    "test:casino": "node test/house_test.js",
+    "test:install": "node test/install-browsers.js",
+    "test:ui": "playwright test",
+    "test:live": "node test/live.js",
+    "verify": "node test/verify.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "sql.js": "^1.17.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1"
   }
 }
