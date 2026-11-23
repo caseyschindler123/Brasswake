@@ -1,6 +1,6 @@
 # All eight dungeons: full rebuild
 
-Status: implementation and art complete; browser traversal/visual verification in progress. Classification: complex (map architecture, encounter/progression rules, persistent exploration, rendering, new art and complete UI playthroughs).
+Status: release-ready. Implementation, art, all eight complete walking expeditions, required release gate and phone/desktop visual review passed. Publication and its exact-commit receipt are the remaining gate. Classification: complex (map architecture, encounter/progression rules, persistent exploration, rendering, new art and complete UI playthroughs).
 
 ## Authorized outcome
 
@@ -50,8 +50,8 @@ These names are authored content targets. Briefs and floor data are the editable
 - [x] Implement scene construction, art, population, movement, minimap/fog and floor transitions.
 - [x] Implement persistent progression, interactions, combat profiles, daily rewards, tutorial, recovery and save migration.
 - [x] Add/run meaningful Node tests for graph/occupancy/progression invariants and browser regressions.
-- [ ] Play through all eight dungeons in the actual rendered UI; inspect screenshots on phone and desktop and correct all defects. Record measured traversal, queries, encounters and any pacing limitations.
-- [ ] Review final diff/acceptance; update master docs and dated logs; run `cd game; npm run verify -- --ui`.
+- [x] Play through all eight dungeons in the actual rendered UI; inspect screenshots on phone and desktop and correct all defects. Record measured traversal, queries, encounters and any pacing limitations.
+- [x] Review final diff/acceptance; update master docs and dated logs; run `cd game; npm run verify -- --ui`.
 - [ ] Commit intended files only, push main, monitor exact GitHub Actions SHA, verify published commit/HTML hash and hosted player flow.
 
 ## Verification matrix
@@ -66,7 +66,7 @@ These names are authored content targets. Briefs and floor data are the editable
 ## Evidence so far
 
 - All 28 floor layouts pass Node validation: 16–19 named spaces, 26–32 ordinary creatures, 2,692–3,742 connected safe tiles, and 201–315 steps along the mandatory route with optional doors closed. Optional shortcuts save 40–48 steps to their branch.
-- 17 focused dungeon layout/progression/controller tests pass. Original guided dungeon/chest/dojo flow and dungeon visual fixture pass on phone Chromium. Full expeditions are in progress.
+- 17 focused dungeon layout/progression/controller tests pass. Original guided dungeon/chest/dojo flow and dungeon visual fixture pass on phone Chromium. All eight full expeditions passed as recorded below.
 - All 15 raw images were generated with the unchanged existing image script, model and high quality settings. Full packed contacts were opened, including both orientations of all eight gate themes. Five art-tool tests passed; deterministic replay matched all three atlas hashes and coordinate JS; exact manifest check reports 489 files, zero missing/extra/different. Final packed atlases contain 32 material textures, 48 props/barriers and 16 static creatures. New creatures use rotated living sprites for fallen bodies; no separate walk/fall sheets are claimed.
 - New raw outputs are archived with original names under `SQL Game/dungeon_2026-11-22/out`, with working copies in ignored `work/dungeon-art/out`; briefs and recorded input hashes/crops are checked in under `arttools/dungeon_*`.
 - The other sound/magic task committed independently as `7956eaa`; its work is preserved. The later integrated soundtrack commit `c1235ee` was integrated without replacing dungeon code, assets or tests. The merged packed manifest contains 514 assets; the earlier 489 count above describes the dungeon-only extension before that integration.
@@ -89,6 +89,9 @@ These names are authored content targets. Briefs and floor data are the editable
 
 - Opened and inspected all eight phone entrances, all eight second floors, all 12 deeper-floor views and all eight explored maps. Material and creature art passed. Map review caught the surface-town coachmark covering dungeon headings; dungeon Map now suppresses that coachmark, and the release component tests assert it stays hidden. Final phone/desktop screenshots and release checks remain pending below. The post-expedition changes are the soundtrack integration and this map overlay correction; they do not change movement, combat, population, floor graphs or rewards.
 - The inherited soundtrack CI run 45082948566 failed before deployment on Linux WebKit MP3 cue-duration handling. The soundtrack owner corrected this in ec29131 by shipping lossless PCM WAV cues and retaining the strict duration assertion; that correction is integrated. Production dungeon rules/assets are unchanged. The expanded CI matrix receives 30 minutes instead of 15, retaining all tests.
+- WebKit exposed a texture-check readiness race: its first cached chunk could contain walls before the floor entered view. The check now polls until eight real floor samples are available, then retains exact equality against atlas pixels. A partial integrated gate was stopped for this correction and the concurrent soundtrack update; it is not counted as a pass. Focused regressions and the final integrated gate follow this repair.
+- Final integrated `npm run verify -- --ui` passed with all 99 browser tests (zero skips/retries/failures), engine/content `ALL GOOD`, poker/casino simulations, 17 dungeon rules/layout/controller regressions, 11 music tests, four sound/magic tests, 21 workflow/server tests and the 514-file asset baseline. Browser matrix: 390×720 Chromium and WebKit, 1280×800 Chromium. Final log: ignored `work/dungeon-verify-release.log`; screenshots/report: `game/test-results/` and `game/playwright-report/`. Tested HTML SHA-256: `629f9bff66769d958f83ff65f27c0991440a1409511d2121b6aa89b4b285d9ba`.
+- Final visual review opened all 16 desktop entrances/barriers, all eight desktop maps and all eight desktop vaults, plus the phone views recorded above. No actionable clipping, creature-scale, gate-fit or readability defect remained. A flat background is visible beyond the non-walkable map edge at two desktop entrances. Component fixture maps reveal only prepared entrance areas; full expedition maps provide actual exploration evidence. The surface-map coachmark is absent on final dungeon maps.
 
 ## Risks and release receipt
 
@@ -96,4 +99,4 @@ These names are authored content targets. Briefs and floor data are the editable
 - Large dungeons need suitable click pathing range, camera bounds, corpse/respawn persistence and bounded drawing cost.
 - SQL encounter duration varies widely. Report actual tested setup and observed counts; do not claim measured natural-progression playtime from accelerated fixtures.
 - Art availability, script credentials and approval constraints must be checked without exposing secrets. A blocked image step does not justify shipping placeholders or declaring completion.
-- Commit: pending. Required suite: pending. All-eight UI playthrough: pending. Deployment/live hash: pending.
+- Required suite: passed. All-eight UI playthrough: passed. Final commit/deployment/live receipt is recorded after publication in ignored `work/dungeon-release-receipt.json` and the completion report, avoiding an extra deployment for post-release evidence. Release source includes the independently committed soundtrack fixes without changing their production code or assets.
