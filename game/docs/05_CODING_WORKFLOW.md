@@ -1,6 +1,6 @@
 # Automatic coding and release workflow
 
-Last updated: 2026-11-22.
+Last updated: 2026-11-23.
 
 Casey describes the outcome. Codex classifies the work, plans, develops, tests, reviews the UI when applicable, updates documentation, commits, pushes, deploys, and verifies the live game. Both simple and complex tasks have standing authorization to deploy after required checks pass. No skill name or routine approval is required. Questions and discussion do not initiate releases; explicit task-specific instructions override these defaults.
 
@@ -27,7 +27,7 @@ State the class and the reason early. Casey may override it. Upgrade a task if i
 
 - Stage only the task's intended files. Keep raw art, build output, browser binaries, reports, credentials, and temporary files out of git. Never commit another task's edits accidentally.
 - Commit with a concrete description. Push the tested commit to `main` with `git push origin main`. If working on another branch, integrate normally and reverify the resulting main; do not force-push or overwrite remote work. If the remote advanced, fetch, integrate safely, and rerun checks on the result.
-- GitHub Actions installs locked dependencies, runs `npm run verify` within a 45-minute build budget, and deploys only after validation succeeds. Browsers are installed only when UI tests are selected. Pull requests validate without deploying. Validation reports/screenshots are retained as workflow artifacts when generated; they are not part of the published game.
+- GitHub Actions installs locked dependencies, runs `npm run verify` within a 60-minute build budget, and deploys only after validation succeeds. Browsers are installed only when UI tests are selected. Pull requests validate without deploying. Validation reports/screenshots are retained as workflow artifacts when generated; they are not part of the published game.
 - The build writes `dist/release.json` with the source commit and built HTML SHA-256. After Pages deployment, the workflow polls for that exact commit and checks the live HTML hash. Releases requiring UI coverage additionally exercise the real hosted game in a fresh browser context, without replacing its SQL dependency or using local debug handles. Framework-only releases do not launch a browser.
 - Monitor the run for the pushed SHA, for example `gh run list --workflow pages.yml --commit <sha>` and `gh run view <run-id>`. A green build alone is not a verified deployment; the deployment and live-check steps must pass too.
 - For an independent live check, set `BW_BASE_URL=https://caseyschindler123.github.io/Brasswake/` and `BW_EXPECT_COMMIT=<full-sha>` in the shell, then run `npm run test:live` from `game/`. Set `BW_LIVE_UI=true` as well when game changes require browser verification. Clear task-specific environment variables afterward. The basic check needs network access; the UI check also needs Chromium.
@@ -42,6 +42,8 @@ Report the task class, user-visible outcome, tests actually run, visual evidence
 The main agent owns classification, acceptance criteria, task decomposition, integration, and release. Use the delegation rules in root `AGENTS.md`: default to one agent, delegate only bounded independent work with a clear expected benefit, select the least expensive suitable available model and reasoning effort, and escalate capability when the evidence warrants it. Avoid duplicate reading, overlapping edits, recursive delegation, unnecessary screenshots, and repeated unchanged test runs. Prefer narrow worker context and concise deliverables. Exact costs depend on the available product/model; do not invent a price or promised savings.
 
 ## Decision log
+
+- 2026-11-23: The world/capital release expanded browser coverage to 165 cases. Run `45136774222` passed 160 cases without failures before its 45-minute build limit cancelled the remaining captures. Increased the build budget to 60 minutes; the deployment budget remains 15 minutes and test selection/assertions remain unchanged. Validate the repair branch with a manual workflow run (no comparison SHA, so the full browser suite runs) before advancing main. Independently verify the exact hosted commit, HTML hash and player flow afterward.
 
 - 2026-11-22: The 28-floor dungeon rebuild adds all-floor interaction coverage across phone Chromium, phone WebKit and desktop. Increased the build job limit from 15 to 30 minutes to retain that coverage alongside existing simulations and browser installation. Deployment retains its 15-minute budget; no test selection or assertion is skipped to fit the old limit.
 
