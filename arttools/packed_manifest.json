@@ -4480,5 +4480,77 @@
       1152,
       624
     ]
+  },
+  {
+    "path": "art/world/harbor.webp",
+    "sha256": "7f520a21addb80c9ac1fb2ea44b04796a89fd6e69f55fe852686222ffcb5c8d8",
+    "size": 657966,
+    "dimensions": [
+      1024,
+      1294
+    ]
+  },
+  {
+    "path": "art/world/interiors.webp",
+    "sha256": "b7718daea3f97cd4db3e80ddc9a3ee0863e3754bbcdbbf144717c31326e4b4f9",
+    "size": 485920,
+    "dimensions": [
+      1010,
+      898
+    ]
+  },
+  {
+    "path": "art/world/kit12.webp",
+    "sha256": "60d3181e4a91c184c937343ae7ab1d8d20aa9752d22b270d7ab37d2657d8bbd5",
+    "size": 410162,
+    "dimensions": [
+      1008,
+      1183
+    ]
+  },
+  {
+    "path": "art/world/kit34.webp",
+    "sha256": "6c3e271e7976d4992ee0c3d6be94f2973b801dcc28d5c67524b76ac2226d4a92",
+    "size": 381076,
+    "dimensions": [
+      984,
+      1120
+    ]
+  },
+  {
+    "path": "art/world/kit56.webp",
+    "sha256": "a338feeb2faaa5445073323fe411c56712a66c4ed32712b07ada752085dbb692",
+    "size": 447440,
+    "dimensions": [
+      1020,
+      1112
+    ]
+  },
+  {
+    "path": "art/world/kit78.webp",
+    "sha256": "be8b9466b0921899fc2a6591cffcd369935e4f3eba1af321ac9d8b5f1f173aec",
+    "size": 409614,
+    "dimensions": [
+      1023,
+      1168
+    ]
+  },
+  {
+    "path": "art/world/landmarks.webp",
+    "sha256": "f803b5cc34ae750284f494a6665357051c4cc2874c8c00462e1ac96f42c0982a",
+    "size": 714420,
+    "dimensions": [
+      1160,
+      1934
+    ]
+  },
+  {
+    "path": "art/world/ships.webp",
+    "sha256": "9aeb3ed7647f8cde36b442a22926707ebd9247c31f8170f31ddb11e6dea78660",
+    "size": 512360,
+    "dimensions": [
+      1448,
+      1263
+    ]
   }
 ]

@@ -1,7 +1,6 @@
 
-  /* ===== one continuous land: eight regions on a single map, ground painted in chunks as you walk ===== */
-  const WW = 576, WH = 1008, CS = 8, CELL = [null, [0, 3], [1, 3], [1, 2], [0, 2], [0, 1], [1, 1], [1, 0], [0, 0]];
-  const TOWN = [null]; for (let r = 1; r <= 8; r++) TOWN[r] = [CELL[r][0] * 288 + 144 + [0, -44, 16, -16, 10, -10, 16, -12, 0][r], CELL[r][1] * 252 + 126 + [0, 10, -10, 12, -12, 10, -10, 12, 0][r]];
+  /* ===== mainland and island regions, ground painted in chunks as you walk ===== */
+  const [WW, WH] = Geography.size, CS = 8, TOWN = Geography.towns;
   let hold = null, world = null, curReg = 1, curB = 1, curT = null, tcheck = 0, inset = 0, locked = false, ambNow = 0, anims = [], floats = [], slashes = [], shots = [], bars = [];
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   Object.assign(ART, { s1: ['wolf', '#8a5a3a'], s2: ['bird', '#b0703a'], s3: ['wolf', '#e0a0a0'], s4: ['wolf', '#7a4a2a'], s5: ['wolf', '#2a2a2a'], s6: ['bird', '#f0f0f0'], s7: ['bird', '#1a1a1a'], s8: ['wolf', '#8a8a8a'], a1: ['rat', '#9a7a5a'], a2: ['wolf', '#b08a5a'], a3: ['wolf', '#4a3a32'], a4: ['wolf', '#c9703a'], a5: ['bird', '#8a5a3a'], a6: ['wolf', '#d8d4c8'], a7: ['wolf', '#e6e0d0'], a8: ['rat', '#f0f0f0'] });
@@ -198,7 +197,7 @@
     if (s && s.art && C && C.diag) { if (!IMG['diag.webp']) img('diag.webp'); if (have('diag.webp')) { const lk = host.look(), row = i => [0, 1, 2, 3].map(f => cut('diag.webp', (i * 4 + f) * C.cw, lk * C.ch, C.cw, C.ch)); s.dl = row(0); s.dr = row(1); s.ul = row(2); s.ur = row(3); } }   // the four diagonals, once that sheet is packed
     if (s && s.art && C && C.w8) { const lk = host.look(), f = 'w8/L' + lk + '.webp'; if (C.w8[lk]) { if (!IMG[f]) img(f); if (have(f)) { const W8 = C.w8[lk], n = W8.n || 4, dir = (d, o) => Array.from({ length: n }, (_, k) => cut(f, (o + k) * W8.cw, d * W8.ch, W8.cw, W8.ch)); s.w8 = [0, 1, 2, 3, 4, 5, 6, 7].map(d => dir(d, 0)); s.r8 = [0, 1, 2, 3, 4, 5, 6, 7].map(d => dir(d, n)); } } }   // walk and run in eight directions
     return s; }
-  function spr(kind, r) { const key = kind + '|' + r, c = SC[key]; if (c && c.v === artVer) return c.s; let s = artProp(kind, r); if (!s && XP[kind]) s = spr(XP[kind], r); else if (!s && kind.slice(0, 3) !== 'sc_' && kind.slice(0, 3) !== 'pi_' && kind.slice(0, 3) !== 'dj_') { const pk = { rock0: 'rock', rock1: 'rock', bush: 'rock', pillar: 'lamp', sign: 'board', fire: 'torch' }[kind] || kind; s = pk === 'flowers' || pk === 'bones' ? null : prop(pk, world ? world.pal[r] : map.pal[r], r, host.hue(r)); } SC[key] = { v: artVer, s }; return s; }
+  function spr(kind, r) { if (typeof WorldArt !== 'undefined' && WorldArt.at[kind]) return worldProp(kind); const key = kind + '|' + r, c = SC[key]; if (c && c.v === artVer) return c.s; let s = artProp(kind, r); if (!s && XP[kind]) s = spr(XP[kind], r); else if (!s && kind.slice(0, 3) !== 'sc_' && kind.slice(0, 3) !== 'pi_' && kind.slice(0, 3) !== 'dj_') { const pk = { rock0: 'rock', rock1: 'rock', bush: 'rock', pillar: 'lamp', sign: 'board', fire: 'torch' }[kind] || kind; s = pk === 'flowers' || pk === 'bones' ? null : prop(pk, world ? world.pal[r] : map.pal[r], r, host.hue(r)); } SC[key] = { v: artVer, s }; return s; }
   function bldSpr(o) { if (o.v === artVer && o.s) return o.s; o.v = artVer; if (o.home) return o.s = homeSpr(o); const a = artBld(o.slot, o.w, o.r, o.enter); if (a) return o.s = a; if (!o.p) o.p = building(o.w, o.h, world.pal[o.r], o.r * 100 + o.x, o.sign, '-'); return o.s = o.p; }
   /* ---------- walk-in rooms: an enterable building fades out and its room is drawn in the same footprint ---------- */
   // Furniture per room, in tiles from the building's top-left. p: kit piece, x: centre column (may be fractional), y: row it stands on, s: tiles it blocks.
@@ -229,7 +228,7 @@
     const fh = 6 * K, fr = mk(W, fh); fillTex(fr, kitPiece('t_stone'), 0, 0, W, fh); fr.getContext('2d').clearRect(R.door * T * K, 0, T * K, fh); fr.hr = 1;
     return o.ra = { v: artVer, fl, wl, sd, fr }; }
   // Fade the building in or out as the hero crosses its footprint.
-  function roomFade(o, dt) { const inside = P && map === world && P.x >= o.x && P.x < o.x + o.w && P.y >= o.y && P.y < o.y + o.h; if (o.inside != null && inside !== o.inside) emit('door'); o.inside = inside; o.fa += ((inside ? 0 : 1) - o.fa) * Math.min(1, dt * 7); if (Math.abs(o.fa - (inside ? 0 : 1)) < .01) o.fa = inside ? 0 : 1; return o.fa; }
+  function roomFade(o, dt) { const inside = !!(P && map === world && buildingContains(o, P.x, P.y)); if (o.inside != null && inside !== o.inside) emit('door'); o.inside = inside; o.fa += ((inside ? 0 : 1) - o.fa) * Math.min(1, dt * 7); if (Math.abs(o.fa - (inside ? 0 : 1)) < .01) o.fa = inside ? 0 : 1; return o.fa; }
   function dress(e) { e.sv = artVer; if (e.wk || e.ak) { e.spr = (e.wk && artWalk(e.wk)) || (e.ak && artFolk(e.ak)) || e.spr; if (e.hop && e.spr && !e.spr.l) e.spr.one = 1; } else if (e.kind === 'mon' || e.kind === 'guard' && e.inst && e.inst.dungeon || e.kind === 'keeper') e.spr = monSprite(e.inst && (e.inst.art || e.inst.lk || e.inst.tpl) || 'k' + e.r); else if (e.kind === 'stock') e.spr = monSprite(e.tpl); else if (e.kind === 'guard') e.spr = monSprite(e.tpl); else if (e.kind === 'boss') e.spr = bossSprite(e.r); if (e.ok) e.obj = spr(e.ok, e.r); else if (e.kind === 'dlever') e.obj = dungeonArt('control',e.r); else if(e.kind==='dgate')e.obj=dungeonGate(e,e.r); else if(e.kind==='dsecret')e.obj=dungeonArt('landmark',e.r); else if(e.kind==='dlore')e.obj=dungeonArt('lore',e.r); }
   // rings spreading on the water where the fish are
   const RIP = []; function ripple(t) { if (!RIP.length) for (let f = 0; f < 6; f++) { const c = mk(22, 12), g = c.getContext('2d'); g.strokeStyle = `rgba(255,255,255,${.75 - f * .11})`; g.lineWidth = 1; g.beginPath(); g.ellipse(11, 6, 2 + f * 1.7, 1 + f * .9, 0, 0, 6.283); g.stroke(); if (f < 3) { g.fillStyle = 'rgba(255,255,255,.8)'; g.fillRect(10, 5, 2, 1); } RIP.push(c); } return RIP[Math.floor(t / 170) % 6]; }
@@ -245,45 +244,47 @@
     m.pal[10] = Object.assign({}, BIO[7], X2, { ar: 7, mt: '#aab4bc', cap: 1 });                                                                                     // snowfield
     m.pal[11] = Object.assign({}, BIO[4], X2, { g: '#8f9478', G: '#84896c', tree: 'scrub', fx: null, amb: 0 });                                                       // stony foothills
     const N = []; for (let i = 0; i < 10; i++) N.push(noise(11 + i)); const q = rng(4242), ix = (x, y) => y * WW + x, inb = (x, y) => x >= 0 && y >= 0 && x < WW && y < WH;
-    const river = y => 228 + Math.sin(y / 14) * 8 + (N[1](3, y / 16) - .5) * 26, T1 = TOWN[1];
+    const river = y => 327 + Math.sin(y / 43) * 12 + (N[1](3, y / 32) - .5) * 16, T1 = TOWN[1];
     for (let y = 0; y < WH; y++) for (let x = 0; x < WW; x++) {
-      const i = ix(x, y), wx = x + (N[3](x / 28, y / 28) - .5) * 44, wy = y + (N[3](x / 28 + 40, y / 28 + 40) - .5) * 44; let r = 1, d1 = 1e9, d2 = 1e9;
-      for (let k = 1; k <= 8; k++) { const d = (wx - TOWN[k][0]) ** 2 + (wy - TOWN[k][1]) ** 2; if (d < d1) { d2 = d1; d1 = d; r = k; } else if (d < d2) d2 = d; }
-      const td = Math.hypot(x - TOWN[r][0], y - TOWN[r][1]), home = clamp((48 - td) / 16, 0, 1), border = clamp(1 - (Math.sqrt(d2) - Math.sqrt(d1)) / 26, 0, 1), bio = BIO[r], wet = bio.liquid === 'pools' || bio.liquid === 'lava';
-      const edge = Math.min(x, y, WW - 1 - x, WH - 1 - y), coast = 6 + N[2](x / 14, y / 14) * 12 + (x < 130 ? Math.max(0, 14 - Math.abs(y - T1[1])) * 3.6 : 0), nz = N[1](x / 6, y / 6);
-      const em = N[4](x / 38, y / 38) * .6 + N[5](x / 12, y / 12) * .4 + border * .2 - home * .6, dz = N[6](x / 50, y / 50) - home, lz = N[8](x / 27, y / 27) - home * .5, cold = r === 7 || y < WH * .22;
+      const i = ix(x, y), r = Geography.region(x, y), mass = Geography.landmass(x, y);
+      let d1 = 0, d2 = 1e9;
+      for (let k = 1; k <= 8; k++) if (k !== r) d2 = Math.min(d2, (x - TOWN[k][0]) ** 2 + (y - TOWN[k][1]) ** 2);
+      const td = Math.hypot(x - TOWN[r][0], y - TOWN[r][1]), home = Geography.inTown(x, y, 4) ? 1 : clamp((48 - td) / 16, 0, 1), border = clamp(1 - (Math.sqrt(d2) - Math.sqrt(d1)) / 26, 0, 1), bio = BIO[r], wet = bio.liquid === 'pools' || bio.liquid === 'lava';
+      const coast = mass && [[2,0],[-2,0],[0,2],[0,-2]].some(([dx,dy]) => !Geography.land(x+dx,y+dy)), nz = N[1](x / 6, y / 6);
+      const em = N[4](x / 38, y / 38) * .6 + N[5](x / 12, y / 12) * .4 + border * .2 - home * .6, dz = N[6](x / 50, y / 50) - home, lz = N[8](x / 27, y / 27) - home * .5, cold = r === 7;
       let k = N[0](x / 6, y / 6) > .57 ? 1 : 0, b = r, sea = false;
-      if (edge < coast) { k = 4; sea = true; } else if (edge < coast + 2.5) k = 5;
+      if (!mass) { k = 4; sea = true; } else if (coast) k = 5;
       else if (em > .7) { k = 9; if (cold) b = 10; }
       else if (lz > .76) k = 4; else if (lz > .73) k = 5;
       else if (wet && nz > .72) k = 4; else if (wet && nz > .67) k = 5;
       else if (em > .62) b = cold ? 10 : 11;
       else if (dz > .62 && r !== 2 && r !== 6 && r !== 7) b = 9;
-      if (!sea && y > T1[1] - 290) { const d = Math.abs(x - river(y)); if (d < 2) { k = 4; sea = true; } else if (d < 3 && k < 2) k = 5; }
+      if (!sea && mass === 1 && y > T1[1] - 290) { const d = Math.abs(x - river(y)); if (d < 2) { k = 4; sea = true; } else if (d < 3 && k < 2) k = 5; }
       m.t[i] = k; m.b[i] = sea ? 0 : b; m.reg[i] = r;
     }
-    const rect = (x0, y0, x1, y1, k, pad = 1) => { for (let y = y0 - pad; y <= y1 + pad; y++) for (let x = x0 - pad; x <= x1 + pad; x++) if (inb(x, y)) { const i = ix(x, y); m.keep[i] = 1; if (m.t[i] === 9) { m.t[i] = 0; if (m.b[i] !== 10) m.b[i] = 11; } if (m.o[i]) { m.o[i] = 0; m.solid[i] = 0; } if (x >= x0 && x <= x1 && y >= y0 && y <= y1) { if (m.t[i] === 4) { m.t[i] = 6; } else if (!(k === 2 && (m.t[i] === 3 || m.t[i] === 6))) m.t[i] = k; } } };
-    const road = (a, b2) => { let x = a[0], y = a[1], g2 = 0; const x1 = b2[0], y1 = b2[1]; while ((x !== x1 || y !== y1) && g2++ < 6000) { rect(x, y, x + 1, y + 1, 2); const dx = x1 - x, dy = y1 - y; if (Math.abs(dx) > Math.abs(dy)) { x += Math.sign(dx); if (dy && q() < .2) y += Math.sign(dy); else if (Math.abs(dx) > 12 && q() < .16) y += N[9](x / 9, y / 9) < .5 ? 1 : -1; } else { y += Math.sign(dy); if (dx && q() < .2) x += Math.sign(dx); else if (Math.abs(dy) > 12 && q() < .16) x += N[9](x / 9, y / 9) < .5 ? 1 : -1; } x = clamp(x, 10, WW - 12); y = clamp(y, 10, WH - 12); } rect(x1, y1, x1 + 1, y1 + 1, 2); };
+    worldPrepareGround(m);
+    const rect = (x0, y0, x1, y1, k, pad = 1) => { for (let y = y0 - pad; y <= y1 + pad; y++) for (let x = x0 - pad; x <= x1 + pad; x++) if (inb(x, y)) { const i = ix(x, y); m.keep[i] = 1; if (m.t[i] === 9) { m.solid[i] = 0; m.t[i] = 0; if (m.b[i] !== 10) m.b[i] = 11; } if (m.o[i]) { m.o[i] = 0; m.solid[i] = 0; } if (x >= x0 && x <= x1 && y >= y0 && y <= y1) { if (m.t[i] === 4) { m.solid[i] = 0; m.t[i] = 6; } else if (!(k === 2 && (m.t[i] === 3 || m.t[i] === 6))) m.t[i] = k; } } };
+    const road = (a, b2) => worldRoad(m, a, b2, rect);
     const wet = (x0, y0, w, h) => { for (let y = y0 - 1; y <= y0 + h; y++) for (let x = x0 - 1; x <= x0 + w; x++) if (!inb(x, y) || m.t[ix(x, y)] === 4 || m.t[ix(x, y)] === 6) return true; return false; };
     const put = (x, y, kind, r, o) => { m.props.push(Object.assign({ x, y, kind, r, solid: 1 }, o)); m.keep[ix(x, y)] = 1; if (!o || o.solid !== 0) m.solid[ix(x, y)] = 1; };
     const lamp = (x, y, r) => { if (m.t[ix(x, y)] === 4 || m.solid[ix(x, y)]) return; put(x, y, 'lamp', r); m.lights.push({ x: x + .5, y: y - .6, r: 44, c: 1 }); };
-    const LEGS = [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [1, 4], [3, 6], [5, 8]]; for (const [a, b2] of LEGS) road(TOWN[a], TOWN[b2]);
+    const LEGS = Geography.roadLinks; for (const [a, b2] of LEGS) road(TOWN[a], TOWN[b2]);
     const XA = AD ? AD.chars.extra : {}, pool = AD ? Object.keys(AD.chars.npc) : [], names = r => host.townsfolk(r);
     const EE = (kind, x, y, r, o) => addEnt(m, Object.assign({ kind, x, y, r }, o));
     for (let r = 1; r <= 8; r++) {
       const [cx, cy] = TOWN[r], E = (kind, x, y, o) => EE(kind, x, y, r, o);
       for (let y = cy - 21; y <= cy + 14; y++) for (let x = cx - 26; x <= cx + 26; x++) if (inb(x, y)) { const i = ix(x, y); if (m.t[i] === 4 && m.b[i] !== 0) m.t[i] = 0; if (m.b[i] > 8) m.b[i] = r; }
       rect(cx - 7, cy - 4, cx + 7, cy + 5, 3); rect(cx - 23, cy, cx + 23, cy + 1, 2); rect(cx, cy - 17, cx + 1, cy + 17, 2); rect(cx - 23, cy + 10, cx + 22, cy + 11, 2);
-      const bld = (x, y, w, h, slot, sign, en) => { if (wet(x, y, w, h)) return; rect(x, y, x + w - 1, y + h - 1, 2, 1); for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) m.solid[ix(xx, yy)] = 1; const ob = { x, y, w, h, slot, sign, r, by: (y + h) * T - 1 }; m.blds.push(ob); if (en) setRoom(m, ob); m.lights.push({ x: x + .9, y: y + h - .6, r: 20, c: 1 }, { x: x + w - .9, y: y + h - .6, r: 20, c: 1 }); };
-      bld(cx - 9, cy - 10, 7, 5, 'guild', '#c9a23a'); bld(cx + 3, cy - 10, 7, 5, 'casino', '#6b2f7a'); if (r === 1) bld(cx - 17, cy - 8, 7, 7, 'tavern', '#8a3a2a', 1); else bld(cx - 16, cy - 5, 6, 4, 'tavern', '#8a3a2a'); bld(cx - 23, cy - 5, 5, 4, 'house');
-      bld(cx + 10, cy - 5, 6, 4, 'work', '#8f949c'); if (r === 1) bld(cx + 17, cy - 6, 6, 5, 'shop', null, 1); else bld(cx + 18, cy - 5, 5, 4, 'shop'); bld(cx - 15, cy + 5, 5, 4, 'healer'); bld(cx - 22, cy + 5, 5, 4, 'cottage'); if (r === 1) bld(cx + 10, cy + 3, 6, 6, 'bank', '#d4a83a', 1); else bld(cx + 10, cy + 5, 5, 4, 'bank', '#d4a83a'); bld(cx + 17, cy + 5, 5, 4, 'cottage');
+      const bld = (x, y, w, h, slot, sign, en) => { if (wet(x, y, w, h)) return; rect(x, y, x + w - 1, y + h - 1, 2, 1); for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) m.solid[ix(xx, yy)] = 1; const ob = { x, y, w, h, slot, sign, r, by: (y + h) * T - 1 }; m.blds.push(ob); if (slot !== 'dojo') worldBuilding(m, ob, { doors: en ? ['south', 'east'] : ['south'] }); else if (en) setRoom(m, ob); m.lights.push({ x: x + .9, y: y + h - .6, r: 20, c: 1 }, { x: x + w - .9, y: y + h - .6, r: 20, c: 1 }); };
+      bld(cx - 9, cy - 10, 7, 5, 'guild', '#c9a23a'); bld(cx + 3, cy - 10, 7, 5, 'casino', '#6b2f7a'); bld(cx - 17, cy - 8, 7, 7, 'tavern', '#8a3a2a', 1); bld(cx - 23, cy - 5, 5, 4, 'house');
+      bld(cx + 10, cy - 5, 6, 4, 'work', '#8f949c'); bld(cx + 17, cy - 6, 6, 5, 'shop', null, 1); bld(cx - 15, cy + 5, 5, 4, 'healer'); bld(cx - 22, cy + 5, 5, 4, 'cottage'); bld(cx + 10, cy + 3, 6, 6, 'bank', '#d4a83a', 1); bld(cx + 17, cy + 5, 5, 4, 'cottage');
       bld(cx - 7, cy - 18, 5, 4, 'cottage'); bld(cx + 4, cy - 18, 5, 4, 'house');
       for (const [dx, dy] of [[11, -19], [-17, -17], [-25, -12], [18, -12]]) { const x = cx + dx, y = cy + dy; let ok = !wet(x, y, 7, 6); for (let yy = y; yy < y + 6 && ok; yy++) for (let xx = x; xx < x + 7; xx++) if (!inb(xx, yy) || m.solid[ix(xx, yy)]) { ok = false; break; } if (!ok) continue; bld(x, y, 7, 5, 'dojo', '#7a2a1a'); EE('dojo', x + 3, y + 5, r, { name: 'Dojo', sub: 'Go in' }); m.spots['dojo' + r] = [x + 3, y + 5]; break; }
       for (const [dx, dy] of [[-8, -5], [8, -5], [-8, 6], [8, 6], [-15, -1], [15, -1], [-21, 2], [21, 2], [-1, -13], [2, 13], [-12, 12], [12, 12]]) lamp(cx + dx, cy + dy, r);
       put(cx - 3, cy + 3, 'well', r); if (r === 1) for (const [x, y] of [[cx - 15, cy - 1], [cx - 17, cy + 2], [cx - 19, cy - 1]]) if (m.t[ix(x, y)] !== 4 && !m.solid[ix(x, y)]) put(x, y, 'crate', r);
       const folk = host.folk(r), FP = [[cx - 6, cy - 5], [cx + 6, cy - 5], [cx + 13, cy - 1]];
       folk.forEach((f, i) => { const ak = AD && AD.chars.folk[r][i]; E('npc', FP[i][0], FP[i][1], { i, name: f[0], sub: f[1], ak, pt: portOf(r, i), spr: folkSprite(ak, f[0]) }); });
-      const inRm = (slot, dx, dy) => { const o = r === 1 && m.blds.find(b => b.r === r && b.slot === slot && b.enter); return o ? [o.x + o.room.keep[0], o.y + o.room.keep[1]] : [dx, dy]; }, tp = inRm('tavern', cx - 13, cy - 1);
+      const inRm = (slot, dx, dy) => { const o = m.blds.find(b => b.r === r && b.slot === slot && b.enter); return o ? [o.x + o.room.keep[0], o.y + o.room.keep[1]] : [dx, dy]; }, tp = inRm('tavern', cx - 13, cy - 1);
       E('tavern', tp[0], tp[1], { name: 'Tavern keeper', sub: host.tavern(r), ak: XA.tavern, pt: 'G09_1', spr: folkSprite(XA.tavern, 'tav' + r, { apron: '#8a7a5a' }) });
       E('registrar', cx + 4, cy - 3, { name: 'Clerk of the Trials', sub: 'Marks', ak: XA.registrar, pt: 'G09_3', spr: folkSprite(XA.registrar, 'reg' + r, { hat: '#2a2e34', top: '#3a3a52' }) });
       E('stallkeep', cx + 6, cy + 4, { name: 'Stallkeeper', sub: 'Buys and sells', ak: XA.stall, pt: 'G09_2', spr: folkSprite(XA.stall, 'stall' + r) }); put(cx + 4, cy + 3, 'stall', r); m.solid[ix(cx + 3, cy + 3)] = m.solid[ix(cx + 5, cy + 3)] = 1;
@@ -299,6 +300,9 @@
       rect(ex - 2, ey - 2, ex + 2, ey + 2, 3); road([ex, ey + 2], hz ? [ex, cy] : [cx, ey]); for (const [dx, dy] of [[-2, -2], [2, -2], [-2, 2], [2, 2]]) put(ex + dx, ey + dy, 'pillar', r); m.lights.push({ x: ex + .5, y: ey, r: 40, c: 2 });
       E('boss', ex, ey, { name: host.bossName(r), sub: 'Examiner', spr: bossSprite(r), big: 1 }); m.spots['boss' + r] = [ex, ey];
     }
+    worldGrowCapital(m, EE, put, lamp);
+    for (const [a, b2] of LEGS) if (a === 8 || b2 === 8) road(TOWN[a], TOWN[b2]);
+    worldHarbourDecor(m, put, EE, road);
     // trees, rocks, flowers: what grows depends on the ground
     for (let y = 0; y < WH; y++) for (let x = 0; x < WW; x++) { const i = ix(x, y), tt = m.t[i]; if (tt === 4 || tt === 8 || tt === 9) { m.solid[i] = 1; continue; } if (m.keep[i] || tt > 1) continue; const b = m.b[i], bio = m.pal[b], u = q();
       if (b === 9) { if (u < .022) { m.o[i] = 4 + (x & 1); m.solid[i] = 1; } else if (u < .028) m.o[i] = 10; else if (u < .036) { m.o[i] = 6; m.solid[i] = 1; } continue; }
@@ -310,12 +314,12 @@
     m.fo = new Uint8Array(n); { const hard = i => m.solid[i] || m.t[i] === 4 || m.t[i] === 9 || m.t[i] === 8, list = [];
       for (let i = 0; i < n; i++) if (m.o[i] && m.o[i] < 7 && m.solid[i]) { if (m.o[i] < 4) m.fo[i] = 1; list.push(i, m.o[i]); m.solid[i] = 0; m.o[i] = 0; }
       for (let k = 0; k < list.length; k += 2) { const i = list[k], x = i % WW, y = (i / WW) | 0; let fits = x > 0 && y > 0 && x < WW - 1 && y < WH - 1; for (let dy = -1; dy <= 1 && fits; dy++) for (let dx = -1; dx <= 1; dx++) if ((dx || dy) && hard(i + dy * WW + dx)) { fits = false; break; } if (fits) { m.o[i] = list[k + 1]; m.solid[i] = 1; } } }
-    m.seen = reach(m, T1[0], T1[1] + 3);
+    m.seen = worldReach(m);
     // what a place is like, sampled around it: used to put each creature where it belongs
     const probe = (x, y) => { const c = { sea: 0, water: 0, rock: 0, forest: 0, road: 0 }; for (let dy = -6; dy <= 6; dy += 2) for (let dx = -6; dx <= 6; dx += 2) { if (!inb(x + dx, y + dy)) continue; const i = ix(x + dx, y + dy), tt = m.t[i]; if (tt === 4) c[m.b[i] === 0 ? 'sea' : 'water']++; else if (tt === 9) c.rock++; else if (tt === 2) c.road++; if (m.fo[i]) c.forest++; } return c; };
     const fit = { coast: c => c.sea * 3, water: c => c.water * 3 + c.sea, rock: c => c.rock * 3, forest: c => c.forest * 2 - c.road, road: c => Math.min(c.road, 6) * 3 - c.rock, open: c => 20 - c.forest * 2 - c.rock * 3 - c.water * 3 - c.sea * 3 - c.road };
     const WORD = { coast: ['Strand', 'Rocks', 'Shallows'], water: ['Mere', 'Pools', 'Fen'], rock: ['Crags', 'Heights', 'Scree'], forest: ['Wood', 'Thicket', 'Grove'], road: ['Reach', 'Mile', 'Crossing'], open: ['Downs', 'Field', 'Flats'] };
-    const free = (x, y) => inb(x, y) && x > 12 && y > 12 && x < WW - 13 && y < WH - 13 && m.t[ix(x, y)] < 2 && !m.keep[ix(x, y)] && !m.solid[ix(x, y)] && m.seen[ix(x, y)];
+    const free = (x, y) => !Geography.inTown(x, y, 4) && inb(x, y) && x > 12 && y > 12 && x < WW - 13 && y < WH - 13 && m.t[ix(x, y)] < 2 && !m.keep[ix(x, y)] && !m.solid[ix(x, y)] && m.seen[ix(x, y)];
     for (let r = 1; r <= 8; r++) {
       const [cx, cy] = TOWN[r], taken = [], used = {}, far = (x, y, d) => taken.every(p => Math.hypot(p[0] - x, p[1] - y) >= d);
       const find = (score, dmin, dmax, gap0) => { for (const gap of [gap0, gap0 * .55, 6]) { let best = null, bs = -1e9; for (let k = 0; k < 400; k++) { const a = q() * 6.283, d = dmin + q() * (dmax - dmin), x = Math.round(cx + Math.cos(a) * d), y = Math.round(cy + Math.sin(a) * d * .9); if (!free(x, y) || m.reg[ix(x, y)] !== r || !far(x, y, gap)) continue; const s = score(probe(x, y)) + q() * 2; if (s > bs) { bs = s; best = [x, y]; } } if (best) { taken.push(best); return best; } } return null; };
@@ -333,8 +337,8 @@
       if (m.o[ix(s[0], s[1])]) m.o[ix(s[0], s[1])] = 0; EE('camp', s[0], s[1], r, { name: 'Campfire', sub: 'Rest', ok: 'fire' }); m.lights.push({ x: s[0] + .5, y: s[1], r: 46, c: 2, fl: 1 }); m.keep[ix(s[0], s[1])] = 1; m.spots['camp' + li] = s;
       const pk = pool.length ? pool[(li * 5 + 2) % pool.length] : null, px2 = s[0] + (m.solid[ix(s[0] + 1, s[1])] ? -1 : 1); if (inb(px2, s[1]) && !m.solid[ix(px2, s[1])] && m.t[ix(px2, s[1])] !== 4) EE('peddler', px2, s[1], r, { name: 'Wayfarer', sub: 'Trades on the road', ak: pk, spr: folkSprite(pk, 'way' + li, { cloak: '#5a4a3a', hat: '#3a3228' }) }); }));
     let rw = 0; for (let k = 0; k < 12000 && rw < 44; k++) { const x = 14 + (q() * (WW - 28) | 0), y = 14 + (q() * (WH - 28) | 0), i = ix(x, y), r = m.reg[i]; if (m.t[i] !== 2 || m.solid[i] || m.occ.has(i) || Math.hypot(x - TOWN[r][0], y - TOWN[r][1]) < 34) continue; const ak = pool.length ? pool[(rw * 3 + 5) % pool.length] : null, nm = ['Carter', 'Pilgrim', 'Peddler', 'Courier', 'Drover', 'Tinker'][rw % 6]; EE('folk', x, y, r, { name: nm, sub: 'On the road', ak, wk: 'K' + String((rw % 12) + 1).padStart(2, '0'), spr: folkSprite(ak, nm + rw), wander: 3, t: q() * 3 }); rw++; }
-    // Tallyport's pier
-    let px = T1[0] - 23; while (px > 4 && m.t[ix(px - 1, T1[1])] !== 4 && m.t[ix(px - 1, T1[1])] !== 6) px--; rect(px - 7, T1[1], px, T1[1] + 1, 2, 0); m.spots.dock = [px - 3, T1[1]]; m.seen = reach(m, T1[0], T1[1] + 3);
+    // Working harbours and ferry piers were authored before population placement.
+    m.seen = worldReach(m);
     // ---- the living world: homesteads, places to find, fishing water, wanderers, strays. Its own random stream, so nothing placed before it ever moves. ----
     m.sites = []; m.fields = [];
     { let sd = 90210; const g = () => { sd = (Math.imul(sd, 1664525) + 1013904223) >>> 0; return sd / 4294967296; }, gi = k => Math.floor(g() * k), HAS = k => !!(AD && AD.mobs.at[k]);
@@ -343,8 +347,33 @@
       const openT = i => m.t[i] < 2 || m.t[i] === 5;
       const clearAt = (x0, y0, w, h) => { for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) { if (x < 14 || y < 14 || x > WW - 15 || y > WH - 15) return false; const i = ix(x, y); if (!openT(i) || m.keep[i] || m.occ.has(i) || (m.solid[i] ? !m.o[i] : !m.seen[i])) return false; } return true; };   // trees may be cleared; open ground must be reachable
       const claim = (x0, y0, w, h) => { for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) { const i = ix(x, y); m.keep[i] = 1; if (m.o[i]) { m.o[i] = 0; m.solid[i] = 0; } } };
-      const placed = [], spot = (r, w, h, dmin, dmax, gap, want) => { const [cx, cy] = TOWN[r]; let best = null, bs = -1e9; for (let k = 0; k < 300; k++) { const a = g() * 6.283, d = dmin + g() * (dmax - dmin), x = Math.round(cx + Math.cos(a) * d), y = Math.round(cy + Math.sin(a) * d * .9); if (!inb(x, y) || m.reg[ix(x, y)] !== r || !clearAt(x - 1, y - 1, w + 2, h + 2) || placed.some(p => Math.hypot(p[0] - x, p[1] - y) < gap)) continue; if (!want) { best = [x, y]; break; } const s = want(probe(x + (w >> 1), y + (h >> 1))) + g(); if (s > bs) { bs = s; best = [x, y]; } if (k > 90 && best) break; } if (best) placed.push(best); return best; };
-      const house = (x, y, w, h, slot, r) => { for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) m.solid[ix(xx, yy)] = 1; m.blds.push({ x, y, w, h, slot, sign: '#7a5a3a', r, by: (y + h) * T - 1 }); m.lights.push({ x: x + w / 2, y: y + h - .6, r: 22, c: 1 }); };
+      const placed = [];
+      const spot = (r, w, h, dmin, dmax, gap, want, required = false) => {
+        const [cx, cy] = TOWN[r]; let best = null, bs = -1e9;
+        const fits = (x, y, separation) => inb(x, y) && m.reg[ix(x, y)] === r
+          && clearAt(x - 1, y - 1, w + 2, h + 2)
+          && !placed.some(p => Math.hypot(p[0] - x, p[1] - y) < separation);
+        for (let k = 0; k < 300; k++) {
+          const a = g() * 6.283, d = dmin + g() * (dmax - dmin), x = Math.round(cx + Math.cos(a) * d), y = Math.round(cy + Math.sin(a) * d * .9);
+          if (!fits(x, y, gap)) continue;
+          if (!want) { best = [x, y]; break; }
+          const score = want(probe(x + (w >> 1), y + (h >> 1))) + g();
+          if (score > bs) { bs = score; best = [x, y]; }
+          if (k > 90 && best) break;
+        }
+        // Required saved-world identities cannot disappear when an island has less flat ground.
+        if (!best && required) for (const separation of [gap * .4, 2, 0]) {
+          for (let d = dmin; d <= dmax + 40 && !best; d++) for (let offset = -d; offset <= d && !best; offset++) {
+            for (const [x, y] of [[cx + offset, cy - d], [cx + offset, cy + d], [cx - d, cy + offset], [cx + d, cy + offset]])
+              if (fits(x, y, separation)) { best = [x, y]; break; }
+          }
+          if (best) break;
+        }
+        if (!best && required) throw new Error('No reachable plot for required region ' + r + ' site');
+        if (best) placed.push(best);
+        return best;
+      };
+      const house = (x, y, w, h, slot, r) => { for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) m.solid[ix(xx, yy)] = 1; const ob = { x, y, w, h, slot, sign: '#7a5a3a', r, by: (y + h) * T - 1 }; if (w >= 4 && h >= 4) worldBuilding(m, ob); m.blds.push(ob); m.lights.push({ x: x + w / 2, y: y + h - .6, r: 22, c: 1 }); };
       const prop = (x, y, kind, r, solid) => { const i = ix(x, y); if (m.solid[i] || m.occ.has(i)) return; m.props.push({ x, y, kind, r, solid: solid ? 1 : 0 }); if (solid) m.solid[i] = 1; };
       const YARD = { farmer: [['pi_wheat', 0], ['pi_cabbage', 0], ['pi_wheat', 0], ['pi_hay', 1], ['pi_trough', 1]], shepherd: [['pi_hay', 1], ['pi_trough', 1], ['pi_fence', 1], ['pi_fence', 1]], miller: [['pi_wheat', 0], ['pi_wheat', 0], ['pi_cart', 1], ['pi_hay', 1]], fisher: [['pi_nets', 1], ['pi_fishbarrel', 1], ['pi_traps', 1]], hunter: [['pi_hides', 1], ['pi_woodpile', 1]], trapper: [['pi_hides', 1], ['pi_hides', 1], ['pi_woodpile', 1]], hermit: [['pi_cairn', 1], ['pi_cabbage', 0]], herbalist: [['pi_cabbage', 0], ['pi_cabbage', 0], ['pi_beehives', 1]], beekeeper: [['pi_beehives', 1], ['pi_beehives', 1], ['pi_cabbage', 0]], woodcutter: [['pi_woodpile', 1], ['pi_woodpile', 1], ['pi_cart', 1]], miner: [['pi_cart', 1], ['crate', 1], ['pi_woodpile', 1]] };
       const YPOS = [[6, 5], [7, 5], [8, 5], [9, 3], [6, 3], [8, 3]];
@@ -352,7 +381,7 @@
         const tp = host.tpls(r), [cx, cy] = TOWN[r];
         host.homeRoles(r).forEach((role, k) => {   // seven homesteads: a house, its owner at the door, a yard, and the animals about the place
           const R = host.settler(role), want = role === 'fisher' ? c => c.water * 2 + c.sea * 2 - c.rock : role === 'miner' ? c => c.rock * 2 - c.water : role === 'woodcutter' || role === 'hunter' || role === 'hermit' ? c => c.forest - c.water : c => 12 - c.forest - c.rock * 2 - c.water * 2 - c.sea * 2;
-          const p = spot(r, 11, 8, 34, 136, 28, want); if (!p) return; const x = p[0], y = p[1], b = m.b[ix(x + 2, y + 2)], slot = b === 9 ? 'adobe' : b === 10 ? 'lodge' : r === 2 && role !== 'miller' ? 'stilt' : R.slot, hid = 'h' + r + '-' + k, nm = host.settlerName(hid, role);
+          const p = spot(r, 11, 8, 34, 136, 28, want, true); if (!p) return; const x = p[0], y = p[1], b = m.b[ix(x + 2, y + 2)], slot = b === 9 ? 'adobe' : b === 10 ? 'lodge' : r === 2 && role !== 'miller' ? 'stilt' : R.slot, hid = 'h' + r + '-' + k, nm = host.settlerName(hid, role);
           claim(x, y, 11, 8); house(x + 1, y, 4, 3, slot, r); if (role === 'farmer') house(x + 6, y, 4, 3, 'barn', r); else if (role === 'shepherd') house(x + 6, y, 4, 3, 'stable', r);
           const ak = CF[role === 'fisher' && k % 2 ? 'fisher2' : role] || (pool.length ? pool[(r * 11 + k * 7 + 3) % pool.length] : null); EE('home', x + 2, y + 3, r, { name: nm, sub: R.n, hid, role, ak, pt: FACE[role], spr: folkSprite(ak, nm) });
           (YARD[role] || []).forEach((q2, j) => prop(x + YPOS[j][0], y + YPOS[j][1], q2[0], r, q2[1]));
@@ -362,8 +391,8 @@
         });
         // places to find: eight small ones, and a tower, a shrine and a ruin
         const kinds = ['stones', 'statue', 'graves', 'camp', 'wagon', 'dig', 'cairn', 'hollow', 'well'].sort(() => g() - .5).slice(0, 8);
-        kinds.forEach((pk, k) => { const p = spot(r, 3, 3, 28, 140, 20, pk === 'hollow' ? c => c.forest : null); if (!p) return; const P0 = host.place(pk), pid = 'p' + r + '-' + k; claim(p[0], p[1], 3, 3); EE('poi', p[0] + 1, p[1] + 1, r, { name: P0[0], sub: P0[1], pk, pid, ok: 'pi_' + pk }); m.sites.push({ id: pid, kind: 'poi', pk, name: P0[0], x: p[0] + 1, y: p[1] + 1, r }); });
-        [['tower', 3, 4], ['shrine', 3, 3], ['ruin', 4, 3]].forEach(([pk, w, h], k) => { const p = spot(r, w + 2, h + 2, 40, 138, 26, pk === 'tower' ? c => c.rock - c.forest : null); if (!p) return; const P0 = host.place(pk), pid = 'p' + r + '-' + pk; claim(p[0], p[1], w + 2, h + 2); house(p[0] + 1, p[1], w, h, pk, r); EE('poi', p[0] + 1 + (w >> 1), p[1] + h, r, { name: P0[0], sub: P0[1], pk, pid, ok: 'pi_sign' }); m.sites.push({ id: pid, kind: 'poi', pk, name: P0[0], x: p[0] + 1 + (w >> 1), y: p[1] + h, r }); });
+        kinds.forEach((pk, k) => { const p = spot(r, 3, 3, 28, 140, 20, pk === 'hollow' ? c => c.forest : null, true); if (!p) return; const P0 = host.place(pk), pid = 'p' + r + '-' + k; claim(p[0], p[1], 3, 3); EE('poi', p[0] + 1, p[1] + 1, r, { name: P0[0], sub: P0[1], pk, pid, ok: 'pi_' + pk }); m.sites.push({ id: pid, kind: 'poi', pk, name: P0[0], x: p[0] + 1, y: p[1] + 1, r }); });
+        [['tower', 3, 4], ['shrine', 3, 3], ['ruin', 4, 3]].forEach(([pk, w, h], k) => { const p = spot(r, w + 2, h + 2, 40, 138, 26, pk === 'tower' ? c => c.rock - c.forest : null, true); if (!p) return; const P0 = host.place(pk), pid = 'p' + r + '-' + pk; claim(p[0], p[1], w + 2, h + 2); house(p[0] + 1, p[1], w, h, pk, r); EE('poi', p[0] + 1 + (w >> 1), p[1] + h, r, { name: P0[0], sub: P0[1], pk, pid, ok: 'pi_sign' }); m.sites.push({ id: pid, kind: 'poi', pk, name: P0[0], x: p[0] + 1 + (w >> 1), y: p[1] + h, r }); });
         // fishing water: a patch of shallows with reachable ground beside it
         let fs = 0; for (let k = 0; k < 1400 && fs < 9; k++) { const a = g() * 6.283, d = 18 + g() * 124, x0 = Math.round(cx + Math.cos(a) * d), y0 = Math.round(cy + Math.sin(a) * d * .9), dv = D4[gi(4)]; if (!inb(x0, y0) || m.reg[ix(x0, y0)] !== r || m.t[ix(x0, y0)] === 4 || m.solid[ix(x0, y0)] || !m.seen[ix(x0, y0)]) continue;
           let x = x0, y = y0, hit = false; for (let s2 = 0; s2 < 9; s2++) { const nx = x + dv[0], ny = y + dv[1]; if (!inb(nx, ny) || nx < 3 || ny < 3 || nx > WW - 4 || ny > WH - 4) break; if (m.t[ix(nx, ny)] === 4) { hit = !m.solid[ix(x, y)] && m.seen[ix(x, y)] && !m.occ.has(ix(nx, ny)); x = nx; y = ny; break; } if (m.solid[ix(nx, ny)]) break; x = nx; y = ny; }
@@ -376,7 +405,7 @@
         for (let k = 0, tries = 0; k < 10 && tries < 2000; tries++) { const a = g() * 6.283, d = 26 + g() * 116, x = Math.round(cx + Math.cos(a) * d), y = Math.round(cy + Math.sin(a) * d * .9); if (!free(x, y) || m.reg[ix(x, y)] !== r) continue; const b = m.b[ix(x, y)], pc = probe(x, y), tpl = b === 10 ? 'a8' : b === 11 || pc.rock > 4 ? 'a6' : b === 9 ? 'a4' : pc.forest > 9 ? (k % 2 ? 'a2' : 'a3') : ['a1', 'a5', 'a7', 'a4', 'a2'][k % 5]; m.terr.push({ r, tpl, x, y, n: 3 + gi(2), rad: 7, stray: 1 }); k++; }
       }
       // lairs: themed creatures with a leader, two per region, out where you have to go looking for them
-      m.lairs = []; for (const L of host.lairs()) { const at = spot(L.r, 9, 7, 45, 150, 30); if (!at) continue; const [x, y] = at, c = Math.min(8, L.r), lc = Math.min(8, L.r + 1);
+      m.lairs = []; for (const L of host.lairs()) { const at = spot(L.r, 9, 7, 45, 150, 30, null, true); if (!at) continue; const [x, y] = at, c = Math.min(8, L.r), lc = Math.min(8, L.r + 1);
         for (let yy = y; yy < y + 7; yy++) for (let xx = x; xx < x + 9; xx++) { const i = ix(xx, yy); if (m.o[i]) { m.o[i] = 0; m.solid[i] = 0; } } const cx2 = x + 4, cy2 = y + 3; m.lairs.push({ id: L.id, r: L.r, name: L.name, x: cx2, y: cy2 }); m.sites.push({ id: L.id, kind: 'lair', name: L.name, x: cx2, y: cy2, r: L.r });
         const tp = host.tpls(c), tl = host.tpls(lc); for (const [lk, nn] of L.mob) m.terr.push({ r: L.r, tpl: tp[gi(tp.length)], x: cx2, y: cy2, n: nn, rad: 4, hab: 'any', agg: 1, lair: L.id, lk, c });
         m.terr.push({ r: L.r, tpl: tl[gi(tl.length)], x: cx2, y: cy2 - 1, n: 1, rad: 2, hab: 'any', agg: 1, lair: L.id, lk: L.lead, c: L.boss ? 8 : lc, lead: 1 });
@@ -422,14 +451,15 @@
             else if (m.t[i] !== 4 && nL < 2 && deco(x, y, nL ? 'driftwood' : (u < .4 ? 'rowboat' : u < .7 ? 'traps' : 'driftwood'), r, 0)) nL++; } }
         else if (st.kind === 'poi' && st.pk === 'ruin') { deco(st.x - 3, st.y, 'ruinwall', r, 1); deco(st.x + 3, st.y + 1, 'ruinwall', r, 1); } }
       const dk = m.spots.dock; if (dk) { deco(dk[0] - 7, dk[1] - 3, 'sailboat', 1, 0, 1); deco(dk[0] - 9, dk[1] + 4, 'sailboat', 1, 0, 1); deco(dk[0] - 6, dk[1] + 3, 'buoy', 1, 0, 1); deco(dk[0] - 11, dk[1] - 1, 'buoy', 1, 0, 1); } }
-    if (AD) for (const o of m.blds) { const cb = AD.cbld && AD.cbld[o.slot], B = AD.bld && AD.bld[o.r], rc = cb || (B && (B[o.slot] || B[{ work: 'shop', house: 'healer' }[o.slot]])); if (!rc || o.enter) continue;
+    if (AD) for (const o of m.blds) { const cb = AD.cbld && AD.cbld[o.slot], B = AD.bld && AD.bld[o.r], rc = cb || (B && (B[o.slot] || B[{ work: 'shop', house: 'healer' }[o.slot]])); if (!rc || o.enter || o.modular) continue;
       const k = cb ? Math.min(1, (o.w + .7) * T * K / rc[2]) : 1, ext = Math.floor(rc[3] / K / T * k - o.h - .9);
       for (let yy = o.y - 1; yy >= o.y - ext; yy--) for (let xx = o.x; xx < o.x + o.w; xx++) { if (!inb(xx, yy)) continue; const i = ix(xx, yy); if (m.solid[i] || m.t[i] === 4 || m.occ.has(i) || m.ents.some(e => e.x === xx && e.y === yy)) continue; m.solid[i] = 1; } }
     // the guided first day: a lookout at the foot of Tallyport's pier, and a cast off its end. Added last so nothing else moves.
     { const dk = m.spots.dock, px = dk[0] + 3, py = dk[1], ok = (x, y) => inb(x, y) && m.t[ix(x, y)] !== 4 && !m.solid[ix(x, y)] && !m.occ.has(ix(x, y)) && m.seen[ix(x, y)];
       let tw = null; for (const [dx, dy] of [[2, -2], [3, -2], [2, -3], [3, 2], [2, 3], [4, -2], [4, 2]]) if (ok(px + dx, py + dy)) { tw = [px + dx, py + dy]; break; }
       if (tw) { EE('lookout', tw[0], tw[1], 1, { name: 'Harbor tower', sub: 'Climb', ok: 'pi_lookout' }); m.spots.tower = tw; }
-      const fx = px - 8; if (inb(fx, py) && m.t[ix(fx, py)] === 4 && !m.occ.has(ix(fx, py))) { EE('fish', fx, py, 1, { name: 'End of the pier', sub: 'Fish', fid: 'f1-pier' }); m.sites.push({ id: 'f1-pier', kind: 'fish', name: 'End of the pier', x: fx, y: py, r: 1 }); m.spots.pierfish = [fx, py]; } }
+      const fx = m.spots.pierfish[0]; if (inb(fx, py + 1) && m.t[ix(fx, py + 1)] === 4 && !m.occ.has(ix(fx, py))) { EE('fish', fx, py + 1, 1, { name: 'End of the pier', sub: 'Fish', fid: 'f1-pier' }); m.sites.push({ id: 'f1-pier', kind: 'fish', name: 'End of the pier', x: fx, y: py + 1, r: 1 }); m.spots.pierfish = [fx, py + 1]; } }
+    delete m.roadScratch;
     groundKinds(m);
     return m;
   }
@@ -555,6 +585,7 @@
       g.fillStyle = sh(base, .82); g.beginPath(); g.moveTo(px - w * .22, by - hh * .3); g.lineTo(px - w * .1, by - hh * .12); g.lineTo(px - w * .3, by); g.lineTo(px - w * .38, by - hh * .1); g.fill();
       g.strokeStyle = sh(base, 1.4); g.lineWidth = 1.6; g.beginPath(); g.moveTo(px + sk, by - hh); g.lineTo(px - w * .25, by - hh * .46); g.stroke();
       if (b.cap || hh > 124) { const c0 = by - hh, ch = hh * .34; g.fillStyle = '#f6f9fa'; g.beginPath(); g.moveTo(px + sk, c0); g.lineTo(px + sk - w * .19, c0 + ch); g.lineTo(px + sk - w * .08, c0 + ch * .78); g.lineTo(px + sk, c0 + ch * 1.05); g.lineTo(px + sk + w * .08, c0 + ch * .74); g.lineTo(px + sk + w * .17, c0 + ch); g.fill(); g.fillStyle = 'rgba(120,140,160,.35)'; g.beginPath(); g.moveTo(px + sk, c0); g.lineTo(px + sk + w * .17, c0 + ch); g.lineTo(px + sk + w * .08, c0 + ch * .74); g.lineTo(px + sk, c0 + ch * 1.05); g.fill(); } }
+    worldPaintSurface(m, g, X0, Y0);
     return c;
   }
   function trim() { if (map.chunks.size < 70) return; const pcx = P.x / CS | 0, pcy = P.y / CS | 0; for (const [k, c] of map.chunks) { const x = k % 1000, y = k / 1000 | 0; if (Math.abs(x - pcx) > 5 || Math.abs(y - pcy) > 6) { c.width = c.height = 0; map.chunks.delete(k); } } }
@@ -601,7 +632,7 @@
         if (e.chase > 0) e.chase -= dt; if (e.wait > 0) e.wait -= dt; e.hunt = !(e.wait > 0) && (e.chase > 0 && d < 16 && !locked && host.chasing()) || (e.agg && e.alert > 0 && !(e.calm > 0) && d < 8 && !locked && host.aggro()); if (e.hunt && e.tx == null) { if (Math.abs(e.x - P.x) + Math.abs(e.y - P.y) === 1) { e.hunt = 0; e.calm = 12; host.ambush(e); break; } const ddx = P.x - e.x, ddy = P.y - e.y, st = Math.abs(ddx) >= Math.abs(ddy) ? [[Math.sign(ddx), 0], [0, Math.sign(ddy)]] : [[0, Math.sign(ddy)], [Math.sign(ddx), 0]]; for (const [sx, sy] of st) { if ((!sx && !sy) || blocked(e.x + sx, e.y + sy) || (e.x + sx === P.x && e.y + sy === P.y)) continue; e.dir = dirOf(sx, sy); sit(map, e, e.x + sx, e.y + sy); e.tx = e.x; e.ty = e.y; break; } e.t = 1; continue; } }
       if (e.tx != null) { const dx = e.tx - e.fx, dy = e.ty - e.fy, dd = Math.hypot(dx, dy), sp = (e.wander >= 2 ? 1.4 : e.hunt && e.chase > 0 ? (FLY[e.inst && e.inst.tpl] ? 4.0 : SLOW[e.inst && e.inst.tpl] ? 1.9 : 3.6) : e.hunt ? 2.0 : e.run ? 2.4 : e.kind === 'mon' ? (FLY[e.inst.tpl] ? 1.6 : SLOW[e.inst.tpl] ? .5 : .9) : 1.1) * dt; e.walk = (e.walk || 0) + dt * 7; if (dd <= sp) { e.fx = e.tx; e.fy = e.ty; e.tx = null; } else { e.fx += dx / dd * sp; e.fy += dy / dd * sp; } }
       else if (e.t <= 0 && d > 1.6) {
-        if (e.wander >= 2) { let v = e.mv && Math.random() < .8 ? e.mv : D4[Math.random() * 4 | 0]; const nx = e.x + v[0], ny = e.y + v[1], tt = nx >= 0 && ny >= 0 && nx < map.w && ny < map.h ? map.t[ny * map.w + nx] : 9; if ((tt === 2 || tt === 3 || (e.wander === 3 && tt === 6)) && !blocked(nx, ny) && !(nx === P.x && ny === P.y) && (e.wander === 3 || Math.hypot(nx - TOWN[e.r][0], ny - TOWN[e.r][1]) < 26)) { e.mv = v; e.dir = dirOf(v[0], v[1]); sit(map, e, nx, ny); e.tx = nx; e.ty = ny; e.t = Math.random() < .12 ? 1 + Math.random() * 4 : 0; } else { e.mv = null; e.t = .2 + Math.random() * .8; } }
+        if (e.wander >= 2) { let v = e.mv && Math.random() < .8 ? e.mv : D4[Math.random() * 4 | 0]; const nx = e.x + v[0], ny = e.y + v[1], tt = nx >= 0 && ny >= 0 && nx < map.w && ny < map.h ? map.t[ny * map.w + nx] : 9; if ((tt === 2 || tt === 3 || (e.wander === 3 && tt === 6)) && !blocked(nx, ny) && !(nx === P.x && ny === P.y) && (e.roam ? nx >= e.roam[0] && ny >= e.roam[1] && nx <= e.roam[2] && ny <= e.roam[3] : e.wander === 3 || Math.hypot(nx - TOWN[e.r][0], ny - TOWN[e.r][1]) < 26)) { e.mv = v; e.dir = dirOf(v[0], v[1]); sit(map, e, nx, ny); e.tx = nx; e.ty = ny; e.t = Math.random() < .12 ? 1 + Math.random() * 4 : 0; } else { e.mv = null; e.t = .2 + Math.random() * .8; } }
         else if (e.kind === 'mon') {   // creatures roam their ground: pick a spot, walk to it, rest, go again. Prey bolts when you come close, then tires.
           const tp = e.inst.tpl, fly = FLY[tp]; if (PREY[tp] && d < 4.4 && !(e.tired > 0)) { e.goal = [e.x + Math.round((e.x - P.x) / d * 5), e.y + Math.round((e.y - P.y) / d * 5)]; e.steps = 0; e.run = 1; e.tired = 4.5; }
           if (!e.goal) { const a = Math.random() * 6.283, rr = 2 + Math.random() * e.range * (fly ? .95 : .65); e.goal = [Math.round(e.home[0] + Math.cos(a) * rr), Math.round(e.home[1] + Math.sin(a) * rr)]; e.steps = 0; e.run = 0; }
@@ -633,7 +664,7 @@
     if (!map.pending) fade = Math.max(0, fade - dt * 2.2);
   }
   function onTile() {
-    const k = map.t[P.y * map.w + P.x], room = (map.blds || []).find(o => o.enter && P.x >= o.x && P.x < o.x + o.w && P.y >= o.y && P.y < o.y + o.h);
+    const k = map.t[P.y * map.w + P.x], room = (map.blds || []).find(o => o.enter && buildingContains(o, P.x, P.y));
     const surface = room ? room.room.fl === 'flag' ? 'stone' : 'wood' : map.hall || k === 6 ? 'wood' : map.dungeon || k === 3 || k === 7 ? 'stone' : 'earth';
     if (map.dungeonFloor) dungeonReveal(map,P.x,P.y);
     emit('step', surface); host.moved(P.x, P.y, map.dungeon, P.run);
@@ -642,6 +673,8 @@
   /* ---------- drawing ---------- */
   const OBJK = [null, 'tree0', 'tree1', 'tree2', 'rock0', 'rock1', 'bush', 'flowers', null, null, 'bones'];
   function draw() { if (P && host.app) { const ak = artVer + JSON.stringify(host.app()); if (P.sv !== ak) { P.sv = ak; P.spr = heroArt(); } }
+    WORLD_BUILDING_CACHE.beginFrame();
+    try {
     const g = cx, vv = Math.max(60, vh - inset / zoom), now = performance.now();
     cam.x = map.w * T < vw ? (map.w * T - vw) / 2 : clamp(P.fx * T + 8 - vw / 2, 0, map.w * T - vw); cam.y = map.h * T < vv ? (map.h * T - vv) / 2 : clamp(P.fy * T + 8 - vv / 2, 0, map.h * T - vv);
     const ox0 = Math.round(cam.x * K) / K, oy0 = Math.round(cam.y * K) / K; g.setTransform(K, 0, 0, K, 0, 0); g.imageSmoothingEnabled = false; g.fillStyle = map.dungeon ? '#15151b' : '#20303a'; g.fillRect(0, 0, vw, vh);
@@ -653,13 +686,13 @@
     const ph = now / 520 | 0, vl = [];
     for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const i = y * map.w + x; if (map.t[i] !== 4) continue; const b = map.pal[map.b[i]], lava = b.liquid === 'lava'; if (lava && x % 3 === 2 && y % 3 === 2) vl.push({ x: x + .5, y: y + .5, r: 34, c: 2 }); for (let k = 0; k < 3; k++) { const hx = hash(x * 3 + k, y, ph) * 13 | 0, hy = hash(x, y * 3 + k, ph + 7) * 15 | 0; g.fillStyle = lava ? (k ? '#f0a03a' : '#ffe08a') : (b.fx === 'snow' ? 'rgba(255,255,255,.5)' : 'rgba(190,220,225,.34)'); g.fillRect(x * T + hx - ox0, y * T + hy - oy0, lava ? 2 : 3, 1); } }
     const rdt = Math.min(.1, (now - (roomT || now)) / 1000); roomT = now;
-    for (const o of map.blds) if (o.enter) { roomFade(o, rdt); if (o.fa < 1) { const ra = roomArt(o); if (ra) g.drawImage(ra.fl, Math.round((o.x * T - ox0) * K) / K, Math.round((o.y * T - oy0) * K) / K, o.w * T, o.h * T); } }
+    for (const o of map.blds) if (o.modular) { if(o.x+o.w>=x0-3&&o.x<=x1+3&&o.y+o.h>=y0-3&&o.y<=y1+5)worldBuildingFloor(o,g,ox0,oy0,rdt); } else if (o.enter) { roomFade(o, rdt); if (o.fa < 1) { const ra = roomArt(o); if (ra) g.drawImage(ra.fl, Math.round((o.x * T - ox0) * K) / K, Math.round((o.y * T - oy0) * K) / K, o.w * T, o.h * T); } }
     if (P.mark) { g.strokeStyle = `rgba(211,168,76,${P.mark[2]})`; g.strokeRect(P.mark[0] * T - ox0 + 3.5, P.mark[1] * T - oy0 + 3.5, 9, 9); }
     const list = [];
     for (let y = y0; y <= Math.min(map.h - 1, y1 + 4); y++) for (let x = Math.max(0, x0 - 3); x <= Math.min(map.w - 1, x1 + 3); x++) { const i = y * map.w + x, o = map.o[i]; if (!o) continue; const pb = map.pal[map.b[i]], r = (pb && pb.ar) || map.reg[i] || curReg, s = spr(OBJK[o], r); if (!s) continue; list.push([y * T + (o === 7 || o === 10 ? 2 : 15), s.c, x * T + 8 - s.ax, y * T + 15 - s.ay]); if (o < 4 && map.pal[r].tree === 'shroom' && (x + y) % 2 === 0) vl.push({ x: x + .5, y: y - .5, r: 22, c: 3 }); }
-    for (const o of map.props) { const mg = o.sc ? 9 : 4; if (o.x < x0 - mg || o.x > x1 + mg || o.y < y0 - 2 || o.y > y1 + (o.sc ? 18 : 7)) continue; const s = spr(o.kind, o.r); if (!s) continue; const sc = o.sc || 1; list.push([o.y * T + 15, s.c, o.x * T + 8 - s.ax * sc, o.y * T + (o.hang ? 14 : 15) - s.ay * sc, false, o.sc || 0]); }
+    for (const o of map.props) { if (Math.abs(o.x * T - ox0 - vw / 2) > vw / 2 + 1100 || Math.abs(o.y * T - oy0 - vh / 2) > vh / 2 + 1100) continue; const s = spr(o.kind, o.r); if (!s || !s.c) continue; const sc = o.sc || 1, px = o.x * T + 8 - s.ax * sc, py = o.y * T + (o.hang ? 14 : 15) - s.ay * sc; if (px + lw(s.c) * sc < ox0 || px > ox0 + vw || py + lh(s.c) * sc < oy0 || py > oy0 + vh) continue; list.push([o.y * T + 15, s.c, px, py, false, o.sc || 0]); }
     if (map.ranges) for (const o of map.ranges) { if (o.x + o.w < x0 || o.x > x1 + 1 || o.y < y0 || o.y - o.h > y1 + 1) continue; const im = rangeImg(o.k); if (im) list.push([o.y * T - 1, im, o.x * T, (o.y - o.h) * T, o.flip, o.w * T / im.width]); }
-    for (const o of map.blds) { if (o.x + o.w < x0 - 3 || o.x > x1 + 3 || o.y + o.h < y0 - 1 || o.y > y1 + 10) continue; const s = bldSpr(o); if (o.enter && o.fa < 1) { const ra = roomArt(o); if (ra) { const bx = o.x * T, ty = o.y * T, R = o.room;
+    for (const o of map.blds) { if (o.x + o.w < x0 - 3 || o.x > x1 + 3 || o.y + o.h < y0 - 1 || o.y > y1 + 10) continue; if (o.modular) { worldBuildingLayers(o, list); continue; } const s = bldSpr(o); if (o.enter && o.fa < 1) { const ra = roomArt(o); if (ra) { const bx = o.x * T, ty = o.y * T, R = o.room;
         list.push([ty + T - 2, ra.wl, bx, ty + T - WALLH * T]); list.push([o.by - 2, ra.sd, bx - 2, ty - (WALLH - 1) * T]); list.push([o.by - 2, ra.sd, bx + o.w * T - 4, ty - (WALLH - 1) * T]); list.push([o.by - 1.5, ra.fr, bx, o.by - 5]);
         for (const f of R.fur) { const pc = kitPiece('f_' + f.p); if (pc) list.push([ty + (f.y + 1) * T - 3, pc, bx + (f.x + .5) * T - lw(pc) / 2, ty + (f.y + 1) * T - lh(pc) - 1]); } } if (o.fa <= 0) continue; }
       list.push([o.by, s.c, o.x * T - (s.ax || 0), o.by - s.ay + 1, false, s.k, 0, o.enter ? o.fa : undefined]); }
@@ -671,7 +704,7 @@
       const s = e.spr, moving = me ? P.path.length && !locked : e.tx != null, left = e.dir === 'l', fl = me && s.w8 && !(P.atk > 0) ? (P.run && moving && s.r8 ? s.r8 : s.w8)[P.d8 || 0] : me && P.dg && s[P.dg] && !(P.atk > 0) ? s[P.dg] : left && s.l ? s.l : s[left ? 's' : (e.dir || 'f')], f = s.beast ? fr : (moving ? (me && s.w8 && !(P.atk > 0) ? Math.floor(P.wd / ((P.run ? RUN_CYC : WALK_CYC) / fl.length)) % fl.length : ((me ? P.walk : e.walk) | 0) % fl.length) : me && s.w8 && fl.length === 8 ? 2 : 0), ak = me && P.atk > 0 && s.af ? s['a' + (left ? 'l' : (e.dir || 'f'))] : null, im = ak ? ak[Math.min(3, Math.floor((1 - P.atk / .3) * 4))] : fl[f], sc = e.big && !s.art ? 2 : s.msc || 1;
       if (e.dead) { const da = artDead(e.inst ? (e.inst.art || e.inst.tpl) : e.tpl); if (da) { const ds = s.msc || 1; list.push([by - 8, da, bx - lw(da) * ds / 2, by - lh(da) * ds + 3, false, ds, 0, e.dying != null ? Math.max(0, e.dying) : 1]); return; } const di = (s.s || s.f)[0]; list.push([by - 8, di, bx - lw(di) * sc / 2, by - lh(di) * sc + 1, false, sc, 0, e.dying != null ? Math.max(0, e.dying) : 1, 1]); return; }
       const flip = me && s.w8 && !(P.atk > 0) ? false : s.left ? (e.dir === 's' && !e.flip) : ((left && !s.l) || e.flip), bob = s.bob ? (moving && !(e.inst && FLY[e.inst.tpl]) ? -Math.round(Math.abs(Math.sin(now / 105 + e.x)) * 3) / K : Math.round(Math.sin(now / 320 + e.x * 2) * 2) / K) : (s.one && moving ? Math.round(Math.abs(Math.sin(now / 90)) * 3) / K : 0);
-      list.push([by + (bars.length && (me || bars.some(b => b.e === e)) ? 4000 : 0), im, bx - lw(im) * sc / 2, by - lh(im) * sc + (s.art ? 1 : 2 + (s.beast ? 3 * sc : 0)) + (s.one && moving ? -bob : bob), flip, sc, e.flash > 0 ? 1 : 0, e.dying != null ? Math.max(0, e.dying) : 1, 0, me && s.fx && im.mask ? s.fx : null]);
+      list.push([(me ? worldHeroSort(by) : by) + (bars.length && (me || bars.some(b => b.e === e)) ? 4000 : 0), im, bx - lw(im) * sc / 2, by - lh(im) * sc + (s.art ? 1 : 2 + (s.beast ? 3 * sc : 0)) + (s.one && moving ? -bob : bob), flip, sc, e.flash > 0 ? 1 : 0, e.dying != null ? Math.max(0, e.dying) : 1, 0, me && s.fx && im.mask ? s.fx : null]);
     };
     for (const e of map.ents) { if(e.hidden)continue; if (Math.abs(e.fx * T - ox0 - vw / 2) > vw / 2 + 60 || Math.abs(e.fy * T - oy0 - vh / 2) > vh / 2 + 70) continue; if (e.sv !== artVer) dress(e); else if (e.wk && !e.spr.l && AD && AD.chars.walk && have('folk.webp')) dress(e); if (e.flash > 0) e.flash -= .016; ent(e); }
     if (P.flash > 0) P.flash -= .016; ent(P, true);
@@ -722,6 +755,7 @@
     if (banner) { const a = Math.min(1, banner.t, (3.2 - banner.t) * 2); o.globalAlpha = Math.max(0, a); o.font = `400 ${30 * dpr}px 'IM Fell English', Georgia, serif`; o.lineWidth = 5 * dpr; o.strokeStyle = 'rgba(8,10,12,.8)'; o.strokeText(banner.a, ov.width / 2, ov.height * .24); o.fillStyle = '#ece5d0'; o.fillText(banner.a, ov.width / 2, ov.height * .24); o.font = `italic 400 ${16 * dpr}px 'IM Fell English', Georgia, serif`; o.strokeText(banner.b, ov.width / 2, ov.height * .24 + 24 * dpr); o.fillStyle = '#d3a84c'; o.fillText(banner.b, ov.width / 2, ov.height * .24 + 24 * dpr); o.globalAlpha = 1; }
     if(map.dungeonFloor && !locked){ const area=map.layout.rooms.find(R=>P.x>=R.x&&P.y>=R.y&&P.x<R.x+R.w&&P.y<R.y+R.h);o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const label='Floor '+(map.f+1)+' · '+(area?area.name:map.layout.name);const tw=o.measureText(label).width;o.fillStyle='rgba(8,15,22,.85)';o.fillRect(8*dpr,52*dpr,Math.min(tw+16*dpr,ov.width-16*dpr),23*dpr);o.fillStyle='#f4dfac';o.fillText(label,16*dpr,68*dpr,ov.width-36*dpr);o.textAlign='center';}
     host.hud(locked ? null : near);
+    } finally { WORLD_BUILDING_CACHE.endFrame(); }
   }
   function loop(ts) { raf = 0; if (!running) return; const dt = Math.max(0, Math.min(.05, (ts - last) / 1000 || 0)); last = ts; step(dt); draw(); raf = requestAnimationFrame(loop); }
   function size() { if (!wrap) return; const w = wrap.clientWidth, h = wrap.clientHeight; if (!w || !h) return; dpr = Math.min(3, window.devicePixelRatio || 1); zoom = w >= 760 ? 3 : 2; vw = Math.ceil(w / zoom); vh = Math.ceil(h / zoom); cv.width = vw * K; cv.height = vh * K; cv.style.width = vw * zoom + 'px'; cv.style.height = vh * zoom + 'px'; ov.width = Math.round(w * dpr); ov.height = Math.round(h * dpr); cx.imageSmoothingEnabled = false; lightCv = mk(vw, vh); }
@@ -737,14 +771,28 @@
     window.addEventListener('keyup', e => { if (P && KM[e.key]) P.keys = null; }); window.addEventListener('resize', size);
   }
   function place(x, y) { if (map && map.solid[y * map.w + x]) { let best = null; for (let rr = 1; rr < 16 && !best; rr++) for (let dy = -rr; dy <= rr && !best; dy++) for (let dx = -rr; dx <= rr; dx++) { const i = (y + dy) * map.w + x + dx; if (x + dx > 0 && y + dy > 0 && x + dx < map.w && y + dy < map.h && !map.solid[i] && !map.occ.has(i) && (!map.seen || map.seen[i])) { best = [x + dx, y + dy]; break; } } if (best) { x = best[0]; y = best[1]; } }   // the world can gain a building where a saved game left the hero
-    P = { x, y, fx: x, fy: y, dir: 'f', path: [], walk: 0, target: null, spr: heroArt() }; }
+    P = { x, y, fx: x, fy: y, dir: 'f', path: [], walk: 0, wd: 0, target: null, spr: heroArt() }; }
   let flies = [], flyT = 0, SHOWB = false;
   function go(m, x, y) { map = m; place(x, y); fade = 1; parts = []; flies = []; anims = []; floats = []; slashes = []; shots = []; bars = []; locked = false; curReg = m.dungeon ? m.r : (m.reg[y * m.w + x] || 1); curB = m.dungeon ? m.r : (m.b[y * m.w + x] || curReg); curT = null; ambNow = m.pal[curB].amb; need(curReg); host.entered(curReg); if (AD && !packs(curReg).every(have)) { m.pending = true; const t = setTimeout(() => { m.pending = false; }, 5000); Promise.all(packs(curReg).map(n => img(n).p)).then(() => { clearTimeout(t); m.pending = false; if (P) P.spr = heroArt(); }); } banner = { a: m.hall ? 'The dojo' : m.dungeon ? host.dungeonName(m.r) : host.regionName(curReg), b: m.hall ? host.regionName(m.r) : m.dungeonFloor ? 'Floor ' + (m.f+1) + ' · ' + m.layout.name : m.dungeon ? 'walk in, walk out' : host.regionSub(curReg), t: 3.2 }; }
   function load(pos, r) {
     if (!world) world = genWorld(); for (const [, c] of world.chunks) c.width = c.height = 0; world.chunks.clear();
-    const free = (x, y) => x > 0 && y > 0 && x < WW && y < WH && !world.solid[y * WW + x] && world.seen[y * WW + x] && !world.occ.has(y * WW + x);
-    let p = r === 'dock' ? world.spots.dock : pos && free(pos[0], pos[1]) ? pos : null; if (!p) { const t = pos || TOWN[r > 0 ? r : 1], c = pos ? pos : [t[0], t[1] + 3]; for (let d = 0; d < 12 && !p; d++) for (let dy = -d; dy <= d && !p; dy++) for (let dx = -d; dx <= d; dx++) if (free(c[0] + dx, c[1] + dy)) { p = [c[0] + dx, c[1] + dy]; break; } if (!p) p = [TOWN[1][0], TOWN[1][1] + 3]; }
+    const p = safePosition(r === 'dock' ? world.spots.dock : pos, r);
     go(world, p[0], p[1]);
+  }
+  function safePosition(pos, r) {
+    if (!world) world = genWorld();
+    r = r > 0 && r <= 8 ? r : pos && Geography.region(pos[0], pos[1]) || 1;
+    const free = (x, y) => x > 1 && y > 1 && x < WW - 1 && y < WH - 1 && !world.solid[y * WW + x]
+      && world.t[y * WW + x] !== 4 && world.seen[y * WW + x] && !world.occ.has(y * WW + x);
+    const find = (p, radius) => {
+      if (!p || !Number.isFinite(p[0]) || !Number.isFinite(p[1])) return null;
+      const x = Math.round(p[0]), y = Math.round(p[1]);
+      for (let d = 0; d <= radius; d++) for (let dy = -d; dy <= d; dy++) for (let dx = -d; dx <= d; dx++)
+        if ((Math.abs(dx) === d || Math.abs(dy) === d) && free(x + dx, y + dy)) return [x + dx, y + dy];
+      return null;
+    };
+    const t = TOWN[r];
+    return find(pos, 24) || find([t[0], t[1] + 3], 80) || find(world.spots.dock, 80);
   }
   function enterDungeon(r, options) { const m = genDungeon(r, options), at=options && options.pos || m.entry; go(m, at[0], at[1]); dungeonReveal(m,P.x,P.y); }
   function kill(e, delay) { if (!map) return; { const o = e.y * map.w + e.x; if (map.occ.get(o) === e) map.occ.delete(o); } e.dying = 1; e.wander = 0; if (e.terr && (e.kind === 'mon' || e.kind === 'node')) (map.respawn = map.respawn || []).push({ t: delay || respT(e.terr, e.kind === 'node'), node: e.kind === 'node', terr: e.terr }); }
@@ -763,17 +811,49 @@
     if (!s) s = building(o.w, o.h, { wall: h.wall, roof: h.roof }, 7 + h.shape * 31 + h.mat, null, '-');
     return HOMEC[key] = s; }
   function homeFits(x, y, w, h) { const m = world; if (!m) return 'nomap'; if (map !== world) return 'inside';
-    for (let r = 1; r <= 8; r++) if (Math.hypot(x + w / 2 - TOWN[r][0], y + h / 2 - TOWN[r][1]) < 26) return 'town';
+    for (const [xx, yy] of [[x - 2, y - 2], [x + w + 2, y - 2], [x - 2, y + h + 2], [x + w + 2, y + h + 2]]) if (Geography.inTown(xx, yy, 3) || m.districts.some(d => xx >= d.box[0] && xx <= d.box[2] && yy >= d.box[1] && yy <= d.box[3])) return 'town';
     for (let yy = y - 1; yy <= y + h + 1; yy++) for (let xx = x - 1; xx <= x + w; xx++) { if (xx < 2 || yy < 2 || xx >= m.w - 2 || yy >= m.h - 2) return 'edge'; const i = yy * m.w + xx; if (m.solid[i] || m.keep[i] || m.t[i] > 1 || m.occ.has(i)) return 'ground'; if (P && P.x === xx && P.y === yy) return 'you'; }
     for (const b of m.blds) if (x < b.x + b.w + 2 && x + w + 2 > b.x && y < b.y + b.h + 2 && y + h + 2 > b.y) return 'ground';
     const dx = x + (w >> 1), dy = y + h; if (!P) return null; const solid0 = m.solid.slice(); for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) m.solid[yy * m.w + xx] = 1; const seen = reach(m, P.x, P.y); m.solid.set(solid0); return seen[dy * m.w + dx] ? null : 'path'; }
   function addHome(h) { const m = world; if (!m || m.blds.some(b => b.home && b.home.id === h.id)) return; const { x, y, w, h: hh } = h; for (let yy = y; yy < y + hh; yy++) for (let xx = x; xx < x + w; xx++) m.solid[yy * m.w + xx] = 1; const r = m.reg[y * m.w + x] || 1;
-    const o = { x, y, w, h: hh, slot: 'home', home: h, r, by: (y + hh) * T - 1 }; m.blds.push(o); m.lights.push({ x: x + w / 2, y: y + hh - .6, r: 22, c: 1 });
+    const o = { x, y, w, h: hh, slot: 'home', home: h, r, by: (y + hh) * T - 1 }; m.blds.push(o); m.lights.push({ x: x + w / 2, y: y + hh - .6, r: 22, c: 1, hid: h.id });
     const s = homeSpr(o), ext = Math.max(0, Math.floor(lh(s.c) * (s.k || 1) / T - hh - .9)); o.ext = []; for (let yy = y - 1; yy >= y - ext; yy--) for (let xx = x; xx < x + w; xx++) { if (yy < 1) continue; const i = yy * m.w + xx; if (m.solid[i] || m.occ.has(i)) continue; m.solid[i] = 1; o.ext.push(i); }
     addEnt(m, { kind: 'myhome', x: x + (w >> 1), y: y + hh, r, hid: h.id, name: h.name || 'Your home', sub: 'Your house', solid: 0, ok: h.pad ? 'pi_tpad' : null });
     if (m.seen) { const sn = reach(m, x + (w >> 1), y + hh); for (let i = 0; i < sn.length; i++) if (sn[i]) m.seen[i] = 1; } }
-  function dropHome(id) { const m = world; if (!m) return; const k = m.blds.findIndex(b => b.home && b.home.id === id); if (k < 0) return; const o = m.blds[k]; for (let yy = o.y; yy < o.y + o.h; yy++) for (let xx = o.x; xx < o.x + o.w; xx++) m.solid[yy * m.w + xx] = 0; for (const i of o.ext || []) m.solid[i] = 0; m.blds.splice(k, 1); m.ents = m.ents.filter(e => !(e.kind === 'myhome' && e.hid === id)); }
+  function dropHome(id) { const m = world; if (!m) return; const k = m.blds.findIndex(b => b.home && b.home.id === id); if (k < 0) return; const o = m.blds[k]; for (let yy = o.y; yy < o.y + o.h; yy++) for (let xx = o.x; xx < o.x + o.w; xx++) m.solid[yy * m.w + xx] = 0; for (const i of o.ext || []) m.solid[i] = 0; m.blds.splice(k, 1); m.lights = m.lights.filter(l => l.hid !== id); m.ents = m.ents.filter(e => !(e.kind === 'myhome' && e.hid === id)); }
   function clearHomes() { if (!world) return; for (const b of world.blds.filter(b => b.home)) dropHome(b.home.id); }
+  function restoreHomes(homes) {
+    if (!world) world = genWorld();
+    clearHomes(); let changed = false;
+    for (const h of Array.isArray(homes) ? homes : []) {
+      if (!h || typeof h !== 'object' || !Number.isInteger(h.w) || !Number.isInteger(h.h) || h.w < 1 || h.w > 6 || h.h < 1 || h.h > 4) continue;
+      const valid = (x, y, occupants = false) => {
+        if (!Number.isInteger(x) || !Number.isInteger(y) || !(h.w > 0 && h.w <= 6 && h.h > 0 && h.h <= 4)) return false;
+        for (let yy = y - 5; yy <= y + h.h + 1; yy++) for (let xx = x - 1; xx <= x + h.w; xx++) {
+          if (xx < 2 || yy < 2 || xx >= WW - 2 || yy >= WH - 2 || Geography.inTown(xx, yy, 4)) return false;
+          const i = yy * WW + xx;
+          if (world.solid[i] || world.keep[i] || world.t[i] > 1 || (occupants && world.occ.has(i)) || !world.seen[i]) return false;
+        }
+        return true;
+      };
+      if (!valid(h.x, h.y)) {
+        const r = Number.isInteger(h.r) && h.r >= 1 && h.r <= 8 ? h.r : Geography.region(h.x, h.y) || 1;
+        const t = TOWN[r], origin = Number.isInteger(h.x) && Number.isInteger(h.y) && h.x >= 0 && h.x < WW && h.y >= 0 && h.y < WH ? [h.x,h.y] : t;
+        let at = null;
+        for (const c of [origin, t]) {
+          if (at) break;
+          for (let d = 0; d < 300 && !at; d++) for (let dy = -d; dy <= d && !at; dy++) for (const dx of d ? [-d, d] : [0]) {
+            const x = c[0] + dx, y = c[1] + dy;
+            if (Geography.region(x, y) === r && valid(x, y, true)) { at = [x, y]; break; }
+          }
+        }
+        if (!at) throw new Error('No safe house placement in region ' + r);
+        h.x = at[0]; h.y = at[1]; h.r = r; changed = true;
+      }
+      addHome(h);
+    }
+    return changed;
+  }
   function homeDoor(id) { const o = world && world.blds.find(b => b.home && b.home.id === id); return o ? [o.x + (o.w >> 1), o.y + o.h + 1] : null; }
   let GHOST = null;
   function ghost(o) { GHOST = o; if (o && P && o.x == null) { o.x = P.x - (o.w >> 1); o.y = P.y - o.h - 2; } if (o) o.why = homeFits(o.x, o.y, o.w, o.h); return o; }
@@ -861,12 +941,12 @@
     if (map.hall) return { region: map.r, town: true, venue: 'dojo' };
     if (map.dungeon) return { region: map.r, dun: map.r };
     const r = map.reg[P.y * map.w + P.x] || curReg || 1, t = TOWN[r];
-    const room = map.blds.find(b => b.enter && P.x >= b.x && P.x < b.x + b.w && P.y >= b.y && P.y < b.y + b.h);
-    return { region: r, town: P.x >= t[0] - 26 && P.x <= t[0] + 26 && P.y >= t[1] - 21 && P.y <= t[1] + 17,
+    const room = map.blds.find(b => b.enter && buildingContains(b, P.x, P.y));
+    return { region: r, town: !!Geography.inTown(P.x,P.y) || !!(map.districts&&map.districts.some(d=>P.x>=d.box[0]&&P.x<=d.box[2]&&P.y>=d.box[1]&&P.y<=d.box[3])),
       venue: room && room.slot === 'tavern' ? 'tavern' : null };
   }
-  return { preload, init, load, clearRemains: () => { if(world)world.ents=world.ents.filter(e=>!e.mine);if(map && map!==world)map.ents=map.ents.filter(e=>!e.mine); }, remains, emptied, musicContext, chase: (e, secs) => { if (e) { e.chase = secs; e.wait = 1.3; e.calm = 0; e.alert = 8; e.busy = 0; } }, inDungeonMap: () => !!(map && map.dungeon), mapRegion: () => map ? (map.dungeon ? map.r : 0) : 0, enterDungeon, dungeonRefresh: p => { if(map && map.dungeonFloor)dungeonApply(map,p); }, backdrop, kill, corpse, refresh, resume, pause, portrait, act, FX, towns: () => TOWN, terr: () => world ? world.terr : [], sites: () => world ? world.sites : [], spots: () => world ? world.spots : {}, mini: () => world && world.mini, size: [WW, WH],
+  return { preload, init, load, safePosition, restoreHomes, clearRemains: () => { if(world)world.ents=world.ents.filter(e=>!e.mine);if(map && map!==world)map.ents=map.ents.filter(e=>!e.mine); }, remains, emptied, musicContext, chase: (e, secs) => { if (e) { e.chase = secs; e.wait = 1.3; e.calm = 0; e.alert = 8; e.busy = 0; } }, inDungeonMap: () => !!(map && map.dungeon), mapRegion: () => map ? (map.dungeon ? map.r : 0) : 0, enterDungeon, dungeonRefresh: p => { if(map && map.dungeonFloor)dungeonApply(map,p); }, backdrop, kill, corpse, refresh, resume, pause, portrait, act, FX, towns: () => TOWN, terr: () => world ? world.terr : [], sites: () => world ? world.sites : [], spots: () => world ? world.spots : {}, mini: () => world && world.mini, size: [WW, WH], ferries: () => world ? world.ferries : [], districts: () => world ? world.districts : [],
     traveling: () => !!(P && P.path.length),
-    pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, bldSpr, effects: { shots, slashes, floats }, advanceEffects, draw }),
+    pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ buildingCache: WORLD_BUILDING_CACHE.stats, map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, bldSpr, effects: { shots, slashes, floats }, advanceEffects, draw }),
     warp(x, y) { load([x, y]); }, hop(x, y) { go(map, x, y); }, guidePut, guideOff, guideEnt: () => GUIDE, drawDoll, dollKey: () => artVer, enterHall, inHall: () => map && map.hall ? map.r : 0, hallAdd: o => map ? addEnt(map, Object.assign({ r: map.r }, o)) : null, hallMove: (e, x, y) => { if (!map || !e) return; const k = e.y * map.w + e.x; if (map.occ.get(k) === e) map.occ.delete(k); e.x = e.fx = x; e.y = e.fy = y; e.tx = null; map.occ.set(y * map.w + x, e); }, ents: () => map ? map.ents : [], fsReady: () => !!(AD && AD.dojo && (IMG['dj/fs.webp'] || img('dj/fs.webp')) && have('dj/fs.webp')) };
 })();

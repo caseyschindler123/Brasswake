@@ -1,0 +1,8266 @@
+{
+  "schema": 1,
+  "alpha": {
+    "discard_below": 60,
+    "opaque_from": 200
+  },
+  "sources": {
+    "WF01": {
+      "sha256": "c0f0f9afbe8f94d351efdb8f1515a585b565fdf7e4aa05718af4751d55c6dee0",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wf1_0": {
+          "crop": [
+            34,
+            42,
+            224,
+            219
+          ],
+          "normalized_size": [
+            145,
+            135
+          ],
+          "scale": 0.7619047619047619,
+          "mode": "components_by_cell"
+        },
+        "wf1_1": {
+          "crop": [
+            290,
+            42,
+            480,
+            219
+          ],
+          "normalized_size": [
+            145,
+            135
+          ],
+          "scale": 0.7619047619047619,
+          "mode": "components_by_cell"
+        },
+        "wf1_2": {
+          "crop": [
+            546,
+            42,
+            736,
+            219
+          ],
+          "normalized_size": [
+            145,
+            135
+          ],
+          "scale": 0.7619047619047619,
+          "mode": "components_by_cell"
+        },
+        "wf1_3": {
+          "crop": [
+            802,
+            42,
+            992,
+            219
+          ],
+          "normalized_size": [
+            145,
+            135
+          ],
+          "scale": 0.7619047619047619,
+          "mode": "components_by_cell"
+        },
+        "wf1_4": {
+          "crop": [
+            34,
+            297,
+            224,
+            476
+          ],
+          "normalized_size": [
+            145,
+            136
+          ],
+          "scale": 0.7619047619047619,
+          "mode": "components_by_cell"
+        },
+        "wf1_5": {
+          "crop": [
+            279,
+            297,
+            491,
+            476
+          ],
+          "normalized_size": [
+            162,
+            136
+          ],
+          "scale": 0.7619047619047619,
+          "mode": "components_by_cell"
+        },
+        "wf1_6": {
+          "crop": [
+            546,
+            297,
+            736,
+            476
+          ],
+          "normalized_size": [
+            145,
+            136
+          ],
+          "scale": 0.7619047619047619,
+          "mode": "components_by_cell"
+        },
+        "wf1_7": {
+          "crop": [
+            802,
+            298,
+            992,
+            475
+          ],
+          "normalized_size": [
+            145,
+            135
+          ],
+          "scale": 0.7619047619047619,
+          "mode": "components_by_cell"
+        },
+        "wf1_8": {
+          "crop": [
+            28,
+            553,
+            231,
+            732
+          ],
+          "normalized_size": [
+            155,
+            136
+          ],
+          "scale": 0.7619047619047619,
+          "mode": "components_by_cell"
+        },
+        "wf1_9": {
+          "crop": [
+            290,
+            553,
+            480,
+            731
+          ],
+          "normalized_size": [
+            145,
+            136
+          ],
+          "scale": 0.7619047619047619,
+          "mode": "components_by_cell"
+        },
+        "wf1_10": {
+          "crop": [
+            546,
+            553,
+            736,
+            731
+          ],
+          "normalized_size": [
+            145,
+            136
+          ],
+          "scale": 0.7619047619047619,
+          "mode": "components_by_cell"
+        },
+        "wf1_11": {
+          "crop": [
+            802,
+            554,
+            992,
+            731
+          ],
+          "normalized_size": [
+            145,
+            135
+          ],
+          "scale": 0.7619047619047619,
+          "mode": "components_by_cell"
+        },
+        "wf1_12": {
+          "crop": [
+            115,
+            799,
+            144,
+            988
+          ],
+          "normalized_size": [
+            22,
+            144
+          ],
+          "scale": 0.7619047619047619,
+          "mode": "components_by_cell"
+        },
+        "wf1_13": {
+          "crop": [
+            362,
+            799,
+            409,
+            988
+          ],
+          "normalized_size": [
+            36,
+            144
+          ],
+          "scale": 0.7619047619047619,
+          "mode": "components_by_cell"
+        },
+        "wf1_14": {
+          "crop": [
+            601,
+            810,
+            683,
+            987
+          ],
+          "normalized_size": [
+            62,
+            135
+          ],
+          "scale": 0.7619047619047619,
+          "mode": "components_by_cell"
+        },
+        "wf1_15": {
+          "crop": [
+            801,
+            845,
+            993,
+            944
+          ],
+          "normalized_size": [
+            146,
+            75
+          ],
+          "scale": 0.7619047619047619,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WF02": {
+      "sha256": "2841598368782a591f5862d2364304d8eb2fa55c1ae58df4e40ec99cd438e0da",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wf2_0": {
+          "crop": [
+            33,
+            47,
+            239,
+            232
+          ],
+          "normalized_size": [
+            155,
+            139
+          ],
+          "scale": 0.7539267015706806,
+          "mode": "components_by_cell"
+        },
+        "wf2_1": {
+          "crop": [
+            285,
+            47,
+            491,
+            232
+          ],
+          "normalized_size": [
+            155,
+            139
+          ],
+          "scale": 0.7539267015706806,
+          "mode": "components_by_cell"
+        },
+        "wf2_2": {
+          "crop": [
+            537,
+            47,
+            743,
+            232
+          ],
+          "normalized_size": [
+            155,
+            139
+          ],
+          "scale": 0.7539267015706806,
+          "mode": "components_by_cell"
+        },
+        "wf2_3": {
+          "crop": [
+            789,
+            47,
+            994,
+            232
+          ],
+          "normalized_size": [
+            155,
+            139
+          ],
+          "scale": 0.7539267015706806,
+          "mode": "components_by_cell"
+        },
+        "wf2_4": {
+          "crop": [
+            32,
+            300,
+            239,
+            485
+          ],
+          "normalized_size": [
+            156,
+            139
+          ],
+          "scale": 0.7539267015706806,
+          "mode": "components_by_cell"
+        },
+        "wf2_5": {
+          "crop": [
+            275,
+            300,
+            499,
+            485
+          ],
+          "normalized_size": [
+            169,
+            139
+          ],
+          "scale": 0.7539267015706806,
+          "mode": "components_by_cell"
+        },
+        "wf2_6": {
+          "crop": [
+            537,
+            300,
+            743,
+            485
+          ],
+          "normalized_size": [
+            155,
+            139
+          ],
+          "scale": 0.7539267015706806,
+          "mode": "components_by_cell"
+        },
+        "wf2_7": {
+          "crop": [
+            789,
+            300,
+            994,
+            485
+          ],
+          "normalized_size": [
+            155,
+            139
+          ],
+          "scale": 0.7539267015706806,
+          "mode": "components_by_cell"
+        },
+        "wf2_8": {
+          "crop": [
+            33,
+            550,
+            239,
+            735
+          ],
+          "normalized_size": [
+            155,
+            139
+          ],
+          "scale": 0.7539267015706806,
+          "mode": "components_by_cell"
+        },
+        "wf2_9": {
+          "crop": [
+            275,
+            550,
+            499,
+            735
+          ],
+          "normalized_size": [
+            169,
+            139
+          ],
+          "scale": 0.7539267015706806,
+          "mode": "components_by_cell"
+        },
+        "wf2_10": {
+          "crop": [
+            537,
+            550,
+            743,
+            735
+          ],
+          "normalized_size": [
+            155,
+            139
+          ],
+          "scale": 0.7539267015706806,
+          "mode": "components_by_cell"
+        },
+        "wf2_11": {
+          "crop": [
+            788,
+            550,
+            994,
+            735
+          ],
+          "normalized_size": [
+            155,
+            139
+          ],
+          "scale": 0.7539267015706806,
+          "mode": "components_by_cell"
+        },
+        "wf2_12": {
+          "crop": [
+            120,
+            784,
+            151,
+            974
+          ],
+          "normalized_size": [
+            23,
+            143
+          ],
+          "scale": 0.7539267015706806,
+          "mode": "components_by_cell"
+        },
+        "wf2_13": {
+          "crop": [
+            369,
+            784,
+            405,
+            975
+          ],
+          "normalized_size": [
+            27,
+            144
+          ],
+          "scale": 0.7539267015706806,
+          "mode": "components_by_cell"
+        },
+        "wf2_14": {
+          "crop": [
+            586,
+            795,
+            693,
+            974
+          ],
+          "normalized_size": [
+            81,
+            135
+          ],
+          "scale": 0.7539267015706806,
+          "mode": "components_by_cell"
+        },
+        "wf2_15": {
+          "crop": [
+            790,
+            843,
+            993,
+            944
+          ],
+          "normalized_size": [
+            153,
+            76
+          ],
+          "scale": 0.7539267015706806,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WF03": {
+      "sha256": "7513071dd309b9453410e72e92a0198294a018144278f5cffe36b88089518d89",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wf3_0": {
+          "crop": [
+            36,
+            45,
+            221,
+            208
+          ],
+          "normalized_size": [
+            140,
+            124
+          ],
+          "scale": 0.7578947368421053,
+          "mode": "components_by_cell"
+        },
+        "wf3_1": {
+          "crop": [
+            292,
+            44,
+            477,
+            208
+          ],
+          "normalized_size": [
+            140,
+            124
+          ],
+          "scale": 0.7578947368421053,
+          "mode": "components_by_cell"
+        },
+        "wf3_2": {
+          "crop": [
+            548,
+            44,
+            733,
+            208
+          ],
+          "normalized_size": [
+            140,
+            124
+          ],
+          "scale": 0.7578947368421053,
+          "mode": "components_by_cell"
+        },
+        "wf3_3": {
+          "crop": [
+            804,
+            44,
+            989,
+            208
+          ],
+          "normalized_size": [
+            140,
+            124
+          ],
+          "scale": 0.7578947368421053,
+          "mode": "components_by_cell"
+        },
+        "wf3_4": {
+          "crop": [
+            36,
+            300,
+            221,
+            464
+          ],
+          "normalized_size": [
+            140,
+            124
+          ],
+          "scale": 0.7578947368421053,
+          "mode": "components_by_cell"
+        },
+        "wf3_5": {
+          "crop": [
+            276,
+            300,
+            492,
+            464
+          ],
+          "normalized_size": [
+            164,
+            124
+          ],
+          "scale": 0.7578947368421053,
+          "mode": "components_by_cell"
+        },
+        "wf3_6": {
+          "crop": [
+            548,
+            300,
+            733,
+            464
+          ],
+          "normalized_size": [
+            140,
+            124
+          ],
+          "scale": 0.7578947368421053,
+          "mode": "components_by_cell"
+        },
+        "wf3_7": {
+          "crop": [
+            804,
+            300,
+            989,
+            464
+          ],
+          "normalized_size": [
+            140,
+            124
+          ],
+          "scale": 0.7578947368421053,
+          "mode": "components_by_cell"
+        },
+        "wf3_8": {
+          "crop": [
+            36,
+            556,
+            221,
+            720
+          ],
+          "normalized_size": [
+            140,
+            124
+          ],
+          "scale": 0.7578947368421053,
+          "mode": "components_by_cell"
+        },
+        "wf3_9": {
+          "crop": [
+            276,
+            556,
+            492,
+            720
+          ],
+          "normalized_size": [
+            164,
+            124
+          ],
+          "scale": 0.7578947368421053,
+          "mode": "components_by_cell"
+        },
+        "wf3_10": {
+          "crop": [
+            548,
+            556,
+            733,
+            720
+          ],
+          "normalized_size": [
+            140,
+            124
+          ],
+          "scale": 0.7578947368421053,
+          "mode": "components_by_cell"
+        },
+        "wf3_11": {
+          "crop": [
+            804,
+            556,
+            988,
+            720
+          ],
+          "normalized_size": [
+            139,
+            124
+          ],
+          "scale": 0.7578947368421053,
+          "mode": "components_by_cell"
+        },
+        "wf3_12": {
+          "crop": [
+            110,
+            787,
+            146,
+            976
+          ],
+          "normalized_size": [
+            27,
+            143
+          ],
+          "scale": 0.7578947368421053,
+          "mode": "components_by_cell"
+        },
+        "wf3_13": {
+          "crop": [
+            364,
+            785,
+            405,
+            975
+          ],
+          "normalized_size": [
+            31,
+            144
+          ],
+          "scale": 0.7578947368421053,
+          "mode": "components_by_cell"
+        },
+        "wf3_14": {
+          "crop": [
+            594,
+            798,
+            684,
+            967
+          ],
+          "normalized_size": [
+            68,
+            128
+          ],
+          "scale": 0.7578947368421053,
+          "mode": "components_by_cell"
+        },
+        "wf3_15": {
+          "crop": [
+            800,
+            846,
+            992,
+            937
+          ],
+          "normalized_size": [
+            146,
+            69
+          ],
+          "scale": 0.7578947368421053,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WF04": {
+      "sha256": "74fce162ea785bb33034ba682c62dbf3909e7afe3727167fb74461aaa81b46d9",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wf4_0": {
+          "crop": [
+            38,
+            48,
+            231,
+            222
+          ],
+          "normalized_size": [
+            148,
+            133
+          ],
+          "scale": 0.7659574468085106,
+          "mode": "components_by_cell"
+        },
+        "wf4_1": {
+          "crop": [
+            293,
+            48,
+            485,
+            223
+          ],
+          "normalized_size": [
+            147,
+            134
+          ],
+          "scale": 0.7659574468085106,
+          "mode": "components_by_cell"
+        },
+        "wf4_2": {
+          "crop": [
+            545,
+            48,
+            737,
+            222
+          ],
+          "normalized_size": [
+            147,
+            133
+          ],
+          "scale": 0.7659574468085106,
+          "mode": "components_by_cell"
+        },
+        "wf4_3": {
+          "crop": [
+            800,
+            48,
+            990,
+            222
+          ],
+          "normalized_size": [
+            146,
+            133
+          ],
+          "scale": 0.7659574468085106,
+          "mode": "components_by_cell"
+        },
+        "wf4_4": {
+          "crop": [
+            35,
+            293,
+            234,
+            467
+          ],
+          "normalized_size": [
+            152,
+            133
+          ],
+          "scale": 0.7659574468085106,
+          "mode": "components_by_cell"
+        },
+        "wf4_5": {
+          "crop": [
+            282,
+            293,
+            494,
+            467
+          ],
+          "normalized_size": [
+            162,
+            133
+          ],
+          "scale": 0.7659574468085106,
+          "mode": "components_by_cell"
+        },
+        "wf4_6": {
+          "crop": [
+            541,
+            293,
+            741,
+            467
+          ],
+          "normalized_size": [
+            153,
+            133
+          ],
+          "scale": 0.7659574468085106,
+          "mode": "components_by_cell"
+        },
+        "wf4_7": {
+          "crop": [
+            795,
+            292,
+            991,
+            467
+          ],
+          "normalized_size": [
+            150,
+            134
+          ],
+          "scale": 0.7659574468085106,
+          "mode": "components_by_cell"
+        },
+        "wf4_8": {
+          "crop": [
+            34,
+            537,
+            234,
+            712
+          ],
+          "normalized_size": [
+            153,
+            134
+          ],
+          "scale": 0.7659574468085106,
+          "mode": "components_by_cell"
+        },
+        "wf4_9": {
+          "crop": [
+            277,
+            538,
+            501,
+            712
+          ],
+          "normalized_size": [
+            172,
+            133
+          ],
+          "scale": 0.7659574468085106,
+          "mode": "components_by_cell"
+        },
+        "wf4_10": {
+          "crop": [
+            544,
+            538,
+            738,
+            712
+          ],
+          "normalized_size": [
+            149,
+            133
+          ],
+          "scale": 0.7659574468085106,
+          "mode": "components_by_cell"
+        },
+        "wf4_11": {
+          "crop": [
+            797,
+            538,
+            991,
+            712
+          ],
+          "normalized_size": [
+            149,
+            133
+          ],
+          "scale": 0.7659574468085106,
+          "mode": "components_by_cell"
+        },
+        "wf4_12": {
+          "crop": [
+            115,
+            770,
+            151,
+            958
+          ],
+          "normalized_size": [
+            28,
+            144
+          ],
+          "scale": 0.7659574468085106,
+          "mode": "components_by_cell"
+        },
+        "wf4_13": {
+          "crop": [
+            365,
+            770,
+            407,
+            958
+          ],
+          "normalized_size": [
+            32,
+            144
+          ],
+          "scale": 0.7659574468085106,
+          "mode": "components_by_cell"
+        },
+        "wf4_14": {
+          "crop": [
+            591,
+            781,
+            694,
+            957
+          ],
+          "normalized_size": [
+            79,
+            135
+          ],
+          "scale": 0.7659574468085106,
+          "mode": "components_by_cell"
+        },
+        "wf4_15": {
+          "crop": [
+            809,
+            850,
+            983,
+            945
+          ],
+          "normalized_size": [
+            133,
+            73
+          ],
+          "scale": 0.7659574468085106,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WF05": {
+      "sha256": "7d841095c7ba55816211d277d743c345120286fe8c6a5d816db00271f80e2dad",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wf5_0": {
+          "crop": [
+            32,
+            48,
+            226,
+            204
+          ],
+          "normalized_size": [
+            143,
+            115
+          ],
+          "scale": 0.7384615384615385,
+          "mode": "components_by_cell"
+        },
+        "wf5_1": {
+          "crop": [
+            288,
+            48,
+            483,
+            204
+          ],
+          "normalized_size": [
+            144,
+            115
+          ],
+          "scale": 0.7384615384615385,
+          "mode": "components_by_cell"
+        },
+        "wf5_2": {
+          "crop": [
+            543,
+            48,
+            738,
+            204
+          ],
+          "normalized_size": [
+            144,
+            115
+          ],
+          "scale": 0.7384615384615385,
+          "mode": "components_by_cell"
+        },
+        "wf5_3": {
+          "crop": [
+            799,
+            48,
+            993,
+            204
+          ],
+          "normalized_size": [
+            143,
+            115
+          ],
+          "scale": 0.7384615384615385,
+          "mode": "components_by_cell"
+        },
+        "wf5_4": {
+          "crop": [
+            32,
+            301,
+            226,
+            465
+          ],
+          "normalized_size": [
+            143,
+            121
+          ],
+          "scale": 0.7384615384615385,
+          "mode": "components_by_cell"
+        },
+        "wf5_5": {
+          "crop": [
+            279,
+            300,
+            491,
+            465
+          ],
+          "normalized_size": [
+            157,
+            122
+          ],
+          "scale": 0.7384615384615385,
+          "mode": "components_by_cell"
+        },
+        "wf5_6": {
+          "crop": [
+            543,
+            301,
+            738,
+            465
+          ],
+          "normalized_size": [
+            144,
+            121
+          ],
+          "scale": 0.7384615384615385,
+          "mode": "components_by_cell"
+        },
+        "wf5_7": {
+          "crop": [
+            799,
+            301,
+            993,
+            465
+          ],
+          "normalized_size": [
+            143,
+            121
+          ],
+          "scale": 0.7384615384615385,
+          "mode": "components_by_cell"
+        },
+        "wf5_8": {
+          "crop": [
+            28,
+            545,
+            229,
+            710
+          ],
+          "normalized_size": [
+            148,
+            122
+          ],
+          "scale": 0.7384615384615385,
+          "mode": "components_by_cell"
+        },
+        "wf5_9": {
+          "crop": [
+            276,
+            543,
+            493,
+            710
+          ],
+          "normalized_size": [
+            160,
+            123
+          ],
+          "scale": 0.7384615384615385,
+          "mode": "components_by_cell"
+        },
+        "wf5_10": {
+          "crop": [
+            543,
+            544,
+            738,
+            710
+          ],
+          "normalized_size": [
+            144,
+            123
+          ],
+          "scale": 0.7384615384615385,
+          "mode": "components_by_cell"
+        },
+        "wf5_11": {
+          "crop": [
+            799,
+            544,
+            994,
+            710
+          ],
+          "normalized_size": [
+            144,
+            123
+          ],
+          "scale": 0.7384615384615385,
+          "mode": "components_by_cell"
+        },
+        "wf5_12": {
+          "crop": [
+            112,
+            773,
+            149,
+            963
+          ],
+          "normalized_size": [
+            27,
+            140
+          ],
+          "scale": 0.7384615384615385,
+          "mode": "components_by_cell"
+        },
+        "wf5_13": {
+          "crop": [
+            362,
+            768,
+            405,
+            963
+          ],
+          "normalized_size": [
+            32,
+            144
+          ],
+          "scale": 0.7384615384615385,
+          "mode": "components_by_cell"
+        },
+        "wf5_14": {
+          "crop": [
+            586,
+            798,
+            694,
+            966
+          ],
+          "normalized_size": [
+            80,
+            124
+          ],
+          "scale": 0.7384615384615385,
+          "mode": "components_by_cell"
+        },
+        "wf5_15": {
+          "crop": [
+            793,
+            852,
+            997,
+            950
+          ],
+          "normalized_size": [
+            151,
+            72
+          ],
+          "scale": 0.7384615384615385,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WF06": {
+      "sha256": "8cd1a069fd48e65193ffba80ea5987a7a80378d02bd3283b65cbdd6c255f86d7",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wf6_0": {
+          "crop": [
+            25,
+            50,
+            232,
+            208
+          ],
+          "normalized_size": [
+            146,
+            112
+          ],
+          "scale": 0.7058823529411765,
+          "mode": "components_by_cell"
+        },
+        "wf6_1": {
+          "crop": [
+            281,
+            50,
+            488,
+            208
+          ],
+          "normalized_size": [
+            146,
+            112
+          ],
+          "scale": 0.7058823529411765,
+          "mode": "components_by_cell"
+        },
+        "wf6_2": {
+          "crop": [
+            537,
+            50,
+            744,
+            208
+          ],
+          "normalized_size": [
+            146,
+            112
+          ],
+          "scale": 0.7058823529411765,
+          "mode": "components_by_cell"
+        },
+        "wf6_3": {
+          "crop": [
+            793,
+            50,
+            1000,
+            208
+          ],
+          "normalized_size": [
+            146,
+            112
+          ],
+          "scale": 0.7058823529411765,
+          "mode": "components_by_cell"
+        },
+        "wf6_4": {
+          "crop": [
+            25,
+            306,
+            232,
+            464
+          ],
+          "normalized_size": [
+            146,
+            112
+          ],
+          "scale": 0.7058823529411765,
+          "mode": "components_by_cell"
+        },
+        "wf6_5": {
+          "crop": [
+            281,
+            306,
+            488,
+            464
+          ],
+          "normalized_size": [
+            146,
+            112
+          ],
+          "scale": 0.7058823529411765,
+          "mode": "components_by_cell"
+        },
+        "wf6_6": {
+          "crop": [
+            537,
+            306,
+            744,
+            465
+          ],
+          "normalized_size": [
+            146,
+            112
+          ],
+          "scale": 0.7058823529411765,
+          "mode": "components_by_cell"
+        },
+        "wf6_7": {
+          "crop": [
+            793,
+            306,
+            1000,
+            464
+          ],
+          "normalized_size": [
+            146,
+            112
+          ],
+          "scale": 0.7058823529411765,
+          "mode": "components_by_cell"
+        },
+        "wf6_8": {
+          "crop": [
+            25,
+            562,
+            232,
+            721
+          ],
+          "normalized_size": [
+            146,
+            112
+          ],
+          "scale": 0.7058823529411765,
+          "mode": "components_by_cell"
+        },
+        "wf6_9": {
+          "crop": [
+            281,
+            562,
+            488,
+            720
+          ],
+          "normalized_size": [
+            146,
+            112
+          ],
+          "scale": 0.7058823529411765,
+          "mode": "components_by_cell"
+        },
+        "wf6_10": {
+          "crop": [
+            537,
+            562,
+            744,
+            720
+          ],
+          "normalized_size": [
+            146,
+            112
+          ],
+          "scale": 0.7058823529411765,
+          "mode": "components_by_cell"
+        },
+        "wf6_11": {
+          "crop": [
+            793,
+            562,
+            1000,
+            720
+          ],
+          "normalized_size": [
+            146,
+            112
+          ],
+          "scale": 0.7058823529411765,
+          "mode": "components_by_cell"
+        },
+        "wf6_12": {
+          "crop": [
+            112,
+            787,
+            145,
+            978
+          ],
+          "normalized_size": [
+            23,
+            135
+          ],
+          "scale": 0.7058823529411765,
+          "mode": "components_by_cell"
+        },
+        "wf6_13": {
+          "crop": [
+            363,
+            780,
+            406,
+            984
+          ],
+          "normalized_size": [
+            30,
+            144
+          ],
+          "scale": 0.7058823529411765,
+          "mode": "components_by_cell"
+        },
+        "wf6_14": {
+          "crop": [
+            579,
+            818,
+            701,
+            976
+          ],
+          "normalized_size": [
+            86,
+            112
+          ],
+          "scale": 0.7058823529411765,
+          "mode": "components_by_cell"
+        },
+        "wf6_15": {
+          "crop": [
+            793,
+            856,
+            1000,
+            945
+          ],
+          "normalized_size": [
+            146,
+            63
+          ],
+          "scale": 0.7058823529411765,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WF07": {
+      "sha256": "f355236b4c7949df6c48c34b6adaf2eb75fa565d138afdaadc877f4aff9b4e05",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wf7_0": {
+          "crop": [
+            23,
+            52,
+            235,
+            220
+          ],
+          "normalized_size": [
+            153,
+            122
+          ],
+          "scale": 0.7236180904522613,
+          "mode": "components_by_cell"
+        },
+        "wf7_1": {
+          "crop": [
+            279,
+            52,
+            490,
+            220
+          ],
+          "normalized_size": [
+            153,
+            122
+          ],
+          "scale": 0.7236180904522613,
+          "mode": "components_by_cell"
+        },
+        "wf7_2": {
+          "crop": [
+            534,
+            52,
+            745,
+            220
+          ],
+          "normalized_size": [
+            153,
+            122
+          ],
+          "scale": 0.7236180904522613,
+          "mode": "components_by_cell"
+        },
+        "wf7_3": {
+          "crop": [
+            790,
+            52,
+            1002,
+            220
+          ],
+          "normalized_size": [
+            153,
+            122
+          ],
+          "scale": 0.7236180904522613,
+          "mode": "components_by_cell"
+        },
+        "wf7_4": {
+          "crop": [
+            23,
+            305,
+            235,
+            486
+          ],
+          "normalized_size": [
+            153,
+            131
+          ],
+          "scale": 0.7236180904522613,
+          "mode": "components_by_cell"
+        },
+        "wf7_5": {
+          "crop": [
+            276,
+            305,
+            493,
+            487
+          ],
+          "normalized_size": [
+            157,
+            132
+          ],
+          "scale": 0.7236180904522613,
+          "mode": "components_by_cell"
+        },
+        "wf7_6": {
+          "crop": [
+            533,
+            305,
+            748,
+            487
+          ],
+          "normalized_size": [
+            156,
+            132
+          ],
+          "scale": 0.7236180904522613,
+          "mode": "components_by_cell"
+        },
+        "wf7_7": {
+          "crop": [
+            790,
+            305,
+            1002,
+            487
+          ],
+          "normalized_size": [
+            153,
+            132
+          ],
+          "scale": 0.7236180904522613,
+          "mode": "components_by_cell"
+        },
+        "wf7_8": {
+          "crop": [
+            22,
+            561,
+            237,
+            741
+          ],
+          "normalized_size": [
+            156,
+            130
+          ],
+          "scale": 0.7236180904522613,
+          "mode": "components_by_cell"
+        },
+        "wf7_9": {
+          "crop": [
+            277,
+            561,
+            492,
+            741
+          ],
+          "normalized_size": [
+            156,
+            130
+          ],
+          "scale": 0.7236180904522613,
+          "mode": "components_by_cell"
+        },
+        "wf7_10": {
+          "crop": [
+            533,
+            561,
+            746,
+            741
+          ],
+          "normalized_size": [
+            154,
+            130
+          ],
+          "scale": 0.7236180904522613,
+          "mode": "components_by_cell"
+        },
+        "wf7_11": {
+          "crop": [
+            789,
+            562,
+            1002,
+            741
+          ],
+          "normalized_size": [
+            154,
+            130
+          ],
+          "scale": 0.7236180904522613,
+          "mode": "components_by_cell"
+        },
+        "wf7_12": {
+          "crop": [
+            111,
+            794,
+            146,
+            992
+          ],
+          "normalized_size": [
+            25,
+            143
+          ],
+          "scale": 0.7236180904522613,
+          "mode": "components_by_cell"
+        },
+        "wf7_13": {
+          "crop": [
+            361,
+            793,
+            408,
+            992
+          ],
+          "normalized_size": [
+            34,
+            144
+          ],
+          "scale": 0.7236180904522613,
+          "mode": "components_by_cell"
+        },
+        "wf7_14": {
+          "crop": [
+            581,
+            819,
+            698,
+            979
+          ],
+          "normalized_size": [
+            85,
+            116
+          ],
+          "scale": 0.7236180904522613,
+          "mode": "components_by_cell"
+        },
+        "wf7_15": {
+          "crop": [
+            793,
+            869,
+            1000,
+            947
+          ],
+          "normalized_size": [
+            150,
+            56
+          ],
+          "scale": 0.7236180904522613,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WF08": {
+      "sha256": "2a56ea4a3a8af7488d495e07a61b2bf2ba252388db2912bc3963e98ec77f60b2",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wf8_0": {
+          "crop": [
+            33,
+            49,
+            224,
+            214
+          ],
+          "normalized_size": [
+            139,
+            120
+          ],
+          "scale": 0.7272727272727273,
+          "mode": "components_by_cell"
+        },
+        "wf8_1": {
+          "crop": [
+            289,
+            49,
+            480,
+            214
+          ],
+          "normalized_size": [
+            139,
+            120
+          ],
+          "scale": 0.7272727272727273,
+          "mode": "components_by_cell"
+        },
+        "wf8_2": {
+          "crop": [
+            545,
+            49,
+            736,
+            214
+          ],
+          "normalized_size": [
+            139,
+            120
+          ],
+          "scale": 0.7272727272727273,
+          "mode": "components_by_cell"
+        },
+        "wf8_3": {
+          "crop": [
+            800,
+            49,
+            992,
+            214
+          ],
+          "normalized_size": [
+            140,
+            120
+          ],
+          "scale": 0.7272727272727273,
+          "mode": "components_by_cell"
+        },
+        "wf8_4": {
+          "crop": [
+            33,
+            305,
+            224,
+            470
+          ],
+          "normalized_size": [
+            139,
+            120
+          ],
+          "scale": 0.7272727272727273,
+          "mode": "components_by_cell"
+        },
+        "wf8_5": {
+          "crop": [
+            267,
+            305,
+            501,
+            470
+          ],
+          "normalized_size": [
+            170,
+            120
+          ],
+          "scale": 0.7272727272727273,
+          "mode": "components_by_cell"
+        },
+        "wf8_6": {
+          "crop": [
+            545,
+            305,
+            736,
+            470
+          ],
+          "normalized_size": [
+            139,
+            120
+          ],
+          "scale": 0.7272727272727273,
+          "mode": "components_by_cell"
+        },
+        "wf8_7": {
+          "crop": [
+            801,
+            305,
+            992,
+            470
+          ],
+          "normalized_size": [
+            139,
+            120
+          ],
+          "scale": 0.7272727272727273,
+          "mode": "components_by_cell"
+        },
+        "wf8_8": {
+          "crop": [
+            33,
+            561,
+            224,
+            726
+          ],
+          "normalized_size": [
+            139,
+            120
+          ],
+          "scale": 0.7272727272727273,
+          "mode": "components_by_cell"
+        },
+        "wf8_9": {
+          "crop": [
+            287,
+            561,
+            482,
+            726
+          ],
+          "normalized_size": [
+            142,
+            120
+          ],
+          "scale": 0.7272727272727273,
+          "mode": "components_by_cell"
+        },
+        "wf8_10": {
+          "crop": [
+            545,
+            561,
+            736,
+            726
+          ],
+          "normalized_size": [
+            139,
+            120
+          ],
+          "scale": 0.7272727272727273,
+          "mode": "components_by_cell"
+        },
+        "wf8_11": {
+          "crop": [
+            800,
+            561,
+            992,
+            726
+          ],
+          "normalized_size": [
+            140,
+            120
+          ],
+          "scale": 0.7272727272727273,
+          "mode": "components_by_cell"
+        },
+        "wf8_12": {
+          "crop": [
+            107,
+            786,
+            149,
+            984
+          ],
+          "normalized_size": [
+            31,
+            144
+          ],
+          "scale": 0.7272727272727273,
+          "mode": "components_by_cell"
+        },
+        "wf8_13": {
+          "crop": [
+            364,
+            786,
+            404,
+            984
+          ],
+          "normalized_size": [
+            29,
+            144
+          ],
+          "scale": 0.7272727272727273,
+          "mode": "components_by_cell"
+        },
+        "wf8_14": {
+          "crop": [
+            587,
+            817,
+            694,
+            982
+          ],
+          "normalized_size": [
+            78,
+            120
+          ],
+          "scale": 0.7272727272727273,
+          "mode": "components_by_cell"
+        },
+        "wf8_15": {
+          "crop": [
+            790,
+            854,
+            1003,
+            952
+          ],
+          "normalized_size": [
+            155,
+            71
+          ],
+          "scale": 0.7272727272727273,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WC01": {
+      "sha256": "8112cd4464d43462734488528e152e966124af804741e81420c9e045e43984c8",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wc1_0": {
+          "crop": [
+            40,
+            98,
+            221,
+            176
+          ],
+          "normalized_size": [
+            103,
+            44
+          ],
+          "scale": 0.5688888888888889,
+          "mode": "components_by_cell"
+        },
+        "wc1_1": {
+          "crop": [
+            362,
+            35,
+            407,
+            228
+          ],
+          "normalized_size": [
+            26,
+            110
+          ],
+          "scale": 0.5688888888888889,
+          "mode": "components_by_cell"
+        },
+        "wc1_2": {
+          "crop": [
+            574,
+            42,
+            724,
+            206
+          ],
+          "normalized_size": [
+            85,
+            93
+          ],
+          "scale": 0.5688888888888889,
+          "mode": "components_by_cell"
+        },
+        "wc1_3": {
+          "crop": [
+            812,
+            42,
+            961,
+            206
+          ],
+          "normalized_size": [
+            85,
+            93
+          ],
+          "scale": 0.5688888888888889,
+          "mode": "components_by_cell"
+        },
+        "wc1_4": {
+          "crop": [
+            54,
+            291,
+            205,
+            462
+          ],
+          "normalized_size": [
+            86,
+            97
+          ],
+          "scale": 0.5688888888888889,
+          "mode": "components_by_cell"
+        },
+        "wc1_5": {
+          "crop": [
+            308,
+            291,
+            459,
+            462
+          ],
+          "normalized_size": [
+            86,
+            97
+          ],
+          "scale": 0.5688888888888889,
+          "mode": "components_by_cell"
+        },
+        "wc1_6": {
+          "crop": [
+            556,
+            290,
+            727,
+            456
+          ],
+          "normalized_size": [
+            97,
+            94
+          ],
+          "scale": 0.5688888888888889,
+          "mode": "components_by_cell"
+        },
+        "wc1_7": {
+          "crop": [
+            809,
+            290,
+            980,
+            456
+          ],
+          "normalized_size": [
+            97,
+            94
+          ],
+          "scale": 0.5688888888888889,
+          "mode": "components_by_cell"
+        },
+        "wc1_8": {
+          "crop": [
+            44,
+            546,
+            215,
+            711
+          ],
+          "normalized_size": [
+            97,
+            94
+          ],
+          "scale": 0.5688888888888889,
+          "mode": "components_by_cell"
+        },
+        "wc1_9": {
+          "crop": [
+            298,
+            546,
+            469,
+            711
+          ],
+          "normalized_size": [
+            97,
+            94
+          ],
+          "scale": 0.5688888888888889,
+          "mode": "components_by_cell"
+        },
+        "wc1_10": {
+          "crop": [
+            542,
+            578,
+            739,
+            737
+          ],
+          "normalized_size": [
+            112,
+            90
+          ],
+          "scale": 0.5688888888888889,
+          "mode": "components_by_cell"
+        },
+        "wc1_11": {
+          "crop": [
+            799,
+            522,
+            992,
+            747
+          ],
+          "normalized_size": [
+            110,
+            128
+          ],
+          "scale": 0.5688888888888889,
+          "mode": "components_by_cell"
+        },
+        "wc1_12": {
+          "crop": [
+            47,
+            790,
+            216,
+            963
+          ],
+          "normalized_size": [
+            96,
+            98
+          ],
+          "scale": 0.5688888888888889,
+          "mode": "components_by_cell"
+        },
+        "wc1_13": {
+          "crop": [
+            298,
+            790,
+            466,
+            963
+          ],
+          "normalized_size": [
+            96,
+            98
+          ],
+          "scale": 0.5688888888888889,
+          "mode": "components_by_cell"
+        },
+        "wc1_14": {
+          "crop": [
+            608,
+            827,
+            673,
+            949
+          ],
+          "normalized_size": [
+            37,
+            69
+          ],
+          "scale": 0.5688888888888889,
+          "mode": "components_by_cell"
+        },
+        "wc1_15": {
+          "crop": [
+            806,
+            863,
+            985,
+            925
+          ],
+          "normalized_size": [
+            102,
+            35
+          ],
+          "scale": 0.5688888888888889,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WC02": {
+      "sha256": "2e900e891ead56298ccb4e4bfeaa9a6ba71338f274a8f2387092f3fb37c16c6d",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wc2_0": {
+          "crop": [
+            28,
+            103,
+            229,
+            176
+          ],
+          "normalized_size": [
+            123,
+            44
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc2_1": {
+          "crop": [
+            362,
+            33,
+            407,
+            231
+          ],
+          "normalized_size": [
+            27,
+            121
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc2_2": {
+          "crop": [
+            556,
+            46,
+            716,
+            206
+          ],
+          "normalized_size": [
+            98,
+            98
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc2_3": {
+          "crop": [
+            819,
+            46,
+            983,
+            206
+          ],
+          "normalized_size": [
+            100,
+            98
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc2_4": {
+          "crop": [
+            37,
+            302,
+            206,
+            466
+          ],
+          "normalized_size": [
+            103,
+            100
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc2_5": {
+          "crop": [
+            308,
+            302,
+            477,
+            467
+          ],
+          "normalized_size": [
+            103,
+            101
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc2_6": {
+          "crop": [
+            591,
+            297,
+            729,
+            469
+          ],
+          "normalized_size": [
+            84,
+            105
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc2_7": {
+          "crop": [
+            808,
+            297,
+            946,
+            469
+          ],
+          "normalized_size": [
+            84,
+            105
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc2_8": {
+          "crop": [
+            49,
+            544,
+            204,
+            723
+          ],
+          "normalized_size": [
+            94,
+            109
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc2_9": {
+          "crop": [
+            307,
+            544,
+            464,
+            723
+          ],
+          "normalized_size": [
+            96,
+            109
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc2_10": {
+          "crop": [
+            535,
+            584,
+            745,
+            724
+          ],
+          "normalized_size": [
+            128,
+            85
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc2_11": {
+          "crop": [
+            796,
+            532,
+            996,
+            737
+          ],
+          "normalized_size": [
+            122,
+            125
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc2_12": {
+          "crop": [
+            41,
+            796,
+            211,
+            970
+          ],
+          "normalized_size": [
+            104,
+            106
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc2_13": {
+          "crop": [
+            301,
+            796,
+            471,
+            970
+          ],
+          "normalized_size": [
+            104,
+            106
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc2_14": {
+          "crop": [
+            601,
+            851,
+            679,
+            937
+          ],
+          "normalized_size": [
+            48,
+            52
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc2_15": {
+          "crop": [
+            805,
+            862,
+            989,
+            924
+          ],
+          "normalized_size": [
+            112,
+            38
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WC03": {
+      "sha256": "b30e1b8a34781b839e5fb0b78ac8b553bb2e618915f56c520a16efed64f4b694",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wc3_0": {
+          "crop": [
+            31,
+            108,
+            253,
+            166
+          ],
+          "normalized_size": [
+            128,
+            33
+          ],
+          "scale": 0.5765765765765766,
+          "mode": "components_by_cell"
+        },
+        "wc3_1": {
+          "crop": [
+            364,
+            33,
+            406,
+            226
+          ],
+          "normalized_size": [
+            24,
+            111
+          ],
+          "scale": 0.5765765765765766,
+          "mode": "components_by_cell"
+        },
+        "wc3_2": {
+          "crop": [
+            592,
+            43,
+            723,
+            198
+          ],
+          "normalized_size": [
+            76,
+            89
+          ],
+          "scale": 0.5765765765765766,
+          "mode": "components_by_cell"
+        },
+        "wc3_3": {
+          "crop": [
+            808,
+            43,
+            940,
+            198
+          ],
+          "normalized_size": [
+            76,
+            89
+          ],
+          "scale": 0.5765765765765766,
+          "mode": "components_by_cell"
+        },
+        "wc3_4": {
+          "crop": [
+            73,
+            301,
+            205,
+            455
+          ],
+          "normalized_size": [
+            76,
+            89
+          ],
+          "scale": 0.5765765765765766,
+          "mode": "components_by_cell"
+        },
+        "wc3_5": {
+          "crop": [
+            305,
+            301,
+            438,
+            455
+          ],
+          "normalized_size": [
+            77,
+            89
+          ],
+          "scale": 0.5765765765765766,
+          "mode": "components_by_cell"
+        },
+        "wc3_6": {
+          "crop": [
+            553,
+            306,
+            685,
+            454
+          ],
+          "normalized_size": [
+            76,
+            85
+          ],
+          "scale": 0.5765765765765766,
+          "mode": "components_by_cell"
+        },
+        "wc3_7": {
+          "crop": [
+            851,
+            306,
+            976,
+            454
+          ],
+          "normalized_size": [
+            72,
+            85
+          ],
+          "scale": 0.5765765765765766,
+          "mode": "components_by_cell"
+        },
+        "wc3_8": {
+          "crop": [
+            41,
+            562,
+            172,
+            711
+          ],
+          "normalized_size": [
+            76,
+            86
+          ],
+          "scale": 0.5765765765765766,
+          "mode": "components_by_cell"
+        },
+        "wc3_9": {
+          "crop": [
+            340,
+            562,
+            470,
+            710
+          ],
+          "normalized_size": [
+            75,
+            85
+          ],
+          "scale": 0.5765765765765766,
+          "mode": "components_by_cell"
+        },
+        "wc3_10": {
+          "crop": [
+            539,
+            586,
+            745,
+            712
+          ],
+          "normalized_size": [
+            119,
+            73
+          ],
+          "scale": 0.5765765765765766,
+          "mode": "components_by_cell"
+        },
+        "wc3_11": {
+          "crop": [
+            798,
+            539,
+            994,
+            714
+          ],
+          "normalized_size": [
+            113,
+            101
+          ],
+          "scale": 0.5765765765765766,
+          "mode": "components_by_cell"
+        },
+        "wc3_12": {
+          "crop": [
+            37,
+            774,
+            228,
+            959
+          ],
+          "normalized_size": [
+            110,
+            107
+          ],
+          "scale": 0.5765765765765766,
+          "mode": "components_by_cell"
+        },
+        "wc3_13": {
+          "crop": [
+            286,
+            774,
+            476,
+            959
+          ],
+          "normalized_size": [
+            110,
+            107
+          ],
+          "scale": 0.5765765765765766,
+          "mode": "components_by_cell"
+        },
+        "wc3_14": {
+          "crop": [
+            604,
+            842,
+            677,
+            929
+          ],
+          "normalized_size": [
+            42,
+            50
+          ],
+          "scale": 0.5765765765765766,
+          "mode": "components_by_cell"
+        },
+        "wc3_15": {
+          "crop": [
+            805,
+            841,
+            985,
+            918
+          ],
+          "normalized_size": [
+            104,
+            44
+          ],
+          "scale": 0.5765765765765766,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WC04": {
+      "sha256": "84d68b116fbcbd5e23d5fd8c76da7e237f4f104f9f318efa050bd99c4121384c",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wc4_0": {
+          "crop": [
+            48,
+            105,
+            229,
+            160
+          ],
+          "normalized_size": [
+            110,
+            34
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc4_1": {
+          "crop": [
+            366,
+            40,
+            406,
+            225
+          ],
+          "normalized_size": [
+            24,
+            113
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc4_2": {
+          "crop": [
+            576,
+            62,
+            715,
+            214
+          ],
+          "normalized_size": [
+            85,
+            93
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc4_3": {
+          "crop": [
+            819,
+            62,
+            959,
+            214
+          ],
+          "normalized_size": [
+            85,
+            93
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc4_4": {
+          "crop": [
+            54,
+            315,
+            191,
+            471
+          ],
+          "normalized_size": [
+            84,
+            95
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc4_5": {
+          "crop": [
+            322,
+            315,
+            461,
+            471
+          ],
+          "normalized_size": [
+            85,
+            95
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc4_6": {
+          "crop": [
+            547,
+            290,
+            734,
+            465
+          ],
+          "normalized_size": [
+            114,
+            107
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc4_7": {
+          "crop": [
+            802,
+            290,
+            989,
+            465
+          ],
+          "normalized_size": [
+            114,
+            107
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc4_8": {
+          "crop": [
+            37,
+            549,
+            199,
+            719
+          ],
+          "normalized_size": [
+            99,
+            104
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc4_9": {
+          "crop": [
+            315,
+            549,
+            477,
+            719
+          ],
+          "normalized_size": [
+            99,
+            104
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc4_10": {
+          "crop": [
+            544,
+            575,
+            738,
+            731
+          ],
+          "normalized_size": [
+            118,
+            95
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc4_11": {
+          "crop": [
+            799,
+            535,
+            991,
+            745
+          ],
+          "normalized_size": [
+            117,
+            128
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc4_12": {
+          "crop": [
+            48,
+            789,
+            210,
+            960
+          ],
+          "normalized_size": [
+            99,
+            104
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc4_13": {
+          "crop": [
+            303,
+            789,
+            466,
+            960
+          ],
+          "normalized_size": [
+            99,
+            104
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc4_14": {
+          "crop": [
+            607,
+            854,
+            675,
+            962
+          ],
+          "normalized_size": [
+            41,
+            66
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        },
+        "wc4_15": {
+          "crop": [
+            807,
+            888,
+            985,
+            960
+          ],
+          "normalized_size": [
+            108,
+            44
+          ],
+          "scale": 0.6095238095238096,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WC05": {
+      "sha256": "4d4627c5dbb480d6abfb196bdd5d5402eeda4ed8fba0a84dcc9fac331ef96801",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wc5_0": {
+          "crop": [
+            38,
+            96,
+            221,
+            159
+          ],
+          "normalized_size": [
+            115,
+            40
+          ],
+          "scale": 0.6305418719211823,
+          "mode": "components_by_cell"
+        },
+        "wc5_1": {
+          "crop": [
+            362,
+            35,
+            407,
+            227
+          ],
+          "normalized_size": [
+            28,
+            121
+          ],
+          "scale": 0.6305418719211823,
+          "mode": "components_by_cell"
+        },
+        "wc5_2": {
+          "crop": [
+            549,
+            48,
+            704,
+            196
+          ],
+          "normalized_size": [
+            98,
+            93
+          ],
+          "scale": 0.6305418719211823,
+          "mode": "components_by_cell"
+        },
+        "wc5_3": {
+          "crop": [
+            833,
+            48,
+            986,
+            196
+          ],
+          "normalized_size": [
+            96,
+            93
+          ],
+          "scale": 0.6305418719211823,
+          "mode": "components_by_cell"
+        },
+        "wc5_4": {
+          "crop": [
+            58,
+            299,
+            208,
+            460
+          ],
+          "normalized_size": [
+            95,
+            102
+          ],
+          "scale": 0.6305418719211823,
+          "mode": "components_by_cell"
+        },
+        "wc5_5": {
+          "crop": [
+            304,
+            299,
+            453,
+            460
+          ],
+          "normalized_size": [
+            94,
+            102
+          ],
+          "scale": 0.6305418719211823,
+          "mode": "components_by_cell"
+        },
+        "wc5_6": {
+          "crop": [
+            570,
+            300,
+            711,
+            461
+          ],
+          "normalized_size": [
+            89,
+            102
+          ],
+          "scale": 0.6305418719211823,
+          "mode": "components_by_cell"
+        },
+        "wc5_7": {
+          "crop": [
+            825,
+            300,
+            967,
+            461
+          ],
+          "normalized_size": [
+            90,
+            102
+          ],
+          "scale": 0.6305418719211823,
+          "mode": "components_by_cell"
+        },
+        "wc5_8": {
+          "crop": [
+            56,
+            551,
+            210,
+            726
+          ],
+          "normalized_size": [
+            97,
+            110
+          ],
+          "scale": 0.6305418719211823,
+          "mode": "components_by_cell"
+        },
+        "wc5_9": {
+          "crop": [
+            302,
+            551,
+            457,
+            726
+          ],
+          "normalized_size": [
+            98,
+            110
+          ],
+          "scale": 0.6305418719211823,
+          "mode": "components_by_cell"
+        },
+        "wc5_10": {
+          "crop": [
+            539,
+            574,
+            742,
+            728
+          ],
+          "normalized_size": [
+            128,
+            97
+          ],
+          "scale": 0.6305418719211823,
+          "mode": "components_by_cell"
+        },
+        "wc5_11": {
+          "crop": [
+            804,
+            536,
+            988,
+            735
+          ],
+          "normalized_size": [
+            116,
+            125
+          ],
+          "scale": 0.6305418719211823,
+          "mode": "components_by_cell"
+        },
+        "wc5_12": {
+          "crop": [
+            53,
+            797,
+            224,
+            974
+          ],
+          "normalized_size": [
+            108,
+            112
+          ],
+          "scale": 0.6305418719211823,
+          "mode": "components_by_cell"
+        },
+        "wc5_13": {
+          "crop": [
+            288,
+            797,
+            460,
+            974
+          ],
+          "normalized_size": [
+            108,
+            112
+          ],
+          "scale": 0.6305418719211823,
+          "mode": "components_by_cell"
+        },
+        "wc5_14": {
+          "crop": [
+            599,
+            837,
+            681,
+            943
+          ],
+          "normalized_size": [
+            52,
+            67
+          ],
+          "scale": 0.6305418719211823,
+          "mode": "components_by_cell"
+        },
+        "wc5_15": {
+          "crop": [
+            806,
+            868,
+            985,
+            919
+          ],
+          "normalized_size": [
+            113,
+            32
+          ],
+          "scale": 0.6305418719211823,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WC06": {
+      "sha256": "aa452b072f011448c309661cc40bd611d8cf6bc2af2e4251ba00d93160c9a44d",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wc6_0": {
+          "crop": [
+            26,
+            102,
+            231,
+            162
+          ],
+          "normalized_size": [
+            124,
+            36
+          ],
+          "scale": 0.6037735849056604,
+          "mode": "components_by_cell"
+        },
+        "wc6_1": {
+          "crop": [
+            364,
+            23,
+            406,
+            231
+          ],
+          "normalized_size": [
+            25,
+            126
+          ],
+          "scale": 0.6037735849056604,
+          "mode": "components_by_cell"
+        },
+        "wc6_2": {
+          "crop": [
+            576,
+            39,
+            702,
+            218
+          ],
+          "normalized_size": [
+            76,
+            108
+          ],
+          "scale": 0.6037735849056604,
+          "mode": "components_by_cell"
+        },
+        "wc6_3": {
+          "crop": [
+            834,
+            38,
+            961,
+            218
+          ],
+          "normalized_size": [
+            77,
+            109
+          ],
+          "scale": 0.6037735849056604,
+          "mode": "components_by_cell"
+        },
+        "wc6_4": {
+          "crop": [
+            64,
+            290,
+            191,
+            480
+          ],
+          "normalized_size": [
+            77,
+            115
+          ],
+          "scale": 0.6037735849056604,
+          "mode": "components_by_cell"
+        },
+        "wc6_5": {
+          "crop": [
+            321,
+            290,
+            448,
+            480
+          ],
+          "normalized_size": [
+            77,
+            115
+          ],
+          "scale": 0.6037735849056604,
+          "mode": "components_by_cell"
+        },
+        "wc6_6": {
+          "crop": [
+            549,
+            301,
+            722,
+            458
+          ],
+          "normalized_size": [
+            104,
+            95
+          ],
+          "scale": 0.6037735849056604,
+          "mode": "components_by_cell"
+        },
+        "wc6_7": {
+          "crop": [
+            814,
+            301,
+            987,
+            458
+          ],
+          "normalized_size": [
+            104,
+            95
+          ],
+          "scale": 0.6037735849056604,
+          "mode": "components_by_cell"
+        },
+        "wc6_8": {
+          "crop": [
+            40,
+            558,
+            213,
+            711
+          ],
+          "normalized_size": [
+            104,
+            92
+          ],
+          "scale": 0.6037735849056604,
+          "mode": "components_by_cell"
+        },
+        "wc6_9": {
+          "crop": [
+            300,
+            558,
+            472,
+            711
+          ],
+          "normalized_size": [
+            104,
+            92
+          ],
+          "scale": 0.6037735849056604,
+          "mode": "components_by_cell"
+        },
+        "wc6_10": {
+          "crop": [
+            534,
+            568,
+            746,
+            733
+          ],
+          "normalized_size": [
+            128,
+            100
+          ],
+          "scale": 0.6037735849056604,
+          "mode": "components_by_cell"
+        },
+        "wc6_11": {
+          "crop": [
+            800,
+            531,
+            992,
+            735
+          ],
+          "normalized_size": [
+            116,
+            123
+          ],
+          "scale": 0.6037735849056604,
+          "mode": "components_by_cell"
+        },
+        "wc6_12": {
+          "crop": [
+            50,
+            783,
+            214,
+            971
+          ],
+          "normalized_size": [
+            99,
+            114
+          ],
+          "scale": 0.6037735849056604,
+          "mode": "components_by_cell"
+        },
+        "wc6_13": {
+          "crop": [
+            298,
+            783,
+            462,
+            971
+          ],
+          "normalized_size": [
+            99,
+            114
+          ],
+          "scale": 0.6037735849056604,
+          "mode": "components_by_cell"
+        },
+        "wc6_14": {
+          "crop": [
+            594,
+            838,
+            687,
+            944
+          ],
+          "normalized_size": [
+            56,
+            64
+          ],
+          "scale": 0.6037735849056604,
+          "mode": "components_by_cell"
+        },
+        "wc6_15": {
+          "crop": [
+            800,
+            871,
+            992,
+            920
+          ],
+          "normalized_size": [
+            116,
+            30
+          ],
+          "scale": 0.6037735849056604,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WC07": {
+      "sha256": "6db078fad11fec472bab437b9f243ead12e4fb5a4408a1fbbf04d32a16be77f9",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wc7_0": {
+          "crop": [
+            30,
+            104,
+            232,
+            175
+          ],
+          "normalized_size": [
+            126,
+            44
+          ],
+          "scale": 0.6213592233009708,
+          "mode": "components_by_cell"
+        },
+        "wc7_1": {
+          "crop": [
+            360,
+            31,
+            412,
+            233
+          ],
+          "normalized_size": [
+            32,
+            126
+          ],
+          "scale": 0.6213592233009708,
+          "mode": "components_by_cell"
+        },
+        "wc7_2": {
+          "crop": [
+            550,
+            31,
+            721,
+            217
+          ],
+          "normalized_size": [
+            106,
+            116
+          ],
+          "scale": 0.6213592233009708,
+          "mode": "components_by_cell"
+        },
+        "wc7_3": {
+          "crop": [
+            815,
+            31,
+            988,
+            217
+          ],
+          "normalized_size": [
+            107,
+            116
+          ],
+          "scale": 0.6213592233009708,
+          "mode": "components_by_cell"
+        },
+        "wc7_4": {
+          "crop": [
+            44,
+            287,
+            200,
+            476
+          ],
+          "normalized_size": [
+            97,
+            117
+          ],
+          "scale": 0.6213592233009708,
+          "mode": "components_by_cell"
+        },
+        "wc7_5": {
+          "crop": [
+            314,
+            287,
+            469,
+            476
+          ],
+          "normalized_size": [
+            96,
+            117
+          ],
+          "scale": 0.6213592233009708,
+          "mode": "components_by_cell"
+        },
+        "wc7_6": {
+          "crop": [
+            555,
+            286,
+            723,
+            476
+          ],
+          "normalized_size": [
+            104,
+            118
+          ],
+          "scale": 0.6213592233009708,
+          "mode": "components_by_cell"
+        },
+        "wc7_7": {
+          "crop": [
+            815,
+            286,
+            982,
+            476
+          ],
+          "normalized_size": [
+            104,
+            118
+          ],
+          "scale": 0.6213592233009708,
+          "mode": "components_by_cell"
+        },
+        "wc7_8": {
+          "crop": [
+            44,
+            543,
+            213,
+            713
+          ],
+          "normalized_size": [
+            105,
+            106
+          ],
+          "scale": 0.6213592233009708,
+          "mode": "components_by_cell"
+        },
+        "wc7_9": {
+          "crop": [
+            300,
+            543,
+            470,
+            713
+          ],
+          "normalized_size": [
+            106,
+            106
+          ],
+          "scale": 0.6213592233009708,
+          "mode": "components_by_cell"
+        },
+        "wc7_10": {
+          "crop": [
+            539,
+            574,
+            740,
+            731
+          ],
+          "normalized_size": [
+            125,
+            98
+          ],
+          "scale": 0.6213592233009708,
+          "mode": "components_by_cell"
+        },
+        "wc7_11": {
+          "crop": [
+            808,
+            532,
+            985,
+            738
+          ],
+          "normalized_size": [
+            110,
+            128
+          ],
+          "scale": 0.6213592233009708,
+          "mode": "components_by_cell"
+        },
+        "wc7_12": {
+          "crop": [
+            45,
+            794,
+            214,
+            960
+          ],
+          "normalized_size": [
+            105,
+            103
+          ],
+          "scale": 0.6213592233009708,
+          "mode": "components_by_cell"
+        },
+        "wc7_13": {
+          "crop": [
+            299,
+            794,
+            468,
+            960
+          ],
+          "normalized_size": [
+            105,
+            103
+          ],
+          "scale": 0.6213592233009708,
+          "mode": "components_by_cell"
+        },
+        "wc7_14": {
+          "crop": [
+            605,
+            837,
+            674,
+            937
+          ],
+          "normalized_size": [
+            43,
+            62
+          ],
+          "scale": 0.6213592233009708,
+          "mode": "components_by_cell"
+        },
+        "wc7_15": {
+          "crop": [
+            811,
+            864,
+            981,
+            925
+          ],
+          "normalized_size": [
+            106,
+            38
+          ],
+          "scale": 0.6213592233009708,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WC08": {
+      "sha256": "65a7215484185ff62ee683b4ae551f486211bc8fa2757dbbb51030cf20344fd6",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wc8_0": {
+          "crop": [
+            27,
+            105,
+            229,
+            166
+          ],
+          "normalized_size": [
+            124,
+            38
+          ],
+          "scale": 0.6153846153846154,
+          "mode": "components_by_cell"
+        },
+        "wc8_1": {
+          "crop": [
+            359,
+            39,
+            410,
+            223
+          ],
+          "normalized_size": [
+            31,
+            113
+          ],
+          "scale": 0.6153846153846154,
+          "mode": "components_by_cell"
+        },
+        "wc8_2": {
+          "crop": [
+            553,
+            44,
+            729,
+            205
+          ],
+          "normalized_size": [
+            108,
+            99
+          ],
+          "scale": 0.6153846153846154,
+          "mode": "components_by_cell"
+        },
+        "wc8_3": {
+          "crop": [
+            807,
+            44,
+            984,
+            205
+          ],
+          "normalized_size": [
+            109,
+            99
+          ],
+          "scale": 0.6153846153846154,
+          "mode": "components_by_cell"
+        },
+        "wc8_4": {
+          "crop": [
+            39,
+            295,
+            206,
+            471
+          ],
+          "normalized_size": [
+            103,
+            108
+          ],
+          "scale": 0.6153846153846154,
+          "mode": "components_by_cell"
+        },
+        "wc8_5": {
+          "crop": [
+            306,
+            295,
+            474,
+            471
+          ],
+          "normalized_size": [
+            103,
+            108
+          ],
+          "scale": 0.6153846153846154,
+          "mode": "components_by_cell"
+        },
+        "wc8_6": {
+          "crop": [
+            556,
+            286,
+            721,
+            479
+          ],
+          "normalized_size": [
+            102,
+            119
+          ],
+          "scale": 0.6153846153846154,
+          "mode": "components_by_cell"
+        },
+        "wc8_7": {
+          "crop": [
+            815,
+            286,
+            981,
+            479
+          ],
+          "normalized_size": [
+            102,
+            119
+          ],
+          "scale": 0.6153846153846154,
+          "mode": "components_by_cell"
+        },
+        "wc8_8": {
+          "crop": [
+            48,
+            542,
+            214,
+            733
+          ],
+          "normalized_size": [
+            102,
+            118
+          ],
+          "scale": 0.6153846153846154,
+          "mode": "components_by_cell"
+        },
+        "wc8_9": {
+          "crop": [
+            299,
+            542,
+            464,
+            733
+          ],
+          "normalized_size": [
+            102,
+            118
+          ],
+          "scale": 0.6153846153846154,
+          "mode": "components_by_cell"
+        },
+        "wc8_10": {
+          "crop": [
+            537,
+            583,
+            744,
+            730
+          ],
+          "normalized_size": [
+            127,
+            90
+          ],
+          "scale": 0.6153846153846154,
+          "mode": "components_by_cell"
+        },
+        "wc8_11": {
+          "crop": [
+            794,
+            535,
+            999,
+            743
+          ],
+          "normalized_size": [
+            126,
+            128
+          ],
+          "scale": 0.6153846153846154,
+          "mode": "components_by_cell"
+        },
+        "wc8_12": {
+          "crop": [
+            50,
+            785,
+            224,
+            973
+          ],
+          "normalized_size": [
+            107,
+            116
+          ],
+          "scale": 0.6153846153846154,
+          "mode": "components_by_cell"
+        },
+        "wc8_13": {
+          "crop": [
+            288,
+            785,
+            463,
+            973
+          ],
+          "normalized_size": [
+            108,
+            116
+          ],
+          "scale": 0.6153846153846154,
+          "mode": "components_by_cell"
+        },
+        "wc8_14": {
+          "crop": [
+            603,
+            842,
+            677,
+            930
+          ],
+          "normalized_size": [
+            46,
+            54
+          ],
+          "scale": 0.6153846153846154,
+          "mode": "components_by_cell"
+        },
+        "wc8_15": {
+          "crop": [
+            804,
+            861,
+            985,
+            917
+          ],
+          "normalized_size": [
+            111,
+            34
+          ],
+          "scale": 0.6153846153846154,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WR01": {
+      "sha256": "e84b9da9622d0099a1bd7b417e55ff99cabee339248b78e8c4c5d8c4aa0399a9",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wr1_0": {
+          "crop": [
+            46,
+            45,
+            229,
+            223
+          ],
+          "normalized_size": [
+            119,
+            116
+          ],
+          "scale": 0.649746192893401,
+          "mode": "components_by_cell"
+        },
+        "wr1_1": {
+          "crop": [
+            301,
+            45,
+            486,
+            223
+          ],
+          "normalized_size": [
+            120,
+            116
+          ],
+          "scale": 0.649746192893401,
+          "mode": "components_by_cell"
+        },
+        "wr1_2": {
+          "crop": [
+            549,
+            109,
+            737,
+            150
+          ],
+          "normalized_size": [
+            122,
+            27
+          ],
+          "scale": 0.649746192893401,
+          "mode": "components_by_cell"
+        },
+        "wr1_3": {
+          "crop": [
+            875,
+            35,
+            918,
+            222
+          ],
+          "normalized_size": [
+            28,
+            122
+          ],
+          "scale": 0.649746192893401,
+          "mode": "components_by_cell"
+        },
+        "wr1_4": {
+          "crop": [
+            40,
+            355,
+            237,
+            418
+          ],
+          "normalized_size": [
+            128,
+            41
+          ],
+          "scale": 0.649746192893401,
+          "mode": "components_by_cell"
+        },
+        "wr1_5": {
+          "crop": [
+            297,
+            355,
+            493,
+            415
+          ],
+          "normalized_size": [
+            127,
+            39
+          ],
+          "scale": 0.649746192893401,
+          "mode": "components_by_cell"
+        },
+        "wr1_6": {
+          "crop": [
+            609,
+            286,
+            664,
+            480
+          ],
+          "normalized_size": [
+            36,
+            126
+          ],
+          "scale": 0.649746192893401,
+          "mode": "components_by_cell"
+        },
+        "wr1_7": {
+          "crop": [
+            873,
+            286,
+            927,
+            480
+          ],
+          "normalized_size": [
+            35,
+            126
+          ],
+          "scale": 0.649746192893401,
+          "mode": "components_by_cell"
+        },
+        "wr1_8": {
+          "crop": [
+            40,
+            545,
+            221,
+            723
+          ],
+          "normalized_size": [
+            118,
+            116
+          ],
+          "scale": 0.649746192893401,
+          "mode": "components_by_cell"
+        },
+        "wr1_9": {
+          "crop": [
+            300,
+            545,
+            477,
+            722
+          ],
+          "normalized_size": [
+            115,
+            115
+          ],
+          "scale": 0.649746192893401,
+          "mode": "components_by_cell"
+        },
+        "wr1_10": {
+          "crop": [
+            551,
+            549,
+            727,
+            726
+          ],
+          "normalized_size": [
+            114,
+            115
+          ],
+          "scale": 0.649746192893401,
+          "mode": "components_by_cell"
+        },
+        "wr1_11": {
+          "crop": [
+            810,
+            549,
+            984,
+            725
+          ],
+          "normalized_size": [
+            113,
+            114
+          ],
+          "scale": 0.649746192893401,
+          "mode": "components_by_cell"
+        },
+        "wr1_12": {
+          "crop": [
+            44,
+            792,
+            229,
+            975
+          ],
+          "normalized_size": [
+            120,
+            119
+          ],
+          "scale": 0.649746192893401,
+          "mode": "components_by_cell"
+        },
+        "wr1_13": {
+          "crop": [
+            304,
+            792,
+            484,
+            976
+          ],
+          "normalized_size": [
+            117,
+            120
+          ],
+          "scale": 0.649746192893401,
+          "mode": "components_by_cell"
+        },
+        "wr1_14": {
+          "crop": [
+            556,
+            787,
+            726,
+            975
+          ],
+          "normalized_size": [
+            110,
+            122
+          ],
+          "scale": 0.649746192893401,
+          "mode": "components_by_cell"
+        },
+        "wr1_15": {
+          "crop": [
+            810,
+            787,
+            978,
+            974
+          ],
+          "normalized_size": [
+            109,
+            122
+          ],
+          "scale": 0.649746192893401,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WR02": {
+      "sha256": "808bd0f0f1460e2d5d9458632034ad296475318d1beaa9aacf09d0598958fcff",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wr2_0": {
+          "crop": [
+            41,
+            38,
+            215,
+            218
+          ],
+          "normalized_size": [
+            101,
+            105
+          ],
+          "scale": 0.5818181818181818,
+          "mode": "components_by_cell"
+        },
+        "wr2_1": {
+          "crop": [
+            298,
+            38,
+            472,
+            218
+          ],
+          "normalized_size": [
+            101,
+            105
+          ],
+          "scale": 0.5818181818181818,
+          "mode": "components_by_cell"
+        },
+        "wr2_2": {
+          "crop": [
+            531,
+            105,
+            751,
+            171
+          ],
+          "normalized_size": [
+            128,
+            38
+          ],
+          "scale": 0.5818181818181818,
+          "mode": "components_by_cell"
+        },
+        "wr2_3": {
+          "crop": [
+            850,
+            28,
+            941,
+            235
+          ],
+          "normalized_size": [
+            53,
+            120
+          ],
+          "scale": 0.5818181818181818,
+          "mode": "components_by_cell"
+        },
+        "wr2_4": {
+          "crop": [
+            25,
+            345,
+            231,
+            433
+          ],
+          "normalized_size": [
+            120,
+            51
+          ],
+          "scale": 0.5818181818181818,
+          "mode": "components_by_cell"
+        },
+        "wr2_5": {
+          "crop": [
+            280,
+            342,
+            490,
+            412
+          ],
+          "normalized_size": [
+            122,
+            41
+          ],
+          "scale": 0.5818181818181818,
+          "mode": "components_by_cell"
+        },
+        "wr2_6": {
+          "crop": [
+            602,
+            279,
+            688,
+            490
+          ],
+          "normalized_size": [
+            50,
+            123
+          ],
+          "scale": 0.5818181818181818,
+          "mode": "components_by_cell"
+        },
+        "wr2_7": {
+          "crop": [
+            849,
+            279,
+            936,
+            491
+          ],
+          "normalized_size": [
+            51,
+            123
+          ],
+          "scale": 0.5818181818181818,
+          "mode": "components_by_cell"
+        },
+        "wr2_8": {
+          "crop": [
+            30,
+            533,
+            209,
+            727
+          ],
+          "normalized_size": [
+            104,
+            113
+          ],
+          "scale": 0.5818181818181818,
+          "mode": "components_by_cell"
+        },
+        "wr2_9": {
+          "crop": [
+            303,
+            532,
+            482,
+            728
+          ],
+          "normalized_size": [
+            104,
+            114
+          ],
+          "scale": 0.5818181818181818,
+          "mode": "components_by_cell"
+        },
+        "wr2_10": {
+          "crop": [
+            547,
+            538,
+            717,
+            717
+          ],
+          "normalized_size": [
+            99,
+            104
+          ],
+          "scale": 0.5818181818181818,
+          "mode": "components_by_cell"
+        },
+        "wr2_11": {
+          "crop": [
+            819,
+            538,
+            990,
+            717
+          ],
+          "normalized_size": [
+            99,
+            104
+          ],
+          "scale": 0.5818181818181818,
+          "mode": "components_by_cell"
+        },
+        "wr2_12": {
+          "crop": [
+            36,
+            783,
+            221,
+            984
+          ],
+          "normalized_size": [
+            108,
+            117
+          ],
+          "scale": 0.5818181818181818,
+          "mode": "components_by_cell"
+        },
+        "wr2_13": {
+          "crop": [
+            292,
+            783,
+            478,
+            984
+          ],
+          "normalized_size": [
+            108,
+            117
+          ],
+          "scale": 0.5818181818181818,
+          "mode": "components_by_cell"
+        },
+        "wr2_14": {
+          "crop": [
+            550,
+            782,
+            734,
+            975
+          ],
+          "normalized_size": [
+            107,
+            112
+          ],
+          "scale": 0.5818181818181818,
+          "mode": "components_by_cell"
+        },
+        "wr2_15": {
+          "crop": [
+            802,
+            783,
+            987,
+            973
+          ],
+          "normalized_size": [
+            108,
+            111
+          ],
+          "scale": 0.5818181818181818,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WR03": {
+      "sha256": "6f9fec68af2d4b2342e10087ad720c9462e8351cef4d46b827f4e123dcba34d4",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wr3_0": {
+          "crop": [
+            29,
+            48,
+            233,
+            229
+          ],
+          "normalized_size": [
+            116,
+            103
+          ],
+          "scale": 0.5663716814159292,
+          "mode": "components_by_cell"
+        },
+        "wr3_1": {
+          "crop": [
+            281,
+            48,
+            486,
+            230
+          ],
+          "normalized_size": [
+            116,
+            103
+          ],
+          "scale": 0.5663716814159292,
+          "mode": "components_by_cell"
+        },
+        "wr3_2": {
+          "crop": [
+            530,
+            119,
+            751,
+            197
+          ],
+          "normalized_size": [
+            125,
+            44
+          ],
+          "scale": 0.5663716814159292,
+          "mode": "components_by_cell"
+        },
+        "wr3_3": {
+          "crop": [
+            840,
+            20,
+            948,
+            241
+          ],
+          "normalized_size": [
+            61,
+            125
+          ],
+          "scale": 0.5663716814159292,
+          "mode": "components_by_cell"
+        },
+        "wr3_4": {
+          "crop": [
+            17,
+            345,
+            243,
+            439
+          ],
+          "normalized_size": [
+            128,
+            53
+          ],
+          "scale": 0.5663716814159292,
+          "mode": "components_by_cell"
+        },
+        "wr3_5": {
+          "crop": [
+            272,
+            344,
+            497,
+            431
+          ],
+          "normalized_size": [
+            127,
+            49
+          ],
+          "scale": 0.5663716814159292,
+          "mode": "components_by_cell"
+        },
+        "wr3_6": {
+          "crop": [
+            590,
+            272,
+            673,
+            493
+          ],
+          "normalized_size": [
+            47,
+            125
+          ],
+          "scale": 0.5663716814159292,
+          "mode": "components_by_cell"
+        },
+        "wr3_7": {
+          "crop": [
+            860,
+            272,
+            943,
+            494
+          ],
+          "normalized_size": [
+            47,
+            126
+          ],
+          "scale": 0.5663716814159292,
+          "mode": "components_by_cell"
+        },
+        "wr3_8": {
+          "crop": [
+            19,
+            531,
+            241,
+            723
+          ],
+          "normalized_size": [
+            126,
+            109
+          ],
+          "scale": 0.5663716814159292,
+          "mode": "components_by_cell"
+        },
+        "wr3_9": {
+          "crop": [
+            274,
+            528,
+            495,
+            721
+          ],
+          "normalized_size": [
+            125,
+            109
+          ],
+          "scale": 0.5663716814159292,
+          "mode": "components_by_cell"
+        },
+        "wr3_10": {
+          "crop": [
+            528,
+            526,
+            753,
+            720
+          ],
+          "normalized_size": [
+            127,
+            110
+          ],
+          "scale": 0.5663716814159292,
+          "mode": "components_by_cell"
+        },
+        "wr3_11": {
+          "crop": [
+            783,
+            527,
+            1005,
+            721
+          ],
+          "normalized_size": [
+            126,
+            110
+          ],
+          "scale": 0.5663716814159292,
+          "mode": "components_by_cell"
+        },
+        "wr3_12": {
+          "crop": [
+            21,
+            769,
+            237,
+            977
+          ],
+          "normalized_size": [
+            122,
+            118
+          ],
+          "scale": 0.5663716814159292,
+          "mode": "components_by_cell"
+        },
+        "wr3_13": {
+          "crop": [
+            278,
+            769,
+            493,
+            977
+          ],
+          "normalized_size": [
+            122,
+            118
+          ],
+          "scale": 0.5663716814159292,
+          "mode": "components_by_cell"
+        },
+        "wr3_14": {
+          "crop": [
+            531,
+            767,
+            749,
+            976
+          ],
+          "normalized_size": [
+            123,
+            118
+          ],
+          "scale": 0.5663716814159292,
+          "mode": "components_by_cell"
+        },
+        "wr3_15": {
+          "crop": [
+            788,
+            768,
+            1005,
+            976
+          ],
+          "normalized_size": [
+            123,
+            118
+          ],
+          "scale": 0.5663716814159292,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "WR04": {
+      "sha256": "d290baac129c403130079c29ceebe9f9e1d1f01fea61d3094311f89f1197c290",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "wr4_0": {
+          "crop": [
+            47,
+            48,
+            229,
+            215
+          ],
+          "normalized_size": [
+            108,
+            99
+          ],
+          "scale": 0.5953488372093023,
+          "mode": "components_by_cell"
+        },
+        "wr4_1": {
+          "crop": [
+            299,
+            48,
+            481,
+            215
+          ],
+          "normalized_size": [
+            108,
+            99
+          ],
+          "scale": 0.5953488372093023,
+          "mode": "components_by_cell"
+        },
+        "wr4_2": {
+          "crop": [
+            536,
+            97,
+            751,
+            193
+          ],
+          "normalized_size": [
+            128,
+            57
+          ],
+          "scale": 0.5953488372093023,
+          "mode": "components_by_cell"
+        },
+        "wr4_3": {
+          "crop": [
+            840,
+            32,
+            946,
+            232
+          ],
+          "normalized_size": [
+            63,
+            119
+          ],
+          "scale": 0.5953488372093023,
+          "mode": "components_by_cell"
+        },
+        "wr4_4": {
+          "crop": [
+            34,
+            321,
+            239,
+            436
+          ],
+          "normalized_size": [
+            122,
+            68
+          ],
+          "scale": 0.5953488372093023,
+          "mode": "components_by_cell"
+        },
+        "wr4_5": {
+          "crop": [
+            289,
+            321,
+            491,
+            423
+          ],
+          "normalized_size": [
+            120,
+            61
+          ],
+          "scale": 0.5953488372093023,
+          "mode": "components_by_cell"
+        },
+        "wr4_6": {
+          "crop": [
+            551,
+            283,
+            744,
+            466
+          ],
+          "normalized_size": [
+            115,
+            109
+          ],
+          "scale": 0.5953488372093023,
+          "mode": "components_by_cell"
+        },
+        "wr4_7": {
+          "crop": [
+            788,
+            283,
+            981,
+            466
+          ],
+          "normalized_size": [
+            115,
+            109
+          ],
+          "scale": 0.5953488372093023,
+          "mode": "components_by_cell"
+        },
+        "wr4_8": {
+          "crop": [
+            41,
+            530,
+            230,
+            704
+          ],
+          "normalized_size": [
+            113,
+            104
+          ],
+          "scale": 0.5953488372093023,
+          "mode": "components_by_cell"
+        },
+        "wr4_9": {
+          "crop": [
+            292,
+            530,
+            481,
+            704
+          ],
+          "normalized_size": [
+            113,
+            104
+          ],
+          "scale": 0.5953488372093023,
+          "mode": "components_by_cell"
+        },
+        "wr4_10": {
+          "crop": [
+            567,
+            532,
+            728,
+            711
+          ],
+          "normalized_size": [
+            96,
+            107
+          ],
+          "scale": 0.5953488372093023,
+          "mode": "components_by_cell"
+        },
+        "wr4_11": {
+          "crop": [
+            804,
+            532,
+            967,
+            711
+          ],
+          "normalized_size": [
+            97,
+            107
+          ],
+          "scale": 0.5953488372093023,
+          "mode": "components_by_cell"
+        },
+        "wr4_12": {
+          "crop": [
+            51,
+            758,
+            233,
+            958
+          ],
+          "normalized_size": [
+            108,
+            119
+          ],
+          "scale": 0.5953488372093023,
+          "mode": "components_by_cell"
+        },
+        "wr4_13": {
+          "crop": [
+            292,
+            758,
+            473,
+            959
+          ],
+          "normalized_size": [
+            108,
+            120
+          ],
+          "scale": 0.5953488372093023,
+          "mode": "components_by_cell"
+        },
+        "wr4_14": {
+          "crop": [
+            558,
+            758,
+            732,
+            963
+          ],
+          "normalized_size": [
+            104,
+            122
+          ],
+          "scale": 0.5953488372093023,
+          "mode": "components_by_cell"
+        },
+        "wr4_15": {
+          "crop": [
+            795,
+            757,
+            970,
+            963
+          ],
+          "normalized_size": [
+            104,
+            123
+          ],
+          "scale": 0.5953488372093023,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "KB01": {
+      "sha256": "210fe3f67fcd7c31d3ebd6d93c59088494423571f62879f16b7b78d74b40825c",
+      "size": [
+        1536,
+        1024
+      ],
+      "pieces": {
+        "ship_three": {
+          "crop": [
+            11,
+            14,
+            1521,
+            953
+          ],
+          "normalized_size": [
+            1152,
+            716
+          ],
+          "scale": 0.7629139072847683,
+          "mode": "largest_component",
+          "anchor": "bottom"
+        }
+      }
+    },
+    "KB02": {
+      "sha256": "c4a6b59177e8c24b903aadea00a0f9539dcd95d62b9b192142ac70e8316c19e4",
+      "size": [
+        1536,
+        1024
+      ],
+      "pieces": {
+        "ship_cog": {
+          "crop": [
+            16,
+            21,
+            1517,
+            957
+          ],
+          "normalized_size": [
+            864,
+            539
+          ],
+          "scale": 0.5756162558294471,
+          "mode": "largest_component",
+          "anchor": "bottom"
+        }
+      }
+    },
+    "KB03": {
+      "sha256": "b967bd0a1c535a9f0da316ab50aaa0ef9904fa39f3d27d750e606c30cd4e31a4",
+      "size": [
+        1536,
+        1024
+      ],
+      "pieces": {
+        "ship_ferry": {
+          "crop": [
+            21,
+            25,
+            1513,
+            945
+          ],
+          "normalized_size": [
+            576,
+            355
+          ],
+          "scale": 0.38605898123324395,
+          "mode": "largest_component",
+          "anchor": "bottom"
+        }
+      }
+    },
+    "KC01": {
+      "sha256": "93f322126b7538e08919c6341ceab3a1b981fab0f8a00b4b492388023d3369f5",
+      "size": [
+        1536,
+        1024
+      ],
+      "pieces": {
+        "land_palace": {
+          "crop": [
+            19,
+            5,
+            1516,
+            1005
+          ],
+          "normalized_size": [
+            1152,
+            770
+          ],
+          "scale": 0.7695390781563126,
+          "mode": "largest_component",
+          "anchor": "bottom"
+        }
+      }
+    },
+    "KC02": {
+      "sha256": "e9e2eea5fcae803eaa656b47c40d44b5337d5ff4b9e279f41a39da9caeb6fd9e",
+      "size": [
+        1536,
+        1024
+      ],
+      "pieces": {
+        "land_temple": {
+          "crop": [
+            81,
+            5,
+            1436,
+            1004
+          ],
+          "normalized_size": [
+            864,
+            637
+          ],
+          "scale": 0.6376383763837639,
+          "mode": "largest_component",
+          "anchor": "bottom"
+        }
+      }
+    },
+    "KC03": {
+      "sha256": "6893132163ba43722923e9062808d347c0422e50e6da6f9b8ad639c29991c429",
+      "size": [
+        1536,
+        1024
+      ],
+      "pieces": {
+        "land_lighthouse": {
+          "crop": [
+            404,
+            5,
+            1201,
+            995
+          ],
+          "normalized_size": [
+            384,
+            477
+          ],
+          "scale": 0.48180677540777916,
+          "mode": "largest_component",
+          "anchor": "bottom"
+        }
+      }
+    },
+    "KC04": {
+      "sha256": "dd1cf107bd93ce7f69698fde6579ceb0652ac57b9584962e1cf0ea886426d498",
+      "size": [
+        1536,
+        1024
+      ],
+      "pieces": {
+        "land_gate": {
+          "crop": [
+            56,
+            11,
+            1480,
+            966
+          ],
+          "normalized_size": [
+            768,
+            515
+          ],
+          "scale": 0.5393258426966292,
+          "mode": "largest_component",
+          "anchor": "bottom"
+        }
+      }
+    },
+    "KD01": {
+      "sha256": "15c5f13dc7460c95af0fb19da4a92aba4ebc4423b0b168f9649b33d934f51bb0",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "dock_0": {
+          "crop": [
+            68,
+            79,
+            199,
+            214
+          ],
+          "normalized_size": [
+            66,
+            68
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "dock_1": {
+          "crop": [
+            288,
+            85,
+            501,
+            231
+          ],
+          "normalized_size": [
+            106,
+            73
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "dock_2": {
+          "crop": [
+            555,
+            37,
+            748,
+            226
+          ],
+          "normalized_size": [
+            96,
+            94
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "dock_3": {
+          "crop": [
+            813,
+            62,
+            999,
+            228
+          ],
+          "normalized_size": [
+            93,
+            83
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "dock_4": {
+          "crop": [
+            25,
+            309,
+            237,
+            493
+          ],
+          "normalized_size": [
+            106,
+            92
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "dock_5": {
+          "crop": [
+            289,
+            251,
+            497,
+            490
+          ],
+          "normalized_size": [
+            104,
+            120
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "dock_6": {
+          "crop": [
+            551,
+            320,
+            782,
+            487
+          ],
+          "normalized_size": [
+            116,
+            84
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "dock_7": {
+          "crop": [
+            860,
+            311,
+            970,
+            488
+          ],
+          "normalized_size": [
+            55,
+            88
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "dock_8": {
+          "crop": [
+            93,
+            542,
+            164,
+            735
+          ],
+          "normalized_size": [
+            36,
+            96
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "dock_9": {
+          "crop": [
+            313,
+            531,
+            444,
+            738
+          ],
+          "normalized_size": [
+            66,
+            104
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "dock_10": {
+          "crop": [
+            616,
+            512,
+            719,
+            749
+          ],
+          "normalized_size": [
+            52,
+            118
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "dock_11": {
+          "crop": [
+            817,
+            555,
+            990,
+            731
+          ],
+          "normalized_size": [
+            86,
+            88
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "dock_12": {
+          "crop": [
+            19,
+            763,
+            260,
+            961
+          ],
+          "normalized_size": [
+            120,
+            99
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "dock_13": {
+          "crop": [
+            276,
+            869,
+            526,
+            981
+          ],
+          "normalized_size": [
+            125,
+            56
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "dock_14": {
+          "crop": [
+            545,
+            819,
+            769,
+            966
+          ],
+          "normalized_size": [
+            112,
+            74
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "dock_15": {
+          "crop": [
+            797,
+            806,
+            1002,
+            972
+          ],
+          "normalized_size": [
+            102,
+            83
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "KM01": {
+      "sha256": "e13a00d22793f801b0a447c58d53e6e539bdd925ff2ecca58a3247cf4757c28d",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "market_0": {
+          "crop": [
+            29,
+            36,
+            240,
+            236
+          ],
+          "normalized_size": [
+            122,
+            116
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_1": {
+          "crop": [
+            263,
+            36,
+            498,
+            233
+          ],
+          "normalized_size": [
+            136,
+            114
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_2": {
+          "crop": [
+            523,
+            36,
+            755,
+            237
+          ],
+          "normalized_size": [
+            135,
+            117
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_3": {
+          "crop": [
+            779,
+            36,
+            999,
+            240
+          ],
+          "normalized_size": [
+            128,
+            118
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_4": {
+          "crop": [
+            24,
+            275,
+            244,
+            481
+          ],
+          "normalized_size": [
+            128,
+            119
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_5": {
+          "crop": [
+            267,
+            275,
+            495,
+            481
+          ],
+          "normalized_size": [
+            132,
+            119
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_6": {
+          "crop": [
+            526,
+            274,
+            757,
+            481
+          ],
+          "normalized_size": [
+            134,
+            120
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_7": {
+          "crop": [
+            781,
+            278,
+            1007,
+            482
+          ],
+          "normalized_size": [
+            131,
+            118
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_8": {
+          "crop": [
+            24,
+            556,
+            238,
+            710
+          ],
+          "normalized_size": [
+            124,
+            89
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_9": {
+          "crop": [
+            263,
+            513,
+            501,
+            711
+          ],
+          "normalized_size": [
+            138,
+            115
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_10": {
+          "crop": [
+            534,
+            537,
+            747,
+            707
+          ],
+          "normalized_size": [
+            124,
+            99
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_11": {
+          "crop": [
+            778,
+            542,
+            999,
+            705
+          ],
+          "normalized_size": [
+            128,
+            95
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_12": {
+          "crop": [
+            21,
+            747,
+            244,
+            959
+          ],
+          "normalized_size": [
+            129,
+            123
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_13": {
+          "crop": [
+            263,
+            746,
+            497,
+            962
+          ],
+          "normalized_size": [
+            136,
+            125
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_14": {
+          "crop": [
+            519,
+            746,
+            757,
+            971
+          ],
+          "normalized_size": [
+            138,
+            130
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_15": {
+          "crop": [
+            788,
+            730,
+            996,
+            973
+          ],
+          "normalized_size": [
+            121,
+            141
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "KM02": {
+      "sha256": "708e58a4abcd2be75d3e7bb290fda9e053e2ffd098757e2d09d751d71abee66d",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "market_16": {
+          "crop": [
+            32,
+            16,
+            299,
+            284
+          ],
+          "normalized_size": [
+            155,
+            155
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_17": {
+          "crop": [
+            351,
+            12,
+            488,
+            287
+          ],
+          "normalized_size": [
+            79,
+            160
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_18": {
+          "crop": [
+            587,
+            170,
+            754,
+            284
+          ],
+          "normalized_size": [
+            97,
+            66
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_19": {
+          "crop": [
+            873,
+            12,
+            940,
+            285
+          ],
+          "normalized_size": [
+            39,
+            158
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_20": {
+          "crop": [
+            38,
+            302,
+            227,
+            540
+          ],
+          "normalized_size": [
+            110,
+            138
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_21": {
+          "crop": [
+            342,
+            309,
+            449,
+            538
+          ],
+          "normalized_size": [
+            62,
+            133
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_22": {
+          "crop": [
+            597,
+            292,
+            701,
+            541
+          ],
+          "normalized_size": [
+            60,
+            144
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_23": {
+          "crop": [
+            793,
+            386,
+            999,
+            532
+          ],
+          "normalized_size": [
+            119,
+            85
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_24": {
+          "crop": [
+            56,
+            552,
+            207,
+            789
+          ],
+          "normalized_size": [
+            88,
+            137
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_25": {
+          "crop": [
+            322,
+            550,
+            467,
+            778
+          ],
+          "normalized_size": [
+            84,
+            132
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_26": {
+          "crop": [
+            593,
+            637,
+            705,
+            767
+          ],
+          "normalized_size": [
+            65,
+            75
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_27": {
+          "crop": [
+            809,
+            563,
+            994,
+            777
+          ],
+          "normalized_size": [
+            107,
+            124
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_28": {
+          "crop": [
+            20,
+            806,
+            268,
+            995
+          ],
+          "normalized_size": [
+            144,
+            110
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_29": {
+          "crop": [
+            291,
+            793,
+            509,
+            994
+          ],
+          "normalized_size": [
+            126,
+            117
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_30": {
+          "crop": [
+            551,
+            832,
+            764,
+            992
+          ],
+          "normalized_size": [
+            124,
+            93
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        },
+        "market_31": {
+          "crop": [
+            792,
+            883,
+            1000,
+            994
+          ],
+          "normalized_size": [
+            121,
+            64
+          ],
+          "scale": 0.58,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "KQ01": {
+      "sha256": "ea405a1faa947764b139f137786b93feb3dd1369b35caf8ad08ef4688e2d23ce",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "coast_0": {
+          "crop": [
+            43,
+            15,
+            218,
+            254
+          ],
+          "normalized_size": [
+            88,
+            120
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "coast_1": {
+          "crop": [
+            271,
+            71,
+            488,
+            242
+          ],
+          "normalized_size": [
+            108,
+            86
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "coast_2": {
+          "crop": [
+            518,
+            146,
+            763,
+            251
+          ],
+          "normalized_size": [
+            122,
+            52
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "coast_3": {
+          "crop": [
+            784,
+            32,
+            1008,
+            247
+          ],
+          "normalized_size": [
+            112,
+            108
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "coast_4": {
+          "crop": [
+            20,
+            296,
+            243,
+            484
+          ],
+          "normalized_size": [
+            112,
+            94
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "coast_5": {
+          "crop": [
+            272,
+            268,
+            499,
+            492
+          ],
+          "normalized_size": [
+            114,
+            112
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "coast_6": {
+          "crop": [
+            526,
+            338,
+            755,
+            482
+          ],
+          "normalized_size": [
+            114,
+            72
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "coast_7": {
+          "crop": [
+            785,
+            353,
+            1010,
+            480
+          ],
+          "normalized_size": [
+            112,
+            64
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "coast_8": {
+          "crop": [
+            28,
+            517,
+            190,
+            726
+          ],
+          "normalized_size": [
+            81,
+            104
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "coast_9": {
+          "crop": [
+            222,
+            534,
+            392,
+            727
+          ],
+          "normalized_size": [
+            85,
+            96
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "coast_10": {
+          "crop": [
+            422,
+            533,
+            817,
+            727
+          ],
+          "normalized_size": [
+            198,
+            97
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "coast_11": {
+          "crop": [
+            868,
+            600,
+            995,
+            714
+          ],
+          "normalized_size": [
+            64,
+            57
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "coast_12": {
+          "crop": [
+            56,
+            745,
+            224,
+            994
+          ],
+          "normalized_size": [
+            84,
+            124
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "coast_13": {
+          "crop": [
+            306,
+            759,
+            445,
+            979
+          ],
+          "normalized_size": [
+            70,
+            110
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "coast_14": {
+          "crop": [
+            522,
+            740,
+            759,
+            997
+          ],
+          "normalized_size": [
+            118,
+            128
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        },
+        "coast_15": {
+          "crop": [
+            784,
+            820,
+            1009,
+            984
+          ],
+          "normalized_size": [
+            112,
+            82
+          ],
+          "scale": 0.5,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "KR01": {
+      "sha256": "3eefd57116178dae50cb832119246888806e6ac3dbb7ff16ba3cb6b8ee586145",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "fittings_0": {
+          "crop": [
+            73,
+            35,
+            189,
+            260
+          ],
+          "normalized_size": [
+            42,
+            81
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "fittings_1": {
+          "crop": [
+            277,
+            19,
+            491,
+            255
+          ],
+          "normalized_size": [
+            77,
+            85
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "fittings_2": {
+          "crop": [
+            536,
+            29,
+            763,
+            259
+          ],
+          "normalized_size": [
+            82,
+            83
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "fittings_3": {
+          "crop": [
+            857,
+            39,
+            957,
+            260
+          ],
+          "normalized_size": [
+            36,
+            80
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "fittings_4": {
+          "crop": [
+            21,
+            305,
+            242,
+            478
+          ],
+          "normalized_size": [
+            80,
+            62
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "fittings_5": {
+          "crop": [
+            271,
+            314,
+            497,
+            480
+          ],
+          "normalized_size": [
+            81,
+            60
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "fittings_6": {
+          "crop": [
+            533,
+            278,
+            753,
+            483
+          ],
+          "normalized_size": [
+            79,
+            74
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "fittings_7": {
+          "crop": [
+            834,
+            295,
+            991,
+            479
+          ],
+          "normalized_size": [
+            57,
+            66
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "fittings_8": {
+          "crop": [
+            36,
+            503,
+            225,
+            728
+          ],
+          "normalized_size": [
+            68,
+            81
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "fittings_9": {
+          "crop": [
+            270,
+            538,
+            499,
+            741
+          ],
+          "normalized_size": [
+            82,
+            73
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "fittings_10": {
+          "crop": [
+            547,
+            525,
+            754,
+            730
+          ],
+          "normalized_size": [
+            75,
+            74
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "fittings_11": {
+          "crop": [
+            825,
+            537,
+            990,
+            728
+          ],
+          "normalized_size": [
+            59,
+            69
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "fittings_12": {
+          "crop": [
+            26,
+            733,
+            250,
+            987
+          ],
+          "normalized_size": [
+            81,
+            91
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "fittings_13": {
+          "crop": [
+            266,
+            797,
+            504,
+            981
+          ],
+          "normalized_size": [
+            86,
+            66
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "fittings_14": {
+          "crop": [
+            530,
+            793,
+            767,
+            975
+          ],
+          "normalized_size": [
+            85,
+            66
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "fittings_15": {
+          "crop": [
+            800,
+            809,
+            1005,
+            976
+          ],
+          "normalized_size": [
+            74,
+            60
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "KH01": {
+      "sha256": "75d597718f04a17a48976835c55b759ecccdf569c5fd9c79bf96101674d5a407",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "quay": {
+          "crop": [
+            0,
+            0,
+            1024,
+            690
+          ],
+          "normalized_size": [
+            234,
+            154
+          ],
+          "scale": 0.24,
+          "mode": "crossfade",
+          "crossfade_pixels": 48,
+          "repeat_axes": "xy"
+        }
+      }
+    },
+    "KH02": {
+      "sha256": "42e1a689027ad8c87acbf235af1016fa7001ff67a3e565ca446d0f01a37fbaf7",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "pier": {
+          "crop": [
+            0,
+            0,
+            1023,
+            936
+          ],
+          "normalized_size": [
+            234,
+            213
+          ],
+          "scale": 0.24,
+          "mode": "crossfade",
+          "crossfade_pixels": 48,
+          "repeat_axes": "xy"
+        }
+      }
+    },
+    "KH03": {
+      "sha256": "710cbfdb5555d5903246766752ce1be063276ebb1fb6ecce06ab3e73de7d30fb",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "seawall": {
+          "crop": [
+            0,
+            0,
+            1024,
+            741
+          ],
+          "normalized_size": [
+            195,
+            148
+          ],
+          "scale": 0.2,
+          "mode": "crossfade",
+          "crossfade_pixels": 48,
+          "repeat_axes": "x"
+        }
+      }
+    },
+    "KH04": {
+      "sha256": "9b1b974d705f9fa06065076d42834075287ae95da0e618b9f4503120b1cb2add",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "pier_edge": {
+          "crop": [
+            0,
+            0,
+            1024,
+            167
+          ],
+          "normalized_size": [
+            234,
+            40
+          ],
+          "scale": 0.24,
+          "mode": "crossfade",
+          "crossfade_pixels": 48,
+          "repeat_axes": "x"
+        }
+      }
+    },
+    "KX02": {
+      "sha256": "c57ef6625433636cf19819679ac649e25a83be8aed8e6d57c55959c3d18dd858",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "plaza": {
+          "crop": [
+            0,
+            0,
+            1023,
+            1023
+          ],
+          "normalized_size": [
+            234,
+            234
+          ],
+          "scale": 0.24,
+          "mode": "crossfade",
+          "crossfade_pixels": 48,
+          "repeat_axes": "xy"
+        }
+      }
+    },
+    "KX03": {
+      "sha256": "69e9434ce5a5b3369be7712808179c6b30f24bfc77919540f7f53774c92ab6a5",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "shingle": {
+          "crop": [
+            0,
+            0,
+            1023,
+            1023
+          ],
+          "normalized_size": [
+            234,
+            234
+          ],
+          "scale": 0.24,
+          "mode": "crossfade",
+          "crossfade_pixels": 48,
+          "repeat_axes": "xy"
+        }
+      }
+    },
+    "KX04": {
+      "sha256": "3537a25d1f2d9be4787ad2670ac19d267079902c004c598d08eed3dd949def18",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "black_sand": {
+          "crop": [
+            0,
+            0,
+            1023,
+            1023
+          ],
+          "normalized_size": [
+            234,
+            234
+          ],
+          "scale": 0.24,
+          "mode": "crossfade",
+          "crossfade_pixels": 48,
+          "repeat_axes": "xy"
+        }
+      }
+    },
+    "KX05": {
+      "sha256": "32f9eaeba70e2170ee04329fcd116ef6e780dc91934a962421cb354275fb04ea",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "tidal": {
+          "crop": [
+            0,
+            0,
+            1023,
+            1023
+          ],
+          "normalized_size": [
+            234,
+            234
+          ],
+          "scale": 0.24,
+          "mode": "crossfade",
+          "crossfade_pixels": 48,
+          "repeat_axes": "xy"
+        }
+      }
+    },
+    "KT05": {
+      "sha256": "e66d7c80cece81d98ae18da84132a8be7fe9c4a5b14831ee4f7111fa3a8c7f6f",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "floor1": {
+          "crop": [
+            0,
+            0,
+            1023,
+            838
+          ],
+          "normalized_size": [
+            156,
+            126
+          ],
+          "scale": 0.16,
+          "mode": "crossfade",
+          "crossfade_pixels": 48,
+          "repeat_axes": "xy"
+        }
+      }
+    },
+    "KI02": {
+      "sha256": "f1efd7627f3dec1d09f901dae5c39c012abc52e8057177d9ed2d5d8b4675ce88",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "floor2": {
+          "crop": [
+            0,
+            0,
+            1023,
+            843
+          ],
+          "normalized_size": [
+            156,
+            127
+          ],
+          "scale": 0.16,
+          "mode": "crossfade",
+          "crossfade_pixels": 48,
+          "repeat_axes": "xy"
+        }
+      }
+    },
+    "KI06": {
+      "sha256": "649d6ea4ad91d4169690a8cc7aa4b3d1a2e49d0b9dda9c371463331cfebdf5b3",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "floor3": {
+          "crop": [
+            0,
+            0,
+            1023,
+            969
+          ],
+          "normalized_size": [
+            156,
+            147
+          ],
+          "scale": 0.16,
+          "mode": "crossfade",
+          "crossfade_pixels": 48,
+          "repeat_axes": "xy"
+        }
+      }
+    },
+    "KI10": {
+      "sha256": "50114e7f10d357cc71831e9a10c582959cf897bf4b35ad9e4418950167af9b83",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "floor4": {
+          "crop": [
+            0,
+            0,
+            1023,
+            927
+          ],
+          "normalized_size": [
+            156,
+            141
+          ],
+          "scale": 0.16,
+          "mode": "crossfade",
+          "crossfade_pixels": 48,
+          "repeat_axes": "xy"
+        }
+      }
+    },
+    "KI14": {
+      "sha256": "dbff62032daa5c4d62b5259246f2a293fc7c67ee7c9eb0c172af8982f3ce158e",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "floor5": {
+          "crop": [
+            0,
+            0,
+            998,
+            1023
+          ],
+          "normalized_size": [
+            152,
+            156
+          ],
+          "scale": 0.16,
+          "mode": "crossfade",
+          "crossfade_pixels": 48,
+          "repeat_axes": "xy"
+        }
+      }
+    },
+    "KI18": {
+      "sha256": "6c173b59b89cab1d36952d5d109b93c8223265c1288eb0bca449a61f2185904a",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "floor6": {
+          "crop": [
+            0,
+            0,
+            1023,
+            1023
+          ],
+          "normalized_size": [
+            156,
+            156
+          ],
+          "scale": 0.16,
+          "mode": "crossfade",
+          "crossfade_pixels": 48,
+          "repeat_axes": "xy"
+        }
+      }
+    },
+    "KI22": {
+      "sha256": "6f6ccf02f09c1b89c815cdd93059b567c05d49bac5868c61d918117baf1a28d2",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "floor7": {
+          "crop": [
+            0,
+            0,
+            1023,
+            861
+          ],
+          "normalized_size": [
+            156,
+            130
+          ],
+          "scale": 0.16,
+          "mode": "crossfade",
+          "crossfade_pixels": 48,
+          "repeat_axes": "xy"
+        }
+      }
+    },
+    "KI26": {
+      "sha256": "c5d94f857ce66a364b753a08d5e1ead9172a5914bb5962bf161d8a1368ef9bde",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "floor8": {
+          "crop": [
+            0,
+            0,
+            967,
+            928
+          ],
+          "normalized_size": [
+            147,
+            141
+          ],
+          "scale": 0.16,
+          "mode": "crossfade",
+          "crossfade_pixels": 48,
+          "repeat_axes": "xy"
+        }
+      }
+    },
+    "KF01": {
+      "sha256": "8ce9886325f3d50dee87cd51c0717f8aed5d36ca60542f6057cf676aab306580",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "f1_bar": {
+          "crop": [
+            21,
+            73,
+            262,
+            228
+          ],
+          "normalized_size": [
+            80,
+            51
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f1_barend": {
+          "crop": [
+            310,
+            73,
+            465,
+            231
+          ],
+          "normalized_size": [
+            51,
+            52
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f1_rtable": {
+          "crop": [
+            539,
+            54,
+            716,
+            235
+          ],
+          "normalized_size": [
+            58,
+            60
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f1_ltable": {
+          "crop": [
+            754,
+            80,
+            1005,
+            225
+          ],
+          "normalized_size": [
+            83,
+            48
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f1_stool": {
+          "crop": [
+            85,
+            324,
+            176,
+            457
+          ],
+          "normalized_size": [
+            30,
+            44
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f1_bench": {
+          "crop": [
+            275,
+            347,
+            485,
+            439
+          ],
+          "normalized_size": [
+            69,
+            30
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f1_hearth": {
+          "crop": [
+            515,
+            286,
+            731,
+            487
+          ],
+          "normalized_size": [
+            78,
+            72
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "f1_kegs": {
+          "crop": [
+            759,
+            319,
+            1012,
+            466
+          ],
+          "normalized_size": [
+            78,
+            46
+          ],
+          "scale": 0.31,
+          "mode": "components_by_cell"
+        },
+        "f1_shelf": {
+          "crop": [
+            32,
+            514,
+            221,
+            727
+          ],
+          "normalized_size": [
+            57,
+            64
+          ],
+          "scale": 0.3,
+          "mode": "components_by_cell"
+        },
+        "f1_counter": {
+          "crop": [
+            267,
+            574,
+            489,
+            731
+          ],
+          "normalized_size": [
+            73,
+            52
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f1_bankctr": {
+          "crop": [
+            525,
+            525,
+            754,
+            735
+          ],
+          "normalized_size": [
+            76,
+            69
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f1_strongbox": {
+          "crop": [
+            806,
+            590,
+            991,
+            718
+          ],
+          "normalized_size": [
+            61,
+            42
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f1_bed": {
+          "crop": [
+            51,
+            756,
+            204,
+            977
+          ],
+          "normalized_size": [
+            49,
+            71
+          ],
+          "scale": 0.32,
+          "mode": "components_by_cell"
+        },
+        "f1_chest": {
+          "crop": [
+            287,
+            829,
+            467,
+            949
+          ],
+          "normalized_size": [
+            59,
+            40
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f1_rug": {
+          "crop": [
+            524,
+            805,
+            756,
+            960
+          ],
+          "normalized_size": [
+            84,
+            56
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "f1_cupboard": {
+          "crop": [
+            821,
+            764,
+            978,
+            968
+          ],
+          "normalized_size": [
+            47,
+            61
+          ],
+          "scale": 0.3,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "KG01": {
+      "sha256": "800611d519e98b7eca69a543a7634af64edfe2dbac77553b026bd72d6e14f82b",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "f2_bar": {
+          "crop": [
+            21,
+            71,
+            263,
+            231
+          ],
+          "normalized_size": [
+            80,
+            53
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f2_barend": {
+          "crop": [
+            307,
+            74,
+            466,
+            231
+          ],
+          "normalized_size": [
+            52,
+            52
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f2_rtable": {
+          "crop": [
+            538,
+            56,
+            716,
+            240
+          ],
+          "normalized_size": [
+            59,
+            61
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f2_ltable": {
+          "crop": [
+            754,
+            80,
+            1005,
+            231
+          ],
+          "normalized_size": [
+            83,
+            50
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f2_stool": {
+          "crop": [
+            84,
+            323,
+            177,
+            458
+          ],
+          "normalized_size": [
+            31,
+            45
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f2_bench": {
+          "crop": [
+            275,
+            346,
+            485,
+            443
+          ],
+          "normalized_size": [
+            69,
+            32
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f2_hearth": {
+          "crop": [
+            514,
+            276,
+            732,
+            491
+          ],
+          "normalized_size": [
+            78,
+            77
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "f2_kegs": {
+          "crop": [
+            758,
+            316,
+            1011,
+            467
+          ],
+          "normalized_size": [
+            78,
+            47
+          ],
+          "scale": 0.31,
+          "mode": "components_by_cell"
+        },
+        "f2_shelf": {
+          "crop": [
+            29,
+            512,
+            226,
+            728
+          ],
+          "normalized_size": [
+            59,
+            65
+          ],
+          "scale": 0.3,
+          "mode": "components_by_cell"
+        },
+        "f2_counter": {
+          "crop": [
+            265,
+            572,
+            489,
+            735
+          ],
+          "normalized_size": [
+            74,
+            54
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f2_bankctr": {
+          "crop": [
+            520,
+            524,
+            758,
+            735
+          ],
+          "normalized_size": [
+            79,
+            70
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f2_strongbox": {
+          "crop": [
+            799,
+            589,
+            995,
+            723
+          ],
+          "normalized_size": [
+            65,
+            44
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f2_bed": {
+          "crop": [
+            46,
+            753,
+            208,
+            979
+          ],
+          "normalized_size": [
+            52,
+            72
+          ],
+          "scale": 0.32,
+          "mode": "components_by_cell"
+        },
+        "f2_chest": {
+          "crop": [
+            286,
+            827,
+            467,
+            951
+          ],
+          "normalized_size": [
+            60,
+            41
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f2_rug": {
+          "crop": [
+            516,
+            795,
+            759,
+            968
+          ],
+          "normalized_size": [
+            87,
+            62
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "f2_cupboard": {
+          "crop": [
+            821,
+            763,
+            979,
+            969
+          ],
+          "normalized_size": [
+            47,
+            62
+          ],
+          "scale": 0.3,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "KG02": {
+      "sha256": "72557224930d0cf9939f69bc0d1974385db0475ee03858d12316ef55ab83e327",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "f3_bar": {
+          "crop": [
+            21,
+            57,
+            269,
+            232
+          ],
+          "normalized_size": [
+            82,
+            58
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f3_barend": {
+          "crop": [
+            308,
+            72,
+            466,
+            232
+          ],
+          "normalized_size": [
+            52,
+            53
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f3_rtable": {
+          "crop": [
+            538,
+            54,
+            718,
+            236
+          ],
+          "normalized_size": [
+            59,
+            60
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f3_ltable": {
+          "crop": [
+            753,
+            78,
+            1004,
+            227
+          ],
+          "normalized_size": [
+            83,
+            49
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f3_stool": {
+          "crop": [
+            83,
+            322,
+            177,
+            457
+          ],
+          "normalized_size": [
+            31,
+            45
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f3_bench": {
+          "crop": [
+            274,
+            345,
+            485,
+            441
+          ],
+          "normalized_size": [
+            70,
+            32
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f3_hearth": {
+          "crop": [
+            512,
+            282,
+            731,
+            488
+          ],
+          "normalized_size": [
+            79,
+            74
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "f3_kegs": {
+          "crop": [
+            757,
+            317,
+            1013,
+            469
+          ],
+          "normalized_size": [
+            79,
+            47
+          ],
+          "scale": 0.31,
+          "mode": "components_by_cell"
+        },
+        "f3_shelf": {
+          "crop": [
+            31,
+            511,
+            224,
+            729
+          ],
+          "normalized_size": [
+            58,
+            65
+          ],
+          "scale": 0.3,
+          "mode": "components_by_cell"
+        },
+        "f3_counter": {
+          "crop": [
+            265,
+            569,
+            491,
+            733
+          ],
+          "normalized_size": [
+            75,
+            54
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f3_bankctr": {
+          "crop": [
+            522,
+            523,
+            755,
+            737
+          ],
+          "normalized_size": [
+            77,
+            71
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f3_strongbox": {
+          "crop": [
+            802,
+            587,
+            993,
+            721
+          ],
+          "normalized_size": [
+            63,
+            44
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f3_bed": {
+          "crop": [
+            48,
+            752,
+            204,
+            979
+          ],
+          "normalized_size": [
+            50,
+            73
+          ],
+          "scale": 0.32,
+          "mode": "components_by_cell"
+        },
+        "f3_chest": {
+          "crop": [
+            285,
+            827,
+            467,
+            952
+          ],
+          "normalized_size": [
+            60,
+            41
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f3_rug": {
+          "crop": [
+            520,
+            800,
+            759,
+            960
+          ],
+          "normalized_size": [
+            86,
+            58
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "f3_cupboard": {
+          "crop": [
+            820,
+            757,
+            979,
+            968
+          ],
+          "normalized_size": [
+            48,
+            63
+          ],
+          "scale": 0.3,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "KG03": {
+      "sha256": "966904b920b3e404c8992fbd4faf4a45b48fb857dad97a4c37daf564b2a421b0",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "f4_bar": {
+          "crop": [
+            21,
+            72,
+            264,
+            230
+          ],
+          "normalized_size": [
+            80,
+            52
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f4_barend": {
+          "crop": [
+            308,
+            72,
+            467,
+            232
+          ],
+          "normalized_size": [
+            52,
+            53
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f4_rtable": {
+          "crop": [
+            538,
+            54,
+            717,
+            237
+          ],
+          "normalized_size": [
+            59,
+            60
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f4_ltable": {
+          "crop": [
+            753,
+            79,
+            1005,
+            227
+          ],
+          "normalized_size": [
+            83,
+            49
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f4_stool": {
+          "crop": [
+            83,
+            322,
+            177,
+            458
+          ],
+          "normalized_size": [
+            31,
+            45
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f4_bench": {
+          "crop": [
+            273,
+            346,
+            485,
+            441
+          ],
+          "normalized_size": [
+            70,
+            31
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f4_hearth": {
+          "crop": [
+            516,
+            285,
+            731,
+            489
+          ],
+          "normalized_size": [
+            77,
+            73
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "f4_kegs": {
+          "crop": [
+            757,
+            317,
+            1014,
+            468
+          ],
+          "normalized_size": [
+            80,
+            47
+          ],
+          "scale": 0.31,
+          "mode": "components_by_cell"
+        },
+        "f4_shelf": {
+          "crop": [
+            31,
+            510,
+            223,
+            729
+          ],
+          "normalized_size": [
+            58,
+            66
+          ],
+          "scale": 0.3,
+          "mode": "components_by_cell"
+        },
+        "f4_counter": {
+          "crop": [
+            267,
+            574,
+            490,
+            734
+          ],
+          "normalized_size": [
+            74,
+            53
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f4_bankctr": {
+          "crop": [
+            523,
+            526,
+            755,
+            735
+          ],
+          "normalized_size": [
+            77,
+            69
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f4_strongbox": {
+          "crop": [
+            805,
+            588,
+            991,
+            720
+          ],
+          "normalized_size": [
+            61,
+            44
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f4_bed": {
+          "crop": [
+            48,
+            754,
+            205,
+            979
+          ],
+          "normalized_size": [
+            50,
+            72
+          ],
+          "scale": 0.32,
+          "mode": "components_by_cell"
+        },
+        "f4_chest": {
+          "crop": [
+            286,
+            825,
+            468,
+            951
+          ],
+          "normalized_size": [
+            60,
+            42
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f4_rug": {
+          "crop": [
+            519,
+            802,
+            761,
+            961
+          ],
+          "normalized_size": [
+            87,
+            57
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "f4_cupboard": {
+          "crop": [
+            819,
+            761,
+            979,
+            971
+          ],
+          "normalized_size": [
+            48,
+            63
+          ],
+          "scale": 0.3,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "KG04": {
+      "sha256": "839050618d1bf448cd4ebb7299cdaf1bde2627f1353b300bea8ebad80293e97d",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "f5_bar": {
+          "crop": [
+            20,
+            69,
+            264,
+            229
+          ],
+          "normalized_size": [
+            81,
+            53
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f5_barend": {
+          "crop": [
+            308,
+            74,
+            468,
+            229
+          ],
+          "normalized_size": [
+            53,
+            51
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f5_rtable": {
+          "crop": [
+            537,
+            55,
+            714,
+            238
+          ],
+          "normalized_size": [
+            58,
+            60
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f5_ltable": {
+          "crop": [
+            753,
+            79,
+            1006,
+            229
+          ],
+          "normalized_size": [
+            83,
+            50
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f5_stool": {
+          "crop": [
+            81,
+            322,
+            176,
+            453
+          ],
+          "normalized_size": [
+            31,
+            43
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f5_bench": {
+          "crop": [
+            274,
+            345,
+            485,
+            440
+          ],
+          "normalized_size": [
+            70,
+            31
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f5_hearth": {
+          "crop": [
+            514,
+            280,
+            728,
+            489
+          ],
+          "normalized_size": [
+            77,
+            75
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "f5_kegs": {
+          "crop": [
+            756,
+            314,
+            1013,
+            468
+          ],
+          "normalized_size": [
+            80,
+            48
+          ],
+          "scale": 0.31,
+          "mode": "components_by_cell"
+        },
+        "f5_shelf": {
+          "crop": [
+            27,
+            507,
+            226,
+            730
+          ],
+          "normalized_size": [
+            60,
+            67
+          ],
+          "scale": 0.3,
+          "mode": "components_by_cell"
+        },
+        "f5_counter": {
+          "crop": [
+            265,
+            571,
+            493,
+            733
+          ],
+          "normalized_size": [
+            75,
+            53
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f5_bankctr": {
+          "crop": [
+            523,
+            522,
+            754,
+            734
+          ],
+          "normalized_size": [
+            76,
+            70
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f5_strongbox": {
+          "crop": [
+            796,
+            585,
+            993,
+            722
+          ],
+          "normalized_size": [
+            65,
+            45
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f5_bed": {
+          "crop": [
+            46,
+            754,
+            208,
+            980
+          ],
+          "normalized_size": [
+            52,
+            72
+          ],
+          "scale": 0.32,
+          "mode": "components_by_cell"
+        },
+        "f5_chest": {
+          "crop": [
+            282,
+            827,
+            467,
+            951
+          ],
+          "normalized_size": [
+            61,
+            41
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f5_rug": {
+          "crop": [
+            516,
+            800,
+            763,
+            962
+          ],
+          "normalized_size": [
+            89,
+            58
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "f5_cupboard": {
+          "crop": [
+            814,
+            761,
+            981,
+            969
+          ],
+          "normalized_size": [
+            50,
+            62
+          ],
+          "scale": 0.3,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "KG05": {
+      "sha256": "bf79c25ccb5d2d3ed5370b64e789796b500a3d7b19c76874af709f55e721058c",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "f6_bar": {
+          "crop": [
+            22,
+            73,
+            263,
+            233
+          ],
+          "normalized_size": [
+            80,
+            53
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f6_barend": {
+          "crop": [
+            308,
+            72,
+            466,
+            233
+          ],
+          "normalized_size": [
+            52,
+            53
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f6_rtable": {
+          "crop": [
+            538,
+            54,
+            716,
+            238
+          ],
+          "normalized_size": [
+            59,
+            61
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f6_ltable": {
+          "crop": [
+            754,
+            79,
+            1004,
+            228
+          ],
+          "normalized_size": [
+            82,
+            49
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f6_stool": {
+          "crop": [
+            82,
+            320,
+            176,
+            453
+          ],
+          "normalized_size": [
+            31,
+            44
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f6_bench": {
+          "crop": [
+            273,
+            345,
+            485,
+            443
+          ],
+          "normalized_size": [
+            70,
+            32
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f6_hearth": {
+          "crop": [
+            515,
+            280,
+            731,
+            489
+          ],
+          "normalized_size": [
+            78,
+            75
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "f6_kegs": {
+          "crop": [
+            758,
+            315,
+            1012,
+            467
+          ],
+          "normalized_size": [
+            79,
+            47
+          ],
+          "scale": 0.31,
+          "mode": "components_by_cell"
+        },
+        "f6_shelf": {
+          "crop": [
+            30,
+            507,
+            225,
+            728
+          ],
+          "normalized_size": [
+            58,
+            66
+          ],
+          "scale": 0.3,
+          "mode": "components_by_cell"
+        },
+        "f6_counter": {
+          "crop": [
+            266,
+            571,
+            494,
+            735
+          ],
+          "normalized_size": [
+            75,
+            54
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f6_bankctr": {
+          "crop": [
+            522,
+            516,
+            755,
+            735
+          ],
+          "normalized_size": [
+            77,
+            72
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f6_strongbox": {
+          "crop": [
+            803,
+            587,
+            995,
+            722
+          ],
+          "normalized_size": [
+            63,
+            45
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f6_bed": {
+          "crop": [
+            48,
+            747,
+            208,
+            976
+          ],
+          "normalized_size": [
+            51,
+            73
+          ],
+          "scale": 0.32,
+          "mode": "components_by_cell"
+        },
+        "f6_chest": {
+          "crop": [
+            279,
+            826,
+            475,
+            951
+          ],
+          "normalized_size": [
+            65,
+            41
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f6_rug": {
+          "crop": [
+            518,
+            802,
+            761,
+            960
+          ],
+          "normalized_size": [
+            87,
+            57
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "f6_cupboard": {
+          "crop": [
+            819,
+            759,
+            980,
+            966
+          ],
+          "normalized_size": [
+            48,
+            62
+          ],
+          "scale": 0.3,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "KG06": {
+      "sha256": "7f03860f40ad5df1236d5301a147281135e6bad3931bf229a6d0945746f633c3",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "f7_bar": {
+          "crop": [
+            20,
+            63,
+            267,
+            231
+          ],
+          "normalized_size": [
+            82,
+            55
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f7_barend": {
+          "crop": [
+            309,
+            67,
+            465,
+            231
+          ],
+          "normalized_size": [
+            51,
+            54
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f7_rtable": {
+          "crop": [
+            536,
+            50,
+            717,
+            237
+          ],
+          "normalized_size": [
+            60,
+            62
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f7_ltable": {
+          "crop": [
+            752,
+            78,
+            1005,
+            226
+          ],
+          "normalized_size": [
+            83,
+            49
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f7_stool": {
+          "crop": [
+            80,
+            318,
+            175,
+            455
+          ],
+          "normalized_size": [
+            31,
+            45
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f7_bench": {
+          "crop": [
+            272,
+            340,
+            484,
+            442
+          ],
+          "normalized_size": [
+            70,
+            34
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f7_hearth": {
+          "crop": [
+            509,
+            271,
+            735,
+            493
+          ],
+          "normalized_size": [
+            81,
+            80
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "f7_kegs": {
+          "crop": [
+            756,
+            314,
+            1015,
+            467
+          ],
+          "normalized_size": [
+            80,
+            47
+          ],
+          "scale": 0.31,
+          "mode": "components_by_cell"
+        },
+        "f7_shelf": {
+          "crop": [
+            30,
+            508,
+            223,
+            733
+          ],
+          "normalized_size": [
+            58,
+            68
+          ],
+          "scale": 0.3,
+          "mode": "components_by_cell"
+        },
+        "f7_counter": {
+          "crop": [
+            267,
+            565,
+            492,
+            735
+          ],
+          "normalized_size": [
+            74,
+            56
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f7_bankctr": {
+          "crop": [
+            523,
+            523,
+            755,
+            738
+          ],
+          "normalized_size": [
+            77,
+            71
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f7_strongbox": {
+          "crop": [
+            803,
+            588,
+            994,
+            722
+          ],
+          "normalized_size": [
+            63,
+            44
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f7_bed": {
+          "crop": [
+            41,
+            756,
+            208,
+            979
+          ],
+          "normalized_size": [
+            53,
+            71
+          ],
+          "scale": 0.32,
+          "mode": "components_by_cell"
+        },
+        "f7_chest": {
+          "crop": [
+            281,
+            822,
+            474,
+            953
+          ],
+          "normalized_size": [
+            64,
+            43
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f7_rug": {
+          "crop": [
+            509,
+            774,
+            772,
+            982
+          ],
+          "normalized_size": [
+            95,
+            75
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "f7_cupboard": {
+          "crop": [
+            817,
+            760,
+            982,
+            970
+          ],
+          "normalized_size": [
+            50,
+            63
+          ],
+          "scale": 0.3,
+          "mode": "components_by_cell"
+        }
+      }
+    },
+    "KG07": {
+      "sha256": "875d7643f15b816594c1c3d2ba3718dd53e58fc3d0ea423caba048f79ecc6bad",
+      "size": [
+        1024,
+        1024
+      ],
+      "pieces": {
+        "f8_bar": {
+          "crop": [
+            20,
+            70,
+            263,
+            231
+          ],
+          "normalized_size": [
+            80,
+            53
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f8_barend": {
+          "crop": [
+            307,
+            70,
+            466,
+            232
+          ],
+          "normalized_size": [
+            52,
+            53
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f8_rtable": {
+          "crop": [
+            536,
+            57,
+            714,
+            237
+          ],
+          "normalized_size": [
+            59,
+            59
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f8_ltable": {
+          "crop": [
+            753,
+            79,
+            1004,
+            228
+          ],
+          "normalized_size": [
+            83,
+            49
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f8_stool": {
+          "crop": [
+            84,
+            322,
+            177,
+            457
+          ],
+          "normalized_size": [
+            31,
+            45
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f8_bench": {
+          "crop": [
+            273,
+            345,
+            485,
+            441
+          ],
+          "normalized_size": [
+            70,
+            32
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f8_hearth": {
+          "crop": [
+            513,
+            285,
+            735,
+            490
+          ],
+          "normalized_size": [
+            80,
+            74
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "f8_kegs": {
+          "crop": [
+            758,
+            317,
+            1012,
+            469
+          ],
+          "normalized_size": [
+            79,
+            47
+          ],
+          "scale": 0.31,
+          "mode": "components_by_cell"
+        },
+        "f8_shelf": {
+          "crop": [
+            30,
+            507,
+            224,
+            728
+          ],
+          "normalized_size": [
+            58,
+            66
+          ],
+          "scale": 0.3,
+          "mode": "components_by_cell"
+        },
+        "f8_counter": {
+          "crop": [
+            265,
+            573,
+            487,
+            732
+          ],
+          "normalized_size": [
+            73,
+            52
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f8_bankctr": {
+          "crop": [
+            522,
+            524,
+            758,
+            734
+          ],
+          "normalized_size": [
+            78,
+            69
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f8_strongbox": {
+          "crop": [
+            803,
+            589,
+            993,
+            723
+          ],
+          "normalized_size": [
+            63,
+            44
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f8_bed": {
+          "crop": [
+            48,
+            752,
+            204,
+            979
+          ],
+          "normalized_size": [
+            50,
+            73
+          ],
+          "scale": 0.32,
+          "mode": "components_by_cell"
+        },
+        "f8_chest": {
+          "crop": [
+            285,
+            824,
+            467,
+            953
+          ],
+          "normalized_size": [
+            60,
+            43
+          ],
+          "scale": 0.33,
+          "mode": "components_by_cell"
+        },
+        "f8_rug": {
+          "crop": [
+            514,
+            797,
+            761,
+            966
+          ],
+          "normalized_size": [
+            89,
+            61
+          ],
+          "scale": 0.36,
+          "mode": "components_by_cell"
+        },
+        "f8_cupboard": {
+          "crop": [
+            820,
+            760,
+            978,
+            965
+          ],
+          "normalized_size": [
+            47,
+            62
+          ],
+          "scale": 0.3,
+          "mode": "components_by_cell"
+        }
+      }
+    }
+  }
+}

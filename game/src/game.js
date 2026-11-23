@@ -9,8 +9,8 @@
   function RNG(seed) { let a = seed >>> 0; const f = () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; return { pick: x => x[Math.floor(f() * x.length)], int: (x, y) => x + Math.floor(f() * (y - x + 1)) }; }
 
   let S, tab = 'world', sceneUp = false, sub = 'work', lsub = 'sandbox', sel = null, ready = false, engineErr = '', COLS = {}, benchSlot = 'weapon', con = { sql: '', res: null };
-  const fresh = () => ({ v: 6, wv: 2, dungeon: null, dungeons: {}, deathPending: null, seen: {}, gd: -1, gn: 0, bank: { gold: 0, items: [] }, homes: [], runes: 0, tabs: {}, tw: {}, vault: {}, letter: 0, archive: 0, cache: {}, campT: 0, meat: 0, met: {}, pk: { n: 0, net: 0 }, food: {}, er: { a: {}, d: {}, n: 0 }, poi: {}, fishd: {}, fishlog: {}, cs: {}, known: {}, name: '', tut: 0, pages: {}, scr: {}, jr: {}, hints: 1, page: null, gold: 30, path: null, look: null, hp: 50, sk: {}, wsk: null, been: { 1: 1 }, skills: {}, done: {}, seen: {}, boss: {}, rum: {}, inv: [], eq: {}, codex: {}, mats: {}, tonics: 1, streak: 0, best: 0, stats: { q: 0, ok: 0, kills: 0, steals: 0, dungeons: 0, falls: 0 }, region: 1, pos: null, intro: 0, mv: 0, talked: 0, rival: {}, dpity: {}, rounds: null, stall: null, won: 0, rev: 0, at: 0 });
-  const migrate = o => { if (!o || ![5,6].includes(o.v)) return fresh(); const f = fresh(), s = Object.assign(f, o, {v:6}); if (!o.seen && o.tut >= 3) s.seen = { fight: 1, fprompt: 1, bag: 1, hero: 1, map: 1, ledger: 1, shop: 1 }; if (!o.g && o.tut >= 3) s.g = 'done'; if (s.casino) { s.gold += s.casino.stack || 0; s.casino = null; } if (o.wv !== 2) { s.pos = null; s.wv = 2; } s.stats = Object.assign(fresh().stats, s.stats || {}); return s; };
+  const fresh = () => ({ v: 6, wv: WorldProgress.revision, dungeon: null, dungeons: {}, deathPending: null, seen: {}, gd: -1, gn: 0, bank: { gold: 0, items: [] }, homes: [], runes: 0, tabs: {}, tw: {}, vault: {}, letter: 0, archive: 0, cache: {}, campT: 0, meat: 0, met: {}, pk: { n: 0, net: 0 }, food: {}, er: { a: {}, d: {}, n: 0 }, poi: {}, fishd: {}, fishlog: {}, cs: {}, known: {}, name: '', tut: 0, pages: {}, scr: {}, jr: {}, hints: 1, page: null, gold: 30, path: null, look: null, hp: 50, sk: {}, wsk: null, been: { 1: 1 }, skills: {}, done: {}, seen: {}, boss: {}, rum: {}, inv: [], eq: {}, codex: {}, mats: {}, tonics: 1, streak: 0, best: 0, stats: { q: 0, ok: 0, kills: 0, steals: 0, dungeons: 0, falls: 0 }, region: 1, pos: null, intro: 0, mv: 0, talked: 0, rival: {}, dpity: {}, rounds: null, stall: null, won: 0, rev: 0, at: 0 });
+  const migrate = o => { if (!o || ![5,6].includes(o.v)) return fresh(); const f = fresh(), s = Object.assign(f, o, {v:6}); if (!o.seen && o.tut >= 3) s.seen = { fight: 1, fprompt: 1, bag: 1, hero: 1, map: 1, ledger: 1, shop: 1 }; if (!o.g && o.tut >= 3) s.g = 'done'; if (s.casino) { s.gold += s.casino.stack || 0; s.casino = null; } s.stats = Object.assign(fresh().stats, s.stats || {}); return s; };
 
   /* ---------- saving: this device first, then the player's Claude account when available ---------- */
   const Cloud = { ref: null, state: 'device', busy: false, dirty: false, timer: 0 };
@@ -22,7 +22,7 @@
   const linkS = s => { s.homes = A.homes; s.codex = A.codex; return s; }, slotOut = s => { const o = Object.assign({}, s); delete o.homes; delete o.codex; return o; };
   function purgeOld() { try { for (let i = localStorage.length - 1; i >= 0; i--) { const k = localStorage.key(i); if (k && k.indexOf('brasswake.save') === 0) localStorage.removeItem(k); } } catch (e) { } }
   function loadA() { try { const t = localStorage.getItem(AKEY) || localStorage.getItem('brasswake.acct.v6'), o = t ? JSON.parse(t) : null; return o && [6,7].includes(o.v) ? Object.assign(freshA(), o, {v:7}) : null; } catch (e) { return null; } }
-  function loadCur() { S = linkS(A.cur >= 0 && A.slots[A.cur] ? migrate(A.slots[A.cur]) : fresh()); if(S.deathPending){S.region=S.deathPending.r;S.pos=S.deathPending.at;S.dungeon=null;S.hp=maxHp();S.deathPending=null;} if (!(S.hp > 0)) S.hp = maxHp(); if(sceneUp){clearInterval(GSAY);Scene.guideOff();} }
+  function loadCur() { WorldProgress.migrateAccount(A); S = linkS(A.cur >= 0 && A.slots[A.cur] ? migrate(A.slots[A.cur]) : fresh()); if(S.deathPending){S.region=S.deathPending.r;S.pos=S.deathPending.at;S.dungeon=null;S.hp=maxHp();S.deathPending=null;} if (!(S.hp > 0)) S.hp = maxHp(); if(sceneUp){clearInterval(GSAY);Scene.guideOff();} }
   function syncA() { if (A && A.cur >= 0 && S && S.path) A.slots[A.cur] = slotOut(S); if(A)for(const s of A.slots)if(s)DungeonProgress.compact(s,now()); }
   function save() { if (sceneUp && DG && Scene.inDungeon()) DP.snapshot(); if (!A) A = freshA(); if (A.cur >= 0 && S && S.path) { S.rev++; S.at = now(); } syncA(); A.rev++; A.at = now(); try { localStorage.setItem(AKEY, JSON.stringify(A)); } catch (e) { } if (Cloud.ref) { Cloud.dirty = true; clearTimeout(Cloud.timer); Cloud.timer = setTimeout(flush, 2500); } }
   async function flush() {
@@ -39,7 +39,18 @@
       const ref = db.doc('data/users/' + id + '/acct');
       try { const old = db.doc('data/users/' + id + '/save'), o = await old.get(); if (o.exists && old.delete) await old.delete(); } catch (e) { }   // saves from before the account existed are gone
       const snap = await Promise.race([ref.get(), new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 10000))]);
-      if (snap.exists) { const d = snap.data(); const remote = d && d.json ? JSON.parse(d.json) : null; if (remote && [6,7].includes(remote.v) && (remote.rev || 0) > (A.rev || 0)) { A = Object.assign(freshA(), remote, {v:7}); loadCur(); cmdBackfill(); syncA(); try { localStorage.setItem(AKEY, JSON.stringify(A)); } catch (e) { } Q = null; F = null; $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; DG = null; if (sceneUp) {Scene.load(S.pos, S.pos ? S.region : 'dock');if(S.dungeon)DP.restore();surfaceBodies();} toast('Loaded your saved game'); if (!$('#title').hidden) title(); } }
+      if (snap.exists) {
+        const d = snap.data(), remote = d && d.json ? JSON.parse(d.json) : null;
+        if (remote && [6,7].includes(remote.v) && (remote.rev || 0) > (A.rev || 0)) {
+          closeSheet(); CE = null;
+          A = Object.assign(freshA(), remote, {v:7}); loadCur(); cmdBackfill();
+          Q = null; F = null; DG = null;
+          $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false;
+          if (sceneUp) restoreAccountScene(true);
+          syncA(); try { localStorage.setItem(AKEY, JSON.stringify(A)); } catch (e) { }
+          toast('Loaded your saved game'); if (!$('#title').hidden) title();
+        }
+      }
       Cloud.ref = ref; Cloud.state = 'account'; if (A.rev > 0) { Cloud.dirty = true; flush(); }
       render();
     } catch (e) { Cloud.state = 'device'; }
@@ -472,7 +483,7 @@
 
   /* ---------- on the map: fights, thefts and duels. A panel along the bottom, one question at a time. ---------- */
   let F = null, CE = null, DG = null;
-  const DP = DungeonPlay.create({state:()=>S,run:()=>DG,setRun:v=>DG=v,day:dayKey,now,scene:Scene,close:closeSheet,hud:renderHud,surface:surfaceBodies,save,guideId:()=>gid(),
+  const DP = DungeonPlay.create({state:()=>S,run:()=>DG,setRun:v=>DG=v,day:dayKey,now,scene:Scene,close:closeSheet,hud:renderHud,surface:()=>{S.pos=Scene.pos();surfaceBodies();},save,guideId:()=>gid(),
     guideStart:()=>{S.gd++;save();setTimeout(()=>gSay('"Beat the cellar rat, then open the chest beside the stairs. The deeper floors can wait."'),600);},guideChest:()=>setTimeout(()=>gDone('chest'),50),
     difficulty:diffOf,foe:mkFoe,fight:openF,toast,dialog:dlg,sheet,main:isMain,haveTable:r=>haveT(r),takeTable,grant,item:makeItem,rarity:rollRarity,luck,random:rnd,int:rint,unique:uniq,spoils:spoilsHTML,escape:esc,dye:maybeDye});
   function barsF() { if (!F) return; const b = F.foe ? [{ e: 'me', pct: S.hp / maxHp() }] : []; if (F.foe && F.ent) b.push({ e: F.ent, pct: F.foe.hp / F.foe.max, name: F.title }); Scene.FX.bars(b); }
@@ -489,11 +500,17 @@
       it.was = sl; delete S.eq[sl]; D.lost.push(it.name); }
     const items = S.inv.filter(it => !keep.has(it.id)), loot = { gold: S.gold, items, scrolls: Object.entries(S.scr || {}).flatMap(([id, n]) => Array(n).fill(id)), mats: {}, food: {} };
     if (!loot.gold && !items.length && !loot.scrolls.length) return; S.gold = 0; S.inv = S.inv.filter(it => keep.has(it.id)); S.scr = {};
-    const at = DG && DG.back ? DG.back : Scene.pos(); S.remains = { x: at[0], y: at[1], loot, until: Date.now() + BODY_MS }; if (!DG) placeBody();
+    const at = DG && DG.back ? DG.back : Scene.pos(); S.remains = { x: at[0], y: at[1], r: DG ? DG.r : Scene.region(), loot, until: Date.now() + BODY_MS }; if (!DG) placeBody();
   }
   const deathNote = () => { const D = S.lastDeath; if (!D) return; S.lastDeath = null; if (D.ins.length) toast(`Insurance paid: ${D.fee} gold from the bank`); if (D.broke.length) toast(`Not enough in the bank to cover ${D.broke.join(', ')}`); if (D.lost.length) toast(`On your body: ${D.lost.join(', ')}`); };
   const insFee = it => Math.max(5, Math.round(price(it) * .2));
-  function placeBody() { const B = S.remains; if (!B) return; const left = B.until - Date.now(); if (left <= 0) { S.remains = null; return; } if (Scene.inDungeonMap()) return; if (Scene.find(e => e.mine)) return; Scene.remains(B.x, B.y, B.loot, left / 1000); }
+  function placeBody() { const B = S.remains; if (!B) return; const left = B.until - Date.now(); if (!(left > 0)) { S.remains = null; return; } if (Scene.inDungeonMap() || Scene.find(e => e.mine)) return;
+    const at = Scene.safePosition([B.x, B.y], B.r || Geography.region(B.x, B.y) || S.region);
+    if (!at) return;
+    const moved = at[0] !== B.x || at[1] !== B.y;
+    [B.x, B.y] = at;
+    Scene.remains(B.x, B.y, B.loot, left / 1000);
+    if (moved) save(); }
   function surfaceBodies() { if(!sceneUp)return;Scene.clearRemains();placeBody(); }
   function prepareDeath() {
     if(S.deathPending)return;
@@ -503,7 +520,7 @@
   }
   function wakeFromDeath() {
     prepareDeath();const d=S.deathPending;S.hp=maxHp();S.region=d.r;S.pos=d.at;S.deathPending=null;S.dungeon=null;DG=null;
-    Scene.load(S.pos,S.region);surfaceBodies();save();
+    Scene.load(S.pos,S.region);S.pos=Scene.pos();surfaceBodies();save();
   }
   function closeF() {
     unCoach('fight', 'fprompt', 'stealth'); const f = F; if (!f) return; F = null; $('#fight').hidden = true; $('#fight').innerHTML = ''; $('#nav').hidden = false; $('#app').classList.remove('infight'); Scene.FX.lock(false); Scene.FX.bars([]); Scene.FX.inset(0); if (f.ent) { Scene.FX.free(f.ent); f.ent.calm = 12; } closeSheet();
@@ -661,7 +678,18 @@
     if (tab === 'ledger' && lsub === 'sandbox') { const ta = $('#con-sql'); if (ta) ta.value = con.sql; }
     if(tab==='map'&&DG)unCoach();else coach({ map: 'map', ledger: 'ledger', hero: 'hero', bag: 'bag' }[tab]); if (S.gn && S.gn === tab) { S.gn = 0; save(); renderNav(); }
   }
-  function bootScene() { if (!sceneUp) { Scene.init($('#stage'), HOST); sceneUp = true; soundUp(); Scene.showBlocked(S.showb); } $('#st-load').hidden = true; Scene.load(S.pos, S.pos || S.tut ? S.region : 'dock'); S.region = Scene.region(); S.been[S.region] = 1; homesUp(); applyGifts(); if(S.dungeon)DP.restore(); surfaceBodies(); if (gOn()) gEnter(true, true); document.body.classList.toggle('ui', !!(ART && ArtData.ui)); if (!$('#title').hidden) Scene.pause(); }
+  function restoreAccountScene(restoreHomes) {
+    const homesMoved = restoreHomes && homesUp(), saved = S.pos;
+    Scene.load(saved, saved || S.tut ? S.region : 'dock');
+    const errandsMoved = WorldProgress.reconcileErrands(S, Scene.sites());
+    S.region = Scene.region();
+    S.been[S.region] = 1;
+    if (saved) S.pos = Scene.pos();
+    if (S.dungeon) DP.restore();
+    surfaceBodies();
+    if (S.path && (homesMoved || errandsMoved || (saved && (saved[0] !== S.pos[0] || saved[1] !== S.pos[1])))) save();
+  }
+  function bootScene() { if (!sceneUp) { Scene.init($('#stage'), HOST); sceneUp = true; soundUp(); Scene.showBlocked(S.showb); } $('#st-load').hidden = true; applyGifts(); restoreAccountScene(true); if (gOn()) gEnter(true, true); document.body.classList.toggle('ui', !!(ART && ArtData.ui)); if (!$('#title').hidden) Scene.pause(); }
   const ART = typeof ArtData !== 'undefined', LOOKS = { warrior: ['G10_1', 'G10_2'], thief: ['G10_3', 'G10_4'], mage: ['G11_1', 'G11_2'], crafter: ['G11_3', 'G11_4'] }, LOOK0 = { warrior: 0, thief: 2, mage: 4, crafter: 6 };
   const WSTART = { warrior: 'swords', thief: 'fencing', mage: 'magery', crafter: 'swords' }, NAMES = ['Edrik', 'Mara', 'Corin', 'Sable', 'Aldous', 'Ysanne', 'Brogan', 'Wren'];
   /* ---------- title, character creation, cold open ---------- */
@@ -676,7 +704,7 @@
     showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box tt-slots"><h1>Brasswake</h1><p class="tt-sub">Pulled from the sea, entered in the Trials, and taught SQL from the first line</p>${A.slots.map(row).join('')}${any ? '<button class="tt-link" data-a="delpick">Delete a character</button>' : ''}<p class="tt-note">Your characters share your houses and what is in them. Each keeps their own bank.</p></div>`);
   }
   function delPick() { showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box tt-slots"><h1>Delete who?</h1>${A.slots.map((c, i) => c ? `<button class="tt-btn quiet" data-a="delslot" data-i="${i}">${esc(c.name)}<small>${i === A.main ? 'Main: the Trials start over with your next new character' : 'Supporting'}</small></button>` : '').join('')}<button class="tt-btn" data-a="totitle">Back</button></div>`); }
-  function playSlot(i) { if (!A.slots[i]) return; if (i !== A.cur) { save(); A.cur = i; loadCur(); DG = null; Q = null; F = null; CE = null; S.pos = S.pos || null; $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; tab = 'world'; sel = S.region; save(); if (sceneUp) { Scene.load(S.pos, S.pos || S.tut ? S.region : 'dock'); if(S.dungeon)DP.restore(); surfaceBodies(); Scene.refresh(); } } hideTitle(); render(); renderHud(); }
+  function playSlot(i) { if (!A.slots[i]) return; if (i !== A.cur) { save(); A.cur = i; loadCur(); DG = null; Q = null; F = null; CE = null; S.pos = S.pos || null; $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; tab = 'world'; sel = S.region; save(); if (sceneUp) { restoreAccountScene(); Scene.refresh(); } } hideTitle(); render(); renderHud(); }
   function create() {
     CR = CR || { path: null, look: null, name: '' };
     showTitle(`<div class="cr"><h2>Who were you back home?</h2><p class="cr-note">A young name people had started to talk about. Pick what you were known for.</p><label class="cr-name"><span>Name</span><input id="cr-name" maxlength="16" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Your name" value="${esc(CR.name || '')}"></label>
@@ -706,21 +734,31 @@
     if(DG&&Scene.debug().map.dungeonFloor)return vDungeonMap();
     const cur = sel || S.region, [W, H] = Scene.size, mini = sceneUp && Scene.mini(); if (mini && !MAPURL) { try { MAPURL = mini.toDataURL(); } catch (e) { } }
     const TW = sceneUp ? Scene.towns() : null, pos = sceneUp && !Scene.inDungeon() ? Scene.pos() : S.pos;
-    const pins = TW ? REGIONS.map(r => { const t = TW[r.id]; return `<button class="pin${unlocked(r.id) ? '' : ' locked'}${r.id === cur ? ' sel' : ''}${S.boss[r.id] ? ' beaten' : ''}" style="left:${100 * t[0] / W}%;top:${100 * t[1] / H}%" data-a="sel" data-r="${r.id}" aria-label="${esc(r.name)}"><b>${ROMAN[r.id]}</b><span>${esc(r.name)}</span></button>`; }).join('') : '';
+    const pins = TW ? REGIONS.map(r => { const t = TW[r.id], label = r.id === 8 ? r.name + ' · Capital' : r.name; return `<button class="pin${unlocked(r.id) ? '' : ' locked'}${r.id === cur ? ' sel' : ''}${S.boss[r.id] ? ' beaten' : ''}" style="left:${100 * t[0] / W}%;top:${100 * t[1] / H}%" data-a="sel" data-r="${r.id}" aria-label="${esc(label)}"><b>${ROMAN[r.id]}</b><span>${esc(label)}</span></button>`; }).join('') : '';
+    const crossings = sceneUp ? Scene.ferries() : [];
+    const routes = crossings.length ? `<svg class="ferry-routes" aria-hidden="true" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
+      ${crossings.map(({ id, path, from, to }) => `${path && path.length > 1 ? `<polyline data-route="${esc(id)}" points="${path.map(p => p.join(',')).join(' ')}" fill="none" stroke="#d7f5ff" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round" vector-effect="non-scaling-stroke"/>` : ''}
+      ${[from, to].map(({ at }) => `<circle cx="${at[0]}" cy="${at[1]}" r="5" fill="#d7f5ff" stroke="#183f5a" stroke-width="2"/>`).join('')}`).join('')}</svg>` : '';
     const me = pos ? `<i class="me" style="left:${100 * pos[0] / W}%;top:${100 * pos[1] / H}%"></i>` : '';
     const SI = sceneUp ? Scene.sites() : [], siteOf = id => SI.find(s => s.id === id), here = pos ? { x: pos[0], y: pos[1] } : null, far = s => here && s ? `${Math.round(Math.hypot(s.x - here.x, s.y - here.y))} paces ${compass(here, s)}` : '', dot = (s, c, t) => s ? `<i class="dot ${c}" title="${esc(t || s.name)}" style="left:${100 * s.x / W}%;top:${100 * s.y / H}%"></i>` : '';
     const ers = Object.values(S.er.a), erDots = ers.map(a => dot(siteOf(a.type === 'deliver' ? a.to : a.type === 'find' && !a.found ? a.at : a.id), 'er', a.what)).join(''), knownDots = (S.known[cur] || gift('eye') ? SI.filter(s => s.r === cur && s.kind !== 'roam' && s.kind !== 'lair').map(s => dot(s, s.kind)).join('') : '') + SI.filter(s => s.kind === 'lair' && s.r === cur && ((S.lairs && S.lairs[s.id]) || gift('eye'))).map(s => dot(s, 'lair', s.name)).join('') + (S.homes || []).filter(h => h.r === cur).map(h => dot({ x: h.x, y: h.y }, 'home2', 'Your home')).join('');
     const erList = ers.length ? `<div class="card"><p class="eyebrow">Errands · ${ers.length} open · ${S.er.n || 0} done</p><ul class="tale plain">${ers.map(a => { const tgt = siteOf(a.type === 'deliver' ? a.to : a.type === 'find' && !a.found ? a.at : a.id); return `<li>${esc(a.what)} <small>${esc(a.from)}, ${esc(region(a.r).name)} · ${errandProg(a)} · ${a.gold} gold${tgt ? ` · ${a.type === 'deliver' ? 'drop-off' : a.type === 'find' && !a.found ? 'the place' : 'giver'} is ${far(tgt)}` : ''}</small> <button class="btn sm quiet" data-a="erdrop" data-id="${a.id}">Drop</button></li>`; }).join('')}</ul></div>` : '';
     const r = region(cur), b = BOSSES[cur - 1], D = DUNGEONS[cur - 1], open = unlocked(cur), tw0 = TW ? TW[cur] : null, dirOf = t => { const dx = t.x - tw0[0], dy = t.y - tw0[1], a = Math.atan2(dy, dx) / Math.PI * 4; return ['east', 'south-east', 'south', 'south-west', 'west', 'north-west', 'north', 'north-east'][((Math.round(a) % 8) + 8) % 8]; }, grounds = sceneUp ? Scene.terr().filter(t => t.r === cur && t.hab && t.name) : [], mons = grounds.length ? '' : BOUNTIES.filter(x => x.r === cur).map(x => MONSTERS[x.id][0]).join(', ');
-    return `<section class="place" style="--acc:${HUES[cur]}"><p class="eyebrow">One land, eight circles</p><h1>The Road North</h1></section>
-      <div class="wmap">${MAPURL ? `<img alt="Map of the land" src="${MAPURL}">` : ''}${pins}${knownDots}${erDots}${me}</div>
+    const landings = crossings.filter(leg => leg.from.r === cur || leg.to.r === cur).map(leg => {
+      const here = leg.from.r === cur ? leg.from : leg.to, there = leg.from.r === cur ? leg.to : leg.from;
+      const dir = dirOf({ x: here.at[0], y: here.at[1] });
+      return `<li>${esc(region(there.r).name)} <small>Free from the quay ${dir} of town</small></li>`;
+    });
+    return `<section class="place" style="--acc:${HUES[cur]}"><p class="eyebrow">World map</p><h1>Brasswake</h1></section>
+      <div class="wmap">${MAPURL ? `<img alt="Map of Brasswake and its islands" src="${MAPURL}">` : ''}${routes}${pins}${knownDots}${erDots}${me}</div>
       ${erList}
       ${(S.homes || []).length ? `<div class="card"><p class="eyebrow">Your homes</p><ul class="goods">${S.homes.map(h => `<li class="good">${ico('deed')}<div><b>${esc(h.name)}</b><small>${esc(region(h.r).name)}${pos ? ' · ' + Math.round(Math.hypot(h.x - pos[0], h.y - pos[1])) + ' paces ' + compass({ x: pos[0], y: pos[1] }, h) : ''}</small></div>${h.pad ? `<button class="btn sm" data-a="tphome" data-h="${h.id}">Teleport</button>` : '<small>no pad</small>'}</li>`).join('')}</ul></div>` : ''}
       <div class="row"><button class="btn sm quiet" data-a="showblocked">${S.showb ? 'Hide' : 'Show'} blocked ground</button></div>
-      <div class="card" style="border-left:4px solid ${HUES[cur]}"><p class="eyebrow">${CIRCLE[cur]} Circle · ${esc(r.sub)}</p><h3>${esc(r.name)}</h3><p>${esc(r.blurb)}</p>
+      <div class="card" style="border-left:4px solid ${HUES[cur]}"><p class="eyebrow">${CIRCLE[cur]} Circle · ${esc(r.sub)}</p><h3>${esc(r.name)}${cur === 8 ? ' · Capital' : ''}</h3><p>${esc(r.blurb)}</p>
         <div class="kv"><span>Teaches</span><span>${esc(r.teaches)}</span><span>Exercises</span><span>${doneIn(cur)} of ${totalIn(cur)}</span>${grounds.length ? '' : `<span>Roaming</span><span>${esc(mons)}</span>`}<span>Dungeon</span><span>${esc(D.name)}</span><span>Material</span><span>${MATS[cur]}</span><span>Examiner</span><span>${esc(b.name)}${S.boss[cur] ? ' (mark held)' : ''}</span></div>
         ${grounds.length ? `<p class="lab" style="margin:4px 0 0">Creature grounds</p><ul class="tale plain">${grounds.map(t => `<li>${esc(t.name)} <small>${esc(MONSTERS[t.tpl][0])}${t.agg ? ', hunts' : ''} · ${dirOf(t)} of town</small></li>`).join('')}</ul>` : ''}
-        ${open ? (cur === S.region ? `<div class="row"><span class="pill ok">You are here</span><span class="grow"></span><button class="btn solid" data-a="tab" data-t="world">Return to the world</button></div>` : `<div class="row end"><button class="btn solid" data-a="travel" data-r="${cur}">Travel to the town</button></div>`) : `<p><span class="pill rust">Not visited</span> Walk there. One road joins every town, and nothing bars it.</p>`}</div>`;
+        ${landings.length ? `<h4>Ferry destinations</h4><ul class="tale plain">${landings.join('')}</ul>` : ''}
+        ${open ? (cur === S.region ? `<div class="row"><span class="pill ok">You are here</span><span class="grow"></span><button class="btn solid" data-a="tab" data-t="world">Return to the world</button></div>` : `<div class="row end"><button class="btn solid" data-a="travel" data-r="${cur}">Travel to the town</button></div>`) : `<p><span class="pill rust">Not visited</span> ${cur === 2 || cur === 5 ? 'Take a ferry for your first visit.' : 'The mainland roads lead here.'}</p>`}</div>`;
   }
 
   /* ---------- speech box: along the bottom of the world, one line at a time, choices at the end ---------- */
@@ -750,6 +788,48 @@
   function sayTap() { if (!SB) return; if (SB.typing) return sayStop(); if (SB.i < SB.parts.length - 1) { SB.i++; sayType(); } else if (!SB.opts.length) closeSay(); }
   function closeSay() { if (SB) clearInterval(SB.timer); SB = null; if (sceneUp && S && !gOn() && Scene.guideEnt()) Scene.guideOff(); const el = $('#say'); if (el) { el.hidden = true; el.innerHTML = ''; } }
   const bye = { t: 'Goodbye', a: 'closesheet' }, back = { t: 'Back', a: 'talk' };
+  let ferryTicket = 0;
+  function ferryOffer(e) {
+    const to = WorldServices.ferryDestination(Scene.ferries(), e, Scene.pos());
+    if (!to) return;
+    const name = region(to.r).name, ticket = ++ferryTicket;
+    dlg(e, `I can take you to ${name} whenever you’re ready. It’s a free crossing.`,
+      [{ t: 'Board for ' + name, a: 'ferryboard', d: { ticket, route: e.route, side: e.side } }, { t: 'Stay ashore', a: 'closesheet' }]);
+    SB.ferryTicket = ticket;
+  }
+  function boardFerry(d) {
+    const e = CE;
+    if (!d || !sceneUp || tab !== 'world' || F || Q || DG || Scene.inDungeonMap() || !SB || !SB.done ||
+        !SB.ferryTicket || String(d.ticket) !== String(SB.ferryTicket) ||
+        !e || d.route !== e.route || d.side !== e.side) return;
+    const pos = Scene.pos(), to = WorldServices.ferryDestination(Scene.ferries(), Scene.find(n => n === e), pos);
+    if (!to) {
+      closeSay();
+      return toast('Step up to the ferryman to board.');
+    }
+    if (Scene.find(n => n.chase > 0 && Math.hypot(n.x - pos[0], n.y - pos[1]) < 16)) return toast('Shake off your pursuer before boarding.');
+    const [x, y] = to.at, landing = [[x, y + 1], [x + 1, y], [x - 1, y], [x, y - 1]].find(([tx, ty]) => {
+      const at = Scene.safePosition([tx, ty], to.r);
+      return at && at[0] === tx && at[1] === ty;
+    });
+    if (!landing) return toast('The ferry can’t dock here yet.');
+    closeSheet();
+    CE = null;
+    clearInterval(GSAY);
+    Scene.guideOff();
+    S.pos = landing;
+    S.region = to.r;
+    S.been[to.r] = 1;
+    Scene.load(landing, to.r);
+    S.pos = Scene.pos();
+    S.region = Scene.region();
+    sel = S.region;
+    S.been[S.region] = 1;
+    surfaceBodies();
+    save();
+    render();
+    toast('Arrived at ' + region(S.region).name);
+  }
   const jobsOf = e => CONTRACTS.filter(c => c.r === e.r && giverOf(c) === e.i);
   const here = () => (CE && CE.r) || S.region;
   function odalys(line) { const e = sceneUp && !Scene.inDungeon() && Scene.find(x => x.kind === 'npc' && x.i === 0 && x.r === 1); if (e) setTimeout(() => { if (!Q && !F && !SB) { CE = e; dlg(e, line, [bye]); } }, FAST() ? 0 : 350); }
@@ -780,12 +860,12 @@
   const tamsin = () => (sceneUp && (Scene.find(x => x.kind === 'guide') || Scene.guideEnt())) || { name: 'Tamsin', sub: 'Deckhand, the Marigold', pt: ART && ArtData.faces ? ArtData.faces.fisher : undefined };
   let GSAY = 0;
   function gSay(line, opts) { clearInterval(GSAY); if (!line) return; let n = 0; const character=S, step=S.gd; GSAY = setInterval(() => { if (++n > 600 || !gOn() || S!==character || S.gd!==step) return clearInterval(GSAY); if (!S || Q || F || SB || !$('#sheet').hidden || tab !== 'world' || !$('#title').hidden || !sceneUp || Scene.inHall() || Scene.inDungeon() || Scene.traveling()) return; const p=Scene.pos(),e=Scene.guideEnt(); if (!e || Math.hypot(e.fx-p[0],e.fy-p[1])>4) return; clearInterval(GSAY); CE = tamsin(); dlg(CE, line, opts || [bye]); }, FAST() ? 30 : 350); }
-  function gPlace() { if (!sceneUp) return; if (!gOn()) return Scene.guideOff(); if (Scene.guideEnt()) return; const p = Scene.inHall() || Scene.inDungeon() ? S.pos || SP('dock') : Scene.pos(); if (p) Scene.guidePut(p[0] + 1, p[1]); }
+  function gPlace() { if (!sceneUp) return; if (!gOn() || S.region !== 1) return Scene.guideOff(); if (Scene.guideEnt()) return; const p = Scene.inHall() || Scene.inDungeon() ? S.pos || SP('dock') : Scene.pos(); if (p) Scene.guidePut(p[0] + 1, p[1]); }
   function gEnter(quiet, boot) { clearInterval(GSAY); if (!gOn()) return; const g = GD[S.gd]; gPlace(); if (g.tabs && !boot) S.gn = g.tabs[0]; renderNav(); if (g.id === 'bag') gGift(); if (!quiet) gSay(g.say, g.id === 'fish' ? [{ t: 'Skip it', a: 'gnext' }, { t: 'I’ll cast', a: 'closesheet' }] : null); HOST._k = null; }
   function gDone(id) { if (gid() !== id) return; S.gd++; save(); if (S.gd >= GD.length) return gEnd(); gEnter(); }
   function gGift() { if (S.gk && itemById(S.gk)) return; const it = makeItem('uncommon', 1, 'weapon', S.path === 'mage' ? 'magery' : armsSkill()); S.inv.push(it); S.gk = it.id; addFood('loaf', 2); save(); }
   function gEnd() { S.gd = GD.length; S.tut = 3; S.hints++; S.gn = 0; save(); renderNav(); CE = tamsin(); dlg(CE, `"Here’s the examiner’s ring. Don’t step inside until Odalys says you’re ready. I’m due back on the Marigold. Good luck, ${S.name || 'stranger'}."`, [bye]);  toast('Tamsin returns to the Marigold. Odalys has more work for you; the roads are open whenever you are ready.'); }
-  let GW = 0; function gMoved(x, y, dun, run) { const id = gid(); if (id === 'walk' && ++GW >= 2) { GW = 0; gDone('walk'); } else if (id === 'run' && run && ++GW >= 3) { GW = 0; gDone('run'); } else if (id === 'road' && !dun) { const b = SP('boss1'); if (b && Math.hypot(b[0] - x, b[1] - y) < 6) gDone('road'); } }
+  let GW = 0; function gMoved(x, y, dun, run) { if (S.region !== 1) return; const id = gid(); if (id === 'walk' && ++GW >= 2) { GW = 0; gDone('walk'); } else if (id === 'run' && run && ++GW >= 3) { GW = 0; gDone('run'); } else if (id === 'road' && !dun) { const b = SP('boss1'); if (b && Math.hypot(b[0] - x, b[1] - y) < 6) gDone('road'); } }
   function gSkip() { if (!S.met['1.0']) { S.met['1.0'] = 1; S.done.c101 = S.done.c102 = { t: now(), tries: 0, hint: 0 }; S.gold += 25; } if (!S.gk) gGift(); S.gd = GD.length; S.tut = 3; S.hints++; S.gn = 0; save(); if (sceneUp) Scene.guideOff(); closeSay(); render(); toast('Odalys Brine teaches the First Circle, by the guildhall'); }
 
   /* ---------- the dojos: practice dummies, students sparring, a tournament in every town ---------- */
@@ -1059,15 +1139,30 @@
     delete S.er.a[a.id]; S.er.d[a.id] = dayKey(); S.er.n = (S.er.n || 0) + 1; const g = grant(o); save(); renderHud(); Scene.refresh();
     dlg(e, line, [bye]); if (g.items.length) sheet(`<p class="eyebrow">Errand done</p><h2>${esc(a.from)}</h2>${spoilsHTML(g)}<div class="row end"><button class="btn solid" data-a="closesheet">Take it</button></div>`); else toast(bitsOf(g).concat(a.bonus === 'key' ? ['+1 Hint Key'] : []).join(' · '));
   }
-  // what a country person has for sale today
+  const marketSpecialty = e => e && e.kind === 'specialist' ? WorldServices.specialists[e.specialty] : null;
+  const stockId = e => e.kind === 'specialist' ? 'specialist:' + e.specialty : e.hid;
+  // Country traders and Grand Market stalls share stock, prices and payments.
   function countryStock(e) {
-    const R = SETTLE[e.role], r = e.r, st = S.cs[e.hid] && S.cs[e.hid].day === dayKey() ? S.cs[e.hid] : (S.cs[e.hid] = { day: dayKey(), items: R.gear ? Array.from({ length: R.gear }, () => makeItem(rollRarity(luck(), 1), r)) : [], key: R.keys ? 1 : 0 });
+    const specialty = marketSpecialty(e), R = specialty || SETTLE[e.role], r = e.r, id = stockId(e);
+    if (!R) return;
+    const day = dayKey();
+    let st = S.cs[id];
+    if (!st || st.day !== day) {
+      const items = specialty ? (R.gear || []).map(([slot, weapon], i) => makeItem(RAR[i + 1], r, slot, weapon)) :
+        Array.from({ length: R.gear || 0 }, () => makeItem(rollRarity(luck(), 1), r));
+      st = S.cs[id] = { day, items, key: R.keys ? 1 : 0 };
+    }
     const fp = k => Math.round(FOOD[k][3] * (1 + (r - 1) * .45)), goods = (R.sells || []).map(k => ({ ic: FOOD[k][2], name: FOOD[k][0], meta: `Restores ${FOOD[k][1]} health`, price: fp(k) + ' gold', a: 'buyfood', d: { k, c: fp(k) }, off: S.gold < fp(k) }));
     if (R.tonic) goods.push({ ic: 'draught', name: 'Healing Draught', meta: 'Restores 30 health, in or out of a fight', price: 7 * r + ' gold', a: 'buytonic', d: { c: 7 * r }, off: S.gold < 7 * r });
     if (R.mats) goods.push({ ic: 'mat' + r, name: MATS[r], meta: 'A crafting material', price: 6 * r + ' gold', a: 'buymat', d: { c: 6 * r }, off: S.gold < 6 * r });
     if (st.key) goods.push({ ic: 'hintkey', name: 'Hint Key', meta: 'Pays for one hint. One a day', price: 22 * r + ' gold', a: 'buykey', d: { c: 22 * r }, off: S.gold < 22 * r });
     st.items.forEach((it, i) => goods.push({ ic: it.ic, name: it.name, cls: 'rar-' + it.rarity, meta: `${it.slot} · ${statLine(it)}`, price: price(it) + ' gold', a: 'buygear', d: { i }, off: S.gold < price(it) }));
-    const hd = have('hide'); shopSheet(e, R.say[1], goods, R.hides ? `<button class="btn sm quiet" data-a="sellhides"${hd ? '' : ' disabled'}>Sell ${hd || 'no'} hide${hd === 1 ? '' : 's'} at ${R.hides * r} gold</button>` : '');
+    if (R.pages) goods.push(...pageGoods(r));
+    const hd = have('hide');
+    const extra = R.materials ? '<button class="btn sm solid" data-a="deeds">Browse house deeds</button>' :
+      R.hides ? `<button class="btn sm quiet" data-a="sellhides"${hd ? '' : ' disabled'}>Sell ${hd || 'no'} hide${hd === 1 ? '' : 's'} at ${R.hides * r} gold</button>` :
+      specialty && R.gear && !st.items.length ? '<span class="cap2 grow">Sold out for today.</span>' : '';
+    shopSheet(e, specialty ? R.line : R.say[1], goods, extra);
   }
   const fishLeft = fid => { const d = S.fishd[fid]; return d && d.day === dayKey() ? Math.max(0, 4 - d.n) : 4; };
   function fishOpen(e, i) {
@@ -1145,6 +1240,11 @@
   }
 
   const goodHTML = g => `<li class="good">${ico(g.ic)}<div><b class="${g.cls || ''}">${esc(g.name)}</b><small>${g.meta || ''}</small></div>${g.pill ? `<span class="pill ok">${g.pill}</span>` : `<button class="btn sm" data-a="${g.a}"${Object.keys(g.d || {}).map(k => ` data-${k}="${esc(g.d[k])}"`).join('')}${g.off ? ' disabled' : ''}>${g.price}</button>`}</li>`;
+  const pageGoods = r => PAGES.filter(p => p.c === r && !p.rare).map(p => {
+    const book = BOOKS[p.book], base = { ic: 'scroll_' + p.book, name: p.name };
+    return owned(p.id) ? { ...base, meta: book.name, pill: 'in your book' } :
+      { ...base, meta: book.name + ' · ' + book.what, price: p.price + ' gold', a: 'buypage', d: { id: p.id }, off: S.gold < p.price };
+  });
   function shopSheet(e, line, goods, extra) { setTimeout(() => coach(goods && goods.some(g => g.a === 'buyfood' || g.a === 'buymat') ? 'trade' : 'shop'), 0); CE = e; const pt = e.spr || e.pt ? Scene.portrait(e) : ''; sheet(`<div class="shop-head">${pt ? `<img alt="" src="${pt}">` : ''}<div><p class="eyebrow">${esc(e.sub || '')}</p><h2>${esc(e.name)}</h2></div></div><p class="story">${esc(line)}</p><ul class="goods">${goods.map(goodHTML).join('')}</ul><div class="row end">${extra || ''}<button class="btn sm quiet" data-a="chat">Chat</button></div>`); }
   /* ---------- the bank: one account shared by every town's banker. Gold and up to 60 things kept there are safe when you die. ---------- */
   const BANK_SLOTS = 60;
@@ -1220,10 +1320,13 @@
   let DM = 0, PL = null; const lc = t => /^[A-Z]-/.test(t) ? t : t[0].toLowerCase() + t.slice(1);
   const hPrice = (sh, mt) => Math.round(HOUSES[sh][3] * HMAT[mt][1] / 10) * 10, hName = (sh, mt) => HMAT[mt][0].toLowerCase() + ' ' + lc(HOUSES[sh][0]);
   const funds = () => S.gold + ((S.bank && S.bank.gold) || 0), pay = n => { const a = Math.min(S.gold, n); S.gold -= a; S.bank.gold -= n - a; };
-  function deedsSheet() { const mats = HMAT.map((m, i) => `<button class="btn sm${i === DM ? ' solid' : ' quiet'}" data-a="dmat" data-i="${i}">${m[0]}</button>`).join('');
+  function deedsSheet() {
+    const specialty = marketSpecialty(CE), materials = specialty && specialty.materials || HMAT.map((_, i) => i);
+    if (!materials.includes(DM)) DM = materials[0];
+    const mats = materials.map(i => `<button class="btn sm${i === DM ? ' solid' : ' quiet'}" data-a="dmat" data-i="${i}">${HMAT[i][0]}</button>`).join('');
     sheet(`<p class="eyebrow">Deeds · paid from your purse, then your account</p><h2>Homes for sale</h2><p class="cap2">You have ${funds()} gold. Buy a deed, walk somewhere open outside town, and set it down from your bag.</p><div class="row">${mats}</div>
       <ul class="goods">${HOUSES.map((h, i) => { const c = hPrice(i, DM); return `<li class="good">${ico('deed')}<div><b>${HMAT[DM][0]} ${lc(h[0])}</b><small>${h[1]} × ${h[2]} · chest holds ${h[4]}</small></div><button class="btn sm" data-a="buydeed" data-i="${i}"${funds() >= c ? '' : ' disabled'}>${c} gold</button></li>`; }).join('')}</ul>
-      <div class="row end"><button class="btn sm quiet" data-a="bankback">Back to your account</button></div>`); }
+      <div class="row end"><button class="btn sm quiet" data-a="${specialty ? 'talk' : 'bankback'}">${specialty ? 'Back to the stall' : 'Back to your account'}</button></div>`); }
   function placeBar() { let el = $('#placebar'); if (!PL) { if (el) el.remove(); return; } if (!el) { el = document.createElement('div'); el.id = 'placebar'; el.className = 'placebar'; document.body.appendChild(el); }
     const g = Scene.ghostNow(), why = g && g.why, msg = { town: 'Too close to a town.', ground: 'The ground there is not clear.', path: 'You could not reach the door.', edge: 'Too close to the edge of the map.', you: 'You are standing there.', inside: 'Houses go outdoors.' }[why] || 'Tap the map to move it. The small square is the door.';
     el.innerHTML = `<b>${esc(HMAT[PL.mat][0])} ${esc(lc(HOUSES[PL.shape][0]))}</b><span>${why ? esc(msg) : 'Clear ground. ' + esc(msg)}</span><div class="row"><button class="btn sm quiet" data-a="placecancel">Cancel</button><button class="btn sm solid" data-a="placego"${why ? ' disabled' : ''}>Build here</button></div>`; }
@@ -1247,8 +1350,13 @@
       ${h.fbed ? '' : `<li class="good">${ico('stew')}<div><b>Feather bed</b><small>Sleeping here leaves you well rested: skill gain +25% for an hour</small></div><button class="btn sm" data-a="hup" data-k="fbed" data-h="${h.id}"${funds() >= BED_C ? '' : ' disabled'}>${BED_C} gold</button></li>`}
       ${h.garden ? `<li class="good">${ico('apple')}<div><b>Garden</b><small>${today ? 'Picked today. Come back tomorrow.' : 'Ready to pick'}</small></div><button class="btn sm" data-a="hpick" data-h="${h.id}"${today ? ' disabled' : ''}>Pick</button></li>` : `<li class="good">${ico('apple')}<div><b>Garden</b><small>Food and a few ${esc(MATS[h.r])} every day</small></div><button class="btn sm" data-a="hup" data-k="garden" data-h="${h.id}"${funds() >= GARDEN_C ? '' : ' disabled'}>${GARDEN_C} gold</button></li>`}
       </ul></section>`; }
-  function homesUp() { Scene.clearHomes(); for (const h of S.homes || []) Scene.addHome(h); }
+  function homesUp() { return Scene.restoreHomes(S.homes || []); }
   const SH = {
+    ferry: ferryOffer,
+    landmark(e) {
+      if (e.place === 'marigold') dlg(e, 'The Marigold is moored at Tallyport’s quay.', [bye]);
+    },
+    specialist(e) { if (marketSpecialty(e)) countryStock(e); },
     banker(e) { if (gid() === 'bank' && !S.gbk) { S.gbk = 1; return dlg(e, '"If you fall out there, everything you’re carrying stays with your body until you go back for it. Gold in here stays put, whatever happens to you. Deposit what you don’t need."', [{ t: 'Open the bank', a: 'bankopen' }, bye]); } bankSheet(e); },
     guide(e) { const g = gOn() && GD[S.gd]; dlg(e, (g && g.say) || '"Keep going. I’m right here."', [g && g.id === 'fish' && { t: 'Skip the fishing', a: 'gnext' }, { t: 'Skip the rest of the guide', n: 'you can always ask the townsfolk', a: 'gskip' }, bye]); },
     lookout(e) { if (gid() === 'tower') { gDone('tower'); return dlg({name:'The view from the harbour tower'}, '"That’s the road north. Each town has a ring of stones on its way out, with an examiner inside. Signposts out there hold pages of Ilva Thorne’s journal. Where creatures crowd together, that’s a lair: stay clear for now. Open the Map to see it all."', [{ t: 'Open the Map', a: 'tab', d: { t: 'map' } }, bye]); } sheet(`<p class="eyebrow">Tallyport · the harbor</p><h2>Harbor tower</h2><p class="story">From the top you can see the whole coast and the road going north.</p><div class="row end"><button class="btn quiet" data-a="closesheet">Climb down</button><button class="btn solid" data-a="tab" data-t="map">Open the Map</button></div>`); },
@@ -1369,7 +1477,7 @@
     sound: (name, detail) => Sound.sfx(name, detail),
     dungeonState: () => DG ? DP.current() : null,
     moved(x, y, dun, run) { if (dun && DG)DP.moved(x,y); if (gOn()) gMoved(x, y, dun, run); if (!dun && !Scene.inHall()) { S.pos = [x, y]; if (S.mv % 3 === 0) { S.lairs = S.lairs || {}; for (const L of Scene.sites()) if (L.kind === 'lair' && !S.lairs[L.id] && Math.hypot(L.x - x, L.y - y) < 11) { S.lairs[L.id] = 1; save(); toast(`Found: ${L.name}. It is on your map now.`); coach('lair'); } } } S.mv = (S.mv || 0) + 1; if (S.mv % 5 === 0 && S.hp < maxHp()) { heal(1 + Math.floor(rv('healing') / 40), true); renderHud(); } },
-    hud(n) { const ob = objective(), k = (n ? n.kind + n.name : '') + ob + (F ? 'f' : ''); if (k === HOST._k) return; HOST._k = k; const b = $('#ctx'); b.hidden = !n || !!F; if (n) b.textContent = ({ banker: 'Bank: ', guide: 'Talk: ', lookout: 'Climb: ', dojo: 'Go in: ', hallexit: 'Leave: ', master: 'Talk: ', student: 'Talk: ', sorrel: 'Talk: ', traveler: 'Talk: ', odalys: 'Talk: ', foe: 'Talk: ', dummy: 'Practice: ', bracket: 'Read: ', rnote: 'Read: ', npc: 'Talk: ', folk: 'Talk: ', tavern: 'Talk: ', healer: 'Talk: ', registrar: 'Talk: ', stallkeep: 'Trade: ', shopkeep: 'Trade: ', rival: 'Approach: ', boss: 'Face: ', mon: 'Engage: ', guard: 'Engage: ', keeper: 'Face: ', dtravel:'Use: ', dcache:'Open: ', dlever:'Use: ', dgate:'Inspect: ', dsecret:'Investigate: ', dlore:'Read: ', ltable:'Take: ', node: 'Gather: ', board: 'Read: ', bench: 'Use: ', stairs: 'Enter: ', chest: 'Open: ', exit: 'Use: ', page: 'Read: ', camp: 'Rest: ', peddler: 'Trade: ', cache: 'Open: ', corpse: 'Loot: ', casino: 'Enter: ', home: 'Talk: ', fish: 'Fish: ', stock: '', poi: (n.sub || 'Look') + ': ' }[n.kind] || '') + n.name; $('#obj').textContent = ob; }
+    hud(n) { const ob = objective(), k = (n ? n.kind + n.name : '') + ob + (F ? 'f' : ''); if (k === HOST._k) return; HOST._k = k; const b = $('#ctx'); b.hidden = !n || !!F; if (n) b.textContent = ({ banker: 'Bank: ', guide: 'Talk: ', lookout: 'Climb: ', dojo: 'Go in: ', hallexit: 'Leave: ', master: 'Talk: ', student: 'Talk: ', sorrel: 'Talk: ', traveler: 'Talk: ', odalys: 'Talk: ', foe: 'Talk: ', dummy: 'Practice: ', bracket: 'Read: ', rnote: 'Read: ', npc: 'Talk: ', folk: 'Talk: ', tavern: 'Talk: ', healer: 'Talk: ', registrar: 'Talk: ', stallkeep: 'Trade: ', shopkeep: 'Trade: ', specialist: 'Trade: ', ferry: 'Talk: ', landmark: 'Inspect: ', rival: 'Approach: ', boss: 'Face: ', mon: 'Engage: ', guard: 'Engage: ', keeper: 'Face: ', dtravel:'Use: ', dcache:'Open: ', dlever:'Use: ', dgate:'Inspect: ', dsecret:'Investigate: ', dlore:'Read: ', ltable:'Take: ', node: 'Gather: ', board: 'Read: ', bench: 'Use: ', stairs: 'Enter: ', chest: 'Open: ', exit: 'Use: ', page: 'Read: ', camp: 'Rest: ', peddler: 'Trade: ', cache: 'Open: ', corpse: 'Loot: ', casino: 'Enter: ', home: 'Talk: ', fish: 'Fish: ', stock: '', poi: (n.sub || 'Look') + ': ' }[n.kind] || '') + n.name; $('#obj').textContent = ob; }
   };
 
   function heroTables() {
@@ -1492,7 +1600,8 @@
     snd: d => { const p = Sound.pref(); if (d.k === 'mu') Sound.setMu(!p.mu); else Sound.setFx(!p.fx); render(); },
     tab: d => { if (F) return; tab = d.t; if (tab === 'map') sel = S.region; closeSheet(); render(); $('#view').scrollTop = 0; },
     sub: d => { sub = d.s; render(); }, lsub: d => { lsub = d.s; render(); }, sel: d => { sel = +d.r; render(); },
-    travel: d => { const r = +d.r; if (!unlocked(r) || !sceneUp) return; DG = null; S.dungeon = null; const t = Scene.towns()[r]; tab = 'world'; Scene.load([t[0], t[1] + 3], r); S.region = r; sel = r; save(); render(); },
+    ferryboard: boardFerry,
+    travel: d => { const r = +d.r; if (!unlocked(r) || !sceneUp) return; DG = null; S.dungeon = null; const t = Scene.towns()[r]; tab = 'world'; Scene.load([t[0], t[1] + 3], r); S.pos = Scene.pos(); S.region = sel = Scene.region(); save(); render(); },
     journal: () => { if (!F) SH.journal(); }, act: () => Scene.act(), talk: () => CE && SH[CE.kind](CE), shop: () => CE && SH.stallkeep(CE), chat: () => { const e = CE; if (!e) return; closeSheet(); dlg(e, pick(e.kind === 'tavern' ? GOSSIP.concat(TALK.hint) : TALK.bark.concat(TALK.hint)), [{ t: 'Back to the goods', a: 'talk' }, bye]); },
     supply: d => { const tonic = d.k === 'tonic', k = tonic ? null : d.k, f = tonic ? ['Healing Draught',30,'draught'] : FOOD[k]; if (!f) return; const n = tonic ? S.tonics : foodN(k), full = S.hp >= maxHp(), busy = F && (F.busy || F.over); sheet(`<h2>${esc(f[0])}</h2><div class="supply-detail">${ico(f[2])}<p>You have ${n}. Restores up to ${f[1]} health.</p></div><p>${full ? 'Health is full. You can save this for later.' : busy ? 'Wait until the current combat action has finished.' : n<1 ? 'You have none left.' : `You are missing ${maxHp()-S.hp} health.`}</p><div class="row end"><button class="btn solid" data-a="${tonic?'tonic':'eat'}"${tonic?'':` data-k="${k}"`}${full||busy||n<1?' disabled':''}>${tonic?'Drink':'Eat'}</button></div>`); },
     eat: d => { const k = (d && d.k) || 'meat'; if (!(foodN(k) > 0) || S.hp >= maxHp() || (F && (F.busy || F.over))) return; addFood(k, -1); const n = heal(FOOD[k][1]); save(); renderHud(); closeSheet(); toast(`Ate ${FOOD[k][0]}: +${n} health`); if (F) { barsF(); drawF(); } else render(); },
@@ -1501,8 +1610,8 @@
     jobs: () => dlg(CE, '"Do any again, from memory."', jobsOf(CE).filter(c => S.done[c.id]).map(c => ({ t: c.title, n: 'done', a: 'contract', d: { id: c.id } })).concat([back])),
     ask: d => { const t = CE.r, r = region(t), sp = Scene.spots(), tw = Scene.towns()[t], dir = p => p ? (Math.abs(p[1] - tw[1]) > Math.abs(p[0] - tw[0]) ? (p[1] < tw[1] ? 'north' : 'south') : (p[0] < tw[0] ? 'west' : 'east')) : 'out'; dlg(CE, d.k === 'place' ? `${TALK.place[t - 1].slice(0, -1)} The examiner’s ring is ${dir(sp['boss' + t])} of town, and ${DUNGEONS[t - 1].name} lies to the ${dir(sp['dun' + t])}."` : SAY[t - 1][CE.i], [back]); },
     gossip: () => dlg(CE, pick(GOSSIP), [{ t: 'More', a: 'gossip' }, back]),
-    pages: () => { coach('shop'); const t = here(); sheet(`<p class="eyebrow">${CIRCLE[t]} Circle</p><h2>Pages for sale ${qm('shop')}</h2><ul class="inv">${PAGES.filter(p => p.c === t && !p.rare).map(p => goodHTML(owned(p.id) ? { ic: 'scroll_' + p.book, name: p.name, meta: BOOKS[p.book].name, pill: 'in your book' } : { ic: 'scroll_' + p.book, name: p.name, meta: `${BOOKS[p.book].name} · ${BOOKS[p.book].what}`, price: p.price + ' gold', a: 'buypage', d: { id: p.id }, off: S.gold < p.price })).join('')}</ul>`.replace('<ul class="inv">', '<ul class="goods">')); },
-    buypage: d => { const p = pageById(d.id); if (!p || owned(p.id) || S.gold < p.price) return; S.gold -= p.price; S.pages[p.id] = 1; if (gid() === 'page') setTimeout(() => gDone('page'), 400); save(); renderHud(); toast(`${p.name} added to your ${BOOKS[p.book].name}`); ACT.pages(); },
+    pages: () => { coach('shop'); const t = here(); sheet(`<p class="eyebrow">${CIRCLE[t]} Circle</p><h2>Pages for sale ${qm('shop')}</h2><ul class="goods">${pageGoods(t).map(goodHTML).join('')}</ul>`); },
+    buypage: d => { const p = pageById(d.id); if (!p || owned(p.id) || S.gold < p.price) return; S.gold -= p.price; S.pages[p.id] = 1; if (gid() === 'page') setTimeout(() => gDone('page'), 400); save(); renderHud(); toast(`${p.name} added to your ${BOOKS[p.book].name}`); if (marketSpecialty(CE) && marketSpecialty(CE).pages) countryStock(CE); else ACT.pages(); },
     scroll: d => { const p = pageById(d.id); if (!p || !S.scr[p.id]) return; sheet(`${scrollHTML(p)}<p class="cap2">${esc(p.src)}.</p><div class="row end">${owned(p.id) ? `<button class="btn" data-a="sellscroll" data-id="${p.id}">Sell · ${20 * p.c} gold</button>` : `<button class="btn solid" data-a="inscribe" data-id="${p.id}">Add to the ${BOOKS[p.book].name}</button>`}</div>`); },
     inscribe: d => { const p = pageById(d.id); if (p && inscribe(p.id)) { save(); toast(`${p.name} added to your ${BOOKS[p.book].name}`); } closeSheet(); render(); },
     sellscroll: d => { const p = pageById(d.id); if (!p || !S.scr[p.id]) return; S.scr[p.id]--; if (!S.scr[p.id]) delete S.scr[p.id]; S.gold += 20 * p.c; save(); closeSheet(); render(); },
@@ -1544,7 +1653,7 @@
     ctrade: () => CE && countryStock(CE), buyfood: d => { const c = +d.c; if (S.gold < c) return; S.gold -= c; addFood(d.k, 1); save(); renderHud(); toast('Bought ' + FOOD[d.k][0]); if (CE) countryStock(CE); },
     buymat: d => { const c = +d.c, e = CE; if (!e || S.gold < c) return; S.gold -= c; S.mats[e.r] = have(e.r) + 1; save(); renderHud(); toast('Bought ' + MATS[e.r]); countryStock(e); },
     buykey: d => { const c = +d.c, e = CE; if (!e || S.gold < c || !S.cs[e.hid] || !S.cs[e.hid].key) return; S.gold -= c; S.hints++; S.cs[e.hid].key = 0; save(); renderHud(); toast('Bought a Hint Key'); countryStock(e); },
-    buygear: d => { const e = CE, st = e && S.cs[e.hid], it = st && st.items[+d.i]; if (!it || S.gold < price(it)) return; if (S.inv.length >= 60) return toast('Your bag is full'); S.gold -= price(it); st.items.splice(+d.i, 1); give(it); save(); renderHud(); toast('Bought ' + it.name); countryStock(e); },
+    buygear: d => { const e = CE, st = e && S.cs[stockId(e)], it = st && st.items[+d.i]; if (!it || S.gold < price(it)) return; if (S.inv.length >= 60) return toast('Your bag is full'); S.gold -= price(it); st.items.splice(+d.i, 1); give(it); save(); renderHud(); toast('Bought ' + it.name); countryStock(e); },
     sellhides: () => { const e = CE, n = have('hide'); if (!e || !n) return; const g = n * SETTLE[e.role].hides * e.r; S.mats.hide = 0; S.gold += g; save(); renderHud(); toast(`Sold ${n} hide${n === 1 ? '' : 's'} for ${g} gold`); countryStock(e); },
     song: () => { const e = CE, c = e ? 3 * e.r : 0; if (!e || S.gold < c) return toast('Not enough gold'); S.gold -= c; const n = heal(12); save(); renderHud(); dlg(e, pick(GOSSIP), [bye]); toast(`A song: +${n} health`); },
     cast: d => CE && fishOpen(CE, +d.i), fiagain: () => { const e = FI && FI.e; if (!e) return; fiClose(); CE = e; SH.fish(e); }, fileave: () => { if (FI) fiClose(); },
@@ -1574,7 +1683,7 @@
     hpad: d => { const h = homeById(d.h); if (!h || h.pad || !(S.runes > 0)) return; S.runes--; h.pad = 1; Scene.dropHome(h.id); Scene.addHome(h); save(); toast('The pad is set. Teleport here from the Map.'); homeSheet(h); },
     hput: d => { const h = homeById(d.h); if (!h || h.chest.length >= hCap(h)) return toast('The chest is full'); const i = S.inv.findIndex(it => it.id === d.id); if (i < 0) return; h.chest.push(S.inv.splice(i, 1)[0]); save(); homeSheet(h); },
     htake: d => { const h = homeById(d.h); if (!h) return; if (S.inv.length >= 60) return toast('Your bag is full'); const i = h.chest.findIndex(it => it.id === d.id); if (i < 0) return; S.inv.push(h.chest.splice(i, 1)[0]); save(); homeSheet(h); },
-    tphome: d => { const h = homeById(d.h); if (!h || !h.pad) return; if (F || Q) return toast('Not in a fight.'); if (sceneUp && Scene.find(e => e.chase > 0)) return toast('Not while something is chasing you.'); const p = Scene.homeDoor(h.id); DG = null; S.dungeon = null; tab = 'world'; Scene.load(p || [h.x, h.y + h.h + 1], h.r); S.region = h.r; save(); render(); toast('You step off the pad at ' + h.name + '.'); },
+    tphome: d => { const h = homeById(d.h); if (!h || !h.pad) return; if (F || Q) return toast('Not in a fight.'); if (sceneUp && Scene.find(e => e.chase > 0)) return toast('Not while something is chasing you.'); const p = Scene.homeDoor(h.id); DG = null; S.dungeon = null; tab = 'world'; Scene.load(p || [h.x, h.y + h.h + 1], h.r); S.pos = Scene.pos(); S.region = sel = Scene.region(); save(); render(); toast('You step off the pad at ' + h.name + '.'); },
     bdep: () => { if (gid() === 'bank') setTimeout(() => { closeSheet(); gDone('bank'); }, 700); S.bank.gold += S.gold; toast(`Deposited ${S.gold} gold`); S.gold = 0; save(); renderHud(); bankSheet(); },
     bwd: d => { const n = d.n === 'all' ? S.bank.gold : Math.min(+d.n, S.bank.gold); S.bank.gold -= n; S.gold += n; save(); renderHud(); bankSheet(); },
     bstore: d => { if (S.bank.items.length >= BANK_SLOTS) return toast('The bank box is full'); const i = S.inv.findIndex(it => it.id === d.id); if (i < 0 || Object.values(S.eq).includes(d.id)) return; S.bank.items.push(S.inv.splice(i, 1)[0]); save(); bankSheet(); },
@@ -1617,7 +1726,17 @@
     export: () => { if(DG)DP.snapshot(); syncA(); const code = btoa(unescape(encodeURIComponent(JSON.stringify(A)))); sheet(`<h2>Save code</h2><p class="cap2">Copy this somewhere safe. Loading it on any device restores all your characters and houses.</p><label class="vh" for="savebox">Save code</label><textarea id="savebox" class="savebox" readonly>${code}</textarea><div class="row end"><button class="btn solid" data-a="copy">Copy</button></div>`); },
     copy: async () => { const b = $('#savebox'); try { await navigator.clipboard.writeText(b.value); toast('Copied'); } catch (e) { b.focus(); b.select(); toast('Select all and copy'); } },
     import: () => sheet(`<h2>Load a save code</h2><p class="cap2">This replaces all your characters and houses.</p><label class="vh" for="savebox">Save code</label><textarea id="savebox" class="savebox" placeholder="Paste a save code"></textarea><div class="row end"><button class="btn solid" data-a="doimport">Load</button></div>`),
-    doimport: () => { try { const o = JSON.parse(decodeURIComponent(escape(atob($('#savebox').value.trim())))); if (!o || ![6,7].includes(o.v)) throw 0; const rev = Math.max(A.rev, o.rev || 0); A = Object.assign(freshA(), o, {v:7}); A.rev = rev; loadCur(); cmdBackfill(); DG = null; Q = null; F = null; save(); closeSheet(); if (A.cur < 0) return title(); hideTitle(); if (sceneUp) {Scene.load(S.pos, S.pos ? S.region : 'dock');if(S.dungeon)DP.restore();surfaceBodies();} render(); toast('Game loaded'); } catch (e) { toast('That is not a valid save code'); } },
+    doimport: () => {
+      try {
+        const o = JSON.parse(decodeURIComponent(escape(atob($('#savebox').value.trim()))));
+        if (!o || ![6,7].includes(o.v)) throw 0;
+        A = Object.assign(freshA(), o, { v: 7, rev: Math.max(A.rev, o.rev || 0) });
+        loadCur(); cmdBackfill(); DG = null; Q = null; F = null; CE = null; closeSheet();
+        if (A.cur < 0) { if (sceneUp) homesUp(); save(); return title(); }
+        hideTitle(); if (sceneUp) restoreAccountScene(true);
+        save(); render(); toast('Game loaded');
+      } catch (e) { toast('That is not a valid save code'); }
+    },
     reset: () => { closeSheet(); tab = 'world'; render(); title(); }
   };
   document.addEventListener('click', e => { const el = e.target.closest('[data-a]'); if (!el || el.disabled || ghost(e)) return; const f = ACT[el.dataset.a]; if (f) f(el.dataset, el, e); });

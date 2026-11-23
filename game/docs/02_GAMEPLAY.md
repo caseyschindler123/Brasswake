@@ -1,6 +1,6 @@
 # Brasswake: gameplay reference
 
-Last updated: 2026-11-22. This describes the story and first-day revision, integrated soundtrack and 28-floor dungeon rebuild. The retained artifact preview is `1795364400-6a70`. This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn.
+Last updated: 2026-11-22. This describes world revision 3, modular buildings, the expanded capital and working ports, alongside the story/first-day revision, soundtrack and 28-floor dungeon rebuild. The retained artifact preview is `1795364400-6a70`. This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn.
 
 ## 1. Premise and goals
 
@@ -38,7 +38,7 @@ Last updated: 2026-11-22. This describes the story and first-day revision, integ
 
 ## 3. World
 
-- **Size:** one 576 × 1008 tile map, 16 px per tile, with 8 regions running south to north. Each region has a town with:
+- **Size:** one 768 × 1152 tile map, 16 px per tile. A shaped mainland has estuaries, headlands and coves; Brackwater is a separate southeast marsh island and Cinderwick a separate western volcanic island, each with countryside and its existing dungeon. Six smaller offshore skerries complete the silhouette. Circle order remains a teaching sequence. Each region has a town with:
   - guildhall, shop and stall, tavern, healer, bank, workbench, notice board
   - dojo, card room, registrar
   - a ring of stones holding the Examiner
@@ -56,12 +56,12 @@ Last updated: 2026-11-22. This describes the story and first-day revision, integ
 | 8 | Aldermoot (marble city) | INSERT, UPDATE, DELETE, CREATE, UNION | The Council | The Sealed Stacks |
 
 - **Getting around:**
-  - Nothing is locked by region; you can walk anywhere.
+  - Nothing is locked by region. Roads connect the six mainland towns. Four free, on-demand, two-way ferry routes join Tallyport–Brackwater, Brackwater–Haverly, Four Fords–Cinderwick, and Cinderwick–Aldermoot. Approach a ferryman and choose the destination; a safe quay landing and return service are available with zero gold. World-map lines follow actual open sea around headlands. First island visits use ferries; existing visited-town travel remains available afterward.
   - Walking speed is 2.2 tiles/s and running is 4.6 tiles/s.
   - Teleport runes turn into house pads.
 - **Population:**
   - About 155 creatures per region in camps of 3–5, plus strays, 16 lairs in all (marauders, smugglers, bandits, the bog witch, giant leech and spider, frost giant, wyvern, red dragon, lich, skeleton archers), and animals.
-  - The countryside has homesteads with livestock and people, places to find, fishing spots and wanderers.
+  - The countryside retains all 56 homesteads, 56 roaming people, 88 points of interest, 16 lairs and 73 fishing sites (including the guided pier). Stable IDs preserve discovery, rewards and errand targets. Find/delivery directions and target names update to the actual moved sites without resetting progress.
   - **Regional wildlife** (`WILD` in quests.js, `host.wild`): each region has four wildlife creatures tagged by habitat (coast, water, open, forest). Every other animal spawn picks from the region's list for its habitat, in place of the common animals.
   - Lairs L6b, L7b, L8a and L8b have their own creature sets: the Troll Hollow, the Winter Den, the Brass Barracks and the Archive Wardens.
 - **Respawn** (`respT`):
@@ -269,7 +269,9 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
 
 - **SQL editing:** queries may include line (`--`) and block (`/* ... */`) comments. Format retains comments and quoted names; comment punctuation does not create extra statements. The sandbox shows SELECT results even when the query starts with a comment. Combat controls wrap below the title when needed, and feedback/fishing controls use readable colors on dark panels.
 
-- **Walk-in rooms** (Tallyport only; `ROOMS` and `setRoom` in scene_b.js): the tavern (7×7 tiles), shop (6×5) and bank (6×6) are rooms you walk into. The outer ring of the footprint is wall and the door is the fourth tile of the front row. Stepping onto the footprint fades the painted building out over about a fifth of a second and shows the room in the same place: floor, a back wall 2.5 tiles tall with windows and decorations, thin side walls, a low front wall with the door gap, and furniture that blocks its tiles. The tavern keeper stands behind the bar, the banker behind the bank counter, and a new Shopkeeper (same stock as the stallkeeper) behind the shop counter. The plaza stall and stallkeeper are unchanged. Tallyport's other buildings and the other seven towns are not enterable yet.
+- **Modular walk-in buildings** (`Buildings`, `BuildingView`, `scene_world.js`): settlement exteriors use structural fronts, posts, corners, side walls and separate roof sections. Rectangles, L wings and courtyard plans share their real floor cells and north/east/south/west door openings with collision. Roofs and obstructing walls fade while inside; central courtyards remain open. Regional floors and furniture preserve each town's materials. Tavern, shop and bank keepers stand indoors in all eight towns. Public warehouses, the capital inn, palace and temple have explicit entrances. Small countryside landmarks, the painted dojo halls and existing recolourable player houses retain their existing presentation.
+- **Aldermoot, the capital:** a walled 160×130-tile city envelope with 64 building footprints inside its walls, ceremonial palace, temple garden, gate, harbour, dense houses and workshops. Six districts are Council Terrace, Temple & Gardens, Grand Market, Merchants’ Quarter, Harbour and Residential Wards. Twelve Grand Market specialists sell distinct existing goods/services at existing prices: Weaponsmith, Armourer, Fletcher, Bookseller, Apothecary, Baker, Fishmonger, Clothier, Carpenter, Stonemason, Jeweller and Provisioner. Additional residents, visitors, messengers and dockworkers populate the streets. The council remains the political authority.
+- **Tallyport Harbour:** a working waterfront west of the existing novice town core, with a sea-connected basin, stone quays, three substantial wooden piers, warehouses, lighthouse, cargo props and a separate ferry berth. The Marigold is the large three-masted ship beside the arrival pier; a cog and passenger ferry are also visibly moored. Inspecting the Marigold identifies it. The first-day route and guide identities remain intact.
 - **Guided first day** (`GD`, Tamsin): Tamsin introduces herself aboard the Marigold, accompanies the player along walkable surface routes, and waits outside the dojo/dungeon. Her queued speech is tied to the current character/objective, waits until arrival and speaking distance, and does not replace another interaction. Stable guide indices preserve existing progress; switching/loading reconciles her presence.
 - **First SQL lesson:** Odalys uses an isolated three-row `manifest` (name, quantity, destination). Interactive row/column identification and result prediction precede query assembly, then six typed tasks introduce single columns, commas, `*`, and an explicit transition to the town Ledger. Results remain visible between tasks. A safe chosen-page ability practice precedes the guided gull encounter. Existing `seen` markers resume completed lesson checkpoints, and replaying a completed intro gives no additional 25-gold payout. Ledger → Lessons → First SQL lesson reopens the full explanation.
 - **Supplies:** Bag lists each food/draught name, quantity and healing effect. Tapping opens an Eat/Drink action and explains full health or unavailable use. Dark bread heals up to 12 HP; Healing Draught up to 30. Only missing health is restored and one item is consumed. Food guidance accepts full health without requiring damage.
@@ -305,9 +307,6 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
 - Rumors are per character. Their unique can only be found once per account.
 - **More audio:** the other 7 town themes and 7 dungeon themes, 4–5 shared wilderness themes (so town and countryside differ, as in UO), a second combat track, victory sting, tavern, dojo, card room, title and death tracks. Further effect work: continuous regional ambience, occasional idle creature calls, and separate creature death voices. Family attack cues, crafting, fishing and walk-in doors are built.
 - Not yet checked on Casey's iPhone: that audio plays in the Claude app, and what the silent switch does.
-- **Walk-in rooms everywhere:** built for Tallyport's tavern, shop and bank (see Other systems). Still to do: the other seven towns (their interior art, KI, KG and KW, is generated), Tallyport's other buildings, and specialist shop interiors using the KR shop fittings. Player houses may later use the kit inside and out. Waiting on Casey's verdict on Tallyport from his phone.
-- **A real port at Tallyport:** stone quays, wooden piers on pilings, ships moored alongside (a three-master and a cog), small boats, and dock clutter (crates, barrels, sacks, rope, a cargo crane, bollards, lamp posts). Built from harbour textures and props, the same way as the building kit. Art requested; layout not designed yet.
-- **A shaped world with islands and a capital:** the world generator draws a real landmass (irregular coast, bays, headlands, offshore islands) in place of the current rectangle, with a couple of towns on islands reached by ferry from a port, and one large capital port city with a big market square, many specialist shops, landmarks and city walls. Working assumptions until Casey decides: the capital is Aldermoot (it already holds the council), and the island towns are to be chosen. The landmass, coast and islands are code, drawn with existing ground textures (V) plus the new coast textures and props. Ferries reverse the earlier skip of boats only for island crossings; there is no free sailing. Art requested in the same run; nothing designed in code yet.
 
 ## Decision log
 
@@ -342,3 +341,4 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
 - 2026-11-21: Audio planned, modelled on UO's per-town, per-dungeon and per-situation music. Casey chose AI-generated music (he has no recorded tracks); Suno, since it runs on his phone.
 - 2026-11-21: Pass 26 (`1795324356-c3c6`): first music (Tallyport, the Bilge Vaults, combat) and synthesized effects, with music and effect toggles on the Hero tab.
 - 2026-11-22: Casey: the full Symbols group made the Commands panel too large. Now three common symbols (`,` `*` `'`) sit on top of the Commands panel and in the keyboard's bottom row, with the rest behind a Symbols button (Commands panel) or the 123 key (keyboard). The quote beat `=` for the third slot because text filters use it in nearly every WHERE.
+- 2026-11-22: World rebuild release candidate (world revision 3): Casey selected Aldermoot as the large capital and Brackwater/Cinderwick as ferry islands. Added the shaped coast, working ports, modular walk-in buildings, six capital districts and existing-goods specialists. This supersedes the earlier interiors-only kit decision. Existing story/content identities and progression are preserved. Release identity is the source commit and HTML hash in release.json.

@@ -154,17 +154,54 @@ test('crafting and fishing outcomes and walked room crossings have contextual so
         document.querySelector('#sql').value = __bw.FI.task.sql; Math.random = () => roll; __sounds.length = 0; __bw.ACT.run(); fish.push({ cast, outcome: __sounds.map(x => x.name) }); Math.random = random; __bw.ACT.fileave();
       }
     } finally { Math.random = random; }
-    const room = Scene.debug().map.blds.find(b => b.enter && b.slot === 'tavern');
-    Scene.load([room.x + room.room.door, room.y + room.h], 1);
-    return { crafts, fish, door: [room.x + room.room.door, room.y + room.h - 1] };
+    Scene.pause();
+    const { map } = Scene.debug();
+    // Keep live occupancy and collision, but prevent patrols from changing the
+    // availability of the selected doorway between setup and the walking step.
+    for (const e of map.ents) if (e.wander) {
+      e.wander = 0; e.tx = null; e.fx = e.x; e.fy = e.y;
+    }
+    const open = ([x, y]) => {
+      const i = y * map.w + x;
+      return map.seen[i] && !map.solid[i] && !map.occ.has(i) && map.t[i] !== 4;
+    };
+    const taverns = map.blds.filter(b => b.enter && b.slot === 'tavern' && b.modular && b.room.fl === 'floor');
+    for (const room of taverns.sort((a, b) => a.r - b.r)) {
+      const world = p => [room.x + p.x, room.y + p.y];
+      for (const d of room.plan.doors) {
+        const [outside, door, inside] = [d.outside, d, d.inside].map(world);
+        if (![outside, door, inside].every(open)) continue;
+        Scene.load(outside, room.r);
+        return { crafts, fish, outside, door, roomId: room.plan.id };
+      }
+    }
+    throw new Error('No unoccupied wood-floored tavern entrance');
   });
   expect(result.crafts[0]).toContain('smith'); expect(result.crafts[1]).toContain('alchemy'); expect(result.crafts[2]).toContain('craftFail');
   for (const fish of result.fish) expect(fish.cast).toContain('fishCast');
   expect(result.fish[0].outcome).toContain('fishCatch'); expect(result.fish[1].outcome).toContain('fishEmpty');
-  await f.waitForTimeout(800);
-  // Start the paused fixture before queuing movement, as a live tap does.
-  await f.evaluate(door => { __sounds.length = 0; Scene.resume(); Scene.debug().P.path = [door]; }, result.door);
+  await f.waitForFunction(() => !Scene.debug().map.pending);
+  const start = await f.evaluate(id => {
+    Scene.debug().draw();
+    const room = Scene.debug().map.blds.find(b => b.plan?.id === id);
+    const before = { position: Scene.pos(), inside: room.inside };
+    __sounds.length = 0;
+    Scene.resume();
+    return before;
+  }, result.roomId);
+  expect(start).toEqual({ position: result.outside, inside: false });
+  const dx = result.door[0] - result.outside[0], dy = result.door[1] - result.outside[1];
+  expect(Math.abs(dx) + Math.abs(dy)).toBe(1);
+  const key = dx > 0 ? 'ArrowRight' : dx < 0 ? 'ArrowLeft' : dy > 0 ? 'ArrowDown' : 'ArrowUp';
+  await f.locator('body').evaluate(body => { body.tabIndex = -1; body.focus({ preventScroll: true }); });
+  await page.keyboard.down(key);
+  try {
+    await f.waitForFunction(() => Scene.traveling(), null, { timeout: 3500 });
+  } finally {
+    await page.keyboard.up(key);
+  }
   await f.waitForFunction(() => __sounds.some(x => x.name === 'door'), null, { timeout: 5000 });
+  expect(await f.evaluate(() => Scene.pos())).toEqual(result.door);
   const steps = await f.evaluate(() => { Scene.pause(); return __sounds.filter(x => x.name === 'step'); });
   expect(steps.some(x => x.detail === 'wood')).toBe(true);
 });

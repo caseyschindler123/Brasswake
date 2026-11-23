@@ -1,6 +1,6 @@
 {
-  "expected_files": 486,
-  "actual_files": 486,
+  "expected_files": 522,
+  "actual_files": 522,
   "matched": [
     "atk.webp",
     "b1.webp",
@@ -52,6 +52,9 @@
     "dj/dp.webp",
     "dj/dx.webp",
     "dj/fs.webp",
+    "dun/gates.webp",
+    "dun/kit.webp",
+    "dun/mobs.webp",
     "f/F01_1.webp",
     "f/F01_2.webp",
     "f/F01_3.webp",
@@ -242,7 +245,9 @@
     "i/map.webp",
     "i/sword.webp",
     "i/tome.webp",
+    "icons.webp",
     "kit/k1.webp",
+    "mobs.webp",
     "mobwalk.webp",
     "mt/U01.webp",
     "mt/U02.webp",
@@ -254,9 +259,34 @@
     "mt/U08.webp",
     "mt/U09.webp",
     "mt/U10.webp",
+    "mu/m_aldermoot.mp3",
+    "mu/m_barrows.mp3",
     "mu/m_bilge.mp3",
+    "mu/m_brackwater.mp3",
+    "mu/m_cards.mp3",
+    "mu/m_cinderwick.mp3",
     "mu/m_combat.mp3",
+    "mu/m_crystal.mp3",
+    "mu/m_death.wav",
+    "mu/m_dojo.mp3",
+    "mu/m_examiner.mp3",
+    "mu/m_four_fords.mp3",
+    "mu/m_haverly.mp3",
+    "mu/m_highwatch.mp3",
+    "mu/m_ice.mp3",
+    "mu/m_kell.mp3",
+    "mu/m_slagdeep.mp3",
+    "mu/m_stacks.mp3",
+    "mu/m_sunken_sluice.mp3",
     "mu/m_tallyport.mp3",
+    "mu/m_tanglewarren.mp3",
+    "mu/m_tavern.mp3",
+    "mu/m_title.mp3",
+    "mu/m_victory.wav",
+    "mu/m_wild_coast.mp3",
+    "mu/m_wild_fields.mp3",
+    "mu/m_wild_north.mp3",
+    "mu/m_wild_stone.mp3",
     "o1.webp",
     "o2.webp",
     "o3.webp",
@@ -485,61 +515,19 @@
     "w8/L4.webp",
     "w8/L5.webp",
     "w8/L6.webp",
-    "w8/L7.webp"
+    "w8/L7.webp",
+    "world/harbor.webp",
+    "world/interiors.webp",
+    "world/kit12.webp",
+    "world/kit34.webp",
+    "world/kit56.webp",
+    "world/kit78.webp",
+    "world/landmarks.webp",
+    "world/ships.webp"
   ],
   "missing": [],
   "extra": [],
-  "different": [
-    {
-      "path": "icons.webp",
-      "expected_sha256": "25e0fd396bd9bd13e7736c4dba7d3f0d23007a435a60707f13ad74d3a98868bb",
-      "actual_sha256": "348548ad24cd77864c764e062ab203a36a31541d0a5af3624e2d92c6e0269b71",
-      "expected_bytes": 566666,
-      "actual_bytes": 573250,
-      "byte_difference": 6584,
-      "actual_dimensions": [
-        1024,
-        1024
-      ],
-      "pixel_comparison": "unavailable: reference image bytes not supplied",
-      "expected_dimensions": [
-        1024,
-        1024
-      ],
-      "dimension_evidence": "Unchanged original artdata.js and original packer constants; inferred original atlas geometry, not a measurement of unavailable live bytes.",
-      "accepted_classification": "Encoding/library difference accepted under Casey's 2026-11-22 baseline policy after geometry and visual checks."
-    },
-    {
-      "path": "mobs.webp",
-      "expected_sha256": "fd4d6d0685efb79871d5538184098457eaad7c7f4e0865bdb39da769d4599366",
-      "actual_sha256": "883b4f845c570ea8a57eeaffbc7c05fb067dbd75c4054c371c5497fb9d3394f5",
-      "expected_bytes": 560080,
-      "actual_bytes": 563108,
-      "byte_difference": 3028,
-      "actual_dimensions": [
-        800,
-        1584
-      ],
-      "pixel_comparison": "unavailable: reference image bytes not supplied",
-      "expected_dimensions": [
-        800,
-        1584
-      ],
-      "dimension_evidence": "Unchanged original artdata.js and original packer constants; inferred original atlas geometry, not a measurement of unavailable live bytes.",
-      "accepted_classification": "Encoding/library difference accepted under Casey's 2026-11-22 baseline policy after geometry and visual checks."
-    }
-  ],
-  "manifest": "live_manifest_1795364400-6a70.json",
-  "webp_encoder": "1.6.0",
-  "baseline_decision": {
-    "date": "2026-11-22",
-    "coordinate_js_unchanged": true,
-    "original_geometry_preserved": true,
-    "visual_review": "8 scenes at 390x720; no missing art, obvious misalignment or wrong-facing rows observed",
-    "browser_errors": 0,
-    "pixel_difference": "Not measured: live reference image bytes unavailable; no pixel-equality claim.",
-    "raw_art_regenerated": false,
-    "accepted_manifest": "packed_manifest.json"
-  },
-  "built_html_matches_live": true
+  "different": [],
+  "manifest": "packed_manifest.json",
+  "webp_encoder": "1.6.0"
 }

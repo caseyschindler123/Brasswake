@@ -6,6 +6,8 @@ require('./dungeons');
 require('./music');
 require('./arming');
 require('./first-day');
+require('./world-travel');
+require('./world-buildings');
 
 // Local tests use the installed SQL engine and local game fonts. The live test
 // deliberately uses the real hosted dependencies without these substitutions.

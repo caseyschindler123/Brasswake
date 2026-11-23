@@ -51,8 +51,10 @@ test('scene contexts distinguish eight towns, wilderness, eight dungeons, dojo a
       const t = Scene.towns()[r]; Scene.load([t[0], t[1] + 3], r);
       towns.push(Sound.trackFor(Scene.musicContext()));
       const m = Scene.debug().map;
-      const i = m.reg.findIndex((region, k) => region === r && !m.solid[k] && m.t[k] !== 4 && !m.occ.has(k)
-        && (Math.abs(k % m.w - t[0]) > 40 || Math.abs(Math.floor(k / m.w) - t[1]) > 40));
+      const i = m.reg.findIndex((region, k) => region === r && m.seen[k] && !m.solid[k] && m.t[k] !== 4 && !m.occ.has(k)
+        && !Geography.inTown(k % m.w, Math.floor(k / m.w), 4)
+        && !Scene.districts().some(d => k % m.w >= d.box[0] && k % m.w <= d.box[2]
+          && Math.floor(k / m.w) >= d.box[1] && Math.floor(k / m.w) <= d.box[3]));
       if (i < 0) throw Error('No wilderness fixture for ' + r);
       Scene.warp(i % m.w, Math.floor(i / m.w)); wild.push(Sound.trackFor(Scene.musicContext()));
       Scene.load([t[0], t[1] + 3], r);

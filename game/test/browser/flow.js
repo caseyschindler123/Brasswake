@@ -56,6 +56,14 @@ async function playerFlow(page, info) {
   await page.locator('[data-a=blankrun]').click();await expect(page.locator('#enc')).toContainText('The porter has the destinations');
   await screenshot(page, info, 'manifest-query-result');await page.locator('[data-a=qleave]').click();
 
+  await page.locator('#nav [data-t="map"]').click();
+  await dismissCoach(page);
+  await expect(page.locator('.ferry-routes polyline')).toHaveCount(4);
+  await expect(page.locator('.ferry-routes circle')).toHaveCount(8);
+  await page.getByRole('button', { name: 'Aldermoot · Capital', exact: true }).click();
+  await expect(page.locator('#view')).toContainText('Ferry destinations');
+  await screenshot(page, info, 'world-map-and-ferries');
+
 
   await page.locator('#nav [data-t="bag"]').click();
   await dismissCoach(page);

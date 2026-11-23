@@ -16,6 +16,7 @@ for (const [label, args] of [
   ['Engine and content', ['test/test.js']],
   ['First-day teaching and companion routing', ['--test', 'test/first-day.test.js']],
   ['Narrative continuity', ['test/narrative_test.js']],
+  ['World geography, construction and migration', ['--test', 'test/geography.test.js', 'test/buildings.test.js', 'test/building-cache.test.js', 'test/world-progress.test.js', 'test/world-services.test.js']],
   ['Poker', ['test/pk_test.js']],
   ['Casino', ['test/house_test.js']],
   ['Sound and magic', ['--test', 'test/effects.test.js']],
