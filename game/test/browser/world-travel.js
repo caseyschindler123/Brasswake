@@ -119,7 +119,7 @@ test('all four ferry routes sail both ways for free and chart their actual sea l
   expect(errors).toEqual([]);
 });
 
-test('regional town travel and a home pad save arrivals immediately and reject remote town travel', async ({ page }) => {
+test('regional town travel and a home pad save arrivals immediately and reject remote town travel', async ({ page }, info) => {
   test.setTimeout(120000);
   const errors = observeErrors(page), frame = await world(page);
   await frame.evaluate(() => {
@@ -160,9 +160,33 @@ test('regional town travel and a home pad save arrivals immediately and reject r
   });
   expect(cottage.stored).toEqual(cottage.actual);
   expect(cottage.region).toBe(1);
+  const occupiedLanding = await page.evaluate(at => {
+    const w = Scene.debug().world, index = at[1]*w.w+at[0];
+    const e = w.ents.find(e => e.solid && e.wander && !e.busy && !e.hunt && !(e.chase > 0));
+    if (!e) throw new Error('No wandering creature for the occupied landing regression');
+    const old = e.y*w.w+e.x;
+    if (w.occ.get(old) === e) w.occ.delete(old);
+    e.x = e.fx = at[0]; e.y = e.fy = at[1]; e.tx = e.ty = null;
+    w.occ.set(index,e);
+    Scene.load(at,1);
+    const moved = [e.x,e.y], occupied = w.occ.get(e.y*w.w+e.x) === e;
+    const actual = Scene.pos(), clear = !w.occ.has(index), dry = !w.solid[e.y*w.w+e.x] && w.t[e.y*w.w+e.x] !== 4;
+    const fixed = w.ents.find(e => e.r === 1 && e.solid && !e.wander && e.kind === 'npc');
+    if (!fixed) throw new Error('No fixed story character for the landing guard regression');
+    const anchor = [fixed.x,fixed.y];
+    Scene.load(anchor,1);
+    const fixedStayed = fixed.x === anchor[0] && fixed.y === anchor[1] && w.occ.get(anchor[1]*w.w+anchor[0]) === fixed;
+    const avoidedFixed = Scene.pos().some((n,i) => n !== anchor[i]);
+    Scene.load(at,1);
+    return { actual, moved, clear, occupied, dry, fixedStayed, avoidedFixed };
+  }, cottage.actual);
+  expect(occupiedLanding.actual).toEqual(cottage.actual);
+  expect(occupiedLanding.moved).not.toEqual(cottage.actual);
+  expect(occupiedLanding).toMatchObject({clear:true,occupied:true,dry:true,fixedStayed:true,avoidedFixed:true});
   await reopenSavedCharacter(page);
   expect(await page.evaluate(() => ({ actual: Scene.pos(), region: Scene.region() })))
     .toEqual({ actual: cottage.actual, region: 1 });
+  await screenshot(page, info, 'home-pad-restored');
   expect(errors).toEqual([]);
 });
 

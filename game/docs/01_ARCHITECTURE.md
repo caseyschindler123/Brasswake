@@ -197,6 +197,8 @@ GitHub Pages uses the Actions publishing source. The publication payload is buil
 
 ## Decision log
 
+- 2026-11-23: Cartography release CI found a regenerated wharf rat on a saved house-pad landing. Scene.load preserves otherwise valid preferred ground by relocating an idle wandering occupant within eight tiles, preserving the entity and occupancy index. Fixed characters, active pursuit and static terrain obstructions retain safe-position fallback. Browser coverage forces both movable and fixed blockers while retaining exact saved-arrival assertions.
+
 - 2026-11-23: Candidate `cartography-travel-and-grand-atlas` implements compact surface exploration, validated local/regional/installed-Atlas navigation, eight physical map rooms, 24 signs, manual thumb movement and regional purposeful venues. Twenty-four saved upper floors use shared structural masks; modular doors animate with existing sound cues. Existing quests, staff identities, account/character versions and protected story anchors remain. Outstanding proportional-workflow/context updates are included in the same release line. Deployment evidence belongs in the plan and tracked release history after verification.
 
 - 2026-11-23: Context cleanup records completed releases in tracked RELEASE_HISTORY.md, closes stale plans and makes the packed manifest authoritative for asset counts. Reused existing receipts and Actions evidence; no game tests or release were run for this documentation task. Edits remain local under Casey's no-deploy instruction.

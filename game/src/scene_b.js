@@ -798,7 +798,20 @@
   function go(m, x, y) { clearSceneControls(); map = m; place(x, y); if(!m.dungeon && !m.venue && host.revealSurface)host.revealSurface(P.x,P.y); fade = 1; parts = []; flies = []; anims = []; floats = []; slashes = []; shots = []; bars = []; locked = false; curReg = m.dungeon ? m.r : (m.reg[y * m.w + x] || 1); curB = m.dungeon ? m.r : (m.b[y * m.w + x] || curReg); curT = null; ambNow = m.pal[curB].amb; need(curReg); host.entered(curReg); if (AD && !packs(curReg).every(have)) { m.pending = true; const t = setTimeout(() => { m.pending = false; }, 5000); Promise.all(packs(curReg).map(n => img(n).p)).then(() => { clearTimeout(t); m.pending = false; if (P) P.spr = heroArt(); }); } banner = { a: m.venue ? m.venue.name : m.hall ? 'The dojo' : m.dungeon ? host.dungeonName(m.r) : host.regionName(curReg), b: m.venue ? host.regionName(m.r) + ' · Upper floor' : m.hall ? host.regionName(m.r) : m.dungeonFloor ? 'Floor ' + (m.f+1) + ' · ' + m.layout.name : m.dungeon ? 'walk in, walk out' : host.regionSub(curReg), t: 3.2 }; }
   function load(pos, r) {
     if (!world) world = genWorld(); for (const [, c] of world.chunks) c.width = c.height = 0; world.chunks.clear();
-    const p = safePosition(r === 'dock' ? world.spots.dock : pos, r);
+    const preferred = r === 'dock' ? world.spots.dock : pos;
+    let p = safePosition(preferred, r);
+    // Regenerated wandering creatures must not displace a valid saved landing.
+    // Fixed people and changed terrain still use the ordinary safe-position fallback.
+    if (Array.isArray(preferred) && Number.isInteger(preferred[0]) && Number.isInteger(preferred[1])) {
+      const [x,y] = preferred, i = y * WW + x, e = world.occ.get(i);
+      if (x > 1 && y > 1 && x < WW - 1 && y < WH - 1 && !world.solid[i] && world.t[i] !== 4 && world.seen[i]
+        && e && e.wander && !e.busy && !e.hunt && !(e.chase > 0) && Math.hypot(p[0]-x,p[1]-y) <= 8
+        && world.reg[p[1]*WW+p[0]] === world.reg[i]) {
+        sit(world,e,p[0],p[1]);
+        e.fx = e.x; e.fy = e.y; e.tx = e.ty = null; e.goal = null;
+        p = [x,y];
+      }
+    }
     go(world, p[0], p[1]);
   }
   function safePosition(pos, r) {
