@@ -6,6 +6,10 @@ const vm = require('node:vm');
 const Dungeons = require('../src/dungeons.js');
 const Content = require('../src/quests.js');
 
+test('surface entrances use the authored dungeon identities',()=>{
+  for(let r=1;r<=8;r++)assert.equal(Content.DUNGEONS[r-1].name,Dungeons.get(r).name);
+});
+
 const floors = Array.from({ length: 8 }, (_, i) => Dungeons.get(i + 1)).flatMap(d => d.floors);
 const id = (m, x, y) => y * m.w + x;
 const entityId = (m, e) => id(m, e.x, e.y);

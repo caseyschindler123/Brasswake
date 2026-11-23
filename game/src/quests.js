@@ -471,12 +471,12 @@ const Content = (() => {
     ['u_r8', "Scrivener's Mantle", 'cloak', 'epic', { xp: 12, learn: 8 }, 'A scrivener’s mantle that ink won’t stain. More experience and skill gain.', 'Rumor in Aldermoot'],
     ['u_w1', 'Barnacled Inkwell', 'tome', 'rare', { gold: 6 }, 'An inkwell dredged from the harbor, covered in barnacles. More gold.', 'Rare chest find in the Bilge Vaults'],
     ['u_w2', 'Bog-Iron Signet', 'ring', 'rare', { xp: 7 }, 'A signet ring of marsh iron. More experience.', 'Rare chest find in the Sunken Sluice'],
-    ['u_w3', 'Tallowlight Candle', 'charm', 'rare', { learn: 7 }, 'A tallow candle from the barrows. Faster skill gain.', 'Rare chest find in the Counting Crypt'],
+    ['u_w3', 'Tallowlight Candle', 'charm', 'rare', { learn: 7 }, 'A tallow candle from the barrows. Faster skill gain.', 'Rare chest find in the Old Barrows'],
     ['u_w4', 'Waystone Quill', 'quill', 'rare', { xp: 8, luck: 4 }, 'A quill carved from a milestone. More experience and luck.', 'Rare chest find in the Tanglewarren'],
     ['u_w5', 'Cinderglass Lens', 'charm', 'epic', { luck: 10, gold: 5 }, 'A lens of cooled forge glass. Luck and gold.', 'Rare chest find in Slagdeep'],
-    ['u_w6', 'Gravedust Ledger', 'tome', 'epic', { learn: 10, xp: 6 }, 'A dusty old ledger from the crystal vaults. Skill gain and experience.', 'Rare chest find in the Nested Vaults'],
-    ['u_w7', "Stormcaller's Cloak", 'cloak', 'epic', { luck: 12, gold: 8 }, 'A heavy cloak from the ice halls. Luck and gold.', 'Rare chest find in the Hall of Panes'],
-    ['u_w8', 'Quill of the First Scribe', 'quill', 'legendary', { xp: 14, learn: 14 }, 'An old quill from the Sealed Stacks. Some say it wrote the Ledger’s first row.', 'Rare chest find in the Palimpsest Stacks']
+    ['u_w6', 'Gravedust Ledger', 'tome', 'epic', { learn: 10, xp: 6 }, 'A dusty old ledger from the crystal vaults. Skill gain and experience.', 'Rare chest find in the Crystal Vaults'],
+    ['u_w7', "Stormcaller's Cloak", 'cloak', 'epic', { luck: 12, gold: 8 }, 'A heavy cloak from the ice halls. Luck and gold.', 'Rare chest find in the Ice Halls'],
+    ['u_w8', 'Quill of the First Scribe', 'quill', 'legendary', { xp: 14, learn: 14 }, 'An old quill from the Sealed Stacks. Some say it wrote the Ledger’s first row.', 'Rare chest find in the Sealed Stacks']
   ].map(([id, name, slot, rarity, stats, lore, src]) => ({ id, name, slot, rarity, stats, lore, src, unique: true }));
 
 
@@ -542,14 +542,14 @@ const Content = (() => {
     b801: ['Ink Blot', 'It spreads over rows that should change.'], b802: ['Erasure Wraith', 'It wants rows gone. Only the right ones.'], b803: ['Quill Sprite', 'It adds a line to the book.'], b804: ['Paste Golem', 'Two lists stuck into one.']
   };
   const DUNGEONS = [
-    { r: 1, name: 'The Bilge Vaults', blurb: 'Flooded cellars under the harbor office, where misfiled manifests go to rot.' },
-    { r: 2, name: 'The Sunken Sluice', blurb: 'An old lock-gate in the fen. Whatever slips past its screens is lost.' },
-    { r: 3, name: 'The Counting Crypt', blurb: 'Dead reckoners, still tallying. They will check your sums.' },
-    { r: 4, name: 'The Tanglewarren', blurb: 'Tunnels that fork and rejoin. Take a wrong join and you walk it twice.' },
-    { r: 5, name: 'Slagdeep', blurb: 'The forge dumps its failures here. Some of them still run.' },
-    { r: 6, name: 'The Nested Vaults', blurb: 'A vault inside a vault inside a vault. The key to each is in the next.' },
-    { r: 7, name: 'The Hall of Panes', blurb: 'A thousand windows, each showing the same rows a different way.' },
-    { r: 8, name: 'The Palimpsest Stacks', blurb: 'Shelves of scraped and rewritten pages. One wrong stroke shows forever.' }
+    { r: 1, name: 'The Bilge Vaults', blurb: 'Cellars beneath the harbour office. Floodgates divide the stores from a drowned court.' },
+    { r: 2, name: 'The Sunken Sluice', blurb: 'An abandoned lockhouse opens into reed channels and an old reservoir.' },
+    { r: 3, name: 'The Old Barrows', blurb: 'Burial halls wind beneath the hills, through sealed tombs to a king’s court.' },
+    { r: 4, name: 'The Tanglewarren', blurb: 'Root tunnels fork beneath the woods. Spiders nest in the deeper galleries.' },
+    { r: 5, name: 'Slagdeep', blurb: 'Cooling works, furnaces and vent tunnels descend toward the old crucible.' },
+    { r: 6, name: 'The Crystal Vaults', blurb: 'Crystal caverns surround mirror wells and a chamber deep beneath them.' },
+    { r: 7, name: 'The Ice Halls', blurb: 'Frozen cisterns and passages cut by wind lead to the Winter Court.' },
+    { r: 8, name: 'The Sealed Stacks', blurb: 'Closed reading rooms and record stores conceal the restricted archive.' }
   ];
   const RIVALS = [
     { r: 1, name: 'Dregan Vosk', of: 'the Ironwake Company' }, { r: 2, name: 'Sister Calloway', of: 'the Reedbinder Order' }, { r: 3, name: 'Old Pell Marrow', of: 'the House of Nine Beads' }, { r: 4, name: 'Jessamy Crane', of: 'the Longroad Cartel' },

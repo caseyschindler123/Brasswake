@@ -266,6 +266,7 @@ for(let r=1;r<=8;r++){
       const stairs=Scene.find(e=>e.kind==='stairs'&&e.r===r);Scene.warp(stairs.x+1,stairs.y);__bw.save();
     },r);
     await f.waitForTimeout(250);
+    await expect(f.locator('#ctx')).toContainText(await f.evaluate(r=>Dungeons.get(r).name,r));
     await f.locator('#ctx').click();
     await f.locator('[data-a=start][data-k=dungeon]').click();
     await f.waitForFunction(()=>Scene.debug().map.dungeonFloor);
@@ -308,6 +309,7 @@ for(let r=1;r<=8;r++){
     const mapped=await f.evaluate(()=>Array.from(Scene.debug().map.discovered).flatMap((v,i)=>v?[i]:[]));
     expect(mapped.length).toBeGreaterThan(0);
     expect(await f.evaluate(()=>typeof __bw.DP.current().seen[__bw.DG.f])).toBe('string');
+    const musicOn=await f.evaluate(()=>{const on=Sound.pref().mu;Sound.setMu(false);return on;});
     await f.waitForFunction(()=>!Sound.status().pending);
     await page.goto('/index.html?visual_test=1');
     await expect(page.locator('#artload')).toBeHidden({timeout:45000});
@@ -316,7 +318,7 @@ for(let r=1;r<=8;r++){
     expect(await f.evaluate(()=>__bw.DG.f)).toBe(count-1);
     expect(await f.evaluate(()=>__bw.DP.current().claimed.vault)).toBe(true);
     expect(await f.evaluate(indices=>indices.every(i=>Scene.debug().map.discovered[i]===1),mapped)).toBe(true);
-    await f.evaluate(()=>window.__bwFast=true);
+    await f.evaluate(on=>{window.__bwFast=true;Sound.setMu(on);},musicOn);
     for(let floor=count-1;floor>=0;floor--){
       const up=await f.evaluate(()=>Scene.debug().map.ents.find(e=>e.kind==='dtravel'&&e.to<__bw.DG.f).id);
       await interact(f,up,stats);await f.locator('[data-a=dtravel]').click();

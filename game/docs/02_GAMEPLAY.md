@@ -307,6 +307,8 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
 
 ## Decision log
 
+- 2026-11-22: Dungeon entrance banners, map references and named-rare source descriptions now use the same eight identities as the authored floor catalog. Added a catalog consistency regression; the rebuilt names replace Counting Crypt, Nested Vaults, Hall of Panes and Palimpsest Stacks in player-facing references.
+
 - 2026-11-22: Release `dungeon-rebuild-2026-11-22` rebuilds all eight dungeons as 28 authored, extensible floors using UO's multilevel hunting-ground model. Added 16 species, themed terrain/props, optional shortcuts/secrets/caches, explored maps, daily vault seals and persistent expeditions. Existing characters migrate to account v7/character v6; no wipe. Dungeon hunts no longer crash on victory, and keeper/chest anchors cannot overlap. UI expedition evidence and deployment receipt are tracked in the full rebuild plan.
 
 - 2026-11-22: Soundtrack release `soundtrack-2026-11-22`: Casey chose existing downloaded Suno music plus original locally composed MIDI for missing themes to avoid additional export fees. Completed 28 music contexts/cues; preserved saves, balance and the existing three tracks. MIDI sources remain editable; prepared MP3 loops and PCM WAV cues play in the browser.
