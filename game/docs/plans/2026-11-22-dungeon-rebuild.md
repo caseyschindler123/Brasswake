@@ -1,6 +1,6 @@
 # All eight dungeons: full rebuild
 
-Status: the original eight complete walking expeditions and art/visual review passed. Compact persistence, all-slot/cloud storage checks and all 24 final affected dungeon UI cases passed; remaining browser/core checks passed in the release runs below. Surface dungeon names and rare-source references are now aligned with the authored catalog. All eight complete walking expeditions are being repeated on the final code before publication. Classification: complex (map architecture, encounter/progression rules, persistent exploration, rendering, new art and complete UI playthroughs).
+Status: implementation, final diff review, all eight complete final-build walking expeditions and art/visual review passed. Compact persistence, all-slot/cloud storage checks and all 24 final affected dungeon UI cases passed; remaining browser/core checks passed in the release runs below. Surface dungeon names and rare-source references match the authored catalog. Publication and the full 102-case CI gate are pending; their authoritative completion receipt is recorded after deployment in ignored `work/dungeon-release-receipt.json`. Classification: complex (map architecture, encounter/progression rules, persistent exploration, rendering, new art and complete UI playthroughs).
 
 ## Authorized outcome
 
@@ -99,10 +99,27 @@ These names are authored content targets. Briefs and floor data are the editable
 - The final content check aligned the four stale surface dungeon names and named-rare source descriptions with the authored catalog. All eight entrances are asserted by name in the final walking runs. A new pure catalog regression brings dungeon coverage to 22 tests; all pass. This is a text correction and changes no geometry, monster placement, combat or rewards.
 - Final-snapshot expeditions for regions 1, 2, 3, 6 and 8 passed. Regions 4, 5 and 7 hit the unchanged 700-iteration walking guard while the driver dodged live hunters between two tiles (traces: region 4 at 89/90,56; region 7 at 78/79,55; region 5 at 37/38,34). Real encounter controls remained available. The driver now recognizes repeated positions and engages the blocking creature through the actual UI, with a real arrow-key fallback and guarded recursion. No production movement, population, collision or combat rule changed; no teleport, freeze, reward grant, timeout increase or assertion filter was added. `pathRecoveries` records these actions. The five passes and original failed traces/report are archived in `work/dungeon-expeditions-compact-initial-results/` and `work/dungeon-expeditions-compact-initial-report.json`; only the three affected expeditions are repeated against the identical game HTML.
 
+### Final-build complete expeditions
+
+All eight now pass on identical game HTML SHA-256 `455a301d9f2e7b8d9c4be687e88a39173af7cb4e46ca03294d585650f7e68b2c`. The three affected routes passed with the corrected UI driver; the five existing passes are preserved. Merged evidence in ignored `work/dungeon-final-compact-evidence.json` verifies eight unique regions, all 28 floors, no component fixtures, and matching immutable candidate hashes. Total: 25,542 recorded tile steps, 137 fights and 138 SQL executions. Final vault screenshots for all eight were opened and inspected, in addition to the phone/desktop exploration and art reviews above.
+
+| Complete expedition | Floors | Recorded tile steps | Fights | SQL queries | In-test minutes |
+|---|---:|---:|---:|---:|---:|
+| Bilge Vaults | 3 | 2,708 | 11 | 11 | 13.3 |
+| Sunken Sluice | 3 | 2,544 | 26 | 26 | 12.9 |
+| Old Barrows | 3 | 2,946 | 4 | 4 | 13.9 |
+| Tanglewarren | 3 | 2,842 | 26 | 26 | 12.9 |
+| Slagdeep | 4 | 3,686 | 32 | 32 | 16.5 |
+| Crystal Vaults | 4 | 3,520 | 11 | 11 | 16.7 |
+| Ice Halls | 4 | 3,298 | 17 | 18 | 14.7 |
+| Sealed Stacks | 4 | 3,998 | 10 | 10 | 18.8 |
+
+The prepared-character and concurrent-browser limitations above apply. Most ordinary encounters are optional, so successful routes can avoid many of the 809 ordinary placements. These timings measure the test setup; they do not predict a new player's session length. All gameplay acceptance criteria are met. Final release CI must pass the complete required suite before deployment; no failed local check has been silently treated as a full passing run.
+
 ## Risks and release receipt
 
 - Other active work touches shared scene/game/build/docs. Preserve and coordinate integration; do not stage unrelated edits or publish another task's partial work.
 - Large dungeons need suitable click pathing range, camera bounds, corpse/respawn persistence and bounded drawing cost.
 - SQL encounter duration varies widely. Report actual tested setup and observed counts; do not claim measured natural-progression playtime from accelerated fixtures.
 - Art availability, script credentials and approval constraints must be checked without exposing secrets. A blocked image step does not justify shipping placeholders or declaring completion.
-- Required suite: repeat pending after compact-persistence repair. All-eight UI playthrough: passed. Final commit/deployment/live receipt is recorded after publication in ignored `work/dungeon-release-receipt.json` and the completion report, avoiding an extra deployment for post-release evidence. Release source includes the independently committed soundtrack fixes without changing their production code or assets.
+- Required suite: core checks and focused repairs passed after compact-persistence repair; full 102-case CI repeat pending. All-eight final-build UI playthrough: passed. Final commit/deployment/live receipt and completion status are recorded after publication in ignored `work/dungeon-release-receipt.json` and the completion report, avoiding an extra deployment for post-release evidence. Release source includes the independently committed soundtrack fixes without changing their production code or assets.
