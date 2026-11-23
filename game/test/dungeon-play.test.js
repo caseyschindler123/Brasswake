@@ -7,7 +7,7 @@ const Content = require('../src/quests.js');
 
 const source = ['dungeons.js', 'dungeon_progress.js', 'dungeon_play.js']
   .map(name => fs.readFileSync(path.join(__dirname, '../src', name), 'utf8')).join('\n');
-const { Dungeons, DungeonPlay } = vm.runInNewContext(`${source}\n({ Dungeons, DungeonPlay })`, {setTimeout,clearTimeout});
+const { Dungeons, DungeonProgress, DungeonPlay } = vm.runInNewContext(`${source}\n({ Dungeons, DungeonProgress, DungeonPlay })`, {setTimeout,clearTimeout});
 const bounties = new Map(Content.BOUNTIES.map(b => [b.id, b.r]));
 
 function harness(options = {}) {
@@ -21,8 +21,7 @@ function harness(options = {}) {
     find: predicate => map?.ents.find(predicate),
     enterDungeon(region, opt) {
       const layout = Dungeons.build(region, opt.floor);
-      const discovered = new Uint8Array(layout.w * layout.h);
-      for (const i of opt.progress.seen[opt.floor] || []) discovered[i] = 1;
+      const discovered = DungeonProgress.unpackSeen(opt.progress.seen[opt.floor],layout.w * layout.h);
       map = { dungeonFloor: true, r: region, f: opt.floor, ents: [...layout.entities], discovered };
       point = [...opt.pos];
       calls.enter.push({ region, floor: opt.floor, pos: point, tutorial: opt.tutorial });

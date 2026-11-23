@@ -159,6 +159,60 @@ test('version six accounts migrate without losing their character or bank',async
   expect(await page.evaluate(()=>({v:__bw.A.v,character:__bw.S.v,name:__bw.S.name,gold:__bw.S.bank.gold,dungeon:__bw.S.dungeon}))).toEqual({v:7,character:6,name,gold:321,dungeon:null});
 });
 
+test('five fully mapped characters compact local and cloud saves and reload an inactive slot',async({page},info)=>{
+  test.setTimeout(120000);
+  await page.goto('/__visual?scene=tallyport');
+  await expect(page.locator('body')).toHaveAttribute('data-ready','tallyport',{timeout:45000});
+  const f=page.frames().find(f=>f.url().includes('visual_test=1'));
+  const saved=await f.evaluate(()=>{
+    const maps={};
+    for(let r=1;r<=8;r++){
+      const p=maps[r]={v:1,day:'capacity-test',seen:{},gates:{},lore:{},kills:{},seals:{},claimed:{}};
+      for(let floor=0;floor<Dungeons.get(r).floors.length;floor++)p.seen[floor]=Array.from({length:Dungeons.build(r,floor).tiles.length},(_,i)=>i);
+    }
+    const legacy=JSON.stringify(maps);
+    for(let i=0;i<5;i++){
+      const s=JSON.parse(JSON.stringify(__bw.S));s.name='Map keeper '+i;s.dungeons=JSON.parse(JSON.stringify(maps));__bw.A.slots[i]=s;
+    }
+    __bw.S.dungeons=maps;__bw.save();
+    const inspect=()=>{
+      const raw=localStorage.getItem('brasswake.acct.v7'),a=JSON.parse(raw);
+      return {bytes:raw.length*2,revision:a.rev,current:__bw.A.rev,slots:a.slots.filter(Boolean).length,
+        compact:a.slots.every(s=>Object.values(s.dungeons).every(p=>Object.values(p.seen).every(v=>typeof v==='string')))};
+    };
+    const active=inspect();
+    for(const s of __bw.A.slots)s.dungeons=JSON.parse(legacy);
+    __bw.A.cur=-1;__bw.save();
+    return [active,inspect()];
+  });
+  for(const state of saved){expect(state.revision).toBe(state.current);expect(state.slots).toBe(5);expect(state.compact).toBe(true);expect(state.bytes).toBeLessThan(1048576);}
+  await page.addInitScript(()=>{
+    const remote=JSON.parse(localStorage.getItem('brasswake.acct.v7'));remote.rev+=10000;remote.cur=-1;
+    for(const s of remote.slots)for(const p of Object.values(s.dungeons))for(const floor of Object.keys(p.seen))p.seen[floor]=Array.from({length:124*109},(_,i)=>i);
+    const db={doc:key=>({
+      get:async()=>key.endsWith('/acct')?{exists:true,data:()=>({json:JSON.stringify(remote)})}:{exists:false},
+      set:async data=>{window.__capacityCloudWrite=data.json.length*2;}
+    })};
+    window.claude={use:async kind=>kind==='db'?db:{id:async()=>'capacity-fixture'}};
+  });
+  await page.goto('/index.html?visual_test=1');await expect(page.locator('#artload')).toBeHidden({timeout:45000});
+  await page.waitForFunction(()=>window.__capacityCloudWrite>0);
+  const cloud=await page.evaluate(()=>{
+    const raw=localStorage.getItem('brasswake.acct.v7'),a=JSON.parse(raw);
+    return {bytes:raw.length*2,cloudBytes:window.__capacityCloudWrite,rev:a.rev,cur:a.cur,
+      compact:a.slots.every(s=>Object.values(s.dungeons).every(p=>Object.values(p.seen).every(v=>typeof v==='string')))};
+  });
+  expect(cloud.rev).toBeGreaterThan(10000);expect(cloud.cur).toBe(-1);expect(cloud.compact).toBe(true);
+  expect(cloud.bytes).toBeLessThan(1048576);expect(cloud.cloudBytes).toBeLessThan(1048576);
+  await screenshot(page,info,'five-mapped-characters');
+  await page.locator('[data-a=playslot]').nth(4).click();
+  expect(await page.evaluate(()=>__bw.S.name)).toBe('Map keeper 4');
+  expect(await page.evaluate(()=>{
+    const size=Dungeons.build(8,3).tiles.length;
+    return DungeonProgress.unpackSeen(__bw.S.dungeons[8].seen[3],size).reduce((sum,v)=>sum+v,0)===size;
+  })).toBe(true);
+});
+
 test('a dungeon death survives reload before Wake up and its belongings survive a second dungeon reload',async({page})=>{
   test.setTimeout(120000);const stats={steps:0,fights:0,queries:0};
   await page.goto('/__visual?scene=tallyport');await expect(page.locator('body')).toHaveAttribute('data-ready','tallyport',{timeout:45000});
@@ -250,12 +304,18 @@ for(let r=1;r<=8;r++){
       }
     }
     // A reload must preserve the final floor, discoveries and claimed vault.
-    await f.evaluate(()=>__bw.save());await page.goto('/index.html?visual_test=1');
+    await f.evaluate(()=>__bw.save());
+    const mapped=await f.evaluate(()=>Array.from(Scene.debug().map.discovered).flatMap((v,i)=>v?[i]:[]));
+    expect(mapped.length).toBeGreaterThan(0);
+    expect(await f.evaluate(()=>typeof __bw.DP.current().seen[__bw.DG.f])).toBe('string');
+    await f.waitForFunction(()=>!Sound.status().pending);
+    await page.goto('/index.html?visual_test=1');
     await expect(page.locator('#artload')).toBeHidden({timeout:45000});
     await page.locator('[data-a=playslot]').first().click();f=page.mainFrame();
     await f.waitForFunction(()=>!!__bw.DG);
     expect(await f.evaluate(()=>__bw.DG.f)).toBe(count-1);
     expect(await f.evaluate(()=>__bw.DP.current().claimed.vault)).toBe(true);
+    expect(await f.evaluate(indices=>indices.every(i=>Scene.debug().map.discovered[i]===1),mapped)).toBe(true);
     await f.evaluate(()=>window.__bwFast=true);
     for(let floor=count-1;floor>=0;floor--){
       const up=await f.evaluate(()=>Scene.debug().map.ents.find(e=>e.kind==='dtravel'&&e.to<__bw.DG.f).id);

@@ -10,9 +10,10 @@ const DungeonPlay = (() => {
     function snapshot() {
       clearTimeout(movementSave);movementSave=0;
       const d=dg(),m=a.scene.debug().map;if(!d||!m||!m.dungeonFloor||m.r!==d.r||m.f!==d.f)return;
-      const p=current();p.seen[d.f]=Array.from(m.discovered||[]).flatMap((v,i)=>v?[i]:[]);
+      DungeonProgress.compact(s(),a.now());
+      const p=current();p.seen[d.f]=DungeonProgress.packSeen(m.discovered||[]);
       p.bodies=p.bodies||{};
-      for(const e of m.ents)if(e.kind==='corpse'&&e.id)p.bodies[e.id]={x:e.x,y:e.y,loot:e.loot,empty:!!e.empty,until:a.now()+Math.max(0,e.decay||0)*1000};
+      for(const e of m.ents)if(e.kind==='corpse'&&e.id&&e.decay>0)p.bodies[e.id]={x:e.x,y:e.y,loot:e.loot,empty:!!e.empty,until:a.now()+e.decay*1000};
       const at=a.scene.pos();s().dungeon={r:d.r,f:d.f,x:at[0],y:at[1],back:d.back,tutorial:d.tutorial};
     }
     function floor(f, pos) {

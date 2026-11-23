@@ -26,7 +26,7 @@
     const m={r,f,w,h,t:new Uint8Array(w*h),dt:layout.tiles,b:new Uint8Array(w*h).fill(r),reg:new Uint8Array(w*h).fill(r),solid:new Uint8Array(w*h),o:new Uint8Array(w*h),keep:new Uint8Array(w*h),blds:[],props:[],ents:[],lights:[],pal:[],dungeon:true,dungeonFloor:true,tutorial:!!opt.tutorial,occ:new Map(),chunks:new Map(),terr:[],layout,progress:p,discovered:new Uint8Array(w*h),entry:layout.entry,mini:mk(w,h),spawnDefs:[]};
     m.pal[r]=b;
     for(let i=0;i<w*h;i++){m.t[i]=[8,7,4,4,6][m.dt[i]];m.solid[i]=m.dt[i]===0||m.dt[i]===2||m.dt[i]===3?1:0;}
-    for(const i of p.seen && Array.isArray(p.seen[f]) ? p.seen[f] : []) if(Number.isInteger(i)&&i>=0&&i<w*h)m.discovered[i]=1;
+    m.discovered= DungeonProgress.unpackSeen(p.seen&&p.seen[f],w*h);
     if(typeof DungeonArt!=='undefined'){img(DungeonArt.image);img(DungeonArt.creatures);if(DungeonArt.gateImage)img(DungeonArt.gateImage);}
     for(const source of layout.entities){
       const e=Object.assign({r,floor:f},source);

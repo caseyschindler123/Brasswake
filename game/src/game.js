@@ -23,8 +23,8 @@
   function purgeOld() { try { for (let i = localStorage.length - 1; i >= 0; i--) { const k = localStorage.key(i); if (k && k.indexOf('brasswake.save') === 0) localStorage.removeItem(k); } } catch (e) { } }
   function loadA() { try { const t = localStorage.getItem(AKEY) || localStorage.getItem('brasswake.acct.v6'), o = t ? JSON.parse(t) : null; return o && [6,7].includes(o.v) ? Object.assign(freshA(), o, {v:7}) : null; } catch (e) { return null; } }
   function loadCur() { S = linkS(A.cur >= 0 && A.slots[A.cur] ? migrate(A.slots[A.cur]) : fresh()); if(S.deathPending){S.region=S.deathPending.r;S.pos=S.deathPending.at;S.dungeon=null;S.hp=maxHp();S.deathPending=null;} if (!(S.hp > 0)) S.hp = maxHp(); }
-  function syncA() { if (A && A.cur >= 0 && S && S.path) A.slots[A.cur] = slotOut(S); }
-  function save() { if (sceneUp && DG && Scene.inDungeon()) DP.snapshot(); if (!A) A = freshA(); if (A.cur >= 0 && S && S.path) { S.rev++; S.at = now(); syncA(); } A.rev++; A.at = now(); try { localStorage.setItem(AKEY, JSON.stringify(A)); } catch (e) { } if (Cloud.ref) { Cloud.dirty = true; clearTimeout(Cloud.timer); Cloud.timer = setTimeout(flush, 2500); } }
+  function syncA() { if (A && A.cur >= 0 && S && S.path) A.slots[A.cur] = slotOut(S); if(A)for(const s of A.slots)if(s)DungeonProgress.compact(s,now()); }
+  function save() { if (sceneUp && DG && Scene.inDungeon()) DP.snapshot(); if (!A) A = freshA(); if (A.cur >= 0 && S && S.path) { S.rev++; S.at = now(); } syncA(); A.rev++; A.at = now(); try { localStorage.setItem(AKEY, JSON.stringify(A)); } catch (e) { } if (Cloud.ref) { Cloud.dirty = true; clearTimeout(Cloud.timer); Cloud.timer = setTimeout(flush, 2500); } }
   async function flush() {
     if (Cloud.busy || !Cloud.dirty || !Cloud.ref) return; Cloud.busy = true; Cloud.dirty = false;
     try { syncA(); await Cloud.ref.set({ json: JSON.stringify(A), rev: A.rev, at: A.at }); Cloud.state = 'account'; }
@@ -39,7 +39,7 @@
       const ref = db.doc('data/users/' + id + '/acct');
       try { const old = db.doc('data/users/' + id + '/save'), o = await old.get(); if (o.exists && old.delete) await old.delete(); } catch (e) { }   // saves from before the account existed are gone
       const snap = await Promise.race([ref.get(), new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 10000))]);
-      if (snap.exists) { const d = snap.data(); const remote = d && d.json ? JSON.parse(d.json) : null; if (remote && [6,7].includes(remote.v) && (remote.rev || 0) > (A.rev || 0)) { A = Object.assign(freshA(), remote, {v:7}); loadCur(); cmdBackfill(); try { localStorage.setItem(AKEY, JSON.stringify(A)); } catch (e) { } Q = null; F = null; $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; DG = null; if (sceneUp) {Scene.load(S.pos, S.pos ? S.region : 'dock');if(S.dungeon)DP.restore();surfaceBodies();} toast('Loaded your saved game'); if (!$('#title').hidden) title(); } }
+      if (snap.exists) { const d = snap.data(); const remote = d && d.json ? JSON.parse(d.json) : null; if (remote && [6,7].includes(remote.v) && (remote.rev || 0) > (A.rev || 0)) { A = Object.assign(freshA(), remote, {v:7}); loadCur(); cmdBackfill(); syncA(); try { localStorage.setItem(AKEY, JSON.stringify(A)); } catch (e) { } Q = null; F = null; $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; DG = null; if (sceneUp) {Scene.load(S.pos, S.pos ? S.region : 'dock');if(S.dungeon)DP.restore();surfaceBodies();} toast('Loaded your saved game'); if (!$('#title').hidden) title(); } }
       Cloud.ref = ref; Cloud.state = 'account'; if (A.rev > 0) { Cloud.dirty = true; flush(); }
       render();
     } catch (e) { Cloud.state = 'device'; }

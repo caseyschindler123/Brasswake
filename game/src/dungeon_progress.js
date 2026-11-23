@@ -1,6 +1,70 @@
 /* Persistent dungeon rules; deliberately independent of drawing and DOM. */
 const DungeonProgress = (() => {
   const VERSION = 1, RESPAWN = 300000, IMPORTANT_RESPAWN = 900000;
+  const SEEN_PREFIX = 'b1:', SEEN_DIGITS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  // Imported saves cannot allocate a discovery map larger than 512 × 512 cells.
+  const MAX_SEEN_CELLS = 512 * 512;
+
+  function packSeen(cells) {
+    let end = Math.min(cells.length, MAX_SEEN_CELLS);
+    while (end > 0 && !cells[end - 1]) end--;
+    let packed = SEEN_PREFIX;
+    for (let base = 0; base < end; base += 6) {
+      let bits = 0;
+      for (let i = base; i < Math.min(base + 6, end); i++) {
+        if (cells[i]) bits |= 1 << (i - base);
+      }
+      packed += SEEN_DIGITS[bits];
+    }
+    return packed;
+  }
+
+  function unpackSeen(saved, size) {
+    const length = Number.isSafeInteger(size) && size > 0 ? Math.min(size, MAX_SEEN_CELLS) : 0;
+    const cells = new Uint8Array(length);
+    if (Array.isArray(saved)) {
+      const limit = Math.min(saved.length, MAX_SEEN_CELLS);
+      for (let i = 0; i < limit; i++) {
+        const index = saved[i];
+        if (Number.isInteger(index) && index >= 0 && index < length) cells[index] = 1;
+      }
+    } else if (typeof saved === 'string' && saved.startsWith(SEEN_PREFIX)) {
+      const end = Math.min(saved.length, SEEN_PREFIX.length + Math.ceil(length / 6));
+      for (let i = SEEN_PREFIX.length, base = 0; i < end; i++, base += 6) {
+        const bits = SEEN_DIGITS.indexOf(saved[i]);
+        if (bits < 0) return cells.fill(0);
+        for (let bit = 0; bit < 6 && base + bit < length; bit++) cells[base + bit] = (bits >>> bit) & 1;
+      }
+    }
+    return cells;
+  }
+
+  function compact(character, now = Date.now()) {
+    const regions = character && character.dungeons;
+    if (!regions || typeof regions !== 'object') return character;
+    for (const progress of Object.values(regions)) {
+      if (!progress || typeof progress !== 'object') continue;
+      if (progress.seen && typeof progress.seen === 'object') {
+        for (const [floor, saved] of Object.entries(progress.seen)) {
+          if (!Array.isArray(saved)) continue;
+          let size = 0;
+          const limit = Math.min(saved.length, MAX_SEEN_CELLS);
+          for (let i = 0; i < limit; i++) {
+            const index = saved[i];
+            if (Number.isInteger(index) && index >= 0 && index < MAX_SEEN_CELLS) size = Math.max(size, index + 1);
+          }
+          progress.seen[floor] = packSeen(unpackSeen(saved, size));
+        }
+      }
+      if (progress.bodies && typeof progress.bodies === 'object') {
+        for (const [id, body] of Object.entries(progress.bodies)) {
+          if (!body || !Number.isFinite(body.until) || body.until <= now) delete progress.bodies[id];
+        }
+      }
+    }
+    return character;
+  }
+
   function ensure(s, r, day) {
     if (!s.dungeons || typeof s.dungeons !== 'object') s.dungeons = {};
     let p = s.dungeons[r];
@@ -24,6 +88,6 @@ const DungeonProgress = (() => {
       return e.x===x&&e.y===y;
     });
   }
-  return { VERSION, RESPAWN, IMPORTANT_RESPAWN, ensure, alive, defeat, missing, canVault, claim, validPosition };
+  return { VERSION, RESPAWN, IMPORTANT_RESPAWN, packSeen, unpackSeen, compact, ensure, alive, defeat, missing, canVault, claim, validPosition };
 })();
 if (typeof module !== 'undefined') module.exports = DungeonProgress;
