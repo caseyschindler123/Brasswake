@@ -84,6 +84,16 @@ Every prompt starts with the global style line kept in `art_prompts.json`:
 
 ## Generating art
 
+### Cartography candidate (2026-11-23; release verification pending)
+
+Three new Sunburst/high transparent sheets keep their original CA01–03 names. CA01 contains sixteen map-shop fittings and blank direction-sign parts; CA02 contains the Grand Atlas table, case, closed table and portable furnishing icon; CA03 contains eight distinct regional wall charts and eight regional accessories. Root reviewed the raw contacts. Decorative chart artwork has no labels; the interactive map renders actual game geography and text.
+
+`arttools/cartography_art.py` uses recorded source hashes/component crops from `arttools/cartography_art_inputs.json` and produces `game/src/artcartography.js` plus `game/art/cartography/{props,atlas,regional}.webp`. The 36 pieces total 146,968 packed bytes. Master prompts, generation script, model, quality and older sources/atlases are unchanged. The approved CA01 sample was inspected before CA02/03; no rerolls were needed.
+
+Untouched originals, new-only prompts and usage receipts are archived under `C:/Users/caseys/source/SQL Game/kit/cartography_2026_11_23/`; `out/` is the replay input. A replay from that archive reproduced the three WebPs and generated JS exactly. New output is independently packed; the accepted manifest contains 525 files. Doors, awnings, medical fittings, stairs and storey joinery combine existing regional materials in code so their dimensions match structural tile masks.
+
+Rebuild with pinned Pillow 12: `python -I arttools/cartography_art.py --raw-dir <archived-out-directory>`. Use `--out-dir` and `--js` for isolated replay. Never hand-edit generated atlas coordinates.
+
 ### Dungeon kit (2026-11-22)
 
 Release `dungeon-rebuild-2026-11-22` adds an independent dungeon kit. Fifteen new raw sheets keep the original names DT01–08 (opaque 2×2 material sheets), DP01–03 (transparent 4×4 prop/barrier sheets) and DM01–04 (transparent 2×2 creature sheets). This isolated run uses `arttools/dungeon_prompts.json`, the same global style and a byte-identical copy of the existing `make_art.py`, with its model and high quality settings unchanged. Casey's full-rebuild request authorizes these new images; the master prompt file and all existing raw output remain untouched. The first terrain/prop/creature sheets were generated and visually inspected before the remaining run. All 15 succeeded.
@@ -96,7 +106,7 @@ Original raw PNGs, the unchanged generation script and its new-only prompt file 
 work/.venv-live/Scripts/python.exe -I arttools/dungeon_art.py work/dungeon-art/out
 ```
 
-The dungeon release brought the accepted manifest to 514 files; the subsequent world release added eight atlases. `arttools/packed_manifest.json` is authoritative for the current asset inventory (522 files at this review). The dungeon release's deterministic replay matched all three atlas hashes and the generated coordinates. All material, prop, barrier and creature contact sheets were opened and reviewed for that release. Dungeon materials repeat across rooms and use separate wall, liquid, bridge and decoration layers. Layout changes use tile data.
+The dungeon release brought the accepted manifest to 514 files; the subsequent world release added eight atlases. `arttools/packed_manifest.json` is authoritative for the current asset inventory (525 files including the cartography candidate). The dungeon release's deterministic replay matched all three atlas hashes and the generated coordinates. All material, prop, barrier and creature contact sheets were opened and reviewed for that release. Dungeon materials repeat across rooms and use separate wall, liquid, bridge and decoration layers. Layout changes use tile data.
 
 The local agent generates requested images directly with `C:\Users\caseys\source\SQL Game\kit\make_art.py`. There is no hand-off to another agent and Casey does not paste requests elsewhere. Raw output stays under `SQL Game`, with current PNGs in `kit/out/`. Running the art rebuild does not run this image script.
 
@@ -196,6 +206,8 @@ Casey approved up to $20 for this run. The two-image comparison and all 20 produ
 - Cloak, glove and boot layers aren't drawn on the body yet.
 
 ## Decision log
+
+- 2026-11-23: Candidate `cartography-travel-and-grand-atlas` adds three approved new CA sheets and three independent atlases for map shops, regional charts, blank trail signs and the installed Grand Atlas. The existing Sunburst/high configuration, master prompts, originals and previous packed output are preserved. Raw and packed sheets were reviewed; durable-source receipt replay matches generated coordinates and all atlases exactly. Structural doors/stairs and fittings use fitted regional materials in code. No existing art was regenerated to fix layout defects.
 
 - 2026-11-23: Context cleanup distinguishes the historical 514-file dungeon baseline from the current 522-file manifest, including eight world atlases. RELEASE_HISTORY.md preserves verified release identities; no art generation, packing or verification was rerun for this documentation correction.
 

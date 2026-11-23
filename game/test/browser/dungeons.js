@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { screenshot, observeErrors } = require('./flow');
+const { drivePath } = require('./movement');
 
 async function dismiss(f) {
   const coach=f.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
@@ -103,7 +104,7 @@ async function walk(f, goal, stats, adjacent=true, recovering=false) {
         if(m.occ.has(pos[1]*m.w+pos[0]))break;
         if(!m.ents.some(e=>Math.hypot(e.fx+.5-(pos[0]+.5),e.fy+(e.big?-.2:.2)-(pos[1]+.5))<1.12))at=pos;
       }
-      return {at,first:path[0],from};
+      return {at,first:path[0],path:at?path.slice(0,path.findIndex(p=>p[0]===at[0]&&p[1]===at[1])+1):path.slice(0,1),from};
     },{goal,adjacent});
     if(step.missing)throw Error('Missing destination '+step.missing);
     if(step.blocked)throw Error('Unreachable UI destination '+JSON.stringify(step.blocked));
@@ -125,7 +126,7 @@ async function walk(f, goal, stats, adjacent=true, recovering=false) {
       const [x,y]=step.first,[px,py]=step.from;
       const key=x>px?'ArrowRight':x<px?'ArrowLeft':y>py?'ArrowDown':'ArrowUp';
       await f.locator('body').press(key,{delay:80});
-    }else await canvasClick(f,...step.at);
+    }else await drivePath(f,step.path,true);
     // Roaming creatures can step into a route and stop ground movement.
     // Replan from the actual position; the destination assertion above still
     // requires physically reaching the requested chamber or interaction.

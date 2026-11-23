@@ -170,9 +170,10 @@ test('crafting and fishing outcomes and walked room crossings have contextual so
       const world = p => [room.x + p.x, room.y + p.y];
       for (const d of room.plan.doors) {
         const [outside, door, inside] = [d.outside, d, d.inside].map(world);
-        if (![outside, door, inside].every(open)) continue;
-        Scene.load(outside, room.r);
-        return { crafts, fish, outside, door, roomId: room.plan.id };
+        const far = [outside[0] * 2 - door[0], outside[1] * 2 - door[1]];
+        if (![far, outside, door, inside].every(open)) continue;
+        Scene.load(far, room.r);
+        return { crafts, fish, far, outside, door, roomId: room.plan.id };
       }
     }
     throw new Error('No unoccupied wood-floored tavern entrance');
@@ -189,16 +190,20 @@ test('crafting and fishing outcomes and walked room crossings have contextual so
     Scene.resume();
     return before;
   }, result.roomId);
-  expect(start).toEqual({ position: result.outside, inside: false });
+  expect(start).toEqual({ position: result.far, inside: false });
   const dx = result.door[0] - result.outside[0], dy = result.door[1] - result.outside[1];
   expect(Math.abs(dx) + Math.abs(dy)).toBe(1);
   const key = dx > 0 ? 'ArrowRight' : dx < 0 ? 'ArrowLeft' : dy > 0 ? 'ArrowDown' : 'ArrowUp';
   await f.locator('body').evaluate(body => { body.tabIndex = -1; body.focus({ preventScroll: true }); });
-  await page.keyboard.down(key);
-  try {
-    await f.waitForFunction(() => Scene.traveling(), null, { timeout: 3500 });
-  } finally {
-    await page.keyboard.up(key);
+  for (const at of [result.outside, result.door]) {
+    await page.keyboard.down(key);
+    try {
+      await f.waitForFunction(() => Scene.traveling(), null, { timeout: 3500 });
+    } finally {
+      await page.keyboard.up(key);
+    }
+    await expect.poll(() => f.evaluate(() => Scene.pos())).toEqual(at);
+    await f.waitForFunction(() => !Scene.traveling());
   }
   await f.waitForFunction(() => __sounds.some(x => x.name === 'door'), null, { timeout: 5000 });
   expect(await f.evaluate(() => Scene.pos())).toEqual(result.door);

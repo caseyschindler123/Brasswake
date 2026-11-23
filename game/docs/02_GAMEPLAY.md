@@ -56,8 +56,8 @@ Last updated: 2026-11-23. This describes world revision 3, modular buildings, th
 | 8 | Aldermoot (marble city) | INSERT, UPDATE, DELETE, CREATE, UNION | The Council | The Sealed Stacks |
 
 - **Getting around:**
-  - Nothing is locked by region. Roads connect the six mainland towns. Four free, on-demand, two-way ferry routes join Tallyport–Brackwater, Brackwater–Haverly, Four Fords–Cinderwick, and Cinderwick–Aldermoot. Approach a ferryman and choose the destination; a safe quay landing and return service are available with zero gold. World-map lines follow actual open sea around headlands. First island visits use ferries; existing visited-town travel remains available afterward.
-  - Walking speed is 2.2 tiles/s and running is 4.6 tiles/s.
+  - Nothing is locked by region. Roads connect the six mainland towns. Four free, on-demand, two-way ferry routes join Tallyport–Brackwater, Brackwater–Haverly, Four Fords–Cinderwick, and Cinderwick–Aldermoot. Approach a ferryman and choose the destination; a safe quay landing and return service are available with zero gold. World-map lines follow actual open sea around headlands. Regional maps permit travel within their own region; cross-region journeys use roads/ferries unless the household Grand Atlas is used from home.
+  - Walking speed is 2.2 tiles/s and running is 4.6 tiles/s, controlled by the joystick displacement (keyboard arrows walk).
   - Teleport runes turn into house pads.
 - **Population:**
   - About 155 creatures per region in camps of 3–5, plus strays, 16 lairs in all (marauders, smugglers, bandits, the bog witch, giant leech and spider, frost giant, wyvern, red dragon, lich, skeleton archers), and animals.
@@ -71,6 +71,18 @@ Last updated: 2026-11-23. This describes world revision 3, modular buildings, th
   - ore and herb nodes 240 s
 - **Corpses:** unlooted ones stay 300 s and looted ones 90 s. Your own body lasts 10 minutes.
 - **Creature size** (`MSC` in scene_a.js, 1 = a grown man): rodents and birds about 0.3–0.45, wolves 0.6, people 0.83 (normalised), golems 1.1–1.2, frost giant 1.5, dragon 1.6 (capped).
+
+### Cartography, manual movement and lived-in towns (release candidate)
+
+Implemented in the 2026-11-23 candidate; final verification/deployment status is recorded in `plans/2026-11-23-cartography-travel-and-grand-atlas.md`. These rules replace automatic visited-town travel:
+
+- Walking reveals a permanent 14-tile radius on the initially black world map and minimap. Exploration is per character, stored in compact four-tile cells. Bought surveys show muted geography; personally explored ground has full colour. Legacy recorded towns/discoveries remain known without inventing historical walked paths.
+- Eight physical cartographers offer free local chart consultation and public destination waypoints. Regional maps cost 600, 900, 1200, 1500, 1800, 2100, 2400 and 2700 gold. A map grants repeat travel to its region's public surface destinations only while the character is physically in that region. Ferries stay free; secret sites and dungeon interiors remain discoveries.
+- Waypoint arrows follow actual traversable ground and direct sea crossings through a ferryman. Physical road, ferry and capital district signs name the routes they serve.
+- The Grand Atlas costs 30,000 gold and is sold only in Aldermoot after that character owns all eight regional maps. It is one shared household furnishing, installed through a house panel. Global destination travel requires interacting with it inside the installed house and owning all eight maps on the using character. It is never usable as a portable map-menu shortcut.
+- A bottom-right eight-direction joystick owns touch movement. Inner displacement walks, outer displacement runs, and release/cancel stops. Empty ground taps do nothing; nearby object taps interact and distant ones ask the player to move closer. Keyboard arrows and house-plot selection remain available.
+- Across all eight regions, service premises receive actual purposes, staff, specialized regional interiors, varied plans/frontages and usable civic spaces. Doors visibly open and close with sound. Dojos share modular construction; public building stairs connect useful upper rooms with persistent positions and safe return. Rectangles remain common without making every building identical.
+- Piers, stone quays and paved edges do not create shallow water. Pale shallows border natural shorelines; working harbour basins retain deep-water textures.
 
 ### Dungeons
 
@@ -309,6 +321,8 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
 - Not yet checked on Casey's iPhone: that audio plays in the Claude app, and what the silent switch does.
 
 ## Decision log
+
+- 2026-11-23: Casey approved the complete cartography/travel plan and autonomous release, then added joystick-only touch movement, nearby screen interactions, purposeful varied buildings across all eight regions, working doors/audio, shared dojo construction, usable stairs and deeper dock water. Regional surveys cost 600–2700 gold and allow same-region travel only. The 30,000-gold capital-only Grand Atlas requires all eight surveys and an installed household table for global travel. Free local consultation, discoverable landmarks, usable ferry waypoints and physical signs remain core requirements. Candidate version: `cartography-travel-and-grand-atlas`; completion is recorded after exact-commit verification.
 
 - 2026-11-23: Context cleanup removes shipped soundtrack coverage from Planned, not built, retaining only unfinished ambience/idle/death effects. Completed release evidence is linked from RELEASE_HISTORY.md. This corrects documentation without changing game behavior.
 

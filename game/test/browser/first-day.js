@@ -1,6 +1,7 @@
 const {test,expect}=require('@playwright/test');
 const {screenshot,observeErrors}=require('./flow');
 const {walk}=require('./dungeons');
+const {drivePath}=require('./movement');
 
 async function speech(f, action) {
   for(let i=0;i<12;i++){
@@ -25,16 +26,16 @@ async function learnMovement(f,stats){
     await speech(f);
     const step=await f.evaluate(()=>{
       const gd=__bw.S.gd;if(gd>=2)return {done:true};
-      const {map:m,P,cam,zoom}=Scene.debug(),box=document.querySelector('#stage').getBoundingClientRect(),start=P.y*m.w+P.x,q=[start],seen=new Set(q),want=gd===0?2.5:6.1;
+      const {map:m,P,cam,zoom}=Scene.debug(),box=document.querySelector('#stage').getBoundingClientRect(),start=P.y*m.w+P.x,q=[start],seen=new Set(q),prev=new Map(),want=gd===0?2.5:6.1;
       for(let i=0;i<q.length&&i<1200;i++){
         const k=q[i],x=k%m.w,y=Math.floor(k/m.w),d=Math.hypot(x-P.x,y-P.y),sx=(x*16+8-cam.x)*zoom,sy=(y*16+8-cam.y)*zoom;
-        if(d>=want&&sx>28&&sx<box.width-28&&sy>115&&sy<box.height-70&&!m.ents.some(e=>!e.hidden&&Math.hypot(e.fx+.5-(x+.5),e.fy+.2-(y+.5))<1.12))return {at:[x,y],from:[P.x,P.y]};
-        for(const [dx,dy]of[[1,0],[-1,0],[0,-1],[0,1]]){const X=x+dx,Y=y+dy,n=Y*m.w+X;if(X<0||Y<0||X>=m.w||Y>=m.h||seen.has(n)||m.solid[n]||m.occ.has(n)||m.t[n]===4)continue;seen.add(n);q.push(n);}
+        if(d>=want&&sx>28&&sx<box.width-28&&sy>115&&sy<box.height-70&&!m.ents.some(e=>!e.hidden&&Math.hypot(e.fx+.5-(x+.5),e.fy+.2-(y+.5))<1.12)){const path=[];for(let n=k;n!==start;n=prev.get(n))path.push([n%m.w,Math.floor(n/m.w)]);return {at:[x,y],path:path.reverse(),run:gd===1,from:[P.x,P.y]};}
+        for(const [dx,dy]of[[1,0],[-1,0],[0,-1],[0,1]]){const X=x+dx,Y=y+dy,n=Y*m.w+X;if(X<0||Y<0||X>=m.w||Y>=m.h||seen.has(n)||m.solid[n]||m.occ.has(n)||m.t[n]===4)continue;seen.add(n);prev.set(n,k);q.push(n);}
       }
       throw Error('No visible ground for the walking/running lesson');
     });
     if(step.done)return;
-    await clickWorld(f,step.at);await f.waitForFunction(()=>!Scene.traveling(),null,{timeout:12000});
+    await drivePath(f,step.path,step.run);await f.waitForFunction(()=>!Scene.traveling(),null,{timeout:12000});
     const pos=await f.evaluate(()=>Scene.pos());stats.steps+=Math.abs(pos[0]-step.from[0])+Math.abs(pos[1]-step.from[1]);
     await f.waitForTimeout(400);
   }

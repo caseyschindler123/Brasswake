@@ -62,7 +62,7 @@ The main agent owns classification, acceptance criteria, task decomposition, int
 
 ## Decision log
 
-- 2026-11-23: Casey requested correction of stale release plans and current-state summaries. Tracked release history and closed plan milestones now preserve completion across fresh clones; ignored receipts are supporting evidence. Context closure uses document review and diff checks, with no game retesting or deployment. This update remains local under the existing hold.
+- 2026-11-23: Casey requested correction of stale release plans and current-state summaries. Tracked release history and closed plan milestones now preserve completion across fresh clones; ignored receipts are supporting evidence. Context closure uses document review and diff checks, with no game retesting or deployment. This update was initially held locally; Casey later explicitly authorized including all outstanding infrastructure/context changes with the cartography/game release.
 
 - 2026-11-23: Casey classified the cost-summary rule as simple and requested proportional testing. Planning follows complexity; verification follows affected behavior. Docs/instruction changes use review and a diff check, tooling uses focused checks, and game releases retain their full verification and relevant UI gates. Each completion message reports available task costs honestly; unavailable billing remains unavailable. Casey requested this update remain local with no deployment.
 

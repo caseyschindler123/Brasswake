@@ -2,7 +2,7 @@
   const WORLD_SURFACE = ['', 'quay', 'pier', 'plaza', 'black_sand', 'shingle', 'tidal'];
   const WORLD_BUILDING_CACHE = BuildingCache.create(32 * 1024 * 1024);
   function worldPiece(key) {
-    const a = typeof WorldArt !== 'undefined' && WorldArt.at[key];
+    const a = (typeof WorldArt !== 'undefined' && WorldArt.at[key]) || (typeof CartographyArt !== 'undefined' && CartographyArt.at[key]);
     if (!a) return null;
     if (!IMG[a.f]) img(a.f);
     return have(a.f) ? cut(a.f, ...a.r) : null;
@@ -19,7 +19,7 @@
     const closed = !!options.closed, shape = options.shape || 'rect';
     o.modular = true;
     o.plan = Buildings.compile({ id: options.id || 'building-' + o.r + '-' + o.x + '-' + o.y,
-      x: o.x, y: o.y, w: o.w, h: o.h, shape,
+      x: o.x, y: o.y, w: o.w, h: o.h, shape, diagram: options.diagram,
       doors: closed ? [] : options.doors || ['south'] });
     o.name = options.name || o.name || o.slot;
     o.landmark = options.landmark || null;
@@ -55,8 +55,8 @@
     return o;
   }
   function worldView(o) {
-    return WORLD_BUILDING_CACHE.get(o, artVer, () => BuildingView.create(o.plan, { piece: worldPiece, r: o.r,
-        roofFamily: o.r === 2 || o.r === 4 ? 3 : o.r === 5 || o.r === 8 ? 4 : o.r === 6 || o.r === 7 ? 2 : 1,
+    return WORLD_BUILDING_CACHE.get(o, artVer, () => BuildingView.create(o.plan, { piece: key => key.startsWith('venue_') ? venueProp(key,o.r).c : worldPiece(key), r: o.r,
+        roofFamily: o.roofFamily || (o.r === 2 || o.r === 4 ? 3 : o.r === 5 || o.r === 8 ? 4 : o.r === 6 || o.r === 7 ? 2 : 1),
         furniture: o.furniture }));
   }
   function worldBuildingFloor(o, g, ox0, oy0, dt) {
@@ -74,7 +74,8 @@
     if (art) {
       const scale = o.w * T / lw(art);
       list.push([o.by + 1, art, bx, o.by - lh(art) * scale, false, scale, 0, o.fa]);
-    } else if (o.fa > 0) list.push([o.by + 1, v.roof, bx, by - v.wallHeight, false, 1, 0, o.fa]);
+    } else if (o.fa > 0) list.push([o.by + 1, v.roof, bx, by - v.wallHeight - (o.storeyLift || 0), false, 1, 0, o.fa]);
+    venueDoors(o,list);
   }
   function worldHeroSort(by) {
     if (map !== world || !P) return by;

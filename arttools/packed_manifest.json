@@ -4552,5 +4552,32 @@
       1448,
       1263
     ]
+  },
+  {
+    "path": "art/cartography/props.webp",
+    "sha256": "35af79907e24991dfb3e18a7e6b63b9b9e0664a97a90224ff758a610c06ced51",
+    "size": 52548,
+    "dimensions": [
+      1015,
+      170
+    ]
+  },
+  {
+    "path": "art/cartography/atlas.webp",
+    "sha256": "2fe8eb1ef51f638a8b6ba687a7062750a529f1ce605703715f6a0b6345f99d13",
+    "size": 36660,
+    "dimensions": [
+      647,
+      203
+    ]
+  },
+  {
+    "path": "art/cartography/regional.webp",
+    "sha256": "b45211977be5fccbb658ecbd5d2e91fcac9163e6b1aeee617b6a164ea0b65974",
+    "size": 57760,
+    "dimensions": [
+      1023,
+      150
+    ]
   }
 ]

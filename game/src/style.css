@@ -208,6 +208,12 @@ table.res .nul { color: var(--dim); font-style: italic; }
 #stage canvas { position: absolute; left: 0; top: 0; }
 #stage canvas.game { image-rendering: pixelated; image-rendering: crisp-edges; }
 #stage canvas.over { width: 100%; height: 100%; }
+.movement-joystick { position: absolute; right: 16px; bottom: 18px; width: 84px; height: 84px; z-index: 3; border: 2px solid #c9a255; border-radius: 50%; background: radial-gradient(circle, #263e46a8 0 38%, #15232ba8 40% 66%, #7e603cbd 68% 100%); box-shadow: inset 0 0 0 3px #221b1a88, 0 2px 8px #0006; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; }
+.movement-joystick::before { content: '✦'; position: absolute; inset: 0; display: grid; place-items: center; color: #e4c48080; font-size: 76px; line-height: 1; pointer-events: none; }
+.joystick-thumb { position: absolute; width: 34px; height: 34px; left: calc(50% - 17px); top: calc(50% - 17px); transform: translate(var(--joy-x, 0px), var(--joy-y, 0px)); border: 2px solid #e2bd72; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #668b90, #283c49 70%); box-shadow: 0 2px 4px #0008; pointer-events: none; }
+.movement-joystick[data-mode=run] { border-color: #f4d88b; background-color: #66735b; }
+.movement-joystick[aria-disabled=true] { opacity: .35; cursor: default; }
+#stage #ctx { left: 12px; transform: none; max-width: calc(100% - 128px); bottom: 27px; }
 .stage-ui { position: absolute; left: 10px; top: 10px; display: flex; gap: 10px; align-items: center; z-index: 2; }
 .stage-ui .btn { background: rgba(13, 26, 28, .84); }
 .stage-ui .hearts { font-size: 18px; text-shadow: 0 1px 0 #000; text-align: left; }
@@ -483,6 +489,25 @@ details.book summary small { font: 400 12px var(--mono); color: var(--dim); marg
 .pin span { font: 700 12px var(--body); color: #fff; text-shadow: 0 1px 2px #000, 0 0 4px #000; white-space: nowrap; }
 .pin.locked b { opacity: .6; border-style: dashed; } .pin.sel b { background: var(--gold); } .pin.beaten b { border-color: #1d735c; box-shadow: 0 0 0 2px #1d735c; }
 .wmap .me { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: #fff; border: 3px solid var(--wax); box-shadow: 0 0 0 2px rgba(0, 0, 0, .4); pointer-events: none; }
+.cmap-frame { background: #000; isolation: isolate; }
+.cmap-frame:not(.cmap-region) { width: min(100%, calc(66.6667vh - 220px)); align-self: center; }
+.cmap-frame .ferry-routes { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.cmap-dot { position: absolute; width: 7px; height: 7px; margin: -3.5px; border-radius: 50%; background: #e4c475; border: 1px solid #322218; pointer-events: none; }
+.cmap-dot.town { width: 11px; height: 11px; margin: -5.5px; background: #f8ebbe; }
+.cmap-dot.stairs, .cmap-dot.lair { background: #b49be6; }
+.cmap-dot.ferry, .cmap-dot.fish { background: #8fd3f0; }
+.cmap-dot.home { background: #92c578; }
+.cmap-dot.errand { width: 10px; height: 10px; margin: -5px; background: #e7bd49; box-shadow: 0 0 0 2px #fff0c1; }
+.cmap-dot.waypoint { box-shadow: 0 0 0 3px #36cbe0; }
+.cmap-mode, .cmap-regions { flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.cmap-mode .btn, .cmap-regions .btn { min-height: 40px; }
+.goods.cmap-destinations li.good, .goods.cmap-shop li.good, .goods.cmap-house li.good { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+.goods.cmap-destinations li.good > div:first-child { flex: none; width: 100%; min-width: 0; }
+.goods.cmap-destinations li.good > .cmap-dest-actions { flex-direction: row; justify-content: flex-end; }
+.goods.cmap-destinations li.good > .btn, .goods.cmap-shop li.good > .btn, .goods.cmap-house li.good > .btn { align-self: flex-end; min-height: 40px; max-width: 100%; white-space: normal; }
+.cmap-dest-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.cmap-dest-actions .btn { min-height: 40px; }
+.cmap-current-waypoint { justify-content: space-between; flex-wrap: wrap; padding: 10px; border: 1px solid #569fa5; background: #e6eadc; }
 #toast { z-index: 30; }
 
 #app.infight #hud, #app.infight .stage-ui { display: none; }

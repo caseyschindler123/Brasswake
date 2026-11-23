@@ -82,7 +82,8 @@ test('all four ferry routes sail both ways for free and chart their actual sea l
   expect(legs).toHaveLength(4);
   const names = [null, 'Tallyport', 'Brackwater', 'Haverly', 'Four Fords', 'Cinderwick', 'Kell', 'Highwatch', 'Aldermoot'];
   for (const leg of legs) {
-    await frame.evaluate(({ from }) => Scene.load(from.at, from.r), leg);
+    const departure = await frame.evaluate(({ from }) => { const m=Scene.debug().world; const p=[[0,1],[1,0],[-1,0],[0,-1]].map(([dx,dy])=>[from.at[0]+dx,from.at[1]+dy]).find(([x,y])=>!m.solid[y*m.w+x]&&!m.occ.has(y*m.w+x)&&m.t[y*m.w+x]!==4); if(!p)throw Error('No clear boarding approach'); Scene.load(p,from.r); return {expected:p,actual:Scene.pos()}; }, leg);
+    expect(departure.actual).toEqual(departure.expected);
     await frame.waitForTimeout(650);
     const outbound = await clickFerry(frame, leg.id, 'from');
     await expect(outbound).toHaveText('Board for ' + names[leg.to.r]);
@@ -108,16 +109,17 @@ test('all four ferry routes sail both ways for free and chart their actual sea l
     await expect.poll(() => frame.evaluate(() => Scene.region())).toBe(leg.from.r);
   }
   await openMap(frame);
+  await frame.locator('[data-a=cmapview][data-mode=world]').click();
   await expect(frame.locator('.ferry-routes polyline[stroke-dasharray]')).toHaveCount(4);
-  await expect(frame.locator('.ferry-routes circle')).toHaveCount(8);
-  await frame.getByRole('button', { name: 'Aldermoot · Capital' }).click();
+  await frame.locator('[data-a=cmapview][data-mode=region]').click();
+  await frame.locator('[data-a=cmapregion][data-r="8"]').first().click();
   await expect(frame.locator('#view')).toContainText('Ferry destinations');
-  await expect(frame.locator('#view')).toContainText('Free from the quay');
+  await expect(frame.locator('#view')).toContainText('Free crossing');
   await screenshot(page, info, 'world-map-ferries');
   expect(errors).toEqual([]);
 });
 
-test('town travel and a home pad are saved immediately, before the player walks', async ({ page }) => {
+test('regional town travel and a home pad save arrivals immediately and reject remote town travel', async ({ page }) => {
   test.setTimeout(120000);
   const errors = observeErrors(page), frame = await world(page);
   await frame.evaluate(() => {
@@ -128,11 +130,18 @@ test('town travel and a home pad are saved immediately, before the player walks'
     Scene.restoreHomes(__bw.S.homes);
     __bw.S.pos = Scene.pos();
     __bw.S.been[2] = 1;
+    __bw.S.cartography.maps[2] = true;
     __bw.save();
   });
   await openMap(frame);
-  await frame.getByRole('button', { name: 'Brackwater', exact: true }).click();
-  await frame.locator('[data-a=travel][data-r="2"]').click();
+  await frame.locator('[data-a=cmapregion][data-r="2"]').first().click();
+  await expect(frame.locator('[data-a=cmaptravel]')).toHaveCount(0);
+  const beforeRemote = await frame.evaluate(() => Scene.pos());
+  await frame.evaluate(() => __bw.ACT.travel({r:2}));
+  expect(await frame.evaluate(() => Scene.pos())).toEqual(beforeRemote);
+  await frame.evaluate(() => { const t=Scene.towns()[2]; Scene.load([t[0]+10,t[1]+18],2); __bw.S.pos=Scene.pos(); });
+  await openMap(frame);
+  await frame.locator('[data-a=cmaptravel][data-id=town2]').click();
   const brackwater = await frame.evaluate(() => {
     const saved = JSON.parse(localStorage.getItem('brasswake.acct.v7'));
     return { actual: Scene.pos(), stored: saved.slots[saved.cur].pos, region: saved.slots[saved.cur].region };

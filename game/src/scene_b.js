@@ -1,7 +1,7 @@
 
   /* ===== mainland and island regions, ground painted in chunks as you walk ===== */
   const [WW, WH] = Geography.size, CS = 8, TOWN = Geography.towns;
-  let hold = null, world = null, curReg = 1, curB = 1, curT = null, tcheck = 0, inset = 0, locked = false, ambNow = 0, anims = [], floats = [], slashes = [], shots = [], bars = [];
+  let world = null, curReg = 1, curB = 1, curT = null, tcheck = 0, inset = 0, locked = false, ambNow = 0, anims = [], floats = [], slashes = [], shots = [], bars = [];
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   Object.assign(ART, { s1: ['wolf', '#8a5a3a'], s2: ['bird', '#b0703a'], s3: ['wolf', '#e0a0a0'], s4: ['wolf', '#7a4a2a'], s5: ['wolf', '#2a2a2a'], s6: ['bird', '#f0f0f0'], s7: ['bird', '#1a1a1a'], s8: ['wolf', '#8a8a8a'], a1: ['rat', '#9a7a5a'], a2: ['wolf', '#b08a5a'], a3: ['wolf', '#4a3a32'], a4: ['wolf', '#c9703a'], a5: ['bird', '#8a5a3a'], a6: ['wolf', '#d8d4c8'], a7: ['wolf', '#e6e0d0'], a8: ['rat', '#f0f0f0'] });
   const FB = { bank: 'guild', work: 'shop', house: 'healer', cottage: 'house', hall: 'tavern', casino: 'hall', farm: 'house', barn: 'work', mill: 'hall', cottage2: 'cottage', shack: 'cottage', cabin: 'house', hut: 'cottage', way: 'tavern', tower: 'guild', ruin: 'work', shrine: 'healer', stable: 'work', adobe: 'house', lodge: 'house', stilt: 'cottage', mine: 'work' };
@@ -197,7 +197,7 @@
     if (s && s.art && C && C.diag) { if (!IMG['diag.webp']) img('diag.webp'); if (have('diag.webp')) { const lk = host.look(), row = i => [0, 1, 2, 3].map(f => cut('diag.webp', (i * 4 + f) * C.cw, lk * C.ch, C.cw, C.ch)); s.dl = row(0); s.dr = row(1); s.ul = row(2); s.ur = row(3); } }   // the four diagonals, once that sheet is packed
     if (s && s.art && C && C.w8) { const lk = host.look(), f = 'w8/L' + lk + '.webp'; if (C.w8[lk]) { if (!IMG[f]) img(f); if (have(f)) { const W8 = C.w8[lk], n = W8.n || 4, dir = (d, o) => Array.from({ length: n }, (_, k) => cut(f, (o + k) * W8.cw, d * W8.ch, W8.cw, W8.ch)); s.w8 = [0, 1, 2, 3, 4, 5, 6, 7].map(d => dir(d, 0)); s.r8 = [0, 1, 2, 3, 4, 5, 6, 7].map(d => dir(d, n)); } } }   // walk and run in eight directions
     return s; }
-  function spr(kind, r) { if (typeof WorldArt !== 'undefined' && WorldArt.at[kind]) return worldProp(kind); const key = kind + '|' + r, c = SC[key]; if (c && c.v === artVer) return c.s; let s = artProp(kind, r); if (!s && XP[kind]) s = spr(XP[kind], r); else if (!s && kind.slice(0, 3) !== 'sc_' && kind.slice(0, 3) !== 'pi_' && kind.slice(0, 3) !== 'dj_') { const pk = { rock0: 'rock', rock1: 'rock', bush: 'rock', pillar: 'lamp', sign: 'board', fire: 'torch' }[kind] || kind; s = pk === 'flowers' || pk === 'bones' ? null : prop(pk, world ? world.pal[r] : map.pal[r], r, host.hue(r)); } SC[key] = { v: artVer, s }; return s; }
+  function spr(kind, r) { if(kind.startsWith('venue_'))return venueProp(kind,r); if ((typeof WorldArt !== 'undefined' && WorldArt.at[kind]) || (typeof CartographyArt !== 'undefined' && CartographyArt.at[kind])) return worldProp(kind); const key = kind + '|' + r, c = SC[key]; if (c && c.v === artVer) return c.s; let s = artProp(kind, r); if (!s && XP[kind]) s = spr(XP[kind], r); else if (!s && kind.slice(0, 3) !== 'sc_' && kind.slice(0, 3) !== 'pi_' && kind.slice(0, 3) !== 'dj_') { const pk = { rock0: 'rock', rock1: 'rock', bush: 'rock', pillar: 'lamp', sign: 'board', fire: 'torch' }[kind] || kind; s = pk === 'flowers' || pk === 'bones' ? null : prop(pk, world ? world.pal[r] : map.pal[r], r, host.hue(r)); } SC[key] = { v: artVer, s }; return s; }
   function bldSpr(o) { if (o.v === artVer && o.s) return o.s; o.v = artVer; if (o.home) return o.s = homeSpr(o); const a = artBld(o.slot, o.w, o.r, o.enter); if (a) return o.s = a; if (!o.p) o.p = building(o.w, o.h, world.pal[o.r], o.r * 100 + o.x, o.sign, '-'); return o.s = o.p; }
   /* ---------- walk-in rooms: an enterable building fades out and its room is drawn in the same footprint ---------- */
   // Furniture per room, in tiles from the building's top-left. p: kit piece, x: centre column (may be fractional), y: row it stands on, s: tiles it blocks.
@@ -228,7 +228,7 @@
     const fh = 6 * K, fr = mk(W, fh); fillTex(fr, kitPiece('t_stone'), 0, 0, W, fh); fr.getContext('2d').clearRect(R.door * T * K, 0, T * K, fh); fr.hr = 1;
     return o.ra = { v: artVer, fl, wl, sd, fr }; }
   // Fade the building in or out as the hero crosses its footprint.
-  function roomFade(o, dt) { const inside = !!(P && map === world && buildingContains(o, P.x, P.y)); if (o.inside != null && inside !== o.inside) emit('door'); o.inside = inside; o.fa += ((inside ? 0 : 1) - o.fa) * Math.min(1, dt * 7); if (Math.abs(o.fa - (inside ? 0 : 1)) < .01) o.fa = inside ? 0 : 1; return o.fa; }
+  function roomFade(o, dt) { if(o.indoor){o.inside=true;o.fa=0;return 0;} const inside = !!(P && (map === world || o.indoor) && buildingContains(o, P.x, P.y)); if (!o.modular && o.inside != null && inside !== o.inside) emit('door'); o.inside = inside; o.fa += ((inside ? 0 : 1) - o.fa) * Math.min(1, dt * 7); if (Math.abs(o.fa - (inside ? 0 : 1)) < .01) o.fa = inside ? 0 : 1; return o.fa; }
   function dress(e) { e.sv = artVer; if (e.wk || e.ak) { e.spr = (e.wk && artWalk(e.wk)) || (e.ak && artFolk(e.ak)) || e.spr; if (e.hop && e.spr && !e.spr.l) e.spr.one = 1; } else if (e.kind === 'mon' || e.kind === 'guard' && e.inst && e.inst.dungeon || e.kind === 'keeper') e.spr = monSprite(e.inst && (e.inst.art || e.inst.lk || e.inst.tpl) || 'k' + e.r); else if (e.kind === 'stock') e.spr = monSprite(e.tpl); else if (e.kind === 'guard') e.spr = monSprite(e.tpl); else if (e.kind === 'boss') e.spr = bossSprite(e.r); if (e.ok) e.obj = spr(e.ok, e.r); else if (e.kind === 'dlever') e.obj = dungeonArt('control',e.r); else if(e.kind==='dgate')e.obj=dungeonGate(e,e.r); else if(e.kind==='dsecret')e.obj=dungeonArt('landmark',e.r); else if(e.kind==='dlore')e.obj=dungeonArt('lore',e.r); }
   // rings spreading on the water where the fish are
   const RIP = []; function ripple(t) { if (!RIP.length) for (let f = 0; f < 6; f++) { const c = mk(22, 12), g = c.getContext('2d'); g.strokeStyle = `rgba(255,255,255,${.75 - f * .11})`; g.lineWidth = 1; g.beginPath(); g.ellipse(11, 6, 2 + f * 1.7, 1 + f * .9, 0, 0, 6.283); g.stroke(); if (f < 3) { g.fillStyle = 'rgba(255,255,255,.8)'; g.fillRect(10, 5, 2, 1); } RIP.push(c); } return RIP[Math.floor(t / 170) % 6]; }
@@ -412,6 +412,8 @@
         L.props.forEach((k, q2) => { const a = q2 / L.props.length * 6.283 + g(), px = Math.round(cx2 + Math.cos(a) * 3.4), py = Math.round(cy2 + Math.sin(a) * 2.4); if (!inb(px, py) || m.solid[ix(px, py)] || m.occ.has(ix(px, py))) return; m.props.push({ x: px, y: py, kind: 'pi_' + k, r: L.r, solid: 0 }); });
         if (L.props.includes('fire')) m.lights.push({ x: cx2 + .5, y: cy2, r: 52, c: 2, fl: 1 }); }
     }
+    cartographyShops(m);
+    venueSetup(m);
     const mini = mk(WW, WH), g = mini.getContext('2d'), im = g.createImageData(WW, WH), d = im.data;
     for (let i = 0; i < n; i++) { const b = m.pal[m.b[i]], k = m.t[i], c = hex([b.g, b.G, b.d, b.p, b.w, b.s, '#6b5238', b.df, '#3a3a40', b.mt][k]), f = k === 9 ? (hash(i % WW, i / WW | 0, 5) < .5 ? .72 : (b.cap ? 1.5 : .95)) : k < 2 ? (m.fo[i] ? .62 : .85) : 1; d[i * 4] = Math.min(255, c[0] * f); d[i * 4 + 1] = Math.min(255, c[1] * f); d[i * 4 + 2] = Math.min(255, c[2] * f); d[i * 4 + 3] = 255; }
     g.putImageData(im, 0, 0); g.fillStyle = '#5a3a2a'; for (const b of m.blds) g.fillRect(b.x, b.y, b.w, b.h); m.mini = mini;
@@ -459,6 +461,7 @@
       let tw = null; for (const [dx, dy] of [[2, -2], [3, -2], [2, -3], [3, 2], [2, 3], [4, -2], [4, 2]]) if (ok(px + dx, py + dy)) { tw = [px + dx, py + dy]; break; }
       if (tw) { EE('lookout', tw[0], tw[1], 1, { name: 'Harbor tower', sub: 'Climb', ok: 'pi_lookout' }); m.spots.tower = tw; }
       const fx = m.spots.pierfish[0]; if (inb(fx, py + 1) && m.t[ix(fx, py + 1)] === 4 && !m.occ.has(ix(fx, py))) { EE('fish', fx, py + 1, 1, { name: 'End of the pier', sub: 'Fish', fid: 'f1-pier' }); m.sites.push({ id: 'f1-pier', kind: 'fish', name: 'End of the pier', x: fx, y: py + 1, r: 1 }); m.spots.pierfish = [fx, py + 1]; } }
+    cartographySetup(m);
     delete m.roadScratch;
     groundKinds(m);
     return m;
@@ -479,7 +482,7 @@
     addEnt(m, { kind: 'bracket', x: 2, y: 13, r, name: 'Bracket board', sub: 'The tournament', ok: 'dj_board' });
     for (const [i, y] of [[0, 5], [1, 8], [2, 11]]) addEnt(m, { kind: 'dummy', i, x: 1, y, r, name: 'Training dummy', sub: 'Practice', ok: 'dj_dummy' });
     (fill || []).forEach(o => addEnt(m, Object.assign({ r }, o)));
-    m.entry = [5, 13]; const mini = mk(w, h), g = mini.getContext('2d'); for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { g.fillStyle = m.solid[y * w + x] ? '#2a2018' : '#a08060'; g.fillRect(x, y, 1, 1); } m.mini = mini; return m;
+    venueHall(m); m.entry = [5, 13]; const mini = mk(w, h), g = mini.getContext('2d'); for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { g.fillStyle = m.solid[y * w + x] ? '#2a2018' : '#a08060'; g.fillRect(x, y, 1, 1); } m.mini = mini; return m;
   }
   function enterHall(r, fill) { const m = genHall(r, fill); go(m, m.entry[0], m.entry[1]); return m; }
   // a fighter from the dojo sheet: row, frame 0-7 (stand, ready, three attack frames, recover, hit, bow), facing right unless flipped
@@ -500,9 +503,8 @@
   const MD = 'rgba(34,40,30,.42)', GTINT = { 1: { m: MD }, 2: { w: 'rgba(52,84,56,.3)', m: MD }, 3: { m: 'rgba(120,84,44,.42)' }, 4: { m: MD }, 5: { m: 'rgba(0,0,0,.4)' }, 6: { w: 'rgba(18,26,66,.42)', m: 'rgba(20,24,50,.45)' }, 7: { w: 'rgba(214,236,248,.3)', m: 'rgba(70,92,120,.3)' }, 8: { w: 'rgba(30,60,70,.18)', g: 'rgba(200,110,40,.13)', m: MD }, 9: { m: 'rgba(130,60,30,.34)' }, 10: { w: 'rgba(214,236,248,.3)', m: 'rgba(70,92,120,.3)' }, 11: { g: 'rgba(120,124,120,.2)', m: MD } };
   // every tile's soft kind: 0 open ground, 1 tall grass, 2 under trees, 3 among the mountains, 4 sand, 5 trail, 6 shallow water, 7 deep water, 8 ploughed. Paving and planks keep a kind for what lies under them.
   function groundKinds(m) {
-    const n = m.w * m.h, W = m.w, gk = m.gk = new Uint8Array(n), gc = m.gc = new Uint8Array(n), near = new Uint8Array(n);
-    for (let i = 0; i < n; i++) if (m.t[i] !== 4) { const x = i % W, y = i / W | 0; if (!((x > 0 && m.t[i - 1] === 4) || (x < W - 1 && m.t[i + 1] === 4) || (y > 0 && m.t[i - W] === 4) || (y < m.h - 1 && m.t[i + W] === 4))) continue; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const xx = x + dx, yy = y + dy; if (xx >= 0 && yy >= 0 && xx < W && yy < m.h) near[yy * W + xx] = 1; } }   // water within two tiles of land is shallow
-    const none = gcl('none'); for (let i = 0; i < n; i++) { const k = m.t[i], b = m.b[i]; gc[i] = k === 3 ? gcl(b === 8 ? 'marble' : 'cobble') : k === 6 ? gcl('planks') : none; gk[i] = k === 4 ? (near[i] ? 6 : 7) : k === 5 ? 4 : k === 2 ? 5 : k === 9 ? 3 : k === 6 ? 6 : k < 2 ? (m.fo && m.fo[i] ? 2 : k) : 0; }
+    const n = m.w * m.h, W = m.w, gk = m.gk = new Uint8Array(n), gc = m.gc = new Uint8Array(n), near = WaterDepth.shallows(m);
+    const none = gcl('none'); for (let i = 0; i < n; i++) { const k = m.t[i], b = m.b[i]; gc[i] = k === 3 ? gcl(b === 8 ? 'marble' : 'cobble') : k === 6 ? gcl('planks') : none; gk[i] = k === 3 && m.surface && m.surface[i] === 1 ? 7 : k === 4 ? (near[i] ? 6 : 7) : k === 5 ? 4 : k === 2 ? 5 : k === 9 ? 3 : k === 6 ? 7 : k < 2 ? (m.fo && m.fo[i] ? 2 : k) : 0; }
     for (const f of m.fields || []) for (let y = f[1]; y < f[1] + f[3]; y++) for (let x = f[0]; x < f[0] + f[2]; x++) { const i = y * W + x; if (m.t[i] < 2) gk[i] = 8; }
     m.gct = new Int16Array(12 * 16).fill(-1);
   }
@@ -592,23 +594,34 @@
 
   /* ---------- movement ---------- */
   const blocked = (x, y, ignore) => { if (x < 0 || y < 0 || x >= map.w || y >= map.h) return true; const i = y * map.w + x; if (map.solid[i]) return true; const e = map.occ.get(i); return !!e && e !== ignore; };
-  function pathTo(tx, ty, adj) {
-    const R = map.dungeonFloor ? Math.max(map.w,map.h) : 36, x0 = Math.max(0, P.x - R), y0 = Math.max(0, P.y - R), x1 = Math.min(map.w - 1, P.x + R), y1 = Math.min(map.h - 1, P.y + R), w = x1 - x0 + 1, prev = new Int32Array(w * (y1 - y0 + 1)).fill(-1), qu = [(P.y - y0) * w + (P.x - x0)]; prev[qu[0]] = qu[0];
-    let goal = -1, best = qu[0], bd = 1e9; const ok = (x, y) => adj ? Math.abs(x - tx) + Math.abs(y - ty) === 1 : x === tx && y === ty;
-    for (let i = 0; i < qu.length; i++) { const k = qu[i], x = k % w + x0, y = (k / w | 0) + y0; if (ok(x, y)) { goal = k; break; } const d = Math.abs(x - tx) + Math.abs(y - ty); if (d < bd) { bd = d; best = k; }
-      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (nx < x0 || ny < y0 || nx > x1 || ny > y1) continue; const nk = (ny - y0) * w + (nx - x0); if (prev[nk] >= 0 || blocked(nx, ny)) continue; prev[nk] = k; qu.push(nk); } }
-    if (goal < 0) goal = best; const path = []; for (let k = goal; k !== qu[0]; k = prev[k]) path.push([k % w + x0, (k / w | 0) + y0]); return path.reverse();
-  }
   const nextTo = e => { const d = Math.abs(e.x - P.x) + Math.abs(e.y - P.y); return d === 1 || (d === 0 && !e.solid); };
-  function tapAt(px, py, ground) {
-    if (!map || fade > .3 || locked) return; const wx = (cam.x + px / zoom) / T, wy = (cam.y + py / zoom) / T; let best = null, bd = 1.1;
-    if (GHOST) { GHOST.x = Math.floor(wx - GHOST.w / 2); GHOST.y = Math.floor(wy - GHOST.h / 2); GHOST.why = homeFits(GHOST.x, GHOST.y, GHOST.w, GHOST.h); host.ghostMoved && host.ghostMoved(GHOST); return; }
-    if (!ground) for (const e of map.ents) { if(e.hidden)continue; if (Math.abs(e.fx - wx) > 3 || Math.abs(e.fy - wy) > 4) continue; const d = Math.hypot(e.fx + .5 - wx, e.fy + (e.big ? -.2 : .2) - wy); if (d < bd) { bd = d; best = e; } }
-    if (best) { P.target = best; P.tries = 0; P.run = Math.hypot(best.x - P.x, best.y - P.y) > 5; P.path = nextTo(best) ? [] : pathTo(best.x, best.y, true); if (!P.path.length) arrive(); return; }
-    let tx = Math.floor(wx), ty = Math.floor(wy); P.target = null; if (blocked(tx, ty)) { let f = null, fd = 9; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (!blocked(tx + dx, ty + dy) && Math.hypot(dx, dy) < fd) { fd = Math.hypot(dx, dy); f = [tx + dx, ty + dy]; } if (!f) return; [tx, ty] = f; }
-    P.run = Math.hypot(tx - P.x, ty - P.y) > (map.dungeonFloor ? 3 : 5); P.path = pathTo(tx, ty, false); if (!ground) P.mark = [tx, ty, 1];
+  function tapAt(px, py) {
+    if (!inputAvailable() || fade > .3) return;
+    const wx = (cam.x + px / zoom) / T, wy = (cam.y + py / zoom) / T;
+    if (GHOST) {
+      GHOST.x = Math.floor(wx - GHOST.w / 2);
+      GHOST.y = Math.floor(wy - GHOST.h / 2);
+      GHOST.why = homeFits(GHOST.x, GHOST.y, GHOST.w, GHOST.h);
+      if (host.ghostMoved) host.ghostMoved(GHOST);
+      return;
+    }
+    let best = null, closest = 1.1;
+    for (const e of map.ents) {
+      if (e.hidden || Math.abs(e.fx - wx) > 3 || Math.abs(e.fy - wy) > 4) continue;
+      const d = Math.hypot(e.fx + .5 - wx, e.fy + (e.big ? -.2 : .2) - wy);
+      if (d < closest) { closest = d; best = e; }
+    }
+    if (best) interactNear(best);
   }
-  function arrive() { const e = P.target; if (!e) return; if (!nextTo(e)) { if (map.ents.includes(e) && (P.tries = (P.tries || 0) + 1) < 6) { P.path = pathTo(e.x, e.y, true); if (P.path.length) return; } P.target = null; return; } P.target = null; P.dg = null; P.dir = e.x > P.x ? 's' : e.x < P.x ? 'l' : e.y > P.y ? 'f' : 'b'; P.d8 = D8(Math.sign(e.x - P.x), Math.sign(e.y - P.y)); if (e.kind === 'mon' || e.kind === 'rival') e.unseen = !e.alert; host.interact(e); }
+  function interactNear(e) {
+    if (!nextTo(e)) { if (host.moveCloser) host.moveCloser(); return; }
+    clearSceneControls();
+    P.dg = null;
+    P.dir = e.x > P.x ? 's' : e.x < P.x ? 'l' : e.y > P.y ? 'f' : 'b';
+    P.d8 = D8(Math.sign(e.x - P.x), Math.sign(e.y - P.y));
+    if (e.kind === 'mon' || e.kind === 'rival') e.unseen = !e.alert;
+    host.interact(e);
+  }
   const setOf = t => { const o = {}; t.split(' ').forEach(k => { o[k] = 1; }); return o; }, PREY = setOf('a1 a2 a4 a5 a6 a7 a8'), FLY = setOf('b102 b204 b303 b304 b402 b404 b502 b602 b603 b701 b702 b704 b802 b803'), SLOW = setOf('b202 b302 b801 b501 b604 b804');
   const D8 = (dx, dy) => [[3, 4, 5], [2, 0, 6], [1, 0, 7]][Math.sign(dy) + 1][Math.sign(dx) + 1] ?? 0;   // 0 S, 1 SW, 2 W, 3 NW, 4 N, 5 NE, 6 E, 7 SE
   const WALK = 2.2, RUN = 4.6, WALK_CYC = 1.8, RUN_CYC = 2.6, DIRV = { f: [0, 1], b: [0, -1], s: [1, 0], l: [-1, 0] }, D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]], dirOf = (dx, dy) => dx > 0 ? 's' : dx < 0 ? 'l' : dy > 0 ? 'f' : 'b';
@@ -616,23 +629,31 @@
     clock = (clock + dt / 600) % 1;
     for (const a of anims) { a.t += dt; a.f(Math.min(1, a.t / a.d)); if (a.t >= a.d && a.end) a.end(); } anims = anims.filter(a => a.t < a.d);
     if (P.atk > 0) P.atk -= dt; advanceEffects(dt);
-    if (!locked) {
-      if (P.path.length) { const [nx, ny] = P.path[0]; if (blocked(nx, ny)) { P.path = P.target ? pathTo(P.target.x, P.target.y, true) : []; } else { const dx = nx - P.fx, dy = ny - P.fy, d = Math.hypot(dx, dy), sp = (P.run ? RUN * (host.runMul ? host.runMul() : 1) : WALK) * dt; { const sx = nx - P.x, sy = ny - P.y; P.dg = sx && sy ? (sy > 0 ? 'd' : 'u') + (sx > 0 ? 'r' : 'l') : null; if (sx || sy) P.d8 = D8(sx, sy); } P.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 's' : 'l') : (dy > 0 ? 'f' : 'b'); P.walk += dt * (P.run ? 13 : 9); P.wd = (P.wd || 0) + Math.min(sp, d); if (d <= sp) { P.fx = P.x = nx; P.fy = P.y = ny; P.path.shift(); onTile(); if (!P.path.length && P.target) arrive(); } else { P.fx += dx / d * sp; P.fy += dy / d * sp; } } } else P.walk = 0;
-      if (hold && !P.target) { hold[2] += dt; if (hold[2] > .2) { if (P.path.length > 1) P.path.length = 1; if (!P.path.length) { const hx = (P.fx * T + 8 - cam.x) * zoom, hy = (P.fy * T + 8 - cam.y) * zoom, vx = hold[0] - hx, vy = hold[1] - hy;
-        if (Math.hypot(vx, vy) > 14 * zoom) { P.run = Math.hypot(vx, vy) > 2.4 * T * zoom; const a = (Math.round(Math.atan2(vy, vx) / (Math.PI / 4)) + 8) % 8, sx = [1, 1, 0, -1, -1, -1, 0, 1][a], sy = [0, 1, 1, 1, 0, -1, -1, -1][a], ok = (dx, dy) => (dx || dy) && !blocked(P.x + dx, P.y + dy); let st = null;
-          if (sx && sy) st = ok(sx, sy) && ok(sx, 0) && ok(0, sy) ? [sx, sy] : Math.abs(vx) > Math.abs(vy) ? (ok(sx, 0) ? [sx, 0] : ok(0, sy) ? [0, sy] : null) : (ok(0, sy) ? [0, sy] : ok(sx, 0) ? [sx, 0] : null);
-          else if (ok(sx, sy)) st = [sx, sy]; else { const ox2 = sx ? 0 : (vx > 0 ? 1 : -1), oy2 = sy ? 0 : (vy > 0 ? 1 : -1); if (Math.abs(sx ? vy : vx) > 8 * zoom && ok(ox2, oy2)) st = [ox2, oy2]; }
-          if (st) P.path = [[P.x + st[0], P.y + st[1]]]; else { P.dg = null; P.dir = Math.abs(vx) > Math.abs(vy) ? (vx > 0 ? 's' : 'l') : (vy > 0 ? 'f' : 'b'); P.d8 = D8(Math.abs(vx) > 2 * Math.abs(vy) ? Math.sign(vx) : Math.abs(vy) > 2 * Math.abs(vx) ? 0 : Math.sign(vx), Math.abs(vy) > 2 * Math.abs(vx) ? Math.sign(vy) : Math.abs(vx) > 2 * Math.abs(vy) ? 0 : Math.sign(vy)); } } } } }
-      if (P.keys && !P.path.length) { P.run = false; const [dx, dy] = P.keys; if (!blocked(P.x + dx, P.y + dy)) P.path = [[P.x + dx, P.y + dy]]; }
+    manualMovement();
+    if (P.path.length) {
+      const [nx, ny] = P.path[0];
+      if (blocked(nx, ny)) stopManualStep();
+      else {
+        const dx = nx - P.fx, dy = ny - P.fy, d = Math.hypot(dx, dy);
+        const speed = P.run ? RUN * (host.runMul ? host.runMul() : 1) : WALK, distance = speed * dt;
+        const sx = nx - P.x, sy = ny - P.y;
+        P.dg = sx && sy ? (sy > 0 ? 'd' : 'u') + (sx > 0 ? 'r' : 'l') : null;
+        P.d8 = D8(sx, sy);
+        P.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 's' : 'l') : (dy > 0 ? 'f' : 'b');
+        P.walk += dt * (P.run ? 13 : 9);
+        P.wd = (P.wd || 0) + Math.min(distance, d);
+        if (d <= distance) { P.fx = P.x = nx; P.fy = P.y = ny; P.path.shift(); onTile(); }
+        else { P.fx += dx / d * distance; P.fy += dy / d * distance; }
+      }
     } else P.walk = 0;
     guideStep(dt);
     near = null; let nd = 1.6;
-    for (const e of map.ents) { if(e.hidden)continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy); if (d < nd && !e.empty) { nd = d; near = e; } if (e.dead && e.dying == null && (e.decay -= dt) <= 0) e.dying = 1; if (e.dying) { e.dying -= dt * 2.4; continue; } if (!e.wander || e.busy || d > 26) continue; e.t -= dt; if (e.tired > 0) e.tired -= dt; else if (d < 4.4 && e.kind === 'mon' && PREY[e.inst.tpl]) e.t = 0;   // prey reacts at once
+    for (const e of map.ents) { if(e.hidden)continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy); if (d < nd && !e.empty && nextTo(e)) { nd = d; near = e; } if (e.dead && e.dying == null && (e.decay -= dt) <= 0) e.dying = 1; if (e.dying) { e.dying -= dt * 2.4; continue; } if (!e.wander || e.busy || d > 26) continue; e.t -= dt; if (e.tired > 0) e.tired -= dt; else if (d < 4.4 && e.kind === 'mon' && PREY[e.inst.tpl]) e.t = 0;   // prey reacts at once
       if (e.kind === 'mon' || e.kind === 'rival') { const v = DIRV[e.dir] || [0, 1], facing = (P.fx - e.fx) * v[0] + (P.fy - e.fy) * v[1] > 0; if ((d < 3.2 && facing) || (e.agg && d < 6.5)) e.alert = 4; else if (e.alert > 0) e.alert = Math.max(0, e.alert - dt); if (e.calm > 0) e.calm -= dt;
         if (e.chase > 0) e.chase -= dt; if (e.wait > 0) e.wait -= dt; e.hunt = !(e.wait > 0) && (e.chase > 0 && d < 16 && !locked && host.chasing()) || (e.agg && e.alert > 0 && !(e.calm > 0) && d < 8 && !locked && host.aggro()); if (e.hunt && e.tx == null) { if (Math.abs(e.x - P.x) + Math.abs(e.y - P.y) === 1) { e.hunt = 0; e.calm = 12; host.ambush(e); break; } const ddx = P.x - e.x, ddy = P.y - e.y, st = Math.abs(ddx) >= Math.abs(ddy) ? [[Math.sign(ddx), 0], [0, Math.sign(ddy)]] : [[0, Math.sign(ddy)], [Math.sign(ddx), 0]]; for (const [sx, sy] of st) { if ((!sx && !sy) || blocked(e.x + sx, e.y + sy) || (e.x + sx === P.x && e.y + sy === P.y)) continue; e.dir = dirOf(sx, sy); sit(map, e, e.x + sx, e.y + sy); e.tx = e.x; e.ty = e.y; break; } e.t = 1; continue; } }
       if (e.tx != null) { const dx = e.tx - e.fx, dy = e.ty - e.fy, dd = Math.hypot(dx, dy), sp = (e.wander >= 2 ? 1.4 : e.hunt && e.chase > 0 ? (FLY[e.inst && e.inst.tpl] ? 4.0 : SLOW[e.inst && e.inst.tpl] ? 1.9 : 3.6) : e.hunt ? 2.0 : e.run ? 2.4 : e.kind === 'mon' ? (FLY[e.inst.tpl] ? 1.6 : SLOW[e.inst.tpl] ? .5 : .9) : 1.1) * dt; e.walk = (e.walk || 0) + dt * 7; if (dd <= sp) { e.fx = e.tx; e.fy = e.ty; e.tx = null; } else { e.fx += dx / dd * sp; e.fy += dy / dd * sp; } }
       else if (e.t <= 0 && d > 1.6) {
-        if (e.wander >= 2) { let v = e.mv && Math.random() < .8 ? e.mv : D4[Math.random() * 4 | 0]; const nx = e.x + v[0], ny = e.y + v[1], tt = nx >= 0 && ny >= 0 && nx < map.w && ny < map.h ? map.t[ny * map.w + nx] : 9; if ((tt === 2 || tt === 3 || (e.wander === 3 && tt === 6)) && !blocked(nx, ny) && !(nx === P.x && ny === P.y) && (e.roam ? nx >= e.roam[0] && ny >= e.roam[1] && nx <= e.roam[2] && ny <= e.roam[3] : e.wander === 3 || Math.hypot(nx - TOWN[e.r][0], ny - TOWN[e.r][1]) < 26)) { e.mv = v; e.dir = dirOf(v[0], v[1]); sit(map, e, nx, ny); e.tx = nx; e.ty = ny; e.t = Math.random() < .12 ? 1 + Math.random() * 4 : 0; } else { e.mv = null; e.t = .2 + Math.random() * .8; } }
+        if (e.wander >= 2) { let v = e.mv && Math.random() < .8 ? e.mv : D4[Math.random() * 4 | 0]; const nx = e.x + v[0], ny = e.y + v[1], tt = nx >= 0 && ny >= 0 && nx < map.w && ny < map.h ? map.t[ny * map.w + nx] : 9; if ((tt === 2 || tt === 3 || (e.wander === 3 && tt === 6)) && !blocked(nx, ny) && !(map.doorApproaches && map.doorApproaches.has(ny * map.w + nx)) && !(nx === P.x && ny === P.y) && (e.roam ? nx >= e.roam[0] && ny >= e.roam[1] && nx <= e.roam[2] && ny <= e.roam[3] : e.wander === 3 || Math.hypot(nx - TOWN[e.r][0], ny - TOWN[e.r][1]) < 26)) { e.mv = v; e.dir = dirOf(v[0], v[1]); sit(map, e, nx, ny); e.tx = nx; e.ty = ny; e.t = Math.random() < .12 ? 1 + Math.random() * 4 : 0; } else { e.mv = null; e.t = .2 + Math.random() * .8; } }
         else if (e.kind === 'mon') {   // creatures roam their ground: pick a spot, walk to it, rest, go again. Prey bolts when you come close, then tires.
           const tp = e.inst.tpl, fly = FLY[tp]; if (PREY[tp] && d < 4.4 && !(e.tired > 0)) { e.goal = [e.x + Math.round((e.x - P.x) / d * 5), e.y + Math.round((e.y - P.y) / d * 5)]; e.steps = 0; e.run = 1; e.tired = 4.5; }
           if (!e.goal) { const a = Math.random() * 6.283, rr = 2 + Math.random() * e.range * (fly ? .95 : .65); e.goal = [Math.round(e.home[0] + Math.cos(a) * rr), Math.round(e.home[1] + Math.sin(a) * rr)]; e.steps = 0; e.run = 0; }
@@ -653,13 +674,12 @@
     for (const p of parts) { if (fx === 'rain') { p.y += 260 * dt; p.x -= 40 * dt; } else if (fx === 'snow') { p.y += (18 + p.s * 16) * dt; p.x += Math.sin(p.y / 14 + p.s * 9) * 12 * dt; } else if (fx === 'ember') { p.y -= (20 + p.s * 26) * dt; p.x += Math.sin(p.y / 9 + p.s * 9) * 14 * dt; p.l -= dt * .35; } else { p.x += Math.sin(clock * 300 + p.s * 40) * 5 * dt; p.y -= 4 * dt; p.l -= dt * .2; } }
     parts = parts.filter(p => p.y < vh + 6 && p.y > -8 && p.x > -8 && p.l > 0);
     // butterflies over green ground by day, and birds crossing overhead: nothing to do with play, only there so the land is not still
-    if (!map.dungeon) { const day = Math.max(0, Math.cos((clock - .78) * 6.283) - .1) < .05, green = curB === 1 || curB === 2 || curB === 3 || curB === 4 || curB === 8 || curB === 11;
+    if (map === world) { const day = Math.max(0, Math.cos((clock - .78) * 6.283) - .1) < .05, green = curB === 1 || curB === 2 || curB === 3 || curB === 4 || curB === 8 || curB === 11;
       if ((flyT -= dt) <= 0) { flyT = .8 + Math.random() * 1.6;
         if (day && green && flies.filter(f => !f.bird).length < 5) { const x = cam.x / T + Math.random() * vw / T, y = cam.y / T + Math.random() * vh / T, k = map.t[(y | 0) * map.w + (x | 0)]; if (k < 2) flies.push({ x, y, vx: 0, vy: 0, l: 9 + Math.random() * 10, s: Math.random(), c: ['#fffdf0', '#f6d24a', '#9ec7f2', '#f2a0c0'][Math.random() * 4 | 0] }); }
         if (curB !== 6 && Math.random() < .2 && flies.filter(f => f.bird).length < 3) { const a = (Math.random() < .5 ? 0 : Math.PI) + (Math.random() - .5) * .9, sp = 5 + Math.random() * 2.5, n = 1 + (Math.random() * 3 | 0), cx0 = cam.x / T + (Math.cos(a) > 0 ? -2 : vw / T + 2), cy0 = cam.y / T + Math.random() * vh / T; for (let k = 0; k < n; k++) flies.push({ bird: 1, x: cx0 - Math.cos(a) * k * 1.1 + Math.sin(a) * (k % 2 ? .7 : -.5) * k, y: cy0 - Math.sin(a) * k * 1.1 + (k % 2 ? .8 : -.6) * k * .6, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, l: 14, s: Math.random() }); } }
       for (const f of flies) { f.l -= dt; if (f.bird) { f.x += f.vx * dt; f.y += f.vy * dt; } else { f.vx += (Math.random() - .5) * 9 * dt; f.vy += (Math.random() - .5) * 9 * dt; const v = Math.hypot(f.vx, f.vy); if (v > 1.3) { f.vx *= 1.3 / v; f.vy *= 1.3 / v; } f.x += f.vx * dt; f.y += f.vy * dt; } }
       flies = flies.filter(f => f.l > 0 && f.x > cam.x / T - 6 && f.y > cam.y / T - 6 && f.x < (cam.x + vw) / T + 6 && f.y < (cam.y + vh) / T + 6); } else if (flies.length) flies = [];
-    if (P.mark) { P.mark[2] -= dt * 1.6; if (P.mark[2] <= 0) P.mark = null; }
     if (banner) { banner.t -= dt; if (banner.t <= 0) banner = null; }
     if (!map.pending) fade = Math.max(0, fade - dt * 2.2);
   }
@@ -687,7 +707,6 @@
     for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const i = y * map.w + x; if (map.t[i] !== 4) continue; const b = map.pal[map.b[i]], lava = b.liquid === 'lava'; if (lava && x % 3 === 2 && y % 3 === 2) vl.push({ x: x + .5, y: y + .5, r: 34, c: 2 }); for (let k = 0; k < 3; k++) { const hx = hash(x * 3 + k, y, ph) * 13 | 0, hy = hash(x, y * 3 + k, ph + 7) * 15 | 0; g.fillStyle = lava ? (k ? '#f0a03a' : '#ffe08a') : (b.fx === 'snow' ? 'rgba(255,255,255,.5)' : 'rgba(190,220,225,.34)'); g.fillRect(x * T + hx - ox0, y * T + hy - oy0, lava ? 2 : 3, 1); } }
     const rdt = Math.min(.1, (now - (roomT || now)) / 1000); roomT = now;
     for (const o of map.blds) if (o.modular) { if(o.x+o.w>=x0-3&&o.x<=x1+3&&o.y+o.h>=y0-3&&o.y<=y1+5)worldBuildingFloor(o,g,ox0,oy0,rdt); } else if (o.enter) { roomFade(o, rdt); if (o.fa < 1) { const ra = roomArt(o); if (ra) g.drawImage(ra.fl, Math.round((o.x * T - ox0) * K) / K, Math.round((o.y * T - oy0) * K) / K, o.w * T, o.h * T); } }
-    if (P.mark) { g.strokeStyle = `rgba(211,168,76,${P.mark[2]})`; g.strokeRect(P.mark[0] * T - ox0 + 3.5, P.mark[1] * T - oy0 + 3.5, 9, 9); }
     const list = [];
     for (let y = y0; y <= Math.min(map.h - 1, y1 + 4); y++) for (let x = Math.max(0, x0 - 3); x <= Math.min(map.w - 1, x1 + 3); x++) { const i = y * map.w + x, o = map.o[i]; if (!o) continue; const pb = map.pal[map.b[i]], r = (pb && pb.ar) || map.reg[i] || curReg, s = spr(OBJK[o], r); if (!s) continue; list.push([y * T + (o === 7 || o === 10 ? 2 : 15), s.c, x * T + 8 - s.ax, y * T + 15 - s.ay]); if (o < 4 && map.pal[r].tree === 'shroom' && (x + y) % 2 === 0) vl.push({ x: x + .5, y: y - .5, r: 22, c: 3 }); }
     for (const o of map.props) { if (Math.abs(o.x * T - ox0 - vw / 2) > vw / 2 + 1100 || Math.abs(o.y * T - oy0 - vh / 2) > vh / 2 + 1100) continue; const s = spr(o.kind, o.r); if (!s || !s.c) continue; const sc = o.sc || 1, px = o.x * T + 8 - s.ax * sc, py = o.y * T + (o.hang ? 14 : 15) - s.ay * sc; if (px + lw(s.c) * sc < ox0 || px > ox0 + vw || py + lh(s.c) * sc < oy0 || py > oy0 + vh) continue; list.push([o.y * T + 15, s.c, px, py, false, o.sc || 0]); }
@@ -698,7 +717,7 @@
       list.push([o.by, s.c, o.x * T - (s.ax || 0), o.by - s.ay + 1, false, s.k, 0, o.enter ? o.fa : undefined]); }
     const fr = (now / 260 | 0) % 2;
     const ent = (e, me) => {
-      const bx = (e.fx + (e.ax || 0)) * T + 8, by = (e.fy + (e.ay || 0)) * T + 15; if (e.kind === 'fish') { if (AD && AD.fx2) { const tt = now + e.x * 400 + e.y * 130, cyc = tt % 6400, jump = cyc > 5800, a2 = artFx2(jump ? 1 : 0, jump ? Math.min(3, (cyc - 5800) / 150 | 0) : (tt / 240 | 0) % 4); if (a2) { const k = jump ? .62 : .55; list.push([by - 30, a2, bx - lw(a2) * k / 2, by - 8 - lh(a2) * k / 2 - (jump ? 3 : 0), false, k]); return; } } const rp = ripple(now + e.x * 400); list.push([by - 30, rp, bx - rp.width / 2, by - 13]); return; } if (e.obj) { list.push([by, e.obj.c, bx - e.obj.ax, by - e.obj.ay + 1]); return; }
+      const bx = (e.fx + (e.ax || 0)) * T + 8, by = (e.fy + (e.ay || 0)) * T + 15; if (e.kind === 'fish') { if (AD && AD.fx2) { const tt = now + e.x * 400 + e.y * 130, cyc = tt % 6400, jump = cyc > 5800, a2 = artFx2(jump ? 1 : 0, jump ? Math.min(3, (cyc - 5800) / 150 | 0) : (tt / 240 | 0) % 4); if (a2) { const k = jump ? .62 : .55; list.push([by - 30, a2, bx - lw(a2) * k / 2, by - 8 - lh(a2) * k / 2 - (jump ? 3 : 0), false, k]); return; } } const rp = ripple(now + e.x * 400); list.push([by - 30, rp, bx - rp.width / 2, by - 13]); return; } if (e.obj) { const sc=e.objectScale||1; list.push([by, e.obj.c, bx - e.obj.ax*sc, by - e.obj.ay*sc + 1, false, sc]); return; }
       if (e.fs != null) { const c = fsCut(e.fs, e.ff | 0); if (c) list.push([by, c, bx - lw(c) / 2 + (e.ox || 0), by - lh(c) + 2, !!e.flip]); else if (e.spr) list.push([by, (e.spr.f || e.spr)[0], bx - 8, by - 15]); return; }
       if (!e.spr) return;
       const s = e.spr, moving = me ? P.path.length && !locked : e.tx != null, left = e.dir === 'l', fl = me && s.w8 && !(P.atk > 0) ? (P.run && moving && s.r8 ? s.r8 : s.w8)[P.d8 || 0] : me && P.dg && s[P.dg] && !(P.atk > 0) ? s[P.dg] : left && s.l ? s.l : s[left ? 's' : (e.dir || 'f')], f = s.beast ? fr : (moving ? (me && s.w8 && !(P.atk > 0) ? Math.floor(P.wd / ((P.run ? RUN_CYC : WALK_CYC) / fl.length)) % fl.length : ((me ? P.walk : e.walk) | 0) % fl.length) : me && s.w8 && fl.length === 8 ? 2 : 0), ak = me && P.atk > 0 && s.af ? s['a' + (left ? 'l' : (e.dir || 'f'))] : null, im = ak ? ak[Math.min(3, Math.floor((1 - P.atk / .3) * 4))] : fl[f], sc = e.big && !s.art ? 2 : s.msc || 1;
@@ -729,7 +748,7 @@
     if (SHOWB) { g.fillStyle = 'rgba(255,30,30,.32)'; for (let y = Math.max(0, y0 - 1); y <= Math.min(map.h - 1, y1 + 1); y++) for (let x = Math.max(0, x0 - 1); x <= Math.min(map.w - 1, x1 + 1); x++) if (map.solid[y * map.w + x]) g.fillRect(x * T - ox0, y * T - oy0, T, T); }   // the blocked-ground switch
     if (GHOST && map === world) { const ok = !GHOST.why; g.fillStyle = ok ? 'rgba(60,220,90,.35)' : 'rgba(240,50,40,.38)'; g.strokeStyle = ok ? '#3fe06a' : '#ff5040'; g.lineWidth = 1.5; g.fillRect(GHOST.x * T - ox0, GHOST.y * T - oy0, GHOST.w * T, GHOST.h * T); g.strokeRect(GHOST.x * T - ox0 + .5, GHOST.y * T - oy0 + .5, GHOST.w * T - 1, GHOST.h * T - 1); g.fillRect((GHOST.x + (GHOST.w >> 1)) * T - ox0 + 4, (GHOST.y + GHOST.h) * T - oy0 + 4, T - 8, T - 8); }
     const bio = map.pal[curB], fx = bio.fx; for (const p of parts) { g.fillStyle = fx === 'rain' ? 'rgba(170,200,210,.4)' : fx === 'snow' ? 'rgba(255,255,255,.85)' : fx === 'ember' ? `rgba(255,${120 + p.s * 80 | 0},40,${p.l})` : `rgba(200,190,230,${p.l * .5})`; g.fillRect(p.x | 0, p.y | 0, 1, fx === 'rain' ? 4 : 1); }
-    const night = Math.max(0, Math.cos((clock - .78) * 6.283) - .1) * .2, amb = Math.min(.86, Math.max(night, ambNow)), dusk = Math.max(0, 1 - Math.abs(clock - .58) * 9) * .08, lava = bio.liquid === 'lava';
+    const night = map === world ? Math.max(0, Math.cos((clock - .78) * 6.283) - .1) * .2 : 0, amb = Math.min(.86, Math.max(night, ambNow)), dusk = Math.max(0, 1 - Math.abs(clock - .58) * 9) * .08, lava = bio.liquid === 'lava';
     if (dusk > .01) { g.fillStyle = `rgba(210,110,50,${dusk})`; g.fillRect(0, 0, vw, vh); }
     if (amb > .03) { const L = lightCv, lg = L.getContext('2d'); lg.globalCompositeOperation = 'source-over'; lg.clearRect(0, 0, vw, vh); lg.fillStyle = map.dungeon ? `rgba(4,4,8,${amb})` : lava ? `rgba(24,6,4,${amb})` : `rgba(6,10,26,${amb})`; lg.fillRect(0, 0, vw, vh); lg.globalCompositeOperation = 'destination-out';
       const hole = (x, y, r, a) => { const gr = lg.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(0,0,0,${a})`); gr.addColorStop(1, 'rgba(0,0,0,0)'); lg.fillStyle = gr; lg.fillRect(x - r, y - r, r * 2, r * 2); };
@@ -739,8 +758,8 @@
     if (fade > 0) { g.fillStyle = `rgba(5,7,9,${fade})`; g.fillRect(0, 0, vw, vh); }
     // crisp overlay: names, markers, health bars, damage numbers, corner map
     const o = ox, z = zoom * dpr; o.clearRect(0, 0, ov.width, ov.height); o.textAlign = 'center'; o.font = `500 ${11 * dpr}px 'Alegreya Sans', sans-serif`;
-    const top = e => (e.fy * T - (e.spr && e.spr.art ? Math.max(6, lh(e.spr.f[0]) * (e.spr.msc || 1) - 13 * Math.min(1, e.spr.msc || 1)) : e.obj && e.obj.c.hr ? lh(e.obj.c) - 12 : e.big ? 34 : e.obj ? 8 : 12) - oy0) * z;
-    for (const e of map.ents) { if (e.hidden || e.dying != null) continue; const sx = (e.fx * T + 8 - ox0) * z, sy = top(e); if (sx < -50 || sy < -30 || sx > ov.width + 50 || sy > ov.height) continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy), mark = e.kind === 'folk' ? null : host.mark(e);
+    const top = e => (e.fy * T - (e.spr && e.spr.art ? Math.max(6, lh(e.spr.f[0]) * (e.spr.msc || 1) - 13 * Math.min(1, e.spr.msc || 1)) : e.obj && e.obj.c.hr ? lh(e.obj.c)*(e.objectScale||1) - 12 : e.big ? 34 : e.obj ? 8 : 12) - oy0) * z;
+    for (const e of map.ents) { if (e.hidden || e.dying != null || venueHiddenEntity(e)) continue; const sx = (e.fx * T + 8 - ox0) * z, sy = top(e); if (sx < -50 || sy < -30 || sx > ov.width + 50 || sy > ov.height) continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy), mark = e.kind === 'folk' ? null : host.mark(e);
       if (mark) { o.font = `700 ${15 * dpr}px Georgia, serif`; o.fillStyle = '#0a0c0e'; o.fillText(mark[0], sx + dpr, sy - 2 * dpr + Math.sin(now / 300) * 2 * dpr + dpr); o.fillStyle = mark[1]; o.fillText(mark[0], sx, sy - 2 * dpr + Math.sin(now / 300) * 2 * dpr); o.font = `500 ${11 * dpr}px 'Alegreya Sans', sans-serif`; }
       if (d < (e.kind === 'mon' ? 3.4 : e.kind === 'folk' ? 2.2 : 4.6) && !bars.some(b => b.e === e)) { const y = sy - (mark ? 16 : 3) * dpr, txt = (e.inst && e.inst.elite ? 'Gilded ' : '') + e.name; o.lineWidth = 3 * dpr; o.strokeStyle = 'rgba(8,10,12,.85)'; o.strokeText(txt, sx, y); o.fillStyle = e.kind === 'mon' || e.kind === 'guard' ? (e.inst && e.inst.elite ? '#f3a53f' : '#e8b0a0') : e.kind === 'boss' ? '#e06a50' : '#ece5d0'; o.fillText(txt, sx, y); if ((e.kind === 'mon' || e.kind === 'rival') && e.alert > 0 && host.thief() && !locked) { o.fillStyle = '#e06a50'; o.fillText('sees you', sx, y - 12 * dpr); } } }
     for (const b of bars) { const e = b.e === 'me' ? P : b.e, sx = (e.fx * T + 8 - ox0) * z, sy = (b.e === 'me' ? (P.fy * T - 14 - oy0) * z : top(e)) - 6 * dpr, w = 44 * dpr, h = 6 * dpr; o.fillStyle = 'rgba(8,10,12,.85)'; o.fillRect(sx - w / 2 - dpr, sy - dpr, w + 2 * dpr, h + 2 * dpr); o.fillStyle = '#3a1c18'; o.fillRect(sx - w / 2, sy, w, h); o.fillStyle = b.e === 'me' ? '#6fbf5a' : '#e0563e'; o.fillRect(sx - w / 2, sy, w * clamp(b.pct, 0, 1), h); if (b.name) { o.lineWidth = 3 * dpr; o.strokeStyle = 'rgba(8,10,12,.85)'; o.strokeText(b.name, sx, sy - 4 * dpr); o.fillStyle = '#ece5d0'; o.fillText(b.name, sx, sy - 4 * dpr); } }
@@ -748,12 +767,14 @@
     { const gt = !locked && host.guide && host.guide(); if (gt) { const gx = (gt[0] * T + 8 - ox0) * z, gy = (gt[1] * T - 30 - oy0) * z + Math.sin(now / 220) * 5 * dpr, m = 26 * dpr, W2 = ov.width, H2 = ov.height, inside = gx > m && gx < W2 - m && gy > m && gy < H2 - m;
       o.save(); if (inside) { o.translate(gx, gy); o.rotate(Math.PI / 2); } else { const cx = W2 / 2, cy = H2 / 2, a = Math.atan2(gy - cy, gx - cx), k = Math.min((W2 / 2 - m) / Math.abs(Math.cos(a) || 1e-6), (H2 / 2 - m) / Math.abs(Math.sin(a) || 1e-6)); o.translate(cx + Math.cos(a) * k, cy + Math.sin(a) * k); o.rotate(a); }
       const L = 22 * dpr; o.beginPath(); o.moveTo(L * .55, 0); o.lineTo(-L * .45, -L * .42); o.lineTo(-L * .2, 0); o.lineTo(-L * .45, L * .42); o.closePath(); o.lineWidth = 3 * dpr; o.strokeStyle = 'rgba(20,12,4,.9)'; o.stroke(); o.fillStyle = '#f2c94c'; o.fill(); o.restore(); } }
+    cartographyDrawGuide(o, ox0, oy0, z, now);
     o.font = `700 ${17 * dpr}px 'Alegreya Sans', sans-serif`; for (const f of floats) { const e = f.e === 'me' ? P : f.e, sx = (e.fx * T + 8 - ox0) * z + f.dx * dpr, sy = (e.fy * T - 18 - oy0) * z - f.t * 34 * dpr; o.globalAlpha = Math.min(1, (1 - f.t) * 2.2); o.lineWidth = 4 * dpr; o.strokeStyle = 'rgba(8,10,12,.9)'; o.strokeText(f.txt, sx, sy); o.fillStyle = f.col; o.fillText(f.txt, sx, sy); } o.globalAlpha = 1; o.font = `500 ${11 * dpr}px 'Alegreya Sans', sans-serif`;
-    if (!locked) { const MS = 44, ms = 1.5 * dpr, sz = MS * ms, mx = ov.width - sz - 8 * dpr, my = 8 * dpr, sx0 = clamp(P.x - MS / 2, 0, Math.max(0, map.w - MS)), sy0 = clamp(P.y - MS / 2, 0, Math.max(0, map.h - MS)), mw = Math.min(MS, map.w), mh = Math.min(MS, map.h); o.globalAlpha = .9; o.imageSmoothingEnabled = false; o.fillStyle = '#0a0c0e'; o.fillRect(mx - 2 * dpr, my - 2 * dpr, mw * ms + 4 * dpr, mh * ms + 4 * dpr); o.drawImage(map.mini, sx0, sy0, mw, mh, mx, my, mw * ms, mh * ms); o.globalAlpha = 1;
-      for (const e of map.ents) { if (e.x < sx0 || e.y < sy0 || e.x >= sx0 + mw || e.y >= sy0 + mh) continue; const c = e.kind === 'mon' || e.kind === 'guard' ? '#e06a50' : e.kind === 'npc' ? (host.mark(e) ? '#f3c95a' : '#d8d0c0') : e.kind === 'boss' ? '#ff5a3a' : e.kind === 'stairs' || e.kind === 'chest' ? '#a98be6' : e.kind === 'page' || e.kind === 'corpse' ? '#f3c95a' : e.kind === 'cache' && e.ok === 'chest' ? '#a98be6' : e.kind === 'camp' ? '#ff9a4a' : e.kind === 'node' ? host.hue(e.r) : null; if (!c) continue; o.fillStyle = c; o.fillRect(mx + (e.fx - sx0) * ms, my + (e.fy - sy0) * ms, 2 * dpr, 2 * dpr); }
+    if (!locked) { const MS = 44, ms = 1.5 * dpr, sz = MS * ms, mx = ov.width - sz - 8 * dpr, my = 8 * dpr, sx0 = clamp(P.x - MS / 2, 0, Math.max(0, map.w - MS)), sy0 = clamp(P.y - MS / 2, 0, Math.max(0, map.h - MS)), mw = Math.min(MS, map.w), mh = Math.min(MS, map.h); o.globalAlpha = .9; o.imageSmoothingEnabled = false; o.fillStyle = '#0a0c0e'; o.fillRect(mx - 2 * dpr, my - 2 * dpr, mw * ms + 4 * dpr, mh * ms + 4 * dpr); const cd = map === world && host.cartography ? host.cartography() : null; const chart = cd ? cartographyMap(cd.mask, cd.maps, 0, cd.revision) : map.mini; o.drawImage(chart, sx0, sy0, mw, mh, mx, my, mw * ms, mh * ms); o.globalAlpha = 1;
+      for (const e of map.ents) { if (cd && !Cartography.exploredAt(cd.mask,e.x,e.y) && !cd.maps[e.r]) continue; if (e.x < sx0 || e.y < sy0 || e.x >= sx0 + mw || e.y >= sy0 + mh) continue; const c = e.kind === 'mon' || e.kind === 'guard' ? '#e06a50' : e.kind === 'npc' ? (host.mark(e) ? '#f3c95a' : '#d8d0c0') : e.kind === 'boss' ? '#ff5a3a' : e.kind === 'stairs' || e.kind === 'chest' ? '#a98be6' : e.kind === 'page' || e.kind === 'corpse' ? '#f3c95a' : e.kind === 'cache' && e.ok === 'chest' ? '#a98be6' : e.kind === 'camp' ? '#ff9a4a' : e.kind === 'node' ? host.hue(e.r) : null; if (!c) continue; o.fillStyle = c; o.fillRect(mx + (e.fx - sx0) * ms, my + (e.fy - sy0) * ms, 2 * dpr, 2 * dpr); }
       o.fillStyle = '#fff'; o.fillRect(mx + (P.fx - sx0) * ms - dpr, my + (P.fy - sy0) * ms - dpr, 3 * dpr, 3 * dpr); }
     if (banner) { const a = Math.min(1, banner.t, (3.2 - banner.t) * 2); o.globalAlpha = Math.max(0, a); o.font = `400 ${30 * dpr}px 'IM Fell English', Georgia, serif`; o.lineWidth = 5 * dpr; o.strokeStyle = 'rgba(8,10,12,.8)'; o.strokeText(banner.a, ov.width / 2, ov.height * .24); o.fillStyle = '#ece5d0'; o.fillText(banner.a, ov.width / 2, ov.height * .24); o.font = `italic 400 ${16 * dpr}px 'IM Fell English', Georgia, serif`; o.strokeText(banner.b, ov.width / 2, ov.height * .24 + 24 * dpr); o.fillStyle = '#d3a84c'; o.fillText(banner.b, ov.width / 2, ov.height * .24 + 24 * dpr); o.globalAlpha = 1; }
     if(map.dungeonFloor && !locked){ const area=map.layout.rooms.find(R=>P.x>=R.x&&P.y>=R.y&&P.x<R.x+R.w&&P.y<R.y+R.h);o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const label='Floor '+(map.f+1)+' · '+(area?area.name:map.layout.name);const tw=o.measureText(label).width;o.fillStyle='rgba(8,15,22,.85)';o.fillRect(8*dpr,52*dpr,Math.min(tw+16*dpr,ov.width-16*dpr),23*dpr);o.fillStyle='#f4dfac';o.fillText(label,16*dpr,68*dpr,ov.width-36*dpr);o.textAlign='center';}
+    if(map.venue && !locked){o.save();o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const width=Math.min(ov.width-112*dpr,o.measureText('Upper floor · '+map.venue.name).width+16*dpr);o.fillStyle='rgba(12,24,28,.9)';o.fillRect(8*dpr,52*dpr,width,23*dpr);o.fillStyle='#f4dfac';o.fillText('Upper floor · '+map.venue.name,16*dpr,68*dpr,width-16*dpr);o.restore();}
     host.hud(locked ? null : near);
     } finally { WORLD_BUILDING_CACHE.endFrame(); }
   }
@@ -763,17 +784,18 @@
   /* ---------- public ---------- */
   function init(el, h) {
     host = h; wrap = el; cv = mk(1, 1); ov = mk(1, 1); cv.className = 'game'; ov.className = 'over'; el.prepend(ov); el.prepend(cv); cx = cv.getContext('2d'); ox = ov.getContext('2d');
-    const at = e => { const r = wrap.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top, 0]; };
-    el.addEventListener('pointerdown', e => { if (e.target !== ov && e.target !== cv) return; const p = at(e); tapAt(p[0], p[1]); hold = P && !P.target ? p : null; });
-    el.addEventListener('pointermove', e => { if (hold) { const p = at(e); hold[0] = p[0]; hold[1] = p[1]; } }); for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) el.addEventListener(ev, () => { hold = null; });
-    const KM = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
-    window.addEventListener('keydown', e => { if (!running || !P || locked || /TEXTAREA|INPUT/.test(document.activeElement.tagName)) return; if (KM[e.key]) { P.keys = KM[e.key]; P.target = null; e.preventDefault(); } else if ((e.key === ' ' || e.key === 'Enter') && near) act(); });
-    window.addEventListener('keyup', e => { if (P && KM[e.key]) P.keys = null; }); window.addEventListener('resize', size);
+    initSceneControls(el);
+    el.addEventListener('pointerdown', e => {
+      if (e.button !== 0 || (e.target !== ov && e.target !== cv)) return;
+      const rect = wrap.getBoundingClientRect();
+      tapAt(e.clientX - rect.left, e.clientY - rect.top);
+    });
+    window.addEventListener('resize', size);
   }
   function place(x, y) { if (map && map.solid[y * map.w + x]) { let best = null; for (let rr = 1; rr < 16 && !best; rr++) for (let dy = -rr; dy <= rr && !best; dy++) for (let dx = -rr; dx <= rr; dx++) { const i = (y + dy) * map.w + x + dx; if (x + dx > 0 && y + dy > 0 && x + dx < map.w && y + dy < map.h && !map.solid[i] && !map.occ.has(i) && (!map.seen || map.seen[i])) { best = [x + dx, y + dy]; break; } } if (best) { x = best[0]; y = best[1]; } }   // the world can gain a building where a saved game left the hero
-    P = { x, y, fx: x, fy: y, dir: 'f', path: [], walk: 0, wd: 0, target: null, spr: heroArt() }; }
+    P = { x, y, fx: x, fy: y, dir: 'f', path: [], walk: 0, wd: 0, spr: heroArt() }; }
   let flies = [], flyT = 0, SHOWB = false;
-  function go(m, x, y) { map = m; place(x, y); fade = 1; parts = []; flies = []; anims = []; floats = []; slashes = []; shots = []; bars = []; locked = false; curReg = m.dungeon ? m.r : (m.reg[y * m.w + x] || 1); curB = m.dungeon ? m.r : (m.b[y * m.w + x] || curReg); curT = null; ambNow = m.pal[curB].amb; need(curReg); host.entered(curReg); if (AD && !packs(curReg).every(have)) { m.pending = true; const t = setTimeout(() => { m.pending = false; }, 5000); Promise.all(packs(curReg).map(n => img(n).p)).then(() => { clearTimeout(t); m.pending = false; if (P) P.spr = heroArt(); }); } banner = { a: m.hall ? 'The dojo' : m.dungeon ? host.dungeonName(m.r) : host.regionName(curReg), b: m.hall ? host.regionName(m.r) : m.dungeonFloor ? 'Floor ' + (m.f+1) + ' · ' + m.layout.name : m.dungeon ? 'walk in, walk out' : host.regionSub(curReg), t: 3.2 }; }
+  function go(m, x, y) { clearSceneControls(); map = m; place(x, y); if(!m.dungeon && !m.venue && host.revealSurface)host.revealSurface(P.x,P.y); fade = 1; parts = []; flies = []; anims = []; floats = []; slashes = []; shots = []; bars = []; locked = false; curReg = m.dungeon ? m.r : (m.reg[y * m.w + x] || 1); curB = m.dungeon ? m.r : (m.b[y * m.w + x] || curReg); curT = null; ambNow = m.pal[curB].amb; need(curReg); host.entered(curReg); if (AD && !packs(curReg).every(have)) { m.pending = true; const t = setTimeout(() => { m.pending = false; }, 5000); Promise.all(packs(curReg).map(n => img(n).p)).then(() => { clearTimeout(t); m.pending = false; if (P) P.spr = heroArt(); }); } banner = { a: m.venue ? m.venue.name : m.hall ? 'The dojo' : m.dungeon ? host.dungeonName(m.r) : host.regionName(curReg), b: m.venue ? host.regionName(m.r) + ' · Upper floor' : m.hall ? host.regionName(m.r) : m.dungeonFloor ? 'Floor ' + (m.f+1) + ' · ' + m.layout.name : m.dungeon ? 'walk in, walk out' : host.regionSub(curReg), t: 3.2 }; }
   function load(pos, r) {
     if (!world) world = genWorld(); for (const [, c] of world.chunks) c.width = c.height = 0; world.chunks.clear();
     const p = safePosition(r === 'dock' ? world.spots.dock : pos, r);
@@ -821,7 +843,7 @@
     addEnt(m, { kind: 'myhome', x: x + (w >> 1), y: y + hh, r, hid: h.id, name: h.name || 'Your home', sub: 'Your house', solid: 0, ok: h.pad ? 'pi_tpad' : null });
     if (m.seen) { const sn = reach(m, x + (w >> 1), y + hh); for (let i = 0; i < sn.length; i++) if (sn[i]) m.seen[i] = 1; } }
   function dropHome(id) { const m = world; if (!m) return; const k = m.blds.findIndex(b => b.home && b.home.id === id); if (k < 0) return; const o = m.blds[k]; for (let yy = o.y; yy < o.y + o.h; yy++) for (let xx = o.x; xx < o.x + o.w; xx++) m.solid[yy * m.w + xx] = 0; for (const i of o.ext || []) m.solid[i] = 0; m.blds.splice(k, 1); m.lights = m.lights.filter(l => l.hid !== id); m.ents = m.ents.filter(e => !(e.kind === 'myhome' && e.hid === id)); }
-  function clearHomes() { if (!world) return; for (const b of world.blds.filter(b => b.home)) dropHome(b.home.id); }
+  function clearHomes() { if (!world) return; cartographyAtlas(null); for (const b of world.blds.filter(b => b.home)) dropHome(b.home.id); }
   function restoreHomes(homes) {
     if (!world) world = genWorld();
     clearHomes(); let changed = false;
@@ -866,7 +888,6 @@
   function guideStep(dt) {
     if (!GUIDE || map !== world || locked || !host.guideActive || !host.guideActive()) return;
     const e = GUIDE, d = Math.hypot(e.fx-P.fx,e.fy-P.fy);
-    if (P.target === e && e.tx == null) { e.walk=0; return; }
     if (d < 1.8 && e.tx == null) { e.walk=0; return; }
     e.repath = (e.repath || 0) - dt;
     if (e.tx == null && e.repath <= 0) {
@@ -887,8 +908,8 @@
   function corpse(e, loot) { if (!map || !e) return; slashes.push({ x: e.x, y: e.y, t: 0, row: 3, f: 1, d: .55, rise: .3 }); { const o = e.y * map.w + e.x; if (map.occ.get(o) === e) map.occ.delete(o); } e.solid = 0; e.kind = 'corpse'; e.dead = 1; e.wander = 0; e.busy = 0; e.alert = 0; e.agg = 0; e.hunt = 0; e.tx = null; e.fx = e.x; e.fy = e.y; e.loot = loot; e.decay = 300; e.sub = 'Body'; e.name += ', dead'; e.flash = 0; e.ax = e.ay = 0; if (e.terr) (map.respawn = map.respawn || []).push({ t: respT(e.terr), node: false, terr: e.terr }); }
   function refresh() { if (!map) return; if(map.dungeonFloor && host.dungeonState)dungeonApply(map,host.dungeonState()); if (P) P.spr = heroArt(); for (const e of map.ents) if (e.kind === 'cache' && e.ok === 'chest' && host.cacheOpen(e.cid)) { e.ok = 'chestopen'; e.obj = null; e.sv = -1; } const c = map.ents.find(e => e.kind === 'chest'); if (c && host.chestOpen()) { c.ok = 'chestopen'; c.obj = spr('chestopen', c.r); c.sub = 'Open'; } }
   function resume() { size(); if (!map || running) { if (map) draw(); return; } running = true; last = performance.now(); if (!raf) raf = requestAnimationFrame(loop); }
-  function pause() { running = false; if (P) P.keys = null; }
-  function act() { if (near && P && !locked) { P.target = near; P.tries = 0; P.path = nextTo(near) ? [] : pathTo(near.x, near.y, true); if (!P.path.length) arrive(); } }
+  function pause() { running = false; clearSceneControls(); }
+  function act() { if (near && inputAvailable()) interactNear(near); }
   function portrait(e) { if (AD && e.pt) return 'art/p/' + e.pt + '.webp'; if (e.spr && e.spr.big) return 'art/f/' + e.spr.big + '.webp'; if (e.ok && !e.obj) e.obj = spr(e.ok, e.r); const s = e.obj ? e.obj.c : (e.spr.f || e.spr)[0], k = 4; if (s.hr) { try { return s.toDataURL(); } catch (x) { return ''; } } const c = mk(s.width * k, s.height * k), g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(s, 0, 0, c.width, c.height); return c.toDataURL(); }
   const backdrop = (r, dun) => AD ? 'art/bg/I' + String(dun ? 8 + r : r).padStart(2, '0') + '.jpg' : '';
   // fights are played on the map: the host asks for lunges, hits and health bars
@@ -918,7 +939,7 @@
   }
   const FX = {
     heal() { if (map && P) { emit('heal'); slashes.push({ x: P.fx, y: P.fy - .5, t: 0, row: 3, f: 0, d: .9, rise: .8 }); } }, treasure(x, y) { if (map) { emit('coins'); slashes.push({ x, y: y - .4, t: 0, row: 3, f: 3, d: .8, rise: .6 }); } },
-    lock(v) { locked = !!v; hold = null; if (P) { P.path = []; P.target = null; P.keys = null; } }, inset(px) { inset = px || 0; }, bars(b) { bars = b || []; },
+    lock(v) { locked = !!v; clearSceneControls(); }, inset(px) { inset = px || 0; }, bars(b) { bars = b || []; },
     face(e) { const dx = e.x - P.x, dy = e.y - P.y; P.dg = null; P.d8 = D8(Math.sign(dx), Math.sign(dy)); P.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 's' : 'l') : (dy > 0 ? 'f' : 'b'); e.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'l' : 's') : (dy > 0 ? 'b' : 'f'); e.busy = 1; e.tx = null; e.fx = e.x; e.fy = e.y; },
     free(e) { if (e) e.busy = 0; },
     swing(a, b, kind, style) {
@@ -938,6 +959,7 @@
   };
   function musicContext() {
     if (!map || !P) return null;
+    if (map.venue) return { region: map.r, town: true, venue: map.venue.type === 'tavern' ? 'tavern' : null };
     if (map.hall) return { region: map.r, town: true, venue: 'dojo' };
     if (map.dungeon) return { region: map.r, dun: map.r };
     const r = map.reg[P.y * map.w + P.x] || curReg || 1, t = TOWN[r];
@@ -946,7 +968,9 @@
       venue: room && room.slot === 'tavern' ? 'tavern' : null };
   }
   return { preload, init, load, safePosition, restoreHomes, clearRemains: () => { if(world)world.ents=world.ents.filter(e=>!e.mine);if(map && map!==world)map.ents=map.ents.filter(e=>!e.mine); }, remains, emptied, musicContext, chase: (e, secs) => { if (e) { e.chase = secs; e.wait = 1.3; e.calm = 0; e.alert = 8; e.busy = 0; } }, inDungeonMap: () => !!(map && map.dungeon), mapRegion: () => map ? (map.dungeon ? map.r : 0) : 0, enterDungeon, dungeonRefresh: p => { if(map && map.dungeonFloor)dungeonApply(map,p); }, backdrop, kill, corpse, refresh, resume, pause, portrait, act, FX, towns: () => TOWN, terr: () => world ? world.terr : [], sites: () => world ? world.sites : [], spots: () => world ? world.spots : {}, mini: () => world && world.mini, size: [WW, WH], ferries: () => world ? world.ferries : [], districts: () => world ? world.districts : [],
+    enterVenue, exitVenue, venueState, restoreVenue, inInterior: () => !!(map && map.venue), venues: () => world && world.venues ? Array.from(world.venues.values()) : [],
     traveling: () => !!(P && P.path.length),
+    cartographyCatalogue, cartographyBounds, cartographyRoute, cartographyGuide, cartographyMap, cartographyAtlas, cartographyInsideHome, cartographySign,
     pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ buildingCache: WORLD_BUILDING_CACHE.stats, map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, bldSpr, effects: { shots, slashes, floats }, advanceEffects, draw }),
     warp(x, y) { load([x, y]); }, hop(x, y) { go(map, x, y); }, guidePut, guideOff, guideEnt: () => GUIDE, drawDoll, dollKey: () => artVer, enterHall, inHall: () => map && map.hall ? map.r : 0, hallAdd: o => map ? addEnt(map, Object.assign({ r: map.r }, o)) : null, hallMove: (e, x, y) => { if (!map || !e) return; const k = e.y * map.w + e.x; if (map.occ.get(k) === e) map.occ.delete(k); e.x = e.fx = x; e.y = e.fy = y; e.tx = null; map.occ.set(y * map.w + x, e); }, ents: () => map ? map.ents : [], fsReady: () => !!(AD && AD.dojo && (IMG['dj/fs.webp'] || img('dj/fs.webp')) && have('dj/fs.webp')) };
 })();

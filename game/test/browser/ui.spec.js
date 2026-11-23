@@ -8,6 +8,9 @@ require('./arming');
 require('./first-day');
 require('./world-travel');
 require('./world-buildings');
+require('./cartography');
+require('./joystick');
+require('./venues');
 
 // Local tests use the installed SQL engine and local game fonts. The live test
 // deliberately uses the real hosted dependencies without these substitutions.
