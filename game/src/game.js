@@ -9,6 +9,8 @@
   function RNG(seed) { let a = seed >>> 0; const f = () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; return { pick: x => x[Math.floor(f() * x.length)], int: (x, y) => x + Math.floor(f() * (y - x + 1)) }; }
 
   const CONCEAL = Sneaking.create();
+  let WOUNDS = Backstab.memory(), AMBUSH = null;
+  function resetTactics(){WOUNDS=Backstab.memory();AMBUSH=null;if(sceneUp)Scene.clearPursuits();}
   let S, tab = 'world', sceneUp = false, sceneOwner = null, interiorSaveTimer = 0, sub = 'work', lsub = 'sandbox', sel = null, ready = false, engineErr = '', COLS = {}, benchSlot = 'weapon', con = { sql: '', res: null };
   const fresh = () => ({ v: 7, wv: WorldProgress.revision, cartography: Cartography.create(), interior: null, dungeon: null, dungeons: {}, deathPending: null, seen: {}, gd: -1, gn: 0, bank: { gold: 0, items: [] }, homes: [], runes: 0, tabs: {}, tw: {}, vault: {}, letter: 0, archive: 0, cache: {}, campT: 0, meat: 0, met: {}, pk: { n: 0, net: 0 }, food: {}, er: { a: {}, d: {}, n: 0 }, poi: {}, fishd: {}, fishlog: {}, cs: {}, known: {}, name: '', tut: 0, pages: {}, scr: {}, jr: {}, hints: 1, page: null, gold: 30, path: null, look: null, hp: 50, sk: {}, wsk: null, been: { 1: 1 }, skills: {}, done: {}, seen: {}, boss: {}, rum: {}, inv: [], eq: {}, codex: {}, mats: {}, tonics: 1, streak: 0, best: 0, stats: { q: 0, ok: 0, kills: 0, steals: 0, dungeons: 0, falls: 0 }, region: 1, pos: null, intro: 0, mv: 0, talked: 0, rival: {}, dpity: {}, rounds: null, stall: null, won: 0, rev: 0, at: 0 });
   const migrate = o => { if (!o || ![5,6,7].includes(o.v)) return fresh(); const f = fresh(), s = Object.assign(f, o, {v:7}); if (!o.cartography) delete s.cartography; if (!o.seen && o.tut >= 3) s.seen = { fight: 1, fprompt: 1, bag: 1, hero: 1, map: 1, ledger: 1, shop: 1 }; if (!o.g && o.tut >= 3) s.g = 'done'; if (s.casino) { s.gold += s.casino.stack || 0; s.casino = null; } s.stats = Object.assign(fresh().stats, s.stats || {}); return Progression.normalize(s); };
@@ -23,7 +25,7 @@
   const linkS = s => { s.homes = A.homes; s.codex = A.codex; return s; }, slotOut = s => { const o = Object.assign({}, s); delete o.homes; delete o.codex; return o; };
   function purgeOld() { try { for (let i = localStorage.length - 1; i >= 0; i--) { const k = localStorage.key(i); if (k && k.indexOf('brasswake.save') === 0) localStorage.removeItem(k); } } catch (e) { } }
   function loadA() { try { const t = localStorage.getItem(AKEY) || localStorage.getItem('brasswake.acct.v7') || localStorage.getItem('brasswake.acct.v6'), o = t ? JSON.parse(t) : null; return o && [6,7,8].includes(o.v) ? Object.assign(freshA(), o, {v:8}) : null; } catch (e) { return null; } }
-  function loadCur() { WorldProgress.migrateAccount(A); A.slots=A.slots.map(c=>c?migrate(c):null); S = linkS(Progression.normalize(A.cur >= 0 && A.slots[A.cur] ? migrate(A.slots[A.cur]) : fresh())); Sneaking.reveal(CONCEAL); if(S.deathPending){S.region=S.deathPending.r;S.pos=S.deathPending.at;S.dungeon=null;S.interior=null;S.hp=maxHp();S.deathPending=null;} if (!(S.hp > 0)) S.hp = maxHp(); if(sceneUp){clearInterval(GSAY);Scene.guideOff();} }
+  function loadCur() { resetTactics();WorldProgress.migrateAccount(A); A.slots=A.slots.map(c=>c?migrate(c):null); S = linkS(Progression.normalize(A.cur >= 0 && A.slots[A.cur] ? migrate(A.slots[A.cur]) : fresh())); Sneaking.reveal(CONCEAL); if(S.deathPending){S.region=S.deathPending.r;S.pos=S.deathPending.at;S.dungeon=null;S.interior=null;S.hp=maxHp();S.deathPending=null;} if (!(S.hp > 0)) S.hp = maxHp(); if(sceneUp){clearInterval(GSAY);Scene.guideOff();} }
   function syncA() { clearTimeout(interiorSaveTimer);interiorSaveTimer=0; if(sceneUp && sceneOwner === S)S.interior=Scene.venueState(); CMap.snapshot(); if (A && A.cur >= 0 && S && S.path) A.slots[A.cur] = slotOut(S); if(A)for(const s of A.slots)if(s){if(s.openLocks)s.openLocks=Object.fromEntries(Object.entries(s.openLocks).filter(([,v])=>v===dayKey()));DungeonProgress.compact(s,now());if(s.cartography)s.cartography=Cartography.normalize(s.cartography);s.interior=Interiors.normalizeProgress(s.interior);} }
   function save() { if (sceneUp && DG && Scene.inDungeon()) DP.snapshot(); if (!A) A = freshA(); if (A.cur >= 0 && S && S.path) { S.rev++; S.at = now(); } syncA(); A.rev++; A.at = now(); try { localStorage.setItem(AKEY, JSON.stringify(A)); } catch (e) { } if (Cloud.ref) { Cloud.dirty = true; clearTimeout(Cloud.timer); Cloud.timer = setTimeout(flush, 2500); } }
   async function flush() {
@@ -181,7 +183,7 @@
   /* Each mechanic is explained in one sentence the first time it comes up; after that the sentence sits behind a ? on that screen. */
   const HELP = {
     fight: 'Pick a page to attack with. The number is your chance to hit if your query is right.',
-    fprompt: 'Write the query. One query sets your odds for the next three rounds. Tables shows the data; a hint costs hit chance.',
+    fprompt: 'Write the query. Your answer sets the effect. Tables shows the data; hints reduce the practice you earn.',
     loot: 'Tap a body to open it, then tap what you want. Take all grabs everything.',
     bag: 'Tap a draught or food to heal. Scrolls add pages to your books. Hides and materials sell or go into crafting.',
     hero: 'Your books hold the pages you can use. Skills rise as you use them; together they cannot pass 700. Use Raise, Lower and Locked to manage your build.',
@@ -392,6 +394,13 @@
     const lessons = {2:['Choose two columns','A comma separates column names. The result keeps their written order.','SELECT name, quantity FROM manifest;'],3:['Read every column','The star (*) asks for every column. It does not change the table.','SELECT * FROM manifest;'],4:['From practice to the town records','The practice manifest has three supplies. The town Ledger has many items, customers, and other records. Fields shows each table’s columns. The SQL structure is the same.','SELECT name FROM items;']};
     const l = lessons[Q.i]; return l ? `<details class="lesson" open><summary>${l[0]}</summary><div class="lb"><p>${l[1]}</p><pre class="code">${codeHL(l[2])}</pre></div></details>` : '';
   }
+  const heavyArmor = () => {const arm=itemById(S.eq.armor);return !!arm&&!/Leather/.test(arm.name);};
+  function queryOddsHTML() {
+    if(!Q.roll)return '';
+    if(Q.work==='recover')return '<p class="cap2">No random roll. A useful query restores mana and up to 12 stamina; a wrong result restores nothing.</p>';
+    const chance=grade=>Q.work==='hide'?Math.round(Sneaking.chance(rv('hiding'),Q.diff,{correct:1,close:.6,wrong:0}[grade],heavyArmor())):Q.work==='lock'||Q.work==='force'?SkillCrafting.lockChance(rv(Q.csk),Q.diff,{correct:1,close:.6,wrong:0}[grade],Q.work==='lock'):Q.work&&grade==='wrong'?0:odds(rv(Q.csk),Q.diff,grade).p;
+    return `<p class="cap2">One query, one roll: ${chance('correct')}% if correct, ${chance('close')}% if close, ${chance('wrong')}% if wrong.${Q.work==='hide'&&heavyArmor()?' Heavy armor lowers concealment by 20 percentage points.':''}</p>`;
+  }
   function drawQ() {
     const el = $('#enc'), t = Q.task, hasL = !!Q.lesson || Q.kind === 'intro', names = hasL ? ['Learn', 'Your turn', 'Result'] : ['Your turn', 'Result'];
     const head = cur => `<header class="q-head"><button class="q-x" data-a="qleave">‹ Leave</button><div class="q-steps">${names.map(s => `<span class="${s === cur ? 'on' : ''}">${s}</span>`).join('<i>›</i>')}</div></header>`;
@@ -403,7 +412,7 @@
       el.innerHTML = head('Learn') + `<div class="q-body"><p class="eyebrow">${CIRCLE[Q.r]} Circle</p><h2>${esc(l.title)}</h2><p>${esc(lead)}</p><p class="lab">Example</p><pre class="code">${codeHL(l.code)}</pre>${ex ? `<p class="lab">What it returns</p>${tableHTML(ex, 5)}` : ''}${rest ? `<details class="lesson"><summary>More</summary><div class="lb"><p>${esc(rest)}</p></div></details>` : ''}</div><footer class="q-foot"><button class="btn solid big" data-a="qturn">Try it</button></footer>`; return;
     }
     if (Q.step === 'turn') {
-      el.innerHTML = head('Your turn') + `<div class="q-body" id="q-body"><p class="eyebrow">${Q.tasks ? `${Q.i + 1} of ${Q.tasks.length}` : esc(Q.title || '')}</p>${t.tip ? `<p class="tip">${esc(t.tip)}</p>` : ''}${Q.kind === 'intro' ? introTaskLesson() : Q.kind === 'firstpractice' ? `<p>A page is an ability recorded in one of your books. Choose the one you want to practise, then write its query.</p><div class="row">${fightPages().map(p=>`<button class="btn" data-a="practicepage" data-id="${p.id}" aria-pressed="${Q.practicePage===p.id}">${esc(p.name)}${Q.practicePage===p.id?' · chosen':''}</button>`).join('')}</div>` : ''}<p class="ask">${esc(t.ask)}</p>${needsHTML(t)}${Q.roll ? `<p class="cap2">One query, one roll: ${odds(rv(Q.csk), Q.diff, 'correct').p}% if correct, ${odds(rv(Q.csk), Q.diff, 'close').p}% if close, ${odds(rv(Q.csk), Q.diff, 'wrong').p}% if wrong.</p>` : ''}<div id="q-out"></div></div>
+      el.innerHTML = head('Your turn') + `<div class="q-body" id="q-body"><p class="eyebrow">${Q.tasks ? `${Q.i + 1} of ${Q.tasks.length}` : esc(Q.title || '')}</p>${t.tip ? `<p class="tip">${esc(t.tip)}</p>` : ''}${Q.kind === 'intro' ? introTaskLesson() : Q.kind === 'firstpractice' ? `<p>A page is an ability recorded in one of your books. Choose the one you want to practise, then write its query.</p><div class="row">${fightPages().map(p=>`<button class="btn" data-a="practicepage" data-id="${p.id}" aria-pressed="${Q.practicePage===p.id}">${esc(p.name)}${Q.practicePage===p.id?' · chosen':''}</button>`).join('')}</div>` : ''}<p class="ask">${esc(t.ask)}</p>${needsHTML(t)}${queryOddsHTML()}<div id="q-out"></div></div>
         <div class="dock" id="q-dock"><div class="q-tools"><button class="btn sm quiet" data-a="help">Help</button><button class="btn sm quiet" data-a="clear">Clear</button></div>${kbHTML(t, Q.r, Q.work ? ({hide:'Hide',recover:'Recover',lock:'Pick lock',force:'Force lock',craft:'Craft'}[Q.work]||'Run') : Q.roll ? 'Craft' : 'Run')}</div>`;
       kbDraw(); kbFocus(); fitQ(); return;
     }
@@ -485,24 +494,24 @@
   const queryQuality = res => ({correct:1,close:.6,partial:.4,wrong:0})[res.grade] || 0;
   function beginSkillWork(work,options={}) {
     if(!ready||Q||F)return;
-    if(work==='hide'&&Scene.ents().some(e=>!e.dead&&e.alert>0&&Math.hypot(e.fx-Scene.pos()[0],e.fy-Scene.pos()[1])<3.2))return toast('Break away from watching enemies before hiding.');
+    if(work==='hide'&&Scene.observed())return toast('Break their line of sight or get farther away before hiding.');
     const t=Math.max(1,Math.min(8,options.r||here())),tpl=pick(BOUNTIES.filter(b=>b.r===t && !/^b80[123]/.test(b.id)));
     if(!tpl)return;
     const recipe=SkillCrafting.find(options.recipe),sid=recipe?recipe.skill:work==='hide'?'hiding':work==='recover'?'meditation':work==='force'?'tactics':'lockpicking';
     openQ({kind:'skillwork',roll:true,work,owner:S,options,csk:sid,r:t,diff:options.diff==null?recipe?Math.min(95,recipe.diff+(t-1)*5):diffOf(t):options.diff,task:makeTask({tpl:tpl.id,seed:seeded(tpl.id)}),title:recipe?recipe.name:work==='hide'?'Find cover':work==='recover'?'Recover mana and stamina':work==='force'?'Force the optional lock':'Pick and disarm the lock'});
   }
   function finishSkillWork(res) {
-    if(!Q||Q.owner!==S)return;const q=queryQuality(res),sid=Q.csk,g=q?gain(sid,Q.diff,q):null,gl=g?[g]:[],o=Q.options;let ok=false,note='';
+    if(!Q||Q.owner!==S)return;const q=queryQuality(res),sid=Q.csk,practiced=rv(sid),g=q?gain(sid,Q.diff,q):null,gl=g?[g]:[],o=Q.options;let ok=false,note='';
     if(Q.work==='hide') {
-      const pos=Scene.pos(),arm=itemById(S.eq.armor),heavy=!!arm&&!/Leather/.test(arm.name);
-      ok=Sneaking.conceal(CONCEAL,{hiding:rv('hiding'),stealth:rv('stealth'),diff:Q.diff,quality:q,heavy,x:pos[0],y:pos[1],random:rnd});
+      const pos=Scene.pos(),heavy=heavyArmor();
+      ok=Sneaking.conceal(CONCEAL,{hiding:practiced,stealth:rv('stealth'),diff:Q.diff,quality:q,heavy,x:pos[0],y:pos[1],random:rnd});
       note=ok?`You are concealed. Walk up to ${CONCEAL.steps} steps. Running or an offensive action reveals you. Observers can still detect you nearby.`:'You cannot find enough cover. Move away from watching enemies and try again.';
     } else if(Q.work==='recover') {ok=q>0;if(ok){const n=Progression.recover(S);note=`Recovered ${n} mana and stamina.`;}else note='The query gives no useful result.';
     } else if(Q.work==='craft') {
       const recipe=SkillCrafting.find(o.recipe);if(!recipe||!SkillCrafting.can(S,o.recipe,Q.r)){note='The materials are no longer available.';}
-      else {ok=q>0&&rnd()*100<odds(rv(sid),Q.diff,res.grade,res.share).p;SkillCrafting.finish(S,o.recipe,Q.r,ok);note=ok?recipe.name+' crafted. '+recipe.note:'The work is spoiled. Half the materials are lost.';}
+      else {ok=q>0&&rnd()*100<odds(practiced,Q.diff,res.grade,res.share).p;SkillCrafting.finish(S,o.recipe,Q.r,ok);note=ok?recipe.name+' crafted. '+recipe.note:'The work is spoiled. Half the materials are lost.';}
     } else if(LOCK&&LOCK.owner===S&&LOCK.key===o.key) {
-      const forced=Q.work==='force';ok=q>0&&rnd()*100<SkillCrafting.lockChance(rv(sid),Q.diff,q,!forced);
+      const forced=Q.work==='force';ok=q>0&&rnd()*100<SkillCrafting.lockChance(practiced,Q.diff,q,!forced);
       if(ok){(S.openLocks||(S.openLocks={}))[LOCK.key]=dayKey();const cb=LOCK.open;Q.then=()=>{if(S===QOWNER)cb();};const QOWNER=S;note=forced?'The lock gives way. The contents are safe.':'The lock opens and its trap is disarmed.';}
       else {const n=forced?3:Math.max(1,Math.round(Q.r*2*(1-rv('lockpicking')/150)));S.hp=Math.max(1,S.hp-n);note=`The lock holds. ${n} health lost. This optional container can be tried again.`;}
     }
@@ -519,12 +528,34 @@
 
   /* ---------- on the map: fights, thefts and duels. A panel along the bottom, one question at a time. ---------- */
   let F = null, CE = null, DG = null;
+  function bossAccess(e){return !isMain()?'Only the main character is entered in the Trials.':e.r===8&&[1,2,3,4,5,6,7].some(r=>!S.boss[r])?'The Council requires the other seven marks.':null;}
+  function backstabReason(e, captured = false) {
+    if(!e||!['mon','boss','guard','keeper'].includes(e.kind)||e.dead)return 'target';
+    if(e.kind==='boss'&&bossAccess(e))return 'trial';
+    const at=Scene.pos(),distance=Math.hypot(e.fx-at[0],e.fy-at[1]);
+    const approached=CONCEAL.steps<CONCEAL.max&&Math.hypot(at[0]-CONCEAL.sx,at[1]-CONCEAL.sy)>=.9&&Math.hypot(e.x-CONCEAL.sx,e.y-CONCEAL.sy)>distance+.5;
+    const weapon=itemById(S.eq.weapon);
+    return Backstab.readiness({weapon:weapon&&weapon.w,shadow:!!bestPage('shadow'),arms:!!bestPage('arms'),stealth:rv('stealth'),stamina:S.stamina,hidden:CONCEAL.hidden,approached:captured||approached,rear:captured||Scene.behind(e),distance,visible:Scene.sight(e)});
+  }
+  const backstabNotes={weapon:'Equip a Fencing weapon.',books:'Learn an Arms page and a Shadows page.',stealth:'Train Stealth to 10.',stamina:'Backstab needs 8 stamina.',hidden:'Hide before approaching.',approach:'Walk closer while concealed.',rear:'Approach from behind.',distance:'Move beside the target.',sight:'The target is behind an obstacle.',target:'This target cannot be backstabbed.',trial:'Earn the required marks with your main character.'};
+  function pickBackstab() {
+    if(!F||F.busy||F.over||F.act!=='fight')return;
+    const same=F.ambush&&F.ambush.owner===S&&F.ambush.at.every((v,i)=>v===Scene.pos()[i]);
+    const reason=backstabReason(F.ent,!!same);if(!same||reason)return toast(backstabNotes[reason||'approach']);
+    const page=bestPage('arms');pickPage(page.id);F.backstab=true;F.verb='Backstab';drawF();
+  }
   const DP = DungeonPlay.create({state:()=>S,run:()=>DG,setRun:v=>DG=v,day:dayKey,now,scene:Scene,close:closeSheet,hud:renderHud,surface:()=>{S.pos=Scene.pos();surfaceBodies();},save,guideId:()=>gid(),
     guideStart:()=>{S.gd++;save();setTimeout(()=>gSay('"Beat the cellar rat, then open the chest beside the stairs. The deeper floors can wait."'),600);},guideChest:()=>setTimeout(()=>gDone('chest'),50),
     difficulty:diffOf,foe:mkFoe,fight:openF,toast,dialog:dlg,sheet,main:isMain,haveTable:r=>haveT(r),takeTable,grant,item:makeItem,rarity:rollRarity,luck,random:rnd,int:rint,unique:uniq,spoils:spoilsHTML,escape:esc,dye:maybeDye,unlock:(e,cb)=>lockOffer(e,cb)});
   function barsF() { if (!F) return; const b = F.foe ? [{ e: 'me', pct: S.hp / maxHp() }] : []; if (F.foe && F.ent) b.push({ e: F.ent, pct: F.foe.hp / F.foe.max, name: F.title }); Scene.FX.bars(b); }
   function fitPanel() { if (F) requestAnimationFrame(() => { if (F) Scene.FX.inset($('#fight').offsetHeight); }); }
-  function openF(cfg) { closeSay(); closeSheet(); F = Object.assign({ st: 'choose', round: 0, busy: false, hint: 0, hints: [], tries: 0, chips: '', after: '' }, cfg); Scene.FX.lock(true); if (F.ent) Scene.FX.face(F.ent); $('#fight').hidden = false; $('#nav').hidden = true; $('#ctx').hidden = true; $('#app').classList.add('infight'); Scene.resume(); barsF(); drawF(); if (F.act === 'fight' && S.tut >= 1) coach('fight'); }
+  function openF(cfg) {
+    closeSay();closeSheet();
+    const ambush=AMBUSH&&AMBUSH.e===cfg.ent&&AMBUSH.owner===S?AMBUSH:backstabReason(cfg.ent)===null?{e:cfg.ent,owner:S,at:Scene.pos()}:null;AMBUSH=null;
+    F=Object.assign({st:'choose',round:0,busy:false,hint:0,hints:[],tries:0,chips:'',after:'',ambush},cfg);
+    if(F.act==='fight'&&F.foe){const old=Backstab.recall(WOUNDS,F.ent,S,F.kind,F.foe.max,Scene.tacticalTime());if(old){F.foe.hp=old.hp;F.round=old.round;}F.startRound=F.round;}
+    Scene.FX.lock(true);if(F.ent)Scene.FX.face(F.ent);$('#fight').hidden=false;$('#nav').hidden=true;$('#ctx').hidden=true;$('#app').classList.add('infight');Scene.resume();barsF();drawF();if(F.act==='fight'&&S.tut>=1)coach('fight');
+  }
   const BODY_MS0 = 10 * 60 * 1000; let BODY_MS = BODY_MS0;
   function dropBody() {
     Sound.sfx('death');
@@ -550,6 +581,7 @@
   function surfaceBodies() { if(!sceneUp)return;Scene.clearRemains();placeBody(); }
   function prepareDeath() {
     if(S.deathPending)return;
+    resetTactics();
     if(DG)DP.snapshot();dropBody();
     const r=S.region,t=Scene.towns()[r],at=[t[0]-13,t[1]+10];
     S.deathPending={r,at};S.pos=at;S.dungeon=null;DG=null;
@@ -559,13 +591,16 @@
     Scene.load(S.pos,S.region);S.pos=Scene.pos();surfaceBodies();save();
   }
   function discardEncounter() {
+    resetTactics();
     const old=F;F=null;Q=null;LOCK=null;if(DU){clearInterval(DU.timer);DU=null;}
     if(old&&old.ent)Scene.FX.free(old.ent);Sneaking.reveal(CONCEAL);
     $('#fight').hidden=true;$('#fight').innerHTML='';$('#enc').hidden=true;$('#enc').innerHTML='';$('#nav').hidden=false;$('#app').classList.remove('infight');Scene.FX.lock(false);Scene.FX.bars([]);Scene.FX.inset(0);
   }
   function closeF() {
+    if(F&&F.act==='fight'&&F.ent){if(!F.over&&!F.busy&&F.foe.hp>0){if(F.round>F.startRound)Backstab.remember(WOUNDS,F.ent,S,{kind:F.kind,hp:F.foe.hp,max:F.foe.max,round:F.round},Scene.tacticalTime());}else Backstab.forget(WOUNDS,F.ent);if(F.over||F.kick)Scene.endChase(F.ent);}
     unCoach('fight', 'fprompt', 'stealth'); const f = F; if (!f) return; F = null; $('#fight').hidden = true; $('#fight').innerHTML = ''; $('#nav').hidden = false; $('#app').classList.remove('infight'); Scene.FX.lock(false); Scene.FX.bars([]); Scene.FX.inset(0); if (f.ent) { Scene.FX.free(f.ent); f.ent.calm = 12; } closeSheet();
     if (f.kick) { wakeFromDeath(); toast(S.remains ? 'You wake at the healer’s. Belongings from upper rooms wait at their stairs, and dungeon belongings at the entrance. Other belongings stay where you fell.' : 'You wake at the healer’s, patched up'); deathNote(); }
+    if (f.caughtStealing) Scene.chase(f.ent);
     Scene.refresh(); render(); if (f.kind === 'boss' && f.r === 8 && S.won && !S.ended) { S.ended = 1; save(); setTimeout(ending, 500); }
   }
   function taskFor(page) {
@@ -576,27 +611,32 @@
     const el = $('#fight'), f = F.foe, t = F.r; let h;
     if (F.st === 'choose') {
       const pgs = fightPages(), sh = bestPage('shadow'), canSteal = F.kind === 'monster' && !F.round && !F.animal;
-      const stealOk = canSteal && sh && (F.ent.unseen || rv('hiding') > 0); if (stealOk) setTimeout(() => coach('stealth'), 0);
+      const pocketsEmpty = canSteal && sh && F.ent.pocketsEmpty;
+      const stealOk = canSteal && sh && !pocketsEmpty && (F.ent.unseen || rv('hiding') > 0); if (stealOk) setTimeout(() => coach('stealth'), 0);
       h = `<div class="f-head"><div><b>${esc(F.title)}</b><small>${CIRCLE[t]} Circle${f ? ` · health ${Math.max(0, f.hp)} / ${f.max}` : ''}</small></div><div class="f-btns">${qm('fight')}<button class="btn sm quiet" data-a="flee">${F.round ? 'Flee' : 'Back away'}</button></div></div><div class="f-pages">${pgs.map(p => { const sk2 = pageSkill(p), w = resist(p.c, t); return `<button class="pg${p.rare ? ' rare' : ''}" data-a="fpage" data-id="${p.id}"><b>${esc(p.name)}</b><em>${odds(rv(sk2), F.diff, 'correct').p}%${w < 1 ? ` · ${Math.round(w * 100)}% damage` : ''}</em></button>`; }).join('') || '<p class="cap2">No page that can strike. Odalys Brine in Tallyport sells Strike and Spark.</p>'}${stealOk ? `<button class="pg sh" data-a="fsteal"><b>${esc(sh.name)}</b><em>${F.ent.unseen ? 'unseen' : `Hiding ${sneakPct()}%`}</em></button>` : ''}</div>${S.tonics > 0 && S.hp < maxHp() ? `<div class="row"><button class="btn sm quiet" data-a="tonic">Draught ×${S.tonics}</button></div>` : ''}`;
+      if (pocketsEmpty) h += '<p class="cap2">You’ve already picked this creature’s pockets.</p>';
     } else if (F.st === 'prompt') {
-      h = `<div class="f-head"><div><b>${esc(F.page ? F.page.name : F.verb)}</b><small id="f-odds">${fOdds()}</small></div><div class="f-btns">${qm('fprompt')}<button class="btn sm quiet${S.tut === 1 ? ' pulse' : ''}" data-a="ftables">Tables</button>${F.act === 'fight' ? fHintBtn() : ''}</div></div><p class="ask">${esc(F.task.ask)} ${needLine(F.task)}${F.task.tip ? ` <button class="qm sm" data-a="ftip" aria-label="A tip">?</button>` : ''}</p><div id="f-hint">${F.hints.join('')}</div><div id="f-out"></div>${kbHTML(F.task, F.kc, F.verb)}`;
-    } else h = `<div class="f-head"><div><b class="g-${F.res.grade}">${GRADE_N[F.res.grade]}</b><small>${F.pline}</small></div>${F.act === 'fight' && !F.over ? '<button class="btn sm quiet" data-a="flee">Flee</button>' : ''}</div>${F.res.ok || !F.res.msg ? '' : `<p class="cap2">${esc(F.res.msg)}</p>`}<div class="swings" id="e-sw">${F.chips}</div><div id="f-after">${F.after}</div>`;
-    if(F.st==='choose')h+=combatTools(); if(F.act==='steal'&&F.st==='prompt')h=`<div class="row"><button class="btn sm quiet" data-a="fprize" data-id="purse">Purse · easier</button><button class="btn sm quiet" data-a="fprize" data-id="prize">${esc(F.prizeItem?F.prizeItem.name:F.kind==='rival'?rival(F.r).item.name:'Selected prize')} · −15 effective skill</button><span>${F.prize==='prize'?'Selected prize':'Purse'}</span></div>`+h;
+      h = `<div class="f-head"><div><b>${esc(F.backstab || F.utility ? F.verb : F.page ? F.page.name : F.verb)}</b><small id="f-odds">${fOdds()}</small></div><div class="f-btns">${qm('fprompt')}<button class="btn sm quiet${S.tut === 1 ? ' pulse' : ''}" data-a="ftables">Tables</button>${F.act === 'fight' ? fHintBtn() : ''}</div></div><p class="ask">${esc(F.task.ask)} ${needLine(F.task)}${F.task.tip ? ` <button class="qm sm" data-a="ftip" aria-label="A tip">?</button>` : ''}</p><div id="f-hint">${F.hints.join('')}</div><div id="f-out"></div>${kbHTML(F.task, F.kc, F.verb)}`;
+    } else h = `<div class="f-head"><div><b class="g-${F.res.grade}">${GRADE_N[F.res.grade]}</b><small>${F.pline}</small></div>${F.act === 'fight' && !F.over ? `<button class="btn sm quiet" data-a="flee"${F.busy ? ' disabled' : ''}>Flee</button>` : ''}</div>${F.res.ok || !F.res.msg ? '' : `<p class="cap2">${esc(F.res.msg)}</p>`}<div class="swings" id="e-sw">${F.chips}</div><div id="f-after">${F.after}</div>`;
+    if(F.st==='choose'){
+      if(F.act==='fight'&&bestPage('shadow')){const reason=F.ambush?backstabReason(F.ent,true):backstabReason(F.ent);const choice=`<div class="backstab-choice"><button class="btn ${F.ambush&&!reason?'solid':'quiet'}" data-a="fbackstab"${F.ambush&&!reason?'':' disabled'}>Backstab · 8 stamina</button><p class="cap2">${F.ambush&&!reason?'Rear approach ready. Two rapid Fencing strikes deal '+Backstab.factor(rv('stealth')).toFixed(2)+'× damage each, then the target responds.':esc(backstabNotes[reason||'approach'])}</p></div>`;h=h.replace('<div class="f-pages">',choice+'<div class="f-pages">');}
+      h+=combatTools();
+    } if(F.act==='steal'&&F.st==='prompt')h=`<div class="row"><button class="btn sm quiet" data-a="fprize" data-id="purse">Purse · easier</button><button class="btn sm quiet" data-a="fprize" data-id="prize">${esc(F.prizeItem?F.prizeItem.name:F.kind==='rival'?rival(F.r).item.name:'Selected prize')} · −15 effective skill</button><span>${F.prize==='prize'?'Selected prize':'Purse'}</span></div>`+h;
     if (F.st !== 'choose') unCoach('fight', 'stealth'); if (F.st !== 'prompt') unCoach('fprompt');
     el.innerHTML = h; el.className = 'st-' + F.st; if (F.st === 'prompt') { kbDraw(); kbFocus(); } fitPanel();
   }
   // the columns the answer needs, in a few words, after the question
   const needLine = t => t.kind === 'dml' ? '<span class="need">→ changes the Ledger; judged by what it holds afterwards</span>' : `<span class="need">→ ${esc(t.ret)}${t.order ? ' · sorted' : ''}</span>`;
-  const ROUNDS = () => F.kind === 'boss' ? 1 : 3; let HPEN = 15;
+  const ROUNDS = () => F.backstab || F.kind === 'boss' ? 1 : 3; let HPEN = 15;
   const fPct = grade => { if (F.act !== 'fight') return odds(rv('stealing') + (F.bonus || 0), F.diff, grade).p; const sid = pageSkill(F.page); if (F.shown) grade = 'wrong'; else if (F.hint >= 2 && grade === 'correct') grade = 'close'; return Math.max(2, odds(rv(sid), F.diff, grade).p - (F.hint === 1 ? HPEN : 0)); };
-  const fOdds = () => F.act === 'fight' ? `${fPct('correct')}% if right · ${fPct('wrong')}% if wrong · ${ROUNDS() === 1 ? '1 round' : ROUNDS() + ' rounds'}` : `${fPct('correct')}% if right · one try`;
-  const fHintBtn = () => { const max = F.kind === 'boss' ? 1 : 2; if (F.shown) return ''; return (F.hint >= max ? '' : `<button class="btn sm quiet" data-a="fhint">${F.hint ? 'Shape' : `Hint −${HPEN}%`}</button>`) + '<button class="btn sm quiet" data-a="fshow">Show me</button>'; };
+  const fOdds = () => F.utility ? 'Query quality · 1 response round' : F.act === 'fight' ? `${fPct('correct')}% if right · ${fPct('wrong')}% if wrong · ${ROUNDS() === 1 ? '1 round' : ROUNDS() + ' rounds'}` : `${fPct('correct')}% if right · one try`;
+  const fHintBtn = () => { const max = F.kind === 'boss' ? 1 : 2; if (F.shown) return ''; return (F.hint >= max ? '' : `<button class="btn sm quiet" data-a="fhint">${F.hint ? 'Shape' : F.utility ? 'Hint · reduced practice' : `Hint −${HPEN}%`}</button>`) + '<button class="btn sm quiet" data-a="fshow">Show me</button>'; };
   function fHint() {
     if (!F || F.st !== 'prompt' || F.act !== 'fight') return; const max = F.kind === 'boss' ? 1 : 2; if (F.hint >= max) return; F.hint++; const t = F.task;
-    F.hints = F.hints.filter(h => h.includes('class="fh tip"')).concat([F.hint === 1 ? `<p class="fh"><b>Hint, −${HPEN}% to hit:</b> ${esc(t.hint || clauseHint(t.sql))}</p>` : `<p class="fh"><b>Shape, a right answer counts as close:</b> <code>${esc(skeleton(t.sql).replace(/\s+/g, ' '))}</code></p>`]);
+    F.hints = F.hints.filter(h => h.includes('class="fh tip"')).concat([F.hint === 1 ? `<p class="fh"><b>${F.utility ? F.utility==='recover'?'Hint, reduced practice:':'Hint, reduced effect and practice:' : `Hint, −${HPEN}% to hit:`}</b> ${esc(t.hint || clauseHint(t.sql))}</p>` : `<p class="fh"><b>Shape, a right answer counts as close:</b> <code>${esc(skeleton(t.sql).replace(/\s+/g, ' '))}</code></p>`]);
     $('#f-hint').innerHTML = F.hints.join(''); $('#f-odds').textContent = fOdds(); const b = $('#fight [data-a=fhint]'); if (b) b.outerHTML = fHintBtn(); fitPanel();
   }
-  function fShow() { if (!F || F.st !== 'prompt' || F.act !== 'fight' || F.shown) return; F.shown = 1; F.hints = [`<p class="fh"><b>Type it in. It hits like a wrong answer and teaches no skill:</b> <code>${esc(F.task.sql)}</code></p>`];
+  function fShow() { if (!F || F.st !== 'prompt' || F.act !== 'fight' || F.shown) return; F.shown = 1; F.hints = [`<p class="fh"><b>${F.utility?'Type it in. It gives no useful effect and teaches no skill:':'Type it in. It hits like a wrong answer and teaches no skill:'}</b> <code>${esc(F.task.sql)}</code></p>`];
     $('#f-hint').innerHTML = F.hints.join(''); $('#f-odds').textContent = fOdds(); $('#fight .f-btns').querySelectorAll('[data-a=fhint],[data-a=fshow]').forEach(b => b.remove()); fitPanel(); }
   function tablesSheet() {
     const c = ctx(), t = c && c.task; if (!t) return; const tabs = t.tables || tablesIn(t.sql + ' ' + (t.check || ''));
@@ -604,21 +644,22 @@
   }
   function pickPage(id) {
     if (!F || F.busy || F.over || F.act !== 'fight') return; const p = pageById(id); if (!p || !owned(id)) return; const sk2 = pageSkill(p);
-    F.utility=null; F.page = p; S.page = id; F.verb = BOOKS[p.book].verb; F.kc = F.tasks ? F.r : p.c; F.task = taskFor(p); F.tries = 0; F.fixed = 0; F.hint = 0; F.shown = 0; F.hints = []; F.oddsLine = `${odds(rv(sk2), F.diff, 'correct').p}% a swing if correct · ${odds(rv(sk2), F.diff, 'wrong').p}% if wrong`; F.st = 'prompt'; drawF(); coach('fprompt');
+    F.backstab=false;F.utility=null; F.page = p; S.page = id; F.verb = BOOKS[p.book].verb; F.kc = F.tasks ? F.r : p.c; F.task = taskFor(p); F.tries = 0; F.fixed = 0; F.hint = 0; F.shown = 0; F.hints = []; F.oddsLine = `${odds(rv(sk2), F.diff, 'correct').p}% a swing if correct · ${odds(rv(sk2), F.diff, 'wrong').p}% if wrong`; F.st = 'prompt'; drawF(); coach('fprompt');
   }
   function pickSteal() {
-    if (!F || F.kind !== 'monster' || F.round || F.busy) return; const e = F.ent, sh = bestPage('shadow'); if (!sh) return;
+    if (!F || F.kind !== 'monster' || F.round || F.busy || F.animal) return; const e = F.ent, sh = bestPage('shadow'); if (!sh || e.pocketsEmpty) return;
     if (!e.unseen && !CONCEAL.hidden) {toast('Back away and Hide before approaching, or come from behind.');return;}
     Sneaking.reveal(CONCEAL); renderHud(); const c = Math.min(sh.c, F.r), tpl = c === F.r ? F.sig : pick(BOUNTIES.filter(b => b.r === c)).id; F.act = 'steal'; F.foe = null; F.page = sh; F.verb = 'Steal'; F.kc = c; F.bonus = 10 + (sh.rare ? 15 : 0) - 12 * Math.max(0, F.r - sh.c) + bonus('deft');
     F.prize=F.prize||'purse'; F.prizeItem=F.prizeItem||makeItem(rollRarity(luck()),F.r); F.task = S.tut < 2 ? tutTask() : makeTask({ tpl, seed: seeded(tpl) }); F.fixed = 0; F.hint = 0; F.hints = []; F.oddsLine = `${odds(rv('stealing') + F.bonus, F.diff, 'correct').p}% if correct · one try`; F.st = 'prompt'; barsF(); drawF();
   }
   function runF() {
     if (!ready || !F || F.st !== 'prompt' || F.busy) return; const sql = $('#sql').value; if (!sql.trim()) return toast('Write a query first');
+    if(F.backstab&&(!F.ambush||F.ambush.owner!==S||!F.ambush.at.every((v,i)=>v===Scene.pos()[i])||backstabReason(F.ent,true))){F.backstab=false;F.st='choose';toast('The opening is gone. Hide and approach from behind again.');drawF();return;}
     if(F.act==='fight'&&F.page.book==='spell'&&!['recover','bandage','study'].includes(F.utility)&&S.mana<Progression.castCost(F.page.c)&&!(S.prepared>0)){F.st='choose';toast('Not enough mana. Meditate, use a prepared scroll, or choose another ability.');drawF();return;}
     let res = Engine.grade(F.task, sql); S.stats.q++;
     if (res.err) { if (!F.fixed) { F.fixed = 1; $('#f-out').innerHTML = `<div class="verdict err"><p>${esc(res.err)}</p><p class="cap2">It did not run. One free fix: if the next one does not run either, it counts as a miss.</p></div>`; return fitPanel(); }
       res = { ok: false, grade: 'wrong', share: 0, msg: 'It did not run: ' + res.err, used: [] }; }
-    if (res.ok) { S.stats.ok++; S.streak++; S.best = Math.max(S.best, S.streak); trainSql(res.used || [], F.kc, sql); } else S.streak = 0;
+    if (res.ok) { S.stats.ok++; S.streak++; S.best = Math.max(S.best, S.streak); if(!F.shown)trainSql(res.used || [], F.kc, sql); } else S.streak = 0;
     F.res = res; F.chips = ''; F.after = ''; F.round++; resolveF(res);
   }
   const chip = (cls, txt) => { const h = `<span class="sw ${cls}">${txt}</span>`; F.chips += h; const sw = $('#e-sw'); if (sw) sw.insertAdjacentHTML('beforeend', h); };
@@ -648,7 +689,7 @@
     if(F.act!=='fight') {const sid=F.act==='steal'?'stealing':bestWeapon(),o=odds(rv(sid)+(F.bonus||0),F.diff,res.grade,res.share),g=gain(sid,F.diff,q);if(g)gl.push(g);F.pline=`${o.p}% chance`;F.st='after';F.busy=true;drawF();const encounter=F,owner=S,win=rnd()*100<o.p,end=()=>{if(F!==encounter||S!==owner)return;F.busy=false;chip(win?'hit':'ouch',win?'success':'failed');win?winF(res,gl):loseF(res,gl);};return FAST()?end():setTimeout(end,500);}
     const p=F.page,sid=pageSkill(p),spell=p.book==='spell',utility=F.utility,steps=[],f=F.foe,e=F.ent;
     if((spell&&!['recover','bandage','study'].includes(utility))&&!spendCasting()){F.round--;F.st='choose';toast('Not enough mana. Meditate, use a prepared scroll, or choose another ability.');return drawF();}
-    const quality=F.shown?0:q*(F.hint?.6:1);Sneaking.reveal(CONCEAL);
+    const quality=F.shown?0:q*(F.hint?.6:1);Sneaking.reveal(CONCEAL);F.ambush=null;
     F.st='after';F.busy=true;F.pline=utility?'One recovery round':'Attack and retaliation';drawF();
     if(utility) {
       const id=utility==='bandage'?'healing':utility==='recover'?'meditation':utility==='study'?(spell?'eval':'anatomy'):'magery',g=gain(id,F.diff,quality);if(g)gl.push(g);let note='The query gives no useful result.';
@@ -659,16 +700,17 @@
         if(utility==='study'){F.focus=Math.round((4+rv(id)*.08)*quality);note=`${magicFoe()?'This foe attacks with magic.':'This foe attacks physically.'} ${F.drole==='armored'?'Its armor reduces physical damage. ':''}Your next attack gains ${F.focus} points of accuracy.`;}}
       enemySteps(steps,1,gl,quality);return play(steps,()=>finishCombatQuery(res,gl,note));
     }
-    let stance=F.stance||'strike';if(!spell&&stance!=='strike'){if(S.stamina>=8)S.stamina-=8;else{stance='strike';chip('lab','Low stamina: ordinary strike');}}
+    let stance=F.backstab?'backstab':F.stance||'strike';const staminaCost=F.backstab?Backstab.STAMINA:8;if(!spell&&stance!=='strike'){if(S.stamina>=staminaCost)S.stamina-=staminaCost;else{stance='strike';chip('lab','Low stamina: ordinary strike');}}
     const W=WEAP[sid],gr=F.shown?'wrong':F.hint>=2&&res.grade==='correct'?'close':res.grade,o0=odds(rv(sid),F.diff,gr,res.share),o=Math.max(2,Math.min(95,o0.p-(F.hint===1?HPEN:0)+(F.focus||0)+(!spell&&stance==='feint'?Math.min(12,rv('tactics')/8):0))),g=gain(sid,F.diff,quality);F.focus=0;if(g)gl.push(g);
     supportGains(spell?['eval']:['tactics','anatomy'],F.diff,quality,gl);
-    const mult=power(p.c)*resist(p.c,F.r)*(1+dmgPct(sid)/100)*(spell?Progression.spellFactor(S):Progression.physicalFactor(S,stance))*(F.drole==='armored'&&!spell?.8:1),n=W.swings+(p.rare&&p.book==='arms'?1:0),NR=ROUNDS();F.pline=`${o}% a swing · ${NR} rounds`;
+    const mult=power(p.c)*resist(p.c,F.r)*(1+dmgPct(sid)/100)*(spell?Progression.spellFactor(S):Progression.physicalFactor(S,stance))*(F.drole==='armored'&&!spell?.8:1)*(F.backstab?1+(Backstab.factor(rv('stealth'))-1)*quality:1),n=F.backstab?Backstab.THRUSTS:W.swings+(p.rare&&p.book==='arms'?1:0),NR=ROUNDS();F.pline=`${F.backstab?'Backstab · ':''}${o}% a swing · ${NR} round${NR===1?'':'s'}`;
     const oldSwings=f.swings;if(p.rare&&spell)f.swings=Math.max(0,f.swings-1);
     for(let r=0;r<NR;r++){steps.push(()=>{if(f.hp<=0||S.hp<=0)return false;chip('lab rd','Round '+(r+1));return false;});for(let i=0;i<n;i++)steps.push(()=>{if(f.hp<=0||S.hp<=0)return false;Scene.FX.swing('me',e,spell?'spell':sid,spell?Effects.spell(p.c,p.rare):null);if(rnd()*100<o){const d=Math.max(1,Math.round((rint(W.dmg[0],W.dmg[1])+rv(sid)/8)*mult));f.hp-=d;chip('hit',d);Scene.FX.hit(e,d,'#ffe9a0');}else{chip('miss','miss');Scene.FX.hit(e,'miss','#cfd6d8');}barsF();});
       if(!(W.opening&&F.round===1&&r===0))enemySteps(steps,1,gl,quality);}
     f.swings=oldSwings;play(steps,()=>finishCombatQuery(res,gl));
   }
   function winF(res, gl) {
+    if(F.act==='fight'&&F.ent){Backstab.forget(WOUNDS,F.ent);Scene.endChase(F.ent);}
     if (F && F.act === 'fight') Sound.sfx('win');
     if (gift('mend') && F.act === 'fight') heal(maxHp() * .2);
     const t = F.r, lk = luck(), k = F.kind, o = { gold: 0, mats: {}, items: [], scrolls: [] }; let head, note = '', band = '', body = false;
@@ -680,30 +722,35 @@
       }
       if (gid() === 'fight' && k === 'monster' && !st) { const rw = makeItem('common', 1, 'weapon', pick(['swords', 'fencing'])); rw.name = 'Rusty ' + WEAP[rw.w].n; o.items = [rw]; }
       if (!st) maybeDye(F.kind === 'boss' ? .35 : F.keeper ? .3 : F.kind === 'dungeon' ? .04 : .015 + luck() / 4000);
-      if(st&&F.prize==='prize')o.gold=Math.round(o.gold*.5); head = st ? 'Clean lift' : F.title + ' falls'; if (st) F.ent.alert = 6; else { if(dn)DP.victory(F.ent); Scene.corpse(F.ent, o); body = true; for (const k in S.er.a) { const a = S.er.a[k]; if (a.type === 'hunt' && a.tpl === F.inst.tpl && a.have < a.n) { a.have++; toast(`${a.from}: ${a.have} of ${a.n} targets · ${a.x}`); } } F.body = F.ent; F.ent = null; if (dn && DG) DP.snapshot(); if (S.tut === 1) S.tut = 2; if (gid() === 'fight') { S.gd++; gEnter(true); } } }
+      if(st&&F.prize==='prize')o.gold=Math.round(o.gold*.5); head = st ? 'Clean lift' : F.title + ' falls';
+      if (st) {
+        // Surface respawns create new entities even though the live creature's alert can clear.
+        F.ent.pocketsEmpty = true;
+        F.ent.alert = 6;
+      } else { if(dn)DP.victory(F.ent); Scene.corpse(F.ent, o); body = true; for (const k in S.er.a) { const a = S.er.a[k]; if (a.type === 'hunt' && a.tpl === F.inst.tpl && a.have < a.n) { a.have++; toast(`${a.from}: ${a.have} of ${a.n} targets · ${a.x}`); } } F.body = F.ent; F.ent = null; if (dn && DG) DP.snapshot(); if (S.tut === 1) S.tut = 2; if (gid() === 'fight') { S.gd++; gEnter(true); } } }
     else if (k === 'rival') { const v = S.rival[t];
       if (F.act === 'steal') { o.gold = F.prize==='prize'?Math.round(v.gold/2):v.gold; if(F.prize==='prize')o.items.push(v.item); o.sigils = 1; o.scrolls.push('h' + t + 'r'); S.stats.steals++; head = F.prize==='prize'?'Prize lifted':'Purse lifted'; note = `${F.title} will not notice until morning.`; } else { o.gold = Math.round(v.gold / 2); head = 'Duel won'; note = `${F.title} pays the wager and leaves town for a while.`; } v.taken = true; v.away = 4; }
     else { const first = !S.boss[t], b = F.boss; S.boss[t] = S.boss[t] || now(); S.stats.kills++; o.gold = (60 * t + 40) * (first ? 1 : .4); o.sigils = first ? 2 : 1; o.items.push(first ? uniq(b.drop) : makeItem(rollRarity(lk, 2), t)); if (rnd() < (first ? .3 : .08)) o.bless = 1; if (t >= 5 && rnd() < (first ? .6 : .15)) o.pscr = [makePscr(t)]; if (rnd() < .5) o.gscr = 1; head = first ? `The mark of the ${CIRCLE[t]} Circle` : b.name + ' yields again'; note = b.win; if (t === 8 && first) S.won = now(); }
-    if (F.act === 'fight' && S.hp < maxHp()) { const hs = rv('healing'); if (rnd() * 100 < Math.max(40, Math.min(95, 40 + hs))) { const n = heal(Progression.bandage(S)), hg = gain('healing', F.diff, .6); if (hg) gl.push(hg); Scene.FX.hit('me', '+' + n, '#9be08a'); } }
+    if (F.act === 'fight' && S.hp < maxHp()) { const hs = rv('healing'); if (rnd() * 100 < Math.max(40, Math.min(95, 40 + hs))) { const n = heal(Progression.bandage(S)), hg = !F.shown&&queryQuality(res)>0?gain('healing',F.diff,.6*queryQuality(res)):null; if (hg) gl.push(hg); Scene.FX.hit('me', '+' + n, '#9be08a'); } }
     S.hp=Math.min(S.hp,maxHp()); S.mana=Math.min(S.mana,Progression.maxMana(S)); S.stamina=Math.min(S.stamina,Progression.maxStamina(S)); const g = grant(body ? {} : o); F.over = true; tick(); save(); renderHud(); barsF();
     F.after = `<h3 class="won">${esc(head)}</h3>${note ? `<p class="story">${esc(note)}</p>` : ''}${body ? '' : spoilsHTML(g)}${gainLine(gl)}${res.ok ? '' : answerHTML(F.task)}<div class="row end">${body ? `<button class="btn quiet" data-a="fdone">Leave it</button><button class="btn solid${S.tut <= 2 ? ' pulse' : ''}" data-a="floot">Loot</button>` : '<button class="btn solid" data-a="fdone">Continue</button>'}</div>`; F.st = 'after'; drawF();
   }
   function loseF(res, gl) {
     F.over = true; const t = F.r; let head, msg, fine = 0;
     if (F.kind === 'rival') { fine = Math.min(S.gold, (F.act === 'steal' ? 15 : 10) * t); S.gold -= fine; S.rival[t].away = 4; S.rival[t].taken = true; head = F.act === 'steal' ? 'Caught' : 'Duel lost'; msg = `${F.title} ${F.act === 'steal' ? 'catches your hand in the purse' : 'answers first'}. You pay ${fine} gold.`; }
-    else if (F.act === 'steal') { fine = Math.min(S.gold, 5 * t); S.gold -= fine; F.ent.alert = 8; F.ent.unseen = false; head = 'Caught'; msg = `It caught you. You drop ${fine} gold.`; }
+    else if (F.act === 'steal') { fine = Math.min(S.gold, 5 * t); S.gold -= fine; F.caughtStealing = true; F.ent.alert = 8; F.ent.unseen = false; head = 'Caught'; msg = `It caught you. You drop ${fine} gold. It comes after you.`; }
     else { S.stats.falls++; F.kick = true; head = 'You fall'; const worn = new Set(Object.values(S.eq || {})), n = S.inv.filter(it => !worn.has(it.id)).length + Object.keys(S.scr || {}).length; const bare = Object.values(S.eq || {}).map(itemById).filter(it => it && !it.unique && !it.bless && !it.ins).length; msg = S.gold || n || bare ? `Your gold, your bag${bare ? ' and any gear that is not blessed or insured' : ''} stay on your body. You have ten minutes to get back to it.` : 'You had nothing on you to lose.'; }
     if(F.kick)prepareDeath();
     tick(); save(); renderHud(); barsF();
     F.after = `<h3 class="lost">${head}</h3><p>${esc(msg)}</p>${gainLine(gl)}${res.ok ? '' : answerHTML(F.task)}<div class="row end"><button class="btn solid" data-a="fdone">${F.kick ? 'Wake up' : 'Continue'}</button></div>`; F.st = 'after'; drawF();
   }
   function flee() {
-    if (!F || (F.busy && !(F.act === 'fight' && !F.over && F.st === 'after'))) return; F.busy = false;
-    const e = F.ent, live = F.act === 'fight' && !F.over && e && F.kind !== 'boss' && F.kind !== 'rival';
-    if (live && F.round && !gift('flee')) { const hs = rv('hiding');
-      if (hs > 0 && rnd() * 100 < Math.min(70, 15 + hs * .55)) { closeF(); toast('You slip out of sight'); return; }   // Hiding: gone before it can follow
+    if (!F || F.busy) return;
+    const e = F.ent, live = F.act === 'fight' && !F.over && e && F.kind !== 'rival', committed=live&&F.round>F.startRound;
+    if (committed && !gift('flee')) { const hs = rv('hiding');
+      if (hs > 0 && rnd() * 100 < Math.min(70, 15 + hs * .55)) { closeF();if(committed)Scene.chase(e);toast('You break away. Run, lose their sight, then Hide.');return; }
       const d = rint(3, 6) + 2 * F.r; S.hp -= d; Scene.FX.hit('me', '−' + d, '#f08070'); if (S.hp <= 0) { S.hp = 0; F.kick = true; S.stats.falls++; closeF(); return; } }
-    save(); closeF(); if (live && e.kind === 'mon') { Scene.chase(e, 20); toast('It comes after you. Push the joystick toward its rim to run.'); }
+    save(); closeF(); if (live && (committed||e.chase>0)) { Scene.chase(e); toast('It comes after you. Run, break sight or gain distance, then Hide.'); }
   }
   function ending() {
     const gm = RPG.filter(s => rv(s[0]) >= 100).length, cx = Object.keys(S.codex).length, jr = Object.keys(S.jr).length;
@@ -711,7 +758,7 @@
   }
   function bossCard(e) {
     const t = e.r, b = BOSSES[t - 1], d = diffOf(t, false, true), lack = t === 8 ? [1, 2, 3, 4, 5, 6, 7].filter(k => !S.boss[k]).length : 0, pt = Scene.bossPortrait(t); closeSay(); Scene.pause(); $('#nav').hidden = true; const el = $('#enc'); el.hidden = false; el.className = 'bcard';
-    el.innerHTML = `<div class="card-bg" style="background-image:url(${Scene.backdrop(t)})"></div><div class="card-in">${pt ? `<img class="card-port" alt="" src="${pt}">` : ''}<p class="eyebrow">${esc(b.epithet)}</p><h1>${esc(b.name)}</h1><p class="story">${esc(b.intro)}</p><p class="cap2">${mkFoe(t, d, 3.5).max} health · difficulty ${d} · no hints · the examiner sets every question</p>${lack ? `<p class="cap2">The Council hears only candidates who carry the other seven marks. You lack ${lack}.</p>` : ''}<div class="row end"><button class="btn quiet" data-a="cardno">Not yet</button><button class="btn solid" data-a="start" data-k="boss"${lack ? ' disabled' : ''}>${S.boss[t] ? 'Stand again' : 'Stand the examination'}</button></div></div>`;
+    el.innerHTML = `<div class="card-bg" style="background-image:url(${Scene.backdrop(t)})"></div><div class="card-in">${pt ? `<img class="card-port" alt="" src="${pt}">` : ''}<p class="eyebrow">${esc(b.epithet)}</p><h1>${esc(b.name)}</h1><p class="story">${esc(b.intro)}</p><p class="cap2">${(Backstab.recall(WOUNDS,e,S,'boss',mkFoe(t,d,3.5).max,Scene.tacticalTime())||mkFoe(t,d,3.5)).hp} health · difficulty ${d} · no hints · the examiner sets every question</p>${lack ? `<p class="cap2">The Council hears only candidates who carry the other seven marks. You lack ${lack}.</p>` : ''}<div class="row end"><button class="btn quiet" data-a="cardno">Not yet</button><button class="btn solid" data-a="start" data-k="boss"${lack ? ' disabled' : ''}>${S.boss[t] ? 'Stand again' : 'Stand the examination'}</button></div></div>`;
   }
   const closeCard = () => { $('#enc').hidden = true; $('#enc').innerHTML = ''; $('#nav').hidden = false; };
 
@@ -728,7 +775,7 @@
     rival: d => { const e = CE, t = e.r, R = RIVALS[t - 1], v = rival(t); if (v.away > 0) return; const diff = diffOf(t, true), st = d.m !== 'duel', sh = bestPage('shadow'); if (st && !sh) return toast('You own no page from the Book of Shadows'); if (d.m === 'sneak' && !sneak(diff)) return;
       const c = st ? Math.min(sh.c, t) : t, b = pick(BOUNTIES.filter(x => x.r === c && !/^b80[123]/.test(x.id))), bonus2 = st ? 10 + (sh.rare ? 15 : 0) - 12 * Math.max(0, t - sh.c) : 0;
       openF({ kind: 'rival', act: st ? 'steal' : 'duel', st: 'prompt', r: t, diff, ent: e, title: R.name, noHint: true, page: st ? sh : null, verb: st ? 'Steal' : 'Answer', kc: c, bonus: bonus2, task: makeTask({ tpl: b.id, seed: seeded(b.id) }), oddsLine: `${odds(rv(st ? 'stealing' : bestWeapon()) + bonus2, diff, 'correct').p}% if correct · one try` }); },
-    boss: () => { const e = CE; if (!e || e.kind !== 'boss') return; const t = e.r, b = BOSSES[t - 1], diff = diffOf(t, false, true); closeCard(); openF({ kind: 'boss', act: 'fight', boss: b, r: t, diff, ent: e, title: b.name, noHint: true, foe: mkFoe(t, diff, 3.5, true), tasks: n => Object.assign({ kind: 'read', title: b.name }, b.phases[n % b.phases.length](RNG(rid()))) }); },
+    boss: () => { const e = CE;if(!e||e.kind!=='boss')return;const denied=bossAccess(e);if(denied)return toast(denied);const t=e.r,b=BOSSES[t-1],diff=diffOf(t,false,true);closeCard();openF({kind:'boss',act:'fight',boss:b,r:t,diff,ent:e,title:b.name,noHint:true,foe:mkFoe(t,diff,3.5,true),tasks:n=>Object.assign({kind:'read',title:b.name},b.phases[n%b.phases.length](RNG(rid())))}); },
     dungeon: () => DP.enter(CE.r),
     guard: e => DP.fight(e),
     keeper: e => DP.fight(e),
@@ -1537,9 +1584,9 @@
     detects: (d,facing,agg) => Sneaking.detection(CONCEAL,rv('stealth'),d,facing,agg),
     noticed: () => {if(Sneaking.reveal(CONCEAL)){renderHud();toast('You have been spotted');}},
     aggro: () => S.tut >= 3 && !Q && !F && !SB && $('#sheet').hidden && tab === 'world' && $('#title').hidden, chasing: () => !Q && !F && $('#title').hidden,
-    ambush(e) { if (Q || F || !ready) return; CE = e; e.unseen = false; closeSheet(); if (tab !== 'world') ACT.tab({ t: 'world' });
+    ambush(e) { if (Q || F || !ready) return;if(e.kind==='boss'){const denied=bossAccess(e);if(denied){Scene.endChase(e);toast(denied);return;}}CE = e; e.unseen = false; closeSheet(); if (tab !== 'world') ACT.tab({ t: 'world' });
       if (e.chase > 0) { e.chase = 0; const d = rint(3, 6) + 2 * e.r; S.hp -= d; Scene.FX.hit('me', '−' + d, '#f08070'); if (S.hp <= 0) { S.hp = 0; S.stats.falls++; wakeFromDeath(); renderHud(); toast('It caught you. You wake at the healer’s. Your things are where you fell.'); deathNote(); return; } save(); renderHud(); }
-      START.monster(e, ''); }, spawn: tpl => ({ tpl, elite: tpl[0] === 'b' && rnd() < 0.09 }), monName: inst => inst.nm || MONSTERS[inst.tpl][0], lairs: () => LAIRS, lairName: k => LAIRMON[k], townsfolk: r => FOLKN.slice(r % 5).concat(FOLKN.slice(0, r % 5)), folkIdx: n => Math.max(0, FOLKN.indexOf(n)), chestOpen: () => !!(DG && DG.done),
+      if(e.kind==='boss')START.boss();else if(e.inst&&e.inst.dungeon)DP.fight(e);else START.monster(e, ''); }, spawn: tpl => ({ tpl, elite: tpl[0] === 'b' && rnd() < 0.09 }), monName: inst => inst.nm || MONSTERS[inst.tpl][0], lairs: () => LAIRS, lairName: k => LAIRMON[k], townsfolk: r => FOLKN.slice(r % 5).concat(FOLKN.slice(0, r % 5)), folkIdx: n => Math.max(0, FOLKN.indexOf(n)), chestOpen: () => !!(DG && DG.done),
     guideActive: () => gOn() && tab === 'world' && !Q && !F && !SB && $('#sheet').hidden && $('#title').hidden,
     guide() { if (!S.path || Q || F || DU || !gOn()) return null; const g = GD[S.gd]; if (Scene.inHall()) return g.hall ? g.hall() : null; if (Scene.inDungeon() !== (g.id === 'chest')) return null; if(g.id==='chest') return nearest(e=>e.tutorial&&!e.dead&&!e.dying) || nearest(e=>e.kind==='dcache'&&e.tutorial); return g.arrow ? g.arrow() : null; },
     mark(e) {
@@ -1549,12 +1596,13 @@
       if (e.kind === 'board') return S.stats.ok >= 4 && !(S.rounds && S.rounds.day === dayKey() && S.rounds.tasks.every(x => x.done)) ? ['!', '#8fe8cf'] : null;
       if (e.kind === 'mon' && e.inst.elite) return ['★', '#f3a53f']; if (e.kind === 'chest' && DG && !DG.done && DG.left <= 0) return ['★', '#f3a53f']; if (e.kind === 'page' && !S.jr[t]) return ['★', BRASS]; if (e.kind === 'corpse') return e.empty ? null : ['✦', BRASS]; if (e.kind === 'guide') return ['…', '#ffffff']; if (e.kind === 'lookout' && gid() === 'tower') return ['!', BRASS]; if ((e.kind === 'dojo' && t === 1 || e.kind === 'odalys') && gid() === 'odalys') return ['!', BRASS]; if (e.kind === 'master') { const d = DJ(t); return d.champ && !d.master ? ['!', BRASS] : !d.met ? ['?', '#ffffff'] : null; } if (e.kind === 'rnote' && !(S.djn || {})[t]) return ['!', '#ffffff']; return null;
     },
+    beforeInteract(e) {AMBUSH=backstabReason(e)===null?{e,owner:S,at:Scene.pos()}:null;},
     interact(e) { if (Q || F || DU) return; CE = e; (SH[e.kind] || (() => { }))(e); if (gid() === 'folk' && /^(folk|npc|home|tavern|healer|registrar|stallkeep|shopkeep|banker|rival|casino)$/.test(e.kind) && !(e.kind === 'npc' && e.i === 0)) { S.gd++; save(); gEnter(); } },
     entered(r) { if (S.region === r && S.been[r]) return; S.region = r; S.been[r] = 1; sel = r; save(); },
     sound: (name, detail) => Sound.sfx(name, detail),
     dungeonState: () => DG ? DP.current() : null,
-    moved(x, y, dun, run) { const was=CONCEAL.hidden;Sneaking.move(CONCEAL,x,y,run);if(CONCEAL.hidden){for(const e of Scene.ents()){if(e.dead||!['mon','rival','guard','keeper'].includes(e.kind))continue;const d=Math.hypot(e.x-x,e.y-y);if(Sneaking.approach(CONCEAL,{id:e.id||e.name,x:e.x,y:e.y},d)){const g=gain('stealth',diffOf(e.r),.6,true);if(g&&g.after>g.before)toast('Stealth +'+(g.after-g.before).toFixed(1));break;}}}if(was)renderHud(); if(Scene.inInterior()){S.interior=Scene.venueState();if(!interiorSaveTimer){const owner=S;interiorSaveTimer=setTimeout(()=>{interiorSaveTimer=0;if(S===owner && sceneOwner===owner)save();},1500);}} if (dun && DG)DP.moved(x,y); if (gOn()) gMoved(x, y, dun, run); if (!dun && !Scene.inHall() && !Scene.inInterior()) { S.pos = [x, y]; CMap.moved(x,y); if (S.mv % 3 === 0) { S.lairs = S.lairs || {}; for (const L of Scene.sites()) if (L.kind === 'lair' && !S.lairs[L.id] && Math.hypot(L.x - x, L.y - y) < 11) { S.lairs[L.id] = 1; save(); toast(`Found: ${L.name}. It is on your map now.`); coach('lair'); } } } S.mv = (S.mv || 0) + 1; if (S.mv % 5 === 0 && S.hp < maxHp()) { heal(1 + Math.floor(rv('healing') / 40), true); renderHud(); } },
-    hud(n) { const ob = objective(), k = (n ? n.kind + n.name : '') + ob + (F ? 'f' : ''); if (k === HOST._k) return; HOST._k = k; const b = $('#ctx'); b.hidden = !n || !!F; if (n) b.textContent = n.kind === 'homeatlas' ? 'Use: Grand Atlas' : ({ venueup: 'Go upstairs: ', venuedown: 'Go downstairs: ', cartographer: 'Maps: ', regionchart: 'Read: ', homeatlas: 'Use: ', atlasdisplay: 'Inspect: ', roadsign: 'Read: ', banker: 'Bank: ', guide: 'Talk: ', lookout: 'Climb: ', dojo: 'Go in: ', hallexit: 'Leave: ', master: 'Talk: ', student: 'Talk: ', sorrel: 'Talk: ', traveler: 'Talk: ', odalys: 'Talk: ', foe: 'Talk: ', dummy: 'Practice: ', bracket: 'Read: ', rnote: 'Read: ', npc: 'Talk: ', folk: 'Talk: ', tavern: 'Talk: ', healer: 'Talk: ', registrar: 'Talk: ', stallkeep: 'Trade: ', shopkeep: 'Trade: ', specialist: 'Trade: ', ferry: 'Talk: ', landmark: 'Inspect: ', rival: 'Approach: ', boss: 'Face: ', mon: 'Engage: ', guard: 'Engage: ', keeper: 'Face: ', dtravel:'Use: ', dcache:'Open: ', dlever:'Use: ', dgate:'Inspect: ', dsecret:'Investigate: ', dlore:'Read: ', ltable:'Take: ', node: 'Gather: ', board: 'Read: ', bench: 'Use: ', stairs: 'Enter: ', chest: 'Open: ', exit: 'Use: ', page: 'Read: ', camp: 'Rest: ', peddler: 'Trade: ', cache: 'Open: ', corpse: 'Loot: ', casino: 'Enter: ', home: 'Talk: ', fish: 'Fish: ', stock: '', poi: (n.sub || 'Look') + ': ' }[n.kind] || '') + n.name; $('#obj').textContent = ob; }
+    moved(x, y, dun, run) { const was=CONCEAL.hidden;Sneaking.move(CONCEAL,x,y,run);if(CONCEAL.hidden){for(const e of Scene.ents()){if(e.dead||!['mon','rival','guard','keeper','boss'].includes(e.kind))continue;const d=Math.hypot(e.x-x,e.y-y);if(Sneaking.approach(CONCEAL,{id:e.id||e.name,x:e.x,y:e.y},d)){const g=gain('stealth',diffOf(e.r),.6,true);if(g&&g.after>g.before)toast('Stealth +'+(g.after-g.before).toFixed(1));break;}}}if(was)renderHud(); if(Scene.inInterior()){S.interior=Scene.venueState();if(!interiorSaveTimer){const owner=S;interiorSaveTimer=setTimeout(()=>{interiorSaveTimer=0;if(S===owner && sceneOwner===owner)save();},1500);}} if (dun && DG)DP.moved(x,y); if (gOn()) gMoved(x, y, dun, run); if (!dun && !Scene.inHall() && !Scene.inInterior()) { S.pos = [x, y]; CMap.moved(x,y); if (S.mv % 3 === 0) { S.lairs = S.lairs || {}; for (const L of Scene.sites()) if (L.kind === 'lair' && !S.lairs[L.id] && Math.hypot(L.x - x, L.y - y) < 11) { S.lairs[L.id] = 1; save(); toast(`Found: ${L.name}. It is on your map now.`); coach('lair'); } } } S.mv = (S.mv || 0) + 1; if (S.mv % 5 === 0 && S.hp < maxHp()) { heal(1 + Math.floor(rv('healing') / 40), true); renderHud(); } },
+    hud(n) { const reason=backstabReason(n),rear=n&&reason!=='target'&&CONCEAL.hidden&&Scene.behind(n)&&Scene.sight(n),ambush=reason===null,ob=objective(),k=(n?n.kind+n.name:'')+ob+(F?'f':'')+(rear?'rear':'')+(ambush?'ambush':''); if (k === HOST._k) return; HOST._k = k; const b = $('#ctx'); b.hidden = !n || !!F; if (n) b.textContent = n.kind === 'homeatlas' ? 'Use: Grand Atlas' : ({ venueup: 'Go upstairs: ', venuedown: 'Go downstairs: ', cartographer: 'Maps: ', regionchart: 'Read: ', homeatlas: 'Use: ', atlasdisplay: 'Inspect: ', roadsign: 'Read: ', banker: 'Bank: ', guide: 'Talk: ', lookout: 'Climb: ', dojo: 'Go in: ', hallexit: 'Leave: ', master: 'Talk: ', student: 'Talk: ', sorrel: 'Talk: ', traveler: 'Talk: ', odalys: 'Talk: ', foe: 'Talk: ', dummy: 'Practice: ', bracket: 'Read: ', rnote: 'Read: ', npc: 'Talk: ', folk: 'Talk: ', tavern: 'Talk: ', healer: 'Talk: ', registrar: 'Talk: ', stallkeep: 'Trade: ', shopkeep: 'Trade: ', specialist: 'Trade: ', ferry: 'Talk: ', landmark: 'Inspect: ', rival: 'Approach: ', boss: 'Face: ', mon: 'Engage: ', guard: 'Engage: ', keeper: 'Face: ', dtravel:'Use: ', dcache:'Open: ', dlever:'Use: ', dgate:'Inspect: ', dsecret:'Investigate: ', dlore:'Read: ', ltable:'Take: ', node: 'Gather: ', board: 'Read: ', bench: 'Use: ', stairs: 'Enter: ', chest: 'Open: ', exit: 'Use: ', page: 'Read: ', camp: 'Rest: ', peddler: 'Trade: ', cache: 'Open: ', corpse: 'Loot: ', casino: 'Enter: ', home: 'Talk: ', fish: 'Fish: ', stock: '', poi: (n.sub || 'Look') + ': ' }[n.kind] || '') + n.name; if(n){const label=b.textContent;if(rear)b.textContent=ambush?'Backstab ready':'Behind target';b.setAttribute('aria-label',b.textContent+(rear?' · '+label:''));b.title=label+(rear?' · '+(ambush?'Backstab ready':backstabNotes[backstabReason(n)]||'Approach from behind.'):'');}$('#obj').textContent=ob; }
   };
 
   function heroTables() {
@@ -1701,7 +1749,7 @@
       if (!CR || CR.look == null) return; const p = PATHS.find(x => x.id === CR.path), nm = ($('#cr-name').value || '').trim().slice(0, 16) || NAMES[CR.look], rev = S.rev;
       const slot = CR.slot != null && !A.slots[CR.slot] ? CR.slot : A.slots.findIndex(c => !c); if (slot < 0) return toast('All five slots are taken'); syncA();
       const main = A.main < 0 || !A.slots[A.main]; A.cur = slot; if (main) A.main = slot;
-      S = linkS(fresh()); S.rev = rev; S.name = nm; S.path = p.id; S.look = CR.look; S.sk = Object.assign({}, p.sk); Progression.normalize(S); S.hp = maxHp(); give(makeItem('common', 1, 'weapon', WSTART[p.id])); for (const id of { warrior: ['a1'], thief: ['a1', 'h1'], mage: ['s1'], crafter: ['a1', 'c1'] }[p.id]) S.pages[id] = 1; S.intro = 1; S.pos = null;
+      resetTactics();S = linkS(fresh()); S.rev = rev; S.name = nm; S.path = p.id; S.look = CR.look; S.sk = Object.assign({}, p.sk); Progression.normalize(S); S.hp = maxHp(); give(makeItem('common', 1, 'weapon', WSTART[p.id])); for (const id of { warrior: ['a1'], thief: ['a1', 'h1'], mage: ['s1'], crafter: ['a1', 'c1'] }[p.id]) S.pages[id] = 1; S.intro = 1; S.pos = null;
       CR = null; DG = null; Q = null; F = null; $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; tab = 'world'; save(); if (sceneUp) { Scene.load(null, 'dock'); sceneOwner=S; } render();
       if (main) coldOpen(); else { hideTitle(); gSkip(); toast(`${nm} arrives in Tallyport`); }
     },
@@ -1777,6 +1825,7 @@
     introcheck: d => introCheck(d), introcontinue: () => { if (!Q || Q.step !== 'practice-result') return; Q.i++; Q.task = REPS[Q.i]; Q.tries = 0; Q.step = 'turn'; drawQ(); },
     qstep: d => { if (!Q) return; Q.bout = ''; if (d.s === 'reps') { Q.step = 'turn'; Q.tasks = REPS; Q.i = 0; Q.task = REPS[0]; } else Q.step = d.s; drawQ(); $('#enc .q-body').scrollTop = 0; },
     blank: d => { if (!Q || !Q.blank || Q.bok) return; const i = Q.blank.indexOf(null); if (i < 0) return; Q.blank[i] = d.w; Q.bout = ''; drawQ(); }, unblank: d => { if (!Q || !Q.blank || Q.bok) return; Q.blank[+d.i] = null; Q.bout = ''; drawQ(); }, blankrun: () => blankRun(),
+    fbackstab: () => pickBackstab(),
     fprize: d => {if(F&&F.act==='steal'&&!F.busy){const old=F.prize==='prize'?15:0;F.prize=d.id==='prize'?'prize':'purse';F.bonus=(F.bonus||0)+old-(F.prize==='prize'?15:0);drawF();}}, fstance: d => {if(F&&!F.busy){F.stance=d.id;drawF();}}, futility: d => combatUtility(d.id), fscroll: () => {if(F&&!F.busy){F.scroll=!F.scroll;drawF();}}, fpage: d => pickPage(d.id), fsteal: () => pickSteal(), fchoose: () => { if (F && !F.busy && !F.over) { F.st = 'choose'; drawF(); } }, fdone: () => closeF(), floot: () => { const b = F && F.body; closeF(); if (b) lootOpen(b); }, flee: () => flee(),
     cardno: () => { closeCard(); render(); },
     atlas: () => sheet('<h2>Tables of the Great Ledger</h2>' + atlasHTML()),

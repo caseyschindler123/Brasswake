@@ -71,12 +71,12 @@ async function withRoll(f, roll, execute) {
   }
 }
 
-async function submit(f, surface, { sql, roll = 0 } = {}) {
+async function submit(f, surface, { sql, roll = 0, next = 'fchoose' } = {}) {
   if (sql === undefined) sql = await f.evaluate(surface => __bw[surface].task.sql, surface);
   await f.locator('#sql').fill(sql);
   await withRoll(f, roll, async () => {
     await f.locator('#kb [data-fn=run]').click();
-    if (surface === 'F') await expect(action(f, 'fchoose')).toBeVisible();
+    if (surface === 'F') await expect(action(f, next)).toBeVisible();
     else if (surface === 'FI') await expect(action(f, 'fiagain')).toBeVisible();
     else await expect(f.locator('#enc .q-foot [data-a=qleave]')).toBeVisible();
   });
@@ -203,6 +203,10 @@ test('skill system · a warrior bandages and spends stamina on a damaging maneuv
   // Give this foe room to survive the demonstrated full attack sequence.
   await f.evaluate(() => { __bw.F.foe.hp = __bw.F.foe.max = 1200; });
   await action(f, 'futility', '[data-id=bandage]').click();
+  await expect(f.locator('#fight .f-head b').first()).toHaveText('Bandage');
+  await expect(f.locator('#f-odds')).toHaveText('Query quality · 1 response round');
+  await expect(action(f,'fhint')).toHaveText('Hint · reduced practice');
+  await screenshot(page,info,'bandage-prompt');
   await coach(f);
   await submit(f, 'F', { roll: .99 });
   await expect(f.locator('#f-after')).toContainText('Bandaged');
@@ -270,6 +274,9 @@ test('skill system · craft and install furniture, then spend a prepared scroll 
   await action(f, 'fscroll').click();
   await expect(action(f, 'fscroll')).toHaveText('Scroll selected');
   await action(f, 'futility', '[data-id=ward]').click();
+  await expect(f.locator('#fight .f-head b').first()).toHaveText('Ward');
+  await expect(f.locator('#f-odds')).toHaveText('Query quality · 1 response round');
+  await screenshot(page,info,'ward-prompt');
   await coach(f);
   await submit(f, 'F', { roll: .99 });
   await expect(f.locator('#f-after')).toContainText('Ward reduces');
@@ -395,20 +402,146 @@ test('skill system · an unaffordable spell grants no query credit or free train
   expect(errors).toEqual([]);
 });
 
-test('skill system · fleeing cancels old animation callbacks before another encounter', async ({page})=>{
+test('skill system · fleeing waits for attack and retaliation to finish', async ({page},info)=>{
   const errors=observeErrors(page),f=await adventure(page);
   await f.evaluate(()=>{__bw.S.pages={a1:1};__bw.S.sk.swords=80;__bw.S.hp=__bw.maxHp();window.__bwFast=false;});
-  const first=await standBy(f,'mon');await f.evaluate(()=>{__bw.F.foe.hp=__bw.F.foe.max=1200;});
-  await action(f,'fpage','[data-id=a1]').click();await coach(f);await f.locator('#sql').fill(await f.evaluate(()=>__bw.F.task.sql));await f.locator('#kb [data-fn=run]').click();
-  await expect.poll(()=>f.evaluate(()=>__bw.F.busy)).toBe(true);
-  await f.waitForTimeout(500); // Honor the keyboard's 450 ms protection against a redraw click.
+  await standBy(f,'boss');
+  await action(f,'start','[data-k=boss]').click();
+  await action(f,'fpage','[data-id=a1]').click();await coach(f);
+  const initial = await f.evaluate(()=>({hp:__bw.S.hp,swords:__bw.S.sk.swords}));
+  await f.locator('#sql').fill(await f.evaluate(()=>__bw.F.task.sql));
+  await withRoll(f,0,async()=>{
+    await f.locator('#kb [data-fn=run]').click();
+    await expect(action(f,'flee')).toBeDisabled();
+    expect(await f.evaluate(()=>{
+      const encounter=__bw.F;
+      __bw.ACT.flee();
+      return __bw.F===encounter&&encounter.busy;
+    })).toBe(true);
+    await screenshot(page,info,'flee-during-retaliation');
+    await expect(action(f,'fchoose')).toBeVisible();
+  });
+  const resolved=await f.evaluate(()=>({hp:__bw.S.hp,swords:__bw.S.sk.swords,round:__bw.F.round}));
+  expect(resolved.hp).toBeLessThan(initial.hp);
+  expect(resolved.swords).toBeGreaterThan(initial.swords);
+  expect(resolved.round).toBe(1);
+  await expect(action(f,'flee')).toBeEnabled();
   await action(f,'flee').click();
   await expect(f.locator('#fight')).toBeHidden();await standBy(f,'mon');
-  const next=await f.evaluate(()=>({hp:__bw.F.foe.hp,max:__bw.F.foe.max,round:__bw.F.round,title:__bw.F.title}));
-  await f.waitForTimeout(1200);
-  expect(await f.evaluate(()=>({hp:__bw.F.foe.hp,max:__bw.F.foe.max,round:__bw.F.round,title:__bw.F.title}))).toEqual(next);
-  expect(await f.evaluate(()=>({state:__bw.F.st,chips:__bw.F.chips}))).toEqual({state:'choose',chips:''});
-  expect(first.name).toBeTruthy();expect(errors).toEqual([]);
+  expect(await f.evaluate(()=>({state:__bw.F.st,round:__bw.F.round,chips:__bw.F.chips}))).toEqual({state:'choose',round:0,chips:''});
+  expect(errors).toEqual([]);
+});
+
+async function theftTarget(f, elite) {
+  await f.evaluate(elite=>{
+    for(const target of Scene.ents().filter(e=>e.kind==='mon'&&e.r===1&&!e.inst.lair&&e.inst.tpl[0]==='b')) {
+      target.testTheftCandidate=true;
+      target.inst.elite=elite;
+      target.agg=false;
+    }
+    __bw.S.pages={a1:1,h1:1};
+    Object.assign(__bw.S.sk,{stealing:40,hiding:40,swords:100,fencing:100});
+  },elite);
+  await standBy(f,'mon',{testTheftCandidate:true});
+  await f.evaluate(()=>{
+    window.__theftTarget=__bw.F.ent;
+    window.__theftTarget.testTheftTarget=true;
+  });
+}
+
+const theftPayout = f => f.evaluate(()=>({
+  gold:__bw.S.gold,mats:__bw.S.mats[1]||0,sigils:__bw.S.mats.sigil||0,
+  items:__bw.S.inv.length,steals:__bw.S.stats.steals,kills:__bw.S.stats.kills,
+}));
+
+for(const prize of [false,true]) {
+  test(`skill system · a successful ${prize?'prize':'purse'} lift exhausts a living elite's theft rewards`,async({page},info)=>{
+    const errors=observeErrors(page),f=await adventure(page);
+    await theftTarget(f,true);
+    const before=await theftPayout(f);
+    await action(f,'fsteal').click();
+    if(prize)await action(f,'fprize','[data-id=prize]').click();
+    await submit(f,'F',{next:'fdone',roll:.01});
+    await expect(f.locator('#f-after')).toContainText('Clean lift');
+    await action(f,'fdone').click();
+    const lifted=await theftPayout(f);
+    expect(lifted.gold-before.gold).toBe(prize?16:32);
+    expect(lifted.mats-before.mats).toBe(6);
+    expect(lifted.sigils-before.sigils).toBe(1);
+    expect(lifted.items-before.items).toBe(prize?1:0);
+    expect(lifted.steals-before.steals).toBe(1);
+
+    // Re-enter the surface with the same live entity and a fresh unseen approach.
+    const at=await f.evaluate(()=>Scene.pos());
+    await f.evaluate(at=>Scene.load(at,1),at);
+    await standBy(f,'mon',{testTheftTarget:true});
+    await expect(action(f,'fsteal')).toHaveCount(0);
+    await expect(f.locator('#fight')).toContainText('already picked');
+    if(!prize)await screenshot(page,info,'lifted-purse');
+    expect(await f.evaluate(()=>{
+      __bw.ACT.fsteal();
+      return {same:__bw.F.ent===window.__theftTarget,living:!__bw.F.ent.dead,state:__bw.F.st};
+    })).toEqual({same:true,living:true,state:'choose'});
+    expect(await theftPayout(f)).toEqual(lifted);
+
+    if(!prize) {
+      await action(f,'fpage','[data-id=a1]').click();
+      await coach(f);
+      await submit(f,'F',{next:'floot'});
+      const corpse=await f.evaluate(()=>{
+        const target=window.__theftTarget;
+        return {dead:target.dead,gold:target.loot.gold,mats:target.loot.mats[1],sigils:target.loot.sigils,items:target.loot.items.length};
+      });
+      expect(corpse).toEqual({dead:1,gold:16,mats:3,sigils:1,items:1});
+      await action(f,'floot').click();
+      await expect(f.locator('#sheet')).toContainText('Brass Sigil');
+      await coach(f);
+      await action(f,'lootall').click();
+      const killed=await theftPayout(f);
+      expect(killed.kills-lifted.kills).toBe(1);
+      expect(killed.sigils-lifted.sigils).toBe(1);
+
+      // Advance only the scheduled respawn timer and let the actual world spawn the replacement.
+      await f.evaluate(()=>{
+        const map=Scene.debug().map, terr=window.__theftTarget.terr;
+        window.__beforeRespawn=new Set(map.ents);
+        map.respawn.find(entry=>entry.terr===terr).t=0;
+      });
+      await f.waitForFunction(()=>Scene.ents().some(e=>e.kind==='mon'&&e.terr===window.__theftTarget.terr&&!window.__beforeRespawn.has(e)));
+      await f.evaluate(()=>{
+        const newcomer=Scene.find(e=>e.kind==='mon'&&e.terr===window.__theftTarget.terr&&!window.__beforeRespawn.has(e));
+        newcomer.unseen=true;
+        __bw.START.monster(newcomer);
+      });
+      await coach(f);
+      await action(f,'fsteal').click();
+      await submit(f,'F',{next:'fdone'});
+      await expect(f.locator('#f-after')).toContainText('Clean lift');
+      expect((await theftPayout(f)).steals-killed.steals).toBe(1);
+    }
+    expect(errors).toEqual([]);
+  });
+}
+
+test('skill system · a failed ordinary theft starts pursuit after closing the result',async({page})=>{
+  const errors=observeErrors(page),f=await adventure(page);
+  await theftTarget(f,false);
+  const before=await theftPayout(f);
+  await action(f,'fsteal').click();
+  await submit(f,'F',{next:'fdone',sql:wrongSQL,roll:.99});
+  await expect(f.locator('#f-after')).toContainText('It comes after you.');
+  expect(await theftPayout(f)).toEqual({...before,gold:before.gold-5});
+  const hp=await f.evaluate(()=>{
+    window.__theftTarget.wander=1;
+    return __bw.S.hp;
+  });
+  await action(f,'fdone').click();
+  expect(await f.evaluate(()=>window.__theftTarget.chase)).toBeGreaterThan(0);
+  await expect(f.locator('#fight')).toBeVisible();
+  const caught=await f.evaluate(()=>({pursuer:__bw.F.ent===window.__theftTarget,hp:__bw.S.hp}));
+  expect(caught.pursuer).toBe(true);
+  expect(caught.hp).toBeLessThan(hp);
+  expect(errors).toEqual([]);
 });
 
 test('skill system · a newer cloud save cancels combat and migrates every character', async ({page})=>{

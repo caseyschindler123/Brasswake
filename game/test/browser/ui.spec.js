@@ -2,6 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { observeErrors, playerFlow, screenshot } = require('./flow');
 require('./playability');
 require('./skill-system');
+require('./backstab');
 require('./npc-appearance');
 require('./sound');
 require('./dungeons');

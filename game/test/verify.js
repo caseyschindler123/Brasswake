@@ -14,7 +14,7 @@ function run(label, args) {
 for (const [label, args] of [
   ['Packed art', ['../arttools/check_packed_art.js']],
   ['Engine and content', ['test/test.js']],
-  ['Character skills, attributes and professional actions', ['--test', 'test/progression.test.js', 'test/skill-actions.test.js', 'test/npc-appearance.test.js']],
+  ['Character skills, attributes and professional actions', ['--test', 'test/progression.test.js', 'test/skill-actions.test.js', 'test/backstab.test.js', 'test/npc-appearance.test.js']],
   ['First-day teaching and companion routing', ['--test', 'test/first-day.test.js']],
   ['Narrative continuity', ['test/narrative_test.js']],
   ['World geography, construction and migration', ['--test', 'test/geography.test.js', 'test/buildings.test.js', 'test/building-cache.test.js', 'test/world-progress.test.js', 'test/world-services.test.js', 'test/cartography.test.js', 'test/navigation.test.js', 'test/water-depth.test.js', 'test/interiors.test.js']],

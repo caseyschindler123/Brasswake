@@ -697,12 +697,13 @@
   }
   function interactNear(e) {
     if (!nextTo(e)) { if (host.moveCloser) host.moveCloser(); return; }
+    if(host.beforeInteract)host.beforeInteract(e);
     clearSceneControls();
     P.dg = null;
     P.dir = e.x > P.x ? 's' : e.x < P.x ? 'l' : e.y > P.y ? 'f' : 'b';
     P.d8 = D8(Math.sign(e.x - P.x), Math.sign(e.y - P.y));
     if (e.kind === 'mon' || e.kind === 'rival') e.unseen = !e.alert;
-    if (e.npcLook && e.tx == null) e.npcFacing = NpcAppearance.direction(P.fx - e.fx, P.fy - e.fy, e.npcFacing);
+    if (e.npcLook && e.tx == null && !(host.visibility&&host.visibility().hidden)) e.npcFacing = NpcAppearance.direction(P.fx - e.fx, P.fy - e.fy, e.npcFacing);
     host.interact(e);
   }
   const setOf = t => { const o = {}; t.split(' ').forEach(k => { o[k] = 1; }); return o; }, PREY = setOf('a1 a2 a4 a5 a6 a7 a8'), FLY = setOf('b102 b204 b303 b304 b402 b404 b502 b602 b603 b701 b702 b704 b802 b803'), SLOW = setOf('b202 b302 b801 b501 b604 b804');
@@ -711,7 +712,21 @@
   const HUMAN_STEPS = [[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]];
   const npcStepClear = (e,dx,dy) => !blocked(e.x+dx,e.y+dy) && (!dx||!dy||(!blocked(e.x+dx,e.y)&&!blocked(e.x,e.y+dy)));
   function clearSight(ax,ay,bx,by) {const n=Math.ceil(Math.max(Math.abs(bx-ax),Math.abs(by-ay))*2);for(let k=1;k<n;k++){const x=Math.floor(ax+(bx-ax)*k/n+.5),y=Math.floor(ay+(by-ay)*k/n+.5);if(x<0||y<0||x>=map.w||y>=map.h||map.solid[y*map.w+x])return false;}return true;}
+  const CHASE_SECONDS=20,CHASE_LEAD=1.3,CHASE_LEASH=8,HIDE_OBSERVATION=6.5;
+  const hostile = e => ['mon','rival','boss','guard','keeper'].includes(e.kind);
+  const behind = e => !!(e&&P)&&Backstab.rear(P.fx-e.fx,P.fy-e.fy,e.npcLook?npcPose(e).direction:(CARDINAL_D8[e.dir]??0));
+  const sight = e => !!(e&&P)&&clearSight(e.fx,e.fy,P.fx,P.fy);
+  const observed = () => !!(map&&P)&&map.ents.some(e=>hostile(e)&&!e.dead&&!e.dying&&(e.alert>0||e.chase>0)&&Math.hypot(e.fx-P.fx,e.fy-P.fy)<HIDE_OBSERVATION&&sight(e));
+  function endChase(e) {
+    if(!e)return;e.chase=0;e.alert=0;e.hunt=false;e.wait=0;
+    if(e.pursuitAnchor&&!e.dead&&['boss','guard','keeper'].includes(e.kind))e.returning=e.x!==e.pursuitAnchor[0]||e.y!==e.pursuitAnchor[1];
+  }
+  function pursue(e,secs=CHASE_SECONDS) {
+    if(!e)return;e.pursuitAnchor=e.pursuitAnchor||[e.x,e.y];e.returning=false;e.chase=secs;e.wait=CHASE_LEAD;e.calm=0;e.alert=8;e.busy=0;e.t=0;
+  }
+  let tacticalClock=0;
   function step(dt) {
+    if(inputAvailable()&&!map.pending&&!document.hidden)tacticalClock+=dt*1000;
     clock = (clock + dt / 600) % 1;
     for (const a of anims) { a.t += dt; a.f(Math.min(1, a.t / a.d)); if (a.t >= a.d && a.end) a.end(); } anims = anims.filter(a => a.t < a.d);
     if (P.atk > 0) P.atk -= dt; advanceEffects(dt);
@@ -734,11 +749,12 @@
     } else P.walk = 0;
     guideStep(dt);
     near = null; let nd = 1.6;
-    for (const e of map.ents) { if(e.hidden)continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy); if (d < nd && !e.empty && nextTo(e)) { nd = d; near = e; } if (e.dead && e.dying == null && (e.decay -= dt) <= 0) e.dying = 1; if (e.dying) { e.dying -= dt * 2.4; continue; } if (!e.wander || e.busy || d > 26) continue; e.t -= dt; if (e.tired > 0) e.tired -= dt; else if (d < 4.4 && e.kind === 'mon' && PREY[e.inst.tpl]) e.t = 0;   // prey reacts at once
-      if (e.kind === 'mon' || e.kind === 'rival') { const v = DIRV[e.dir] || [0, 1], facing = (P.fx - e.fx) * v[0] + (P.fy - e.fy) * v[1] > 0; if (clearSight(e.fx,e.fy,P.fx,P.fy) && (host.detects ? host.detects(d,facing,e.agg) : (d < 3.2 && facing) || (e.agg && d < 6.5))) {e.alert = 4;if(host.noticed)host.noticed();} else if(host.visibility && host.visibility().hidden) {e.alert=0;e.chase=0;} else if (e.alert > 0) e.alert = Math.max(0, e.alert - dt); if (e.calm > 0) e.calm -= dt;
-        if (e.chase > 0) e.chase -= dt; if (e.wait > 0) e.wait -= dt; e.hunt = !(e.wait > 0) && (e.chase > 0 && d < 16 && !locked && host.chasing()) || (e.agg && e.alert > 0 && !(e.calm > 0) && d < 8 && !locked && host.aggro()); if (e.hunt && e.tx == null) { if (Math.abs(e.x - P.x) + Math.abs(e.y - P.y) === 1) { e.hunt = 0; e.calm = 12; host.ambush(e); break; } const ddx = P.x - e.x, ddy = P.y - e.y, st = Math.abs(ddx) >= Math.abs(ddy) ? [[Math.sign(ddx), 0], [0, Math.sign(ddy)]] : [[0, Math.sign(ddy)], [Math.sign(ddx), 0]]; for (const [sx, sy] of st) { if ((!sx && !sy) || blocked(e.x + sx, e.y + sy) || (e.x + sx === P.x && e.y + sy === P.y)) continue; e.dir = dirOf(sx, sy); sit(map, e, e.x + sx, e.y + sy); e.tx = e.x; e.ty = e.y; break; } e.t = 1; continue; } }
+    for (const e of map.ents) { if(e.hidden)continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy); if (d < nd && !e.empty && nextTo(e)) { nd = d; near = e; } if (e.dead && e.dying == null && (e.decay -= dt) <= 0) e.dying = 1; if (e.dying) { e.dying -= dt * 2.4; continue; } if ((!e.wander && !(e.chase>0) && !e.returning && !['boss','guard','keeper'].includes(e.kind)) || e.busy || (d > 26 && !e.returning)) continue; e.t -= dt; if (e.tired > 0) e.tired -= dt; else if (d < 4.4 && e.kind === 'mon' && PREY[e.inst.tpl]) e.t = 0;   // prey reacts at once
+      if (hostile(e) && !locked) { const v = DIRV[e.dir] || [0, 1], facing = (P.fx - e.fx) * v[0] + (P.fy - e.fy) * v[1] > 0; if (clearSight(e.fx,e.fy,P.fx,P.fy) && (host.detects ? host.detects(d,facing,e.agg) : (d < 3.2 && facing) || (e.agg && d < 6.5))) {e.alert = 4;if(host.noticed)host.noticed();} else if(host.visibility && host.visibility().hidden) {endChase(e);} else if (e.alert > 0) e.alert = Math.max(0, e.alert - dt); if (e.calm > 0) e.calm -= dt;
+        if(e.pursuitAnchor && ['boss','guard','keeper'].includes(e.kind) && Math.hypot(e.x-e.pursuitAnchor[0],e.y-e.pursuitAnchor[1])>=CHASE_LEASH)endChase(e);if(e.chase>0){e.chase=Math.max(0,e.chase-dt);if(!e.chase)endChase(e);} if (e.wait > 0) e.wait -= dt; e.hunt = !(e.wait > 0) && (e.chase > 0 && d < 16 && !locked && host.chasing()) || (e.agg && e.alert > 0 && !(e.calm > 0) && d < 8 && !locked && host.aggro()); if (e.hunt && e.tx == null) { if (Math.abs(e.x - P.x) + Math.abs(e.y - P.y) === 1) { e.hunt = 0; e.calm = 12; host.ambush(e); break; } const ddx = P.x - e.x, ddy = P.y - e.y, st = Math.abs(ddx) >= Math.abs(ddy) ? [[Math.sign(ddx), 0], [0, Math.sign(ddy)]] : [[0, Math.sign(ddy)], [Math.sign(ddx), 0]]; for (const [sx, sy] of st) { if ((!sx && !sy) || blocked(e.x + sx, e.y + sy) || (e.x + sx === P.x && e.y + sy === P.y)) continue; e.dir = dirOf(sx, sy); sit(map, e, e.x + sx, e.y + sy); e.tx = e.x; e.ty = e.y; break; } e.t = 1; continue; } }
+      if(e.returning&&e.tx==null&&!locked&&e.t<=0){const [ax,ay]=e.pursuitAnchor;if(e.x===ax&&e.y===ay)e.returning=false;else{const next=Backstab.returnStep([e.x,e.y],[ax,ay],(x,y)=>!blocked(x,y)&&!(x===P.x&&y===P.y));e.t=next ? .15 : 1;if(next){e.dir=dirOf(next[0]-e.x,next[1]-e.y);sit(map,e,...next);e.tx=e.x;e.ty=e.y;}}}
       if (e.tx != null) { const dx = e.tx - e.fx, dy = e.ty - e.fy, dd = Math.hypot(dx, dy), sp = (e.wander >= 2 ? 1.4 : e.hunt && e.chase > 0 ? (FLY[e.inst && e.inst.tpl] ? 4.0 : SLOW[e.inst && e.inst.tpl] ? 1.9 : 3.6) : e.hunt ? 2.0 : e.run ? 2.4 : e.kind === 'mon' ? (FLY[e.inst.tpl] ? 1.6 : SLOW[e.inst.tpl] ? .5 : .9) : 1.1) * dt; e.walk = (e.walk || 0) + dt * 7; if (dd <= sp) { e.fx = e.tx; e.fy = e.ty; e.tx = null; } else { e.fx += dx / dd * sp; e.fy += dy / dd * sp; } }
-      else if (e.t <= 0 && d > 1.6) {
+      else if (e.wander && !e.returning && e.t <= 0 && d > 1.6) {
         if (e.wander >= 2) { const choices=e.npcLook?HUMAN_STEPS:D4; let v = e.mv && Math.random() < .8 ? e.mv : choices[Math.random() * choices.length | 0]; const nx = e.x + v[0], ny = e.y + v[1], tt = nx >= 0 && ny >= 0 && nx < map.w && ny < map.h ? map.t[ny * map.w + nx] : 9; if ((tt === 2 || tt === 3 || (e.wander === 3 && tt === 6)) && npcStepClear(e,v[0],v[1]) && !(map.doorApproaches && map.doorApproaches.has(ny * map.w + nx)) && !(nx === P.x && ny === P.y) && (e.roam ? nx >= e.roam[0] && ny >= e.roam[1] && nx <= e.roam[2] && ny <= e.roam[3] : e.wander === 3 || Math.hypot(nx - TOWN[e.r][0], ny - TOWN[e.r][1]) < 26)) { e.mv = v; e.dir = dirOf(v[0], v[1]); sit(map, e, nx, ny); e.tx = nx; e.ty = ny; e.t = Math.random() < .12 ? 1 + Math.random() * 4 : 0; } else { e.mv = null; e.t = .2 + Math.random() * .8; } }
         else if (e.kind === 'mon') {   // creatures roam their ground: pick a spot, walk to it, rest, go again. Prey bolts when you come close, then tires.
           const tp = e.inst.tpl, fly = FLY[tp]; if (PREY[tp] && d < 4.4 && !(e.tired > 0)) { e.goal = [e.x + Math.round((e.x - P.x) / d * 5), e.y + Math.round((e.y - P.y) / d * 5)]; e.steps = 0; e.run = 1; e.tired = 4.5; }
@@ -1071,7 +1087,7 @@
     return { region: r, town: !!Geography.inTown(P.x,P.y) || !!(map.districts&&map.districts.some(d=>P.x>=d.box[0]&&P.x<=d.box[2]&&P.y>=d.box[1]&&P.y<=d.box[3])),
       venue: room && room.slot === 'tavern' ? 'tavern' : null };
   }
-  return { preload, init, load, safePosition, restoreHomes, clearRemains: () => { if(world)world.ents=world.ents.filter(e=>!e.mine);if(map && map!==world)map.ents=map.ents.filter(e=>!e.mine); }, remains, emptied, musicContext, chase: (e, secs) => { if (e) { e.chase = secs; e.wait = 1.3; e.calm = 0; e.alert = 8; e.busy = 0; } }, inDungeonMap: () => !!(map && map.dungeon), mapRegion: () => map ? (map.dungeon ? map.r : 0) : 0, enterDungeon, dungeonRefresh: p => { if(map && map.dungeonFloor)dungeonApply(map,p); }, backdrop, kill, corpse, refresh, resume, pause, portrait, act, FX, towns: () => TOWN, terr: () => world ? world.terr : [], sites: () => world ? world.sites : [], spots: () => world ? world.spots : {}, mini: () => world && world.mini, size: [WW, WH], ferries: () => world ? world.ferries : [], districts: () => world ? world.districts : [],
+  return { preload, init, load, safePosition, restoreHomes, clearRemains: () => { if(world)world.ents=world.ents.filter(e=>!e.mine);if(map && map!==world)map.ents=map.ents.filter(e=>!e.mine); }, remains, emptied, musicContext, tacticalTime:()=>tacticalClock, chase: pursue, endChase, clearPursuits:()=>{for(const e of new Set([...(world?world.ents:[]),...(map?map.ents:[])]))if(e.chase>0||e.returning)endChase(e);}, behind, sight, observed, inDungeonMap: () => !!(map && map.dungeon), mapRegion: () => map ? (map.dungeon ? map.r : 0) : 0, enterDungeon, dungeonRefresh: p => { if(map && map.dungeonFloor)dungeonApply(map,p); }, backdrop, kill, corpse, refresh, resume, pause, portrait, act, FX, towns: () => TOWN, terr: () => world ? world.terr : [], sites: () => world ? world.sites : [], spots: () => world ? world.spots : {}, mini: () => world && world.mini, size: [WW, WH], ferries: () => world ? world.ferries : [], districts: () => world ? world.districts : [],
     enterVenue, exitVenue, venueState, restoreVenue, inInterior: () => !!(map && map.venue), venues: () => world && world.venues ? Array.from(world.venues.values()) : [],
     traveling: () => !!(P && P.path.length),
     cartographyCatalogue, cartographyBounds, cartographyRoute, cartographyGuide, cartographyMap, cartographyAtlas, cartographyInsideHome, cartographySign,

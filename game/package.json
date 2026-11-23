@@ -11,6 +11,7 @@
     "test:install": "node test/install-browsers.js",
     "test:ui": "playwright test",
     "test:dungeons": "node test/dungeon-expeditions.js",
+    "test:paths": "node test/path-playthroughs.js",
     "test:live": "node test/live.js",
     "verify": "node test/verify.js"
   },

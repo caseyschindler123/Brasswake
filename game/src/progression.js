@@ -11,7 +11,7 @@ const Progression = (() => {
     ['meditation', 'Meditation', 'Recover mana by gathering your thoughts.'], ['inscription', 'Inscription', 'Craft spell scrolls and strengthen wards.'],
     ['resisting', 'Resisting Spells', 'Reduce hostile magical damage.'], ['tactics', 'Tactics', 'Strengthen physical attacks and combat maneuvers.'],
     ['anatomy', 'Anatomy', 'Study physical weaknesses and improve bandages.'], ['parrying', 'Parrying', 'Block physical attacks with an equipped shield.'],
-    ['stealth', 'Stealth', 'Walk concealed toward a target. Running reveals you.'], ['lockpicking', 'Lockpicking', 'Open and disarm optional treasure containers.']
+    ['stealth', 'Stealth', 'At 10, approach from behind for a Fencing Backstab. Running reveals you.'], ['lockpicking', 'Lockpicking', 'Open and disarm optional treasure containers.']
   ];
   const ids = skills.map(s => s[0]), stats = ['str', 'dex', 'int'];
   const presets = { warrior: [60, 35, 25], thief: [35, 60, 25], crafter: [45, 40, 35], mage: [25, 35, 60] };

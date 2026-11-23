@@ -63,6 +63,8 @@ test('concealment shrinks detection range, with direction and stealth still affe
   assert.equal(Sneaking.detection(state, 0, 6, false, true), false);
   assert.equal(Sneaking.detection(state, 0, 1.2, true, true), true);
   assert.equal(Sneaking.detection(state, 0, 1.2, false, true), false);
+  assert.equal(Sneaking.detection(state, 10, 1, false, true), false, 'a novice can actually reach the rear interaction tile');
+  assert.equal(Sneaking.detection(state, 10, 1, true, true), true, 'the same approach from the front remains detectable');
   assert.equal(Sneaking.detection(state, 120, 1.2, true, true), false);
   assert.equal(Sneaking.detection(state, 120, .5, true, true), true);
 });

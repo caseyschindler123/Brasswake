@@ -17,7 +17,7 @@ const Sneaking = (() => {
     state.steps-=distance;return {hidden:true,train:false};
   }
   function approach(state,target,distance) {if(!state.hidden||state.trained||state.steps===state.max||!Number.isFinite(distance)||distance>2||!target||!Number.isFinite(target.x)||!Number.isFinite(target.y)||Math.hypot(target.x-state.sx,target.y-state.sy)<=distance+.5)return false;state.trained=true;state.target=target.id;return true;}
-  const detection = (state,stealth,distance,facing,aggressive) => !state.hidden ? (distance<3.2&&facing)||(aggressive&&distance<6.5) : distance<Math.max(.65,1.7-Math.min(120,stealth)/120)*(facing?1:.65);
+  const detection = (state,stealth,distance,facing,aggressive) => !state.hidden ? (distance<3.2&&facing)||(aggressive&&distance<6.5) : distance<(facing?Math.max(.65,1.7-Math.min(120,stealth)/120):Math.max(.45,.85-Math.min(120,stealth)/300));
   return {create,budget,chance,conceal,reveal,move,approach,detection};
 })();
 if(typeof module!=='undefined'&&module.exports)module.exports=Sneaking;

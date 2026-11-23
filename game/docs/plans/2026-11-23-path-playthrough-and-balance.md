@@ -1,0 +1,37 @@
+# Warrior, mage and thief playthrough audit
+
+Status: in progress. Classification: complex; connected progression, combat, covert actions, saves and balance.
+
+Casey requested full path testing, then authorized truncated campaigns and a test mode to make real playthroughs practical. The audit will use fresh characters, actual SQL grading/actions, normal progression/resource/loot rules and explicit travel/presentation shortcuts. Generated reference SQL represents a proficient player, not a human learning study. Cap-pressure fixtures and pure long-run simulations are separate from earned campaign evidence.
+
+During the audit Casey added Backstab as the thief's primary attack: learn Stealth, approach concealed, strike with Fencing for high damage, escape, hide and repeat. This expands implementation into pursuit, retained enemy wounds and encounter re-entry; the release must exercise that complete loop rather than only a damage modifier.
+
+## Acceptance and scope
+
+- Reusable local-only accelerated campaign runner; no test controls in the published player flow and no injected skill, stat, money, equipment or reward values in campaign runs.
+- Run warrior, mage and thief through representative ordinary encounters, their support/covert actions, regional lessons and all eight Trials where feasible. Record checkpoints, queries, gains, resources, costs, failures, equipment and completion or concrete blockers.
+- Exercise skill/stat Locked, Lower and stopping targets through real actions; validate persistence. Keep prepared cap-boundary tests distinct from campaign results.
+- Implement a visible Backstab ability for a concealed rear approach with trained Stealth and a Fencing weapon. Resolve its committed attack and retaliation before escape, reveal on attack, retain the living target's wounds/Examiner phase through a bounded re-engagement period, and require another successful hide/approach for each use. Questions/menus pause the wound timeout so it imposes no typing race. Pursuit must allow actual escape and loss of sight without silently tracking an invisible player. Paths remain presets rather than class locks.
+- Quantify normal-rate progression and resource pacing over multiple seeds; use observed failures to guide bounded repairs. Preserve meaningful path tradeoffs rather than claiming equal outcomes from a perfect-answer bot.
+- Fix reproducible progression or action defects found within this scope, add regressions and update master rules/Decision logs. Game changes require the complete release gate, relevant phone/desktop visual review, exact-commit CI, deployment and independent hosted verification.
+- If only test tooling/docs change, run focused tooling checks; do not deploy unchanged game output. Report evidence and limitations accurately.
+
+## Milestones
+
+1. [x] Inspect existing helpers and implement the compressed campaign runner.
+2. [x] Baseline fresh warrior, mage and thief runs; independent normal-rate balance investigation.
+3. [x] Repair demonstrated defects, add focused regressions and repeat affected campaigns.
+   - [x] Backstab, retained wounds, pursuit/escape/reconcealment and thief campaign coverage.
+4. [ ] Applicable verification/release gates and actual screenshot review.
+5. [ ] Reconcile docs and record final outcomes, release evidence if applicable, costs and remaining limitations.
+
+## Evidence
+
+- Started from clean main at da5905c, following the verified skills/NPC release aec11c0. Existing prepared regression fixtures establish mechanics but do not establish earned campaign balance.
+- One bounded read-only worker investigates pure progression/resource balance under `work/path-audit/balance-*`; the main agent owns the local campaign runner, fixes and release. No paid image runs are required.
+- The same worker subsequently owned bounded exploit regressions, the pure Backstab rules and native browser coverage; the main agent integrated gameplay/pursuit and the campaign runner. No additional agents were spawned.
+- Baseline source-module analysis ran 64 seeds with actual Progression/Sneaking functions. Nearest-Circle practice averaged 469 correct queries from 40 to 100, versus 2,163 at Circle 1. These are simulated action counts, not human learning time. Shared skill/stat caps, donors and stop targets preserved their budgets.
+- Actual baseline browser reproduction confirmed retained training with no retaliation from busy Flee, duplicate purse/prize rewards on one living elite, and no pursuit after a caught theft. The candidate fixes all three. Surface population regeneration on full reload remains the existing lifecycle.
+- The initial campaign driver was corrected before final evidence: it used ambiguous entity IDs, assumed one attribute event must choose the primary stat, and attempted movement before the joystick's next rendered availability update. Later runs distinguish real patrol interception from a disabled-control failure, plan stamina recovery, use suitable light armor for the thief, and stock authored-price supplies. These were harness/strategy issues, not grounds to buff starting stats or the gain curve.
+- [Durable audit results](../PATH_PLAYTHROUGH_AUDIT.md) preserve nine selected correct-query completions across three seeds per path plus three mixed-answer completions. The failed Council attempt, subsequent preparation replay and blocked full-bag purchase attempts are retained rather than counted as passes/purchases. Real earned-save continuation confirmed an actual 416-gold shield purchase with no skill/stat changes.
+- Focused coverage passed: pure Backstab geometry/memory/corner-return checks; 21 native Backstab cases across three profiles; nine final placement/admission/owner-reset checks; two lethal wrong/Shown checks; six actual Hide odds/armor checks; six support-action/resource checks. Three active-clock native Examiner cases also passed: a three-minute wall-clock jump during Hide left tactical time paused, actual movement resumed it, and wounds/phase survived re-entry while the offset remained active. Phone/desktop captures were opened by the worker and main agent; final-gate captures remain for release review. Two full local attempts were deliberately interrupted at the browser stage: first to correct misleading combat-support labels/round counts, then after fourteen passing cases to replace a wall-clock wound deadline with paused active-world time. Neither interrupted attempt is reported as passing. The complete local `npm run verify -- --ui` passed required non-browser suites, 525 packed hashes and 286/288 browser cases. Two owner-switch cases exposed a frozen fixture actor stranded mid-step; diagnostic reproduction confirmed the same live object with zero chase but a fractional position outside interaction range. Settling that fixture tile preserves all owner/wound assertions; the corrected test passed nine repeated cases (three per profile). A final coach-sentence correction was the only built-HTML difference after the full local build and passed three targeted support-action cases. Final phone/desktop Backstab, Ward and coach captures were opened. Exact-commit CI must pass the entire 288-case gate before deployment; publication remains pending.
