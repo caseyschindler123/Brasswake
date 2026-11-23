@@ -1,6 +1,6 @@
 # Brasswake: gameplay reference
 
-Last updated: 2026-11-22. This describes world revision 3, modular buildings, the expanded capital and working ports, alongside the story/first-day revision, soundtrack and 28-floor dungeon rebuild. The retained artifact preview is `1795364400-6a70`. This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn.
+Last updated: 2026-11-23. This describes world revision 3, modular buildings, the expanded capital and working ports, alongside the story/first-day revision, soundtrack and 28-floor dungeon rebuild. The retained artifact preview is `1795364400-6a70`. This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn. Verified release identities and limitations are in [release history](RELEASE_HISTORY.md).
 
 ## 1. Premise and goals
 
@@ -305,10 +305,12 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
 - Duel opponent speed needs playtest tuning.
 - Carpentry crafting of furniture isn't built (the skill exists).
 - Rumors are per character. Their unique can only be found once per account.
-- **More audio:** the other 7 town themes and 7 dungeon themes, 4–5 shared wilderness themes (so town and countryside differ, as in UO), a second combat track, victory sting, tavern, dojo, card room, title and death tracks. Further effect work: continuous regional ambience, occasional idle creature calls, and separate creature death voices. Family attack cues, crafting, fishing and walk-in doors are built.
+- **Further sound effects:** continuous regional ambience, occasional idle creature calls and separate creature death voices remain planned. All town/dungeon themes, four shared wilderness themes, ordinary/Examiner combat, venue/title music and victory/death cues are built, as described in Sound above.
 - Not yet checked on Casey's iPhone: that audio plays in the Claude app, and what the silent switch does.
 
 ## Decision log
+
+- 2026-11-23: Context cleanup removes shipped soundtrack coverage from Planned, not built, retaining only unfinished ambience/idle/death effects. Completed release evidence is linked from RELEASE_HISTORY.md. This corrects documentation without changing game behavior.
 
 - 2026-11-22: Candidate `story-first-day-2026-11-22` rebuilds introductory teaching, character/quest prose and state-aware rivalry, clarifies seven regional marks plus the Audit, corrects historical evidence and ending claims, and makes supplies and gold rewards readable. Tamsin follows on the surface and waits at separate-map interiors. The existing balance and guide indices remain; safe practice has no payout/streak penalty, and completed intro replay cannot pay again. The historical archive uses authored event participants and date-consistent generated records.
 

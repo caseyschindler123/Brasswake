@@ -1,6 +1,6 @@
 # Brasswake: art style and art pipeline
 
-Last updated: 2026-11-22. This covers image style, asset preparation, music sources and how they get into the game.
+Last updated: 2026-11-23. This covers image style, asset preparation, music sources and how they get into the game. Verified release identities and limitations are in [release history](RELEASE_HISTORY.md).
 
 ## The look in one paragraph
 
@@ -96,7 +96,7 @@ Original raw PNGs, the unchanged generation script and its new-only prompt file 
 work/.venv-live/Scripts/python.exe -I arttools/dungeon_art.py work/dungeon-art/out
 ```
 
-The accepted manifest has 514 files, including the three dungeon atlases and the soundtrack. Deterministic replay matched all three atlas hashes and the generated coordinates. All material, prop, barrier and creature contact sheets were opened and reviewed. Dungeon materials repeat across rooms and use separate wall, liquid, bridge and decoration layers. Layout changes use tile data.
+The dungeon release brought the accepted manifest to 514 files; the subsequent world release added eight atlases. `arttools/packed_manifest.json` is authoritative for the current asset inventory (522 files at this review). The dungeon release's deterministic replay matched all three atlas hashes and the generated coordinates. All material, prop, barrier and creature contact sheets were opened and reviewed for that release. Dungeon materials repeat across rooms and use separate wall, liquid, bridge and decoration layers. Layout changes use tile data.
 
 The local agent generates requested images directly with `C:\Users\caseys\source\SQL Game\kit\make_art.py`. There is no hand-off to another agent and Casey does not paste requests elsewhere. Raw output stays under `SQL Game`, with current PNGs in `kit/out/`. Running the art rebuild does not run this image script.
 
@@ -196,6 +196,8 @@ Casey approved up to $20 for this run. The two-image comparison and all 20 produ
 - Cloak, glove and boot layers aren't drawn on the body yet.
 
 ## Decision log
+
+- 2026-11-23: Context cleanup distinguishes the historical 514-file dungeon baseline from the current 522-file manifest, including eight world atlases. RELEASE_HISTORY.md preserves verified release identities; no art generation, packing or verification was rerun for this documentation correction.
 
 - 2026-11-22: Candidate `story-first-day-2026-11-22` corrects held paper-doll equipment with renderer-owned, hand-inspected palm/grip/angle/scale metadata over existing atlases. Foreground finger curls overlap grips; shields/orbs/books use calibrated offhand poses. Both doll canvases wait for their own assets and reject stale appearance paints. All 20 weapons and five offhands across ten body/outfit figures receive composition tests and visual contact-sheet inspection. No raw/packed art, generated coordinate files, prompts or generation settings change; world-animation pivots remain unchanged.
 

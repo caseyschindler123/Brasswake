@@ -1,6 +1,6 @@
 # Playability audit and repair
 
-Class: complex. Status: implementation and final local verification complete (42/42 browser tests). Release completion is recorded against the final deployed SHA in `work/playability-audit-release.json` and the GitHub Actions run; the receipt is written only after live verification. This follows the workflow's rule to keep post-release evidence in ignored `work/`.
+Class: complex. Status: complete; final released commit `571e888fe89819383ee66880fbf84c24fd8c27dd` passed exact-commit CI, deployment and independent hosted verification. [Durable release evidence](../RELEASE_HISTORY.md#playability-audit) records the run, HTML hash, verification date and limitations. Local receipts and screenshots are supplementary. Evidence below records historical exploration and repairs, rather than new test runs during context cleanup.
 
 ## Acceptance criteria
 
@@ -16,7 +16,7 @@ Class: complex. Status: implementation and final local verification complete (42
 2. Explore major flows through Playwright (complete: walk/run, intro and touch command/field entry, fight/error fix/loot, equip/sell/page purchase, bank, fishing, guided vault chest, dojo practice and a two-round tournament bout).
 3. Repair defects and add focused regression coverage; update master documents (complete).
 4. Run `npm run verify -- --ui`, inspect screenshots, review final diff (complete: final 42/42 browser tests, engine/content, poker, casino, 21 workflow checks and 486 packed assets passed; combat error/Run row, fishing, vault reward, dojo, interior, poker and dye/bank screenshots reviewed, including affected 390×720 Chromium/WebKit and 1280×800 desktop views).
-5. Commit, push, monitor exact Actions run, verify published metadata/hash and hosted player flow; repeat repairs if needed.
+5. Complete: committed/pushed, exact Actions run succeeded, published metadata/hash and independent hosted player flow verified. See linked release evidence.
 
 ## Evidence and release
 
