@@ -1,8 +1,20 @@
 # Verified release history
 
-Reconciled 2026-11-23 from existing release receipts and successful GitHub Actions runs. Dates below are UTC. These are historical checks; no game tests or deployment were rerun during this documentation cleanup. The latest confirmed hosted source is the world release, `fc139f2b5aa6f34c056d4361e15b3d6804f2d0a6`.
+Dates below are UTC. Earlier entries were reconciled on 2026-11-23 from existing receipts and successful Actions runs; their evidence was not rerun during that documentation cleanup. New release entries identify checks performed for that release. The latest confirmed hosted source is the cartography/travel release, `17441a11ff97e72e3381cff86f59fc2dad23f691`.
 
 Keep the released source commit distinct from any later documentation-only commit. Each entry preserves completion, verification and limitations without requiring local logs. Detailed receipts, screenshots and traces under ignored `work/` or test-results folders remain supplementary. A newer deployment supersedes the hosted version; earlier completed releases stay complete.
+
+## Cartography, travel, controls and towns
+
+- Plan: [cartography, wayfinding and the Grand Atlas](plans/2026-11-23-cartography-travel-and-grand-atlas.md). Status: complete; all eleven scope requirements closed. Classification: complex.
+- Released commit: `17441a11ff97e72e3381cff86f59fc2dad23f691`; implementation: `2c5478506223e119a2cbc786cdcd72334300a16c`; saved-landing repair: `87830f6bcc694072a28eb1d1c791333602ab28f1`. Outstanding workflow/context changes were included in ancestor `b401987254c834710bb234781c95842a2f129dec`.
+- Full exact-commit CI: [validation 45207089335](https://github.com/caseyschindler123/Brasswake/actions/runs/45207089335), all 210 browser cases and required non-browser/asset checks passed. Branch deployment was correctly skipped. [Main deployment 45218033858](https://github.com/caseyschindler123/Brasswake/actions/runs/45218033858) passed applicable checks, deployment and hosted commit/HTML verification; its test-only diff selected no additional UI.
+- Independent live verification: 2026-11-23 16:40 UTC. Exact source/hash plus one hosted phone-Chromium player-flow case passed with `BW_LIVE_UI=true`, real SQL dependency and no debug handles. Local `npm run verify -- --ui` also passed all 210 browser cases; affected phone 390×720, desktop 1280×800 and hosted captures were opened.
+- HTML SHA-256: `c1634eb4096cd95e365fe20d69bb36846638fd89e18072badd02012ee4206ba7`.
+- Shipped: per-character black exploration maps/minimap, eight free chart/map shops, expensive regional surveys with same-region travel, ferry-aware waypoints and physical signs, capital-only installed household Grand Atlas, joystick-only touch movement with nearby tap interaction, purposeful staffed premises across all eight regions, modular dojo/door construction and audio, 24 saved upper rooms/stairs, and deep harbour water.
+- Other checks: 525 packed hashes, twelve pinned art-tool tests, exact durable-source replay of all three new atlases/generated coordinates, and focused purchase/slot/cloud/arrival/door/joystick regressions. Two earlier CI runs each stopped at 209/210 and did not deploy: an actual wandering-creature landing bug was fixed; the later WebKit test-copy readback failure was disproved against the trace's exact opaque PNG and fixed in the test without weakening colour or persistence assertions.
+- Limitations: no real iPhone test or human learning/natural-progression balance study. Image generation estimate: $0.166495 new, $1.384821 cumulative of the authorized $20 art allowance; main/delegated AI and CI billing unavailable.
+- Supporting metadata receipt: `work/live-release.json`; detailed failed-run traces and local screenshots remain supplementary ignored evidence.
 
 ## World and harbours
 

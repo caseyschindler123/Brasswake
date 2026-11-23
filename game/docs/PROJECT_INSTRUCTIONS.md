@@ -60,9 +60,9 @@ The documents are the project's memory. A new agent should be able to pick up th
 
 ## Decision log
 
-- 2026-11-23: Casey requested correction of the context audit findings. Keep concise release closure in tracked RELEASE_HISTORY.md and plan statuses; local receipts/logs supplement that record. Reconcile stale planned/current sections and derive volatile asset counts from the manifest. This documentation cleanup remains local under the existing no-deploy instruction.
+- 2026-11-23: Casey requested correction of the context audit findings. Keep concise release closure in tracked RELEASE_HISTORY.md and plan statuses; local receipts/logs supplement that record. Reconcile stale planned/current sections and derive volatile asset counts from the manifest. This cleanup was initially held locally; Casey later explicitly authorized including all outstanding infrastructure/context work in the cartography release, now verified at 17441a1.
 
-- 2026-11-23: Casey requested concise per-task cost reporting and corrected the cost rule to simple. Check scope follows changed behavior; docs and Codex instructions do not need game tests or a deployment. Cost reporting uses existing evidence and never invents unavailable dollar amounts. This rule update remains local at Casey's request.
+- 2026-11-23: Casey requested concise per-task cost reporting and corrected the cost rule to simple. Check scope follows changed behavior; docs and Codex instructions do not need game tests or a deployment. Cost reporting uses existing evidence and never invents unavailable dollar amounts. This rule update was initially held locally and later included under Casey's explicit all-outstanding-changes release approval.
 
 - 2026-11-22: The repository and `game/docs/` are the source of truth. The local agent owns the pipeline, approved image generation and docs; the project-field paste workflow is retired. Raw art stays read-only during rebuilds and is never committed. Existing art is not regenerated to fix pipeline defects.
 

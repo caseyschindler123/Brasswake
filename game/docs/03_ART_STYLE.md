@@ -84,7 +84,7 @@ Every prompt starts with the global style line kept in `art_prompts.json`:
 
 ## Generating art
 
-### Cartography candidate (2026-11-23; release verification pending)
+### Cartography (2026-11-23)
 
 Three new Sunburst/high transparent sheets keep their original CA01–03 names. CA01 contains sixteen map-shop fittings and blank direction-sign parts; CA02 contains the Grand Atlas table, case, closed table and portable furnishing icon; CA03 contains eight distinct regional wall charts and eight regional accessories. Root reviewed the raw contacts. Decorative chart artwork has no labels; the interactive map renders actual game geography and text.
 
@@ -106,7 +106,7 @@ Original raw PNGs, the unchanged generation script and its new-only prompt file 
 work/.venv-live/Scripts/python.exe -I arttools/dungeon_art.py work/dungeon-art/out
 ```
 
-The dungeon release brought the accepted manifest to 514 files; the subsequent world release added eight atlases. `arttools/packed_manifest.json` is authoritative for the current asset inventory (525 files including the cartography candidate). The dungeon release's deterministic replay matched all three atlas hashes and the generated coordinates. All material, prop, barrier and creature contact sheets were opened and reviewed for that release. Dungeon materials repeat across rooms and use separate wall, liquid, bridge and decoration layers. Layout changes use tile data.
+The dungeon release brought the accepted manifest to 514 files; the subsequent world release added eight atlases. `arttools/packed_manifest.json` is authoritative for the current asset inventory. The dungeon release's deterministic replay matched all three atlas hashes and the generated coordinates. All material, prop, barrier and creature contact sheets were opened and reviewed for that release. Dungeon materials repeat across rooms and use separate wall, liquid, bridge and decoration layers. Layout changes use tile data.
 
 The local agent generates requested images directly with `C:\Users\caseys\source\SQL Game\kit\make_art.py`. There is no hand-off to another agent and Casey does not paste requests elsewhere. Raw output stays under `SQL Game`, with current PNGs in `kit/out/`. Running the art rebuild does not run this image script.
 
@@ -206,6 +206,8 @@ Casey approved up to $20 for this run. The two-image comparison and all 20 produ
 - Cloak, glove and boot layers aren't drawn on the body yet.
 
 ## Decision log
+
+- 2026-11-23: The three new cartography atlases shipped in verified source 17441a1. Durable-source replay, pinned art-tool checks, all packed hashes and actual phone/desktop/hosted visual inspection passed; the accepted originals, prior atlases and approved generation settings are preserved.
 
 - 2026-11-23: Candidate `cartography-travel-and-grand-atlas` adds three approved new CA sheets and three independent atlases for map shops, regional charts, blank trail signs and the installed Grand Atlas. The existing Sunburst/high configuration, master prompts, originals and previous packed output are preserved. Raw and packed sheets were reviewed; durable-source receipt replay matches generated coordinates and all atlases exactly. Structural doors/stairs and fittings use fitted regional materials in code. No existing art was regenerated to fix layout defects.
 

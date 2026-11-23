@@ -72,9 +72,9 @@ Last updated: 2026-11-23. This describes world revision 3, modular buildings, th
 - **Corpses:** unlooted ones stay 300 s and looted ones 90 s. Your own body lasts 10 minutes.
 - **Creature size** (`MSC` in scene_a.js, 1 = a grown man): rodents and birds about 0.3–0.45, wolves 0.6, people 0.83 (normalised), golems 1.1–1.2, frost giant 1.5, dragon 1.6 (capped).
 
-### Cartography, manual movement and lived-in towns (release candidate)
+### Cartography, manual movement and lived-in towns
 
-Implemented in the 2026-11-23 candidate; final verification/deployment status is recorded in `plans/2026-11-23-cartography-travel-and-grand-atlas.md`. These rules replace automatic visited-town travel:
+Shipped and independently verified on 2026-11-23; the [release history](RELEASE_HISTORY.md#cartography-travel-controls-and-towns) and closed cartography plan record the source and checks. These rules replace automatic visited-town travel:
 
 - Walking reveals a permanent 14-tile radius on the initially black world map and minimap. Exploration is per character, stored in compact four-tile cells. Bought surveys show muted geography; personally explored ground has full colour. Legacy recorded towns/discoveries remain known without inventing historical walked paths.
 - Eight physical cartographers offer free local chart consultation and public destination waypoints. Regional maps cost 600, 900, 1200, 1500, 1800, 2100, 2400 and 2700 gold. A map grants repeat travel to its region's public surface destinations only while the character is physically in that region. Ferries stay free; secret sites and dungeon interiors remain discoveries.
@@ -322,7 +322,7 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
 
 ## Decision log
 
-- 2026-11-23: Casey approved the complete cartography/travel plan and autonomous release, then added joystick-only touch movement, nearby screen interactions, purposeful varied buildings across all eight regions, working doors/audio, shared dojo construction, usable stairs and deeper dock water. Regional surveys cost 600–2700 gold and allow same-region travel only. The 30,000-gold capital-only Grand Atlas requires all eight surveys and an installed household table for global travel. Free local consultation, discoverable landmarks, usable ferry waypoints and physical signs remain core requirements. Candidate version: `cartography-travel-and-grand-atlas`; completion is recorded after exact-commit verification.
+- 2026-11-23: Casey approved the complete cartography/travel plan and autonomous release, then added joystick-only touch movement, nearby screen interactions, purposeful varied buildings across all eight regions, working doors/audio, shared dojo construction, usable stairs and deeper dock water. Regional surveys cost 600–2700 gold and allow same-region travel only. The 30,000-gold capital-only Grand Atlas requires all eight surveys and an installed household table for global travel. Free local consultation, discoverable landmarks, usable ferry waypoints and physical signs remain core requirements. Release `cartography-travel-and-grand-atlas` is complete at 17441a1, with exact-commit validation and independent hosted verification recorded in RELEASE_HISTORY.md.
 
 - 2026-11-23: Context cleanup removes shipped soundtrack coverage from Planned, not built, retaining only unfinished ambience/idle/death effects. Completed release evidence is linked from RELEASE_HISTORY.md. This corrects documentation without changing game behavior.
 

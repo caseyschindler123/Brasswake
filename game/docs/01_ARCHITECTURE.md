@@ -2,7 +2,7 @@
 
 The repository is the source of truth for source code, packed art, tools and project memory. `game/docs/` holds the master context documents. Casey's local agent maintains the repo, art pipeline and docs directly. The base64 backup and Claude project copies are no longer the development source. The PC checkout is `C:\Users\caseys\source\Brasswake`; the remote is `https://github.com/caseyschindler123/Brasswake`. The hosted game is at `https://caseyschindler123.github.io/Brasswake/`.
 
-Last updated: 2026-11-23. Pages releases are identified by the source commit and HTML hash in `release.json`; [release history](RELEASE_HISTORY.md) preserves verified release status and evidence. The cartography/joystick/venues candidate adds exploration, map shops, conditional travel, actual indoor storeys and purposeful regional premises; its release remains pending in the plan. World revision 3 adds the shaped island world, working ports, modular construction and expanded capital. The story and first-day revision adds isolated manifest teaching, a moving guide, complete dialogue beats and calibrated paper-doll grips. The dungeon rebuild has 28 authored floors and persistent expeditions. The integrated soundtrack release adds 28 contextual tracks and cues using existing Suno music and original local MIDI. Earlier releases added eight spell presentations, contextual sound effects, SQL comment handling and readable combat and fishing controls. The retained artifact preview is pass 29 (walk-in rooms in Tallyport), version `1795364400-6a70`. (Two artifact publishes carry the label "Pass 26": the audio one and the keyboard one. Go by version id.)
+Last updated: 2026-11-23. Pages releases are identified by the source commit and HTML hash in `release.json`; [release history](RELEASE_HISTORY.md) preserves verified release status and evidence. The verified cartography/joystick/venues release adds exploration, map shops, conditional travel, actual indoor storeys and purposeful regional premises; its completion evidence is in the plan and release history. World revision 3 adds the shaped island world, working ports, modular construction and expanded capital. The story and first-day revision adds isolated manifest teaching, a moving guide, complete dialogue beats and calibrated paper-doll grips. The dungeon rebuild has 28 authored floors and persistent expeditions. The integrated soundtrack release adds 28 contextual tracks and cues using existing Suno music and original local MIDI. Earlier releases added eight spell presentations, contextual sound effects, SQL comment handling and readable combat and fishing controls. The retained artifact preview is pass 29 (walk-in rooms in Tallyport), version `1795364400-6a70`. (Two artifact publishes carry the label "Pass 26": the audio one and the keyboard one. Go by version id.)
 
 ## Starting a new session
 
@@ -49,7 +49,7 @@ The accepted local packed files and dimensions are recorded in `arttools/packed_
 
 ## What it is
 
-The game is one self-contained HTML page, `dist/index.html`, plus the committed assets copied to `dist/art/`. `arttools/packed_manifest.json` is authoritative for asset paths, hashes, dimensions and count (525 files including the cartography candidate). GitHub Pages publishes them together. The separate retained Claude artifact preview is older:
+The game is one self-contained HTML page, `dist/index.html`, plus the committed assets copied to `dist/art/`. `arttools/packed_manifest.json` is authoritative for asset paths, hashes, dimensions and count. GitHub Pages publishes them together. The separate retained Claude artifact preview is older:
 - slug `3c61f5cf-5c3e-4ea3-92c3-8f59472dd858`
 - https://claude.ai/artifact/8TU29g27SqEknG1MYuJB3u
 
@@ -63,10 +63,10 @@ There is no framework and no bundler. Plain ES2019 JavaScript modules are writte
 |---|---|
 | `build.js` | Concatenates `src/*.js` in order into `shell.html` with `style.css` inlined, writes `dist/index.html` and `release.json` (source commit and HTML SHA-256), and copies `art/` to `dist/art/`. `BW_DIST`, `BW_ART_JS` and `BW_WORLD_ART_JS` build isolated snapshots against stand-in or prototype art. |
 | `src/geography.js` | Pure deterministic mainland/island masks, regional anchors, city envelopes, mainland road links and ferry recommendations. |
-| `src/cartography.js`, `src/cartography_screen.js` | Candidate surface chart rules, compact exploration, entitlement/travel checks, map-shop/waypoint/Atlas screens and versioned save bridge. CartographyScreen receives game adapters; Scene receives plain mask/map/revision data. |
-| `src/navigation.js`, `src/scene_cartography.js` | Candidate bounded actual-ground/ferry routing, masked map/minimap canvases, physical shops/signs, safe destination catalogue and installed household atlas. |
-| `src/interiors.js`, `src/scene_venues.js` | Candidate regional frontages/civic premises and modular indoor floor plans, service staff placement, actual door animation, exact-footprint upper rooms and bounded indoor save references. |
-| `src/scene_controls.js`, `src/water_depth.js` | Candidate Scene manual joystick/keyboard input and pure natural-shore shallow-water classification. Screen taps only interact nearby or explicitly choose a house plot. |
+| `src/cartography.js`, `src/cartography_screen.js` | surface chart rules, compact exploration, entitlement/travel checks, map-shop/waypoint/Atlas screens and versioned save bridge. CartographyScreen receives game adapters; Scene receives plain mask/map/revision data. |
+| `src/navigation.js`, `src/scene_cartography.js` | bounded actual-ground/ferry routing, masked map/minimap canvases, physical shops/signs, safe destination catalogue and installed household atlas. |
+| `src/interiors.js`, `src/scene_venues.js` | regional frontages/civic premises and modular indoor floor plans, service staff placement, actual door animation, exact-footprint upper rooms and bounded indoor save references. |
+| `src/scene_controls.js`, `src/water_depth.js` | Scene manual joystick/keyboard input and pure natural-shore shallow-water classification. Screen taps only interact nearby or explicitly choose a house plot. |
 | `src/artcartography.js` | Generated CartographyArt rectangles for three new independently packed shop/sign/atlas/region sheets. |
 | `src/world_progress.js` | In-place world revision 3 migration for all character slots, shared homes, surface corpses and dungeon return anchors. Floor-local dungeon data is unchanged. |
 | `src/buildings.js`, `src/building_view.js`, `src/building_cache.js` | Pure blueprint compiler and canvas layer builder. Floor/roof masks, walls and real doors share one plan; rectangular, L and courtyard footprints are supported. Generated building layers use a 32 MiB byte-budgeted LRU; views used by the current frame survive until drawing finishes, and evicted canvases release their backing surfaces. |
@@ -196,6 +196,8 @@ GitHub Pages uses the Actions publishing source. The publication payload is buil
 - **Multiplayer:** discussed and set aside.
 
 ## Decision log
+
+- 2026-11-23: Cartography/travel, manual controls and world-wide venues shipped as 17441a1 after complete local and exact-commit branch CI validation (210 cases), main deployment and independent hosted commit/HTML/player-flow verification. Tracked release history and the closed plan preserve the source identity; subsequent Markdown-only closure does not require another deployment.
 
 - 2026-11-23: Cartography release CI found a regenerated wharf rat on a saved house-pad landing. Scene.load preserves otherwise valid preferred ground by relocating an idle wandering occupant within eight tiles, preserving the entity and occupancy index. Fixed characters, active pursuit and static terrain obstructions retain safe-position fallback. Browser coverage forces both movable and fixed blockers while retaining exact saved-arrival assertions.
 
