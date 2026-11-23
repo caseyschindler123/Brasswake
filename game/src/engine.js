@@ -176,7 +176,7 @@ const Engine = (() => {
   // a small throwaway database built from a script, for games that deal their own tables
   function scratch(script) {
     const d = new SQL.Database(); d.exec(script); d.run('PRAGMA query_only = ON');
-    return { read(sql) { const ss = statements(sql); if (!ss.length) return { err: 'Write a query first.' }; if (ss.length > 1) return { err: 'One statement at a time.' }; if (!/^\s*SELECT\b/i.test(ss[0])) return { err: 'Start with SELECT.' }; try { return select(d, ss[0]); } catch (e) { return { err: friendly(e) }; } }, close() { d.close(); } };
+    return { read(sql) { const ss = statements(sql); if (!ss.length) return { err: 'Write a query first.' }; if (ss.length > 1) return { err: 'One statement at a time.' }; if (!/^\s*(SELECT|WITH)\b/i.test(ss[0])) return { err: 'Start with SELECT or WITH.' }; try { return select(d, ss[0]); } catch (e) { return { err: friendly(e) }; } }, close() { d.close(); } };
   }
   return { init, scratch, check, grade, shareOf, target, runRead, runSandbox, resetSandbox, skillsUsed, bare, clean, uncomment, atlas, peek, judge, sandboxScript, ready: () => !!ro };
 })();

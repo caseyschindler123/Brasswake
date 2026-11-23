@@ -17,7 +17,7 @@
   // sprites are resolved when first drawn and again whenever another image file arrives
   const SC = {};
   function artWalk(k) { const C = AD && AD.chars, wk = C && C.walk ? C.walk[k] : null; if (wk == null) return null; if (!IMG['folk.webp']) img('folk.webp'); if (!have('folk.webp')) return null; const row = i => [0, 1, 2, 3].map(f => cut('folk.webp', (i * 4 + f) * C.cw, wk * C.ch, C.cw, C.ch)); return { f: row(0), l: row(1), s: row(2), b: row(3), art: 1 }; }
-  /* ---------- the paper doll: body + outfit, recoloured, with hair, beard, head gear and weapon laid on top ---------- */
+  /* ---------- the paper doll: recoloured outfits, head layers, and equipment ---------- */
   // D8 order is S, SW, W, NW, N, NE, E, SE; the sheets have S, SE, E, NE, N, and the rest are mirrors
   const DSRC = [[0, 0], [1, 1], [2, 1], [3, 1], [4, 0], [3, 0], [2, 0], [1, 0]];
   const hexRGB = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
@@ -37,9 +37,15 @@
     g.putImageData(d, 0, 0); return c;
   }
   function dollReady(a) { const B = AD && AD.body; if (!B || !a) return false; const need = ['hb/C' + a.combo + '.webp', 'hb/hair.webp', 'hb/wx.webp']; need.forEach(n => { if (!IMG[n]) img(n); }); return need.every(have); }
+  function dollHeadLayers(a) {
+    const key = 'head|' + [a.cloth, a.metal, a.hc].join('|');
+    if (DOLL[key]) return DOLL[key];
+    const head = IMG['hb/hair.webp'].im;
+    return DOLL[key] = { hair: gradMap(head, a.hc[0], a.hc[1]), gear: recolor(head, a.cloth, a.metal || '#9aa0a8', false) };
+  }
   function dollLayers(a) {   // recoloured sheets for this look, cached
     const key = [a.combo, a.cloth, a.metal, a.hc, !!a.fx].join('|'); if (DOLL[key]) return DOLL[key];
-    return DOLL[key] = { body: recolor(IMG['hb/C' + a.combo + '.webp'].im, a.cloth, a.metal, (a.combo - 1) % 5 >= 3, !!a.fx), hair: gradMap(IMG['hb/hair.webp'].im, a.hc[0], a.hc[1]), gear: recolor(IMG['hb/hair.webp'].im, a.cloth, a.metal || '#9aa0a8', false) };
+    return DOLL[key] = { body: recolor(IMG['hb/C' + a.combo + '.webp'].im, a.cloth, a.metal, (a.combo - 1) % 5 >= 3, !!a.fx), ...dollHeadLayers(a) };
   }
   // one layer (hair, beard or hat) on a head: view v, head anchor [top, hx, hw]
   function headLayer(g, L, a, item, v, an, lift, flip) {
@@ -89,16 +95,103 @@
     s.fall = [0, 1, 2, 3].map(k => dollFrame(a, L, 19, k, 0));
     return DOLL['s' + key] = s;
   }
-  // the big figure for the equipment screen, drawn into a canvas the game hands us
+  // The ten painted figures have distinct sleeve and finger positions. These
+  // palm centers are measured in the 300×450 presentation, in P1–P10 order.
+  const DOLL_HANDS = [
+    [[80, 224], [220, 224]], [[78, 230], [219, 230]], [[81, 224], [220, 224]],
+    [[78, 224], [219, 224]], [[78, 226], [220, 226]], [[75, 226], [224, 227]],
+    [[73, 224], [224, 226]], [[80, 224], [220, 225]], [[78, 221], [219, 222]],
+    [[77, 225], [226, 227]],
+  ];
+  // HX index → [grip x, grip y in the atlas cut, carry angle, display length,
+  // optional tuck toward the curled fingers for a narrow handle].
+  // World animations keep their own pivots and angles.
+  const DOLL_CARRY = {
+    0: [35, 30, 1.81, 124],   // short sword
+    1: [25, 24, 1.78, 151],   // longsword
+    2: [30, 25, 1.77, 190],   // greatsword
+    3: [33, 48, 1.75, 125],   // broad axe
+    4: [27, 53, 1.64, 151],   // battle axe
+    5: [35, 28, 1.78, 132],   // mace
+    6: [32, 49, 1.72, 158],   // war hammer
+    7: [25, 13, -1.63, 236],  // spear
+    8: [28, 7, -1.63, 231],   // quarterstaff
+    9: [25, 39, -1.63, 217],  // oak staff
+    10: [24, 22, -1.63, 221], // crystal staff
+    11: [27, 30, -1.63, 220], // bone staff
+    12: [27, 22, -1.63, 215], // iron staff
+    13: [30, 9, -1.86, 80, 7], // wand
+    14: [36, 31, 1.92, 75],   // dagger
+    15: [35, 30, 1.86, 121],  // curved blade
+    16: [42, 13, 1.87, 63],   // throwing knife
+    23: [34, 39, -1.03, 86, 5], // glass orb
+    24: [121, 76, .14, 82],   // spellbook
+    25: [93, 61, -1.04, 150], // short bow
+    26: [100, 92, -.83, 164], // longbow
+    27: [43, 35, 1.52, 128],  // crossbow
+  };
+  function paintHeld(g, body, item, hand, side, glow) {
+    const W = AD.body.wx[item], pose = DOLL_CARRY[item];
+    if (!W || !pose) return;
+    const [gx, gy, angle, length, tuck = 0] = pose, [x, y] = hand, f = length / Math.max(W[2], W[3]);
+    g.save();
+    g.translate(x - side * tuck, y);
+    g.rotate(angle);
+    if (glow) { g.shadowColor = glow; g.shadowBlur = 7; }
+    g.drawImage(IMG['hb/wx.webp'].im, W[0], W[1], W[2], W[3], -gx * f, -gy * f, W[2] * f, W[3] * f);
+    g.restore();
+
+    // Restore the curled outer fingers from the dyed figure over the grip.
+    // The diagonal edge lets the handle pass through the painted palm opening.
+    g.save();
+    g.beginPath();
+    g.moveTo(x - side * 20, y - 10);
+    g.lineTo(x - side * 5, y - 10);
+    g.lineTo(x - side * 3, y + 2);
+    g.lineTo(x + side * 8, y + 14);
+    g.lineTo(x - side * 20, y + 17);
+    g.closePath();
+    g.clip();
+    g.drawImage(body, 0, 0);
+    g.restore();
+  }
+  function paintOffhand(g, body, item, hand) {
+    const W = AD.body.wx[item];
+    if (!W) return;
+    if (DOLL_CARRY[item]) {
+      paintHeld(g, body, item, hand, -1);
+    } else if (item >= 20 && item <= 22) {
+      // The shield face sits in front of the hand and lower forearm.
+      const f = (item === 22 ? 84 : 108) / W[3], w = W[2] * f, h = W[3] * f;
+      g.drawImage(IMG['hb/wx.webp'].im, W[0], W[1], W[2], W[3], hand[0] - 4 - w / 2, hand[1] + 6 - h / 2, w, h);
+    }
+  }
+  const DOLL_PAINT = new WeakMap();
   function drawDoll(cv, a) {
-    const B = AD && AD.body; if (!B || !a) return false; const pn = 'hb/P' + a.combo + '.webp'; if (!IMG[pn]) img(pn); if (!have(pn) || !dollReady(a)) { setTimeout(() => drawDoll(cv, a), 300); return false; }
-    const key = 'P' + [a.combo, a.cloth, a.metal, !!a.fx].join('|'), P = DOLL[key] || (DOLL[key] = recolor(IMG[pn].im, a.cloth, a.metal, (a.combo - 1) % 5 >= 3, !!a.fx)), L = dollLayers(a), pd = B.pd[a.combo], g = cv.getContext('2d');
-    g.clearRect(0, 0, cv.width, cv.height); const S = cv.width / 300; g.save(); g.scale(S, S);
-    if (a.shield >= 0) { const W = B.wx[a.shield], f = 120 / W[3]; g.drawImage(IMG['hb/wx.webp'].im, W[0], W[1], W[2], W[3], pd.r[0] - W[2] * f * .5, pd.r[1] - W[3] * f * .5, W[2] * f, W[3] * f); }
+    const B = AD && AD.body, hands = a && DOLL_HANDS[a.combo - 1], pd = B && a && B.pd[a.combo];
+    if (!pd || !hands) return false;
+    const pn = 'hb/P' + a.combo + '.webp', images = [img(pn), img('hb/hair.webp'), img('hb/wx.webp')];
+    if (!images.every(entry => entry.ok)) {
+      if (DOLL_PAINT.get(cv)?.a === a) return false;
+      const request = { a };
+      DOLL_PAINT.set(cv, request);
+      Promise.all(images.map(entry => entry.p)).then(ready => {
+        if (ready.every(Boolean) && cv.isConnected && DOLL_PAINT.get(cv) === request) drawDoll(cv, a);
+      });
+      return false;
+    }
+    DOLL_PAINT.delete(cv);
+    const key = 'P' + [a.combo, a.cloth, a.metal, !!a.fx].join('|'), P = DOLL[key] || (DOLL[key] = recolor(IMG[pn].im, a.cloth, a.metal, (a.combo - 1) % 5 >= 3, !!a.fx)), L = dollHeadLayers(a), g = cv.getContext('2d');
+    g.clearRect(0, 0, cv.width, cv.height);
+    const S = Math.min(cv.width / 300, cv.height / 450);
+    g.save();
+    g.translate((cv.width - 300 * S) / 2, (cv.height - 450 * S) / 2);
+    g.scale(S, S);
     g.drawImage(P, 0, 0); if (a.fx && P.mask) dollFx(g, a.fx, P.mask, 0, 0, 300, 450, false, performance.now());
     const an = [pd.top, pd.hx, pd.hw], H = B.hair, big = (item, lift) => { const mv = H.v[item] && H.v[item][5], m0 = H.v[item] && H.v[item][0]; if (!mv) return; const r = H.r[mv[0]], f = an[2] / H.hw * (m0 ? m0[2] / mv[2] : .5), src = item < 18 ? L.hair : L.gear; g.drawImage(src, r[0], r[1], r[2], r[3], an[1] - mv[1] * f, an[0] + lift * an[2], r[2] * f, r[3] * f); };
     if (a.hat >= 0) big(18 + a.hat, HAT_Y[a.hat]); else if (a.hair >= 0) big(a.hair, -.12); if (a.beard >= 0) big(12 + a.beard, BEARD_Y[a.beard]);
-    if (a.wpn >= 0) { const L2 = 430 * (WLEN[a.wkind] || .6) * .85; if (a.wkind === 'bow') weapon(g, a, pd.l[0] + 4, pd.l[1] + L2 * .45, -1.57, L2); else if (a.wkind === 'staff') weapon(g, a, pd.l[0] + 4, pd.l[1] + L2 * .3, -1.62, L2); else weapon(g, a, pd.l[0] + 6, pd.l[1], 1.95, L2); }
+    paintHeld(g, P, a.wpn, hands[0], 1, a.glow);
+    paintOffhand(g, P, a.shield, hands[1]);
     g.restore(); return true;
   }
   function heroArt() { const ap = host.app && host.app(); if (ap && AD && AD.body) { const d = dollSprite(ap); if (d) return d; } const s = heroSprite(), C = AD && AD.chars; if (s && s.art && C && C.atk) { if (!IMG['atk.webp']) img('atk.webp'); if (have('atk.webp')) { const lk = host.look(), aw = C.aw || C.cw, row = i => [0, 1, 2, 3].map(f => cut('atk.webp', (i * 4 + f) * aw, lk * C.ch, aw, C.ch)); s.af = row(0); s.al = row(1); s.as = row(2); s.ab = row(3); } }
@@ -501,6 +594,7 @@
           if (st) P.path = [[P.x + st[0], P.y + st[1]]]; else { P.dg = null; P.dir = Math.abs(vx) > Math.abs(vy) ? (vx > 0 ? 's' : 'l') : (vy > 0 ? 'f' : 'b'); P.d8 = D8(Math.abs(vx) > 2 * Math.abs(vy) ? Math.sign(vx) : Math.abs(vy) > 2 * Math.abs(vx) ? 0 : Math.sign(vx), Math.abs(vy) > 2 * Math.abs(vx) ? Math.sign(vy) : Math.abs(vx) > 2 * Math.abs(vy) ? 0 : Math.sign(vy)); } } } } }
       if (P.keys && !P.path.length) { P.run = false; const [dx, dy] = P.keys; if (!blocked(P.x + dx, P.y + dy)) P.path = [[P.x + dx, P.y + dy]]; }
     } else P.walk = 0;
+    guideStep(dt);
     near = null; let nd = 1.6;
     for (const e of map.ents) { if(e.hidden)continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy); if (d < nd && !e.empty) { nd = d; near = e; } if (e.dead && e.dying == null && (e.decay -= dt) <= 0) e.dying = 1; if (e.dying) { e.dying -= dt * 2.4; continue; } if (!e.wander || e.busy || d > 26) continue; e.t -= dt; if (e.tired > 0) e.tired -= dt; else if (d < 4.4 && e.kind === 'mon' && PREY[e.inst.tpl]) e.t = 0;   // prey reacts at once
       if (e.kind === 'mon' || e.kind === 'rival') { const v = DIRV[e.dir] || [0, 1], facing = (P.fx - e.fx) * v[0] + (P.fy - e.fy) * v[1] > 0; if ((d < 3.2 && facing) || (e.agg && d < 6.5)) e.alert = 4; else if (e.alert > 0) e.alert = Math.max(0, e.alert - dt); if (e.calm > 0) e.calm -= dt;
@@ -629,7 +723,7 @@
     if(map.dungeonFloor && !locked){ const area=map.layout.rooms.find(R=>P.x>=R.x&&P.y>=R.y&&P.x<R.x+R.w&&P.y<R.y+R.h);o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const label='Floor '+(map.f+1)+' · '+(area?area.name:map.layout.name);const tw=o.measureText(label).width;o.fillStyle='rgba(8,15,22,.85)';o.fillRect(8*dpr,52*dpr,Math.min(tw+16*dpr,ov.width-16*dpr),23*dpr);o.fillStyle='#f4dfac';o.fillText(label,16*dpr,68*dpr,ov.width-36*dpr);o.textAlign='center';}
     host.hud(locked ? null : near);
   }
-  function loop(ts) { raf = 0; if (!running) return; const dt = Math.min(.05, (ts - last) / 1000 || 0); last = ts; step(dt); draw(); raf = requestAnimationFrame(loop); }
+  function loop(ts) { raf = 0; if (!running) return; const dt = Math.max(0, Math.min(.05, (ts - last) / 1000 || 0)); last = ts; step(dt); draw(); raf = requestAnimationFrame(loop); }
   function size() { if (!wrap) return; const w = wrap.clientWidth, h = wrap.clientHeight; if (!w || !h) return; dpr = Math.min(3, window.devicePixelRatio || 1); zoom = w >= 760 ? 3 : 2; vw = Math.ceil(w / zoom); vh = Math.ceil(h / zoom); cv.width = vw * K; cv.height = vh * K; cv.style.width = vw * zoom + 'px'; cv.style.height = vh * zoom + 'px'; ov.width = Math.round(w * dpr); ov.height = Math.round(h * dpr); cx.imageSmoothingEnabled = false; lightCv = mk(vw, vh); }
 
   /* ---------- public ---------- */
@@ -687,8 +781,27 @@
   let GUIDE = null;
   function guidePut(x, y, o) { const m = world; if (!m) return null; const free = (a, b) => a > 1 && b > 1 && a < m.w - 2 && b < m.h - 2 && !m.solid[b * m.w + a] && m.t[b * m.w + a] !== 4 && !m.occ.has(b * m.w + a);
     let at = null; for (let d = 0; d < 6 && !at; d++) for (let dy = -d; dy <= d && !at; dy++) for (let dx = -d; dx <= d; dx++) if ((Math.abs(dx) === d || Math.abs(dy) === d) && free(x + dx, y + dy) && !(P && P.x === x + dx && P.y === y + dy)) { at = [x + dx, y + dy]; break; }
-    if (!at) return GUIDE; if (!GUIDE || !m.ents.includes(GUIDE)) { GUIDE = addEnt(m, Object.assign({ kind: 'guide', x: at[0], y: at[1], r: 1, name: 'Tamsin', sub: 'Deckhand, the Marigold', ak: AD && AD.chars.country ? AD.chars.country.fisher2 : null, pt: AD && AD.faces ? AD.faces.fisher : undefined }, o || {})); GUIDE.spr = folkSprite(GUIDE.ak, 'Tamsin', { hat: '#2e3a4a', top: '#3a5a6a' }); return GUIDE; }
-    const k = GUIDE.y * m.w + GUIDE.x; if (m.occ.get(k) === GUIDE) m.occ.delete(k); GUIDE.x = at[0]; GUIDE.y = at[1]; GUIDE.fx = at[0]; GUIDE.fy = at[1]; GUIDE.tx = null; m.occ.set(at[1] * m.w + at[0], GUIDE); return GUIDE; }
+    if (!at) return GUIDE; if (!GUIDE || !m.ents.includes(GUIDE)) { GUIDE = addEnt(m, Object.assign({ kind: 'guide', solid: 0, x: at[0], y: at[1], r: 1, name: 'Tamsin', sub: 'Deckhand, the Marigold', ak: AD && AD.chars.country ? AD.chars.country.fisher2 : null, pt: AD && AD.faces ? AD.faces.fisher : undefined }, o || {})); GUIDE.spr = folkSprite(GUIDE.ak, 'Tamsin', { hat: '#2e3a4a', top: '#3a5a6a' }); return GUIDE; }
+    const k = GUIDE.y * m.w + GUIDE.x; if (m.occ.get(k) === GUIDE) m.occ.delete(k); GUIDE.x = at[0]; GUIDE.y = at[1]; GUIDE.fx = at[0]; GUIDE.fy = at[1]; GUIDE.tx = null; return GUIDE; }
+  function guideStep(dt) {
+    if (!GUIDE || map !== world || locked || !host.guideActive || !host.guideActive()) return;
+    const e = GUIDE, d = Math.hypot(e.fx-P.fx,e.fy-P.fy);
+    if (P.target === e && e.tx == null) { e.walk=0; return; }
+    if (d < 1.8 && e.tx == null) { e.walk=0; return; }
+    e.repath = (e.repath || 0) - dt;
+    if (e.tx == null && e.repath <= 0) {
+      e.repath=.35;
+      const path = Companion.route([e.x,e.y],[P.x,P.y],(x,y)=>!blocked(x,y,e));
+      if (path.length) { const p=path[0];e.dir=dirOf(p[0]-e.x,p[1]-e.y);e.tx=p[0];e.ty=p[1]; }
+    }
+    if (e.tx != null) {
+      if (blocked(e.tx,e.ty,e)) {e.tx=null;return;}
+      const dx=e.tx-e.fx,dy=e.ty-e.fy,n=Math.hypot(dx,dy),speed=(d>4?5.4:2.5)*dt;
+      e.walk=(e.walk||0)+dt*9;
+      if(n<=speed){e.fx=e.x=e.tx;e.fy=e.y=e.ty;e.tx=null;e.repath=0;}
+      else{e.fx+=dx/n*speed;e.fy+=dy/n*speed;}
+    }
+  }
   function guideOff() { const m = world; if (!m || !GUIDE) return; const k = GUIDE.y * m.w + GUIDE.x; if (m.occ.get(k) === GUIDE) m.occ.delete(k); const i = m.ents.indexOf(GUIDE); if (i >= 0) m.ents.splice(i, 1); GUIDE = null; }
   function remains(x, y, loot, secs, name) { if (!map) return null; const e = { kind: 'corpse', x, y, fx: x, fy: y, r: map.dungeon ? map.r : (map.reg[y * map.w + x] || 1), dead: 1, mine: 1, name: name || 'Your body', sub: 'What you were carrying', loot, decay: secs, spr: heroArt(), solid: 0 }; map.ents.push(e); return e; }
   function corpse(e, loot) { if (!map || !e) return; slashes.push({ x: e.x, y: e.y, t: 0, row: 3, f: 1, d: .55, rise: .3 }); { const o = e.y * map.w + e.x; if (map.occ.get(o) === e) map.occ.delete(o); } e.solid = 0; e.kind = 'corpse'; e.dead = 1; e.wander = 0; e.busy = 0; e.alert = 0; e.agg = 0; e.hunt = 0; e.tx = null; e.fx = e.x; e.fy = e.y; e.loot = loot; e.decay = 300; e.sub = 'Body'; e.name += ', dead'; e.flash = 0; e.ax = e.ay = 0; if (e.terr) (map.respawn = map.respawn || []).push({ t: respT(e.terr), node: false, terr: e.terr }); }
@@ -753,6 +866,7 @@
       venue: room && room.slot === 'tavern' ? 'tavern' : null };
   }
   return { preload, init, load, clearRemains: () => { if(world)world.ents=world.ents.filter(e=>!e.mine);if(map && map!==world)map.ents=map.ents.filter(e=>!e.mine); }, remains, emptied, musicContext, chase: (e, secs) => { if (e) { e.chase = secs; e.wait = 1.3; e.calm = 0; e.alert = 8; e.busy = 0; } }, inDungeonMap: () => !!(map && map.dungeon), mapRegion: () => map ? (map.dungeon ? map.r : 0) : 0, enterDungeon, dungeonRefresh: p => { if(map && map.dungeonFloor)dungeonApply(map,p); }, backdrop, kill, corpse, refresh, resume, pause, portrait, act, FX, towns: () => TOWN, terr: () => world ? world.terr : [], sites: () => world ? world.sites : [], spots: () => world ? world.spots : {}, mini: () => world && world.mini, size: [WW, WH],
+    traveling: () => !!(P && P.path.length),
     pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, bldSpr, effects: { shots, slashes, floats }, advanceEffects, draw }),
     warp(x, y) { load([x, y]); }, hop(x, y) { go(map, x, y); }, guidePut, guideOff, guideEnt: () => GUIDE, drawDoll, dollKey: () => artVer, enterHall, inHall: () => map && map.hall ? map.r : 0, hallAdd: o => map ? addEnt(map, Object.assign({ r: map.r }, o)) : null, hallMove: (e, x, y) => { if (!map || !e) return; const k = e.y * map.w + e.x; if (map.occ.get(k) === e) map.occ.delete(k); e.x = e.fx = x; e.y = e.fy = y; e.tx = null; map.occ.set(y * map.w + x, e); }, ents: () => map ? map.ents : [], fsReady: () => !!(AD && AD.dojo && (IMG['dj/fs.webp'] || img('dj/fs.webp')) && have('dj/fs.webp')) };
 })();

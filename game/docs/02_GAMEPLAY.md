@@ -1,6 +1,6 @@
 # Brasswake: gameplay reference
 
-Last updated: 2026-11-22. This describes the integrated soundtrack and the dungeon rebuild candidate. The retained artifact preview is `1795364400-6a70`. This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn.
+Last updated: 2026-11-22. This describes the story and first-day revision, integrated soundtrack and 28-floor dungeon rebuild. The retained artifact preview is `1795364400-6a70`. This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn.
 
 ## 1. Premise and goals
 
@@ -10,7 +10,7 @@ Last updated: 2026-11-22. This describes the integrated soundtrack and the dunge
   - Optional side content is welcome. The main story stays focused.
   - Everything works one-handed on a phone.
 - **Story** (full detail in 04_WRITING_STYLE.md):
-  - You wash up at Tallyport and are entered in the Trials: eight Examiners, one per Circle, then the council's Audit.
+  - You are rescued by Tamsin aboard the Marigold and invited to train as Tallyport’s champion. Seven regional Examiners give the first seven marks; the council’s Audit gives the eighth and restores Tallyport’s seat.
   - Ilva Thorne, who came from the same sea, left journal pages and hunted the lost tables of the Ledger.
   - Odalys Brine teaches you the First Circle.
   - Tamsin guides your first day.
@@ -270,7 +270,11 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
 - **SQL editing:** queries may include line (`--`) and block (`/* ... */`) comments. Format retains comments and quoted names; comment punctuation does not create extra statements. The sandbox shows SELECT results even when the query starts with a comment. Combat controls wrap below the title when needed, and feedback/fishing controls use readable colors on dark panels.
 
 - **Walk-in rooms** (Tallyport only; `ROOMS` and `setRoom` in scene_b.js): the tavern (7×7 tiles), shop (6×5) and bank (6×6) are rooms you walk into. The outer ring of the footprint is wall and the door is the fourth tile of the front row. Stepping onto the footprint fades the painted building out over about a fifth of a second and shows the room in the same place: floor, a back wall 2.5 tiles tall with windows and decorations, thin side walls, a low front wall with the door gap, and furniture that blocks its tiles. The tavern keeper stands behind the bar, the banker behind the bank counter, and a new Shopkeeper (same stock as the stallkeeper) behind the shop counter. The plaza stall and stallkeeper are unchanged. Tallyport's other buildings and the other seven towns are not enterable yet.
-- **Guided first day** (`GD`, Tamsin): walk, run, talk, Odalys's lesson, the gull, loot, bag, stall, page, bank, the harbour tower, an optional pier cast, the Bilge Vaults, the Examiner's ring. Tabs unlock as you go, and you can skip it.
+- **Guided first day** (`GD`, Tamsin): Tamsin introduces herself aboard the Marigold, accompanies the player along walkable surface routes, and waits outside the dojo/dungeon. Her queued speech is tied to the current character/objective, waits until arrival and speaking distance, and does not replace another interaction. Stable guide indices preserve existing progress; switching/loading reconciles her presence.
+- **First SQL lesson:** Odalys uses an isolated three-row `manifest` (name, quantity, destination). Interactive row/column identification and result prediction precede query assembly, then six typed tasks introduce single columns, commas, `*`, and an explicit transition to the town Ledger. Results remain visible between tasks. A safe chosen-page ability practice precedes the guided gull encounter. Existing `seen` markers resume completed lesson checkpoints, and replaying a completed intro gives no additional 25-gold payout. Ledger → Lessons → First SQL lesson reopens the full explanation.
+- **Supplies:** Bag lists each food/draught name, quantity and healing effect. Tapping opens an Eat/Drink action and explains full health or unavailable use. Dark bread heals up to 12 HP; Healing Draught up to 30. Only missing health is restored and one item is consumed. Food guidance accepts full health without requiring damage.
+- **Reward feedback:** earned gold uses the existing gold-pile icon and actual credited `+amount gold`, including bonuses/rounding, in result panels and positive-gain notifications. Transfers and body recovery retain their own descriptions. Repeated unpaid exercises show no new payout.
+- **Story continuity:** `docs/STORY_BIBLE.md` records the cast, chronology, Ledger/practice rules and scene knowledge. Ilva’s archive and Trials can be completed in either order; both together record the council’s public admission and reopening of the archive in the Journal. The light appears forty narrative days after the rescue (`2026-06-14` → `2026-07-24`); there is no wall-clock deadline.
 - **Fishing:** a skill and a cast screen. SQL answers decide the catch, and higher skill unlocks rare fish and sunken things.
 - **Card room:** Blind Tally hold'em (blinds 2 to 500 by town), the Crooked Wheel, and the Count (blackjack). The Ledger's queries can expose each game's flaw.
 - **Rivals:** one per region, who duels you or steals from you.
@@ -306,6 +310,8 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
 - **A shaped world with islands and a capital:** the world generator draws a real landmass (irregular coast, bays, headlands, offshore islands) in place of the current rectangle, with a couple of towns on islands reached by ferry from a port, and one large capital port city with a big market square, many specialist shops, landmarks and city walls. Working assumptions until Casey decides: the capital is Aldermoot (it already holds the council), and the island towns are to be chosen. The landmass, coast and islands are code, drawn with existing ground textures (V) plus the new coast textures and props. Ferries reverse the earlier skip of boats only for island crossings; there is no free sailing. Art requested in the same run; nothing designed in code yet.
 
 ## Decision log
+
+- 2026-11-22: Candidate `story-first-day-2026-11-22` rebuilds introductory teaching, character/quest prose and state-aware rivalry, clarifies seven regional marks plus the Audit, corrects historical evidence and ending claims, and makes supplies and gold rewards readable. Tamsin follows on the surface and waits at separate-map interiors. The existing balance and guide indices remain; safe practice has no payout/streak penalty, and completed intro replay cannot pay again. The historical archive uses authored event participants and date-consistent generated records.
 
 - 2026-11-22: Dungeon entrance banners, map references and named-rare source descriptions now use the same eight identities as the authored floor catalog. Added a catalog consistency regression; the rebuilt names replace Counting Crypt, Nested Vaults, Hall of Panes and Palimpsest Stacks in player-facing references.
 

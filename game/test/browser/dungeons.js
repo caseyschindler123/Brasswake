@@ -36,7 +36,8 @@ async function win(f, stats) {
 }
 async function canvasClick(f, x, y) {
   const point=await f.evaluate(({x,y})=>{const d=Scene.debug();return {x:(x*16+8-d.cam.x)*d.zoom,y:(y*16+8-d.cam.y)*d.zoom};},{x,y});
-  await f.locator('#stage canvas.over').click({position:point});
+  for(let attempt=0;attempt<3;attempt++){try{await f.locator('#stage canvas.over').click({position:point,timeout:1500});return;}catch(error){if(!await f.locator('#say').isVisible())throw error;await closeSheet(f);}}
+  throw Error('Dialogue repeatedly interrupted the ground click');
 }
 async function assertTexture(f) {
   let samples=[];

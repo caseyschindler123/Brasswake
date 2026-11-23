@@ -2,7 +2,7 @@
 
 The repository is the source of truth for source code, packed art, tools and project memory. `game/docs/` holds the master context documents. Casey's local agent maintains the repo, art pipeline and docs directly. The base64 backup and Claude project copies are no longer the development source. The PC checkout is `C:\Users\caseys\source\Brasswake`; the remote is `https://github.com/caseyschindler123/Brasswake`. The hosted game is at `https://caseyschindler123.github.io/Brasswake/`.
 
-Last updated: 2026-11-22. Pages releases are identified by the source commit and HTML hash in `release.json`. The dungeon rebuild candidate adds 28 authored floors and persistent expeditions. The integrated soundtrack release adds 28 contextual tracks and cues using existing Suno music and original local MIDI. Earlier releases added eight spell presentations, contextual sound effects, SQL comment handling and readable combat and fishing controls. The retained artifact preview is pass 29 (walk-in rooms in Tallyport), version `1795364400-6a70`. (Two artifact publishes carry the label "Pass 26": the audio one and the keyboard one. Go by version id.)
+Last updated: 2026-11-22. Pages releases are identified by the source commit and HTML hash in `release.json`. The story and first-day revision adds isolated manifest teaching, a moving guide, complete dialogue beats and calibrated paper-doll grips. The dungeon rebuild has 28 authored floors and persistent expeditions. The integrated soundtrack release adds 28 contextual tracks and cues using existing Suno music and original local MIDI. Earlier releases added eight spell presentations, contextual sound effects, SQL comment handling and readable combat and fishing controls. The retained artifact preview is pass 29 (walk-in rooms in Tallyport), version `1795364400-6a70`. (Two artifact publishes carry the label "Pass 26": the audio one and the keyboard one. Go by version id.)
 
 ## Starting a new session
 
@@ -68,6 +68,8 @@ There is no framework and no bundler. Plain ES2019 JavaScript modules are writte
 | `src/scene_dungeon.js` | Scene part between `scene_a.js` and `scene_b.js` inside the same IIFE: builds dungeon maps, spawns inhabitants, paints textures, opens passages and maintains the explored minimap. |
 | `src/artdungeon.js` | Generated `DungeonArt` atlas rectangles. Rebuild with `arttools/dungeon_art.py`; never edit coordinates by hand. |
 | `src/engine.js` | `Engine`: runs SQL on a read-only copy plus a sandbox, grades a query against the answer (correct / close / partial / wrong, with row overlap), and detects which SQL techniques a query used. |
+| `src/first_day.js` | Three-row read-only teaching manifest, six scaffolded tasks and authored dialogue boundaries. Practice uses Engine.scratch; the final two tasks explicitly enter the full town records. |
+| `src/companion.js` | Bounded pure cardinal routing for Tamsin. Scene owns movement; game callbacks control when following and speech are appropriate. |
 | `src/deep.js` | `Deep`: the Lost Ledger story layer. Nine lost tables, twelve Great Truths, Ilva's letter. |
 | `src/dojo.js` | `Dojo`: dojo masters, students, travellers, Sorrel Ashby, prizes, lines. |
 | `src/sqled.js` | `SqlEd`: the SQL editor, syntax highlighting, and the custom phone keyboard helpers. |
@@ -180,6 +182,8 @@ GitHub Pages uses the Actions publishing source. The publication payload is buil
 
 ## Decision log
 
+- 2026-11-22: Candidate `story-first-day-2026-11-22` adds an isolated read-only teaching manifest, bounded companion routing, task-specific narrative selection, historical continuity checks, and renderer-owned paper-doll grips. Guide indices, account v7 and character v6 remain stable; existing extensible `seen`/dojo state stores new teaching and encounter markers. Leaving a lesson resumes from completed checkpoints. Intro completion pays once per character. Normal dialogue preserves authored paragraph/array boundaries and all choices follow the final beat. Tests include an ordinary-speed unskipped opening and equipment composition matrices; release evidence is recorded in the implementation plan.
+
 - 2026-11-22: Capacity review of the large dungeon maps found legacy index arrays could exceed device storage across five fully explored characters. Discovery now uses versioned `b1:` six-bit strings, reads previous arrays, compacts every account slot on save/export/cloud sync, and prunes expired corpse snapshots while retaining live loot. A five-slot browser reload regression and worst-case storage-size regression protect this format; account/character versions remain 7/6 because decoding accepts both representations.
 
 - 2026-11-22: Release `dungeon-rebuild-2026-11-22` adds deterministic dungeon content, separate scene/rule/progress modules and three independent atlases. Account v7/character v6 preserve v6/v5 saves while adding persistent expedition state. Dungeon layout/controller tests join `npm run verify`; rendered UI expeditions walk all eight dungeons with actual movement, combat, interactions, stair travel, loot and reload, using disposable prepared characters. Deployment is tracked by the exact Pages source commit and HTML hash.
@@ -215,3 +219,5 @@ GitHub Pages uses the Actions publishing source. The publication payload is buil
 - 2026-11-22: Casey decided his local agent (which can generate images itself) takes over the repo, the packed-art rebuild and the context documents, so he doesn't have to relay between agents. The repo's `game/docs/` becomes the master copy of these documents.
 
 - 2026-11-22: Release verification caught MP3 cue-duration differences on Linux WebKit. Victory/death now use lossless PCM WAV; loop formats and the strict one-frame cue-duration regression remain unchanged.
+
+- 2026-11-22 (`story-first-day-2026-11-22`): Clamp resumed scene deltas to 0–50ms because a queued RAF can predate resume’s performance clock. Safe-practice recovery tests force this ordering before checking character-slot recovery.

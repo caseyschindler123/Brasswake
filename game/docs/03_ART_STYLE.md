@@ -191,6 +191,8 @@ Buildings keep their painted outsides; the kit draws what you see inside (see 02
 
 ## Decision log
 
+- 2026-11-22: Candidate `story-first-day-2026-11-22` corrects held paper-doll equipment with renderer-owned, hand-inspected palm/grip/angle/scale metadata over existing atlases. Foreground finger curls overlap grips; shields/orbs/books use calibrated offhand poses. Both doll canvases wait for their own assets and reject stale appearance paints. All 20 weapons and five offhands across ten body/outfit figures receive composition tests and visual contact-sheet inspection. No raw/packed art, generated coordinate files, prompts or generation settings change; world-animation pivots remain unchanged.
+
 - 2026-11-22: Release `dungeon-rebuild-2026-11-22` adds 15 approved dungeon source sheets and three separately packed atlases, with recorded input hashes/crops and generated coordinates. The existing script, model, quality, master prompts and old assets are unchanged. Full contacts were visually reviewed and replayed byte-for-byte. The dungeon atlases bring the packed baseline to 514 files.
 
 - 2026-11-22: `soundtrack-2026-11-22`: Casey authorized using existing music and composing missing themes locally. Kept 11 Suno themes (3 existing, 8 downloaded), added 17 original editable MIDI scores and rendered all new assets locally. No additional exports or paid music generation.

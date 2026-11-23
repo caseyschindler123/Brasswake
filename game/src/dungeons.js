@@ -205,7 +205,7 @@ const Dungeons = (() => {
         'DEh HIw LMh', 'Seal Clerk Vos', 'Books from this wing stay on the red desk. Leave the key in the clock room at the end of your shift.', '35403255110010'),
       level('Old Archive', '...HG .zwIF MLKJE NxBCD O.Ay.', 'Iw wK Lx xN Cy Lz',
         'Archive Stair|Intake Desk|Closed Register|Brass Rails|Ink Runnel|Survey Shelves|Thin Parchment|Council Orders|Locked Index|Old Dates|Iron Racks|Charter Store|Clerk’s Rail|Seal Desk|Archivist’s Hall|Index Run|Service Alley|Borrower’s Shelf|Blank Register',
-        'EFw IJh MNh', 'Deputy Keeper Dehn', 'I put the old borrower’s register behind the index in the charter store. Ask at the seal desk if you find Corin’s name.', '303151241110000')
+        'EFw IJh MNh', 'Deputy Keeper Dehn', 'I put the old borrower’s register behind the index in the charter store. Corin Hale was the last person I saw copy a name from it.', '303151241110000')
     ]]
   ];
 

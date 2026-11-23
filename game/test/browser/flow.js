@@ -45,6 +45,17 @@ async function playerFlow(page, info) {
   await expect(page.locator('#con-out')).toContainText('release_check');
   await expect(page.locator('#con-out td').first()).toHaveText('42');
   await screenshot(page, info, 'sql-result');
+  await page.locator('[data-a=lsub][data-s=grimoire]').click();
+  await page.locator('[data-a=reviewintro]').click();
+  await expect(page.locator('.manifest')).toContainText('Healing Draught');
+  await page.locator('[data-s=irow]').click();await page.locator('[data-kind=row][data-v="0"]').click();
+  await page.locator('[data-s=icol]').click();await page.locator('[data-kind=column][data-v=destination]').click();
+  await page.locator('[data-s=i2]').click();await page.locator('[data-s=ipredict]').click();
+  await page.locator('[data-kind=result][data-v=names]').click();await page.locator('[data-s=i3]').click();
+  await page.locator('[data-a=blank][data-w=destination]').click();await page.locator('[data-a=blank][data-w=manifest]').click();
+  await page.locator('[data-a=blankrun]').click();await expect(page.locator('#enc')).toContainText('The porter has the destinations');
+  await screenshot(page, info, 'manifest-query-result');await page.locator('[data-a=qleave]').click();
+
 
   await page.locator('#nav [data-t="bag"]').click();
   await dismissCoach(page);

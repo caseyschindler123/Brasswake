@@ -91,7 +91,7 @@ const DungeonPlay = (() => {
       const d=dg(),p=current(); if(!d||!e) return;
       if(e.kind==='dtravel') return a.dialog(e,e.to<0?'Stairs lead back to daylight. Your discoveries and floor seals are kept.':'Stairs lead to '+Dungeons.floor(d.r,e.to).name+'.', [{t:e.to<0?'Climb out':'Use stairs',a:'dtravel',d:{id:e.id}},{t:'Stay',a:'closesheet'}]);
       if(e.kind==='dcache'||e.kind==='chest') return reward(e);
-      if(e.kind==='dlore') {p.lore[e.id]=true;a.save();return a.dialog(e,e.text,[{t:'Leave',a:'closesheet'}]);}
+      if(e.kind==='dlore') {p.lore[e.id]=true;a.save();return a.dialog(e,'An old note reads: '+e.text,[{t:'Leave',a:'closesheet'}]);}
       if(e.kind==='dgate') return a.dialog(e,p.gates[e.target||e.gate||e.id]?'The passage is open.':(e.text||'A nearby control opens this passage. Another route goes around.'),[{t:'Leave',a:'closesheet'}]);
       if(e.kind==='dlever'||e.kind==='dsecret') return a.dialog(e,p.gates[e.target||e.gate||e.id]?'The passage is open.':(e.text||'This control opens a shortcut. You can return through it later.'),[{t:p.gates[e.target||e.gate||e.id]?'Leave':'Open passage',a:p.gates[e.target||e.gate||e.id]?'closesheet':'dopen',d:{id:e.id}},{t:'Stay',a:'closesheet'}]);
     }

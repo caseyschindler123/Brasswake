@@ -737,3 +737,21 @@ body.ui #enc.pk .btn:not(.solid) { color: #f5e2b8; text-shadow: 0 1px 0 #1b1008;
 .dungeon-map { position: relative; margin: 12px 0; background: #090d13; border: 3px solid #8a7047; }
 .dungeon-map img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
 .dungeon-map .me { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px #253340; }
+
+/* First-day records, usable supplies, and visible currency rewards. */
+.say-text, #say-opts, #say-extra { flex-shrink: 0; }
+.say-box { min-height: 0; }
+.manifest { width: 100%; }
+.manifest caption { text-align: left; padding: 8px 0; font-size: 14px; }
+.table-pick { min-height: 44px; border: 1px solid var(--brass); padding: 7px; color: inherit; background: transparent; text-decoration: underline; font: inherit; }
+.intro-choices { display: flex; flex-direction: column; gap: 10px; }
+.supplies { display: flex; flex-direction: column; gap: 8px; }
+.supply { display: flex; gap: 12px; align-items: center; padding: 10px; text-align: left; border: 1px solid var(--rule); background: var(--ink2); color: var(--paper); min-height: 60px; }
+.supply span { min-width: 0; }
+.supply small { display: block; margin-top: 4px; }
+.supply .ico, .supply-detail .ico { flex: none; }
+.supply-detail { display: flex; gap: 12px; align-items: center; }
+.reward-gold { display: flex; gap: 10px; align-items: center; color: #ffe19b; font-size: 21px; }
+.reward-gold .ico { flex: none; }
+.q-body .reward-gold { padding: 12px; background: #3e321e; border: 1px solid #b98c40; }
+@media (prefers-reduced-motion: reduce) { .say-more { animation: none; } }
