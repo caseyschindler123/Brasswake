@@ -221,3 +221,5 @@ GitHub Pages uses the Actions publishing source. The publication payload is buil
 - 2026-11-22: Release verification caught MP3 cue-duration differences on Linux WebKit. Victory/death now use lossless PCM WAV; loop formats and the strict one-frame cue-duration regression remain unchanged.
 
 - 2026-11-22 (`story-first-day-2026-11-22`): Clamp resumed scene deltas to 0–50ms because a queued RAF can predate resume’s performance clock. Safe-practice recovery tests force this ordering before checking character-slot recovery.
+
+- 2026-11-22 (`story-first-day-2026-11-22`): Expanded 135-case UI coverage reached 119 passing CI cases before the 30-minute build deadline. Raised that budget to 45 minutes. Validate the exact repair commit with forced UI coverage on a manual branch run before advancing main; verify the deployed source/hash and hosted UI independently.
