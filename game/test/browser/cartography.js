@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { PNG } = require('playwright-core/lib/utilsBundle');
 const { observeErrors, screenshot } = require('./flow');
 
 const nav = (frame, tab) => frame.locator(`#nav [data-t=${tab}]`);
@@ -85,16 +86,21 @@ async function nativeStep(frame, target) {
 async function mapSamples(frame, points) {
   const image = frame.locator('#view .cmap-frame img');
   await expect(image).toBeVisible();
-  return image.evaluate(async (image, points) => {
+  const chart = await image.evaluate(async image => {
     await image.decode();
-    const c = document.createElement('canvas');
-    c.width = image.naturalWidth;
-    c.height = image.naturalHeight;
-    if (c.width !== Scene.size[0] || c.height !== Scene.size[1]) throw Error('Expected full-world raster');
-    const ctx = c.getContext('2d');
-    ctx.drawImage(image, 0, 0);
-    return points.map(([x, y]) => Array.from(ctx.getImageData(x, y, 1, 1).data));
-  }, points);
+    return { src: image.currentSrc, size: Scene.size, width: image.naturalWidth, height: image.naturalHeight };
+  });
+  expect([chart.width, chart.height]).toEqual(chart.size);
+  expect(chart.src).toMatch(/^data:image\/png;base64,/);
+  // Check the displayed raster itself. WebKit can return an empty readback from
+  // a second world-sized canvas even when this decoded PNG is fully opaque.
+  const pixels = PNG.sync.read(Buffer.from(chart.src.split(',')[1], 'base64'));
+  expect([pixels.width, pixels.height]).toEqual(chart.size);
+  return points.map(([x,y]) => {
+    expect(x >= 0 && y >= 0 && x < pixels.width && y < pixels.height).toBe(true);
+    const index = 4 * (y * pixels.width + x);
+    return Array.from(pixels.data.subarray(index,index+4));
+  });
 }
 
 async function showWorldMap(frame) {
@@ -126,6 +132,7 @@ test('cartography · walking reveals the actual fog raster and persists by chara
   await showWorldMap(frame);
   const [local, before, remote] = await mapSamples(frame, [start, newlyRevealed, far]);
   expect(local).not.toEqual(black);
+  expect(local[3]).toBe(255);
   expect(before).toEqual(black);
   expect(remote).toEqual(black);
   const exploredPointInView = await frame.locator('#view .cmap-frame img').evaluate((image, [x, y]) => {
@@ -141,6 +148,7 @@ test('cartography · walking reveals the actual fog raster and persists by chara
   await showWorldMap(frame);
   const [revealed, stillRemote] = await mapSamples(frame, [newlyRevealed, far]);
   expect(revealed).not.toEqual(black);
+  expect(revealed[3]).toBe(255);
   expect(stillRemote).toEqual(black);
 
   await openTab(frame, 'hero');
