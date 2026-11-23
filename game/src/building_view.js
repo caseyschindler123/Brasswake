@@ -374,7 +374,8 @@ const BuildingView = (() => {
       const w = art.width / K, h = art.height / K, feet = y * T;
       const { image, g } = canvas(w, h);
       draw(g, art, 0, 0, w, h);
-      fittings.push({ image, x: x * T - w / 2, y: feet - h, sortY: feet, front: false });
+      // The training mats lie on the floor under the sparring students.
+      fittings.push({ image, x: x * T - w / 2, y: feet - h, sortY: p === 'venue_training_mat' ? 0 : feet, front: false });
     }
     const left = Math.min(0, ...walls.map(wall => wall.x), ...fittings.map(item => item.x));
     const top = Math.min(-WALL_HEIGHT, ...walls.map(wall => wall.y), ...fittings.map(item => item.y));

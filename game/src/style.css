@@ -780,3 +780,8 @@ body.ui #enc.pk .btn:not(.solid) { color: #f5e2b8; text-shadow: 0 1px 0 #1b1008;
 .reward-gold .ico { flex: none; }
 .q-body .reward-gold { padding: 12px; background: #3e321e; border: 1px solid #b98c40; }
 @media (prefers-reduced-motion: reduce) { .say-more { animation: none; } }
+
+/* Character build controls remain comfortable at phone width. */
+.progress-controls{grid-column:1/-1;display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:5px}.progress-controls label{display:flex;align-items:center;gap:6px;font-size:13px}.progress-controls input{width:70px;min-height:36px;background:var(--paper);color:var(--ink);border:1px solid var(--rule);padding:4px}.progress-controls .btn{min-height:36px}.resource-line{color:#ffe9a6;font:12px var(--body);white-space:nowrap}.conceal-controls{display:flex;align-items:center;gap:6px;margin-top:3px;font-size:11px}.conceal-controls .btn{padding:3px 8px;min-height:28px}.combat-tools{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}.combat-tools .btn{font-size:13px;min-height:34px;padding:5px 7px}.combat-resources{font-size:12px;margin:4px 0;color:var(--dim)}
+
+.conceal-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.conceal-controls .btn{font:500 13px/1.1 var(--body);min-height:34px;white-space:nowrap}

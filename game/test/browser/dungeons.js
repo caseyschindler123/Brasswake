@@ -20,7 +20,7 @@ async function win(f, stats) {
       const choose=f.locator('[data-a=fchoose]');if(await choose.isVisible())await choose.click();
     }
     if(await f.locator('[data-a=tonic]').isVisible())await f.locator('[data-a=tonic]').click();
-    if(await f.locator('[data-a=fpage]').first().isVisible())await f.locator('[data-a=fpage]').first().click();
+    if(await f.locator('[data-a=fpage]').first().isVisible()){const low=await f.evaluate(()=>__bw.S.mana<Progression.castCost(__bw.F.r));if(low)await f.locator('[data-a=futility][data-id=recover]').click();else await f.locator('[data-a=fpage]').first().click();}
     await expect(f.locator('#sql')).toBeVisible();await dismiss(f);
     await f.locator('#sql').fill(await f.evaluate(()=>__bw.F.task.sql));
     await f.locator('#kb [data-fn=run]').click();stats.queries++;
@@ -172,16 +172,17 @@ test('version six accounts migrate without losing their character or bank',async
   await expect(page.locator('body')).toHaveAttribute('data-ready','tallyport',{timeout:45000});
   const f=page.frames().find(f=>f.url().includes('visual_test=1'));
   const account=await f.evaluate(()=>{
-    const a=JSON.parse(localStorage.getItem('brasswake.acct.v7'));a.v=6;a.slots[a.cur].v=5;a.slots[a.cur].bank.gold=321;
+    const a=JSON.parse(localStorage.getItem('brasswake.acct.v8'));a.v=6;a.slots[a.cur].v=5;a.slots[a.cur].bank.gold=321;
     delete a.slots[a.cur].dungeon;delete a.slots[a.cur].dungeons;
     return a;
   });
   const name=account.slots[account.cur].name;
-  await page.addInitScript(a=>{localStorage.setItem('brasswake.acct.v6',JSON.stringify(a));localStorage.removeItem('brasswake.acct.v7');},account);
+  await page.addInitScript(a=>{localStorage.setItem('brasswake.acct.v6',JSON.stringify(a));localStorage.removeItem('brasswake.acct.v8');},account);
+  await page.waitForLoadState('networkidle');
   await page.goto('/index.html?visual_test=1');
   await expect(page.locator('#artload')).toBeHidden({timeout:45000});
   await page.locator('[data-a=playslot]').first().click();
-  expect(await page.evaluate(()=>({v:__bw.A.v,character:__bw.S.v,name:__bw.S.name,gold:__bw.S.bank.gold,dungeon:__bw.S.dungeon}))).toEqual({v:7,character:6,name,gold:321,dungeon:null});
+  expect(await page.evaluate(()=>({v:__bw.A.v,character:__bw.S.v,name:__bw.S.name,gold:__bw.S.bank.gold,dungeon:__bw.S.dungeon}))).toEqual({v:8,character:7,name,gold:321,dungeon:null});
 });
 
 test('five fully mapped characters compact local and cloud saves and reload an inactive slot',async({page},info)=>{
@@ -201,7 +202,7 @@ test('five fully mapped characters compact local and cloud saves and reload an i
     }
     __bw.S.dungeons=maps;__bw.save();
     const inspect=()=>{
-      const raw=localStorage.getItem('brasswake.acct.v7'),a=JSON.parse(raw);
+      const raw=localStorage.getItem('brasswake.acct.v8'),a=JSON.parse(raw);
       return {bytes:raw.length*2,revision:a.rev,current:__bw.A.rev,slots:a.slots.filter(Boolean).length,
         compact:a.slots.every(s=>Object.values(s.dungeons).every(p=>Object.values(p.seen).every(v=>typeof v==='string')))};
     };
@@ -212,7 +213,7 @@ test('five fully mapped characters compact local and cloud saves and reload an i
   });
   for(const state of saved){expect(state.revision).toBe(state.current);expect(state.slots).toBe(5);expect(state.compact).toBe(true);expect(state.bytes).toBeLessThan(1048576);}
   await page.addInitScript(()=>{
-    const remote=JSON.parse(localStorage.getItem('brasswake.acct.v7'));remote.rev+=10000;remote.cur=-1;
+    const remote=JSON.parse(localStorage.getItem('brasswake.acct.v8'));remote.rev+=10000;remote.cur=-1;
     for(const s of remote.slots)for(const p of Object.values(s.dungeons))for(const floor of Object.keys(p.seen))p.seen[floor]=Array.from({length:124*109},(_,i)=>i);
     const db={doc:key=>({
       get:async()=>key.endsWith('/acct')?{exists:true,data:()=>({json:JSON.stringify(remote)})}:{exists:false},
@@ -220,10 +221,11 @@ test('five fully mapped characters compact local and cloud saves and reload an i
     })};
     window.claude={use:async kind=>kind==='db'?db:{id:async()=>'capacity-fixture'}};
   });
+  await page.waitForLoadState('networkidle');
   await page.goto('/index.html?visual_test=1');await expect(page.locator('#artload')).toBeHidden({timeout:45000});
   await page.waitForFunction(()=>window.__capacityCloudWrite>0);
   const cloud=await page.evaluate(()=>{
-    const raw=localStorage.getItem('brasswake.acct.v7'),a=JSON.parse(raw);
+    const raw=localStorage.getItem('brasswake.acct.v8'),a=JSON.parse(raw);
     return {bytes:raw.length*2,cloudBytes:window.__capacityCloudWrite,rev:a.rev,cur:a.cur,
       compact:a.slots.every(s=>Object.values(s.dungeons).every(p=>Object.values(p.seen).every(v=>typeof v==='string')))};
   });
@@ -254,7 +256,8 @@ test('a dungeon death survives reload before Wake up and its belongings survive 
   await expect(f.locator('[data-a=fdone]')).toContainText('Wake up');
   const dropped=await f.evaluate(()=>({pending:!!__bw.S.deathPending,dungeon:__bw.S.dungeon,gold:__bw.S.gold,body:[__bw.S.remains.x,__bw.S.remains.y]}));
   expect(dropped).toEqual({pending:true,dungeon:null,gold:0,body:setup.back});
-  async function reload(){await page.goto('/index.html?visual_test=1');await expect(page.locator('#artload')).toBeHidden({timeout:45000});await page.locator('[data-a=playslot]').first().click();f=page.mainFrame();await f.waitForFunction(()=>!!Scene.debug().map);}
+  async function reload(){await page.waitForLoadState('networkidle');
+  await page.goto('/index.html?visual_test=1');await expect(page.locator('#artload')).toBeHidden({timeout:45000});await page.locator('[data-a=playslot]').first().click();f=page.mainFrame();await f.waitForFunction(()=>!!Scene.debug().map);}
   await reload();expect(await f.evaluate(()=>Scene.inDungeon())).toBe(false);expect(await f.evaluate(()=>__bw.S.hp)).toBeGreaterThan(0);
   await f.evaluate(back=>{window.__bwFast=true;Scene.warp(...back);},setup.back);
   const stairs=await f.evaluate(()=>{const e=Scene.find(e=>e.kind==='stairs'&&e.r===1);return[e.x,e.y];});
@@ -280,7 +283,7 @@ for(let r=1;r<=8;r++){
     // The default component mode explicitly prepares positions in walk(),
     // while controls, SQL, travel, rewards and reload remain real UI actions.
     await f.evaluate(r=>{
-      __bw.S.sk={magery:100,healing:100};__bw.S.pages={['s'+r]:1};__bw.S.tonics=50;__bw.S.hp=75;
+      __bw.S.sk={magery:100,healing:100,eval:100,meditation:100,resisting:100,inscription:100,lockpicking:100};__bw.S.attr={str:100,dex:25,int:100};__bw.S.mana=100;__bw.S.stamina=25;__bw.S.pages={['s'+r]:1};__bw.S.tonics=50;__bw.S.hp=75;
       for(const slot of ['weapon','shield','armor','head','hands','feet','cloak']){
         const it=__bw.makeItem('legendary',r,slot,slot==='weapon'?'magery':undefined);it.bless=1;
         __bw.S.inv.push(it);__bw.S.eq[slot]=it.id;
@@ -308,7 +311,12 @@ for(let r=1;r<=8;r++){
         expect(await f.evaluate(id=>!!__bw.DP.current().gates[id],kind==='dlever'?await f.evaluate(id=>Scene.find(e=>e.id===id).target,e.id):e.id)).toBe(true);
       }
       const lore=entities.find(e=>e.kind==='dlore');await interact(f,lore.id,stats);await expect(f.locator('#say')).toBeVisible();await closeSheet(f);
-      const cache=entities.find(e=>e.kind==='dcache');await interact(f,cache.id,stats);await expect(f.locator('#sheet')).toContainText('A hidden cache');await closeSheet(f);
+      const cache=entities.find(e=>e.kind==='dcache');await interact(f,cache.id,stats);
+      for(let attempt=0;attempt<10&&await f.locator('[data-a=lockwork]').first().isVisible();attempt++){
+        await f.locator('[data-a=lockwork][data-kind=lock]').click();await f.locator('#sql').fill(await f.evaluate(()=>__bw.Q.task.sql));await f.locator('#kb [data-fn=run]').click();stats.queries++;await f.locator('[data-a=qleave]').last().click();
+        if(!await f.locator('#sheet').isVisible())await interact(f,cache.id,stats);
+      }
+      await expect(f.locator('#sheet')).toContainText('A hidden cache');await closeSheet(f);
       if(floor===0){await f.locator('#nav [data-t=map]').click();await expect(f.locator('.dungeon-map img')).toBeVisible();await expect(f.locator('#coach')).toBeHidden();await screenshot(page,info,'dungeon-'+r+'-map');await f.locator('[data-a=tab][data-t=world]').filter({hasText:'Return to dungeon'}).click();}
       await screenshot(page,info,'dungeon-'+r+'-floor-'+(floor+1));
       const lieutenant=entities.find(e=>e.lieutenant);
@@ -336,7 +344,8 @@ for(let r=1;r<=8;r++){
     expect(await f.evaluate(()=>typeof __bw.DP.current().seen[__bw.DG.f])).toBe('string');
     const musicOn=await f.evaluate(()=>{const on=Sound.pref().mu;Sound.setMu(false);return on;});
     await f.waitForFunction(()=>!Sound.status().pending);
-    await page.goto('/index.html?visual_test=1');
+    await page.waitForLoadState('networkidle');
+  await page.goto('/index.html?visual_test=1');
     await expect(page.locator('#artload')).toBeHidden({timeout:45000});
     await page.locator('[data-a=playslot]').first().click();f=page.mainFrame();
     await f.waitForFunction(()=>!!__bw.DG);

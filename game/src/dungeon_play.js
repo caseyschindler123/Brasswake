@@ -72,6 +72,7 @@ const DungeonPlay = (() => {
       const d = dg(), p = current(); if (!d) return;
       const starter = !!e.tutorial, vault = e.kind === 'chest' && !starter, id = starter ? 'tutorial' : vault ? 'vault' : e.id;
       if (p.claimed[id]) return a.toast('Already collected today.');
+      if (!vault&&!starter&&a.unlock&&a.unlock(e,()=>reward(e)))return;
       if (starter && !p.claimed.tutorialKey) return a.dialog(e,'The entrance guardian holds this chest’s key.',[{t:'Leave',a:'closesheet'}]);
       if (vault && !DungeonProgress.canVault(p,Dungeons.get(d.r).floors.length)) {
         const need = DungeonProgress.missing(p,Dungeons.get(d.r).floors.length).map(f=>Dungeons.floor(d.r,f).name).join(', ');

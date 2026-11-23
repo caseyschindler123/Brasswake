@@ -104,6 +104,7 @@ test('a gesture starts actual music, contexts crossfade, and music mute persists
   await expect(f.locator('[data-a=snd][data-k=fx]')).toHaveText('Effects: on');
   expect(await f.evaluate(() => Sound.playing())).toBe(null);
   await screenshot(page, info, 'soundtrack-settings');
+  await page.waitForLoadState('networkidle');
   await page.reload(); await expect(page.locator('body')).toHaveAttribute('data-ready', 'tallyport', { timeout: 45000 });
   f = page.frames().find(f => f.url().includes('visual_test=1'));
   expect(await f.evaluate(() => Sound.pref().mu)).toBe(0);

@@ -58,6 +58,7 @@ test('sound controls unlock supported audio and persist effects mute across relo
   await expect(f.locator('[data-a=snd][data-k=fx]')).toHaveText('Effects: off');
   const state = await f.evaluate(() => ({ available: !!(window.AudioContext || window.webkitAudioContext), state: Sound.state() }));
   if (state.available) expect(state.state).toBe('running'); else expect(state.state).toBe('none');
+  await page.waitForLoadState('networkidle');
   await page.reload(); await expect(page.locator('body')).toHaveAttribute('data-ready', 'tallyport', { timeout: 45000 });
   f = page.frames().find(f => f.url().includes('visual_test=1'));
   expect(await f.evaluate(() => Sound.pref().fx)).toBe(0);

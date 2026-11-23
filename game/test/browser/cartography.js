@@ -39,6 +39,7 @@ async function closeSheet(frame) {
 }
 
 async function reloadCharacter(page, slot = 0) {
+  await page.waitForLoadState('networkidle');
   await page.goto('/index.html?visual_test=1');
   await expect(page.locator('#artload')).toBeHidden({ timeout: 45000 });
   await expect(page.locator('#st-load')).toBeHidden({ timeout: 45000 });
@@ -171,7 +172,7 @@ test('cartography · walking reveals the actual fog raster and persists by chara
 
   // Supply a supporting character at the original tile, then switch through the real title controls.
   await page.evaluate(start => {
-    const snapshot = JSON.parse(localStorage.getItem('brasswake.acct.v7'));
+    const snapshot = JSON.parse(localStorage.getItem('brasswake.acct.v8'));
     __bw.A.slots[1] = { ...snapshot.slots[snapshot.cur], name: 'Supporting Cartographer', pos: start,
       cartography: Cartography.create() };
     __bw.save();
@@ -317,7 +318,7 @@ test('cartography · buying a map charges once and only permits local regional t
   await frame.locator('#view [data-a=cmaptravel][data-id=stairs1]').click();
   await expect.poll(() => position(frame)).toEqual(arrival);
   expect(await frame.evaluate(() => {
-    const stored = JSON.parse(localStorage.getItem('brasswake.acct.v7'));
+    const stored = JSON.parse(localStorage.getItem('brasswake.acct.v8'));
     const s = stored.slots[stored.cur];
     return { at: s.pos, region: s.region, gold: s.gold, owns: s.cartography.maps[1], surface: !Scene.inDungeon() };
   })).toEqual({ at: arrival, region: 1, gold: 400, owns: true, surface: true });
@@ -414,7 +415,7 @@ test('cartography · the Grand Atlas is a single installed household feature gat
   expect(await page.evaluate(() => ({ at: Scene.pos(), house: __bw.A.atlas.homeId, gold: __bw.S.gold, restored: !!Scene.find(e => e.kind === 'homeatlas') })))
     .toEqual({ at: target, house: home.id, gold: 1500, restored: true });
   await page.evaluate(() => {
-    const stored = JSON.parse(localStorage.getItem('brasswake.acct.v7'));
+    const stored = JSON.parse(localStorage.getItem('brasswake.acct.v8'));
     __bw.A.slots[1] = { ...stored.slots[stored.cur], name: 'Supporting Atlas Reader', cartography: Cartography.create() };
     __bw.save();
   });

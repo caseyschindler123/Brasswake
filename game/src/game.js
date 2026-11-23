@@ -8,22 +8,23 @@
   const pick = a => a[Math.floor(rnd() * a.length)], rint = (a, b) => a + Math.floor(rnd() * (b - a + 1));
   function RNG(seed) { let a = seed >>> 0; const f = () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; return { pick: x => x[Math.floor(f() * x.length)], int: (x, y) => x + Math.floor(f() * (y - x + 1)) }; }
 
+  const CONCEAL = Sneaking.create();
   let S, tab = 'world', sceneUp = false, sceneOwner = null, interiorSaveTimer = 0, sub = 'work', lsub = 'sandbox', sel = null, ready = false, engineErr = '', COLS = {}, benchSlot = 'weapon', con = { sql: '', res: null };
-  const fresh = () => ({ v: 6, wv: WorldProgress.revision, cartography: Cartography.create(), interior: null, dungeon: null, dungeons: {}, deathPending: null, seen: {}, gd: -1, gn: 0, bank: { gold: 0, items: [] }, homes: [], runes: 0, tabs: {}, tw: {}, vault: {}, letter: 0, archive: 0, cache: {}, campT: 0, meat: 0, met: {}, pk: { n: 0, net: 0 }, food: {}, er: { a: {}, d: {}, n: 0 }, poi: {}, fishd: {}, fishlog: {}, cs: {}, known: {}, name: '', tut: 0, pages: {}, scr: {}, jr: {}, hints: 1, page: null, gold: 30, path: null, look: null, hp: 50, sk: {}, wsk: null, been: { 1: 1 }, skills: {}, done: {}, seen: {}, boss: {}, rum: {}, inv: [], eq: {}, codex: {}, mats: {}, tonics: 1, streak: 0, best: 0, stats: { q: 0, ok: 0, kills: 0, steals: 0, dungeons: 0, falls: 0 }, region: 1, pos: null, intro: 0, mv: 0, talked: 0, rival: {}, dpity: {}, rounds: null, stall: null, won: 0, rev: 0, at: 0 });
-  const migrate = o => { if (!o || ![5,6].includes(o.v)) return fresh(); const f = fresh(), s = Object.assign(f, o, {v:6}); if (!o.cartography) delete s.cartography; if (!o.seen && o.tut >= 3) s.seen = { fight: 1, fprompt: 1, bag: 1, hero: 1, map: 1, ledger: 1, shop: 1 }; if (!o.g && o.tut >= 3) s.g = 'done'; if (s.casino) { s.gold += s.casino.stack || 0; s.casino = null; } s.stats = Object.assign(fresh().stats, s.stats || {}); return s; };
+  const fresh = () => ({ v: 7, wv: WorldProgress.revision, cartography: Cartography.create(), interior: null, dungeon: null, dungeons: {}, deathPending: null, seen: {}, gd: -1, gn: 0, bank: { gold: 0, items: [] }, homes: [], runes: 0, tabs: {}, tw: {}, vault: {}, letter: 0, archive: 0, cache: {}, campT: 0, meat: 0, met: {}, pk: { n: 0, net: 0 }, food: {}, er: { a: {}, d: {}, n: 0 }, poi: {}, fishd: {}, fishlog: {}, cs: {}, known: {}, name: '', tut: 0, pages: {}, scr: {}, jr: {}, hints: 1, page: null, gold: 30, path: null, look: null, hp: 50, sk: {}, wsk: null, been: { 1: 1 }, skills: {}, done: {}, seen: {}, boss: {}, rum: {}, inv: [], eq: {}, codex: {}, mats: {}, tonics: 1, streak: 0, best: 0, stats: { q: 0, ok: 0, kills: 0, steals: 0, dungeons: 0, falls: 0 }, region: 1, pos: null, intro: 0, mv: 0, talked: 0, rival: {}, dpity: {}, rounds: null, stall: null, won: 0, rev: 0, at: 0 });
+  const migrate = o => { if (!o || ![5,6,7].includes(o.v)) return fresh(); const f = fresh(), s = Object.assign(f, o, {v:7}); if (!o.cartography) delete s.cartography; if (!o.seen && o.tut >= 3) s.seen = { fight: 1, fprompt: 1, bag: 1, hero: 1, map: 1, ledger: 1, shop: 1 }; if (!o.g && o.tut >= 3) s.g = 'done'; if (s.casino) { s.gold += s.casino.stack || 0; s.casino = null; } s.stats = Object.assign(fresh().stats, s.stats || {}); return Progression.normalize(s); };
 
   /* ---------- saving: this device first, then the player's Claude account when available ---------- */
   const Cloud = { ref: null, state: 'device', busy: false, dirty: false, timer: 0 };
   /* the account: five character slots. The first character made is the main and carries the story. Houses and named rares are shared; each character keeps its own bank */
-  const AKEY = 'brasswake.acct.v7', NSLOT = 5;
-  const freshA = () => ({ v: 7, rev: 0, at: 0, cur: -1, main: -1, slots: Array(NSLOT).fill(null), homes: [], codex: {}, paid: {}, djp: {}, cmds: {} });
+  const AKEY = 'brasswake.acct.v8', NSLOT = 5;
+  const freshA = () => ({ v: 8, rev: 0, at: 0, cur: -1, main: -1, slots: Array(NSLOT).fill(null), homes: [], codex: {}, paid: {}, djp: {}, cmds: {} });
   let A = null;
   const isMain = () => !!A && A.cur >= 0 && A.cur === A.main, mainName = () => (A && A.main >= 0 && A.slots[A.main] && A.slots[A.main].name) || 'your main character';
   const linkS = s => { s.homes = A.homes; s.codex = A.codex; return s; }, slotOut = s => { const o = Object.assign({}, s); delete o.homes; delete o.codex; return o; };
   function purgeOld() { try { for (let i = localStorage.length - 1; i >= 0; i--) { const k = localStorage.key(i); if (k && k.indexOf('brasswake.save') === 0) localStorage.removeItem(k); } } catch (e) { } }
-  function loadA() { try { const t = localStorage.getItem(AKEY) || localStorage.getItem('brasswake.acct.v6'), o = t ? JSON.parse(t) : null; return o && [6,7].includes(o.v) ? Object.assign(freshA(), o, {v:7}) : null; } catch (e) { return null; } }
-  function loadCur() { WorldProgress.migrateAccount(A); S = linkS(A.cur >= 0 && A.slots[A.cur] ? migrate(A.slots[A.cur]) : fresh()); if(S.deathPending){S.region=S.deathPending.r;S.pos=S.deathPending.at;S.dungeon=null;S.interior=null;S.hp=maxHp();S.deathPending=null;} if (!(S.hp > 0)) S.hp = maxHp(); if(sceneUp){clearInterval(GSAY);Scene.guideOff();} }
-  function syncA() { clearTimeout(interiorSaveTimer);interiorSaveTimer=0; if(sceneUp && sceneOwner === S)S.interior=Scene.venueState(); CMap.snapshot(); if (A && A.cur >= 0 && S && S.path) A.slots[A.cur] = slotOut(S); if(A)for(const s of A.slots)if(s){DungeonProgress.compact(s,now());if(s.cartography)s.cartography=Cartography.normalize(s.cartography);s.interior=Interiors.normalizeProgress(s.interior);} }
+  function loadA() { try { const t = localStorage.getItem(AKEY) || localStorage.getItem('brasswake.acct.v7') || localStorage.getItem('brasswake.acct.v6'), o = t ? JSON.parse(t) : null; return o && [6,7,8].includes(o.v) ? Object.assign(freshA(), o, {v:8}) : null; } catch (e) { return null; } }
+  function loadCur() { WorldProgress.migrateAccount(A); A.slots=A.slots.map(c=>c?migrate(c):null); S = linkS(Progression.normalize(A.cur >= 0 && A.slots[A.cur] ? migrate(A.slots[A.cur]) : fresh())); Sneaking.reveal(CONCEAL); if(S.deathPending){S.region=S.deathPending.r;S.pos=S.deathPending.at;S.dungeon=null;S.interior=null;S.hp=maxHp();S.deathPending=null;} if (!(S.hp > 0)) S.hp = maxHp(); if(sceneUp){clearInterval(GSAY);Scene.guideOff();} }
+  function syncA() { clearTimeout(interiorSaveTimer);interiorSaveTimer=0; if(sceneUp && sceneOwner === S)S.interior=Scene.venueState(); CMap.snapshot(); if (A && A.cur >= 0 && S && S.path) A.slots[A.cur] = slotOut(S); if(A)for(const s of A.slots)if(s){if(s.openLocks)s.openLocks=Object.fromEntries(Object.entries(s.openLocks).filter(([,v])=>v===dayKey()));DungeonProgress.compact(s,now());if(s.cartography)s.cartography=Cartography.normalize(s.cartography);s.interior=Interiors.normalizeProgress(s.interior);} }
   function save() { if (sceneUp && DG && Scene.inDungeon()) DP.snapshot(); if (!A) A = freshA(); if (A.cur >= 0 && S && S.path) { S.rev++; S.at = now(); } syncA(); A.rev++; A.at = now(); try { localStorage.setItem(AKEY, JSON.stringify(A)); } catch (e) { } if (Cloud.ref) { Cloud.dirty = true; clearTimeout(Cloud.timer); Cloud.timer = setTimeout(flush, 2500); } }
   async function flush() {
     if (Cloud.busy || !Cloud.dirty || !Cloud.ref) return; Cloud.busy = true; Cloud.dirty = false;
@@ -41,9 +42,9 @@
       const snap = await Promise.race([ref.get(), new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 10000))]);
       if (snap.exists) {
         const d = snap.data(), remote = d && d.json ? JSON.parse(d.json) : null;
-        if (remote && [6,7].includes(remote.v) && (remote.rev || 0) > (A.rev || 0)) {
+        if (remote && [6,7,8].includes(remote.v) && (remote.rev || 0) > (A.rev || 0)) {
           closeSheet(); CE = null;
-          A = Object.assign(freshA(), remote, {v:7}); loadCur(); cmdBackfill();
+          discardEncounter(); A = Object.assign(freshA(), remote, {v:8}); loadCur(); cmdBackfill();
           Q = null; F = null; DG = null;
           $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false;
           if (sceneUp) restoreAccountScene(true);
@@ -56,13 +57,13 @@
     } catch (e) { Cloud.state = 'device'; }
   }
 
-  /* ---------- character: ten skills sharing 400 points, and health ---------- */
-  const RPG = [['swords', 'Swordsmanship', 'Heavy hits. Four swings a round.'], ['fencing', 'Fencing', 'Lighter hits. Five swings a round.'], ['archery', 'Archery', 'A free opening round.'], ['magery', 'Magery', 'Spells that strike from range.'], ['stealing', 'Stealing', 'Lifting gold and goods.'], ['hiding', 'Hiding', 'Sneaking close to steal. Slipping away.'], ['smith', 'Blacksmithing', 'Gear at the workbench.'], ['alchemy', 'Alchemy', 'Draughts and scrolls at the workbench.'], ['carpentry', 'Carpentry', 'Furniture for your house.'], ['healing', 'Healing', 'Binding wounds after a fight.'], ['fishing', 'Fishing', 'Better fish, then rare ones, then sunken things.']];
+  /* ---------- character: twenty use-based skills and three attributes ---------- */
+  const RPG = Progression.skills;
   const PATHS = [{ id: 'warrior', name: 'Warrior', sk: { swords: 40, healing: 30 } }, { id: 'thief', name: 'Thief', sk: { stealing: 40, hiding: 30 } }, { id: 'crafter', name: 'Crafter', sk: { smith: 40, carpentry: 30 } }, { id: 'mage', name: 'Mage', sk: { magery: 40, alchemy: 30 } }];
   const WEAP = { swords: { n: 'Sword', verb: 'Strike', swings: 4, dmg: [9, 13] }, fencing: { n: 'Rapier', verb: 'Lunge', swings: 5, dmg: [6, 10] }, archery: { n: 'Bow', verb: 'Loose', swings: 4, dmg: [7, 11], opening: 1 }, magery: { n: 'Spell', verb: 'Cast', swings: 4, dmg: [8, 12] } };
-  const CAP = 400, skCap = id => (S.pcap && S.pcap[id]) || 100, gainBoost = () => (S.boost || 0) > Date.now(), rv = id => S.sk[id] || 0, rpgName = id => RPG.find(x => x[0] === id)[1];
-  const total = () => Math.round(Object.values(S.sk).reduce((a, b) => a + b, 0) * 10) / 10;
-  const maxHp = () => 50 + Math.round(total() / 8);
+  const CAP = Progression.CAP, skCap = id => Progression.skillCap(S,id), gainBoost = () => (S.boost || 0) > Date.now(), rv = id => S.sk[id] || 0, rpgName = id => (RPG.find(x => x[0] === id) || [id,id])[1];
+  const total = () => Progression.total(S);
+  const maxHp = () => Progression.maxHp(S);
   const heal = (n, quiet) => { const b = S.hp; S.hp = Math.max(0, Math.min(maxHp(), Math.round(S.hp + n))); if (!quiet && S.hp > b && typeof Scene !== 'undefined') Scene.FX.heal(); return S.hp - b; };
   const diffOf = (t, elite, boss) => Math.min(100, (t - 1) * 12 + 8 + (elite ? 8 : 0) + (boss ? 14 : 0));
   const bestWeapon = () => Object.keys(WEAP).reduce((a, b) => rv(b) > rv(a) ? b : a, 'swords');
@@ -73,13 +74,8 @@
     const p = grade === 'correct' ? Math.max(base, 35) : grade === 'close' ? base * .6 : grade === 'partial' ? base * (.3 + .2 * Math.max(0, Math.min(1, ((share || .5) - .5) / .5))) : base * .05;
     return { base, p: Math.round(p) };
   }
-  // a skill rises with use, fastest when the target is near your level, and stops when the ten skills total 400
-  function gain(id, diff, quality) {
-    const v = rv(id), cp = skCap(id), room = CAP - total(); if (v >= cp || !(quality > 0)) return null; if (room <= 0) return { id, before: v, after: v, capped: true };
-    // gains slow sharply past 40, UO style: the last ten points to Grandmaster take most of the work
-    let g = 2.4 * Math.max(.2, 1 - Math.abs(v - diff) / 45) * (v < 30 ? 1.6 : 1) * (v >= 100 ? .01 : Math.min(1, Math.max(.015, Math.pow((100 - v) / 60, 2.2)))) * quality * (1 + learnPct() / 100) * (gainBoost() ? 2 : 1) * ((S.rest || 0) > Date.now() ? 1.25 : 1);
-    g = Math.min(g, room, cp - v); g = Math.floor(g * 10) / 10 + (rnd() < (g * 10) % 1 ? .1 : 0); g = Math.round(Math.min(g, room, cp - v) * 10) / 10; if (g <= 0) return null; S.sk[id] = Math.round((v + g) * 10) / 10; return { id, before: v, after: S.sk[id] };
-  }
+  function gain(id, diff, quality, support = false) { return Progression.gain(S,id,diff,quality,{random:rnd,learn:learnPct(),study:gainBoost(),rest:(S.rest||0)>now(),attributes:!support}); }
+  function supportGains(ids,diff,q,list) { for(const id of ids) {const g=gain(id,diff,q*.35,true);if(g)list.push(g);} }
   const rankName = () => { const m = Object.keys(S.boss).length; return S.won ? 'Winner of the Trials' : m ? `Tallyport’s champion · ${m} mark${m > 1 ? 's' : ''}` : 'Tallyport’s champion'; };
   // SQL techniques are still tracked underneath: they decide which query patterns come back
   const sk = id => S.skills[id] || (S.skills[id] = { v: 0, t: 0, n: 0 });
@@ -89,11 +85,11 @@
   const pscrName = x => `Power scroll: ${rpgName(x.id)} ${x.cap}`;
   function makePscr(t) { const top = RPG.map(x => x[0]).sort((a, b) => rv(b) - rv(a)).slice(0, 3), cap = t >= 8 ? (rnd() < .15 ? 120 : 115) : t === 7 ? 110 : t === 6 ? (rnd() < .3 ? 110 : 105) : 105; return { id: pick(top), cap }; }
   // the dojo masters teach the basics of any skill, for a fee that climbs with every point
-  const TRAIN_CAP = 45, tCost = v => Math.round(10 + 1.5 * Math.floor(v));
-  function trainCost(id, n) { let v = rv(id), c = 0, k = 0; while (k < n && v < TRAIN_CAP) { c += tCost(v); v = Math.min(TRAIN_CAP, Math.floor(v) + 1); k++; } return { c, to: v }; }
-  function trainSheet() { const room = CAP - total();
-    sheet(`<p class="eyebrow">The dojo</p><h2>Lessons</h2><p class="cap2">A master will bring any skill up to ${TRAIN_CAP}. Past that you learn by doing. You have ${S.gold} gold${room < 5 ? ` and room for ${room.toFixed(1)} more skill points` : ''}.</p><ul class="goods">${RPG.map(([id, nm]) => { const v = rv(id), one = trainCost(id, 1), five = trainCost(id, 5);
-      return `<li class="good"><div><b>${nm}</b><small>${v.toFixed(1)}${v >= TRAIN_CAP ? ' · nothing more to teach' : ''}</small></div>${v >= TRAIN_CAP ? '' : `<div class="row"><button class="btn sm quiet" data-a="train" data-id="${id}" data-n="1"${S.gold >= one.c && room >= 1 ? '' : ' disabled'}>+1 · ${one.c}</button><button class="btn sm" data-a="train" data-id="${id}" data-n="5"${S.gold >= five.c && room >= five.to - v ? '' : ' disabled'}>to ${five.to} · ${five.c}</button></div>`}</li>`; }).join('')}</ul><div class="row end"><button class="btn solid" data-a="closesheet">Done</button></div>`); }
+  const TRAIN_CAP = 45;
+  function trainCost(id,n) {const t=Progression.training(S,id,n);return {c:t.cost,to:t.to,add:t.add};}
+  function trainSheet() {
+    sheet(`<p class="eyebrow">The dojo</p><h2>Lessons</h2><p class="cap2">A master can teach any skill to ${TRAIN_CAP}. Raise permits learning. Lower releases points only when another skill gains at ${CAP}; Locked preserves its value. You have ${S.gold} gold.</p><ul class="goods">${RPG.map(([id,nm])=>{const v=rv(id),one=trainCost(id,1),five=trainCost(id,5);return `<li class="good"><div><b>${nm}</b><small>${v.toFixed(1)} · ${modeName(Progression.mode(S,id))}</small></div>${v>=TRAIN_CAP?'':`<div class="row"><button class="btn sm quiet" data-a="train" data-id="${id}" data-n="1"${one.add>0&&S.gold>=one.c?'':' disabled'}>to ${one.to} · ${one.c}</button><button class="btn sm" data-a="train" data-id="${id}" data-n="5"${five.add>0&&S.gold>=five.c?'':' disabled'}>to ${five.to} · ${five.c}</button></div>`}</li>`;}).join('')}</ul><div class="row end"><button class="btn solid" data-a="closesheet">Done</button></div>`);
+  }
   function scrollsHTML() { const P = S.pscr || [], st = Math.max(0, Math.ceil(((S.boost || 0) - Date.now()) / 60000)), rs = Math.max(0, Math.ceil(((S.rest || 0) - Date.now()) / 60000));
     if (!P.length && !S.gscr && !st && !rs) return '';
     return `<h3>Scrolls</h3>${st ? `<p class="cap2">Studying: double skill gain for ${st} more minute${st > 1 ? 's' : ''}.</p>` : ''}${rs ? `<p class="cap2">Well rested: skill gain +25% for ${rs} more minute${rs > 1 ? 's' : ''}.</p>` : ''}<ul class="goods">${S.gscr ? `<li class="good">${ico('scroll')}<div><b>Scroll of Study</b><small>You have ${S.gscr}. Double skill gain for 30 minutes.</small></div><button class="btn sm" data-a="reads">Read</button></li>` : ''}
@@ -188,7 +184,7 @@
     fprompt: 'Write the query. One query sets your odds for the next three rounds. Tables shows the data; a hint costs hit chance.',
     loot: 'Tap a body to open it, then tap what you want. Take all grabs everything.',
     bag: 'Tap a draught or food to heal. Scrolls add pages to your books. Hides and materials sell or go into crafting.',
-    hero: 'Your books hold the pages you can use. Skills rise as you use them; together they cannot pass 400.',
+    hero: 'Your books hold the pages you can use. Skills rise as you use them; together they cannot pass 700. Use Raise, Lower and Locked to manage your build.',
     map: 'Walking reveals the black map around you. Consult a cartographer to set waypoints, or buy a regional map to travel within that region.',
     ledger: 'A free copy of the Ledger: query or change anything, nothing is scored.',
     fish: 'Each cast is one question. Deeper water asks harder ones and holds better catches; Fishing skill unlocks rare fish and sunken things.',
@@ -353,8 +349,11 @@
     if (!o.raw && ((o.items || []).some(it => it.unique || it.rarity === 'epic' || it.rarity === 'legendary') || scr.some(id => pageById(id).rare))) Sound.sfx('reward');
     return { gold, mats: o.mats || {}, sigils: o.sigils || 0, meat: o.meat || 0, hide: o.hide || 0, runes: o.runes || 0, bless: o.bless || 0, gscr: o.gscr || 0, pscr: o.pscr || [], food: o.food || {}, items: (o.items || []).map(give).filter(Boolean), scrolls: scr.map(pageById) };
   }
-  const gainLine = g => g && g.length ? `<p class="gline">${g.map(x => `${rpgName(x.id)} ${x.capped ? 'at cap' : '+' + (x.after - x.before).toFixed(1)}`).join(' · ')}</p>` : '';
-  const gainsHTML = g => g && g.length ? `<div class="gain">${g.map(x => `<span>${rpgName(x.id)}</span><span class="${x.capped ? 'cap' : ''}">${x.capped ? 'skill cap reached' : x.before.toFixed(1) + ' → ' + x.after.toFixed(1)}</span>`).join('')}</div>` : '';
+  const capText = x => x.before>=skCap(x.id)?'Individual skill cap reached':x.before>=Progression.target(S,x.id)?'Stopping target reached':`${CAP} total cap. Set a skill to Lower.`;
+  const gainEntries = g => (g||[]).flatMap(x=>[x,...(x.losses||[]).map(y=>({...y,loss:true}))]);
+  const gainLine = g => gainEntries(g).length ? `<p class="gline">${gainEntries(g).map(x=>`${rpgName(x.id)} ${x.capped?capText(x):(x.loss?'−':'+')+Math.abs(x.after-x.before).toFixed(1)}`).join(' · ')}</p>` : '';
+  const gainsHTML = g => gainEntries(g).length ? `<div class="gain">${gainEntries(g).map(x=>`<span>${rpgName(x.id)}</span><span class="${x.capped?'cap':''}">${x.capped?capText(x):x.before.toFixed(1)+' → '+x.after.toFixed(1)}</span>`).join('')}</div>` : '';
+
   const bitsOf = g => { const bits = []; if (g.gold) bits.push(`+${g.gold} gold`); for (const k in (g.food || {})) bits.push(`+${g.food[k]} ${FOOD[k][0]}`); for (const k in g.mats) if (g.mats[k]) bits.push(`+${g.mats[k]} ${matName(k)}`); if (g.sigils) bits.push(`+${g.sigils} Brass Sigil`); if (g.meat) bits.push(`+${g.meat} Meat`); if (g.hide) bits.push(`+${g.hide} Hide`); if (g.runes) bits.push(`+${g.runes} Teleport rune`); if (g.bless) bits.push(`+${g.bless} Bless deed`); if (g.gscr) bits.push(`+${g.gscr} Scroll of Study`); (g.pscr || []).forEach(x => bits.push(pscrName(x))); return bits; };
   function spoilsHTML(g) { const bits = bitsOf(Object.assign({}, g, {gold:0})); return `${g.gold ? `<p class="reward-gold">${ico('goldstack')}<strong>+${g.gold} gold</strong></p>` : ''}${bits.length ? `<p class="spoils">${bits.map(esc).join(' · ')}</p>` : ''}${g.items.map(lootHTML).join('')}${(g.scrolls || []).map(scrollHTML).join('')}`; }
   const codeHL = q => { try { return SqlEd.hl(SqlEd.format(String(q)), hlTables()); } catch (e) { return esc(String(q)); } };
@@ -405,7 +404,7 @@
     }
     if (Q.step === 'turn') {
       el.innerHTML = head('Your turn') + `<div class="q-body" id="q-body"><p class="eyebrow">${Q.tasks ? `${Q.i + 1} of ${Q.tasks.length}` : esc(Q.title || '')}</p>${t.tip ? `<p class="tip">${esc(t.tip)}</p>` : ''}${Q.kind === 'intro' ? introTaskLesson() : Q.kind === 'firstpractice' ? `<p>A page is an ability recorded in one of your books. Choose the one you want to practise, then write its query.</p><div class="row">${fightPages().map(p=>`<button class="btn" data-a="practicepage" data-id="${p.id}" aria-pressed="${Q.practicePage===p.id}">${esc(p.name)}${Q.practicePage===p.id?' · chosen':''}</button>`).join('')}</div>` : ''}<p class="ask">${esc(t.ask)}</p>${needsHTML(t)}${Q.roll ? `<p class="cap2">One query, one roll: ${odds(rv(Q.csk), Q.diff, 'correct').p}% if correct, ${odds(rv(Q.csk), Q.diff, 'close').p}% if close, ${odds(rv(Q.csk), Q.diff, 'wrong').p}% if wrong.</p>` : ''}<div id="q-out"></div></div>
-        <div class="dock" id="q-dock"><div class="q-tools"><button class="btn sm quiet" data-a="help">Help</button><button class="btn sm quiet" data-a="clear">Clear</button></div>${kbHTML(t, Q.r, Q.roll ? 'Craft' : 'Run')}</div>`;
+        <div class="dock" id="q-dock"><div class="q-tools"><button class="btn sm quiet" data-a="help">Help</button><button class="btn sm quiet" data-a="clear">Clear</button></div>${kbHTML(t, Q.r, Q.work ? ({hide:'Hide',recover:'Recover',lock:'Pick lock',force:'Force lock',craft:'Craft'}[Q.work]||'Run') : Q.roll ? 'Craft' : 'Run')}</div>`;
       kbDraw(); kbFocus(); fitQ(); return;
     }
     el.innerHTML = head('Result') + `<div class="q-body">${Q.result}</div><footer class="q-foot">${Q.nextId ? `<button class="btn big" data-a="qnext">Next exercise</button>` : ''}<button class="btn solid big" data-a="qleave">Continue</button></footer>`;
@@ -471,6 +470,7 @@
     Q.result = `<p class="eyebrow">Result</p><h2 class="good">${esc(head)}</h2>${note ? `<p class="story">${esc(note)}</p>` : ''}${clean}${spoilsHTML(g)}${res && res.got && Q.task.kind !== 'dml' ? '<p class="lab">What your query returned</p>' + tableHTML(res.got, 8) : ''}`; Q.step = 'result'; drawQ();
   }
   function craftRoll(res) {
+    if(Q.work)return finishSkillWork(res);
     const t = Q.r, x = Q.recipe, pg = bestPage('craft'), o = odds(rv(Q.csk), Q.diff, res.grade, res.share), win = rnd() * 100 < o.p, gl = [], g0 = gain(Q.csk, Q.diff, { correct: 1, close: .6, partial: .4, wrong: 0 }[res.grade]); if (g0) gl.push(g0); let body;
     Sound.sfx(win ? Q.csk === 'alchemy' ? 'alchemy' : 'smith' : 'craftFail');
     if (win) { const exc = res.ok && rnd() * 100 < rv(Q.csk) + (pg && pg.rare ? 20 : 0), out = { items: [] }; let head; S.mats[t] = have(t) - x.mats; if (x.sigils) S.mats.sigil = have('sigil') - x.sigils;
@@ -481,11 +481,47 @@
     tick(); save(); renderHud(); Q.result = `<p class="eyebrow">Result</p><p class="rollline"><b class="g-${res.grade}">${GRADE_N[res.grade]}</b> query · ${o.p}% chance</p>${body}${gainsHTML(gl)}${res.ok ? '' : answerHTML(Q.task)}`; Q.step = 'result'; drawQ();
   }
 
+  let LOCK = null;
+  const queryQuality = res => ({correct:1,close:.6,partial:.4,wrong:0})[res.grade] || 0;
+  function beginSkillWork(work,options={}) {
+    if(!ready||Q||F)return;
+    if(work==='hide'&&Scene.ents().some(e=>!e.dead&&e.alert>0&&Math.hypot(e.fx-Scene.pos()[0],e.fy-Scene.pos()[1])<3.2))return toast('Break away from watching enemies before hiding.');
+    const t=Math.max(1,Math.min(8,options.r||here())),tpl=pick(BOUNTIES.filter(b=>b.r===t && !/^b80[123]/.test(b.id)));
+    if(!tpl)return;
+    const recipe=SkillCrafting.find(options.recipe),sid=recipe?recipe.skill:work==='hide'?'hiding':work==='recover'?'meditation':work==='force'?'tactics':'lockpicking';
+    openQ({kind:'skillwork',roll:true,work,owner:S,options,csk:sid,r:t,diff:options.diff==null?recipe?Math.min(95,recipe.diff+(t-1)*5):diffOf(t):options.diff,task:makeTask({tpl:tpl.id,seed:seeded(tpl.id)}),title:recipe?recipe.name:work==='hide'?'Find cover':work==='recover'?'Recover mana and stamina':work==='force'?'Force the optional lock':'Pick and disarm the lock'});
+  }
+  function finishSkillWork(res) {
+    if(!Q||Q.owner!==S)return;const q=queryQuality(res),sid=Q.csk,g=q?gain(sid,Q.diff,q):null,gl=g?[g]:[],o=Q.options;let ok=false,note='';
+    if(Q.work==='hide') {
+      const pos=Scene.pos(),arm=itemById(S.eq.armor),heavy=!!arm&&!/Leather/.test(arm.name);
+      ok=Sneaking.conceal(CONCEAL,{hiding:rv('hiding'),stealth:rv('stealth'),diff:Q.diff,quality:q,heavy,x:pos[0],y:pos[1],random:rnd});
+      note=ok?`You are concealed. Walk up to ${CONCEAL.steps} steps. Running or an offensive action reveals you. Observers can still detect you nearby.`:'You cannot find enough cover. Move away from watching enemies and try again.';
+    } else if(Q.work==='recover') {ok=q>0;if(ok){const n=Progression.recover(S);note=`Recovered ${n} mana and stamina.`;}else note='The query gives no useful result.';
+    } else if(Q.work==='craft') {
+      const recipe=SkillCrafting.find(o.recipe);if(!recipe||!SkillCrafting.can(S,o.recipe,Q.r)){note='The materials are no longer available.';}
+      else {ok=q>0&&rnd()*100<odds(rv(sid),Q.diff,res.grade,res.share).p;SkillCrafting.finish(S,o.recipe,Q.r,ok);note=ok?recipe.name+' crafted. '+recipe.note:'The work is spoiled. Half the materials are lost.';}
+    } else if(LOCK&&LOCK.owner===S&&LOCK.key===o.key) {
+      const forced=Q.work==='force';ok=q>0&&rnd()*100<SkillCrafting.lockChance(rv(sid),Q.diff,q,!forced);
+      if(ok){(S.openLocks||(S.openLocks={}))[LOCK.key]=dayKey();const cb=LOCK.open;Q.then=()=>{if(S===QOWNER)cb();};const QOWNER=S;note=forced?'The lock gives way. The contents are safe.':'The lock opens and its trap is disarmed.';}
+      else {const n=forced?3:Math.max(1,Math.round(Q.r*2*(1-rv('lockpicking')/150)));S.hp=Math.max(1,S.hp-n);note=`The lock holds. ${n} health lost. This optional container can be tried again.`;}
+    }
+    save();renderHud();Q.result=`<p class="eyebrow">${esc(Q.title)}</p><h2>${ok?'Success':'Try again'}</h2><p>${esc(note)}</p>${gainsHTML(gl)}${res.ok?'':answerHTML(Q.task)}`;Q.step='result';drawQ();
+  }
+  function lockOffer(e,open) {
+    const key=e.cid?'surface:'+e.cid:'dungeon:'+(DG?DG.r+':'+DG.f+':':'')+e.id;
+    if(S.openLocks&&S.openLocks[key]===dayKey())return false;
+    LOCK={key,owner:S,e,open};const diff=SkillCrafting.lockDifficulty(e.r,DG?DG.f:0);
+    sheet(`<p class="eyebrow">Optional treasure</p><h2>A locked container</h2><p>The lid has a small trap. Pick and disarm it, or use Tactics to force the lock. Both methods use a query; a failed attempt costs a little health. Story keys and vault seals are separate.</p><div class="row wrap"><button class="btn" data-a="lockwork" data-kind="lock">Pick and disarm · ${SkillCrafting.lockChance(rv('lockpicking'),diff,1,true)}%</button><button class="btn quiet" data-a="lockwork" data-kind="force">Force · ${SkillCrafting.lockChance(rv('tactics'),diff,1)}%</button><button class="btn quiet" data-a="closesheet">Leave</button></div>`);return true;
+  }
+  function professionHTML() {const t=here();return `<h3>Carpentry and Inscription</h3><ul class="goods">${SkillCrafting.recipes.map(r=>`<li class="good">${ico(r.ic)}<div><b>${r.name}</b><small>${r.note} ${r.mats} ${MATS[t]}.</small></div><button class="btn sm" data-a="profession" data-id="${r.id}"${SkillCrafting.can(S,r.id,t)?'':' disabled'}>Craft</button></li>`).join('')}</ul>`;}
+  function furnitureHTML(h) {return `<section class="sec"><h2>Crafted furnishings</h2><div class="row wrap">${['chest','bed','shelf'].filter(id=>S.furniture&&S.furniture[id]>0).map(id=>`<button class="btn sm" data-a="installfurniture" data-id="${id}" data-h="${h.id}">Install ${SkillCrafting.find(id).name} ×${S.furniture[id]}</button>`).join('')||'<span class="cap2">Craft furniture at a workbench.</span>'}${h.shelf?`<button class="btn sm quiet" data-a="studyshelf" data-h="${h.id}">Study · double gains for 10 minutes</button>`:''}</div></section>`;}
+
   /* ---------- on the map: fights, thefts and duels. A panel along the bottom, one question at a time. ---------- */
   let F = null, CE = null, DG = null;
   const DP = DungeonPlay.create({state:()=>S,run:()=>DG,setRun:v=>DG=v,day:dayKey,now,scene:Scene,close:closeSheet,hud:renderHud,surface:()=>{S.pos=Scene.pos();surfaceBodies();},save,guideId:()=>gid(),
     guideStart:()=>{S.gd++;save();setTimeout(()=>gSay('"Beat the cellar rat, then open the chest beside the stairs. The deeper floors can wait."'),600);},guideChest:()=>setTimeout(()=>gDone('chest'),50),
-    difficulty:diffOf,foe:mkFoe,fight:openF,toast,dialog:dlg,sheet,main:isMain,haveTable:r=>haveT(r),takeTable,grant,item:makeItem,rarity:rollRarity,luck,random:rnd,int:rint,unique:uniq,spoils:spoilsHTML,escape:esc,dye:maybeDye});
+    difficulty:diffOf,foe:mkFoe,fight:openF,toast,dialog:dlg,sheet,main:isMain,haveTable:r=>haveT(r),takeTable,grant,item:makeItem,rarity:rollRarity,luck,random:rnd,int:rint,unique:uniq,spoils:spoilsHTML,escape:esc,dye:maybeDye,unlock:(e,cb)=>lockOffer(e,cb)});
   function barsF() { if (!F) return; const b = F.foe ? [{ e: 'me', pct: S.hp / maxHp() }] : []; if (F.foe && F.ent) b.push({ e: F.ent, pct: F.foe.hp / F.foe.max, name: F.title }); Scene.FX.bars(b); }
   function fitPanel() { if (F) requestAnimationFrame(() => { if (F) Scene.FX.inset($('#fight').offsetHeight); }); }
   function openF(cfg) { closeSay(); closeSheet(); F = Object.assign({ st: 'choose', round: 0, busy: false, hint: 0, hints: [], tries: 0, chips: '', after: '' }, cfg); Scene.FX.lock(true); if (F.ent) Scene.FX.face(F.ent); $('#fight').hidden = false; $('#nav').hidden = true; $('#ctx').hidden = true; $('#app').classList.add('infight'); Scene.resume(); barsF(); drawF(); if (F.act === 'fight' && S.tut >= 1) coach('fight'); }
@@ -522,6 +558,11 @@
     prepareDeath();const d=S.deathPending;S.hp=maxHp();S.region=d.r;S.pos=d.at;S.deathPending=null;S.dungeon=null;DG=null;
     Scene.load(S.pos,S.region);S.pos=Scene.pos();surfaceBodies();save();
   }
+  function discardEncounter() {
+    const old=F;F=null;Q=null;LOCK=null;if(DU){clearInterval(DU.timer);DU=null;}
+    if(old&&old.ent)Scene.FX.free(old.ent);Sneaking.reveal(CONCEAL);
+    $('#fight').hidden=true;$('#fight').innerHTML='';$('#enc').hidden=true;$('#enc').innerHTML='';$('#nav').hidden=false;$('#app').classList.remove('infight');Scene.FX.lock(false);Scene.FX.bars([]);Scene.FX.inset(0);
+  }
   function closeF() {
     unCoach('fight', 'fprompt', 'stealth'); const f = F; if (!f) return; F = null; $('#fight').hidden = true; $('#fight').innerHTML = ''; $('#nav').hidden = false; $('#app').classList.remove('infight'); Scene.FX.lock(false); Scene.FX.bars([]); Scene.FX.inset(0); if (f.ent) { Scene.FX.free(f.ent); f.ent.calm = 12; } closeSheet();
     if (f.kick) { wakeFromDeath(); toast(S.remains ? 'You wake at the healer’s. Belongings from upper rooms wait at their stairs, and dungeon belongings at the entrance. Other belongings stay where you fell.' : 'You wake at the healer’s, patched up'); deathNote(); }
@@ -540,6 +581,7 @@
     } else if (F.st === 'prompt') {
       h = `<div class="f-head"><div><b>${esc(F.page ? F.page.name : F.verb)}</b><small id="f-odds">${fOdds()}</small></div><div class="f-btns">${qm('fprompt')}<button class="btn sm quiet${S.tut === 1 ? ' pulse' : ''}" data-a="ftables">Tables</button>${F.act === 'fight' ? fHintBtn() : ''}</div></div><p class="ask">${esc(F.task.ask)} ${needLine(F.task)}${F.task.tip ? ` <button class="qm sm" data-a="ftip" aria-label="A tip">?</button>` : ''}</p><div id="f-hint">${F.hints.join('')}</div><div id="f-out"></div>${kbHTML(F.task, F.kc, F.verb)}`;
     } else h = `<div class="f-head"><div><b class="g-${F.res.grade}">${GRADE_N[F.res.grade]}</b><small>${F.pline}</small></div>${F.act === 'fight' && !F.over ? '<button class="btn sm quiet" data-a="flee">Flee</button>' : ''}</div>${F.res.ok || !F.res.msg ? '' : `<p class="cap2">${esc(F.res.msg)}</p>`}<div class="swings" id="e-sw">${F.chips}</div><div id="f-after">${F.after}</div>`;
+    if(F.st==='choose')h+=combatTools(); if(F.act==='steal'&&F.st==='prompt')h=`<div class="row"><button class="btn sm quiet" data-a="fprize" data-id="purse">Purse · easier</button><button class="btn sm quiet" data-a="fprize" data-id="prize">${esc(F.prizeItem?F.prizeItem.name:F.kind==='rival'?rival(F.r).item.name:'Selected prize')} · −15 effective skill</button><span>${F.prize==='prize'?'Selected prize':'Purse'}</span></div>`+h;
     if (F.st !== 'choose') unCoach('fight', 'stealth'); if (F.st !== 'prompt') unCoach('fprompt');
     el.innerHTML = h; el.className = 'st-' + F.st; if (F.st === 'prompt') { kbDraw(); kbFocus(); } fitPanel();
   }
@@ -562,16 +604,17 @@
   }
   function pickPage(id) {
     if (!F || F.busy || F.over || F.act !== 'fight') return; const p = pageById(id); if (!p || !owned(id)) return; const sk2 = pageSkill(p);
-    F.page = p; S.page = id; F.verb = BOOKS[p.book].verb; F.kc = F.tasks ? F.r : p.c; F.task = taskFor(p); F.tries = 0; F.fixed = 0; F.hint = 0; F.shown = 0; F.hints = []; F.oddsLine = `${odds(rv(sk2), F.diff, 'correct').p}% a swing if correct · ${odds(rv(sk2), F.diff, 'wrong').p}% if wrong`; F.st = 'prompt'; drawF(); coach('fprompt');
+    F.utility=null; F.page = p; S.page = id; F.verb = BOOKS[p.book].verb; F.kc = F.tasks ? F.r : p.c; F.task = taskFor(p); F.tries = 0; F.fixed = 0; F.hint = 0; F.shown = 0; F.hints = []; F.oddsLine = `${odds(rv(sk2), F.diff, 'correct').p}% a swing if correct · ${odds(rv(sk2), F.diff, 'wrong').p}% if wrong`; F.st = 'prompt'; drawF(); coach('fprompt');
   }
   function pickSteal() {
     if (!F || F.kind !== 'monster' || F.round || F.busy) return; const e = F.ent, sh = bestPage('shadow'); if (!sh) return;
-    if (!e.unseen) { if (!(rv('hiding') > 0)) return; const p = sneakPct(); gain('hiding', F.diff, .6); save(); if (rnd() * 100 >= p) { toast('It keeps its eyes on you'); return drawF(); } toast('You slip out of sight'); e.unseen = true; }
-    const c = Math.min(sh.c, F.r), tpl = c === F.r ? F.sig : pick(BOUNTIES.filter(b => b.r === c)).id; F.act = 'steal'; F.foe = null; F.page = sh; F.verb = 'Steal'; F.kc = c; F.bonus = 10 + (sh.rare ? 15 : 0) - 12 * Math.max(0, F.r - sh.c) + bonus('deft');
-    F.task = S.tut < 2 ? tutTask() : makeTask({ tpl, seed: seeded(tpl) }); F.fixed = 0; F.hint = 0; F.hints = []; F.oddsLine = `${odds(rv('stealing') + F.bonus, F.diff, 'correct').p}% if correct · one try`; F.st = 'prompt'; barsF(); drawF();
+    if (!e.unseen && !CONCEAL.hidden) {toast('Back away and Hide before approaching, or come from behind.');return;}
+    Sneaking.reveal(CONCEAL); renderHud(); const c = Math.min(sh.c, F.r), tpl = c === F.r ? F.sig : pick(BOUNTIES.filter(b => b.r === c)).id; F.act = 'steal'; F.foe = null; F.page = sh; F.verb = 'Steal'; F.kc = c; F.bonus = 10 + (sh.rare ? 15 : 0) - 12 * Math.max(0, F.r - sh.c) + bonus('deft');
+    F.prize=F.prize||'purse'; F.prizeItem=F.prizeItem||makeItem(rollRarity(luck()),F.r); F.task = S.tut < 2 ? tutTask() : makeTask({ tpl, seed: seeded(tpl) }); F.fixed = 0; F.hint = 0; F.hints = []; F.oddsLine = `${odds(rv('stealing') + F.bonus, F.diff, 'correct').p}% if correct · one try`; F.st = 'prompt'; barsF(); drawF();
   }
   function runF() {
     if (!ready || !F || F.st !== 'prompt' || F.busy) return; const sql = $('#sql').value; if (!sql.trim()) return toast('Write a query first');
+    if(F.act==='fight'&&F.page.book==='spell'&&!['recover','bandage','study'].includes(F.utility)&&S.mana<Progression.castCost(F.page.c)&&!(S.prepared>0)){F.st='choose';toast('Not enough mana. Meditate, use a prepared scroll, or choose another ability.');drawF();return;}
     let res = Engine.grade(F.task, sql); S.stats.q++;
     if (res.err) { if (!F.fixed) { F.fixed = 1; $('#f-out').innerHTML = `<div class="verdict err"><p>${esc(res.err)}</p><p class="cap2">It did not run. One free fix: if the next one does not run either, it counts as a miss.</p></div>`; return fitPanel(); }
       res = { ok: false, grade: 'wrong', share: 0, msg: 'It did not run: ' + res.err, used: [] }; }
@@ -579,20 +622,51 @@
     F.res = res; F.chips = ''; F.after = ''; F.round++; resolveF(res);
   }
   const chip = (cls, txt) => { const h = `<span class="sw ${cls}">${txt}</span>`; F.chips += h; const sw = $('#e-sw'); if (sw) sw.insertAdjacentHTML('beforeend', h); };
-  function play(steps, done) { if (FAST()) { for (const f of steps) f(); return done(); } let i = 0; const next = () => { if (!F) return; while (i < steps.length) if (steps[i++]() !== false) return setTimeout(next, 330); done(); }; setTimeout(next, 250); }
+  function play(steps,done) {const encounter=F,owner=S,current=()=>F===encounter&&S===owner;if(FAST()){for(const step of steps){if(!current())return;step();}if(current())done();return;}let i=0;const next=()=>{if(!current())return;while(i<steps.length)if(steps[i++]()!==false)return setTimeout(next,330);if(current())done();};setTimeout(next,250);}
+
+  function magicFoe() {return F.drole==='caster'||/Imp|Wisp|Witch|Lich|Wraith|Sphinx|Council|Mage|Acolyte/i.test(F.title);}
+  function combatTools() {const can=F&&F.act==='fight',magic=!!bestPage('spell');return can?`<p class="combat-resources">Mana ${Math.round(S.mana)}/${Progression.maxMana(S)} · Stamina ${Math.round(S.stamina)}/${Progression.maxStamina(S)} · Prepared scrolls ${S.prepared||0}</p><div class="combat-tools">${['strike','feint','cleave'].map(k=>`<button class="btn sm ${F.stance===k?'solid':'quiet'}" data-a="fstance" data-id="${k}">${k==='strike'?'Strike':k==='feint'?'Feint · 8 stamina':'Cleave · 8 stamina'}</button>`).join('')}<button class="btn sm quiet" data-a="futility" data-id="bandage"${S.hp>=maxHp()?' disabled':''}>Bandage</button><button class="btn sm quiet" data-a="futility" data-id="recover">Meditate / recover</button><button class="btn sm quiet" data-a="futility" data-id="study">Study foe</button>${magic?'<button class="btn sm quiet" data-a="futility" data-id="ward">Ward</button><button class="btn sm quiet" data-a="futility" data-id="healspell">Healing spell</button>':''}${S.prepared?`<button class="btn sm quiet" data-a="fscroll">${F.scroll?'Scroll selected':'Use prepared scroll'}</button>`:''}</div>`:'';}
+  function combatUtility(id) {if(!F||F.busy||F.over||!['bandage','recover','ward','healspell','study'].includes(id))return;const p=(id==='ward'||id==='healspell'?bestPage('spell'):fightPages()[0]);if(!p)return;pickPage(p.id);F.utility=id;F.verb={bandage:'Bandage',recover:'Recover',ward:'Ward',healspell:'Heal',study:'Study'}[id];drawF();}
+  function spendCasting() {const cost=Progression.castCost(F.page.c);if(S.prepared>0&&(F.scroll||S.mana<cost)){S.prepared--;F.scroll=false;return true;}if(S.mana<cost)return false;S.mana-=cost;return true;}
+  function enemySteps(steps,rounds,gl,q) {
+    const f=F.foe,e=F.ent,magic=magicFoe(),shield=!!itemById(S.eq.shield);
+
+    for(let r=0;r<rounds;r++)for(let i=0;i<f.swings;i++)steps.push(()=>{if(f.hp<=0||S.hp<=0)return false;if(!F.defenseTrained&&q>0){F.defenseTrained=true;if(magic)supportGains(['resisting'],F.diff,q,gl);else if(shield)supportGains(['parrying'],F.diff,q,gl);}Scene.FX.swing(e,'me',magic?'spell':'hit');
+      if(rnd()*100>=Math.max(20,Math.min(85,50+f.diff-rv(F.page? pageSkill(F.page):bestWeapon())))){chip('miss','miss');return;}
+      if(!magic&&shield&&rnd()<Progression.parryChance(S)){chip('hit','blocked');Scene.FX.hit('me','block','#9be0da');return;}
+      const protection=(1-Math.min(60,bonus('def'))/100)*(magic?Progression.resistFactor(S):1)*(F.ward?1-F.ward:1);
+      const d=Math.max(1,Math.round((rint(3,6)+2*F.r+(F.boss?2:0))*protection));S.hp=Math.max(0,S.hp-d);chip('ouch','−'+d);Scene.FX.hit('me','−'+d,'#f08070');barsF();renderHud();});
+  }
+  function finishCombatQuery(res,gl,note='') {
+    if(!F)return;F.busy=false;F.ward=0;S.mana=Math.min(Progression.maxMana(S),S.mana+2);S.stamina=Math.min(Progression.maxStamina(S),S.stamina+4);
+    if(F.foe.hp<=0)return winF(res,gl);if(S.hp<=0)return loseF(res,gl);
+    F.after=`${note?'<p>'+esc(note)+'</p>':''}${gainLine(gl)}${res.ok?'':answerHTML(F.task)}<div class="row end"><button class="btn solid" data-a="fchoose">Choose next action</button></div>`;save();renderHud();drawF();
+  }
   function resolveF(res) {
-    const q = { correct: 1, close: .6, partial: .4, wrong: 0 }[res.grade], gl = [];
-    if (F.act !== 'fight') { const sid = F.act === 'steal' ? 'stealing' : bestWeapon(), o = odds(rv(sid) + (F.bonus || 0), F.diff, res.grade, res.share), g = gain(sid, F.diff, q); if (g) gl.push(g);
-      F.pline = `${o.p}% chance`; F.st = 'after'; F.busy = true; drawF(); const win = rnd() * 100 < o.p, end = () => { if (!F) return; F.busy = false; chip(win ? 'hit' : 'ouch', win ? 'success' : 'failed'); win ? winF(res, gl) : loseF(res, gl); }; return FAST() ? end() : setTimeout(end, 500); }
-    const p = F.page, sid = pageSkill(p), W = WEAP[sid], gr = F.shown ? 'wrong' : F.hint >= 2 && res.grade === 'correct' ? 'close' : res.grade, o0 = odds(rv(sid), F.diff, gr, res.share), o = { p: Math.max(2, o0.p - (F.hint === 1 ? HPEN : 0)) }, g = F.shown ? 0 : gain(sid, F.diff, q * (F.hint ? .6 : 1)), f = F.foe, e = F.ent, free = W.opening && F.round === 1, steps = [], NR = ROUNDS(); if (g) gl.push(g);
-    const mult = power(p.c) * resist(p.c, F.r) * (1 + dmgPct(sid) / 100) * (F.drole === 'armored' && p.book !== 'spell' ? DungeonPlay.ARMORED_DAMAGE : 1), n = W.swings + (p.rare && p.book === 'arms' ? 1 : 0), back = Math.max(0, f.swings - (p.rare && p.book === 'spell' ? 1 : 0));
-    F.pline = `${o.p}% a swing${NR > 1 ? ` · ${NR} rounds` : ''}`; F.st = 'after'; F.busy = true; drawF();
-    for (let r = 0; r < NR; r++) { if (NR > 1) steps.push(() => { if (f.hp <= 0 || S.hp <= 0) return false; chip('lab rd', 'Round ' + (r + 1)); return false; });
-    for (let i = 0; i < n; i++) steps.push(() => { if (f.hp <= 0) return false; Scene.FX.swing('me', e, p.book === 'spell' ? 'spell' : sid, p.book === 'spell' ? Effects.spell(p.c, p.rare) : null); if (rnd() * 100 < o.p) { const d = Math.max(1, Math.round((rint(W.dmg[0], W.dmg[1]) + rv(sid) / 8) * mult)); f.hp -= d; chip('hit', d); Scene.FX.hit(e, d, '#ffe9a0'); } else { chip('miss', 'miss'); Scene.FX.hit(e, 'miss', '#cfd6d8'); } barsF(); });
-    if (!(free && r === 0)) { steps.push(() => { if (f.hp <= 0) return false; chip('lab', esc(F.title) + ':'); return false; });
-      for (let i = 0; i < back; i++) steps.push(() => { if (f.hp <= 0 || S.hp <= 0) return false; Scene.FX.swing(e, 'me', 'hit'); if (rnd() * 100 < Math.max(20, Math.min(85, 50 + (f.diff - rv(sid))))) { const d = Math.max(1, Math.round((rint(3, 6) + 2 * F.r + (F.boss ? 2 : 0)) * (1 - Math.min(60, bonus('def')) / 100))); S.hp = Math.max(0, S.hp - d); chip('ouch', '−' + d); Scene.FX.hit('me', '−' + d, '#ff8a70'); } else { chip('miss', 'miss'); Scene.FX.hit('me', 'miss', '#cfd6d8'); } barsF(); renderHud(); }); } }
-    play(steps, () => { if (!F) return; F.busy = false; if (f.hp <= 0) return winF(res, gl); if (S.hp <= 0) return loseF(res, gl);
-      F.after = `${gainLine(gl)}${res.ok ? '' : answerHTML(F.task)}<div class="row end"><button class="btn quiet" data-a="fchoose">Change page</button><button class="btn solid" data-a="fpage" data-id="${p.id}">${esc(p.name)} again</button></div>`; save(); drawF(); });
+    const q=queryQuality(res),gl=[]; F.defenseTrained=false;
+    if(F.act==='steal'){Sneaking.reveal(CONCEAL);renderHud();}
+    if(F.act!=='fight') {const sid=F.act==='steal'?'stealing':bestWeapon(),o=odds(rv(sid)+(F.bonus||0),F.diff,res.grade,res.share),g=gain(sid,F.diff,q);if(g)gl.push(g);F.pline=`${o.p}% chance`;F.st='after';F.busy=true;drawF();const encounter=F,owner=S,win=rnd()*100<o.p,end=()=>{if(F!==encounter||S!==owner)return;F.busy=false;chip(win?'hit':'ouch',win?'success':'failed');win?winF(res,gl):loseF(res,gl);};return FAST()?end():setTimeout(end,500);}
+    const p=F.page,sid=pageSkill(p),spell=p.book==='spell',utility=F.utility,steps=[],f=F.foe,e=F.ent;
+    if((spell&&!['recover','bandage','study'].includes(utility))&&!spendCasting()){F.round--;F.st='choose';toast('Not enough mana. Meditate, use a prepared scroll, or choose another ability.');return drawF();}
+    const quality=F.shown?0:q*(F.hint?.6:1);Sneaking.reveal(CONCEAL);
+    F.st='after';F.busy=true;F.pline=utility?'One recovery round':'Attack and retaliation';drawF();
+    if(utility) {
+      const id=utility==='bandage'?'healing':utility==='recover'?'meditation':utility==='study'?(spell?'eval':'anatomy'):'magery',g=gain(id,F.diff,quality);if(g)gl.push(g);let note='The query gives no useful result.';
+      if(quality>0){if(utility==='bandage'){const n=heal(Progression.bandage(S)*quality);supportGains(['anatomy'],F.diff,quality,gl);note=`Bandaged ${n} health.`;}
+        if(utility==='recover'){const before=S.mana;Progression.recover(S);note=`Recovered ${S.mana-before} mana and stamina.`;}
+        if(utility==='ward'){F.ward=Progression.ward(S)*quality;supportGains(['inscription'],F.diff,quality,gl);note=`Ward reduces this round's incoming damage by ${Math.round(F.ward*100)}%.`;}
+        if(utility==='healspell'){const n=heal((8+rv('magery')*.4)*quality);note=`The spell restores ${n} health.`;}
+        if(utility==='study'){F.focus=Math.round((4+rv(id)*.08)*quality);note=`${magicFoe()?'This foe attacks with magic.':'This foe attacks physically.'} ${F.drole==='armored'?'Its armor reduces physical damage. ':''}Your next attack gains ${F.focus} points of accuracy.`;}}
+      enemySteps(steps,1,gl,quality);return play(steps,()=>finishCombatQuery(res,gl,note));
+    }
+    let stance=F.stance||'strike';if(!spell&&stance!=='strike'){if(S.stamina>=8)S.stamina-=8;else{stance='strike';chip('lab','Low stamina: ordinary strike');}}
+    const W=WEAP[sid],gr=F.shown?'wrong':F.hint>=2&&res.grade==='correct'?'close':res.grade,o0=odds(rv(sid),F.diff,gr,res.share),o=Math.max(2,Math.min(95,o0.p-(F.hint===1?HPEN:0)+(F.focus||0)+(!spell&&stance==='feint'?Math.min(12,rv('tactics')/8):0))),g=gain(sid,F.diff,quality);F.focus=0;if(g)gl.push(g);
+    supportGains(spell?['eval']:['tactics','anatomy'],F.diff,quality,gl);
+    const mult=power(p.c)*resist(p.c,F.r)*(1+dmgPct(sid)/100)*(spell?Progression.spellFactor(S):Progression.physicalFactor(S,stance))*(F.drole==='armored'&&!spell?.8:1),n=W.swings+(p.rare&&p.book==='arms'?1:0),NR=ROUNDS();F.pline=`${o}% a swing · ${NR} rounds`;
+    const oldSwings=f.swings;if(p.rare&&spell)f.swings=Math.max(0,f.swings-1);
+    for(let r=0;r<NR;r++){steps.push(()=>{if(f.hp<=0||S.hp<=0)return false;chip('lab rd','Round '+(r+1));return false;});for(let i=0;i<n;i++)steps.push(()=>{if(f.hp<=0||S.hp<=0)return false;Scene.FX.swing('me',e,spell?'spell':sid,spell?Effects.spell(p.c,p.rare):null);if(rnd()*100<o){const d=Math.max(1,Math.round((rint(W.dmg[0],W.dmg[1])+rv(sid)/8)*mult));f.hp-=d;chip('hit',d);Scene.FX.hit(e,d,'#ffe9a0');}else{chip('miss','miss');Scene.FX.hit(e,'miss','#cfd6d8');}barsF();});
+      if(!(W.opening&&F.round===1&&r===0))enemySteps(steps,1,gl,quality);}
+    f.swings=oldSwings;play(steps,()=>finishCombatQuery(res,gl));
   }
   function winF(res, gl) {
     if (F && F.act === 'fight') Sound.sfx('win');
@@ -601,17 +675,17 @@
     if (k === 'monster' || k === 'dungeon') { const st = F.act === 'steal', el = !!(F.inst && F.inst.elite), dn = k === 'dungeon'; if (st) S.stats.steals++; else S.stats.kills++;
       if (F.animal) { o.meat = 1 + (rnd() < .3 ? 1 : 0); o.hide = rnd() < .5 ? 1 : 0; } else {
       o.gold = (st ? 12 * t + 8 : 6 * t + 4) * (el ? 2 : 1) * (dn ? 1.4 : 1) * (.8 + rnd() * .4); o.mats[t] = (1 + (el ? 2 : 0)) * (st ? 2 : 1); if (el) { o.sigils = 1; if (rnd() < .5) o.scrolls.push('a' + t + 'r'); if (rnd() < .015) o.bless = 1; if (rnd() < .06) o.gscr = 1; }
-      if (el || rnd() < (st ? .7 : dn ? .5 : .35)) o.items.push(makeItem(rollRarity(lk, el ? 1 : 0), t));
+      if ((!st && (el || rnd() < (dn ? .5 : .35))) || (st && F.prize==='prize')) o.items.push(st&&F.prizeItem?F.prizeItem:makeItem(rollRarity(lk, el ? 1 : 0), t));
       if (F.inst && F.inst.lead && !st) { S.lairday = S.lairday || {}; if (S.lairday[F.inst.lair] !== dayKey()) { S.lairday[F.inst.lair] = dayKey(); o.gold += 40 * t; o.items.push(makeItem(rollRarity(lk, 2), t)); if (rnd() < .2) o.gscr = 1; if (t >= 6 && rnd() < .05) o.pscr = [makePscr(t)]; if (rnd() < (F.inst.lk === 'l14' ? .5 : .12 + t * .02)) o.runes = 1; } }
       }
       if (gid() === 'fight' && k === 'monster' && !st) { const rw = makeItem('common', 1, 'weapon', pick(['swords', 'fencing'])); rw.name = 'Rusty ' + WEAP[rw.w].n; o.items = [rw]; }
       if (!st) maybeDye(F.kind === 'boss' ? .35 : F.keeper ? .3 : F.kind === 'dungeon' ? .04 : .015 + luck() / 4000);
-      head = st ? 'Clean lift' : F.title + ' falls'; if (st) F.ent.alert = 6; else { if(dn)DP.victory(F.ent); Scene.corpse(F.ent, o); body = true; for (const k in S.er.a) { const a = S.er.a[k]; if (a.type === 'hunt' && a.tpl === F.inst.tpl && a.have < a.n) { a.have++; toast(`${a.from}: ${a.have} of ${a.n} targets · ${a.x}`); } } F.body = F.ent; F.ent = null; if (dn && DG) DP.snapshot(); if (S.tut === 1) S.tut = 2; if (gid() === 'fight') { S.gd++; gEnter(true); } } }
+      if(st&&F.prize==='prize')o.gold=Math.round(o.gold*.5); head = st ? 'Clean lift' : F.title + ' falls'; if (st) F.ent.alert = 6; else { if(dn)DP.victory(F.ent); Scene.corpse(F.ent, o); body = true; for (const k in S.er.a) { const a = S.er.a[k]; if (a.type === 'hunt' && a.tpl === F.inst.tpl && a.have < a.n) { a.have++; toast(`${a.from}: ${a.have} of ${a.n} targets · ${a.x}`); } } F.body = F.ent; F.ent = null; if (dn && DG) DP.snapshot(); if (S.tut === 1) S.tut = 2; if (gid() === 'fight') { S.gd++; gEnter(true); } } }
     else if (k === 'rival') { const v = S.rival[t];
-      if (F.act === 'steal') { o.gold = v.gold; o.items.push(v.item); o.sigils = 1; o.scrolls.push('h' + t + 'r'); S.stats.steals++; head = 'Purse and prize lifted'; note = `${F.title} will not notice until morning.`; } else { o.gold = Math.round(v.gold / 2); head = 'Duel won'; note = `${F.title} pays the wager and leaves town for a while.`; } v.taken = true; v.away = 4; }
+      if (F.act === 'steal') { o.gold = F.prize==='prize'?Math.round(v.gold/2):v.gold; if(F.prize==='prize')o.items.push(v.item); o.sigils = 1; o.scrolls.push('h' + t + 'r'); S.stats.steals++; head = F.prize==='prize'?'Prize lifted':'Purse lifted'; note = `${F.title} will not notice until morning.`; } else { o.gold = Math.round(v.gold / 2); head = 'Duel won'; note = `${F.title} pays the wager and leaves town for a while.`; } v.taken = true; v.away = 4; }
     else { const first = !S.boss[t], b = F.boss; S.boss[t] = S.boss[t] || now(); S.stats.kills++; o.gold = (60 * t + 40) * (first ? 1 : .4); o.sigils = first ? 2 : 1; o.items.push(first ? uniq(b.drop) : makeItem(rollRarity(lk, 2), t)); if (rnd() < (first ? .3 : .08)) o.bless = 1; if (t >= 5 && rnd() < (first ? .6 : .15)) o.pscr = [makePscr(t)]; if (rnd() < .5) o.gscr = 1; head = first ? `The mark of the ${CIRCLE[t]} Circle` : b.name + ' yields again'; note = b.win; if (t === 8 && first) S.won = now(); }
-    if (F.act === 'fight' && S.hp < maxHp()) { const hs = rv('healing'); if (rnd() * 100 < Math.max(40, Math.min(95, 40 + hs))) { const n = heal(6 + hs * .3), hg = gain('healing', F.diff, .6); if (hg) gl.push(hg); Scene.FX.hit('me', '+' + n, '#9be08a'); } }
-    const g = grant(body ? {} : o); F.over = true; tick(); save(); renderHud(); barsF();
+    if (F.act === 'fight' && S.hp < maxHp()) { const hs = rv('healing'); if (rnd() * 100 < Math.max(40, Math.min(95, 40 + hs))) { const n = heal(Progression.bandage(S)), hg = gain('healing', F.diff, .6); if (hg) gl.push(hg); Scene.FX.hit('me', '+' + n, '#9be08a'); } }
+    S.hp=Math.min(S.hp,maxHp()); S.mana=Math.min(S.mana,Progression.maxMana(S)); S.stamina=Math.min(S.stamina,Progression.maxStamina(S)); const g = grant(body ? {} : o); F.over = true; tick(); save(); renderHud(); barsF();
     F.after = `<h3 class="won">${esc(head)}</h3>${note ? `<p class="story">${esc(note)}</p>` : ''}${body ? '' : spoilsHTML(g)}${gainLine(gl)}${res.ok ? '' : answerHTML(F.task)}<div class="row end">${body ? `<button class="btn quiet" data-a="fdone">Leave it</button><button class="btn solid${S.tut <= 2 ? ' pulse' : ''}" data-a="floot">Loot</button>` : '<button class="btn solid" data-a="fdone">Continue</button>'}</div>`; F.st = 'after'; drawF();
   }
   function loseF(res, gl) {
@@ -626,7 +700,7 @@
   function flee() {
     if (!F || (F.busy && !(F.act === 'fight' && !F.over && F.st === 'after'))) return; F.busy = false;
     const e = F.ent, live = F.act === 'fight' && !F.over && e && F.kind !== 'boss' && F.kind !== 'rival';
-    if (live && F.round && !gift('flee')) { const hs = rv('hiding'); gain('hiding', F.diff, .5);
+    if (live && F.round && !gift('flee')) { const hs = rv('hiding');
       if (hs > 0 && rnd() * 100 < Math.min(70, 15 + hs * .55)) { closeF(); toast('You slip out of sight'); return; }   // Hiding: gone before it can follow
       const d = rint(3, 6) + 2 * F.r; S.hp -= d; Scene.FX.hit('me', '−' + d, '#f08070'); if (S.hp <= 0) { S.hp = 0; F.kick = true; S.stats.falls++; closeF(); return; } }
     save(); closeF(); if (live && e.kind === 'mon') { Scene.chase(e, 20); toast('It comes after you. Push the joystick toward its rim to run.'); }
@@ -644,7 +718,7 @@
   /* ---------- starting things ---------- */
   const giverOf = c => { const l = CONTRACTS.filter(x => x.r === c.r); return Math.min(2, Math.floor(l.indexOf(c) * 3 / l.length)); };
   const sneakPct = () => Math.round(Math.max(20, Math.min(95, 25 + rv('hiding') * .7 + bonus('deft') / 2)));
-  function sneak(diff) { const p = sneakPct(); gain('hiding', diff, .6); save(); if (rnd() * 100 < p) { toast('You slip out of sight'); return true; } closeSheet(); toast('They keep their eyes on you'); return false; }
+  function sneak(diff) {if(CONCEAL.hidden)return true;toast('Use Hide, then approach while concealed.');return false;}
   const START = {
     intro: () => { COLS.manifest = FirstDay.columns; openQ({ kind: 'intro', r: 1, step: S.seen['intro.assembled'] ? 'turn' : S.seen['intro.result'] ? 'i3' : S.seen['intro.column'] ? 'i2' : S.seen['intro.row'] ? 'icol' : 'i1', task: REPS[0], tasks: S.seen['intro.assembled'] ? REPS : null, title: 'Help unload the Marigold' }); if (Q.tasks) { Q.i = REPS.findIndex((_, i) => !S.seen['intro.rep.' + i]); if (Q.i < 0) Q.i = 0; Q.task = REPS[Q.i]; drawQ(); } },
     contract: d => { const c = CONTRACTS.find(x => x.id === d.id); openQ({ kind: 'contract', id: c.id, r: c.r, task: c, title: c.title, lesson: c.lesson || null, first: !!c.lesson && !S.done[c.id] && !S.seen[c.id] }); if (c.lesson) { S.seen[c.id] = 1; cmdTeach(c.id); if (c.id === 'c101') cmdTeach('intro'); } },
@@ -662,7 +736,8 @@
   };
 
   /* ---------- screens ---------- */
-  function renderHud() { const m = maxHp(), face = S.path && ART ? `<img alt="" src="art/p/${LOOKS[S.path][(S.look || 0) % 2]}.webp">` : ''; $('#hud').innerHTML = `<div class="hud-row"><button class="hud-face" data-a="tab" data-t="hero" aria-label="Character">${face}</button><div class="hud-id"><b>${esc(S.name || 'Brasswake')}</b><span class="hpbar" title="Health"><i style="width:${Math.round(100 * S.hp / m)}%"></i><b>${S.hp} / ${m}</b></span></div><div class="hud-gold">${ico('coin')}<b>${S.gold}</b></div></div>`; }
+  function renderHud() {const m=maxHp(),face=S.path&&ART?`<img alt="" src="art/p/${LOOKS[S.path][(S.look||0)%2]}.webp">`:'';$('#hud').innerHTML=`<div class="hud-row"><button class="hud-face" data-a="tab" data-t="hero" aria-label="Character">${face}</button><div class="hud-id"><b>${esc(S.name||'Brasswake')}</b><span class="hpbar" title="Health"><i style="width:${Math.round(100*S.hp/m)}%"></i><b>${S.hp} / ${m}</b></span><small class="resource-line">Mana ${Math.round(S.mana)}/${Progression.maxMana(S)} · Stamina ${Math.round(S.stamina)}/${Progression.maxStamina(S)}</small></div><div class="hud-gold">${ico('coin')}<b>${S.gold}</b></div></div>${S.path&&tab==='world'?`<div class="conceal-controls"><button class="btn sm quiet" data-a="conceal"${Q||F||DU?' disabled':''}>${CONCEAL.hidden?'Reveal · '+CONCEAL.steps+' steps':'Hide · SQL'}</button><button class="btn sm quiet" data-a="outrecover"${Q||F||DU?' disabled':''}>Recover · SQL</button></div>`:''}`;}
+
   // the bottom bar: framed slots with painted icons, the hero's own portrait in the middle
   const NAV = [['world', 'Adventure', 'sword', '⚔'], ['map', 'Map', 'map', '✥'], ['hero', 'Hero', null, '☺'], ['bag', 'Bag', 'bag', '◈'], ['ledger', 'Ledger', 'tome', '❖']];
   function renderNav() {
@@ -709,12 +784,12 @@
     showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box tt-slots"><h1>Brasswake</h1><p class="tt-sub">Pulled from the sea, entered in the Trials, and taught SQL from the first line</p>${A.slots.map(row).join('')}${any ? '<button class="tt-link" data-a="delpick">Delete a character</button>' : ''}<p class="tt-note">Your characters share your houses and what is in them. Each keeps their own bank.</p></div>`);
   }
   function delPick() { showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box tt-slots"><h1>Delete who?</h1>${A.slots.map((c, i) => c ? `<button class="tt-btn quiet" data-a="delslot" data-i="${i}">${esc(c.name)}<small>${i === A.main ? 'Main: the Trials start over with your next new character' : 'Supporting'}</small></button>` : '').join('')}<button class="tt-btn" data-a="totitle">Back</button></div>`); }
-  function playSlot(i) { if (!A.slots[i]) return; if (i !== A.cur) { save(); A.cur = i; loadCur(); DG = null; Q = null; F = null; CE = null; S.pos = S.pos || null; $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; tab = 'world'; sel = S.region; save(); if (sceneUp) { restoreAccountScene(); Scene.refresh(); } } hideTitle(); render(); renderHud(); }
+  function playSlot(i) { if (!A.slots[i]) return; if (i !== A.cur) { save(); discardEncounter(); A.cur = i; loadCur(); DG = null; Q = null; F = null; CE = null; S.pos = S.pos || null; $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; tab = 'world'; sel = S.region; save(); if (sceneUp) { restoreAccountScene(); Scene.refresh(); } } hideTitle(); render(); renderHud(); }
   function create() {
     CR = CR || { path: null, look: null, name: '' };
     showTitle(`<div class="cr"><h2>Who were you back home?</h2><p class="cr-note">A young name people had started to talk about. Pick what you were known for.</p><label class="cr-name"><span>Name</span><input id="cr-name" maxlength="16" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Your name" value="${esc(CR.name || '')}"></label>
       <div class="cr-paths">${PATHS.map(p => `<div class="cr-path${CR.path === p.id ? ' on' : ''}"><b>${p.name}</b><small>${Object.keys(p.sk).map(k => rpgName(k) + ' ' + p.sk[k]).join(' · ')}</small><div class="looks">${LOOKS[p.id].map((g, i) => { const lk = LOOK0[p.id] + i; return `<button data-a="pick" data-id="${p.id}" data-look="${lk}" aria-pressed="${CR.look === lk}" aria-label="${p.name}, look ${i + 1}">${ART ? `<img alt="" src="art/p/${g}.webp">` : `<span class="nolook">${i ? 'Her' : 'Him'}</span>`}</button>`; }).join('')}</div></div>`).join('')}</div>
-      <p class="cr-note">You can learn any skill later by using it, and buy or find any page. Eleven skills share ${CAP} points.</p><div class="row end"><button class="btn quiet" data-a="totitle">Back</button><button class="btn solid" data-a="begin"${CR.look == null ? ' disabled' : ''}>Begin</button></div></div>`, 'creating');
+      <p class="cr-note">You can learn any skill later by using it, and buy or find any page. Twenty skills share ${CAP} points. Your starting path leaves every skill available.</p><div class="row end"><button class="btn quiet" data-a="totitle">Back</button><button class="btn solid" data-a="begin"${CR.look == null ? ' disabled' : ''}>Begin</button></div></div>`, 'creating');
   }
   // the approach to Tallyport, three short beats, then the dock
   const tj = (n, fb) => ART && (ArtData.story_bg || []).indexOf(+n.slice(1)) >= 0 ? n : fb;
@@ -1159,7 +1234,7 @@
   }
   function fiRun() {
     const sql = $('#sql').value; if (!sql.trim() || FI.res) return; FI.draft = sql; const res = Engine.grade(FI.task, sql); if (res.err) { FI.err = res.err; return fiDraw(); }
-    S.stats.q++; if (res.ok) { S.stats.ok++; trainSql(res.used || [], FI.task.kc, sql); } const fid = FI.e.fid, d = S.fishd[fid] && S.fishd[fid].day === dayKey() ? S.fishd[fid] : (S.fishd[fid] = { day: dayKey(), n: 0 }); d.n++;
+    S.stats.q++; if (res.ok) { S.stats.ok++; trainSql(res.used || [], FI.c, sql); } const fid = FI.e.fid, d = S.fishd[fid] && S.fishd[fid].day === dayKey() ? S.fishd[fid] : (S.fishd[fid] = { day: dayKey(), n: 0 }); d.n++;
     const fs = rv('fishing'), r = FI.r, deep = FI.i, diff = FI.c * 10 + deep * 6, o = odds(fs + 25, diff, res.grade, res.share), F4 = FISH[r - 1], u = rnd(), G = { gold: 0, items: [], scrolls: [], food: {} }; let t, sp = '', ic = '';
     if (rnd() * 100 >= o.p) { const junk = !res.ok && rnd() < .35 ? pick(JUNK) : ''; t = res.ok ? 'Right answer, but nothing’s biting. Try another cast.' : junk ? `You pull up ${junk}.` : 'Nothing bites.'; if (junk) ic = /boot/.test(junk) ? 'boot' : /weed|reed/.test(junk) ? 'weed' : /key/.test(junk) ? 'rustkey' : ''; }
     else if (deep === 2 && fs >= FISHNEED.treasure && u < .24) { const k = pick(['chest', 'pearl', 'coin', 'bottle']); ic = { chest: 'sunkchest', pearl: 'pearl', coin: 'oldcoin', bottle: 'bottle' }[k];
@@ -1169,7 +1244,7 @@
     else if (deep >= 1 && fs >= FISHNEED.good && u < .62) { sp = F4[2]; ic = r % 2 ? 'bigfish' : 'pike'; G.food.bigfish = 1; S.fishlog[sp] = (S.fishlog[sp] || 0) + 1; t = `A ${sp}, and a good one.`; }
     else { sp = F4[u < .5 ? 0 : 1]; ic = u < .5 ? 'fish' : 'perch'; G.food.fish = 1; S.fishlog[sp] = (S.fishlog[sp] || 0) + 1; t = `A ${sp}.`; }
     Sound.sfx(sp || ic && !['boot', 'weed', 'rustkey'].includes(ic) ? 'fishCatch' : 'fishEmpty');
-    const gn = gain('fishing', Math.min(95, diff), res.ok ? 1 : res.grade === 'close' ? .5 : .25), got = grant(G); FI.res = res; FI.out = { t, got, gn, ic }; if (gid() === 'fish') setTimeout(() => gDone('fish'), 1500); save(); renderHud(); fiDraw();
+    const gn = gain('fishing', Math.min(95, diff), {correct:1,close:.6,partial:.4,wrong:0}[res.grade]), got = grant(G); FI.res = res; FI.out = { t, got, gn, ic }; if (gid() === 'fish') setTimeout(() => gDone('fish'), 1500); save(); renderHud(); fiDraw();
   }
   function fiClose() { FI = null; $('#enc').hidden = true; $('#enc').innerHTML = ''; $('#nav').hidden = false; Scene.refresh(); render(); }
   function fiDraw() {
@@ -1328,6 +1403,7 @@
       <div class="row"><button class="btn sm" data-a="hbed" data-h="${h.id}"${S.hp < maxHp() ? '' : ' disabled'}>Sleep in the bed</button>${h.pad ? '<span class="pill ok">Teleport pad</span>' : `<button class="btn sm" data-a="hpad" data-h="${h.id}"${S.runes > 0 ? '' : ' disabled'}>Install a teleport pad (1 rune, you have ${S.runes || 0})</button>`}</div>
       <section class="sec"><h2>Chest <small>${h.chest.length} / ${hCap(h)}</small></h2><p class="cap2">Things in here stay put when you die.</p>${h.chest.length ? `<ul class="goods">${h.chest.map(it => row(it, 'htake', 'Take')).join('')}</ul>` : ''}${free.length ? `<details class="lesson"><summary>Put something in</summary><div class="lb"><ul class="goods">${free.map(it => row(it, 'hput', 'Store')).join('')}</ul></div></details>` : ''}</section>
       <section class="sec"><h2>Trophy shelf</h2>${troph.length ? `<ul class="tale plain">${troph.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '<p class="cap2">Empty. Examiners and lair leaders you beat end up here.</p>'}</section>
+      ${furnitureHTML(h)}
       ${CMap.houseHTML(h)}
       ${upHTML(h)}
       <section class="sec"><h2>Paint <small>${PAINT_C} gold a coat</small></h2><p class="lab">Walls · ${esc(wn ? wn[0] : '')}</p>${sw('wall', PAINT.wall, h.wall)}<p class="lab">Roof · ${esc(rn ? rn[0] : '')}</p>${sw('roof', PAINT.roof, h.roof)}</section>`); }
@@ -1370,6 +1446,7 @@
     camp() { if (now() - (S.campT || 0) < 120e3 || S.hp >= maxHp()) return toast(S.hp >= maxHp() ? 'The fire is warm. You are already rested.' : 'You have only just rested here.'); S.campT = now(); const n = heal(maxHp() * .5); save(); renderHud(); toast(`You rest by the fire: +${n} health`); },
     peddler(e) { const c = 8 * e.r, m = 3 * e.r; shopSheet(e, TALK.way[e.x % 3], [{ ic: 'draught', name: 'Healing Draught', meta: 'Restores 30 health, in or out of a fight', price: c + ' gold', a: 'buytonic', d: { c }, off: S.gold < c }, { ic: 'ration', name: 'Trail ration', meta: 'Eat it from your bag: +15 health', price: m + ' gold', a: 'buymeat', d: { c: m }, off: S.gold < m }], '<button class="btn sm quiet" data-a="sellcommon">Sell common gear and hides</button>'); },
     cache(e) {
+      if (S.cache[e.cid] !== dayKey() && lockOffer(e,()=>SH.cache(e))) return;
       if (S.cache[e.cid] === dayKey()) return toast('Empty. Come back another day.'); const t = e.r, o = { gold: rint(10, 20) * t, mats: { [t]: rint(1, 3) }, items: rnd() < .3 ? [makeItem(rollRarity(luck()), t)] : [], scrolls: [] };
       if (rnd() < .35) { const left = PAGES.filter(p => p.c === t && !p.rare && !owned(p.id) && !S.scr[p.id]); if (left.length) o.scrolls.push(pick(left).id); }
       S.cache[e.cid] = dayKey(); Scene.FX.treasure(e.x, e.y); const g = grant(o); save(); renderHud(); Scene.refresh(); sheet(`<p class="eyebrow">${esc(region(t).name)} · in the wilds</p><h2>An old chest</h2>${spoilsHTML(g)}<div class="row end"><button class="btn solid" data-a="closesheet">Take it</button></div>`);
@@ -1380,7 +1457,7 @@
     board(e) { if (S.stats.ok < 4) return dlg(e, 'Nothing pinned for you yet.', [bye]); const R = rounds(); dlg(e, 'Five drills a day, rusty skills first. Finish all five for a chest.', R.tasks.map((x, i) => ({ t: tplOf(x.tpl).title, n: x.done ? 'done' : (tplSkills(x.tpl).some(rusty) ? 'rusty · ' : '') + CIRCLE[tplOf(x.tpl).r] + ' Circle', a: 'start', d: { k: 'round', i }, off: x.done })).concat([bye])); },
     bench() {
       const t = here(), CS = ['weapon', 'armor', 'shield', 'ring', 'charm'], cp = bestPage('craft'), can = !!cp && cp.c >= t;
-      sheet(`<p class="eyebrow">Workbench · ${CIRCLE[t]} Circle</p><h2>Craft</h2><div class="grid"><span class="cell">${ico('mat' + t, have(t))}</span><span class="cell">${ico('sigil', have('sigil'))}</span><span class="cell">${ico('draught', S.tonics)}</span><span class="cell">${ico('hintkey', S.hints)}</span></div>${can ? `<p class="cap2">Each piece is one query and one roll, asked at the circle of your best pattern page (${esc(cp.name)}). Blacksmithing ${rv('smith').toFixed(0)} makes gear, Alchemy ${rv('alchemy').toFixed(0)} makes draughts and keys. A spoiled piece wastes half the materials.</p>` : `<div class="verdict bad"><p>Working ${MATS[t]} needs a Pattern Book page of the ${CIRCLE[t]} Circle. ${esc(FOLK[t - 1][0][0])} sells one.</p></div>`}<div class="seg">${CS.map(c => `<button data-a="slot" data-s="${c}" aria-pressed="${benchSlot === c}">${c}</button>`).join('')}</div><ul class="inv">${RECIPES.filter(x => !x.minR || t >= x.minR).map(x => { const ok = can && have(t) >= x.mats && have('sigil') >= x.sigils, d = Math.min(100, diffOf(t) + ({ rare: 8, epic: 16, legendary: 24 }[x.id] || 0)); return `<li><span class="nm ${x.gear ? 'rar-' + x.id : ''}">${esc(x.id === 'scroll' ? 'Hint Key' : x.name)}${x.gear ? ' · ' + benchSlot : ''}</span><div class="row"><span class="meta grow">${x.mats} ${MATS[t]}${x.sigils ? ' + ' + x.sigils + ' sigil' : ''} · ${odds(rv(x.gear ? 'smith' : 'alchemy'), d, 'correct').p}% if correct</span><button class="btn sm" data-a="craft" data-id="${x.id}"${ok ? '' : ' disabled'}>Craft</button></div></li>`; }).join('')}</ul>`);
+      sheet(`<p class="eyebrow">Workbench · ${CIRCLE[t]} Circle</p><h2>Craft</h2><div class="grid"><span class="cell">${ico('mat' + t, have(t))}</span><span class="cell">${ico('sigil', have('sigil'))}</span><span class="cell">${ico('draught', S.tonics)}</span><span class="cell">${ico('hintkey', S.hints)}</span></div>${can ? `<p class="cap2">Each piece is one query and one roll, asked at the circle of your best pattern page (${esc(cp.name)}). Blacksmithing ${rv('smith').toFixed(0)} makes gear, Alchemy ${rv('alchemy').toFixed(0)} makes draughts and keys. A spoiled piece wastes half the materials.</p>` : `<div class="verdict bad"><p>Working ${MATS[t]} needs a Pattern Book page of the ${CIRCLE[t]} Circle. ${esc(FOLK[t - 1][0][0])} sells one.</p></div>`}<div class="seg">${CS.map(c => `<button data-a="slot" data-s="${c}" aria-pressed="${benchSlot === c}">${c}</button>`).join('')}</div><ul class="inv">${RECIPES.filter(x => !x.minR || t >= x.minR).map(x => { const ok = can && have(t) >= x.mats && have('sigil') >= x.sigils, d = Math.min(100, diffOf(t) + ({ rare: 8, epic: 16, legendary: 24 }[x.id] || 0)); return `<li><span class="nm ${x.gear ? 'rar-' + x.id : ''}">${esc(x.id === 'scroll' ? 'Hint Key' : x.name)}${x.gear ? ' · ' + benchSlot : ''}</span><div class="row"><span class="meta grow">${x.mats} ${MATS[t]}${x.sigils ? ' + ' + x.sigils + ' sigil' : ''} · ${odds(rv(x.gear ? 'smith' : 'alchemy'), d, 'correct').p}% if correct</span><button class="btn sm" data-a="craft" data-id="${x.id}"${ok ? '' : ' disabled'}>Craft</button></div></li>`; }).join('')}</ul>${professionHTML()}`);
     },
     casino(e) { const r = e.r, room = Poker.ROOM[r - 1]; shopSheet(e, pick(['"Chips at the cage, questions at the table. Welcome."', '"The house deals straight. Query the cards all you like."', '"Find a seat. The blinds are posted on each table."']), [{ ic: 'chips_gold', name: 'Blind Tally', meta: `Hold’em, six seats. Blinds ${room.bb / 2} and ${room.bb}. Sit with ${20 * room.bb} gold or more`, price: 'Table', a: 'pkrules', d: { r }, off: S.gold < 20 * room.bb },
       { ic: 'wheel', name: 'The Crooked Wheel', meta: `Bet with a query. The wheel has a flaw, and its history is a table. Bets from ${room.bb} gold`, price: 'Wheel', a: 'whopen', d: { r } }, { ic: 'shoe', name: 'The Count', meta: `Blackjack. Every card shown is logged, so you can count the shoe with a query. Bets from ${room.bb} gold`, price: 'Deal', a: 'bjopen', d: { r } }]); },
@@ -1455,6 +1532,10 @@
     app: () => ART && ArtData.body ? app() : null, role: () => S.path, look: () => S.look != null ? S.look : (LOOK0[S.path] || 0), thief: () => !!bestPage('shadow'), hue: r => HUES[r], folk: r => FOLK[r - 1], tavern: r => TAVERNS[r - 1], rivalName: r => RIVALS[r - 1].name, bossName: r => BOSSES[r - 1].name, dungeonName: r => DUNGEONS[r - 1].name, matName: r => MATS[r], regionName: r => region(r).name, regionSub: r => region(r).sub,
     homeRoles: r => [0, 1, 2, 3, 4, 5, 6].map(k => HOMES[(r * 3 + k * 4) % HOMES.length]), roamRoles: r => [0, 1, 2, 3, 4, 5, 6].map(k => ROAMERS[(r + k) % ROAMERS.length]), settler: role => SETTLE[role], settlerName: (hid, role) => FIRST[hsh(hid) % FIRST.length] + ' the ' + SETTLE[role].n, stockName: t => STOCK[t] || 'Animal', place: pk => PLACES[pk],
     tpls: r => BOUNTIES.filter(b => b.r === r).map(b => b.id), habitat: t => HAB[t] || 'open', wild: (r, h) => (WILD[r] || []).filter(w => w[1] === h || (h === 'coast' && w[1] === 'water') || (h === 'water' && w[1] === 'coast')).map(w => w[0]), hunts: t => !!HUNT[t], cacheOpen: id => S.cache[id] === dayKey(),
+    relocated: () => Sneaking.reveal(CONCEAL),
+    visibility: () => ({hidden:CONCEAL.hidden,stealth:rv('stealth')}),
+    detects: (d,facing,agg) => Sneaking.detection(CONCEAL,rv('stealth'),d,facing,agg),
+    noticed: () => {if(Sneaking.reveal(CONCEAL)){renderHud();toast('You have been spotted');}},
     aggro: () => S.tut >= 3 && !Q && !F && !SB && $('#sheet').hidden && tab === 'world' && $('#title').hidden, chasing: () => !Q && !F && $('#title').hidden,
     ambush(e) { if (Q || F || !ready) return; CE = e; e.unseen = false; closeSheet(); if (tab !== 'world') ACT.tab({ t: 'world' });
       if (e.chase > 0) { e.chase = 0; const d = rint(3, 6) + 2 * e.r; S.hp -= d; Scene.FX.hit('me', '−' + d, '#f08070'); if (S.hp <= 0) { S.hp = 0; S.stats.falls++; wakeFromDeath(); renderHud(); toast('It caught you. You wake at the healer’s. Your things are where you fell.'); deathNote(); return; } save(); renderHud(); }
@@ -1472,7 +1553,7 @@
     entered(r) { if (S.region === r && S.been[r]) return; S.region = r; S.been[r] = 1; sel = r; save(); },
     sound: (name, detail) => Sound.sfx(name, detail),
     dungeonState: () => DG ? DP.current() : null,
-    moved(x, y, dun, run) { if(Scene.inInterior()){S.interior=Scene.venueState();if(!interiorSaveTimer){const owner=S;interiorSaveTimer=setTimeout(()=>{interiorSaveTimer=0;if(S===owner && sceneOwner===owner)save();},1500);}} if (dun && DG)DP.moved(x,y); if (gOn()) gMoved(x, y, dun, run); if (!dun && !Scene.inHall() && !Scene.inInterior()) { S.pos = [x, y]; CMap.moved(x,y); if (S.mv % 3 === 0) { S.lairs = S.lairs || {}; for (const L of Scene.sites()) if (L.kind === 'lair' && !S.lairs[L.id] && Math.hypot(L.x - x, L.y - y) < 11) { S.lairs[L.id] = 1; save(); toast(`Found: ${L.name}. It is on your map now.`); coach('lair'); } } } S.mv = (S.mv || 0) + 1; if (S.mv % 5 === 0 && S.hp < maxHp()) { heal(1 + Math.floor(rv('healing') / 40), true); renderHud(); } },
+    moved(x, y, dun, run) { const was=CONCEAL.hidden;Sneaking.move(CONCEAL,x,y,run);if(CONCEAL.hidden){for(const e of Scene.ents()){if(e.dead||!['mon','rival','guard','keeper'].includes(e.kind))continue;const d=Math.hypot(e.x-x,e.y-y);if(Sneaking.approach(CONCEAL,{id:e.id||e.name,x:e.x,y:e.y},d)){const g=gain('stealth',diffOf(e.r),.6,true);if(g&&g.after>g.before)toast('Stealth +'+(g.after-g.before).toFixed(1));break;}}}if(was)renderHud(); if(Scene.inInterior()){S.interior=Scene.venueState();if(!interiorSaveTimer){const owner=S;interiorSaveTimer=setTimeout(()=>{interiorSaveTimer=0;if(S===owner && sceneOwner===owner)save();},1500);}} if (dun && DG)DP.moved(x,y); if (gOn()) gMoved(x, y, dun, run); if (!dun && !Scene.inHall() && !Scene.inInterior()) { S.pos = [x, y]; CMap.moved(x,y); if (S.mv % 3 === 0) { S.lairs = S.lairs || {}; for (const L of Scene.sites()) if (L.kind === 'lair' && !S.lairs[L.id] && Math.hypot(L.x - x, L.y - y) < 11) { S.lairs[L.id] = 1; save(); toast(`Found: ${L.name}. It is on your map now.`); coach('lair'); } } } S.mv = (S.mv || 0) + 1; if (S.mv % 5 === 0 && S.hp < maxHp()) { heal(1 + Math.floor(rv('healing') / 40), true); renderHud(); } },
     hud(n) { const ob = objective(), k = (n ? n.kind + n.name : '') + ob + (F ? 'f' : ''); if (k === HOST._k) return; HOST._k = k; const b = $('#ctx'); b.hidden = !n || !!F; if (n) b.textContent = n.kind === 'homeatlas' ? 'Use: Grand Atlas' : ({ venueup: 'Go upstairs: ', venuedown: 'Go downstairs: ', cartographer: 'Maps: ', regionchart: 'Read: ', homeatlas: 'Use: ', atlasdisplay: 'Inspect: ', roadsign: 'Read: ', banker: 'Bank: ', guide: 'Talk: ', lookout: 'Climb: ', dojo: 'Go in: ', hallexit: 'Leave: ', master: 'Talk: ', student: 'Talk: ', sorrel: 'Talk: ', traveler: 'Talk: ', odalys: 'Talk: ', foe: 'Talk: ', dummy: 'Practice: ', bracket: 'Read: ', rnote: 'Read: ', npc: 'Talk: ', folk: 'Talk: ', tavern: 'Talk: ', healer: 'Talk: ', registrar: 'Talk: ', stallkeep: 'Trade: ', shopkeep: 'Trade: ', specialist: 'Trade: ', ferry: 'Talk: ', landmark: 'Inspect: ', rival: 'Approach: ', boss: 'Face: ', mon: 'Engage: ', guard: 'Engage: ', keeper: 'Face: ', dtravel:'Use: ', dcache:'Open: ', dlever:'Use: ', dgate:'Inspect: ', dsecret:'Investigate: ', dlore:'Read: ', ltable:'Take: ', node: 'Gather: ', board: 'Read: ', bench: 'Use: ', stairs: 'Enter: ', chest: 'Open: ', exit: 'Use: ', page: 'Read: ', camp: 'Rest: ', peddler: 'Trade: ', cache: 'Open: ', corpse: 'Loot: ', casino: 'Enter: ', home: 'Talk: ', fish: 'Fish: ', stock: '', poi: (n.sub || 'Look') + ': ' }[n.kind] || '') + n.name; $('#obj').textContent = ob; }
   };
 
@@ -1546,11 +1627,14 @@
       <div class="row end"><button class="btn solid" data-a="closesheet">Done</button></div>`);
     paintDoll();
   }
+  const modeName = m => ({up:'↑ Raise',down:'↓ Lower',lock:'Locked'})[m];
+  function progressRow(id,name,note,stat=false) {const v=stat?S.attr[id]:rv(id),cp=stat?100:skCap(id),m=Progression.mode(S,id,stat),target=(stat?S.attrTargets:S.skillTargets)[id];return `<li><span class="nm"><b>${name}</b><small>${esc(note)}</small></span><span class="val">${v.toFixed(1)}<small>${stat?'':skTitle(v)+' · cap '+cp}</small></span><div class="progress-controls"><button class="btn sm quiet" data-a="progressmode" data-id="${id}" data-stat="${stat?1:0}" aria-label="${name}: ${modeName(m)}">${modeName(m)}</button><label>Stop at <input type="number" min="${stat?10:0}" max="${cp}" step="0.1" value="${target==null?'':target}" placeholder="${cp}" aria-label="${name} stop target" data-target="${id}" data-stat="${stat?1:0}"></label><button class="btn sm quiet" data-a="progresstarget" data-id="${id}" data-stat="${stat?1:0}">Set</button></div><span class="bar"><i style="width:${Math.min(100,v/cp*100)}%"></i></span></li>`;}
+  function progressPanel() {return `<section class="sec"><h2>Attributes <small>${Progression.statTotal(S).toFixed(1)} / 225</small></h2><p class="note">Strength sets health and physical power. Dexterity supplies stamina for maneuvers. Intelligence supplies mana for magic. Practice trains related attributes, including when a skill reaches its cap.</p><ul class="skills">${[['str','Strength','Health and physical power.'],['dex','Dexterity','Stamina and shield efficiency.'],['int','Intelligence','Mana and spell power.']].map(x=>progressRow(...x,true)).join('')}</ul><p>Mana ${Math.round(S.mana)} / ${Progression.maxMana(S)} · Stamina ${Math.round(S.stamina)} / ${Progression.maxStamina(S)}</p></section><section class="sec"><h2>Skills <small>${total().toFixed(1)} / ${CAP}</small></h2><p class="note">Raise learns through use. Lower releases points only when another skill needs room at the shared cap, starting with the highest skill set to Lower. Locked preserves its value. All three settings allow you to use the skill. Set a stopping target to lock automatically; leave it blank to clear the target. No skills decay while you are away.</p><ul class="skills">${RPG.map(x=>progressRow(...x)).join('')}</ul><p class="note">Skills improve fastest near their difficulty. The last ten points to Grandmaster take the longest. SQL techniques below have their own learning record.</p>${scrollsHTML()}</section>`;}
   function vHero() {
     const p = PATHS.find(x => x.id === S.path), acc = S.stats.q ? Math.round(100 * S.stats.ok / S.stats.q) : 0, w = armsSkill();
     paintDoll(); return `<section class="place"><p class="eyebrow">${p ? p.name : 'No path chosen'} · health ${S.hp} / ${maxHp()}</p><h1>${rankName()}</h1></section>${dollHTML()}
       <section class="sec"><h2>Books ${qm('hero')}</h2>${bookHTML()}</section>
-      <section class="sec"><h2>Skills <small>${total().toFixed(1)} / ${CAP}</small></h2><ul class="skills">${RPG.map(s => { const v = rv(s[0]); return `<li><span class="nm"><b>${s[1]}</b><small>${esc(s[2])}</small></span><span class="val">${v.toFixed(1)}<small>${skTitle(v)}${skCap(s[0]) > 100 ? ' · cap ' + skCap(s[0]) : ''}</small></span><span class="bar"><i style="width:${Math.min(100, v / skCap(s[0]) * 100)}%"></i></span></li>`; }).join('')}</ul><p class="note">Skills rise with use, fastest against targets near your level. Past 70 they slow down, and the last ten points to Grandmaster take the longest. Skill sets the base chance. Your answer scales it.</p>${scrollsHTML()}</section>
+      ${progressPanel()}
       <details class="lesson"><summary>SQL skills</summary><div class="lb"><ul class="skills">${SKILLS.map(s => { const v = S.skills[s.id] || { v: 0 }; return `<li><span class="nm"><b>${s.name}</b> ${rusty(s.id) ? '<span class="pill rust">rusty</span>' : ''}<small>${esc(s.what)}</small></span><span class="val">${v.v.toFixed(1)}</span><span class="bar"><i style="width:${v.v}%"></i></span></li>`; }).join('')}</ul><p class="cap2">Tracked in the background. Rusty skills come back in the daily drills.</p></div></details>
       <details class="lesson"><summary>Commands learned · ${Object.keys(CMDS).filter(k => cmdSet()[k] === 2).length} of ${Object.keys(CMDS).length}</summary><div class="lb"><ul class="skills">${Object.keys(CMDS).map(k => `<li><span class="nm"><b>${cmdSet()[k] === 2 ? esc(cmdTitle(k)) : cmdSet()[k] ? esc(cmdTitle(k)) + ' <small>taught, not used yet</small>' : '?'}</b></span><span class="val">${cmdSet()[k] === 2 ? '✓' : ''}</span></li>`).join('')}</ul><p class="cap2">A command joins the Commands panel when its lesson opens. Using it correctly once earns a Hint Key.</p></div></details>
       ${djTokens()}<section class="sec"><h2>Worn gear</h2><div class="grid doll">${SLOTS.map(s => { const it = itemById(S.eq[s]); return it ? `<button class="cell rar-${it.rarity}" data-a="item" data-id="${it.id}" aria-label="${esc(it.name)}">${ico(it.ic)}<em>${s}</em></button>` : `<span class="cell empty"><em>${s}</em></span>`; }).join('')}</div><div class="kv" style="margin-top:12px"><span>Book of Arms uses</span><span>${rpgName(w)}</span><span>Damage with it</span><span>+${dmgPct(w)}%</span><span>Defence</span><span>${Math.min(60, bonus('def'))}%</span><span>Gold bonus</span><span>+${bonus('gold')}%</span><span>Skill gain bonus</span><span>+${learnPct()}%</span><span>Luck (with streak ${S.streak})</span><span>+${luck()}%</span></div></section>
@@ -1617,7 +1701,7 @@
       if (!CR || CR.look == null) return; const p = PATHS.find(x => x.id === CR.path), nm = ($('#cr-name').value || '').trim().slice(0, 16) || NAMES[CR.look], rev = S.rev;
       const slot = CR.slot != null && !A.slots[CR.slot] ? CR.slot : A.slots.findIndex(c => !c); if (slot < 0) return toast('All five slots are taken'); syncA();
       const main = A.main < 0 || !A.slots[A.main]; A.cur = slot; if (main) A.main = slot;
-      S = linkS(fresh()); S.rev = rev; S.name = nm; S.path = p.id; S.look = CR.look; S.sk = Object.assign({}, p.sk); S.hp = maxHp(); give(makeItem('common', 1, 'weapon', WSTART[p.id])); for (const id of { warrior: ['a1'], thief: ['a1', 'h1'], mage: ['s1'], crafter: ['a1', 'c1'] }[p.id]) S.pages[id] = 1; S.intro = 1; S.pos = null;
+      S = linkS(fresh()); S.rev = rev; S.name = nm; S.path = p.id; S.look = CR.look; S.sk = Object.assign({}, p.sk); Progression.normalize(S); S.hp = maxHp(); give(makeItem('common', 1, 'weapon', WSTART[p.id])); for (const id of { warrior: ['a1'], thief: ['a1', 'h1'], mage: ['s1'], crafter: ['a1', 'c1'] }[p.id]) S.pages[id] = 1; S.intro = 1; S.pos = null;
       CR = null; DG = null; Q = null; F = null; $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; tab = 'world'; save(); if (sceneUp) { Scene.load(null, 'dock'); sceneOwner=S; } render();
       if (main) coldOpen(); else { hideTitle(); gSkip(); toast(`${nm} arrives in Tallyport`); }
     },
@@ -1674,7 +1758,7 @@
     placego: () => { const g = Scene.ghostNow(); if (!PL || !g) return; g.why = Scene.homeFits(g.x, g.y, g.w, g.h); if (g.why) return placeBar(); const n = (S.homes || []).length + 1, p = Scene.pos(), h = { id: 'h' + Date.now().toString(36), shape: PL.shape, mat: PL.mat, x: g.x, y: g.y, w: g.w, h: g.h, r: Scene.region(), wall: PAINT.wall[0][1], roof: PAINT.roof[0][1], pad: 0, chest: [], name: n === 1 ? 'Your home' : 'Home ' + n };
       S.deeds.splice(PL.k, 1); (S.homes = S.homes || []).push(h); Scene.addHome(h); PL = null; Scene.ghost(null); placeBar(); save(); toast('Built. Tap the door to go in.'); },
     paint: d => { const h = homeById(d.h); if (!h || h[d.k] === d.c) return; if (funds() < PAINT_C) return toast(`A coat of paint costs ${PAINT_C} gold`); pay(PAINT_C); h[d.k] = d.c; Scene.dropHome(h.id); Scene.addHome(h); CMap.restore(); save(); homeSheet(h); },
-    hbed: d => { const h = homeById(d.h); heal(maxHp()); if (h && h.fbed) S.rest = Date.now() + 60 * 60000; save(); renderHud(); toast(h && h.fbed ? 'You sleep well. Full health, and well rested for an hour.' : 'You sleep. Full health.'); homeSheet(h); },
+    hbed: d => { const h = homeById(d.h); heal(maxHp()); S.mana=Progression.maxMana(S);S.stamina=Progression.maxStamina(S); if (h && h.fbed) S.rest = Date.now() + 60 * 60000; save(); renderHud(); toast(h && h.fbed ? 'You sleep well. Full health, and well rested for an hour.' : 'You sleep. Full health.'); homeSheet(h); },
     hup: d => { const h = homeById(d.h); if (!h) return; const k = d.k, c = k === 'xch' ? xchC(h) : k === 'fbed' ? BED_C : GARDEN_C; if (funds() < c || (k === 'xch' && (h.xch || 0) >= 4) || (k !== 'xch' && h[k])) return; pay(c); if (k === 'xch') h.xch = (h.xch || 0) + 1; else h[k] = 1; save(); renderHud(); toast('Done. ' + (k === 'xch' ? 'Another chest.' : k === 'fbed' ? 'A feather bed.' : 'A garden out back.')); homeSheet(h); },
     hpick: d => { const h = homeById(d.h); if (!h || !h.garden || h.gday === dayKey()) return; h.gday = dayKey(); const o = { food: {}, mats: { [h.r]: rint(2, 3) } }; o.food[pick(['apple', 'loaf', 'honey', 'cheese'])] = 2; const g = grant(o); save(); renderHud(); toast(bitsOf(g).join(' · ')); homeSheet(h); },
     hpad: d => { const h = homeById(d.h); if (!h || h.pad || !(S.runes > 0)) return; S.runes--; h.pad = 1; Scene.dropHome(h.id); Scene.addHome(h); CMap.restore(); save(); toast('The pad is set. Teleport here from the Map.'); homeSheet(h); },
@@ -1693,7 +1777,7 @@
     introcheck: d => introCheck(d), introcontinue: () => { if (!Q || Q.step !== 'practice-result') return; Q.i++; Q.task = REPS[Q.i]; Q.tries = 0; Q.step = 'turn'; drawQ(); },
     qstep: d => { if (!Q) return; Q.bout = ''; if (d.s === 'reps') { Q.step = 'turn'; Q.tasks = REPS; Q.i = 0; Q.task = REPS[0]; } else Q.step = d.s; drawQ(); $('#enc .q-body').scrollTop = 0; },
     blank: d => { if (!Q || !Q.blank || Q.bok) return; const i = Q.blank.indexOf(null); if (i < 0) return; Q.blank[i] = d.w; Q.bout = ''; drawQ(); }, unblank: d => { if (!Q || !Q.blank || Q.bok) return; Q.blank[+d.i] = null; Q.bout = ''; drawQ(); }, blankrun: () => blankRun(),
-    fpage: d => pickPage(d.id), fsteal: () => pickSteal(), fchoose: () => { if (F && !F.busy && !F.over) { F.st = 'choose'; drawF(); } }, fdone: () => closeF(), floot: () => { const b = F && F.body; closeF(); if (b) lootOpen(b); }, flee: () => flee(),
+    fprize: d => {if(F&&F.act==='steal'&&!F.busy){const old=F.prize==='prize'?15:0;F.prize=d.id==='prize'?'prize':'purse';F.bonus=(F.bonus||0)+old-(F.prize==='prize'?15:0);drawF();}}, fstance: d => {if(F&&!F.busy){F.stance=d.id;drawF();}}, futility: d => combatUtility(d.id), fscroll: () => {if(F&&!F.busy){F.scroll=!F.scroll;drawF();}}, fpage: d => pickPage(d.id), fsteal: () => pickSteal(), fchoose: () => { if (F && !F.busy && !F.over) { F.st = 'choose'; drawF(); } }, fdone: () => closeF(), floot: () => { const b = F && F.body; closeF(); if (b) lootOpen(b); }, flee: () => flee(),
     cardno: () => { closeCard(); render(); },
     atlas: () => sheet('<h2>Tables of the Great Ledger</h2>' + atlasHTML()),
     peek: d => { const r = Engine.peek(d.t); sheet(`<h2>${d.t}</h2><p class="cap2">First four rows.</p>${tableHTML(r)}<div class="row end"><button class="btn sm quiet" data-a="atlas">All tables</button></div>`); },
@@ -1703,13 +1787,21 @@
       const csk = x.gear ? 'smith' : 'alchemy', c = cp.c, b = pick(BOUNTIES.filter(q => q.r === c && !/^b80[123]/.test(q.id))), diff = Math.min(100, diffOf(t) + ({ rare: 8, epic: 16, legendary: 24 }[x.id] || 0));
       openQ({ kind: 'craft', roll: true, csk, recipe: x, slot: benchSlot, r: t, diff, task: makeTask({ tpl: b.id, seed: seeded(b.id) }), title: (x.id === 'scroll' ? 'Hint Key' : x.name) + (x.gear ? ' · ' + benchSlot : '') });
     },
+    profession: d => {if(SkillCrafting.can(S,d.id,here()))beginSkillWork('craft',{recipe:d.id});},
+    lockwork: d => {if(!LOCK||LOCK.owner!==S)return;beginSkillWork(d.kind==='force'?'force':'lock',{key:LOCK.key,r:LOCK.e.r,diff:SkillCrafting.lockDifficulty(LOCK.e.r,DG?DG.f:0)});},
+    outrecover: () => beginSkillWork('recover'),
+    conceal: () => {if(CONCEAL.hidden){Sneaking.reveal(CONCEAL);renderHud();return;}beginSkillWork('hide');},
+    installfurniture: d => {const h=homeById(d.h);if(!h||!CE||CE.kind!=='myhome'||CE.hid!==h.id&&CE.id!==h.id)return;if(SkillCrafting.install(S,h,d.id)){save();homeSheet(h);toast('Furnishing installed');}},
+    studyshelf: d => {const h=homeById(d.h);if(!h||!h.shelf||!CE||CE.kind!=='myhome')return;if((h.studyUntil||0)>now())return toast('The shelf is already helping your study.');h.studyUntil=now()+10*60000;S.boost=Math.max(S.boost||0,h.studyUntil);save();homeSheet(h);toast('Double skill gains for ten minutes');},
     bench: () => SH.bench(),
     buy: d => { const st = stall(), it = st.stock[+d.i]; if (!it || S.gold < price(it)) return; if (S.inv.length >= 60) return toast('Your bag is full'); S.gold -= price(it); st.stock.splice(+d.i, 1); give(it); save(); renderHud(); if (CE) SH.stallkeep(CE); toast('Bought ' + it.name); },
     equip: d => { const it = itemById(d.id); if (it) { S.eq[it.slot] = it.id; save(); closeSheet(); render(); if (gid() === 'bag' && it.id === S.gk) { ACT.tab({ t: 'world' }); gDone('bag'); } } },
     item: d => { const it = itemById(d.id); if (!it) return; const on = S.eq[it.slot] === it.id; sheet(`${lootHTML(it)}<div class="row end">${on ? `<button class="btn" data-a="unequip" data-s="${it.slot}">Take off</button>` : `<button class="btn solid" data-a="equip" data-id="${it.id}">Wear</button>`}${it.unique ? '' : `<button class="btn quiet" data-a="sell" data-id="${it.id}">Sell · ${worth(it)}</button>`}</div>${it.unique || it.bless ? '' : `<div class="row end">${S.blessd ? `<button class="btn sm quiet" data-a="bless" data-id="${it.id}">Bless · ${S.blessd} deed${S.blessd > 1 ? 's' : ''}</button>` : ''}<button class="btn sm quiet" data-a="insure" data-id="${it.id}">${it.ins ? 'Stop insuring' : `Insure · ${insFee(it)} a fall`}</button></div>`}`); },
     unequip: d => { delete S.eq[d.s]; save(); closeSheet(); render(); },
+    progressmode: d => {const stat=d.stat==='1',m=Progression.mode(S,d.id,stat);Progression.setMode(S,d.id,{up:'down',down:'lock',lock:'up'}[m],stat);save();render();},
+    progresstarget: d => {const stat=d.stat==='1',el=document.querySelector(`input[data-target="${d.id}"][data-stat="${stat?1:0}"]`);if(!el)return;const bag=stat?S.attrTargets:S.skillTargets;if(!el.value.trim())delete bag[d.id];else Progression.setTarget(S,d.id,Number(el.value),stat);save();render();},
     djtrain: () => trainSheet(),
-    train: d => { const id = d.id, T = trainCost(id, +d.n || 1), v = rv(id), add = T.to - v; if (!add || S.gold < T.c || CAP - total() < add) return; S.gold -= T.c; S.sk[id] = Math.round(T.to * 10) / 10; save(); renderHud(); toast(`${rpgName(id)} ${v.toFixed(1)} → ${T.to}`); trainSheet(); },
+    train: d => {const id=d.id,T=trainCost(id,+d.n||1);if(!T.add||S.gold<T.c)return;const g=Progression.change(S,id,T.add);if(g.after===g.before)return;S.gold-=T.c;save();renderHud();toast(`${rpgName(id)} ${g.before.toFixed(1)} → ${g.after.toFixed(1)}${g.losses.map(x=>' · '+rpgName(x.id)+' −'+(x.before-x.after).toFixed(1)).join('')}`);trainSheet();},
     reads: () => { if (!S.gscr) return; S.gscr--; S.boost = Math.max(Date.now(), S.boost || 0) + 30 * 60000; save(); toast('Double skill gain for 30 minutes'); render(); },
     readp: d => { const P = S.pscr || [], x = P[+d.i]; if (!x || skCap(x.id) >= x.cap || skCap(x.id) < x.cap - 5) return; (S.pcap = S.pcap || {})[x.id] = x.cap; P.splice(+d.i, 1); save(); toast(`${rpgName(x.id)} can now reach ${x.cap}`); render(); },
     buybless: () => { if (funds() < BLESS_C) return; pay(BLESS_C); S.blessd = (S.blessd || 0) + 1; save(); renderHud(); toast('Bought a bless deed'); bankSheet(); },
@@ -1726,8 +1818,8 @@
     doimport: () => {
       try {
         const o = JSON.parse(decodeURIComponent(escape(atob($('#savebox').value.trim()))));
-        if (!o || ![6,7].includes(o.v)) throw 0;
-        A = Object.assign(freshA(), o, { v: 7, rev: Math.max(A.rev, o.rev || 0) });
+        if (!o || ![6,7,8].includes(o.v)) throw 0;
+        discardEncounter(); A = Object.assign(freshA(), o, { v: 8, rev: Math.max(A.rev, o.rev || 0) });
         loadCur(); cmdBackfill(); DG = null; Q = null; F = null; CE = null; closeSheet();
         if (A.cur < 0) { if (sceneUp) homesUp(); save(); return title(); }
         hideTitle(); if (sceneUp) restoreAccountScene(true);
@@ -1753,8 +1845,8 @@
   }
   window.addEventListener('pagehide',()=>{if(S && S.path)save();});
   document.addEventListener('visibilitychange',()=>{if(document.hidden && S && S.path)save();});
-  function start(hot) { purgeOld(); A = (hot && hot.acct && [6,7].includes(hot.acct.v) && Object.assign(freshA(), hot.acct, {v:7})) || loadA() || freshA(); loadCur(); cmdBackfill(); title(); artLoad(); if (hot && hot.tab) tab = hot.tab; sel = S.region; render(); setTimeout(bootEngine, 30); cloudInit(); }
-  if (location.protocol === 'file:' || location.hostname === 'localhost') window.__bw = { CMap, get A() { return A; }, makeItem, gain, odds, dropBody, insFee, trainCost, makePscr, maybeDye, homeSheet, get DU() { return DU; }, get FI() { return FI; }, errandFor, get PK() { return PK; }, get WH() { return WH; }, get BJ() { return BJ; }, get Q() { return Q; }, get F() { return F; }, KB, get S() { return S; }, get DG() { return DG; }, DP, get SB() { return SB; }, get TR() { return TR; }, setCE: e => { CE = e; }, HOST, SH, START, ACT, render, save, odds, gain, diffOf };
+  function start(hot) { purgeOld(); A = (hot && hot.acct && [6,7,8].includes(hot.acct.v) && Object.assign(freshA(), hot.acct, {v:8})) || loadA() || freshA(); loadCur(); cmdBackfill(); title(); artLoad(); if (hot && hot.tab) tab = hot.tab; sel = S.region; render(); setTimeout(bootEngine, 30); cloudInit(); }
+  if (location.protocol === 'file:' || location.hostname === 'localhost') window.__bw = { CMap, CONCEAL, beginSkillWork, combatUtility, maxHp, get A() { return A; }, makeItem, gain, odds, dropBody, insFee, trainCost, makePscr, maybeDye, homeSheet, get DU() { return DU; }, get FI() { return FI; }, errandFor, get PK() { return PK; }, get WH() { return WH; }, get BJ() { return BJ; }, get Q() { return Q; }, get F() { return F; }, KB, get S() { return S; }, get DG() { return DG; }, DP, get SB() { return SB; }, get TR() { return TR; }, setCE: e => { CE = e; }, HOST, SH, START, ACT, render, save, odds, gain, diffOf };
   // speech and story use curly quotes; SQL, code and table data keep straight ones
   const cq = t => t.replace(/"/g, (m, i) => (i === 0 || /[\s(\[\u2014\u2013-]/.test(t[i - 1])) ? '\u201c' : '\u201d'), RAW = 'pre,code,textarea,input,script,style,td,th,.qbox,.code,.sqlhl,[data-raw]';
   function curl(n) { if (n.nodeType === 3) { if (n.data.indexOf('"') < 0) return; const p = n.parentElement; if (!p || p.closest(RAW)) return; const v = cq(n.data); if (v !== n.data) n.data = v; } else if (n.nodeType === 1 && !n.matches(RAW)) for (const c of n.childNodes) curl(c); }

@@ -18,6 +18,7 @@ async function openMap(frame) {
 }
 
 async function reopenSavedCharacter(page) {
+  await page.waitForLoadState('networkidle');
   await page.goto('/index.html?visual_test=1');
   await expect(page.locator('#artload')).toBeHidden({ timeout: 45000 });
   await expect(page.locator('#st-load')).toBeHidden({ timeout: 45000 });
@@ -143,7 +144,7 @@ test('regional town travel and a home pad save arrivals immediately and reject r
   await openMap(frame);
   await frame.locator('[data-a=cmaptravel][data-id=town2]').click();
   const brackwater = await frame.evaluate(() => {
-    const saved = JSON.parse(localStorage.getItem('brasswake.acct.v7'));
+    const saved = JSON.parse(localStorage.getItem('brasswake.acct.v8'));
     return { actual: Scene.pos(), stored: saved.slots[saved.cur].pos, region: saved.slots[saved.cur].region };
   });
   expect(brackwater.stored).toEqual(brackwater.actual);
@@ -155,7 +156,7 @@ test('regional town travel and a home pad save arrivals immediately and reject r
   await openMap(page);
   await page.locator('[data-a=tphome][data-h="h-travel"]').click();
   const cottage = await page.evaluate(() => {
-    const saved = JSON.parse(localStorage.getItem('brasswake.acct.v7'));
+    const saved = JSON.parse(localStorage.getItem('brasswake.acct.v8'));
     return { actual: Scene.pos(), stored: saved.slots[saved.cur].pos, region: saved.slots[saved.cur].region };
   });
   expect(cottage.stored).toEqual(cottage.actual);

@@ -68,6 +68,7 @@ async function hero(frame) {
 }
 
 async function restoreCharacter(page, name) {
+  await page.waitForLoadState('networkidle');
   await page.goto('/index.html?visual_test=1');
   await expect(page.locator('#artload')).toBeHidden({ timeout: 45000 });
   await expect(page.locator('#st-load')).toBeHidden({ timeout: 45000 });
@@ -321,7 +322,7 @@ test('venues · a real staircase restores the same upper room and returns safely
   await screenshot(page, info, 'venue-upstairs-recovery-ward');
   const expected = { ...upstairs.state, x: upstairs.walk[0], y: upstairs.walk[1] };
   await expect.poll(() => frame.evaluate(() => {
-    const account = JSON.parse(localStorage.getItem('brasswake.acct.v7'));
+    const account = JSON.parse(localStorage.getItem('brasswake.acct.v8'));
     return account.slots[account.cur].interior;
   }), { message: 'Upstairs walking updates the device save without another interaction' }).toEqual(expected);
   await hero(frame);
@@ -348,7 +349,7 @@ test('venues · a real staircase restores the same upper room and returns safely
   await expect.poll(() => page.evaluate(() => Scene.inInterior())).toBe(false);
   const returned = await page.evaluate(() => {
     const at = Scene.pos(), { world } = Scene.debug(), i = at[1] * world.w + at[0];
-    const account = JSON.parse(localStorage.getItem('brasswake.acct.v7')), slot = account.slots[account.cur];
+    const account = JSON.parse(localStorage.getItem('brasswake.acct.v8')), slot = account.slots[account.cur];
     return { at, safe: !world.solid[i] && !world.occ.has(i) && world.t[i] !== 4,
       saved: slot.pos, floor: slot.interior ?? null, liveFloor: Scene.venueState() };
   });

@@ -21,8 +21,16 @@
   const DSRC = [[0, 0], [1, 1], [2, 1], [3, 1], [4, 0], [3, 0], [2, 0], [1, 0]];
   const hexRGB = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
   const DOLL = {};   // cache of recoloured sheets and finished doll sprites
-  function recolor(src, cloth, metal, armour, wantMask) {   // off-white cloth takes the dye, plain grey metal takes the metal colour; skin, hair and leather keep theirs
-    const c = mk(src.width, src.height), g = c.getContext('2d'); g.drawImage(src, 0, 0); if (!cloth && !metal) return c;
+  function tintSource(src, area, scratch) {
+    const [x, y, w, h] = area || [0, 0, src.width, src.height], c = scratch || mk(w, h);
+    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    const g = c.getContext('2d', scratch ? { willReadFrequently: true } : undefined);
+    if (scratch) g.clearRect(0, 0, w, h);
+    g.drawImage(src, x, y, w, h, 0, 0, w, h);
+    return [c, g];
+  }
+  function recolor(src, cloth, metal, armour, wantMask, area, scratch) {   // off-white cloth takes the dye, plain grey metal takes the metal colour; skin, hair and leather keep theirs
+    const [c, g] = tintSource(src, area, scratch); if (!cloth && !metal) return c;
     const d = g.getImageData(0, 0, c.width, c.height), p = d.data, C = cloth && hexRGB(cloth), M = metal && hexRGB(metal), sm = (a, b, x) => Math.max(0, Math.min(1, (x - a) / (b - a))), mc = wantMask && mk(c.width, c.height), md = mc && mc.getContext('2d').createImageData(c.width, c.height), mp = md && md.data;
     for (let i = 0; i < p.length; i += 4) { if (p[i + 3] < 8) continue; const r = p[i], gg = p[i + 1], b = p[i + 2], mx = Math.max(r, gg, b), mn = Math.min(r, gg, b), sat = mx ? (mx - mn) / mx : 0, l = (r + gg + b) / 765;
       const grey = 1 - sm(.14, .24, sat), light = armour ? sm(.5, .64, l) : sm(.22, .34, l), wc = C ? grey * light : 0, wm = M && armour ? (1 - sm(.1, .17, sat)) * (1 - light) * sm(.06, .14, l) : 0;
@@ -30,8 +38,8 @@
       if (wm > 0) { const k = .3 + l * 1.3; for (let j = 0; j < 3; j++) p[i + j] = p[i + j] * (1 - wm) + Math.min(255, M[j] * k) * wm; } }
     g.putImageData(d, 0, 0); if (mc) { mc.getContext('2d').putImageData(md, 0, 0); c.mask = mc; } return c;
   }
-  function gradMap(src, lo, hi) {   // grey hair -> any colour, keeping the light and shade
-    const c = mk(src.width, src.height), g = c.getContext('2d'); g.drawImage(src, 0, 0); const d = g.getImageData(0, 0, c.width, c.height), p = d.data, A = hexRGB(lo), B = hexRGB(hi);
+  function gradMap(src, lo, hi, area, scratch) {   // grey hair -> any colour, keeping the light and shade
+    const [c, g] = tintSource(src, area, scratch); const d = g.getImageData(0, 0, c.width, c.height), p = d.data, A = hexRGB(lo), B = hexRGB(hi);
     for (let i = 0; i < p.length; i += 4) { if (p[i + 3] < 8) continue; const l = Math.min(1, (p[i] + p[i + 1] + p[i + 2]) / 765 * 1.15); for (let j = 0; j < 3; j++) p[i + j] = A[j] + (B[j] - A[j]) * l; }
     g.putImageData(d, 0, 0); return c;
   }
@@ -49,7 +57,9 @@
   // one layer (hair, beard or hat) on a head: view v, head anchor [top, hx, hw]
   function headLayer(g, L, a, item, v, an, lift, flip) {
     const H = AD.body.hair, mv = H.v[item] && H.v[item][v]; if (!mv || !an[2]) return; const [ri, cx] = mv, r = H.r[ri], f = an[2] / H.hw, w = r[2] * f, h = r[3] * f;
-    const src = item < 12 || (item >= 12 && item < 18) ? L.hair : L.gear; g.drawImage(src, r[0], r[1], r[2], r[3], an[1] - cx * f, an[0] + lift * an[2], w, h);
+    const dx = an[1] - cx * f, dy = an[0] + lift * an[2], hair = item < 18;
+    if (L.headFrame) g.drawImage(L.headFrame(r, hair), dx, dy, w, h);
+    else g.drawImage(hair ? L.hair : L.gear, r[0], r[1], r[2], r[3], dx, dy, w, h);
   }
   const BEARD_Y = [.62, .62, .78, .78, .68, .72], HAT_Y = [-.18, -.2, -.3, -.22, -.95, -.02];
   function weapon(g, a, x, y, ang, len) {
@@ -58,22 +68,24 @@
   }
   const ARC = { swing: [[-2.3, -1.3, .6, 1.6], [-2.2, -1.2, .1, .9], [-.8, -1.6, -2.6, 2.4]], thrust: [[1.3, 1.3, 1.4, 1.3], [.1, .05, 0, .1], [-1.5, -1.5, -1.55, -1.5]] };
   const swingAng = (a, sr, k) => a.wkind === 'staff' && a.style === 'cast' ? -1.45 : (ARC[a.style] || ARC.thrust)[sr === 0 ? 0 : sr === 2 ? 1 : 2][k];
-  const WLEN = { staff: 1.05, bow: .78, sword: .62, long: .8, dagger: .36, shield: .42 };
+  const WLEN = { staff: 1.05, bow: .78, sword: .62, long: .8, dagger: .36, shield: .42, book: .31 };
   function dollFrame(a, L, row, k, sr) {   // sr: which facing the source row is, 0 S, 1 SE, 2 E, 3 NE, 4 N
     const B = AD.body, CW = B.cw, CH = B.ch, an = B.combos[a.combo].a[row * 8 + k] || [0, 0, 0], c = mk(CW, CH), g = c.getContext('2d'); c.hr = 1;
-    const back = sr >= 3, atk = row >= 10 && row < 19, len = 64 * (WLEN[a.wkind] || .6);
+    const back = sr >= 3, atk = row >= 10 && row < 19, len = 64 * (WLEN[a.wkind] || .6), book = a.skin != null && a.wkind === 'book';
     const onBack = () => { if (a.wpn < 0 && a.shield < 0) return; const sx = an[1] + (sr === 2 ? -an[2] * .5 : an[2] * .3), sy = an[0] + an[2] * 1.45;
       if (a.shield >= 0) { const W = B.wx[a.shield], f = 64 * WLEN.shield / W[3]; g.drawImage(IMG['hb/wx.webp'].im, W[0], W[1], W[2], W[3], an[1] - W[2] * f / 2 + (sr === 2 ? -an[2] * .6 : 0), an[0] + an[2] * 1.6, W[2] * f, W[3] * f); }
-      if (a.wpn >= 0 && !atk) { if (a.wkind === 'staff' || a.wkind === 'bow') weapon(g, a, an[1] + an[2] * (sr === 2 ? -.4 : sr >= 3 ? -.55 : .55), an[0] + an[2] * 3.6, a.wkind === 'bow' ? -1.35 : sr === 2 ? -1.75 : sr >= 3 ? -1.2 : -1.95, len);
+      if (a.wpn >= 0 && !atk && !book) { if (a.wkind === 'staff' || a.wkind === 'bow') weapon(g, a, an[1] + an[2] * (sr === 2 ? -.4 : sr >= 3 ? -.55 : .55), an[0] + an[2] * 3.6, a.wkind === 'bow' ? -1.35 : sr === 2 ? -1.75 : sr >= 3 ? -1.2 : -1.95, len);
         else weapon(g, a, an[1] + an[2] * (sr === 2 ? -.45 : sr >= 3 ? -.5 : .5), an[0] + an[2] * 1.05, sr === 2 ? 1.75 : sr >= 3 ? 1.2 : 1.95, len); } };
     if (!back) onBack();
     if (atk && back) { const h = B.combos[a.combo].h[row + '.' + k]; if (h && a.wpn >= 0) weapon(g, a, h[0], h[1], swingAng(a, sr, k), len); }
-    g.drawImage(L.body, k * CW, row * CH, CW, CH, 0, 0, CW, CH);
+    if (L.bodyFrame) g.drawImage(L.bodyFrame([k * CW, row * CH, CW, CH], an), 0, 0);
+    else g.drawImage(L.body, k * CW, row * CH, CW, CH, 0, 0, CW, CH);
     if (back) onBack();
     if (an[2]) { const v = sr; if (a.hat >= 0) headLayer(g, L, a, 18 + a.hat, v, an, HAT_Y[a.hat], false); else if (a.hair >= 0) headLayer(g, L, a, a.hair, v, an, -.12, false); if (a.beard >= 0 && sr <= 2) headLayer(g, L, a, 12 + a.beard, v, an, BEARD_Y[a.beard], false); }
     if (atk && !back) { const h = B.combos[a.combo].h[row + '.' + k]; if (h && a.wpn >= 0) weapon(g, a, h[0], h[1], swingAng(a, sr, k), len); }
+    if (book && !atk && an[2]) weapon(g, a, an[1] + an[2] * (sr === 2 ? 1.1 : 1.4), an[0] + an[2] * 2.65, .22, len);
     if (atk && a.gl && k >= 1 && k <= 2) { const h = B.combos[a.combo].h[row + '.' + k]; if (h) { const gr = g.createRadialGradient(h[0], h[1], 0, h[0], h[1], 7); gr.addColorStop(0, 'rgba(255,244,190,.95)'); gr.addColorStop(1, 'rgba(255,220,120,0)'); g.fillStyle = gr; g.fillRect(h[0] - 7, h[1] - 7, 14, 14); } }
-    if (L.body.mask) { const m = mk(CW, CH); m.getContext('2d').drawImage(L.body.mask, k * CW, row * CH, CW, CH, 0, 0, CW, CH); m.hr = 1; c.mask = m; }
+    if (L.body && L.body.mask) { const m = mk(CW, CH); m.getContext('2d').drawImage(L.body.mask, k * CW, row * CH, CW, CH, 0, 0, CW, CH); m.hr = 1; c.mask = m; }
     return c;
   }
   const FXC = mk(80, 80);
@@ -93,6 +105,67 @@
     s.af = at(0); s.as = at(1); s.al = s.as.map(flipC); s.ab = at(2); s.f = [s.w8[0][2]]; s.s = [s.w8[6][2]]; s.l = [s.w8[2][2]]; s.b = [s.w8[4][2]];
     s.fall = [0, 1, 2, 3].map(k => dollFrame(a, L, 19, k, 0));
     return DOLL['s' + key] = s;
+  }
+  // NPCs compose only a visible frame. The five painted directions share
+  // the same cached frame with their mirrored views.
+  const NPC_FRAMES = new Map(), NPC_FRAME_LIMIT = 160, npcRetired = [];
+  let npcBodyScratch, npcHeadScratch, drawingNpcFrames = false;
+  const CARDINAL_D8 = { f: 0, l: 2, b: 4, s: 6 };
+  function npcPose(e) {
+    const moving = e.tx != null;
+    const still = e.npcFacing ?? (e.fs == null || !e.ff ? CARDINAL_D8[e.dir] || 0 : e.flip ? 2 : 6);
+    const direction = moving ? NpcAppearance.direction(e.tx - e.fx, e.ty - e.fy, still) : still;
+    if (moving) e.npcFacing = direction;
+    const [source, flip] = DSRC[direction];
+    let row = source, frame = moving ? Math.floor(e.walk || 0) % 8 : 2;
+    let scale = 1, lean = 0;
+    if (!moving && e.fs != null && e.ff >= 2 && e.ff <= 5) {
+      const attack = { swing: 10, thrust: 13, cast: 16 }[e.npcLook.style];
+      row = attack + (source === 0 ? 0 : source >= 3 ? 2 : 1);
+      frame = e.ff - 2;
+      return { direction, row, frame, source: source === 0 ? 0 : source >= 3 ? 4 : 2, flip, scale, lean };
+    }
+    if (!moving && e.fs != null && e.ff === 6) lean = flip ? 2 : -2;
+    if (!moving && e.fs != null && e.ff === 7) { scale = .94; row += 5; frame = 3; }
+    return { direction, row, frame, source, flip, scale, lean };
+  }
+  function npcFrame(a, { row, frame, source }) {
+    if (!dollReady(a)) return null;
+    const key = [a.key, row, frame, source].join('|'), cached = NPC_FRAMES.get(key);
+    if (cached) { NPC_FRAMES.delete(key); NPC_FRAMES.set(key, cached); return cached; }
+    const cloth = hexRGB(a.cloth), head = IMG['hb/hair.webp'].im;
+    const L = {
+      bodyFrame(area, anchor) {
+        if (!npcBodyScratch) npcBodyScratch = mk(area[2], area[3]);
+        const [canvas, g] = tintSource(IMG['hb/C' + a.combo + '.webp'].im, area, npcBodyScratch);
+        const data = g.getImageData(0, 0, canvas.width, canvas.height);
+        NpcAppearance.tintBody(data.data, canvas.width, anchor, a.combo, cloth, a.skin);
+        g.putImageData(data, 0, 0);
+        return canvas;
+      },
+      headFrame(area, hair) {
+        if (!npcHeadScratch) npcHeadScratch = mk(area[2], area[3]);
+        return hair ? gradMap(head, a.hc[0], a.hc[1], area, npcHeadScratch)
+          : recolor(head, a.cloth, '#9aa0a8', false, false, area, npcHeadScratch);
+      },
+    };
+    const image = dollFrame(a, L, row, frame, source);
+    NPC_FRAMES.set(key, image);
+    if (NPC_FRAMES.size > NPC_FRAME_LIMIT) {
+      const oldest = NPC_FRAMES.keys().next().value, canvas = NPC_FRAMES.get(oldest);
+      NPC_FRAMES.delete(oldest);
+      if (drawingNpcFrames) npcRetired.push(canvas);
+      else canvas.width = canvas.height = 0;
+    }
+    return image;
+  }
+  function npcDraw(e, bx, by, sort, list) {
+    const pose = npcPose(e), image = npcFrame(e.npcLook, pose);
+    if (!image) return false;
+    const { scale, flip, lean } = pose;
+    list.push([sort, image, bx - lw(image) * scale / 2 + (e.ox || 0) + lean,
+      by - lh(image) * scale + 1, flip, scale, e.flash > 0 ? 1 : 0]);
+    return true;
   }
   // The ten painted figures have distinct sleeve and finger positions. These
   // palm centers are measured in the 300×450 presentation, in P1–P10 order.
@@ -234,7 +307,16 @@
   const RIP = []; function ripple(t) { if (!RIP.length) for (let f = 0; f < 6; f++) { const c = mk(22, 12), g = c.getContext('2d'); g.strokeStyle = `rgba(255,255,255,${.75 - f * .11})`; g.lineWidth = 1; g.beginPath(); g.ellipse(11, 6, 2 + f * 1.7, 1 + f * .9, 0, 0, 6.283); g.stroke(); if (f < 3) { g.fillStyle = 'rgba(255,255,255,.8)'; g.fillRect(10, 5, 2, 1); } RIP.push(c); } return RIP[Math.floor(t / 170) % 6]; }
   const need = r => { if (AD && r >= 1 && r <= 8) packs(r).forEach(img); };
   const sit = (m, e, x, y) => { if (e.solid) { const o = e.y * m.w + e.x; if (m.occ.get(o) === e) m.occ.delete(o); m.occ.set(y * m.w + x, e); } e.x = x; e.y = y; };
-  const addEnt = (m, e) => { e.fx = e.x; e.fy = e.y; if (e.dir == null) e.dir = 'f'; if (e.solid == null) e.solid = 1; m.ents.push(e); if (e.solid) m.occ.set(e.y * m.w + e.x, e); return e; };
+  const addEnt = (m, e) => {
+    e.fx = e.x; e.fy = e.y;
+    if (e.dir == null) e.dir = 'f';
+    if (e.solid == null) e.solid = 1;
+    const look = NpcAppearance.describe(e);
+    if (look) e.npcLook = { ...look, key: JSON.stringify(look) };
+    m.ents.push(e);
+    if (e.solid) m.occ.set(e.y * m.w + e.x, e);
+    return e;
+  };
 
   function genWorld() {
     const n = WW * WH, m = { w: WW, h: WH, t: new Uint8Array(n), b: new Uint8Array(n), reg: new Uint8Array(n), solid: new Uint8Array(n), o: new Uint8Array(n), keep: new Uint8Array(n), blds: [], props: [], ents: [], lights: [], pal: [], dungeon: false, occ: new Map(), terr: [], chunks: new Map(), spots: {} };
@@ -620,11 +702,15 @@
     P.dir = e.x > P.x ? 's' : e.x < P.x ? 'l' : e.y > P.y ? 'f' : 'b';
     P.d8 = D8(Math.sign(e.x - P.x), Math.sign(e.y - P.y));
     if (e.kind === 'mon' || e.kind === 'rival') e.unseen = !e.alert;
+    if (e.npcLook && e.tx == null) e.npcFacing = NpcAppearance.direction(P.fx - e.fx, P.fy - e.fy, e.npcFacing);
     host.interact(e);
   }
   const setOf = t => { const o = {}; t.split(' ').forEach(k => { o[k] = 1; }); return o; }, PREY = setOf('a1 a2 a4 a5 a6 a7 a8'), FLY = setOf('b102 b204 b303 b304 b402 b404 b502 b602 b603 b701 b702 b704 b802 b803'), SLOW = setOf('b202 b302 b801 b501 b604 b804');
   const D8 = (dx, dy) => [[3, 4, 5], [2, 0, 6], [1, 0, 7]][Math.sign(dy) + 1][Math.sign(dx) + 1] ?? 0;   // 0 S, 1 SW, 2 W, 3 NW, 4 N, 5 NE, 6 E, 7 SE
   const WALK = 2.2, RUN = 4.6, WALK_CYC = 1.8, RUN_CYC = 2.6, DIRV = { f: [0, 1], b: [0, -1], s: [1, 0], l: [-1, 0] }, D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]], dirOf = (dx, dy) => dx > 0 ? 's' : dx < 0 ? 'l' : dy > 0 ? 'f' : 'b';
+  const HUMAN_STEPS = [[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]];
+  const npcStepClear = (e,dx,dy) => !blocked(e.x+dx,e.y+dy) && (!dx||!dy||(!blocked(e.x+dx,e.y)&&!blocked(e.x,e.y+dy)));
+  function clearSight(ax,ay,bx,by) {const n=Math.ceil(Math.max(Math.abs(bx-ax),Math.abs(by-ay))*2);for(let k=1;k<n;k++){const x=Math.floor(ax+(bx-ax)*k/n+.5),y=Math.floor(ay+(by-ay)*k/n+.5);if(x<0||y<0||x>=map.w||y>=map.h||map.solid[y*map.w+x])return false;}return true;}
   function step(dt) {
     clock = (clock + dt / 600) % 1;
     for (const a of anims) { a.t += dt; a.f(Math.min(1, a.t / a.d)); if (a.t >= a.d && a.end) a.end(); } anims = anims.filter(a => a.t < a.d);
@@ -649,11 +735,11 @@
     guideStep(dt);
     near = null; let nd = 1.6;
     for (const e of map.ents) { if(e.hidden)continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy); if (d < nd && !e.empty && nextTo(e)) { nd = d; near = e; } if (e.dead && e.dying == null && (e.decay -= dt) <= 0) e.dying = 1; if (e.dying) { e.dying -= dt * 2.4; continue; } if (!e.wander || e.busy || d > 26) continue; e.t -= dt; if (e.tired > 0) e.tired -= dt; else if (d < 4.4 && e.kind === 'mon' && PREY[e.inst.tpl]) e.t = 0;   // prey reacts at once
-      if (e.kind === 'mon' || e.kind === 'rival') { const v = DIRV[e.dir] || [0, 1], facing = (P.fx - e.fx) * v[0] + (P.fy - e.fy) * v[1] > 0; if ((d < 3.2 && facing) || (e.agg && d < 6.5)) e.alert = 4; else if (e.alert > 0) e.alert = Math.max(0, e.alert - dt); if (e.calm > 0) e.calm -= dt;
+      if (e.kind === 'mon' || e.kind === 'rival') { const v = DIRV[e.dir] || [0, 1], facing = (P.fx - e.fx) * v[0] + (P.fy - e.fy) * v[1] > 0; if (clearSight(e.fx,e.fy,P.fx,P.fy) && (host.detects ? host.detects(d,facing,e.agg) : (d < 3.2 && facing) || (e.agg && d < 6.5))) {e.alert = 4;if(host.noticed)host.noticed();} else if(host.visibility && host.visibility().hidden) {e.alert=0;e.chase=0;} else if (e.alert > 0) e.alert = Math.max(0, e.alert - dt); if (e.calm > 0) e.calm -= dt;
         if (e.chase > 0) e.chase -= dt; if (e.wait > 0) e.wait -= dt; e.hunt = !(e.wait > 0) && (e.chase > 0 && d < 16 && !locked && host.chasing()) || (e.agg && e.alert > 0 && !(e.calm > 0) && d < 8 && !locked && host.aggro()); if (e.hunt && e.tx == null) { if (Math.abs(e.x - P.x) + Math.abs(e.y - P.y) === 1) { e.hunt = 0; e.calm = 12; host.ambush(e); break; } const ddx = P.x - e.x, ddy = P.y - e.y, st = Math.abs(ddx) >= Math.abs(ddy) ? [[Math.sign(ddx), 0], [0, Math.sign(ddy)]] : [[0, Math.sign(ddy)], [Math.sign(ddx), 0]]; for (const [sx, sy] of st) { if ((!sx && !sy) || blocked(e.x + sx, e.y + sy) || (e.x + sx === P.x && e.y + sy === P.y)) continue; e.dir = dirOf(sx, sy); sit(map, e, e.x + sx, e.y + sy); e.tx = e.x; e.ty = e.y; break; } e.t = 1; continue; } }
       if (e.tx != null) { const dx = e.tx - e.fx, dy = e.ty - e.fy, dd = Math.hypot(dx, dy), sp = (e.wander >= 2 ? 1.4 : e.hunt && e.chase > 0 ? (FLY[e.inst && e.inst.tpl] ? 4.0 : SLOW[e.inst && e.inst.tpl] ? 1.9 : 3.6) : e.hunt ? 2.0 : e.run ? 2.4 : e.kind === 'mon' ? (FLY[e.inst.tpl] ? 1.6 : SLOW[e.inst.tpl] ? .5 : .9) : 1.1) * dt; e.walk = (e.walk || 0) + dt * 7; if (dd <= sp) { e.fx = e.tx; e.fy = e.ty; e.tx = null; } else { e.fx += dx / dd * sp; e.fy += dy / dd * sp; } }
       else if (e.t <= 0 && d > 1.6) {
-        if (e.wander >= 2) { let v = e.mv && Math.random() < .8 ? e.mv : D4[Math.random() * 4 | 0]; const nx = e.x + v[0], ny = e.y + v[1], tt = nx >= 0 && ny >= 0 && nx < map.w && ny < map.h ? map.t[ny * map.w + nx] : 9; if ((tt === 2 || tt === 3 || (e.wander === 3 && tt === 6)) && !blocked(nx, ny) && !(map.doorApproaches && map.doorApproaches.has(ny * map.w + nx)) && !(nx === P.x && ny === P.y) && (e.roam ? nx >= e.roam[0] && ny >= e.roam[1] && nx <= e.roam[2] && ny <= e.roam[3] : e.wander === 3 || Math.hypot(nx - TOWN[e.r][0], ny - TOWN[e.r][1]) < 26)) { e.mv = v; e.dir = dirOf(v[0], v[1]); sit(map, e, nx, ny); e.tx = nx; e.ty = ny; e.t = Math.random() < .12 ? 1 + Math.random() * 4 : 0; } else { e.mv = null; e.t = .2 + Math.random() * .8; } }
+        if (e.wander >= 2) { const choices=e.npcLook?HUMAN_STEPS:D4; let v = e.mv && Math.random() < .8 ? e.mv : choices[Math.random() * choices.length | 0]; const nx = e.x + v[0], ny = e.y + v[1], tt = nx >= 0 && ny >= 0 && nx < map.w && ny < map.h ? map.t[ny * map.w + nx] : 9; if ((tt === 2 || tt === 3 || (e.wander === 3 && tt === 6)) && npcStepClear(e,v[0],v[1]) && !(map.doorApproaches && map.doorApproaches.has(ny * map.w + nx)) && !(nx === P.x && ny === P.y) && (e.roam ? nx >= e.roam[0] && ny >= e.roam[1] && nx <= e.roam[2] && ny <= e.roam[3] : e.wander === 3 || Math.hypot(nx - TOWN[e.r][0], ny - TOWN[e.r][1]) < 26)) { e.mv = v; e.dir = dirOf(v[0], v[1]); sit(map, e, nx, ny); e.tx = nx; e.ty = ny; e.t = Math.random() < .12 ? 1 + Math.random() * 4 : 0; } else { e.mv = null; e.t = .2 + Math.random() * .8; } }
         else if (e.kind === 'mon') {   // creatures roam their ground: pick a spot, walk to it, rest, go again. Prey bolts when you come close, then tires.
           const tp = e.inst.tpl, fly = FLY[tp]; if (PREY[tp] && d < 4.4 && !(e.tired > 0)) { e.goal = [e.x + Math.round((e.x - P.x) / d * 5), e.y + Math.round((e.y - P.y) / d * 5)]; e.steps = 0; e.run = 1; e.tired = 4.5; }
           if (!e.goal) { const a = Math.random() * 6.283, rr = 2 + Math.random() * e.range * (fly ? .95 : .65); e.goal = [Math.round(e.home[0] + Math.cos(a) * rr), Math.round(e.home[1] + Math.sin(a) * rr)]; e.steps = 0; e.run = 0; }
@@ -662,7 +748,7 @@
           else { const opts = Math.abs(gx) >= Math.abs(gy) ? [[Math.sign(gx), 0], [0, Math.sign(gy)]] : [[0, Math.sign(gy)], [Math.sign(gx), 0]]; let went = false; if (e.run) for (const v of D4) if (v[0] * (P.x - e.x) + v[1] * (P.y - e.y) <= 0) opts.push(v);   // bolting prey goes round whatever is in its way
             for (const [sx, sy] of opts) { if (!sx && !sy) continue; const nx = e.x + sx, ny = e.y + sy; if (blocked(nx, ny) || (nx === P.x && ny === P.y) || map.keep[ny * map.w + nx] || Math.hypot(nx - e.home[0], ny - e.home[1]) > e.range + (e.run ? 5 : 0)) continue; e.dir = dirOf(sx, sy); sit(map, e, nx, ny); e.tx = nx; e.ty = ny; e.steps++; e.t = 0; went = true; break; }
             if (!went) rest(); } }
-        else { e.t = 1.2 + Math.random() * 3.5; const [dx, dy] = D4[Math.random() * 4 | 0], nx = e.x + dx, ny = e.y + dy; e.dir = dirOf(dx, dy); if (!blocked(nx, ny) && !(nx === P.x && ny === P.y) && Math.hypot(nx - e.home[0], ny - e.home[1]) <= e.range && (e.kind === 'rival' || !map.keep[ny * map.w + nx])) { sit(map, e, nx, ny); e.tx = nx; e.ty = ny; } } } }
+        else { e.t = 1.2 + Math.random() * 3.5; const choices=e.npcLook?HUMAN_STEPS:D4, [dx, dy] = choices[Math.random() * choices.length | 0], nx = e.x + dx, ny = e.y + dy; e.dir = dirOf(dx, dy); if (npcStepClear(e,dx,dy) && !(nx === P.x && ny === P.y) && Math.hypot(nx - e.home[0], ny - e.home[1]) <= e.range && (e.kind === 'rival' || !map.keep[ny * map.w + nx])) { sit(map, e, nx, ny); e.tx = nx; e.ty = ny; } } } }
     if (map.ents.some(e => e.dying != null && e.dying <= 0)) map.ents = map.ents.filter(e => !(e.dying != null && e.dying <= 0));
     if(map.dungeonFloor && (map.respawnCheck=(map.respawnCheck||0)-dt)<=0){map.respawnCheck=1;dungeonRespawn(map);}
     if (map.respawn) { map.respawn = map.respawn.filter(o => { o.t -= dt; if (o.t > 0) return true; o.node ? spawnNode(map, o.terr) : spawnMon(map, o.terr); return false; }); }
@@ -718,17 +804,22 @@
     const fr = (now / 260 | 0) % 2;
     const ent = (e, me) => {
       const bx = (e.fx + (e.ax || 0)) * T + 8, by = (e.fy + (e.ay || 0)) * T + 15; if (e.kind === 'fish') { if (AD && AD.fx2) { const tt = now + e.x * 400 + e.y * 130, cyc = tt % 6400, jump = cyc > 5800, a2 = artFx2(jump ? 1 : 0, jump ? Math.min(3, (cyc - 5800) / 150 | 0) : (tt / 240 | 0) % 4); if (a2) { const k = jump ? .62 : .55; list.push([by - 30, a2, bx - lw(a2) * k / 2, by - 8 - lh(a2) * k / 2 - (jump ? 3 : 0), false, k]); return; } } const rp = ripple(now + e.x * 400); list.push([by - 30, rp, bx - rp.width / 2, by - 13]); return; } if (e.obj) { const sc=e.objectScale||1; list.push([by, e.obj.c, bx - e.obj.ax*sc, by - e.obj.ay*sc + 1, false, sc]); return; }
+      if (e.npcLook && !e.dead && npcDraw(e, bx, by, by + (bars.some(b => b.e === e) ? 4000 : 0), list)) return;
       if (e.fs != null) { const c = fsCut(e.fs, e.ff | 0); if (c) list.push([by, c, bx - lw(c) / 2 + (e.ox || 0), by - lh(c) + 2, !!e.flip]); else if (e.spr) list.push([by, (e.spr.f || e.spr)[0], bx - 8, by - 15]); return; }
       if (!e.spr) return;
       const s = e.spr, moving = me ? P.path.length && !locked : e.tx != null, left = e.dir === 'l', fl = me && s.w8 && !(P.atk > 0) ? (P.run && moving && s.r8 ? s.r8 : s.w8)[P.d8 || 0] : me && P.dg && s[P.dg] && !(P.atk > 0) ? s[P.dg] : left && s.l ? s.l : s[left ? 's' : (e.dir || 'f')], f = s.beast ? fr : (moving ? (me && s.w8 && !(P.atk > 0) ? Math.floor(P.wd / ((P.run ? RUN_CYC : WALK_CYC) / fl.length)) % fl.length : ((me ? P.walk : e.walk) | 0) % fl.length) : me && s.w8 && fl.length === 8 ? 2 : 0), ak = me && P.atk > 0 && s.af ? s['a' + (left ? 'l' : (e.dir || 'f'))] : null, im = ak ? ak[Math.min(3, Math.floor((1 - P.atk / .3) * 4))] : fl[f], sc = e.big && !s.art ? 2 : s.msc || 1;
       if (e.dead) { const da = artDead(e.inst ? (e.inst.art || e.inst.tpl) : e.tpl); if (da) { const ds = s.msc || 1; list.push([by - 8, da, bx - lw(da) * ds / 2, by - lh(da) * ds + 3, false, ds, 0, e.dying != null ? Math.max(0, e.dying) : 1]); return; } const di = (s.s || s.f)[0]; list.push([by - 8, di, bx - lw(di) * sc / 2, by - lh(di) * sc + 1, false, sc, 0, e.dying != null ? Math.max(0, e.dying) : 1, 1]); return; }
       const flip = me && s.w8 && !(P.atk > 0) ? false : s.left ? (e.dir === 's' && !e.flip) : ((left && !s.l) || e.flip), bob = s.bob ? (moving && !(e.inst && FLY[e.inst.tpl]) ? -Math.round(Math.abs(Math.sin(now / 105 + e.x)) * 3) / K : Math.round(Math.sin(now / 320 + e.x * 2) * 2) / K) : (s.one && moving ? Math.round(Math.abs(Math.sin(now / 90)) * 3) / K : 0);
-      list.push([(me ? worldHeroSort(by) : by) + (bars.length && (me || bars.some(b => b.e === e)) ? 4000 : 0), im, bx - lw(im) * sc / 2, by - lh(im) * sc + (s.art ? 1 : 2 + (s.beast ? 3 * sc : 0)) + (s.one && moving ? -bob : bob), flip, sc, e.flash > 0 ? 1 : 0, e.dying != null ? Math.max(0, e.dying) : 1, 0, me && s.fx && im.mask ? s.fx : null]);
+      list.push([(me ? worldHeroSort(by) : by) + (bars.length && (me || bars.some(b => b.e === e)) ? 4000 : 0), im, bx - lw(im) * sc / 2, by - lh(im) * sc + (s.art ? 1 : 2 + (s.beast ? 3 * sc : 0)) + (s.one && moving ? -bob : bob), flip, sc, e.flash > 0 ? 1 : 0, e.dying != null ? Math.max(0, e.dying) : me && host.visibility && host.visibility().hidden ? .45 : 1, 0, me && s.fx && im.mask ? s.fx : null]);
     };
+    drawingNpcFrames = true;
     for (const e of map.ents) { if(e.hidden)continue; if (Math.abs(e.fx * T - ox0 - vw / 2) > vw / 2 + 60 || Math.abs(e.fy * T - oy0 - vh / 2) > vh / 2 + 70) continue; if (e.sv !== artVer) dress(e); else if (e.wk && !e.spr.l && AD && AD.chars.walk && have('folk.webp')) dress(e); if (e.flash > 0) e.flash -= .016; ent(e); }
     if (P.flash > 0) P.flash -= .016; ent(P, true);
     list.sort((a, c2) => a[0] - c2[0]);
     for (const [, im, px, py, flip, sc, fl, al, rot, fx] of list) { if (!im) continue; const X = Math.round((px - ox0) * K) / K, Y = Math.round((py - oy0) * K) / K, w = lw(im) * (sc || 1), h = lh(im) * (sc || 1); if (al != null && al < 1) g.globalAlpha = al; if (im.sm) { g.imageSmoothingEnabled = true; if (flip) { g.save(); g.translate(X + w, Y); g.scale(-1, 1); g.drawImage(im, 0, 0, w, h); g.restore(); } else g.drawImage(im, X, Y, w, h); g.imageSmoothingEnabled = false; continue; } if (rot) { g.fillStyle = 'rgba(0,0,0,.22)'; g.beginPath(); g.ellipse(X + w / 2, Y + h - 1, h * .46, 3, 0, 0, 7); g.fill(); g.save(); g.translate(X + w / 2 - h / 2, Y + h - w / 2); g.rotate(Math.PI / 2); g.drawImage(im, -w / 2, -h, w, h); g.restore(); g.globalAlpha = 1; continue; } if (flip) { g.save(); g.translate(X + w, Y); g.scale(-1, 1); g.drawImage(im, 0, 0, w, h); if (fl) { g.globalCompositeOperation = 'lighter'; g.drawImage(im, 0, 0, w, h); } g.restore(); } else { g.drawImage(im, X, Y, w, h); if (fl) { g.globalCompositeOperation = 'lighter'; g.drawImage(im, X, Y, w, h); g.globalCompositeOperation = 'source-over'; } } if (fx) dollFx(g, fx, im.mask, X, Y, w, h, flip, now); g.globalAlpha = 1; }
+    drawingNpcFrames = false;
+    for (const canvas of npcRetired) canvas.width = canvas.height = 0;
+    npcRetired.length = 0;
     // blows and bolts
     for (const s of slashes) { const u = s.t / (s.d || .2), X = s.x * T + 8 - ox0, Y = s.y * T + 4 - oy0 - (s.rise || 0) * u * T;
       if (s.style) { g.save(); g.translate(X, Y); Effects.drawMagic(g, s.style, s.phase, u); g.restore(); continue; }
@@ -795,7 +886,7 @@
   function place(x, y) { if (map && map.solid[y * map.w + x]) { let best = null; for (let rr = 1; rr < 16 && !best; rr++) for (let dy = -rr; dy <= rr && !best; dy++) for (let dx = -rr; dx <= rr; dx++) { const i = (y + dy) * map.w + x + dx; if (x + dx > 0 && y + dy > 0 && x + dx < map.w && y + dy < map.h && !map.solid[i] && !map.occ.has(i) && (!map.seen || map.seen[i])) { best = [x + dx, y + dy]; break; } } if (best) { x = best[0]; y = best[1]; } }   // the world can gain a building where a saved game left the hero
     P = { x, y, fx: x, fy: y, dir: 'f', path: [], walk: 0, wd: 0, spr: heroArt() }; }
   let flies = [], flyT = 0, SHOWB = false;
-  function go(m, x, y) { clearSceneControls(); map = m; place(x, y); if(!m.dungeon && !m.venue && host.revealSurface)host.revealSurface(P.x,P.y); fade = 1; parts = []; flies = []; anims = []; floats = []; slashes = []; shots = []; bars = []; locked = false; curReg = m.dungeon ? m.r : (m.reg[y * m.w + x] || 1); curB = m.dungeon ? m.r : (m.b[y * m.w + x] || curReg); curT = null; ambNow = m.pal[curB].amb; need(curReg); host.entered(curReg); if (AD && !packs(curReg).every(have)) { m.pending = true; const t = setTimeout(() => { m.pending = false; }, 5000); Promise.all(packs(curReg).map(n => img(n).p)).then(() => { clearTimeout(t); m.pending = false; if (P) P.spr = heroArt(); }); } banner = { a: m.venue ? m.venue.name : m.hall ? 'The dojo' : m.dungeon ? host.dungeonName(m.r) : host.regionName(curReg), b: m.venue ? host.regionName(m.r) + ' · Upper floor' : m.hall ? host.regionName(m.r) : m.dungeonFloor ? 'Floor ' + (m.f+1) + ' · ' + m.layout.name : m.dungeon ? 'walk in, walk out' : host.regionSub(curReg), t: 3.2 }; }
+  function go(m, x, y) { if(host.relocated)host.relocated(); clearSceneControls(); map = m; place(x, y); if(!m.dungeon && !m.venue && host.revealSurface)host.revealSurface(P.x,P.y); fade = 1; parts = []; flies = []; anims = []; floats = []; slashes = []; shots = []; bars = []; locked = false; curReg = m.dungeon ? m.r : (m.reg[y * m.w + x] || 1); curB = m.dungeon ? m.r : (m.b[y * m.w + x] || curReg); curT = null; ambNow = m.pal[curB].amb; need(curReg); host.entered(curReg); if (AD && !packs(curReg).every(have)) { m.pending = true; const t = setTimeout(() => { m.pending = false; }, 5000); Promise.all(packs(curReg).map(n => img(n).p)).then(() => { clearTimeout(t); m.pending = false; if (P) P.spr = heroArt(); }); } banner = { a: m.venue ? m.venue.name : m.hall ? 'The dojo' : m.dungeon ? host.dungeonName(m.r) : host.regionName(curReg), b: m.venue ? host.regionName(m.r) + ' · Upper floor' : m.hall ? host.regionName(m.r) : m.dungeonFloor ? 'Floor ' + (m.f+1) + ' · ' + m.layout.name : m.dungeon ? 'walk in, walk out' : host.regionSub(curReg), t: 3.2 }; }
   function load(pos, r) {
     if (!world) world = genWorld(); for (const [, c] of world.chunks) c.width = c.height = 0; world.chunks.clear();
     const preferred = r === 'dock' ? world.spots.dock : pos;
@@ -923,7 +1014,7 @@
   function resume() { size(); if (!map || running) { if (map) draw(); return; } running = true; last = performance.now(); if (!raf) raf = requestAnimationFrame(loop); }
   function pause() { running = false; clearSceneControls(); }
   function act() { if (near && inputAvailable()) interactNear(near); }
-  function portrait(e) { if (AD && e.pt) return 'art/p/' + e.pt + '.webp'; if (e.spr && e.spr.big) return 'art/f/' + e.spr.big + '.webp'; if (e.ok && !e.obj) e.obj = spr(e.ok, e.r); const s = e.obj ? e.obj.c : (e.spr.f || e.spr)[0], k = 4; if (s.hr) { try { return s.toDataURL(); } catch (x) { return ''; } } const c = mk(s.width * k, s.height * k), g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(s, 0, 0, c.width, c.height); return c.toDataURL(); }
+  function portrait(e) { if (AD && e.pt) return 'art/p/' + e.pt + '.webp'; if (e.spr && e.spr.big) return 'art/f/' + e.spr.big + '.webp'; if (e.ok && !e.obj) e.obj = spr(e.ok, e.r); const s = (e.npcLook && npcFrame(e.npcLook, { row: 0, frame: 2, source: 0 })) || (e.obj ? e.obj.c : (e.spr.f || e.spr)[0]), k = 4; if (s.hr) { try { return s.toDataURL(); } catch (x) { return ''; } } const c = mk(s.width * k, s.height * k), g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(s, 0, 0, c.width, c.height); return c.toDataURL(); }
   const backdrop = (r, dun) => AD ? 'art/bg/I' + String(dun ? 8 + r : r).padStart(2, '0') + '.jpg' : '';
   // fights are played on the map: the host asks for lunges, hits and health bars
   const who = a => a === 'me' ? P : a;
@@ -953,7 +1044,7 @@
   const FX = {
     heal() { if (map && P) { emit('heal'); slashes.push({ x: P.fx, y: P.fy - .5, t: 0, row: 3, f: 0, d: .9, rise: .8 }); } }, treasure(x, y) { if (map) { emit('coins'); slashes.push({ x, y: y - .4, t: 0, row: 3, f: 3, d: .8, rise: .6 }); } },
     lock(v) { locked = !!v; clearSceneControls(); }, inset(px) { inset = px || 0; }, bars(b) { bars = b || []; },
-    face(e) { const dx = e.x - P.x, dy = e.y - P.y; P.dg = null; P.d8 = D8(Math.sign(dx), Math.sign(dy)); P.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 's' : 'l') : (dy > 0 ? 'f' : 'b'); e.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'l' : 's') : (dy > 0 ? 'b' : 'f'); e.busy = 1; e.tx = null; e.fx = e.x; e.fy = e.y; },
+    face(e) { const dx = e.x - P.x, dy = e.y - P.y; P.dg = null; P.d8 = D8(Math.sign(dx), Math.sign(dy)); P.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 's' : 'l') : (dy > 0 ? 'f' : 'b'); e.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'l' : 's') : (dy > 0 ? 'b' : 'f'); if (e.npcLook) e.npcFacing = NpcAppearance.direction(-dx, -dy, e.npcFacing); e.busy = 1; e.tx = null; e.fx = e.x; e.fy = e.y; },
     free(e) { if (e) e.busy = 0; },
     swing(a, b, kind, style) {
       const A = who(a), B = who(b); if (!A || !B) return; if (a === 'me') P.atk = .3;
@@ -984,6 +1075,6 @@
     enterVenue, exitVenue, venueState, restoreVenue, inInterior: () => !!(map && map.venue), venues: () => world && world.venues ? Array.from(world.venues.values()) : [],
     traveling: () => !!(P && P.path.length),
     cartographyCatalogue, cartographyBounds, cartographyRoute, cartographyGuide, cartographyMap, cartographyAtlas, cartographyInsideHome, cartographySign,
-    pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ buildingCache: WORLD_BUILDING_CACHE.stats, map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, bldSpr, effects: { shots, slashes, floats }, advanceEffects, draw }),
+    pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ buildingCache: WORLD_BUILDING_CACHE.stats, map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, bldSpr, effects: { shots, slashes, floats }, advanceEffects, draw, npcPose, npcFrame, npcCache: () => ({ frames: NPC_FRAMES.size, limit: NPC_FRAME_LIMIT }) }),
     warp(x, y) { load([x, y]); }, hop(x, y) { go(map, x, y); }, guidePut, guideOff, guideEnt: () => GUIDE, drawDoll, dollKey: () => artVer, enterHall, inHall: () => map && map.hall ? map.r : 0, hallAdd: o => map ? addEnt(map, Object.assign({ r: map.r }, o)) : null, hallMove: (e, x, y) => { if (!map || !e) return; const k = e.y * map.w + e.x; if (map.occ.get(k) === e) map.occ.delete(k); e.x = e.fx = x; e.y = e.fy = y; e.tx = null; map.occ.set(y * map.w + x, e); }, ents: () => map ? map.ents : [], fsReady: () => !!(AD && AD.dojo && (IMG['dj/fs.webp'] || img('dj/fs.webp')) && have('dj/fs.webp')) };
 })();

@@ -1,6 +1,6 @@
 # Brasswake: gameplay reference
 
-Last updated: 2026-11-23. This describes world revision 3, modular buildings, the expanded capital and working ports, alongside the story/first-day revision, soundtrack and 28-floor dungeon rebuild. The retained artifact preview is `1795364400-6a70`. This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn. Verified release identities and limitations are in [release history](RELEASE_HISTORY.md).
+Last updated: 2026-11-23. The working-source skill/attribute/NPC candidate below is awaiting release verification; the hosted identity remains in RELEASE_HISTORY.md. This describes world revision 3, modular buildings, the expanded capital and working ports, alongside the story/first-day revision, soundtrack and 28-floor dungeon rebuild. The retained artifact preview is `1795364400-6a70`. This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn. Verified release identities and limitations are in [release history](RELEASE_HISTORY.md).
 
 ## 1. Premise and goals
 
@@ -59,6 +59,7 @@ Last updated: 2026-11-23. This describes world revision 3, modular buildings, th
   - Nothing is locked by region. Roads connect the six mainland towns. Four free, on-demand, two-way ferry routes join Tallyport–Brackwater, Brackwater–Haverly, Four Fords–Cinderwick, and Cinderwick–Aldermoot. Approach a ferryman and choose the destination; a safe quay landing and return service are available with zero gold. World-map lines follow actual open sea around headlands. Regional maps permit travel within their own region; cross-region journeys use roads/ferries unless the household Grand Atlas is used from home.
   - Walking speed is 2.2 tiles/s and running is 4.6 tiles/s, controlled by the joystick displacement (keyboard arrows walk).
   - Teleport runes turn into house pads.
+- **Human residents:** named teachers, services, rivals, Tamsin, countryfolk and dojo fighters share the hero body layers, with stable skin, hair, facial hair, outfits/colors and job accessories. They face eight directions, wander diagonally where corner clearance permits, and turn toward the player during nearby interaction. Creatures retain their own artwork.
 - **Population:**
   - About 155 creatures per region in camps of 3–5, plus strays, 16 lairs in all (marauders, smugglers, bandits, the bog witch, giant leech and spider, frost giant, wyvern, red dragon, lich, skeleton archers), and animals.
   - The countryside retains all 56 homesteads, 56 roaming people, 88 points of interest, 16 lairs and 73 fishing sites (including the guided pier). Stable IDs preserve discovery, rewards and errand targets. Find/delivery directions and target names update to the actual moved sites without resetting progress.
@@ -118,57 +119,49 @@ Release `dungeon-rebuild-2026-11-22` replaces the shared four-room corridor with
 | Crafter | smith 40, carpentry 30 | sword | a1, c1 |
 | Mage | magery 40, alchemy 30 | spell | s1 |
 
-- **Skills:** 11 use-based skills: swordsmanship, fencing, archery, magery, stealing, hiding, blacksmithing, alchemy, carpentry, healing, fishing.
-- **Caps:** a total cap of 400 (`CAP`) and 100 per skill.
-- **Raising the cap:** power scrolls lift a single skill's cap to 105, 110, 115 or 120. Each step needs the step below it first.
-- **Titles:** Neophyte 30, Novice 40, Apprentice 50, Journeyman 60, Expert 70, Adept 80, Master 90, Grandmaster 100, then 110+, Elder 115, Legendary 120.
-- **Health:** 50 + total skill ÷ 8.
-- **Skill gain** (`gain()`): it happens on use, scaled by answer quality (correct 1, close 0.6, partial 0.4, wrong 0).
+- **Skills:** twenty use-based skills, defined by `Progression.skills`: Swordsmanship, Fencing, Archery, Magery, Stealing, Hiding, Blacksmithing, Alchemy, Carpentry, Healing, Fishing, Evaluating Intelligence, Meditation, Inscription, Resisting Spells, Tactics, Anatomy, Parrying, Stealth and Lockpicking.
+- **Caps:** 700 real skill points total; 100 per skill. Sequential power scrolls lift an individual cap to 105, 110, 115 or 120; those points still count toward 700.
+- **Controls:** Hero offers Raise, Lower and Locked for every skill. All settings permit use. Lower only donates points when a real gain needs room at 700, highest eligible donor first (stable catalogue order breaks ties). Available room is used first, donor losses match the actual gain, and no failed/zero gain removes anything. Optional stopping targets lock automatically; clearing a target preserves the selected mode. Nothing decays offline. Dojo purchases respect modes, targets, donor capacity and the 45 training ceiling; only the quoted achievable whole-point milestones are charged.
+- **Titles:** Neophyte 30, Novice 40, Apprentice 50, Journeyman 60, Expert 70, Adept 80, Master 90, Grandmaster 100, then Grandmaster+ 110, Elder 115, Legendary 120.
+- **Gain curve:** primary skills retain the slow UO-like curve in `Progression.gain`: `2.4 × max(.2,1−abs(value−difficulty)/45) × (1.6 below 30) × slowFactor × quality × boosts`. Slow factor is `min(1,max(.015,((100−value)/60)^2.2))` below 100 and `.01` above. Fractional tenths roll for the next tenth; gain and donor transactions use integer tenths. Quality is correct 1, close .6, partial .4, wrong 0; combat hints reduce training and showing an answer trains nothing. Equipment learning, Study ×2 and rest ×1.25 remain. Support skills receive .35 of the primary training quality, once per eligible query rather than once per animated swing. Scripted standing-stone rewards retain their quality-2 bonus.
+- **Timing evidence:** the pre-implementation source-function simulation averaged 430 correct matched-difficulty uses from 40 to 100 in 2,000 trials, without boosts or cap pressure. This is a curve check, not elapsed playtime or natural progression balance.
+- **SQL techniques:** thirteen independent learning records remain in `S.skills`, with rusty drill prioritization after 20 hours. They share no RPG budget and are preserved when changing builds. Correct fishing forwards its actual query Circle to SQL training; wrong fishing trains no Fishing.
 
-  > 2.4 × max(0.2, 1 − |skill − difficulty| / 45) × (1.6 if skill < 30) × max(0.015, ((100 − skill)/60)^2.2), capped at 1, and 0.01 above 100
-  >
-  > × (1 + learn% / 100) × 2 while a Scroll of Study is active × 1.25 while well rested
+### Attributes and resources
 
-  A fractional gain rolls for an extra +0.1.
+`Progression` owns STR, DEX and INT with independent Raise/Lower/Locked controls and targets, a floor of 10, individual cap 100 and total cap 225. Successful eligible use develops .2 × quality in a related attribute, with a 75% primary/25% secondary choice and an available secondary fallback. It can develop at a skill cap when the practiced skill remains set to Raise; support gains and paid dojo lessons grant no extra attribute gains. Attribute donations clamp existing resources to the new maxima without healing for free.
 
-  Fighting at your level, a skill reaches each mark after this many correct answers:
+| Path | STR | DEX | INT |
+|---|---|---|---|
+| Warrior | 60 | 35 | 25 |
+| Thief | 35 | 60 | 25 |
+| Crafter | 45 | 40 | 35 |
+| Mage | 25 | 35 | 60 |
 
-  | Skill | 60 | 70 | 80 | 90 | 100 |
-  |---|---|---|---|---|---|
-  | Correct answers | 13 | 27 | 57 | 163 | ~420 |
+- Maximum health: `50 + round(STR/2)`; maximum mana `round(INT)`; maximum stamina `round(DEX)`.
+- Physical power scalar: `.9 + STR×.002 + Tactics×.002 + Anatomy×.0008`; Cleave adds `Tactics×.001`.
+- Spell power scalar: `.9 + INT×.0015 + Evaluating Intelligence×.0025`.
+- One spell query costs `3 + 2×Circle` mana, covering its whole exchange. A prepared spell scroll pays for one spell query, explicitly selected or used when mana is insufficient.
+- Completed combat exchanges recover 2 mana and 4 stamina. Meditate / recover is an intentional SQL action in or out of combat, restoring `round(8 + Meditation×.2 + INT×.08)` mana and 12 stamina, within maxima. Walking spends no stamina and idle waiting grants no resources or skill. House sleep restores all resources.
 
-  The target is UO-like: fast to 50, slow from 70 to 90, a long grind to Grandmaster.
-- **SQL techniques:** 13 of them (selection through scribing) are also tracked underneath and go "rusty" after 20 hours. Daily drills bring rusty ones back.
+## 5. Combat and covert work
 
-## 5. Combat
+- **Difficulty:** `min(100,(Circle−1)×12+8+elite8+boss14)`. Dungeon role/floor additions remain as described above.
+- **Hit chance:** `clamp(10,95,50+2×(skill−difficulty))`; correct answers have a 35% floor, close uses .6 of base, partial .3–.5 and wrong .05. Hint 1 costs 15 percentage points; hint 2 treats correct as close. Study and Feint bonuses are capped at a final 95%.
+- **Attack exchange:** one query covers three rounds against ordinary enemies and one against Examiners. Swordsmanship, Archery and Magery have four swings; Fencing five. Archery gets a free opening round. Rare Arms adds a swing; rare Spell removes an enemy swing each round.
+- **Damage:** `(weapon base + skill/8) × page power × page-circle scalar × equipment damage scalar × physical/spell power`. Base ranges remain swords 9–13, fencing 6–10, archery 7–11, magery 8–12. Page power is `1+.12×(Circle−1)`; each missing page Circle reduces its scalar by .2 down to .4. Dungeon armored creatures retain .8 physical damage.
+- **Maneuvers:** ordinary Strike costs no stamina. Feint and Cleave cost 8; Feint adds up to 12 accuracy (`Tactics/8`), Cleave improves damage. Insufficient stamina uses an ordinary strike with feedback.
+- **Enemy damage:** existing 3–6 + 2×Circle (+2 for Examiners), armor reduction capped at 60%. Caster roles and authored magical species/Examiners are identified separately. Resisting Spells reduces magic damage by up to 35% (`skill×.0025`). A shield permits a block chance `min(.35,Parrying×.0025) × (.6+min(100,DEX)×.004)` against physical hits.
+- **Recovery actions:** Bandage, Meditate / recover, Study foe, Ward and Healing spell use one SQL query and one enemy response round. Bandage restores `round(6+Healing×.3+Anatomy×.12)` scaled by answer quality. Study identifies physical/magical attacks and armor, and adds `round((4+associated skill×.08)×quality)` accuracy to the next attack. Ward reduces that response by `min(.45,.15+Inscription×.0025)×quality`; a healing spell restores `(8+Magery×.4)×quality`. Magical actions spend mana or a prepared scroll. Existing post-victory bandaging remains.
+- **Support practice:** weapon attacks train Tactics/Anatomy, offensive spells train Evaluating Intelligence, bandages train Anatomy, wards train Inscription, recovery trains Meditation, and eligible physical shield/magical encounters train Parrying/Resisting Spells. Each is bounded per query, with no free hiding/flee button gains.
 
-- **Difficulty of a target** (`diffOf`): (circle − 1) × 12 + 8, with +8 for elites and +14 for bosses. Circle 1 is 8 and circle 8 is 92.
-- **Hit chance per swing** (`odds`): base = clamp(10, 95, 50 + 2 × (skill − difficulty)).
-  - Correct answer: max(base, 35).
-  - Close: base × 0.6.
-  - Partial: base × 0.3–0.5.
-  - Wrong: base × 0.05.
-  - Hint 1 costs 15 points. With hint 2, a correct answer counts as close.
-- **Rounds:** one query covers 3 rounds against monsters and 1 against bosses. Swings per round:
-  - swords: 4
-  - fencing: 5
-  - archery: 4, plus a free opening round
-  - magery: 4
-  - A rare Arms page adds a swing; a rare Spell page removes one enemy swing.
-- **Your damage per hit:**
+### Hiding, Stealth and Stealing
 
-  > (weapon base + skill/8) × page power × resist × (1 + weapon damage% / 100)
+HUD Hide opens a SQL setup action. Hiding determines concealment chance: `clamp(0,95,35+Hiding×.7−difficulty×.25−heavyArmor20)×quality`. A successful setup grants `3+floor(Stealth/8)` concealed walking steps (skill bounded at 120), displayed in the HUD, and a translucent hero. Running, teleporting, an offensive action or close detection reveals the character. Walls block sight. Higher Stealth reduces the close detection range; ordinary facing/alert behavior still applies outside concealment. SQL panels pause detection. Concealment is temporary and never restored by reloading/importing a save.
 
-  - Weapon base: swords 9–13, fencing 6–10, archery 7–11, magery 8–12.
-  - Page power: 1 + 0.12 × (page circle − 1).
-  - Resist: 1 if the page's circle is at least the enemy's. Otherwise it drops 0.2 per circle short, down to 0.4. Fighting above your page circle is the real gate.
-- **Enemy:**
-  - Health: (30 + 6 × circle) × multiplier.
-  - Swings: 2 per round, 3 for bosses.
-  - Hit chance: clamp(20, 85, 50 + difficulty − skill).
-  - Damage: 3–6 + 2 × circle (+2 for bosses) × (1 − defence%, capped at 60%).
-- **Stealing:** one try at the stealing odds + deftness bonus. If caught you drop 5 × circle gold. Rivals fine you 10–15 × circle.
-- **Paths without a weapon skill:** a crafter or thief fights poorly until they raise a weapon skill. Low skills climb quickly (about 10 fights to reach 30), and dojo lessons teach any skill to 45.
+A meaningful concealed approach that gets closer to a nearby hostile target trains Stealth once per setup; stationary time, repeated tiles near an unchanged target and per-frame updates grant no training. Thieves can also approach from behind without requiring Hiding. A theft query chooses an easier purse or an identified equipment prize (−15 effective Stealing, half the purse gold). The attempt reveals the thief. Failure retains existing Circle-scaled gold fines and pursuit behavior. Rival prize pages remain part of their theft reward.
+
+Optional surface treasure and dungeon caches offer Lockpicking with disarming or Tactics to force the lock, through SQL. Difficulty is `min(95,12+(region−1)×10+floor×2)`; odds `clamp(10,95,50+2×(skill−difficulty)+disarm15)×quality`. Failed attempts cost a little health, capped to leave one health; successful openings persist for the day. Existing story keys, lieutenant seals, keeper requirements and vault rewards remain separate.
 
 ## 6. Death
 
@@ -309,18 +302,25 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
   - Levels: music 0.55, effects 0.7. Hero tab → Sound turns music and effects on or off; the setting is per device.
   - Audio starts on the first touch, as browsers require. On iOS 17+ it is set to play through the silent switch.
 
+### Professional work
+
+Workbench Carpentry crafts storage chests (6 regional materials, difficulty 25), feather beds (12, difficulty 45) and study shelves (8, difficulty 35). Inscription crafts prepared spell scrolls (3, difficulty 30). Regional work adds five difficulty per later region, capped at 95. Success consumes full materials and creates the furnishing/scroll; spoiled work consumes half rounded up. Install furniture through the actual owned-house panel. Chests add ten storage slots up to five crafted expansions; beds use the existing well-rested effect; shelves grant ten minutes of doubled gains and cannot be refreshed during that period. Existing paid house upgrades remain available.
+
 ## 13. Planned, not built
 
 - Mounts and boats: discussed, skipped for now.
 - Cloaks, gloves and boots don't show on the body yet.
 - Dialogue portraits still use the old eight hero portraits.
 - Duel opponent speed needs playtest tuning.
-- Carpentry crafting of furniture isn't built (the skill exists).
+- Further professions: mining, lumberjacking, cooking, scouting, poisoning, mace fighting, wrestling, bard disciplines and animal companions remain deferred.
 - Rumors are per character. Their unique can only be found once per account.
 - **Further sound effects:** continuous regional ambience, occasional idle creature calls and separate creature death voices remain planned. All town/dungeon themes, four shared wilderness themes, ordinary/Examiner combat, venue/title music and victory/death cues are built, as described in Sound above.
 - Not yet checked on Casey's iPhone: that audio plays in the Claude app, and what the silent switch does.
 
 ## Decision log
+
+- 2026-11-23: Casey authorized implementation and deployment of the full agreed UO-style skill/attribute and shared directional NPC design. Candidate `skills-attributes-and-directional-npcs` adds twenty skills with a 700-point budget, independent STR/DEX/INT and resources, controlled replacement/targets, meaningful support actions, concealed approaches, optional locks and profession recipes. Existing saves migrate without a wipe; SQL learning remains separate. Further proposed professions remain deferred. Release verification is pending in the linked plan.
+
 
 - 2026-11-23: Casey approved the complete cartography/travel plan and autonomous release, then added joystick-only touch movement, nearby screen interactions, purposeful varied buildings across all eight regions, working doors/audio, shared dojo construction, usable stairs and deeper dock water. Regional surveys cost 600–2700 gold and allow same-region travel only. The 30,000-gold capital-only Grand Atlas requires all eight surveys and an installed household table for global travel. Free local consultation, discoverable landmarks, usable ferry waypoints and physical signs remain core requirements. Release `cartography-travel-and-grand-atlas` is complete at 17441a1, with exact-commit validation and independent hosted verification recorded in RELEASE_HISTORY.md.
 

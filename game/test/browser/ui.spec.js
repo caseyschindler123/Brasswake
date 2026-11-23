@@ -1,6 +1,8 @@
 const { test, expect } = require('@playwright/test');
 const { observeErrors, playerFlow, screenshot } = require('./flow');
 require('./playability');
+require('./skill-system');
+require('./npc-appearance');
 require('./sound');
 require('./dungeons');
 require('./music');
@@ -20,6 +22,7 @@ test.beforeEach(async ({ page }) => {
 
 test('a player can create, query, navigate, export, import, and reload', async ({ page }, info) => {
   const errors = observeErrors(page);
+  await page.waitForLoadState('networkidle');
   await page.goto('/index.html?visual_test=1');
   await playerFlow(page, info);
   expect(errors).toEqual([]);

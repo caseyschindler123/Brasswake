@@ -62,6 +62,7 @@ async function query(f,sql){await f.locator('#sql').fill(sql);await f.locator('#
 
 for (const [path,look] of [['warrior',0],['thief',2],['mage',4],['crafter',6]]) test('a new player meets Tamsin, walks to Odalys, reads the manifest and learns an ability without skipping · '+path,async({page},info)=>{
   test.setTimeout(300000);const errors=observeErrors(page),stats={fixture:false,steps:0,queries:0};
+  await page.waitForLoadState('networkidle');
   await page.goto('/index.html?visual_test=1');await expect(page.locator('#artload')).toBeHidden({timeout:45000});
   await page.locator('[data-a=newslot]').first().click();await page.locator(`[data-a=pick][data-look="${look}"]`).click();await page.locator('#cr-name').fill('New Reader');await page.locator('[data-a=begin]').click();
   await expect(page.locator('.tt-story')).toContainText('Tamsin');await screenshot(page,info,'rescue-introduction');
