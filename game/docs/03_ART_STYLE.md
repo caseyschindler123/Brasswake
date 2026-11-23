@@ -37,9 +37,9 @@ Every prompt starts with the global style line kept in `art_prompts.json`:
 
 ## Shared directional NPCs
 
-The working-source `skills-attributes-and-directional-npcs` candidate reuses the ten existing hero body/outfit combinations and hair/beard/head/equipment layers for human services, named teachers/rivals, Tamsin, residents, travellers and dojo fighters. `NpcAppearance` defines stable named recipes and deterministic regional/occupational extras. Clothing and skin transforms are separate; boots, leather, facial detail and alpha are preserved. Existing portraits remain authored images. Creatures retain their own sprites; Varrick and the Council use human layers.
+The verified `skills-attributes-and-directional-npcs` release reuses the ten existing hero body/outfit combinations and hair/beard/head/equipment layers for human services, named teachers/rivals, Tamsin, residents, travellers and dojo fighters. `NpcAppearance` defines stable named recipes and deterministic regional/occupational extras. Clothing and skin transforms are separate; boots, leather, facial detail and alpha are preserved. Existing portraits remain authored images. Creatures retain their own sprites; Varrick and the Council use human layers.
 
-NPCs compose visible frames lazily, sharing mirrored source directions through a 160-frame LRU; retired canvases survive the active drawing frame before release. Eight facing directions and moving strides use hero anchors; human wander steps can be diagonal when both adjacent cardinal cells are clear. Stationary staff turn toward the player. Dojo sparring uses the same layers, with flat mats sorted behind their occupants. No new image generation, packed-art edits, prompt/settings changes or baseline refresh is involved. Phone and desktop visual verification belongs to the release plan.
+NPCs compose visible frames lazily, sharing mirrored source directions through a 160-frame LRU; retired canvases survive the active drawing frame before release. Eight facing directions and moving strides use hero anchors; human wander steps can be diagonal when both adjacent cardinal cells are clear. Stationary staff turn toward the player. Dojo sparring uses the same layers, with flat mats sorted behind their occupants. No new image generation, packed-art edits, prompt/settings changes or baseline refresh was involved. Phone and desktop visual review passed; the closed release plan records the checks.
 
 ## Creatures
 
@@ -213,7 +213,7 @@ Casey approved up to $20 for this run. The two-image comparison and all 20 produ
 
 ## Decision log
 
-- 2026-11-23: Casey authorized modular human NPCs using the hero body/animation system, varied skin/hair/facial hair/clothes/colors and occupational accessories. The candidate uses existing packed layers with bounded lazy composition; no paid art is required. Verify eight directions, actual motion, skin/cloth isolation and dojo layering before release.
+- 2026-11-23: Casey authorized modular human NPCs using the hero body/animation system, varied skin/hair/facial hair/clothes/colors and occupational accessories. Release aec11c0 uses existing packed layers with bounded lazy composition; no paid art was generated. Eight directions, actual motion, skin/cloth isolation and dojo layering passed browser checks and phone/desktop visual review. Hosted captures were also opened; [release history](RELEASE_HISTORY.md#skills-attributes-and-directional-npcs) records deployment evidence.
 
 
 - 2026-11-23: The three new cartography atlases shipped in verified source 17441a1. Durable-source replay, pinned art-tool checks, all packed hashes and actual phone/desktop/hosted visual inspection passed; the accepted originals, prior atlases and approved generation settings are preserved.

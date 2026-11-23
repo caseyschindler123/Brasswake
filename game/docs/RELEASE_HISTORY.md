@@ -1,8 +1,20 @@
 # Verified release history
 
-Dates below are UTC. Earlier entries were reconciled on 2026-11-23 from existing receipts and successful Actions runs; their evidence was not rerun during that documentation cleanup. New release entries identify checks performed for that release. The latest confirmed hosted source is the cartography/travel release, `17441a11ff97e72e3381cff86f59fc2dad23f691`.
+Dates below are UTC. Earlier entries were reconciled on 2026-11-23 from existing receipts and successful Actions runs; their evidence was not rerun during that documentation cleanup. New release entries identify checks performed for that release. The latest confirmed hosted source is the skills/attributes/directional NPC release, `aec11c0124479aee5feb0d906f871a15e2a6f1aa`.
 
 Keep the released source commit distinct from any later documentation-only commit. Each entry preserves completion, verification and limitations without requiring local logs. Detailed receipts, screenshots and traces under ignored `work/` or test-results folders remain supplementary. A newer deployment supersedes the hosted version; earlier completed releases stay complete.
+
+## Skills, attributes and directional NPCs
+
+- Plan: [skills, attributes and directional NPCs](plans/2026-11-23-skills-attributes-and-directional-npcs.md). Status: complete, milestones 1–7. Classification: complex.
+- Released commit: `aec11c0124479aee5feb0d906f871a15e2a6f1aa`.
+- Deployment: [Actions 45237450851](https://github.com/caseyschindler123/Brasswake/actions/runs/45237450851), successful complete release gate, all 243 browser cases (54.3 minutes), deployment, hosted commit/HTML verification and one hosted player-flow case.
+- Independent live verification: 2026-11-23 19:22:41.224 UTC. Exact source/hash and one hosted phone-Chromium player-flow case passed with UI explicitly enabled, real SQL and no debug handles. The flow covers twenty skill controls, three attribute controls, targets/locks, export/import and reload. Hosted world and restored-character captures were opened.
+- HTML SHA-256: `c3096af4bde8a6c12492fd785f78415f1fc102d34255e52df60d38149c18a1e9`.
+- Shipped: twenty skills with a 700-point shared budget; Raise/Lower/Lock and stop targets; independently controlled STR/DEX/INT, health/mana/stamina, warrior/mage support actions, physical concealment/Stealth and prize stealing, optional lockpicking/disarming, Inscription/Carpentry recipes and household benefits. Human NPCs share hero body layers, eight-direction walking and stable varied appearances. Account v8/character v7 migration preserves existing occupied slots and learning history.
+- Other checks: local `npm run verify -- --ui` passed all 243 browser cases without retries or skips, required non-browser suites and 525 packed hashes. Twenty-three focused pure checks plus targeted combat cancellation, affordability, migration, diagonal movement and NPC material/cache regressions passed. Opened affected 390×720 phone and 1280×800 desktop captures, including skill/combat/stealth and directional NPC/dojo scenes. Development failures were corrected before the clean local and exact-commit CI gates; assertions and art baselines were retained.
+- Limitations: no real iPhone test or human learning/natural-progression balance study. Further proposed professions remain planned in the gameplay docs. Existing packed art was reused without image generation or changes to art-generation settings.
+- Supporting receipts/logs: `work/live-release.json`, `work/skills-release-verify.log`, `work/skills-ci-release.log` and `work/skills-independent-live.log`; ignored evidence supplements this tracked record.
 
 ## Cartography, travel, controls and towns
 
