@@ -60,7 +60,7 @@ async function assertTexture(f) {
   },{message:'Wait for eight rendered dungeon floor samples'}).toBe(8);
   for(const sample of samples)expect(sample.actual).toEqual(sample.expected);
 }
-async function walk(f, goal, stats, adjacent=true) {
+async function walk(f, goal, stats, adjacent=true, recovering=false) {
   if(stats.fixture&&typeof goal==='string'){
     await f.evaluate(id=>{
       const {map:m}=Scene.debug(),e=m.ents.find(e=>e.id===id);if(!e)return;
@@ -69,12 +69,13 @@ async function walk(f, goal, stats, adjacent=true) {
       if(at)Scene.hop(...at);
     },goal);await f.waitForTimeout(450);
   }
+  const recent=[];
   for(let guard=0;guard<700;guard++){
     if(await f.locator('#say').isVisible())await closeSheet(f);
-    if(await f.locator('#fight').isVisible()){await win(f,stats);continue;}
+    if(await f.locator('#fight').isVisible()){await win(f,stats);recent.length=0;continue;}
     const step=await f.evaluate(({goal,adjacent})=>{
       const {map:m,P,cam,zoom}=Scene.debug(),start=P.y*m.w+P.x;
-      let e=typeof goal==='string'?m.ents.find(e=>e.id===goal):null;
+      const e=typeof goal==='string'?(m.ents.find(e=>e.id===goal&&!e.dead&&!e.dying)||m.ents.find(e=>e.id===goal)):null;
       if(typeof goal==='string'&&!e)return {missing:goal};
       const tx=e?e.x:goal[0],ty=e?e.y:goal[1],done=(x,y)=>adjacent?Math.abs(x-tx)+Math.abs(y-ty)===1:x===tx&&y===ty;
       if(done(P.x,P.y))return {done:true,e:e?{x:e.x,y:e.y,kind:e.kind,id:e.id}:null};
@@ -91,7 +92,8 @@ async function walk(f, goal, stats, adjacent=true) {
         if(end<0)return null;const path=[];for(let a=end;a!==start;a=prev[a])path.push([a%m.w,Math.floor(a/m.w)]);return path.reverse();
       }
       let path=route(false);
-      if(!path){path=route(true);if(!path)return {blocked:{goal,at:[P.x,P.y]}};const mon=path.map(([x,y])=>m.occ.get(y*m.w+x)).find(Boolean);if(mon)return {fight:mon.id};}
+      const from=[P.x,P.y];
+      if(!path){path=route(true);if(!path)return {blocked:{goal,at:from}};const mon=path.map(([x,y])=>m.occ.get(y*m.w+x)).find(Boolean);if(mon)return {fight:mon.id,first:path[0],from};}
       let at=null;
       for(const pos of path.slice(0,7)){
         const sx=(pos[0]*16+8-cam.x)*zoom,sy=(pos[1]*16+8-cam.y)*zoom;
@@ -100,14 +102,29 @@ async function walk(f, goal, stats, adjacent=true) {
         if(m.occ.has(pos[1]*m.w+pos[0]))break;
         if(!m.ents.some(e=>Math.hypot(e.fx+.5-(pos[0]+.5),e.fy+(e.big?-.2:.2)-(pos[1]+.5))<1.12))at=pos;
       }
-      if(!at){const [x,y]=path[0];return {key:x>P.x?'ArrowRight':x<P.x?'ArrowLeft':y>P.y?'ArrowDown':'ArrowUp',at:[x,y],from:[P.x,P.y]};}
-      return {at,from:[P.x,P.y],steps:path.length};
+      return {at,first:path[0],from};
     },{goal,adjacent});
     if(step.missing)throw Error('Missing destination '+step.missing);
     if(step.blocked)throw Error('Unreachable UI destination '+JSON.stringify(step.blocked));
     if(step.done)return step.e;
-    if(step.fight){await engage(f,step.fight,stats);continue;}
-    if(step.key)await f.locator('body').press(step.key,{delay:80});else await canvasClick(f,...step.at);
+    if(step.fight&&!recovering){await engage(f,step.fight,stats,true);recent.length=0;continue;}
+    recent.push(step.from.join(','));if(recent.length>8)recent.shift();
+    const repeated=!stats.fixture&&recent.length===8&&new Set(recent).size<=3;
+    if(repeated){
+      stats.pathRecoveries=(stats.pathRecoveries||0)+1;
+      recent.length=0;
+      const nearby=recovering?null:await f.evaluate(goal=>{
+        const {map,P}=Scene.debug(),distance=e=>Math.abs(e.x-P.x)+Math.abs(e.y-P.y);
+        return map.ents.filter(e=>e.id!==goal&&!e.dead&&!e.dying&&!e.hidden&&['mon','guard','keeper'].includes(e.kind)&&distance(e)<=2)
+          .sort((a,b)=>distance(a)-distance(b))[0]?.id;
+      },goal);
+      if(nearby){await engage(f,nearby,stats,true);continue;}
+    }
+    if(repeated||!step.at){
+      const [x,y]=step.first,[px,py]=step.from;
+      const key=x>px?'ArrowRight':x<px?'ArrowLeft':y>py?'ArrowDown':'ArrowUp';
+      await f.locator('body').press(key,{delay:80});
+    }else await canvasClick(f,...step.at);
     // Roaming creatures can step into a route and stop ground movement.
     // Replan from the actual position; the destination assertion above still
     // requires physically reaching the requested chamber or interaction.
@@ -115,11 +132,17 @@ async function walk(f, goal, stats, adjacent=true) {
     const actual=await f.evaluate(()=>Scene.pos());
     stats.steps+=Math.abs(actual[0]-step.from[0])+Math.abs(actual[1]-step.from[1]);
   }
-  throw Error('Too many walking steps');
+  const diagnostic=await f.evaluate(goal=>{
+    const {map,P}=Scene.debug(),F=__bw.F,e=typeof goal==='string'?map.ents.find(e=>e.id===goal):null;
+    return {at:[P.x,P.y],goal,target:e?[e.x,e.y]:goal,
+      nearby:map.ents.filter(e=>!e.dead&&!e.dying&&!e.hidden&&['mon','guard','keeper'].includes(e.kind)&&Math.abs(e.x-P.x)+Math.abs(e.y-P.y)<=3).map(e=>e.id),
+      fight:F?{id:F.ent?.id,state:F.st,title:F.title}:null};
+  },goal);
+  throw Error('Too many walking steps: '+JSON.stringify(diagnostic));
 }
-async function interact(f,id,stats){
+async function interact(f,id,stats,recovering=false){
   for(let attempt=0;attempt<20;attempt++){
-    const e=await walk(f,id,stats,true);
+    const e=await walk(f,id,stats,true,recovering);
     if(await f.locator('#fight').isVisible()){
       if(await f.evaluate(id=>__bw.F?.ent?.id===id,id))return e;
       await win(f,stats);continue;
@@ -134,10 +157,10 @@ async function interact(f,id,stats){
   }
   throw Error('Repeated ambushes prevented reaching '+id);
 }
-async function engage(f,id,stats){
-  const status=await f.evaluate(id=>{const e=Scene.find(e=>e.id===id);return {kind:e?.kind,killed:!!__bw.DP.current().kills[id]};},id);
+async function engage(f,id,stats,recovering=false){
+  const status=await f.evaluate(id=>{const e=Scene.find(e=>e.id===id&&!e.dead&&!e.dying)||Scene.find(e=>e.id===id);return {kind:e?.kind,killed:!!__bw.DP.current().kills[id]};},id);
   if(status.killed&&(!status.kind||status.kind==='corpse'))return;
-  await interact(f,id,stats);
+  await interact(f,id,stats,recovering);
   if(await f.locator('#fight').isVisible())await win(f,stats);
   else expect(await f.evaluate(id=>!!__bw.DP.current().kills[id],id)).toBe(true);
 }
@@ -247,7 +270,7 @@ for(let r=1;r<=8;r++){
   const expedition=process.env.BW_DUNGEON_EXPEDITIONS==='1';
   test('dungeon '+(expedition?'expedition ':'components ')+r+': rendered routes, controls, combat, loot and persistence',async({page},info)=>{
     test.setTimeout(expedition?1800000:240000);
-    const errors=observeErrors(page),stats={r,fixture:!expedition,coverage:expedition?'complete expedition with actual canvas walking':'all-floor UI components with prepared positions',steps:0,queries:0,fights:0,floors:[]},start=Date.now();
+    const errors=observeErrors(page),stats={r,fixture:!expedition,coverage:expedition?'complete expedition with actual canvas walking':'all-floor UI components with prepared positions',steps:0,queries:0,fights:0,pathRecoveries:0,floors:[]},start=Date.now();
     await page.goto('/__visual?scene=tallyport');
     await expect(page.locator('body')).toHaveAttribute('data-ready','tallyport',{timeout:45000});
     let f=page.frames().find(f=>f.url().includes('visual_test=1'));
