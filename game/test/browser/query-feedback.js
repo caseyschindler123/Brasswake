@@ -22,11 +22,20 @@ async function submit(f, sql) {
 async function settled(f) { await f.waitForFunction(() => __bw.F && !__bw.F.busy, null, { timeout: 25000 }); }
 async function next(f) { await f.locator('[data-a=fchoose]').click(); await f.locator('[data-a=fpage][data-id=a1]').click(); await dismiss(f); }
 async function finish(f) {
-  for (let i = 0; i < 8 && !await f.evaluate(() => __bw.F.over); i++) {
-    await next(f); await submit(f, await f.evaluate(() => __bw.F.task.sql)); await settled(f);
+  // Complete the prepared comparison encounter with reproducible combat rolls.
+  // Both sides still respond normally; the grading and feedback assertions
+  // above this helper keep their original query and result coverage.
+  await f.evaluate(() => { window.__feedbackFinishRandom = Math.random; Math.random = () => .01; });
+  try {
+    for (let i = 0; i < 8 && !await f.evaluate(() => __bw.F.over); i++) {
+      await next(f); await submit(f, await f.evaluate(() => __bw.F.task.sql)); await settled(f);
+    }
+    expect(await f.evaluate(() => __bw.F.over)).toBe(true);
+    expect(await f.evaluate(() => __bw.S.hp)).toBeGreaterThan(0);
+    await expect(f.locator('[data-a=floot]')).toBeVisible();
+  } finally {
+    await f.evaluate(() => { Math.random = window.__feedbackFinishRandom; delete window.__feedbackFinishRandom; });
   }
-  expect(await f.evaluate(() => __bw.F.over)).toBe(true);
-  await expect(f.locator('[data-a=floot]')).toBeVisible();
   await f.locator('[data-a=floot]').click(); await dismiss(f);
   await expect(f.locator('[data-a=lootall]')).toBeVisible();
   await f.locator('[data-a=lootall]').click();
@@ -66,6 +75,27 @@ for (const scenario of ['sorting', 'partial', 'extra', 'syntax']) test(`query fe
   }
   expect(await f.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await finish(f);
+  expect(errors).toEqual([]);
+});
+
+test('query feedback · comparison completion survives unfavorable rolls and restores randomness', async ({ page }) => {
+  const errors = observeErrors(page), f = await fixture(page, 'b102', true);
+  await f.evaluate(() => {
+    window.__feedbackOriginalRandom = Math.random;
+    window.__feedbackMisses = () => .999;
+    Math.random = window.__feedbackMisses;
+  });
+  try {
+    await submit(f, await f.evaluate(() => __bw.F.task.sql)); await settled(f);
+    expect(await f.evaluate(() => !!__bw.F.over)).toBe(false);
+    await finish(f);
+    expect(await f.evaluate(() => Math.random === window.__feedbackMisses)).toBe(true);
+  } finally {
+    await f.evaluate(() => {
+      Math.random = window.__feedbackOriginalRandom;
+      delete window.__feedbackOriginalRandom; delete window.__feedbackMisses;
+    });
+  }
   expect(errors).toEqual([]);
 });
 
