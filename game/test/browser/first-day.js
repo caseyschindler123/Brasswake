@@ -83,7 +83,8 @@ async function beginnerFight(f,stats){
     const coach=f.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
     if(await f.locator('[data-a=floot]').isVisible())break;
     const choose=f.locator('[data-a=fchoose]');if(await choose.isVisible())await choose.click();
-    const heal=f.locator('#fight [data-a=tonic]');if(await heal.isVisible())await heal.click();
+    const heal=f.locator('#fight [data-a=tonic]:not([disabled])');
+    if(await heal.isVisible()&&await f.evaluate(()=>__bw.S.hp<=__bw.maxHp()-30)){await heal.click();await f.waitForFunction(()=>__bw.F&&!__bw.F.busy);continue;}
     const page=f.locator('[data-a=fpage]').first();if(await page.isVisible())await page.click();
     if(await coach.isVisible())await coach.click();
     await expect(f.locator('#sql')).toBeVisible();

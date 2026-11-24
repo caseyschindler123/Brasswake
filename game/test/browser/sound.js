@@ -29,7 +29,8 @@ test('every effect and all spell variants render audio or safely handle unavaila
       listeners.pointerdown(); return { Sound, store };
     };
     if (!AC) { const { Sound } = make(null); for (const name of Sound.effects()) Sound.sfx(name); Sound.setFx(false); return { unavailable: true, state: Sound.state(), muted: !Sound.pref().fx }; }
-    const jobs = make(null).Sound.effects().map(name => ({ name }));
+    const jobs = make(null).Sound.effects().filter(name => name !== 'ambient').map(name => ({ name }));
+    for (const detail of ['harbour', 'market', 'hearth', 'cave', 'drip', 'draft']) jobs.push({name:'ambient',detail});
     for (const s of getEffects().spells()) for (const rare of [false, true]) for (const name of ['cast', 'spellHit']) jobs.push({ name, detail: { ...s, rare } });
     for (const family of ['bird', 'small', 'beast', 'dragon', 'spirit', 'stone', 'insect', 'wet', 'bow', 'swing']) jobs.push({ name: 'creature', detail: family });
     const output = [];
@@ -115,10 +116,13 @@ test('game events select actual weapons, activity outcomes, transactions, and ch
     __sounds.length = 0; __bw.ACT.buytonic({ c: '1' }); const buy = __sounds.map(x => x.name);
     __sounds.length = 0; __bw.ACT.buytonic({ c: '999999' }); const refused = __sounds.map(x => x.name);
     __bw.ACT.closesheet(); __bw.S.hp = 1; e.chase = 5; __sounds.length = 0; __bw.HOST.ambush(e);
-    return { physical, families, buy, refused, death: __sounds.filter(x => x.name === 'death').length };
+    const contactDeath = __sounds.filter(x => x.name === 'death').length, random=Math.random;
+    window.__bwFast=true;
+    try { Math.random=()=>.01; __bw.ACT.flee(); } finally { Math.random=random; }
+    return { physical, families, buy, refused, contactDeath, death: __sounds.filter(x => x.name === 'death').length };
   });
   expect(result.physical).toBe('thrust'); expect(result.families).toEqual(['small', 'beast', 'bird', 'insect', 'stone']);
-  expect(result.buy).toEqual(['coins']); expect(result.refused).toEqual([]); expect(result.death).toBe(1);
+  expect(result.buy).toEqual(['coins']); expect(result.refused).toEqual([]); expect(result.contactDeath).toBe(0); expect(result.death).toBe(1);
 });
 
 test('magic remains readable during an actual fight', async ({ page }, info) => {
@@ -199,7 +203,7 @@ test('crafting and fishing outcomes and walked room crossings have contextual so
   for (const at of [result.outside, result.door]) {
     await page.keyboard.down(key);
     try {
-      await f.waitForFunction(() => Scene.traveling(), null, { timeout: 3500 });
+      await f.waitForFunction(({at,dx,dy}) => {const p=Scene.debug().P;return (dx ? (p.fx-at[0])*dx>=0 : Math.round(p.fx)===at[0]) && (dy ? (p.fy-at[1])*dy>=0 : Math.round(p.fy)===at[1]);}, {at,dx,dy}, { timeout: 3500 });
     } finally {
       await page.keyboard.up(key);
     }

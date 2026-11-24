@@ -14,9 +14,22 @@ async function drivePath(frame, path, run = true) {
     const page = typeof frame.page === 'function' ? frame.page() : frame;
     const mouse = page.mouse, x = box.x + box.width / 2, y = box.y + box.height / 2;
     const distance = box.width / 2 * (run ? .84 : .38);
+    await base.evaluate(n=>n.addEventListener('pointerdown',e=>n.dataset.driverPointer=String(e.pointerId),{once:true}));
     await mouse.move(x, y);
     await mouse.down();
     try {
+      // End the input on the first rendered frame at the requested centre.
+      // Cross-process polling can otherwise overshoot narrow door/plank lanes.
+      await frame.evaluate(({target,dx,dy})=>{
+        const n=document.querySelector('.movement-joystick');n.dataset.driverReached='';
+        function stopAtCentre(){
+          const p=Scene.debug().P;
+          if(!n.hasPointerCapture(+n.dataset.driverPointer))return;
+          if((dx?(p.fx-target[0])*dx>=0:Math.round(p.fx)===target[0])&&(dy?(p.fy-target[1])*dy>=0:Math.round(p.fy)===target[1])){
+            n.dataset.driverReached='true';n.dispatchEvent(new PointerEvent('pointercancel',{pointerId:+n.dataset.driverPointer}));
+          }else requestAnimationFrame(stopAtCentre);
+        }requestAnimationFrame(stopAtCentre);
+      },{target,dx,dy});
       await mouse.move(x + dx * distance, y + dy * distance);
       const deadline = Date.now() + (end - i + 2) * (run ? 600 : 900) + 1200;
       let last = from.join(','), progressed = Date.now(), reached = false;
@@ -24,9 +37,8 @@ async function drivePath(frame, path, run = true) {
         await frame.waitForTimeout(40);
         // Stopping is now immediate between tiles. Drive to the actual cell
         // centre rather than releasing at its rounded ownership boundary.
-        const status = await frame.evaluate(() => ({ at: [Scene.debug().P.fx,Scene.debug().P.fy], interrupted: !!(__bw.F || __bw.SB || __bw.Q) }));
-        const [px, py] = status.at;
-        if ((dx ? (px - target[0]) * dx >= 0 : Math.round(px) === target[0]) && (dy ? (py - target[1]) * dy >= 0 : Math.round(py) === target[1])) { reached = true; break; }
+        const status = await frame.evaluate(() => ({ at: [Scene.debug().P.fx,Scene.debug().P.fy], reached:document.querySelector('.movement-joystick').dataset.driverReached==='true', interrupted: !!(__bw.F || __bw.SB || __bw.Q) }));
+        if (status.reached) { reached = true; break; }
         if (status.interrupted) return;
         const position = status.at.join(',');
         if (position !== last) { last = position; progressed = Date.now(); }

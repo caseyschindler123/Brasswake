@@ -26,7 +26,8 @@ async function shipApproach(page,property){
   }throw Error('Could not approach ship target');
 }
 async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunspire',rescue=true,visibleOnly=false}={}){
-  const steps=async(key,n)=>{for(let i=0;i<n;i++){await page.keyboard.press(key,{delay:80});await page.waitForTimeout(650);}};
+  const steps=async(key,n)=>{for(let i=0;i<n;i++){await page.keyboard.press(key,{delay:455});await page.waitForTimeout(200);}};
+  const walkUntil=async(key,label)=>{await page.keyboard.down(key);try{await expect(page.locator('#ctx')).toBeVisible({timeout:8000});await expect(page.locator('#ctx')).toHaveText(label,{timeout:8000});}finally{await page.keyboard.up(key);}};
   await expect(page.locator('#onboard')).toContainText('Hold on');
   if(screenshot)await screenshot(page,info,'rescue-in-the-sea');
   if(rescue)await expect(page.locator('#boat-name')).toBeVisible({timeout:15000});
@@ -40,12 +41,12 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
   await page.locator('[data-a=boatnext]').click();
   await expect(page.locator('.movement-joystick')).toHaveAttribute('aria-disabled','false');
   await page.waitForTimeout(4000); // Let Tamsin walk clear of the rescued player.
-  if(visibleOnly){await steps('ArrowDown',1);await steps('ArrowRight',5);}else await shipApproach(page,'shipPerson');await expect(page.locator('#ctx')).toHaveText('Talk: Tamsin');if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();
+  if(visibleOnly){await steps('ArrowDown',1);await walkUntil('ArrowRight','Talk: Tamsin');}else await shipApproach(page,'shipPerson');await expect(page.locator('#ctx')).toHaveText('Talk: Tamsin');if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();
   await expect(page.locator('#onboard')).toContainText('teaches SQL');
   if(screenshot)await screenshot(page,info,'meet-tamsin-on-deck');
   await page.locator('[data-a=boatnext]').click();
   await expect(page.locator('#onboard')).toContainText('three days later');
-  if(visibleOnly){await steps('ArrowRight',2);await steps('ArrowUp',1);await steps('ArrowRight',3);}else await shipApproach(page,'shipExit');
+  if(visibleOnly){await steps('ArrowRight',2);await steps('ArrowUp',1);await walkUntil('ArrowRight','Step ashore');}else await shipApproach(page,'shipExit');
   if(screenshot)await screenshot(page,info,'gangplank-arrival');
   await expect(page.locator('#ctx')).toHaveText('Step ashore');if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();
   await expect(page.locator('#onboard')).toBeHidden();await expect(page.locator('#hud')).toContainText(name);

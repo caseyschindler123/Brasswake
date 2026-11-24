@@ -12,7 +12,9 @@ async function closeSheet(f) {
 async function win(f, stats) {
   if(stats.solveVisibleFight)return stats.solveVisibleFight(f,stats);
   await dismiss(f);
-  for(let n=0;n<15;n++){
+  // Each query and each draught now allows one enemy response. Bound complete
+  // exchanges, including deliberate recovery actions, rather than old batches.
+  for(let n=0;n<60;n++){
     await dismiss(f);
     const state=await f.evaluate(()=>({over:!!__bw.F?.over,act:__bw.F?.act,st:__bw.F?.st,dead:__bw.S.hp<=0}));
     if(state.dead)throw Error('Dungeon traversal character died');
@@ -20,7 +22,12 @@ async function win(f, stats) {
     if(state.st==='after'){
       const choose=f.locator('[data-a=fchoose]');if(await choose.isVisible())await choose.click();
     }
-    if(await f.locator('[data-a=tonic]').isVisible())await f.locator('[data-a=tonic]').click();
+    const needsDraught=await f.evaluate(()=>__bw.S.hp<Progression.maxHp(__bw.S)*.7&&__bw.S.tonics>0);
+    if(needsDraught&&await f.locator('[data-a=tonic]').isVisible()){
+      await f.locator('[data-a=tonic]').click();
+      await f.waitForFunction(()=>__bw.F&&!__bw.F.busy);
+      continue;
+    }
     if(await f.locator('[data-a=fpage]').first().isVisible()){const low=await f.evaluate(()=>__bw.S.mana<Progression.castCost(__bw.F.r));if(low)await f.locator('[data-a=futility][data-id=recover]').click();else await f.locator('[data-a=fpage]').first().click();}
     await expect(f.locator('#sql')).toBeVisible();await dismiss(f);
     await f.locator('#sql').fill(await f.evaluate(()=>__bw.F.task.sql));
@@ -257,7 +264,10 @@ test('a dungeon death survives reload before Wake up and its belongings survive 
   await f.evaluate(()=>{window.__bwFast=true;__bw.S.gold=77;__bw.S.sk={magery:0};__bw.S.hp=1;const e=Scene.find(e=>e.kind==='stairs'&&e.r===1);Scene.warp(e.x+1,e.y);});
   await f.waitForTimeout(250);await f.locator('#ctx').click();await f.locator('[data-a=start][data-k=dungeon]').click();
   const setup=await f.evaluate(()=>{const e=Scene.find(e=>e.kind==='mon'&&e.inst.role==='armored');Scene.hop(e.x+1,e.y);return {id:e.id,x:e.x,y:e.y,back:__bw.DG.back};});
-  await f.waitForTimeout(450);await canvasClick(f,setup.x,setup.y);await expect(f.locator('#fight')).toBeVisible();await dismiss(f);
+  await f.waitForTimeout(450);await dismiss(f);
+  if(!await f.locator('#fight').isVisible())await canvasClick(f,setup.x,setup.y);
+  await expect(f.locator('#fight')).toBeVisible();await dismiss(f);
+  expect(await f.evaluate(()=>__bw.F.ent.id)).toBe(setup.id);
   for(let i=0;i<8&&!(await f.evaluate(()=>!!__bw.F.over));i++){
     if(await f.locator('[data-a=fchoose]').isVisible())await f.locator('[data-a=fchoose]').click();
     await f.locator('[data-a=fpage]').first().click();await dismiss(f);await f.locator('#sql').fill('SELECT 0 AS wrong_answer');await f.locator('#kb [data-fn=run]').click();
