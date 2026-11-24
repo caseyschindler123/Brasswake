@@ -4,11 +4,12 @@ const {walk}=require('./dungeons');
 const {drivePath}=require('./movement');
 
 async function speech(f, action) {
+  if(action)await expect(f.locator('#say')).toBeVisible();
   for(let i=0;i<12;i++){
     if(action&&await f.locator(action).isVisible()){await f.locator(action).click();return;}
     const bye=f.locator('#say [data-a=closesheet]');
     if(!action&&await bye.isVisible()){await bye.click();return;}
-    if(!await f.locator('#say-text').isVisible())return;
+    if(!await f.locator('#say-text').isVisible()){if(action)throw Error('Dialogue closed before '+action);return;}
     await f.locator('#say-text').click();
   }
   throw Error('Dialogue did not expose '+action);
@@ -60,13 +61,77 @@ async function person(f,kind,stats){
 }
 async function query(f,sql){await f.locator('#sql').fill(sql);await f.locator('#kb [data-fn=run]').click();await f.waitForTimeout(500);}
 
-for (const [path,look] of [['warrior',0],['thief',2],['mage',4],['crafter',6]]) test('a new player meets Tamsin, walks to Odalys, reads the manifest and learns an ability without skipping · '+path,async({page},info)=>{
-  test.setTimeout(300000);const errors=observeErrors(page),stats={fixture:false,steps:0,queries:0};
+async function visit(f,kind,stats,extra={}){
+  for(let attempt=0;attempt<12;attempt++){
+  await speech(f);
+  const e=await f.evaluate(({kind,extra})=>{const p=Scene.pos(),a=Scene.ents().filter(e=>e.kind===kind&&!e.dead&&!e.dying&&!e.hidden&&!(kind==='mon'&&e.inst.elite)&&Object.entries(extra).every(([k,v])=>e[k]===v));a.sort((a,b)=>Math.hypot(a.x-p[0],a.y-p[1])-Math.hypot(b.x-p[0],b.y-p[1]));if(!a.length)throw Error('Missing '+kind);return {at:[a[0].x,a[0].y],name:a[0].name};},{kind,extra});
+  await walk(f,e.at,stats,true);await speech(f);await f.waitForTimeout(500);if(kind==='guide'&&await f.locator('#say').isVisible())return;await speech(f);
+  if(await f.locator('#ctx').isVisible()&&(await f.locator('#ctx').innerText()).includes(e.name))await f.locator('#ctx').click();else await clickWorld(f,e.at);
+  await f.waitForTimeout(500);
+  if(kind==='guide'){if(await f.locator('#say').isVisible())return;continue;}
+  if(!['mon','guard'].includes(kind)||await f.locator('#fight').isVisible())return;
+  }
+  throw Error('Could not approach and engage '+kind);
+}
+function beginnerAnswer(ask){
+  const all=ask.match(/Show everything in the (\w+) table/);if(all)return 'SELECT * FROM '+all[1];
+  const pick=ask.match(/Show the (.+?) of every (\w+)\./);if(!pick)throw Error('Unexpected untaught first-day query: '+ask);
+  return 'SELECT '+pick[1].replace(/ and the /g,', ')+' FROM '+({vendor:'vendors',item:'items',customer:'customers',employee:'employees'}[pick[2]]);
+}
+async function beginnerFight(f,stats){
+  for(let n=0;n<30;n++){
+    const coach=f.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
+    if(await f.locator('[data-a=floot]').isVisible())break;
+    const choose=f.locator('[data-a=fchoose]');if(await choose.isVisible())await choose.click();
+    const heal=f.locator('#fight [data-a=tonic]');if(await heal.isVisible())await heal.click();
+    const page=f.locator('[data-a=fpage]').first();if(await page.isVisible())await page.click();
+    if(await coach.isVisible())await coach.click();
+    await expect(f.locator('#sql')).toBeVisible();
+    // Solve the rendered instruction, without reading the game's reference answer.
+    await query(f,beginnerAnswer(await f.locator('#fight .ask').innerText()));stats.queries++;
+    await f.waitForFunction(()=>!__bw.F?.busy,null,{timeout:15000});
+  }
+  await expect(f.locator('[data-a=floot]')).toBeVisible();await f.locator('[data-a=floot]').click();
+  await expect(f.locator('[data-a=lootall]')).toBeVisible();await f.locator('[data-a=lootall]').click();await f.waitForTimeout(300);await speech(f);
+}
+async function finishGuidedDay(f,info,stats,fish=false){
+  await f.locator('[data-a=qleave]').last().click();await speech(f);await visit(f,'hallexit',stats);await speech(f);
+  await visit(f,'mon',stats,{r:1});await beginnerFight(f,stats);await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(6);
+  await speech(f);await f.locator('#nav [data-t=bag]').click();
+  const coach=f.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
+  const gift=await f.evaluate(()=>__bw.S.gk);await f.locator(`[data-a=item][data-id="${gift}"]`).click();await f.locator('[data-a=equip]').click();await speech(f);
+  await f.locator('#nav [data-t=hero]').click();if(await coach.isVisible())await coach.click();await expect(f.locator('#doll')).toBeVisible();await expect(f.getByRole('heading',{name:'New arrival',exact:true})).toBeVisible();await screenshot(f,info,'equipped-weapon-after-first-fight');await f.locator('#nav [data-t=world]').click();
+  await visit(f,'stallkeep',stats,{r:1});await f.locator('#sheet [data-a=sellcommon]').click();await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(8);await speech(f);
+  await visit(f,'npc',stats,{r:1,i:0});await speech(f,'#say [data-a=pages]');if(await coach.isVisible())await coach.click();await f.locator('[data-a=buypage]:not([disabled])').first().click();await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(9);await f.locator('.sheet-x').click();await speech(f);
+  await visit(f,'banker',stats,{r:1});await speech(f,'[data-a=bankopen]');await f.locator('[data-a=bdep]').click();await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(10);await speech(f);
+  await visit(f,'lookout',stats);await speech(f);await screenshot(f,info,'harbour-tower-and-road');
+  if(fish){
+    const pier=await f.evaluate(()=>Scene.spots().pierfish);await walk(f,pier,stats,true);await speech(f);
+    await expect.poll(()=>f.evaluate(()=>{const e=Scene.guideEnt(),p=Scene.pos();return !!e&&Math.hypot(e.fx-p[0],e.fy-p[1])<4;})).toBe(true);
+    await visit(f,'fish',stats,{x:pier[0],y:pier[1]});
+    if(await coach.isVisible())await coach.click();await f.locator('[data-a=cast][data-i="0"]').click();
+    await query(f,beginnerAnswer(await f.locator('.fi-ask p').first().innerText()));stats.queries++;
+    await expect(f.locator('#enc')).toContainText('A clean cast');await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(12);await f.waitForTimeout(600);
+    await expect(f.locator('#say')).toBeHidden();await screenshot(f,info,'guided-first-cast-result');await f.locator('[data-a=fileave]').last().click();await speech(f);
+  }else{
+    // Fishing is explicitly optional. Follow the offered Skip it choice.
+    await visit(f,'guide',stats);await speech(f,'[data-a=gnext]');await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(12);await speech(f);
+  }
+  await visit(f,'stairs',stats,{r:1});await speech(f,'[data-a=start][data-k=dungeon]');await expect.poll(()=>f.evaluate(()=>!!Scene.inDungeon())).toBe(true);await speech(f);
+  await visit(f,'guard',stats,{tutorial:true});await beginnerFight(f,stats);
+  await visit(f,'chest',stats,{tutorial:true});await expect(f.locator('#sheet')).toContainText('vault chest');await screenshot(f,info,'first-cellar-chest');await f.locator('#sheet button[data-a=closesheet]').last().click();await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(14);
+  await visit(f,'dtravel',stats,{to:-1});await speech(f,'[data-a=dtravel]');await speech(f);
+  const ring=await f.evaluate(()=>Scene.spots().boss1);stats.stopWhenGuideEnds=true;await walk(f,[ring[0],ring[1]+5],stats,false);delete stats.stopWhenGuideEnds;await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(15);
+  await expect(f.locator('#say')).toBeVisible();await expect(f.locator('#say-text')).toContainText('New Reader.');await expect(f.locator('#say-text')).toContainText('Marigold');await screenshot(f,info,'tamsin-farewell-at-the-road');await speech(f);
+  expect(await f.evaluate(()=>({tut:__bw.S.tut,practice:!!__bw.S.seen['intro.practice'],bank:__bw.S.bank.gold>0}))).toEqual({tut:3,practice:true,bank:true});
+}
+
+for (const [path,look] of [['warrior',0],['thief',2],['mage',4],['crafter',6]]) test('a new player meets Tamsin, learns SQL and completes the guided day without skipping · '+path,async({page},info)=>{
+  test.setTimeout(750000);const errors=observeErrors(page),stats={fixture:false,steps:0,queries:0,solveVisibleFight:beginnerFight};
   await page.waitForLoadState('networkidle');
   await page.goto('/index.html?visual_test=1');await expect(page.locator('#artload')).toBeHidden({timeout:45000});
-  await page.locator('[data-a=newslot]').first().click();await page.locator(`[data-a=pick][data-look="${look}"]`).click();await page.locator('#cr-name').fill('New Reader');await page.locator('[data-a=begin]').click();
-  await expect(page.locator('.tt-story')).toContainText('Tamsin');await screenshot(page,info,'rescue-introduction');
-  await page.locator('[data-a=beat]').click();await page.locator('[data-a=beat]').click();await page.locator('[data-a=ashore]').click();await page.waitForTimeout(500);await speech(page);await learnMovement(page,stats);
+  await page.locator('[data-a=newslot]').first().click();await page.locator(`[data-a=pick][data-look="${look}"]`).click();await page.locator('[data-a=begin]').click();
+  await require('./intro-helper').fullArrival(page,info,screenshot);await expect(page.locator('[data-a=conceal]')).toHaveCount(0);await page.waitForTimeout(500);await speech(page);await learnMovement(page,stats);
   await person(page,'folk',stats);if(await page.evaluate(()=>__bw.S.gd<3)){await speech(page);await person(page,'folk',stats);}await expect.poll(()=>page.evaluate(()=>__bw.S.gd)).toBe(3);await speech(page);await page.waitForTimeout(500);await speech(page);
   await person(page,'dojo',stats);await expect.poll(()=>page.evaluate(()=>Scene.inHall())).toBe(1);
   await person(page,'odalys',stats);await speech(page,'[data-a=start][data-k=intro]');
@@ -84,6 +149,7 @@ for (const [path,look] of [['warrior',0],['thief',2],['mage',4],['crafter',6]]) 
   await expect(page.locator('#enc .reward-gold')).toContainText('+25 gold');expect(await page.evaluate(before=>__bw.S.gold-before,gold)).toBe(25);await screenshot(page,info,'first-lesson-gold-pile');
   await page.locator('[data-a=qleave]').last().click();await speech(page,'[data-a=intropractice]');await page.locator('[data-a=practicepage]').first().click();await query(page,'SELECT name FROM items');
   await expect(page.locator('#enc')).toContainText('Your first ability');expect(await page.evaluate(()=>!!__bw.S.seen['intro.practice'])).toBe(true);await screenshot(page,info,'safe-first-ability');
+  await finishGuidedDay(page,info,stats,path==='mage');
   expect(stats.steps).toBeGreaterThan(10);expect(errors).toEqual([]);
 });
 
@@ -96,6 +162,22 @@ test('supplies explain full health, consume once, and restore the actual amount'
   await f.locator('.sheet-x').click();const hp=await f.evaluate(()=>{__bw.S.hp-=5;return __bw.S.hp;});
   await f.locator('[data-a=supply][data-k=loaf]').click();await f.locator('#sheet [data-a=eat]').click();expect(await f.evaluate(()=>({hp:__bw.S.hp,n:__bw.S.food.loaf}))).toEqual({hp:hp+5,n:1});
   const before=await f.evaluate(()=>{__bw.S.hp-=35;return __bw.S.hp;});await f.locator('[data-a=supply][data-k=tonic]').click();await f.locator('#sheet [data-a=tonic]').click();expect(await f.evaluate(()=>({hp:__bw.S.hp,n:__bw.S.tonics}))).toEqual({hp:before+30,n:1});
+  expect(errors).toEqual([]);
+});
+
+test('guided fishing keeps every cast within taught SQL and leaves results uninterrupted',async({page},info)=>{
+  const errors=observeErrors(page);await page.goto('/__visual?scene=tallyport');await expect(page.locator('body')).toHaveAttribute('data-ready','tallyport',{timeout:45000});const f=page.frames().find(f=>f.url().includes('visual_test=1'));
+  // Prepared edge state tests all cast choices separately from the earned guided days above.
+  await f.evaluate(()=>{__bw.ACT.closesheet();__bw.S.gd=11;__bw.S.tut=2;const p=Scene.spots().pierfish;Scene.guideOff();Scene.load([p[0],p[1]-1],1);__bw.render();});
+  const coach=f.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
+  for(let i=0;i<3;i++){
+    await f.evaluate(()=>__bw.HOST.interact(Scene.find(e=>e.kind==='fish'&&e.fid==='f1-pier')));if(await coach.isVisible())await coach.click();
+    await expect(f.locator('#sheet')).not.toContainText('Try a harder query');await f.locator(`[data-a=cast][data-i="${i}"]`).click();
+    await expect(f.locator('#enc')).toContainText('First Circle question');const sql=beginnerAnswer(await f.locator('.fi-ask p').first().innerText());
+    if(i<2){await f.locator('[data-a=fileave]').last().click();continue;}
+    await query(f,sql);await expect(f.locator('#enc')).toContainText('A clean cast');await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(12);await f.waitForTimeout(600);
+    await expect(f.locator('#say')).toBeHidden();await screenshot(page,info,'guided-deep-cast-results');await f.locator('[data-a=fileave]').last().click();
+  }
   expect(errors).toEqual([]);
 });
 
@@ -137,7 +219,7 @@ for(const choice of ['stay','gohome']) test('the recovered history leads to the 
   await query(f,"SELECT x.name, MIN(l.seen_on) AS door FROM (SELECT name, found_on FROM strangers UNION ALL SELECT old_name, old_date FROM erasures WHERE table_name = 'strangers') x JOIN lights l ON l.sea = 'Brass Sea' AND l.seen_on > x.found_on GROUP BY x.name, x.found_on ORDER BY x.found_on");
   await expect(f.locator('#enc')).toContainText('That is the Truth');await f.locator('[data-a=trclose]').last().click();
   await expect(f.locator('.tt-story')).toContainText('2026-07-24');await expect(f.locator('.tt-story')).toContainText('forty days');await screenshot(page,info,'light-after-rescue');
-  await f.locator('[data-a=sbeat]').click();await f.locator(`[data-a=${choice}]`).click();await expect(f.locator('.tt-story')).toContainText(choice==='stay'?'staying':'shore of your own world');expect(await f.evaluate(()=>__bw.S.ending)).toBe(choice==='stay'?'stay':'home');await screenshot(page,info,'ending-'+choice);
+  await f.locator('[data-a=sbeat]').click();await f.locator(`[data-a=${choice}]`).click();await expect(f.locator('.tt-story')).toContainText(choice==='stay'?'staying':'shore of your homeland');expect(await f.evaluate(()=>__bw.S.ending)).toBe(choice==='stay'?'stay':'home');await screenshot(page,info,'ending-'+choice);
   while(await f.locator('[data-a=sbeat]').isVisible())await f.locator('[data-a=sbeat]').click();
   await expect(f.locator('#title')).toBeHidden();
   await f.locator('#nav [data-t=world]').click();const coach=f.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();

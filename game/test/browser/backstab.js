@@ -10,8 +10,8 @@ for(const heavy of [false,true])test(`Backstab · Hide displays its actual ${hea
   const errors=observeErrors(page),{frame}=await fixture(page);
   if(heavy)await frame.evaluate(()=>{const armor=__bw.makeItem('rare',1,'armor');__bw.S.inv.push(armor);__bw.ACT.equip({id:armor.id});});
   await action(frame,'conceal').click();await dismiss(frame);
-  await expect(frame.locator('#enc')).toContainText((heavy?'41':'61')+'% if correct');
-  await expect(frame.locator('#enc')).toContainText('0% if wrong');
+  await expect(frame.locator('#enc')).toContainText((heavy?'41':'61')+'% if the query is correct');
+  await expect(frame.locator('#enc')).toContainText('0% if it’s wrong');
   if(heavy)await expect(frame.locator('#enc')).toContainText('Heavy armor lowers concealment by 20 percentage points');
   await screenshot(page,info,'hide-armor-odds');
   await frame.locator('#sql').fill(await frame.evaluate(()=>__bw.Q.task.sql));
@@ -290,7 +290,7 @@ test('Backstab · Examiner pursuit, escape and re-entry keep wounds and the next
   await engage(frame, true);
   const full = await combatState(frame);
   await action(frame, 'fbackstab').click();
-  await expect(frame.locator('#fight .ask')).toContainText('Every vendor');
+  await expect(frame.locator('#fight .ask')).toContainText('lead_time_days');
   await submit(frame, 'F', action(frame, 'fchoose'));
   const wounded = await combatState(frame);
   expect(wounded.foe).toBeLessThan(full.foe);
@@ -340,7 +340,7 @@ test('Backstab · Examiner pursuit, escape and re-entry keep wounds and the next
     expect(resumed.foe).toBe(wounded.foe);
     expect(resumed.round).toBe(wounded.round);
     await action(frame, 'fbackstab').click();
-    await expect(frame.locator('#fight .ask')).toContainText('lowest-priced items');
+    await expect(frame.locator('#fight .ask')).toContainText('unit_price');
   } finally {
     await frame.evaluate(() => {
       window.restoreBackstabWallClock();

@@ -10,6 +10,7 @@ async function closeSheet(f) {
   for(let i=0;i<4&&await f.locator('#say-text').isVisible();i++)await f.locator('#say-text').click();
 }
 async function win(f, stats) {
+  if(stats.solveVisibleFight)return stats.solveVisibleFight(f,stats);
   await dismiss(f);
   for(let n=0;n<15;n++){
     await dismiss(f);
@@ -73,6 +74,8 @@ async function walk(f, goal, stats, adjacent=true, recovering=false) {
   }
   const recent=[];
   for(let guard=0;guard<700;guard++){
+    if(stats.stopWhenGuideEnds&&await f.evaluate(()=>__bw.S.gd>=15))return;
+    if(stats.solveVisibleFight)await dismiss(f);
     if(await f.locator('#say').isVisible())await closeSheet(f);
     if(await f.locator('#fight').isVisible()){await win(f,stats);recent.length=0;continue;}
     const step=await f.evaluate(({goal,adjacent})=>{
@@ -160,7 +163,7 @@ async function interact(f,id,stats,recovering=false){
   throw Error('Repeated ambushes prevented reaching '+id);
 }
 async function engage(f,id,stats,recovering=false){
-  const status=await f.evaluate(id=>{const e=Scene.find(e=>e.id===id&&!e.dead&&!e.dying)||Scene.find(e=>e.id===id);return {kind:e?.kind,killed:!!__bw.DP.current().kills[id]};},id);
+  const status=await f.evaluate(id=>{const e=Scene.find(e=>e.id===id&&!e.dead&&!e.dying)||Scene.find(e=>e.id===id);return {kind:e?.kind,killed:!!__bw.DP.current()?.kills[id]};},id);
   if(status.killed&&(!status.kind||status.kind==='corpse'))return;
   await interact(f,id,stats,recovering);
   if(await f.locator('#fight').isVisible())await win(f,stats);

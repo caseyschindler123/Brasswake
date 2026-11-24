@@ -4579,5 +4579,14 @@
       1023,
       150
     ]
+  },
+  {
+    "path": "art/ship/deck.webp",
+    "sha256": "a5f59ae48691caea361feb29a836e3d034f9fc02f7f5ff67d1bc366a85e47279",
+    "size": 213306,
+    "dimensions": [
+      480,
+      1454
+    ]
   }
 ]

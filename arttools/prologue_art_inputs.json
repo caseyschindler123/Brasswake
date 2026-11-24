@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "source": {
+    "filename": "exec-35394218-af15-4ec0-a9a2-cb8ce3c79d9b.png",
+    "sha256": "e85fb9d8f5d129e60f84eefca55369943c638fad3bd9b92996ca2d94f563cbae",
+    "dimensions": [
+      1024,
+      1536
+    ],
+    "alpha_threshold": 128,
+    "alpha_bounds": [
+      266,
+      11,
+      758,
+      1526
+    ],
+    "crop_margin": 6,
+    "crop": [
+      260,
+      5,
+      764,
+      1532
+    ]
+  },
+  "packing": {
+    "pillow": "12.0.0",
+    "libwebp": "1.6.0",
+    "resampling": "LANCZOS",
+    "webp": {
+      "quality": 90,
+      "method": 6
+    }
+  },
+  "outputs": {
+    "deck.webp": {
+      "sha256": "a5f59ae48691caea361feb29a836e3d034f9fc02f7f5ff67d1bc366a85e47279",
+      "size": 213306,
+      "dimensions": [
+        480,
+        1454
+      ]
+    },
+    "artship.js": {
+      "sha256": "196c233285a84d85339d54afc4c4152ca9e04bc7b7447f9794135907b4c78f96",
+      "size": 157
+    }
+  }
+}

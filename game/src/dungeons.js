@@ -74,7 +74,7 @@ const Dungeons = (() => {
       ['d72', 'Icebound Guard', 'armored', 1.03, 3, 'A guard with its armor frozen shut.'],
       ['l21', 'Winter Wolf', 'skirmisher', .7, 1, 'A thick-coated wolf from the mountain pass.'],
       ['l23', 'Yeti', 'brute', 1.3, 3, 'A large cave dweller with white fur.'],
-      ['b702', 'Ice Wisp', 'caster', .42, 2, 'A cold light that slows what it touches.'],
+      ['b702', 'Ice Wisp', 'caster', .42, 2, 'A blue-white light that drifts above the frozen floor.'],
       ['b704', 'Snow Ghost', 'caster', .83, 4, 'A ghost in the clothes of a mountain runner.']
     ]),
     8: roster(8, [
@@ -113,7 +113,7 @@ const Dungeons = (() => {
         'EFw FGw IJh', 'Bosun Marr', 'Corin Hale borrowed a lamp from the watch. His name is still on the slate beside the empty hook.', '223335510011'),
       level('Flooded Stores', '.MLKz ..wJ. BCDIH AxEFG .vy..', 'Jw wL Cx xE Ey Kz yv',
         'High Landing|Sack Store|Loading Bay|Chain Room|Lamp Store|Hoist Pit|Empty Bunks|Flood Line|Tallow Run|Pump Steps|Sluice Landing|Anchor Room|Court Hatch|Hoist Walk|Coal Store|Tackle Box|Dry Locker|Crate Well',
-        'CDw GHw IJh', 'Quartermaster Crewe', 'Keep the rope above the black line on the wall. The stores flood on the spring tide.', '2331451501131'),
+        'CDw GHw IJh', 'Quartermaster Crewe', 'We hung the rope above the black line on the wall because the stores flooded on the spring tide.', '2331451501131'),
       level('Drowned Court', 'HGz.. IFx.. JEDCy K.wB. LMNA.', 'Bw wD Dx xF Cy Gz',
         'Salt Stair|Chain Bay|Outer Rails|Bell Stand|Flag Walk|Empty Dais|Harbor Seats|Portcullis Foot|Blackwater Walk|Tide Gauge|Bailiff’s Room|Flood Court|Seal Walk|Knight’s Court|Grating Walk|Bell Passage|Oath Shelf|Scribe’s Bench',
         'DEw IJw MNh', 'First Mate Vale', 'Corin marked the floor by the inner court. His chalk line ends at the keeper’s door.', '23511144015511')
@@ -121,10 +121,10 @@ const Dungeons = (() => {
     ['The Sunken Sluice', [
       level('Gatehouse', '..M.. ..LKz ABCJx .wDIH .yEFG', 'Bw wD Hx xJ Ey Kz',
         'Causeway|Gate Bench|Reed Bed|Silt Run|Wheel Room|Stone Weir|Miller’s Ramp|East Channel|Lower Walk|Chain Bridge|Lock Desk|Keeper’s Porch|Water Stair|Bywash|Reed Island|Float Shed|Flood Mark',
-        'CDw FGw HIh', 'Lockmaster Fen', 'The iron wheel opens the side channel. Leave the main weir alone while the boards are wet.', '2232031500112'),
+        'CDw FGw HIh', 'Lockmaster Fen', 'The sluice wheel opens the side gate. We kept the main weir shut while we repaired the boards.', '2232031500112'),
       level('Reed Channels', 'yHIJK vGFxL CDE.. Bwz.. A....', 'Bw wD Fx xJ Hy Ez yv',
         'Mooring Step|Wader’s Landing|Reed Cut|Long Channel|Pole Rack|Clay Bank|Toad Pool|Net Bridge|Willow Bank|Silt Trap|Lower Pier|Reservoir Stair|Catch Ditch|Dry Cut|Old Jetty|Pole Hole|Eel Rack',
-        'DEw FGh IJw', 'Reedwife Sena', 'The pole rack held twelve poles last spring. Tie up here before going into the next channel.', '230300500114'),
+        'DEw FGh IJw', 'Reedwife Sena', 'The rack held twelve poles the last time we counted them. We tied up here before going on to the next channel.', '230300500114'),
       level('Root Reservoir', 'FGHy. EDI.. xCJw. .BKLz .ANM.', 'Jw wL Cx xE Hy Lz',
         'Reservoir Rim|Outlet|Wet Steps|Barrow Bank|Stump Weir|Outer Pool|Split Ash|Chain Island|Stone Arch|Deep Channel|Leaf Bank|Root Walk|Keeper’s Landing|Root Basin|Overfall|Shallow Bend|Ash Store|Flood Bench',
         'EFw IJw KLh', 'Silt Captain Orr', 'The builders left the ash roots in place. The roots hold both banks together.', '24550301151143')
@@ -132,10 +132,10 @@ const Dungeons = (() => {
     ['The Old Barrows', [
       level('Outer Tombs', '...y. ...GF .xIHE LKJCD .zABw', 'Bw wD Ix xK Gy Kz',
         'Mound Steps|Stone Lintel|Brass Slabs|Spearmen’s Tomb|Taper Room|Clay Passage|Mourner’s Seat|Broken Steps|Ash Floor|Family Vault|Stone Screen|Inner Stair|Burial Walk|Wreath Store|Potter’s Tomb|Offering Niche',
-        'CDh HIh JKw', 'Tomb Captain Ader', 'Wrap the bowl in linen before you set it down. The black dust burns the hands.', '224050113311'),
+        'CDh HIh JKw', 'Tomb Captain Ader', 'We wrapped the bowl in linen because the black dust burned our hands.', '224050113311'),
       level('Kings’ Passage', 'ABCN. .xDMw vyELK ..F.J .zGHI', 'Kw wM Bx xD Ey Gz yv',
         'King’s Stair|Mason’s Yard|Candle Vault|Grey King|Hewn Walk|Bronze King|Bear Tomb|Stag Tomb|Well Steps|Procession Way|Red King|Queen’s Walk|Ash Stair|Court Steps|Kingmaker’s Room|Family Passage|Bronze Shelf|Seal Cupboard|Fig Tree Tomb',
-        'DEh GHw JKh', 'Shieldbearer Orlen', 'The mason cut the lesser doors to spare the bearers a long walk. Close them after the procession.', '25013033110115'),
+        'DEh GHw JKh', 'Shieldbearer Orlen', 'The masons cut the side doors so the bearers would not have to take the long way round during a procession.', '25013033110115'),
       level('Burial Court', '.yA.O DCBMN E.zLw Fx.K. GHIJ.', 'Lw wN Fx xH Cy Lz',
         'Burial Stair|Outer Tomb|Chalk Beam|King’s Gate|Drum Room|Stone Boats|War Vault|Banner Wall|Oath Passage|Court Well|Crown Passage|Burial Pit|Censer Walk|Guardstones|King’s Seat|Seal Walk|Lamp Walk|Gravedigger’s Bench|Unmarked Tomb',
         'EFh IJw MNh', 'Marshaler Cenn', 'The king asked to be buried beside his soldiers. The crown was left on the chair above him.', '230131341034111')
@@ -143,10 +143,10 @@ const Dungeons = (() => {
     ['The Tanglewarren', [
       level('Rootways', '..MLz xIJK. GHCBA FEDw. ..y..', 'Bw wD Gx xI Dy Lz',
         'Bank Mouth|Beetle Run|Elm Roots|Soft Earth|Spore Bed|Burrow Pool|Woodcutter’s Walk|Fox Den|Hairpin|Low Tunnel|Root Fork|Web Bed|Silk Stair|Runner’s Way|Split Burrow|Spore Cup|Spade Hollow',
-        'DEh FGw IJh', 'Old Hookjaw', 'The woodcutters left a spade where the elm roots turn. The side tunnel is wide enough to carry it out.', '2024405053012'),
+        'DEh FGw IJh', 'Old Hookjaw', 'One of the woodcutters left his spade by the elm roots. He was halfway back to the surface before he noticed.', '2024405053012'),
       level('Silk Galleries', '..NMz ABCLK .wDEJ ..xFI .vyGH', 'Bw wD Dx xF Gy Mz yv',
         'Dry Mouth|Rope Gallery|White Floor|Oak Belly|Husk Run|Brood Arch|Egg Bed|Wrapped Bough|Bat Gap|Sticky Walk|Fallen Plane|Thread Bridge|Spider Vault|Hollow Stair|Silk Run|Mushroom Shelf|Dropped Lantern|Web Pocket|Quiet Den',
-        'EFh HIw LMh', 'Whiteback Widow', 'Tie a thread from the lantern to the floor peg. The silk hangs too low to see the peg from the arch.', '23012033511131'),
+        'EFh HIw LMh', 'Whiteback Widow', 'We tied a thread between the lantern and the floor peg because the hanging silk hid the peg from the arch.', '23012033511131'),
       level('Wyrm Hollow', '..IJz .wHKL EFG.. Dxy.. CBA..', 'Fw wH Dx xF Gy Jz',
         'Low Stair|Split Trunk|Stone Roots|Outer Burrow|Clay Bowl|Old Nest|Limestone Walk|Shed Skins|Wyrm Track|Bone Bank|Split Jaw|Wyrm’s Bed|Skin Passage|Buried Oak|Bat Alcove|Runner’s Rest',
         'CDw FGh JKh', 'Silk Keeper Rusk', 'The young wyrm shed here every winter. The last skin was wider than the clay bowl.', '204312350111')
@@ -154,13 +154,13 @@ const Dungeons = (() => {
     ['Slagdeep', [
       level('Cooling Works', '.yFGH .wExI .CDKJ .B.LM .A.z.', 'Cw wE Gx xI Fy Lz',
         'Works Stair|Coal Bay|Coke Bins|Pump Floor|Lime Tank|Wet Hearth|Cooling Bed|Skim Pit|Grit Hopper|Quench Bay|Drum Room|Drain Ramp|Foundry Lift|Waste Chute|Water Return|Locker Room|Foreman’s Store',
-        'DEw FGh IJh', 'Pumpman Garet', 'Cool the castings in the lime tank before you send them downstairs. A red casting can burn through the lift sling.', '2344052301151'),
+        'DEw FGh IJh', 'Pumpman Garet', 'The crew cooled castings in the lime tank before lowering them. A red-hot casting once burned straight through a lift sling.', '2344052301151'),
       level('Foundry', 'OJIH. NKxG. MLEF. z.Dw. .yCBA', 'Dw wF Gx xI Cy Mz',
         'Lift Landing|Sand Bins|Pattern Shop|Cast Floor|Mold Rack|Cinder Run|Flask Arch|Furnace Doors|Iron Trough|Pouring Crane|Sand Walk|Shakeout Floor|Coal Pocket|Hammer Steps|Vent Lift|Ladle Rail|Slag Return|Lost Wages|Pay Box',
-        'EFh GHh HIw', 'Pourmaster Kett', 'The crane brake sticks at the south end. Pull the hand chain before the ladle reaches the iron trough.', '203330252215211'),
+        'EFh GHh HIw', 'Pourmaster Kett', 'The south crane brake kept sticking. We hauled on the hand chain to stop the ladle before it reached the iron trough.', '203330252215211'),
       level('Ventworks', '.wDEF ABCxG LKJIH M.z.y N....', 'Bw wD Ex xG Hy Jz',
         'Vent Stair|Fan Footing|Ash Cleanout|Draft Room|Coal Duct|Hot Damper|Rivet Walk|Steam Drum|Bellows Pit|Soot Ledge|Flue Bend|Exhaust Ramp|Pressure Landing|Crucible Lift|Bypass Duct|Cold Return|Rivet Locker|Safety Niche',
-        'DEh FGh IJw', 'Damper Keeper Judd', 'Open the red valve from the draft room. There is an iron walkway by the far wall if the flue is hot.', '24052353011121'),
+        'DEh FGh IJw', 'Damper Keeper Judd', 'The forge valve opens the vent shutter. The crew used the iron walkway when the flue grew too hot.', '24052353011121'),
       level('Crucible', '..zy. .FED. wGxC. IH.BA JKL..', 'Gw wI Cx xE Dy Ez',
         'Furnace Landing|Iron Rack|Charge Gate|Crucible Steps|Casting Dais|Ash Arch|Runner’s Trough|Melt Walk|Black Hearth|Casting Pit|Bellows Gate|Golem’s Hearth|Inspection Rail|Foundry Walk|Empty Mold|Wage Locker',
         'BCw EFh JKh', 'Furnace Captain Corve', 'There is no chain on the last gate. The keeper dragged it into the fire when the last shift left.', '213355410122')
@@ -168,10 +168,10 @@ const Dungeons = (() => {
     ['The Crystal Vaults', [
       level('Shard Caves', '.A.Mz .BCLK .xDEJ ..wFI .vyGH', 'Dw wF Bx xD Gy Kz yv',
         'Cave Mouth|Flint Seat|Blue Shelf|Shard Bend|Drip Roof|Stone Fan|Rough Causeway|Lantern Nook|Flecked Rock|Survey Peg|North Prism|Split Chimney|Gallery Stair|Quartz Tread|Pale Passage|Miner’s Shelf|Surveyor’s Slot|Lamp Socket',
-        'CDh FGw IJh', 'Surveyor Rell', 'I drove an iron peg into the stone where the light splits. Leave a lamp there for the next party.', '2200345521151'),
+        'CDh FGw IJh', 'Surveyor Rell', 'The iron peg marks the place where we split into two survey parties. We left a lamp there so either group could find its way back.', '2200345521151'),
       level('Resonant Galleries', 'JKL.. IHGz. xEF.. yDC.. .wBA.', 'Bw wD Ex xI Dy Gz',
         'Echo Stair|Copper Post|Still Arch|Tuning Bench|Blue Pipes|Hollow Ledge|Bell Arch|Shell Basin|Eardrum Cave|Violet Chime|Long Echo|Well Stair|Quartz Throat|Silent Walk|Padded Seat|Chime Niche',
-        'DEw FGh IJh', 'Bellkeeper Sorn', 'The copper post hums when the east passage is open. Put your hand on it if you can’t hear over the bells.', '254123500111'),
+        'DEw FGh IJh', 'Bellkeeper Sorn', 'I wrapped the copper post in linen, but it still hummed whenever the bells rang.', '254123500111'),
       level('Mirror Wells', 'IHGx. J.FEw Kz.DC L..yB MN..A', 'Cw wE Ex xG Dy Kz',
         'Mirror Stair|Twin Pillars|Clear Shelf|Reflected Pool|Prism Arch|Green Well|Falling Water|Cut Quartz|Glint Run|White Mirror|Lower Well|Stone Rungs|Survey Room|Heart Stair|Silver Passage|Pool Rim|Clear Nook|Map Cleft',
         'CDw HIh KLw', 'Prism Keeper Neris', 'There’s a dry path along the edge of the lower well. The water makes the far wall look like a door.', '23034111435011'),
@@ -182,13 +182,13 @@ const Dungeons = (() => {
     ['The Ice Halls', [
       level('Lower Galleries', '.z... xEDw. GFCBA HIJKL y...M', 'Bw wD Ex xG Hy Ez',
         'Peak Stair|Packed Snow|Rope Pegs|Leeward Bay|Blue Arch|Sled Bank|Stone Hearth|Thaw Run|Fur Store|Old Campsite|Drop Ledge|Narrow Shelf|Cistern Stair|Wind Cut|Sled Track|Snow Nook|Climber’s Cache',
-        'CDh FGw IJh', 'Sledmaster Arn', 'The sleds ran aground where the roof dropped. The rope pegs still hold if you need a line.', '0203045521141'),
+        'CDh FGw IJh', 'Sledmaster Arn', 'The sleds jammed where the roof had fallen. We drove pegs into the wall so we could haul the loads through by hand.', '0203045521141'),
       level('Frozen Cistern', 'GHIJz F.wK. EDxL. .CBMN .yA..', 'Iw wK Bx xD Cy Jz',
         'Cistern Rim|Tin Pail|Ice Spout|Water Marks|Bucket Winch|Stove Steps|South Basin|Ice Dock|Frozen Lid|Glacier Shelf|Cold Grille|Cistern Neck|Deep Landing|Wind Stair|Drain Lip|Dry Steps|Stove Nook|Dipper’s Cupboard',
-        'DEw FGh KLh', 'Cistern Watch Edda', 'Fetch water at the spout while it runs. The ice over the south basin is too thin to carry a pail.', '02530415341111'),
+        'DEw FGh KLh', 'Cistern Watch Edda', 'We drew water from the spout while the rest of the basin was frozen. The ice in the south corner would not hold anyone carrying a full pail.', '02530415341111'),
       level('Wind Passages', '..... .vyz. .xEFw BCDGH ALKJI', 'Fw wH Cx xE Ey Fz yv',
         'Windbreak|Rime Walk|Stone Wall|Bell Rope|Sheltered Bend|Narrow Gap|Frozen Turn|Old Handrail|Drift Bank|Wind Scoop|Upper Steps|Court Stair|Outer Cut|Dead Air|Survey Flag|Ice Box|Roper’s Shelf',
-        'DEh GHw IJh', 'Rope Keeper Voss', 'Wait in the sheltered bend until the bell rope hangs still. The gust will pass in a minute.', '052340555111'),
+        'DEh GHw IJh', 'Rope Keeper Voss', 'We used the sheltered bend to wait out the worst gusts. Someone had to fetch the bell rope after it snapped last winter.', '052340555111'),
       level('Winter Court', '..CBA y.Dw. GFE.. HIJKN z.xLM', 'Bw wD Jx xL Gy Hz',
         'Court Stair|Melt Trough|Stone Cots|Guard Arch|Folded Blankets|Ice Chisel|Light Well|Winter Porch|Warden’s Gate|Coat Rack|Glacier Walk|Frost Dais|Crown Seat|Warden’s Court|Covered Way|Drift Cut|Lantern Hook|Snow Locker',
         'DEh GHw KLh', 'Court Guard Sval', 'The warden slept with his boots facing the court. His old ice chisel is still in the wall.', '02033504511111')
@@ -196,16 +196,16 @@ const Dungeons = (() => {
     ['The Sealed Stacks', [
       level('Closed Reading Rooms', '..AB. ..yCx ...DE LKJIF .zwHG', 'Hw wJ Cx xE Cy Kz',
         'Reading Stair|Return Desk|Lamp Tables|Reference Room|Map Racks|Green Desks|Paper Bench|Ink Store|Reader’s Walk|Folio Room|Lock Desk|Records Stair|Service Walk|Returns Passage|Copyist’s Booth|Closed Catalogue',
-        'DEh GHw IJh', 'Head Clerk Pellin', 'Bring damaged books straight to the paper bench. The return slot will tear a loose cover off.', '511325235110'),
+        'DEh GHw IJh', 'Head Clerk Pellin', 'The return slot tore the cover off a damaged book. We started carrying loose volumes straight to the paper bench.', '511325235110'),
       level('Record Stores', '.GHIJ zFwxK .EDyL ABCvM .....', 'Fw wH Ix xK Dy Fz yv',
         'Records Stair|Entry Shelf|Tall Racks|Deed Store|Tax Bench|Restoration Desk|Seal Fund|Birth Rolls|Loan Jackets|Ledger Shelves|East Locks|Record Cage|Restricted Stair|Service Gate|Press Passage|Index Desk|Sealed Drawer|Copy Stand',
-        'CDh GHw KLh', 'Rollkeeper Mett', 'The wax on the bottom drawers belongs to the council. Send the deed number upstairs if you need a copy.', '5351142131010'),
+        'CDh GHw KLh', 'Rollkeeper Mett', 'The bottom drawers were sealed on council orders. We had to send each deed number upstairs and wait for a clerk to bring down a copy.', '5351142131010'),
       level('Restricted Wing', '..N.. .zM.A .xLyB IJKDC HGFEw', 'Cw wE Jx xL Dy Mz',
         'Restricted Stair|Clerk’s Gate|Permit Desk|Narrow Stacks|Chains Locker|Binding Stand|Permit Shelf|Private Letters|Red Desk|Locked Folios|Records Walk|Clock Room|Keeper’s Ramp|Archive Stair|Access Gate|Binding Passage|Forgotten Request|Locked Niche',
-        'DEh HIw LMh', 'Seal Clerk Vos', 'Books from this wing stay on the red desk. Leave the key in the clock room at the end of your shift.', '35403255110010'),
+        'DEh HIw LMh', 'Seal Clerk Vos', 'We kept the borrowed books on the red desk and left the key in the clock room when the shift ended.', '35403255110010'),
       level('Old Archive', '...HG .zwIF MLKJE NxBCD O.Ay.', 'Iw wK Lx xN Cy Lz',
         'Archive Stair|Intake Desk|Closed Register|Brass Rails|Ink Runnel|Survey Shelves|Thin Parchment|Council Orders|Locked Index|Old Dates|Iron Racks|Charter Store|Clerk’s Rail|Seal Desk|Archivist’s Hall|Index Run|Service Alley|Borrower’s Shelf|Blank Register',
-        'EFw IJh MNh', 'Deputy Keeper Dehn', 'I put the old borrower’s register behind the index in the charter store. Corin Hale was the last person I saw copy a name from it.', '303151241110000')
+        'EFw IJh MNh', 'Deputy Keeper Dehn', 'The borrower’s register was too brittle to keep by the outer desk. We moved it to the charter store, behind the index.', '303151241110000')
     ]]
   ];
 

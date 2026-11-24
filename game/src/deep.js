@@ -14,15 +14,15 @@ const Deep = (() => {
   const SEA = { 1: 'Brass Sea', 2: 'Reed Gulf', 7: 'Grey Sound', 9: 'Brass Sea', 10: 'Brass Sea', 11: 'Reed Gulf', 12: 'Grey Sound' }, PORTS = [1, 2, 7, 9, 10, 11, 12];
   // the tables in the order they are found: 0 with Ilva's letter, 1-8 from the vaults under each region
   const TABLES = [
-    { name: 'towns', cols: ['town_id', 'name', 'region', 'founded', 'sea'], note: 'Towns recorded in the archive, including ports that no longer exist.' },
-    { name: 'ships', cols: ['ship_id', 'name', 'home_town', 'built', 'tons'], note: 'Each registered ship, its home port, and the year it was built. Some ships share a name.' },
-    { name: 'voyages', cols: ['voyage_id', 'ship_id', 'from_town', 'to_town', 'sailed', 'days'], note: 'Surviving records of crossings. When a ship never arrived, the days column is NULL.' },
-    { name: 'people', cols: ['person_id', 'name', 'town_id', 'born', 'died', 'trade'], note: 'Names and occupations from the town rolls, with years of birth and death where recorded.' },
-    { name: 'crew', cols: ['voyage_id', 'person_id', 'role'], note: 'The crew listed on each voyage, including the captain.' },
-    { name: 'storms', cols: ['storm_id', 'sea', 'began', 'days', 'strength'], note: 'Storms recorded at sea. Strength is on a scale from 1 to 12.' },
-    { name: 'strangers', cols: ['stranger_id', 'name', 'found_on', 'found_by', 'town_id'], note: 'People pulled from the sea who came from places the rescue crews could find on no chart.' },
-    { name: 'lights', cols: ['light_id', 'sea', 'seen_on', 'hours', 'seen_by'], note: 'Reports of lights at sea, with the witness and the hours each light was visible.' },
-    { name: 'erasures', cols: ['erasure_id', 'table_name', 'row_id', 'erased_on', 'erased_by', 'old_name', 'old_date'], note: 'An independent log of removals. It keeps the original name and date even when the row is hidden from its table.' }];
+    { name: 'towns', cols: ['town_id', 'name', 'region', 'founded', 'sea'], note: 'This table lists towns recorded in the archive, including ports that no longer exist.' },
+    { name: 'ships', cols: ['ship_id', 'name', 'home_town', 'built', 'tons'], note: 'This table lists registered ships with their home ports and the years they were built. Some ships share a name.' },
+    { name: 'voyages', cols: ['voyage_id', 'ship_id', 'from_town', 'to_town', 'sailed', 'days'], note: 'These are the surviving records of crossings. When a ship never arrived, the days column is NULL.' },
+    { name: 'people', cols: ['person_id', 'name', 'town_id', 'born', 'died', 'trade'], note: 'The town rolls list names and occupations, with years of birth and death where recorded.' },
+    { name: 'crew', cols: ['voyage_id', 'person_id', 'role'], note: 'This table identifies the people who crewed each voyage, including its captain.' },
+    { name: 'storms', cols: ['storm_id', 'sea', 'began', 'days', 'strength'], note: 'The watch recorded these storms at sea. Strength is measured on a scale from 1 to 12.' },
+    { name: 'strangers', cols: ['stranger_id', 'name', 'found_on', 'found_by', 'town_id'], note: 'These people were rescued at sea, and an ordinary voyage could not explain how they got there. Some named distant trading realms; others described places absent from the crews’ charts.' },
+    { name: 'lights', cols: ['light_id', 'sea', 'seen_on', 'hours', 'seen_by'], note: 'The watch recorded lights seen at sea, along with each witness and how many hours the light was visible.' },
+    { name: 'erasures', cols: ['erasure_id', 'table_name', 'row_id', 'erased_on', 'erased_by', 'old_name', 'old_date'], note: 'This independent log records removals. It keeps the original name and date even when the row is hidden from its table.' }];
   const KEYS = { towns: 'town_id', ships: 'ship_id', voyages: 'voyage_id', people: 'person_id', strangers: 'stranger_id', storms: 'storm_id', lights: 'light_id', erasures: 'erasure_id' };
   // how the tables join, for the schema scroll: [table, column, table it points to]
   const LINKS = [['ships', 'home_town', 'towns'], ['voyages', 'ship_id', 'ships'], ['voyages', 'from_town', 'towns'], ['voyages', 'to_town', 'towns'], ['people', 'town_id', 'towns'], ['crew', 'voyage_id', 'voyages'], ['crew', 'person_id', 'people'],
@@ -153,7 +153,7 @@ const Deep = (() => {
     t12: `The light also appeared forty days after Ilva’s rescue, even with her entry hidden. The record gives ${RETURN_ON} for the light after yours.`
   };
   // what each Truth gives, kept for good
-  const GIFTS = { gold: ['A Sharper Purse', '+10% gold from everything'], luck: ['Tide Reader', '+10 luck'], xp: ['Long Memory', '+10% experience'], learn: ['Quick Study', '+15% skill gain'], def: ['Steady Hand', '+8% defence'], mend: ['Second Wind', 'Heal a fifth of your health after every fight you win'],
+  const GIFTS = { gold: ['A Sharper Purse', '+10% gold from rewards'], luck: ['Tide Reader', '+10 luck'], xp: ['Long Memory', '+10% damage'], learn: ['Quick Study', '+15% skill gain'], def: ['Steady Hand', '+8% defence'], mend: ['Second Wind', 'Heal a fifth of your health after every fight you win'],
     run: ['Fleet Foot', 'You run 15% faster'], eye: ['Open Eye', 'Every lair and place shows on your map'], flee: ['Clean Break', 'Nothing gets a free swing when you run from it'], body: ['Long Rest', 'Your body and your things lie where you fell for 30 minutes'], hint: ['Ilva’s Margin', 'Hints cost half as much'], home: ['The Way Home', 'You know when and where the door opens'] };
   return { FOUND_ON, RETURN_ON, TABLES, LINKS, TRUTHS, INTERPRETATIONS, GIFTS, script, data, ids: () => (cache || {}).ids };
 })();

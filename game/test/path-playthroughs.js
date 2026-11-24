@@ -66,8 +66,8 @@ async function main(){
       const checkpoints=[];let report;
       try {
         await page.goto(base+'/index.html?visual_test=1');await page.locator('#artload').waitFor({state:'hidden',timeout:45000});await page.locator('#st-load').waitFor({state:'hidden',timeout:45000});
-        await page.locator('[data-a=newslot]').first().click();await page.locator(`[data-a=pick][data-id=${role}]`).first().click();await page.locator('#cr-name').fill(role+' audit');await page.locator('[data-a=begin]').click();
-        await page.locator('[data-a=beat]').click();await page.locator('[data-a=beat]').click();await page.locator('[data-a=skipguide]').click();
+        await page.locator('[data-a=newslot]').first().click();await page.locator(`[data-a=pick][data-id=${role}]`).first().click();await page.locator('[data-a=begin]').click();
+        await require('./browser/intro-helper').skipArrival(page,role+' audit');
         await page.waitForFunction(()=>window.__bw&&Scene.debug().map);
         await page.addScriptTag({content:driverSource});await page.evaluate(options=>installPathAudit(options),{path:role,seed,mistakeEvery});
         checkpoints.push({label:'fresh',...await page.evaluate(()=>PathAudit.start())});

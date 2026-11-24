@@ -27,11 +27,8 @@ async function playerFlow(page, info) {
   await screenshot(page, info, 'title');
   await page.locator('[data-a="newslot"]').first().click();
   await page.locator('[data-a="pick"][data-look="4"]').click();
-  await page.locator('#cr-name').fill('Release Tester');
   await page.locator('[data-a="begin"]').click();
-  await page.locator('[data-a="beat"]').click();
-  await page.locator('[data-a="beat"]').click();
-  await page.locator('[data-a="skipguide"]').click();
+  await require('./intro-helper').skipArrival(page,'Release Tester');
   await expect(page.locator('#title')).toBeHidden();
   await expect(page.locator('#stage canvas').first()).toBeVisible();
   await expect(page.locator('#hud')).toContainText('Release Tester');

@@ -1,0 +1,13 @@
+{
+  "task": "boat-intro-and-writing-review",
+  "created": "2026-11-23",
+  "method": "built-in image_gen",
+  "authorization": "Casey authorized new intro graphics as needed and autonomous completion.",
+  "assets": [
+    {
+      "id": "SP01",
+      "purpose": "Empty Marigold deck and hull; characters/crew/fittings remain dynamic game layers.",
+      "prompt": "Art for a 2D top-down fantasy role-playing game. Bright, colorful medieval fantasy in clear daylight. Realistic proportions, nothing cartoonish, nothing grim. No text, no borders, no watermarks, no drop shadows.\nUse case: stylized-concept.\nAsset type: transparent game environment sprite, a new playable ship-deck base for Brasswake.\nPrimary request: one complete EMPTY exposed weather deck and wooden hull of the Marigold, a substantial three-masted medieval merchant sailing ship, designed to have animated game characters and fittings placed on it later. Bow points straight toward the top of the portrait canvas; broad stern points toward the bottom. Long narrow hull, approximately 2.4 times as long as it is wide. Camera is raised top-down, from above and slightly in front, about 35 degrees; no diagonal isometric rotation, no horizon.\nStyle: detailed hand-painted pixel look of a late-1990s fantasy RPG. Warm pale oak deck planks, dark blue painted gunwales and stern accents, restrained brass/gold trim, brown timber hull. Realistic construction and readable wood grain; crisp silhouette, even soft daylight from upper left.\nComposition: show the entire hull with generous transparent margins. Keep the broad central deck EMPTY and clear for movement. Remove tall masts, sails, rigging, cabin roofs and loose cargo from this base image: they are separate interactive layers in the game. Low rails outline the edges. The gameplay layout needs a small rescue opening in the LEFT rail slightly below the deck's midpoint and a corresponding boarding-gate opening in the RIGHT rail. Include a low raised stern platform at the bottom with a short visible step, but no enclosed cabin or obstacles across the walkway. No people, no animals, no furniture or mast stumps baked into the deck.\nTransparent sheets have nothing behind the subject. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No water, sea, sky or shore; the game animates the surrounding sea. Genuine transparent alpha background, not a checkerboard painting. No writing or emblems with letters."
+    }
+  ]
+}

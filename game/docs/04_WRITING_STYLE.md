@@ -64,3 +64,5 @@ Bly's request identifies both records and why he is comparing them. When the res
 - 2026-11-22. Release candidate `story-first-day-2026-11-22`: the story and first-day revision puts natural, connected thoughts before compression. Characters can be generous, difficult, or funny in their own ways. Use coherent phone dialogue beats, grounded state and evidence, and direct SQL vocabulary. The story bible and coverage register document the continuity and editorial decisions for this release.
 - 2026-11-21. Supporting characters can do company work. Story NPCs can refer them to the main character when that character is the one involved.
 - 2026-11-21. Town names should sound like places people live in. The current names are in `02_GAMEPLAY.md`.
+
+- 2026-11-23. The boat-intro candidate applies these rules to character introductions, regional/optional/generated script families and explanatory feedback. Keep every newcomer’s immediate purpose, source of knowledge and next action explicit; use phone layout and full-thought dialogue beats to preserve ordinary grammar. Scope and execution evidence are tracked in STORY_COVERAGE.md and the boat-intro plan.

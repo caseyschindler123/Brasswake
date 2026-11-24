@@ -9,6 +9,7 @@ require('./dungeons');
 require('./music');
 require('./arming');
 require('./first-day');
+require('./prologue');
 require('./world-travel');
 require('./world-buildings');
 require('./cartography');

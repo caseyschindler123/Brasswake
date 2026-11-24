@@ -1,5 +1,15 @@
 const { test, expect } = require('@playwright/test');
 const { observeErrors, playerFlow } = require('./flow');
+const {fullArrival}=require('./intro-helper');
+const {screenshot}=require('./flow');
+
+test('the published rescue uses visible controls and reaches Tallyport',async({page},info)=>{
+  const expected=process.env.BW_EXPECT_COMMIT;expect(expected).toMatch(/^[a-f0-9]{40}$/);const errors=observeErrors(page);
+  await page.goto('./?commit='+expected);await expect(page.locator('#artload')).toBeHidden({timeout:45000});
+  await page.locator('[data-a=newslot]').first().click();await page.locator('[data-a=pick][data-look="3"]').click();await page.locator('[data-a=begin]').click();
+  await fullArrival(page,info,screenshot,{name:'Sea Traveller',origin:'dwarrowdeep',visibleOnly:true});
+  expect(await page.evaluate(()=>typeof window.__bw)).toBe('undefined');expect(errors).toEqual([]);
+});
 
 test('the exact deployed commit serves a working game', async ({ page, request }, info) => {
   const expected = process.env.BW_EXPECT_COMMIT;

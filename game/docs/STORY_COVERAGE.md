@@ -1,6 +1,6 @@
 # Story coverage register
 
-Source review recorded 2026-11-22; writing-guidance follow-up added 2026-11-23. The source is authoritative. See `STORY_BIBLE.md` for chronology, knowledge, and promised payoffs. This register distinguishes source review, execution of the SQL, and observation of a player path. A source review is not a browser playthrough.
+Source reviews recorded 2026-11-22 and 2026-11-23; the boat-intro candidate is under release verification. The source is authoritative. See `STORY_BIBLE.md` for chronology, knowledge, and promised payoffs. This register distinguishes source review, execution of the SQL, and observation of a player path. A source review is not a browser playthrough.
 
 ## Contracts and lessons
 
@@ -38,7 +38,7 @@ Total 84 contract premises and 63 attached lesson explanations revised. Optional
 
 ## Dungeon story review map
 
-`dungeons.js` floor notes may describe an object as part of the setting. Instructions that suggest a usable lever, opening, or interaction need an actual affordance. The eight regional summaries in `quests.js` use the same name and keeper as the playable expeditions. Conditions for keeper loot and final chests are gameplay, separate from the step where a table is added to the Ledger.
+`dungeons.js` floor notes are old workers’ records. The follow-up source review covered all 28 notes and species descriptions. Revised instruction-like notes into past observations where the named prop or action is not playable; valve/wheel hints use the actual control/gate names. Removed an unsupported Corin-at-the-capital callback and an Ice Wisp slowing promise that combat does not implement. Floor names, geometry, IDs and combat data are unchanged. Notes may describe an object as part of the setting. Instructions that suggest a usable lever, opening, or interaction need an actual affordance. The eight regional summaries in `quests.js` use the same name and keeper as the playable expeditions. Conditions for keeper loot and final chests are gameplay, separate from the step where a table is added to the Ledger.
 
 | Dungeon | Floor groups reviewed | Story facts to preserve |
 |---|---|---|
@@ -64,8 +64,10 @@ Total 84 contract premises and 63 attached lesson explanations revised. Optional
 
 Local semantic checks cover histories, references, thresholds, trigger branches, and canonical dates. They do not measure whether someone new to SQL understands the story or the lesson. Browser emulation is separate from real-phone review. See the implementation plan for the exact verification run and any remaining limitations.
 
-## Natural-speech follow-up — planned, not shipped
+## Natural-speech and boat-intro follow-up — candidate under verification
 
-2026-11-23: Casey identified omitted spoken grammar in the proposed boat dialogue: "Another three days if the weather holds" should read "It'll be another three days if the weather holds." The writing rules now explicitly preserve natural sentence structure, contractions and connected rhythm across player-facing prose.
+2026-11-23: Applied the strengthened ordinary-speech standard across all 84 contract premises, 63 attached lessons, generated bounty/Examiner families, regional introductions and outcomes, journals/witnesses, rumors, country life, dojo scenes/memories/notes, first-day dialogue, archive explanations and game feedback. Kept purposeful conversational fragments such as “Good fight,” compact labels, stable IDs, reference queries and mechanical data. The generated-choice review checked 5,334 combinations against baseline gameplay fields. `c603` now requests the category column its unchanged reference query returns.
 
-A targeted source sample found compressed generated task requests in `quests.js` (`b201`, `b202` and related variants), explanatory table-note fragments in `deep.js`, and natural short reactions such as "Good fight" in `dojo.js`. These are review candidates with different contexts; the sample is not a full audit or a finding that every fragment needs expansion. A follow-up script pass should review dialogue, narration, quest premises, generated instructions, lessons and explanatory feedback in context, preserving distinct voices, facts, SQL requirements and useful short labels. Runtime wording and the proposed boat opening remain unchanged by this documentation-only update. The earlier coverage above records the prior editorial pass and does not certify compliance with the strengthened guidance.
+The new Prologue replaces static opening cards with rescue, identity, reputation, impossible-distance question, world orientation, actual deck movement and arrival. Tamsin’s shore conversation supplies the Corin/Trials premise. SQL, Ledger, source/practice copy, table/row/column/query/result and the ability handoff are explicit. Guided encounters, utility work and all cast choices remain within the SELECT/FROM forms taught so far. Earned mage walkthroughs take the optional fishing path; a separate prepared-state regression checks every cast and protects the results from queued companion speech. Current reward captions describe damage and reward-gold bonuses accurately.
+
+An independent source/phone-image review identified and prompted fixes for homeland contrast, footer access, viewport handling, SQL-load failure escape and the worked result’s placement. Complete guided-day, phone/WebKit/desktop and exact published-flow evidence will be recorded in the plan and release history after verification. The earlier register remains source-review scope, not a claim that every optional story branch was played manually. Automated and agent review do not constitute a human beginner study or a physical-iPhone test.
