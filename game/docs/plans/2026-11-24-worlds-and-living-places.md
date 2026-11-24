@@ -1,6 +1,12 @@
 # Worlds, movement and living places
 
-Status: owned implementation and checks complete; automatic release gate and publication pending; not released.
+Status: complete and released. Classification: complex. All milestones closed; see [release history](../RELEASE_HISTORY.md#worlds-movement-living-places-and-battle-risk).
+
+## Verified release
+
+Released source `8602fa54fa1502f693b93e89be297c245be15427`; [Actions 45434557202](https://github.com/caseyschindler123/Brasswake/actions/runs/45434557202) passed core, all 411 browser cases (137 per profile), aggregate, Pages deployment and all three hosted flows. Deployment completed 2026-11-24 17:06:22 UTC. Independent source/HTML verification at `2026-11-24T19:49:52.877Z` (11:49:52 PST) matched SHA-256 `ce38b32880397ff72f29a89ce333761f3afd4fa2789de090d60822ccd09a8799`. The publisher's two hosted rescue/SQL/save/reload flows passed; live arrival/world captures were opened. The battle owner independently passed two hosted phone/desktop comparison/response/next-action cases and reviewed both captures.
+
+Local core and focused repairs passed; the final complete clean gate is exact-commit CI, not a claim that an earlier failed local full command passed. Earlier candidates `88f0003` and `38b435f` did not deploy; their fixture failures and successful repairs remain below. No assertions, retries, selected profiles or packed-art baselines were weakened. All 526 packed assets are unchanged. Phone emulation does not establish physical-iPhone Home Screen/audio/performance testing; automated prepared campaigns are not a human learner study. Detailed ignored evidence supplements this tracked closure.
 
 ## Scope and acceptance
 
@@ -23,17 +29,19 @@ Casey authorized the full discussed scope on 2026-11-24, including autonomous te
 - [x] Implement stable audio and location presentation.
 - [x] Implement buildings, service discovery, terrain edging and town activity.
 - [x] Implement dungeon depth and ambience.
-- [x] Integrate meaningful regressions, review diff and reconcile master docs/decision logs for this workstream; combined battle integration remains pending.
+- [x] Integrate meaningful regressions, review diff and reconcile master docs/decision logs for this workstream, including the battle handoff.
 - [x] Integrate Casey's separately assigned battle-audit result: scoped commit `1babb16` integrated as `a6fdf71`, preserving canonical worlds, fractional movement/footprint reservations, appearance, keyboard and presentation. Combined gate/publication remain below.
-- [ ] Run `npm run verify` with relevant browser coverage; inspect actual 390x720 and desktop screenshots. Resolve failures without weakening checks.
-- [ ] Commit/push intended files; monitor exact-commit Actions; independently verify hosted commit/HTML and player flow.
-- [ ] Close plan and release history with source SHA, Actions URL, verification date/hash and limitations in a documentation-only commit.
+- [x] Complete required verification: local core/focused repairs and exact-commit CI core plus every browser profile; open actual 390x720 and desktop screenshots.
+- [x] Commit/push intended files; monitor exact-commit Actions; independently verify hosted commit/HTML and player flow.
+- [x] Close plan and release history with source SHA, Actions URL, verification date/hash and limitations in a documentation-only commit.
 
 ## Verification
 
 Focused pure and browser regressions cover world isolation/migration and reload, creation persistence, mid-step movement/cancellation/steering/collision, music stability, keyboard insertion, visited-service discovery, door fitting and name geometry. Existing dungeon and ordinary-player flows remain required. Existing art manifests stay unchanged. Performance checks include bounded actor/environment caches and visible-only ambience. Inspect rendered town/building/actor/dungeon/UI phone and desktop views. Automated WebKit is browser coverage, not a claim of real-iPhone testing.
 
-## Evidence and remaining limitations
+## Development checkpoints (historical)
+
+These entries retain the status at each checkpoint; the verified release above supersedes their pending statements.
 
 - Focused world/creation/cloud/keyboard matrix: 12 browser cases passed across phone Chromium, phone WebKit and desktop, followed by six affected reruns after making the punctuation/Return group fixed. Five skin tones were visually opened. Pure world tests additionally cover fifteen fully explored characters within the storage envelope.
 - Focused continuous motion, rig, fitted doors, NPC routines, dungeon presentation and music tests passed. Initial integrated gate found an obsolete hand-written door fixture; it now uses a compiled plan without changing timing or sound assertions.
@@ -43,7 +51,7 @@ Focused pure and browser regressions cover world isolation/migration and reload,
 - Final arrival-title inspection caught stair-label overlap. A width-fitted opaque plate resolves it; the two affected phone/desktop dungeon captures passed and were opened.
 - Casey's separate battle task (thread `01a20d65-aa00-73d3-b39d-068c6a402a71`) is implementing in its own worktree. Direct coordination authorization was read from Casey's message in that task; this task remains sole integrator/publisher. No deployment before combined verification.
 
-Task-specific AI/agent billing is unavailable. Three bounded workers were used; no paid image/tool run occurred. CI/deployment has not run for this candidate. Do not store private billing or the user's device identifiers/screenshots in the repository.
+Task-specific AI/agent billing is unavailable. Three bounded workers were used; no paid image/tool run occurred. At the initial candidate checkpoint, CI/deployment had not run. Do not store private billing or the user's device identifiers/screenshots in the repository.
 
 - Initial combined gate passed every core group, then an existing playability driver tried to select an attack from the result screen after a shorter exchange. It now chooses the next action before each further attack, retaining victory/loot/bank checks. All three affected profile reruns passed. The initial browser pass was stopped after 53 cases and the complete gate restarted with the repair.
 
@@ -77,3 +85,5 @@ Casey clarified that coordination means avoiding overlapping ownership and edits
 - Candidate `38b435f5e397288b1b22359346639568933fa57f`, [CI 45426670144](https://github.com/caseyschindler123/Brasswake/actions/runs/45426670144): core passed; desktop passed 135/136. The sole failure was Warrior's final road approach, after cellar completion. Native diagnostic proved that stopping five cells south of the ring can leave the last distance callback at rounded radius six, outside the strict farewell trigger; phases .6/.8 failed while 0/.25 passed. Walking one cell farther produced the next callback at radius five and the actual farewell. The owned first-day fixture is being repaired with a multi-phase native regression, retaining progression/dialogue/reward assertions. Production remains unchanged; publication is blocked until repaired exact-commit CI passes.
 
 - Farewell repair readiness: all three prepared browser profiles passed five actual-distance phases each (0, .25, .6, .8, .99), verifying real gd14-to15, tutorial2-to3 and exactly one Hint Key. Full Warrior desktop passed in 4.0m with the original earned route and final assertions. Only first-day fixture code changed. The failed candidate's remaining phone jobs will be cancelled before publication to start complete verification on the repaired source; no checks are skipped in that new run.
+
+- Final closure: exact repaired source `8602fa5` passed all required checks and deployed. Phone Chromium and WebKit each passed 137 cases, including every full guided day and the five-phase farewell regression; desktop passed 137. Independent publisher flows passed 2/2 (25.7s), and the battle owner reported 2/2 hosted phone/desktop cases (24.5s). This release is complete. The separate offline-play task owns its later update; unrelated audio-source status remains local under its hold.
