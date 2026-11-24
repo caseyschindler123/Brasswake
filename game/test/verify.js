@@ -1,7 +1,6 @@
 const { spawnSync } = require('node:child_process');
 const path = require('node:path');
-const fs = require('node:fs');
-const { selection } = require('./select-tests');
+const { selection, saveSelection } = require('./select-tests');
 const deferUI = process.argv.includes('--defer-ui');
 if (deferUI && process.argv.includes('--ui')) throw new Error('Cannot defer an explicit --ui request');
 process.chdir(path.resolve(__dirname, '..'));
@@ -27,19 +26,17 @@ for (const [label, args] of [
   ['Music routing, assets and playback lifecycle', ['--test', 'test/music.test.js']],
   ['World ownership, continuous motion and presentation', ['--test', 'test/worlds_test.js', 'test/movement.test.js', 'test/actor-rig.test.js', 'test/living-places.test.js']],
   ['Build', ['build.js']],
-  ['Workflow tooling and offline storage', ['--test', 'test/workflow.test.js', 'test/server.test.js', 'test/offline.test.js']],
+  ['Workflow tooling and offline storage', ['--test', 'test/workflow.test.js', 'test/protocol.test.js', 'test/server.test.js', 'test/offline.test.js']],
 ]) {
   run(label, args);
 }
-const selected = selection();
-if (process.argv.includes('--ui')) { selected.ui = true; selected.reason = 'UI verification explicitly requested.'; }
-console.log('\nUI selection: ' + selected.ui + '. ' + selected.reason);
-fs.mkdirSync('../work', { recursive: true });
-fs.writeFileSync('../work/test-selection.json', JSON.stringify(selected, null, 2) + '\n');
-if (process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT, 'ui=' + selected.ui + '\n');
+const selected = selection({ forceFull: process.argv.includes('--ui') });
+console.log('\nVerification tier: ' + selected.tier + '. ' + selected.reason);
+saveSelection(selected);
 if (selected.ui && deferUI) {
-  console.log('UI coverage selected; required CI browser-profile jobs execute it before deployment.');
+  console.log('Selected browser suites are deferred to the authoritative CI release gate.');
 } else if (selected.ui) {
+  process.env.BW_UI_SUITES = JSON.stringify(selected.suites);
   if (process.env.CI) run('Install required browsers', ['test/install-browsers.js']);
-  run('Browser interactions and scenes', [require.resolve('@playwright/test/cli'), 'test']);
+  run('Selected browser interactions', ['test/run-ui.js']);
 }

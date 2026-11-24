@@ -9,7 +9,7 @@ You are helping build Brasswake, a mobile SQL-learning RPG in the spirit of Ulti
 ## Read before you work
 
 - Before changing code, read 01_ARCHITECTURE.md.
-- For implementation tasks, follow 05_CODING_WORKFLOW.md automatically. Complexity determines planning; affected behavior determines testing. Documentation and Codex rule changes use review and a diff check, with no game tests or deployment. Tooling uses focused checks. Game changes use the release gate and relevant UI verification, with automatic deployment for either class. Honor local-only/no-deploy requests by leaving edits uncommitted and not pushing. Include available task costs in completion messages and mark unknown amounts unavailable. Use subagents economically.
+- For implementation tasks, follow 05_CODING_WORKFLOW.md automatically. Complexity determines planning; affected behavior determines testing. Documentation and Codex rule changes use review and a diff check, with no game tests or deployment. Tooling uses focused checks. Game changes use focused local checks and the authoritative tiered CI release gate (smoke plus affected suites, full for shared/high-risk/unknown changes), with automatic deployment for either class. Honor local-only/no-deploy requests by leaving edits uncommitted and not pushing. Include available task costs in completion messages and mark unknown amounts unavailable. Use subagents economically.
 - Before changing rules, numbers, content or story, read 02_GAMEPLAY.md.
 - Before writing any image prompt or packing art, read 03_ART_STYLE.md.
 - Before writing any text a player will see, read 04_WRITING_STYLE.md.

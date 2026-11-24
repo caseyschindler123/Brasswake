@@ -9,11 +9,12 @@
     "test:poker": "node test/pk_test.js",
     "test:casino": "node test/house_test.js",
     "test:install": "node test/install-browsers.js",
-    "test:ui": "playwright test",
+    "test:ui": "node test/run-ui.js",
     "test:dungeons": "node test/dungeon-expeditions.js",
     "test:paths": "node test/path-playthroughs.js",
     "test:live": "node test/live.js",
-    "verify": "node test/verify.js"
+    "verify": "node test/verify.js",
+    "test:protocol": "node --test test/workflow.test.js test/protocol.test.js"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,7 @@
     "sql.js": "^1.17.0"
   },
   "devDependencies": {
-    "@playwright/test": "1.65.1"
+    "@playwright/test": "1.65.1",
+    "yaml": "2.9.1"
   }
 }

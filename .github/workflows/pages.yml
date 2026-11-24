@@ -10,6 +10,18 @@ on:
     paths-ignore:
       - '**/*.md'
   workflow_dispatch:
+    inputs:
+      scope:
+        description: Verification scope (smoke never publishes)
+        type: choice
+        options: [full, smoke, auto]
+        default: full
+      publish:
+        description: Publish main after explicit full verification
+        type: boolean
+        default: false
+  schedule:
+    - cron: '20 9 * * *'
 
 permissions:
   contents: read
@@ -18,7 +30,7 @@ env:
   PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/work/playwright-browsers
 
 concurrency:
-  group: pages-${{ github.ref }}
+  group: pages-${{ github.ref }}-${{ github.event_name == 'schedule' && 'nightly' || github.event_name == 'workflow_dispatch' && !inputs.publish && 'validation' || 'release' }}
   cancel-in-progress: false
 
 jobs:
@@ -26,7 +38,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     outputs:
-      ui: ${{ steps.verify.outputs.ui }}
+      ui: ${{ steps.select.outputs.ui }}
+      release: ${{ steps.select.outputs.release }}
+      live: ${{ steps.select.outputs.live }}
+      coverage_base: ${{ steps.select.outputs.coverage_base }}
+      suites: ${{ steps.select.outputs.suites }}
+      plan: ${{ steps.select.outputs.plan }}
+    env:
+      BW_DIFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+      BW_VERIFY_SCOPE: ${{ github.event_name == 'schedule' && 'full' || inputs.scope || 'auto' }}
+      BW_PUBLISH: ${{ inputs.publish && 'true' || 'false' }}
     permissions:
       contents: read
       pages: read
@@ -45,12 +66,26 @@ jobs:
       - name: Install game dependencies
         working-directory: game
         run: npm ci
-      - name: Verify art, game and build; select required browser coverage
-        id: verify
+      - name: Verify the published coverage baseline
+        if: github.event_name == 'push' || github.event_name == 'pull_request' || inputs.publish
         working-directory: game
-        env:
-          BW_DIFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-        run: npm run verify -- --defer-ui
+        run: node test/deployment-baseline.js
+      - name: Select verification and publication scope
+        id: select
+        working-directory: game
+        run: node test/select-tests.js
+      - name: Verify game core and build
+        if: steps.select.outputs.core == 'true'
+        working-directory: game
+        run: node test/verify.js --defer-ui
+      - name: Verify affected release tooling
+        if: steps.select.outputs.core != 'true'
+        working-directory: game
+        run: node --test test/workflow.test.js test/protocol.test.js
+      - name: Build only for selected browser-tooling checks
+        if: steps.select.outputs.core != 'true' && steps.select.outputs.ui == 'true'
+        working-directory: game
+        run: node build.js
       - name: Retain core test selection
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -61,15 +96,17 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
       - name: Configure Pages
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && steps.select.outputs.release == 'true'
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - name: Upload site
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && steps.select.outputs.release == 'true'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: game/dist
 
   browser:
+    env:
+      BW_UI_SUITES: ${{ needs.core.outputs.suites }}
     if: needs.core.outputs.ui == 'true'
     needs: core
     runs-on: ubuntu-latest
@@ -100,11 +137,11 @@ jobs:
         run: npm ci
       - name: Build the exact source for this profile
         working-directory: game
-        run: npm run build
+        run: node build.js
       - name: Install this profile's browser
         working-directory: game
         run: npx playwright install --with-deps ${{ matrix.browser }}
-      - name: Verify all cases in this profile
+      - name: Verify every selected suite in this profile
         working-directory: game
         run: npx playwright test --project=${{ matrix.project }}
       - name: Retain profile evidence
@@ -135,12 +172,12 @@ jobs:
       - name: Require core and every selected browser profile
         env:
           BW_CORE_RESULT: ${{ needs.core.result }}
-          BW_UI_SELECTED: ${{ needs.core.outputs.ui }}
+          BW_SELECTION: ${{ needs.core.outputs.plan }}
           BW_BROWSER_RESULT: ${{ needs.browser.result }}
         run: node game/test/release-gate.js
 
   deploy:
-    if: always() && !cancelled() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && needs.core.result == 'success' && needs.build.result == 'success'
+    if: always() && !cancelled() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && needs.core.result == 'success' && needs.build.result == 'success' && needs.core.outputs.live == 'true'
     needs: [core, build]
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -150,11 +187,12 @@ jobs:
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || 'https://caseyschindler123.github.io/Brasswake/' }}
     steps:
       - name: Check out source for live verification
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -169,16 +207,23 @@ jobs:
         if: needs.core.outputs.ui == 'true'
         working-directory: game
         run: npx playwright install --with-deps chromium
+      - name: Reject stale or divergent publication
+        id: order
+        env:
+          BW_VERIFIED_BASE: ${{ needs.core.outputs.coverage_base }}
+        working-directory: game
+        run: node test/deployment-baseline.js --guard
       - name: Deploy to GitHub Pages
+        if: steps.order.outputs.publish == 'true'
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
       - name: Verify deployed commit and relevant game behavior
         working-directory: game
         env:
-          BW_BASE_URL: ${{ steps.deployment.outputs.page_url }}
+          BW_BASE_URL: ${{ steps.deployment.outputs.page_url || 'https://caseyschindler123.github.io/Brasswake/' }}
           BW_EXPECT_COMMIT: ${{ github.sha }}
           BW_LIVE_UI: ${{ needs.core.outputs.ui }}
-        run: npm run test:live
+        run: node test/live.js
       - name: Retain live verification evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

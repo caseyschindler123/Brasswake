@@ -1,27 +1,8 @@
 const { test, expect } = require('@playwright/test');
 const { observeErrors, playerFlow, screenshot } = require('./flow');
-require('./playability');
-require('./query-feedback');
-require('./battle-risk');
-require('./battle-boundaries');
-require('./skill-system');
-require('./backstab');
-require('./npc-appearance');
-require('./sound');
-require('./dungeons');
-require('./music');
-require('./arming');
-require('./first-day');
-require('./prologue');
-require('./world-travel');
-require('./world-buildings');
-require('./cartography');
-require('./joystick');
-require('./venues');
-require('./worlds');
-require('./living-world');
-require('./offline');
-require('./offline-restart');
+const { MODULES, suitesFromEnvironment } = require('../ui-suites');
+const selected = new Set(suitesFromEnvironment());
+for (const name of MODULES) if (selected.has(name)) require('./' + name);
 
 // Local tests use the installed SQL engine and local game fonts. The live test
 // deliberately uses the real hosted dependencies without these substitutions.
@@ -29,7 +10,7 @@ test.beforeEach(async ({ page }) => {
   await page.route('https://fonts.googleapis.com/**', route => route.fulfill({ contentType: 'text/css', body: '' }));
 });
 
-test('a player can create, query, navigate, export, import, and reload', async ({ page }, info) => {
+if (selected.has('smoke')) test('a player can create, query, navigate, export, import, and reload', async ({ page }, info) => {
   const errors = observeErrors(page);
   await page.waitForLoadState('networkidle');
   await page.goto('/index.html?visual_test=1');
@@ -37,7 +18,8 @@ test('a player can create, query, navigate, export, import, and reload', async (
   expect(errors).toEqual([]);
 });
 
-for (const scene of ['title', 'tallyport', 'fight', 'bag', 'paperdoll', 'dungeon', 'dojo', 'interior']) {
+const scenes = selected.has('scenes') ? ['title', 'tallyport', 'fight', 'bag', 'paperdoll', 'dungeon', 'dojo', 'interior'] : selected.has('smoke') ? ['title', 'tallyport'] : [];
+for (const scene of scenes) {
   test('visual scene: ' + scene, async ({ page }, info) => {
     const errors = observeErrors(page);
     await page.goto('/__visual?scene=' + scene);

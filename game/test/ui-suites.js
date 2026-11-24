@@ -1,0 +1,27 @@
+/* One inventory for automatic selection, local execution and the CI gate. */
+const MODULES = ['playability', 'query-feedback', 'battle-risk', 'battle-boundaries',
+  'skill-system', 'backstab', 'npc-appearance', 'sound', 'dungeons', 'music', 'arming',
+  'first-day', 'prologue', 'world-travel', 'world-buildings', 'cartography', 'joystick',
+  'venues', 'worlds', 'living-world', 'offline', 'offline-restart'];
+const ALL_SUITES = ['smoke', 'scenes', ...MODULES];
+function normalizeSuites(suites) {
+  if (!Array.isArray(suites) || !suites.length || suites.some(s => !ALL_SUITES.includes(s)))
+    throw Error('Expected a nonempty array of known browser suites.');
+  return ALL_SUITES.filter(s => suites.includes(s));
+}
+function suitesFromEnvironment(value = process.env.BW_UI_SUITES) {
+  return value === undefined ? ALL_SUITES.slice() : normalizeSuites(JSON.parse(value));
+}
+function validSelection(plan) {
+  if (!plan || !['none', 'focused', 'full'].includes(plan.tier) ||
+      ['ui', 'core', 'release', 'live'].some(k => typeof plan[k] !== 'boolean') || !Array.isArray(plan.suites)) return false;
+  if ((plan.release || plan.live) && (!plan.ui || !plan.core)) return false;
+  if (plan.tier === 'none') return !plan.ui && !plan.release && !plan.live && plan.suites.length === 0;
+  if (!plan.ui) return false;
+  try {
+    const normalized = normalizeSuites(plan.suites);
+    if (JSON.stringify(normalized) !== JSON.stringify(plan.suites) || !normalized.includes('smoke')) return false;
+    return plan.tier !== 'full' || (plan.core && normalized.length === ALL_SUITES.length);
+  } catch { return false; }
+}
+module.exports = { MODULES, ALL_SUITES, normalizeSuites, suitesFromEnvironment, validSelection };
