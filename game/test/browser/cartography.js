@@ -75,8 +75,11 @@ async function nativeStep(frame, target) {
   const keyboard = frame.page().keyboard;
   await keyboard.down(key);
   try {
-    await frame.waitForFunction(([x, y]) => Scene.traveling() || (Scene.pos()[0] === x && Scene.pos()[1] === y),
-      target, { timeout: 5000 });
+    await frame.waitForFunction(({target,dx,dy}) => {
+      const p=Scene.debug().P;
+      return (dx?(p.fx-target[0])*dx>=0:Math.round(p.fx)===target[0]) &&
+        (dy?(p.fy-target[1])*dy>=0:Math.round(p.fy)===target[1]);
+    }, {target,dx,dy}, { timeout: 5000 });
   } finally {
     await keyboard.up(key);
   }

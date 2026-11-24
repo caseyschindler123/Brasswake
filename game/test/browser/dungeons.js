@@ -133,9 +133,7 @@ async function walk(f, goal, stats, adjacent=true, recovering=false) {
       if(nearby){await engage(f,nearby,stats,true);continue;}
     }
     if(repeated||!step.at){
-      const [x,y]=step.first,[px,py]=step.from;
-      const key=x>px?'ArrowRight':x<px?'ArrowLeft':y>py?'ArrowDown':'ArrowUp';
-      await f.locator('body').press(key,{delay:80});
+      await drivePath(f,[step.first],false);
     }else await drivePath(f,step.path,true);
     // Roaming creatures can step into a route and stop ground movement.
     // Replan from the actual position; the destination assertion above still

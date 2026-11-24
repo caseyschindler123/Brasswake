@@ -208,7 +208,7 @@ test('a cloud replacement invalidates an open ferry ticket at the same quay', as
     const at = [[x, y + 1], [x + 1, y], [x - 1, y], [x, y - 1]].find(p =>
       Scene.safePosition(p, 1)?.join() === p.join());
     if (!at) throw Error('No safe quayside position');
-    __bw.S.pos = at;
+    Scene.load(at,1);
     __bw.save();
     return { id: ferry.id, at };
   });
@@ -227,6 +227,7 @@ test('a cloud replacement invalidates an open ferry ticket at the same quay', as
   });
   await reopenSavedCharacter(page);
   await page.waitForTimeout(650);
+  expect(await page.evaluate(()=>Scene.pos())).toEqual(trip.at);
   const button = await clickFerry(page, trip.id, 'from');
   const staleTicket = await button.evaluate(el => ({ ...el.dataset }));
   await page.evaluate(() => {
