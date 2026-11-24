@@ -151,6 +151,7 @@ async function hideAndApproach(frame, lane) {
 async function engage(frame, examiner = false) {
   await frame.locator('#ctx').click();
   if (examiner) await action(frame, 'start', '[data-k=boss]').click();
+  await expect(frame.locator('#fight')).toBeVisible();
   await dismiss(frame);
   expect(await frame.evaluate(() => __bw.F.ent === window.backstabFixtureTarget)).toBe(true);
 }
@@ -421,7 +422,7 @@ test('Backstab · pursuit entry cannot bypass the Council marks or main-characte
   expect(errors).toEqual([]);
 });
 
-test('Backstab · switching character clears pursuit and wounds from the previous owner', async ({ page }) => {
+test('Backstab · switching character clears pursuit and wounds from the previous owner', async ({ page }, info) => {
   const errors = observeErrors(page), { frame, lane } = await fixture(page);
   const reserve = await frame.evaluate(({ x, y, length }) => {
     __bw.save();
@@ -453,12 +454,23 @@ test('Backstab · switching character clears pursuit and wounds from the previou
     // tile before compressing travel; otherwise the frozen sprite can remain
     // more than interaction distance from its occupied grid tile.
     Scene.hallMove(e, e.x, e.y);
-    Scene.hop(e.x + 1, e.y);
+    const {map}=Scene.debug();
+    const at=[[e.x+1,e.y],[e.x-1,e.y],[e.x,e.y+1],[e.x,e.y-1]].find(([x,y])=>
+      !map.solid[y*map.w+x]&&!map.occ.has(y*map.w+x)&&
+      !map.ents.some(other=>other!==e&&!other.hidden&&!other.empty&&
+        Math.abs(other.x-x)+Math.abs(other.y-y)<=1&&Math.hypot(other.fx-x,other.fy-y)<=1.001));
+    if(!at)throw Error('No unambiguous adjacent return tile for the same live creature');
+    Scene.hop(...at);
     return Scene.ents().includes(e);
   })).toBe(true);
+  // Scene.hop compresses fixture travel, while the native nearby control is
+  // refreshed by Scene's next animation step. Do not click its stale target.
+  await frame.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  await expect(frame.locator('#ctx')).toHaveAccessibleName(await frame.evaluate(() => 'Engage: '+window.backstabFixtureTarget.name));
   await engage(frame);
   const clean = await combatState(frame);
   expect(clean.foe).toBe(before.max);
   expect(clean.round).toBe(0);
+  await screenshot(page,info,'backstab-owner-clean');
   expect(errors).toEqual([]);
 });
