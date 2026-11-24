@@ -205,7 +205,7 @@ test('skill system · a warrior bandages and spends stamina on a damaging maneuv
   await action(f, 'futility', '[data-id=bandage]').click();
   await expect(f.locator('#fight .f-head b').first()).toHaveText('Bandage');
   await expect(f.locator('#f-odds')).toHaveText('Query quality · 1 response round');
-  await expect(action(f,'fhint')).toHaveText('Hint · reduced practice');
+  await expect(action(f,'fhint')).toHaveText('Hint · reduced power');
   await screenshot(page,info,'bandage-prompt');
   await coach(f);
   await submit(f, 'F', { roll: .99 });

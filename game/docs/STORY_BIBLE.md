@@ -18,7 +18,7 @@ The last Great Truth puts Ilva's lost row back into the results long enough to c
 
 | Subject | Canon and limits |
 |---|---|
-| The Ledger | The Ledger connects written queries to skilled work in this world. The item, creature, and choice of ability still matter. A correct answer can improve the chance of a hit without producing a guaranteed hit. A player's Ledger also provides the screens for working with and organizing records. |
+| The Ledger | The Ledger connects written queries to skilled work in this world. The item, creature, and choice of ability still matter. In the planned SQL-power release, a correct answer gives full attack power and a useful partial answer gives less; weapon skill sets hit chance, so full power does not guarantee a hit. A player's Ledger also provides the screens for working with and organizing records. |
 | Company books | An ordinary trading guild keeps accounts, deliveries, inventories, and bills. Staff in the towns teach with their working copies and use narrower lists for practical tasks. Some tradespeople also clerk for the guild, and some factors study with a Circle master. The teaching edition uses dates assigned for the exercises, with June 30 as its closing date; it does not date the player’s arrival or advance the story clock. Stable records and order IDs still let clerks check a draft against the guild’s originals. |
 | Practice and writes | The Marigold `manifest` is a separate, three-row teaching copy with `name`, `quantity`, and `destination` columns. Reading and assembling a query prepares the player for six typed tasks. An explicit handoff introduces the full company tables after the short manifest. A safe ability test on a dummy precedes ordinary combat. A SQL exercise, ability, or report can use its own snapshot. Practice writes and reports leave the guild's real copy alone. Approved clerks can take a checked draft from the workshop to the original records as a story consequence. |
 | Historical archive | The lost tables belong to the older public record. Vault scrolls add table copies to the player's Ledger. Custodians, locked rooms, and council decisions made the originals inaccessible. The surviving rows are a record of what was written down, with gaps and differing copies. They can show a name, a date, and an association. A query alone cannot prove an intention, a cause of death at sea, or what a witness could not see. |
@@ -102,6 +102,8 @@ Dregan Vosk tries to get a rise out of Tallyport's replacement. Sister Calloway 
 | A route home | The letter establishes that Ilva found a lead, and the storms and lights supply a pattern. The final Truth requires the archive and the three relevant tables. It yields the same forty-day interval for Ilva and the player. The evidence predicts when the light appears. Going home and staying are personal outcomes. |
 
 ## Decision log
+
+- 2026-11-24: The planned SQL-power release updates Odalys's mechanical explanation and battle help: query results set power while weapon skill determines accuracy. Keep the distinction in the world rules; story, characters and historical facts are unchanged.
 
 - 2026-11-22. Rescues and return lights have authored dates and traceable witnesses. The missing company invoices form a complete optional case. The council squarely faces the independent removal record once both the Audit and archive discovery are complete. The chronological distinction between Odalys, Ilva, and Corin, and the institutional distinction between examiner and keeper, carry through the revised dialogue.
 

@@ -3,6 +3,13 @@ const { observeErrors, playerFlow } = require('./flow');
 const {fullArrival}=require('./intro-helper');
 const {screenshot}=require('./flow');
 
+test('the published battle grades SQL and compares the wrong query', async ({ page }, info) => {
+  const errors = observeErrors(page);
+  await page.goto('./?commit=' + process.env.BW_EXPECT_COMMIT);
+  await require('./battle-release').battleRelease(page, info);
+  expect(errors).toEqual([]);
+});
+
 test('the published rescue uses visible controls and reaches Tallyport',async({page},info)=>{
   const expected=process.env.BW_EXPECT_COMMIT;expect(expected).toMatch(/^[a-f0-9]{40}$/);const errors=observeErrors(page);
   await page.goto('./?commit='+expected);await expect(page.locator('#artload')).toBeHidden({timeout:45000});

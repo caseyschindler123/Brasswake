@@ -238,9 +238,14 @@ for (const method of ['wrong', 'shown', 'low stamina']) {
       expect(after.hidden).toBe(false);
       expect(after.stamina).toBe(before.stamina - 4);
       const damage = before.foe - after.foe;
-      // Pinned low rolls let ordinary wrong-answer hits land. Their damage stays at base Fencing size.
-      expect(damage).toBeGreaterThan(0);
-      expect(damage).toBeLessThan(32);
+      if (method === 'wrong') {
+        expect(damage).toBe(0);
+        await expect(frame.locator('#e-sw .hit')).toHaveCount(0);
+      } else {
+        // A shown answer has demonstration power, with no ambush bonus or practice.
+        expect(damage).toBeGreaterThan(0);
+        expect(damage).toBeLessThan(32);
+      }
       await expect(frame.locator('#e-sw .rd')).toHaveCount(1);
     }
     expect(errors).toEqual([]);
@@ -248,7 +253,7 @@ for (const method of ['wrong', 'shown', 'low stamina']) {
 }
 
 for (const method of ['wrong', 'shown']) {
-  test(`Backstab · lethal ${method} answer heals on victory without awarding training`, async ({ page }) => {
+  test(`Backstab · ${method} answer preserves damage and training protections`, async ({ page }) => {
     const errors = observeErrors(page), { frame, lane } = await fixture(page);
     await hideAndApproach(frame, lane);
     await engage(frame);
@@ -261,13 +266,20 @@ for (const method of ['wrong', 'shown']) {
     await dismiss(frame);
     if (method === 'shown') await action(frame, 'fshow').click();
     const before = await combatState(frame);
-    await submit(frame, 'F', action(frame, 'floot'), method === 'wrong' ? wrongAnswer : undefined);
+    await submit(frame, 'F', action(frame, method === 'wrong' ? 'fchoose' : 'floot'), method === 'wrong' ? wrongAnswer : undefined);
     const result = await combatState(frame);
     expect(await frame.evaluate(() => ({ grade: __bw.F.res.grade, shown: !!__bw.F.shown })))
       .toEqual(method === 'wrong' ? { grade: 'wrong', shown: false } : { grade: 'correct', shown: true });
-    expect(result.foe).toBeLessThanOrEqual(0);
-    expect(result.kills).toBe(before.kills + 1);
-    expect(result.hp).toBe(before.hp + bandage);
+    if (method === 'wrong') {
+      expect(result.foe).toBe(before.foe);
+      expect(result.kills).toBe(before.kills);
+      expect(result.hp).toBeLessThan(before.hp);
+      expect(await frame.evaluate(() => __bw.F.queryPower)).toBe(0);
+    } else {
+      expect(result.foe).toBeLessThanOrEqual(0);
+      expect(result.kills).toBe(before.kills + 1);
+      expect(result.hp).toBe(before.hp + bandage);
+    }
     expect(result.sk).toEqual(before.sk);
     expect(result.attr).toEqual(before.attr);
     expect(result.sql).toEqual(before.sql);

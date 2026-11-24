@@ -117,11 +117,12 @@ const Engine = (() => {
     if (task.kind === 'dml') {
       const ss = statements(userSql); if (!ss.length) return { ok: false, err: 'Write a statement first.' };
       const d = clone();
-      try { if (task.setup) d.run(task.setup); for (const s of ss) d.run(s); got = select(d, task.check); }
+      let initial;
+      try { if (task.setup) d.run(task.setup); try { initial = select(d, task.check); } catch (_) { initial = null; } for (const s of ss) d.run(s); got = select(d, task.check); }
       catch (e) { return { ok: false, err: friendly(e), want }; } finally { d.close(); }
       const v = judge(got, want, want.cols.map((_, i) => i));
       if (!v.ok) v.msg = 'The ledger does not match the target afterwards. ' + (v.diff ? '' : `Target check: ${want.rows.length} row(s). Yours: ${got.rows.length}.`);
-      return Object.assign(v, { got, want, used: skillsUsed(b) });
+      return Object.assign(v, { got, want, initialShare: shareOf(initial, want), used: skillsUsed(b) });
     }
     got = runRead(userSql); if (got.err) return { ok: false, err: got.err, want };
     const v = judge(got, want, task.order || null);
@@ -136,11 +137,14 @@ const Engine = (() => {
     let hit = 0; for (const r of got.rows) { const k = key(r), n = m.get(k); if (n) { hit++; m.set(k, n - 1); } }
     return hit / Math.max(want.rows.length, got.rows.length);
   }
-  // check, then grade: correct | close (right rows, wrong order or column order or technique) | partial (half the rows or more) | wrong
+  const QUALITY = Object.freeze({ order: .85, colorder: .75, must: .7, partialMin: .5, partialMax: .9 });
+  // Power describes useful task progress, not textual similarity or a probability of correctness.
   function grade(task, userSql) {
     const v = check(task, userSql); if (v.err) return v;
     v.share = v.ok ? 1 : shareOf(v.got, v.want);
-    v.grade = v.ok ? 'correct' : (v.why === 'order' || v.why === 'colorder' || v.why === 'must') ? 'close' : v.share >= .5 ? 'partial' : 'wrong';
+    const progress = task.kind === 'dml' ? Math.max(0, (v.share - v.initialShare) / Math.max(1e-9, 1 - v.initialShare)) : v.share;
+    v.grade = v.ok ? 'correct' : QUALITY[v.why] ? 'close' : progress >= QUALITY.partialMin ? 'partial' : 'wrong';
+    v.quality = v.ok ? 1 : QUALITY[v.why] || (v.grade === 'partial' ? Math.min(QUALITY.partialMax, progress) : 0);
     return v;
   }
   const MUST = {
@@ -178,6 +182,6 @@ const Engine = (() => {
     const d = new SQL.Database(); d.exec(script); d.run('PRAGMA query_only = ON');
     return { read(sql) { const ss = statements(sql); if (!ss.length) return { err: 'Write a query first.' }; if (ss.length > 1) return { err: 'One statement at a time.' }; if (!/^\s*(SELECT|WITH)\b/i.test(ss[0])) return { err: 'Start with SELECT or WITH.' }; try { return select(d, ss[0]); } catch (e) { return { err: friendly(e) }; } }, close() { d.close(); } };
   }
-  return { init, scratch, check, grade, shareOf, target, runRead, runSandbox, resetSandbox, skillsUsed, bare, clean, uncomment, atlas, peek, judge, sandboxScript, ready: () => !!ro };
+  return { init, scratch, check, grade, shareOf, QUALITY, target, runRead, runSandbox, resetSandbox, skillsUsed, bare, clean, uncomment, atlas, peek, judge, sandboxScript, ready: () => !!ro };
 })();
 if (typeof module !== 'undefined') module.exports = Engine;

@@ -73,7 +73,7 @@ test('combat errors remain readable, correct attacks win, and loot can be banked
   });
   expect(layout.titleWidth).toBeGreaterThanOrEqual(150);
   expect(layout.overlap).toBe(false);
-  expect(layout.text).toBe('rgb(216, 200, 160)');
+  expect(layout.text).toBe('rgb(98, 81, 61)');
   const runBox = await f.locator('#kb [data-fn=run]').boundingBox();
   expect(runBox.y + runBox.height).toBeLessThanOrEqual(page.viewportSize().height);
   await screenshot(page, info, 'combat-error-layout');

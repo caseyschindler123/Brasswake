@@ -182,8 +182,8 @@
   /* ---------- small UI helpers ---------- */
   /* Each mechanic is explained in one sentence the first time it comes up; after that the sentence sits behind a ? on that screen. */
   const HELP = {
-    fight: 'Choose a page to use its attack. The percentage shows your chance to hit on each swing if your query is correct.',
-    fprompt: 'Write a query that returns the requested result. Its accuracy affects your chance to hit. Tap Tables to inspect the data.',
+    fight: 'Choose a page to use its attack. The percentage shows your skill-based chance to hit on each swing. Your query sets the attack’s power.',
+    fprompt: 'Write a query that returns the requested result. A correct answer gives full power; a useful partial answer gives less. Tap Tables to inspect the data.',
     loot: 'Tap the body to see what it dropped. Tap one item to take it, or choose Take all.',
     bag: 'Tap food or a draught to see how much health it restores. Read a scroll to learn its page. Keep materials for crafting or sell them to a trader.',
     hero: 'Your books hold the pages you’ve learned. You have 700 points to share across your skills. Use Raise to learn through practice, Lower to make room for a skill you’re raising, or Locked to keep a skill at its current value.',
@@ -463,7 +463,7 @@
   function introAfter() {
     const o = Scene.find(e=>e.kind==='odalys') || Scene.find(e=>e.kind==='npc'&&e.r===1&&e.i===0);
     if (!o) return;
-    CE=o; dlg(o, ['"You’ve got the first pattern. Take a look at the result each time you run it, so you can see whether it answered your question."','"Here in Brasswake, we use queries for more than looking up deliveries. The Ledger helps us work a spell or handle a weapon. You choose an ability from a book, then answer its question. The better your query, the better your chance of using it well."','"Let’s try it on the dummy. You can practise here as often as you need to, since it can’t fight back."'], [{t:'Practise on the dummy',a:'intropractice'},{t:'Review the first lesson',a:'start',d:{k:'intro'}}]);
+    CE=o; dlg(o, ['"You’ve got the first pattern. Take a look at the result each time you run it, so you can see whether it answered your question."','"Here in Brasswake, we use queries for more than looking up deliveries. The Ledger helps us work a spell or handle a weapon. You choose an ability from a book, then answer its question. A correct query gives your ability full power. A useful partial answer makes it weaker."','"Let’s try it on the dummy. You can practise here as often as you need to, since it can’t fight back."'], [{t:'Practise on the dummy',a:'intropractice'},{t:'Review the first lesson',a:'start',d:{k:'intro'}}]);
   }
   function finishQ(res) {
     const t = Q.r, lk = luck(), k = Q.kind, o = { gold: 0, mats: {}, items: [], scrolls: [] }; let head = 'Correct', note = '', mult = 1;
@@ -473,7 +473,7 @@
       if (!again) note = FOLK[t - 1][giverOf(cur)][0] + ': ' + (cur.after || TALK.praise[t - 1][giverOf(cur)]); if (!again && paid) note += ' Already paid once, to another of your characters.'; head = again ? 'Still sharp' : 'Exercise done'; const nx = CONTRACTS.find(c => c.r === t && !S.done[c.id] && giverOf(c) === giverOf(cur)); Q.nextId = nx ? nx.id : null; }
     else if (k === 'rounds') { o.gold = (8 * t + 6) * mult; o.mats[t] = 1; Q.inst.done = true; head = 'Drill done'; if (S.rounds.tasks.every(x => x.done) && !S.rounds.claimed) { S.rounds.claimed = true; const top = maxRegion(); o.items.push(makeItem(rollRarity(lk, 1), top)); o.sigils = 1; o.gold += 30 * top; note = 'All five drills done. The day’s chest is yours.'; } }
     else if (k === 'rumor') { o.gold = 40 * t; S.rum[Q.id] = now(); o.items.push(uniq(Q.drop)); o.sigils = 1; o.scrolls.push('c' + t + 'r'); head = 'Rumor checked'; }
-    else if (k === 'firstpractice') { S.seen['intro.practice']=1; if(gOn()&&S.gd<=gix('odalys')){S.gd=gix('fight');gEnter(true);} head='Your first ability'; note='Your query worked against the dummy. In a real fight, a correct result improves your chance to hit. Your skill, equipment and chosen ability matter too. Tamsin is outside and can walk with you to the green.'; const d=Scene.find(e=>e.kind==='dummy'); if(d){Scene.FX.swing('me',d,S.path==='mage'?'spell':'hit');Scene.FX.hit(d,'✓','#ffe9a0');} }
+    else if (k === 'firstpractice') { S.seen['intro.practice']=1; if(gOn()&&S.gd<=gix('odalys')){S.gd=gix('fight');gEnter(true);} head='Your first ability'; note='Your query worked against the dummy. In a real fight, a correct result gives full attack power. Your weapon skill sets your chance to hit, and your equipment and chosen ability matter too. Tamsin is outside and can walk with you to the green.'; const d=Scene.find(e=>e.kind==='dummy'); if(d){Scene.FX.swing('me',d,S.path==='mage'?'spell':'hit');Scene.FX.hit(d,'✓','#ffe9a0');} }
     else if (k === 'intro') { const first = !S.met['1.0']; S.met['1.0'] = 1; S.done.c101 = S.done.c102 = { t: now(), tries: 0, hint: 0 }; o.gold = first ? 25 : 0; S.tut = Math.max(1, S.tut); S.seen['intro.rep.' + (REPS.length - 1)] = 1; if (gOn() && S.gd <= gix('odalys')) { S.gd = gix('odalys'); gEnter(true); } head = 'First lesson done'; note = 'You used SQL to read the ship’s manifest and the company books. Now the porter can see where the supplies go. You can revisit these examples whenever you want more practice.'; Q.then = introAfter; }
     const g = grant(o), clean = Q.tries === 0 && Q.hint === 0 && k !== 'intro' && k !== 'firstpractice' ? '<p><span class="pill ok">first try, no hints +20%</span></p>' : ''; tick(); save(); renderHud();
     Q.result = `<p class="eyebrow">Result</p><h2 class="good">${esc(head)}</h2>${note ? `<p class="story">${esc(note)}</p>` : ''}${clean}${spoilsHTML(g)}${res && res.got && Q.task.kind !== 'dml' ? '<p class="lab">What your query returned</p>' + tableHTML(res.got, 8) : ''}`; Q.step = 'result'; drawQ();
@@ -613,11 +613,14 @@
       const pgs = fightPages(), sh = bestPage('shadow'), canSteal = F.kind === 'monster' && !F.round && !F.animal;
       const pocketsEmpty = canSteal && sh && F.ent.pocketsEmpty;
       const stealOk = canSteal && sh && !pocketsEmpty && (F.ent.unseen || rv('hiding') > 0); if (stealOk) setTimeout(() => coach('stealth'), 0);
-      h = `<div class="f-head"><div><b>${esc(F.title)}</b><small>${CIRCLE[t]} Circle${f ? ` · health ${Math.max(0, f.hp)} / ${f.max}` : ''}</small></div><div class="f-btns">${qm('fight')}<button class="btn sm quiet" data-a="flee">${F.round ? 'Flee' : 'Back away'}</button></div></div><div class="f-pages">${pgs.map(p => { const sk2 = pageSkill(p), w = resist(p.c, t); return `<button class="pg${p.rare ? ' rare' : ''}" data-a="fpage" data-id="${p.id}"><b>${esc(p.name)}</b><em>${odds(rv(sk2), F.diff, 'correct').p}%${w < 1 ? ` · ${Math.round(w * 100)}% damage` : ''}</em></button>`; }).join('') || '<p class="cap2">No page that can strike. Odalys Brine in Tallyport sells Strike and Spark.</p>'}${stealOk ? `<button class="pg sh" data-a="fsteal"><b>${esc(sh.name)}</b><em>${F.ent.unseen ? 'unseen' : `Hiding ${sneakPct()}%`}</em></button>` : ''}</div>${S.tonics > 0 && S.hp < maxHp() ? `<div class="row"><button class="btn sm quiet" data-a="tonic">Draught ×${S.tonics}</button></div>` : ''}`;
+      h = `<div class="f-head"><div><b>${esc(F.title)}</b><small>${CIRCLE[t]} Circle${f ? ` · health ${Math.max(0, f.hp)} / ${f.max}` : ''}</small></div><div class="f-btns">${qm('fight')}<button class="btn sm quiet" data-a="flee">${F.round ? 'Flee' : 'Back away'}</button></div></div><div class="f-pages">${pgs.map(p => { const sk2 = pageSkill(p), w = resist(p.c, t); return `<button class="pg${p.rare ? ' rare' : ''}" data-a="fpage" data-id="${p.id}"><b>${esc(p.name)}</b><em>${odds(rv(sk2), F.diff, 'correct').p}% to hit${w < 1 ? ` · ${Math.round(w * 100)}% damage` : ''}</em></button>`; }).join('') || '<p class="cap2">No page that can strike. Odalys Brine in Tallyport sells Strike and Spark.</p>'}${stealOk ? `<button class="pg sh" data-a="fsteal"><b>${esc(sh.name)}</b><em>${F.ent.unseen ? 'unseen' : `Hiding ${sneakPct()}%`}</em></button>` : ''}</div>${S.tonics > 0 && S.hp < maxHp() ? `<div class="row"><button class="btn sm quiet" data-a="tonic">Draught ×${S.tonics}</button></div>` : ''}`;
       if (pocketsEmpty) h += '<p class="cap2">You’ve already picked this creature’s pockets.</p>';
     } else if (F.st === 'prompt') {
       h = `<div class="f-head"><div><b>${esc(F.backstab || F.utility ? F.verb : F.page ? F.page.name : F.verb)}</b><small id="f-odds">${fOdds()}</small></div><div class="f-btns">${qm('fprompt')}<button class="btn sm quiet${S.tut === 1 ? ' pulse' : ''}" data-a="ftables">Tables</button>${F.act === 'fight' ? fHintBtn() : ''}</div></div><p class="ask">${esc(F.task.ask)} ${needLine(F.task)}${F.task.tip ? ` <button class="qm sm" data-a="ftip" aria-label="A tip">?</button>` : ''}</p><div id="f-hint">${F.hints.join('')}</div><div id="f-out"></div>${kbHTML(F.task, F.kc, F.verb)}`;
-    } else h = `<div class="f-head"><div><b class="g-${F.res.grade}">${GRADE_N[F.res.grade]}</b><small>${F.pline}</small></div>${F.act === 'fight' && !F.over ? `<button class="btn sm quiet" data-a="flee"${F.busy ? ' disabled' : ''}>Flee</button>` : ''}</div>${F.res.ok || !F.res.msg ? '' : `<p class="cap2">${esc(F.res.msg)}</p>`}<div class="swings" id="e-sw">${F.chips}</div><div id="f-after">${F.after}</div>`;
+    } else {
+      const controls=F.after.match(/<div class="row end">[\s\S]*<\/div>$/),body=controls?F.after.slice(0,controls.index):F.after;
+      h = `<div class="f-head"><div><b class="g-${F.res.grade}">${GRADE_N[F.res.grade]}</b><small>${F.pline}</small></div>${F.act === 'fight' && !F.over ? `<button class="btn sm quiet" data-a="flee"${F.busy ? ' disabled' : ''}>Flee</button>` : ''}</div><div class="f-result">${QueryFeedback.html(F.comparison, {power:F.queryPower,open:F.compareOpen,hidePower:F.act!=='fight',note:F.shown?'Shown answer · no practice':F.hint>=2?'Shape hint':F.utility&&F.hint?'Hint used':''})}<div class="swings" id="e-sw">${F.chips}</div><div id="f-after">${body}</div></div><div class="f-actions">${controls?controls[0]:''}</div>`;
+    }
     if(F.st==='choose'){
       if(F.act==='fight'&&bestPage('shadow')){const reason=F.ambush?backstabReason(F.ent,true):backstabReason(F.ent);const choice=`<div class="backstab-choice"><button class="btn ${F.ambush&&!reason?'solid':'quiet'}" data-a="fbackstab"${F.ambush&&!reason?'':' disabled'}>Backstab · 8 stamina</button><p class="cap2">${F.ambush&&!reason?'Rear approach ready. Two rapid Fencing strikes deal '+Backstab.factor(rv('stealth')).toFixed(2)+'× damage each, then the target responds.':esc(backstabNotes[reason||'approach'])}</p></div>`;h=h.replace('<div class="f-pages">',choice+'<div class="f-pages">');}
       h+=combatTools();
@@ -628,15 +631,15 @@
   // the columns the answer needs, in a few words, after the question
   const needLine = t => t.kind === 'dml' ? '<span class="need">→ changes the Ledger; judged by what it holds afterwards</span>' : `<span class="need">→ ${esc(t.ret)}${t.order ? ' · sorted' : ''}</span>`;
   const ROUNDS = () => F.backstab || F.kind === 'boss' ? 1 : 3; let HPEN = 15;
-  const fPct = grade => { if (F.act !== 'fight') return odds(rv('stealing') + (F.bonus || 0), F.diff, grade).p; const sid = pageSkill(F.page); if (F.shown) grade = 'wrong'; else if (F.hint >= 2 && grade === 'correct') grade = 'close'; return Math.max(2, odds(rv(sid), F.diff, grade).p - (F.hint === 1 ? HPEN : 0)); };
-  const fOdds = () => F.utility ? 'Query quality · 1 response round' : F.act === 'fight' ? `${fPct('correct')}% if right · ${fPct('wrong')}% if wrong · ${ROUNDS() === 1 ? '1 round' : ROUNDS() + ' rounds'}` : `${fPct('correct')}% if right · one try`;
-  const fHintBtn = () => { const max = F.kind === 'boss' ? 1 : 2; if (F.shown) return ''; return (F.hint >= max ? '' : `<button class="btn sm quiet" data-a="fhint">${F.hint ? 'Shape' : F.utility ? 'Hint · reduced practice' : `Hint −${HPEN}%`}</button>`) + '<button class="btn sm quiet" data-a="fshow">Show me</button>'; };
+  const fPct = grade => { if (F.act !== 'fight') return odds(rv('stealing') + (F.bonus || 0), F.diff, grade).p; const sid = pageSkill(F.page); return Math.max(2, odds(rv(sid), F.diff, 'correct').p - (F.hint === 1 ? HPEN : 0)); };
+  const fOdds = () => F.utility ? 'Query quality · 1 response round' : F.act === 'fight' ? `${fPct('correct')}% to hit · query sets power · ${ROUNDS() === 1 ? '1 round' : ROUNDS() + ' rounds'}` : `${fPct('correct')}% if right · one try`;
+  const fHintBtn = () => { const max = F.kind === 'boss' ? 1 : 2; if (F.shown) return ''; return (F.hint >= max ? '' : `<button class="btn sm quiet" data-a="fhint">${F.hint ? 'Shape' : F.utility ? 'Hint · reduced power' : `Hint −${HPEN}%`}</button>`) + '<button class="btn sm quiet" data-a="fshow">Show me</button>'; };
   function fHint() {
     if (!F || F.st !== 'prompt' || F.act !== 'fight') return; const max = F.kind === 'boss' ? 1 : 2; if (F.hint >= max) return; F.hint++; const t = F.task;
-    F.hints = F.hints.filter(h => h.includes('class="fh tip"')).concat([F.hint === 1 ? `<p class="fh"><b>${F.utility ? F.utility==='recover'?'Hint, reduced practice:':'Hint, reduced effect and practice:' : `Hint, −${HPEN}% to hit:`}</b> ${esc(t.hint || clauseHint(t.sql))}</p>` : `<p class="fh"><b>Shape, a right answer counts as close:</b> <code>${esc(skeleton(t.sql).replace(/\s+/g, ' '))}</code></p>`]);
+    F.hints = F.hints.filter(h => h.includes('class="fh tip"')).concat([F.hint === 1 ? `<p class="fh"><b>${F.utility ? 'Hint, reduced power and practice:' : `Hint, −${HPEN}% to hit:`}</b> ${esc(t.hint || clauseHint(t.sql))}</p>` : `<p class="fh"><b>Shape, at most 60% power:</b> <code>${esc(skeleton(t.sql).replace(/\s+/g, ' '))}</code></p>`]);
     $('#f-hint').innerHTML = F.hints.join(''); $('#f-odds').textContent = fOdds(); const b = $('#fight [data-a=fhint]'); if (b) b.outerHTML = fHintBtn(); fitPanel();
   }
-  function fShow() { if (!F || F.st !== 'prompt' || F.act !== 'fight' || F.shown) return; F.shown = 1; F.hints = [`<p class="fh"><b>${F.utility?'Type it in. It gives no useful effect and teaches no skill:':'Type it in. It hits like a wrong answer and teaches no skill:'}</b> <code>${esc(F.task.sql)}</code></p>`];
+  function fShow() { if (!F || F.st !== 'prompt' || F.act !== 'fight' || F.shown) return; F.shown = 1; F.hints = [`<p class="fh"><b>${F.utility?'Type it in. It gives no useful effect and teaches no skill:':'Type it in. It has only 5% power and teaches no skill:'}</b> <code>${esc(F.task.sql)}</code></p>`];
     $('#f-hint').innerHTML = F.hints.join(''); $('#f-odds').textContent = fOdds(); $('#fight .f-btns').querySelectorAll('[data-a=fhint],[data-a=fshow]').forEach(b => b.remove()); fitPanel(); }
   function tablesSheet() {
     const c = ctx(), t = c && c.task; if (!t) return; const tabs = t.tables || tablesIn(t.sql + ' ' + (t.check || ''));
@@ -656,11 +659,11 @@
     if (!ready || !F || F.st !== 'prompt' || F.busy) return; const sql = $('#sql').value; if (!sql.trim()) return toast('Write a query first');
     if(F.backstab&&(!F.ambush||F.ambush.owner!==S||!F.ambush.at.every((v,i)=>v===Scene.pos()[i])||backstabReason(F.ent,true))){F.backstab=false;F.st='choose';toast('The opening is gone. Hide and approach from behind again.');drawF();return;}
     if(F.act==='fight'&&F.page.book==='spell'&&!['recover','bandage','study'].includes(F.utility)&&S.mana<Progression.castCost(F.page.c)&&!(S.prepared>0)){F.st='choose';toast('Not enough mana. Meditate, use a prepared scroll, or choose another ability.');drawF();return;}
-    let res = Engine.grade(F.task, sql); S.stats.q++;
-    if (res.err) { if (!F.fixed) { F.fixed = 1; $('#f-out').innerHTML = `<div class="verdict err"><p>${esc(res.err)}</p><p class="cap2">It did not run. One free fix: if the next one does not run either, it counts as a miss.</p></div>`; return fitPanel(); }
+    let res = Engine.grade(F.task, sql); S.stats.q++; F.compareOpen=false; F.comparison=res.ok?null:QueryFeedback.prepare(F.task,sql,res,Engine);
+    if (res.err) { if (!F.fixed) { F.fixed = 1; $('#f-out').innerHTML = QueryFeedback.html(F.comparison,{free:true}); return fitPanel(); }
       res = { ok: false, grade: 'wrong', share: 0, msg: 'It did not run: ' + res.err, used: [] }; }
     if (res.ok) { S.stats.ok++; S.streak++; S.best = Math.max(S.best, S.streak); if(!F.shown)trainSql(res.used || [], F.kc, sql); } else S.streak = 0;
-    F.res = res; F.chips = ''; F.after = ''; F.round++; resolveF(res);
+    F.queryPower=F.utility?(F.shown?0:QueryFeedback.power(res,{hint:F.hint})*(F.hint===1?.6:1)):QueryFeedback.power(res,{shown:F.shown,hint:F.hint}); F.res = res; F.chips = ''; F.after = ''; F.round++; resolveF(res);
   }
   const chip = (cls, txt) => { const h = `<span class="sw ${cls}">${txt}</span>`; F.chips += h; const sw = $('#e-sw'); if (sw) sw.insertAdjacentHTML('beforeend', h); };
   function play(steps,done) {const encounter=F,owner=S,current=()=>F===encounter&&S===owner;if(FAST()){for(const step of steps){if(!current())return;step();}if(current())done();return;}let i=0;const next=()=>{if(!current())return;while(i<steps.length)if(steps[i++]()!==false)return setTimeout(next,330);if(current())done();};setTimeout(next,250);}
@@ -681,10 +684,10 @@
   function finishCombatQuery(res,gl,note='') {
     if(!F)return;F.busy=false;F.ward=0;S.mana=Math.min(Progression.maxMana(S),S.mana+2);S.stamina=Math.min(Progression.maxStamina(S),S.stamina+4);
     if(F.foe.hp<=0)return winF(res,gl);if(S.hp<=0)return loseF(res,gl);
-    F.after=`${note?'<p>'+esc(note)+'</p>':''}${gainLine(gl)}${res.ok?'':answerHTML(F.task)}<div class="row end"><button class="btn solid" data-a="fchoose">Choose next action</button></div>`;save();renderHud();drawF();
+    F.after=`${note?'<p>'+esc(note)+'</p>':''}${gainLine(gl)}<div class="row end"><button class="btn solid" data-a="fchoose">Choose next action</button></div>`;save();renderHud();drawF();
   }
   function resolveF(res) {
-    const q=queryQuality(res),gl=[]; F.defenseTrained=false;
+    const q=F.act==='fight'?(res.quality??queryQuality(res)):queryQuality(res),gl=[]; F.defenseTrained=false;
     if(F.act==='steal'){Sneaking.reveal(CONCEAL);renderHud();}
     if(F.act!=='fight') {const sid=F.act==='steal'?'stealing':bestWeapon(),o=odds(rv(sid)+(F.bonus||0),F.diff,res.grade,res.share),g=gain(sid,F.diff,q);if(g)gl.push(g);F.pline=`${o.p}% chance`;F.st='after';F.busy=true;drawF();const encounter=F,owner=S,win=rnd()*100<o.p,end=()=>{if(F!==encounter||S!==owner)return;F.busy=false;chip(win?'hit':'ouch',win?'success':'failed');win?winF(res,gl):loseF(res,gl);};return FAST()?end():setTimeout(end,500);}
     const p=F.page,sid=pageSkill(p),spell=p.book==='spell',utility=F.utility,steps=[],f=F.foe,e=F.ent;
@@ -692,20 +695,22 @@
     const quality=F.shown?0:q*(F.hint?.6:1);Sneaking.reveal(CONCEAL);F.ambush=null;
     F.st='after';F.busy=true;F.pline=utility?'One recovery round':'Attack and retaliation';drawF();
     if(utility) {
+      const effect=F.queryPower;
       const id=utility==='bandage'?'healing':utility==='recover'?'meditation':utility==='study'?(spell?'eval':'anatomy'):'magery',g=gain(id,F.diff,quality);if(g)gl.push(g);let note='The query gives no useful result.';
-      if(quality>0){if(utility==='bandage'){const n=heal(Progression.bandage(S)*quality);supportGains(['anatomy'],F.diff,quality,gl);note=`Bandaged ${n} health.`;}
-        if(utility==='recover'){const before=S.mana;Progression.recover(S);note=`Recovered ${S.mana-before} mana and stamina.`;}
-        if(utility==='ward'){F.ward=Progression.ward(S)*quality;supportGains(['inscription'],F.diff,quality,gl);note=`Ward reduces this round's incoming damage by ${Math.round(F.ward*100)}%.`;}
-        if(utility==='healspell'){const n=heal((8+rv('magery')*.4)*quality);note=`The spell restores ${n} health.`;}
-        if(utility==='study'){F.focus=Math.round((4+rv(id)*.08)*quality);note=`${magicFoe()?'This foe attacks with magic.':'This foe attacks physically.'} ${F.drole==='armored'?'Its armor reduces physical damage. ':''}Your next attack gains ${F.focus} points of accuracy.`;}}
+      if(effect>0){if(utility==='bandage'){const n=heal(Progression.bandage(S)*effect);supportGains(['anatomy'],F.diff,quality,gl);note=`Bandaged ${n} health.`;}
+        if(utility==='recover'){const before=S.mana,st=S.stamina;Progression.recover(S);S.mana=before+Math.round((S.mana-before)*effect);S.stamina=st+Math.round((S.stamina-st)*effect);note=`Recovered ${S.mana-before} mana and stamina.`;}
+        if(utility==='ward'){F.ward=Progression.ward(S)*effect;supportGains(['inscription'],F.diff,quality,gl);note=`Ward reduces this round's incoming damage by ${Math.round(F.ward*100)}%.`;}
+        if(utility==='healspell'){const n=heal((8+rv('magery')*.4)*effect);note=`The spell restores ${n} health.`;}
+        if(utility==='study'){F.focus=Math.round((4+rv(id)*.08)*effect);note=`${magicFoe()?'This foe attacks with magic.':'This foe attacks physically.'} ${F.drole==='armored'?'Its armor reduces physical damage. ':''}Your next attack gains ${F.focus} points of accuracy.`;}}
       enemySteps(steps,1,gl,quality);return play(steps,()=>finishCombatQuery(res,gl,note));
     }
     let stance=F.backstab?'backstab':F.stance||'strike';const staminaCost=F.backstab?Backstab.STAMINA:8;if(!spell&&stance!=='strike'){if(S.stamina>=staminaCost)S.stamina-=staminaCost;else{stance='strike';chip('lab','Low stamina: ordinary strike');}}
-    const W=WEAP[sid],gr=F.shown?'wrong':F.hint>=2&&res.grade==='correct'?'close':res.grade,o0=odds(rv(sid),F.diff,gr,res.share),o=Math.max(2,Math.min(95,o0.p-(F.hint===1?HPEN:0)+(F.focus||0)+(!spell&&stance==='feint'?Math.min(12,rv('tactics')/8):0))),g=gain(sid,F.diff,quality);F.focus=0;if(g)gl.push(g);
+    const W=WEAP[sid],o0=odds(rv(sid),F.diff,'correct'),o=Math.max(2,Math.min(95,o0.p-(F.hint===1?HPEN:0)+(F.focus||0)+(!spell&&stance==='feint'?Math.min(12,rv('tactics')/8):0))),g=gain(sid,F.diff,quality);F.focus=0;if(g)gl.push(g);
     supportGains(spell?['eval']:['tactics','anatomy'],F.diff,quality,gl);
-    const mult=power(p.c)*resist(p.c,F.r)*(1+dmgPct(sid)/100)*(spell?Progression.spellFactor(S):Progression.physicalFactor(S,stance))*(F.drole==='armored'&&!spell?.8:1)*(F.backstab?1+(Backstab.factor(rv('stealth'))-1)*quality:1),n=F.backstab?Backstab.THRUSTS:W.swings+(p.rare&&p.book==='arms'?1:0),NR=ROUNDS();F.pline=`${F.backstab?'Backstab · ':''}${o}% a swing · ${NR} round${NR===1?'':'s'}`;
+    const mult=power(p.c)*resist(p.c,F.r)*(1+dmgPct(sid)/100)*(spell?Progression.spellFactor(S):Progression.physicalFactor(S,stance))*(F.drole==='armored'&&!spell?.8:1)*(F.backstab?1+(Backstab.factor(rv('stealth'))-1)*quality:1)*F.queryPower,n=F.backstab?Backstab.THRUSTS:W.swings+(p.rare&&p.book==='arms'?1:0),NR=ROUNDS();F.pline=`${F.backstab?'Backstab · ':''}${o}% a swing · ${NR} round${NR===1?'':'s'}`;
+    if(!F.queryPower)chip('miss','No useful effect');
     const oldSwings=f.swings;if(p.rare&&spell)f.swings=Math.max(0,f.swings-1);
-    for(let r=0;r<NR;r++){steps.push(()=>{if(f.hp<=0||S.hp<=0)return false;chip('lab rd','Round '+(r+1));return false;});for(let i=0;i<n;i++)steps.push(()=>{if(f.hp<=0||S.hp<=0)return false;Scene.FX.swing('me',e,spell?'spell':sid,spell?Effects.spell(p.c,p.rare):null);if(rnd()*100<o){const d=Math.max(1,Math.round((rint(W.dmg[0],W.dmg[1])+rv(sid)/8)*mult));f.hp-=d;chip('hit',d);Scene.FX.hit(e,d,'#ffe9a0');}else{chip('miss','miss');Scene.FX.hit(e,'miss','#cfd6d8');}barsF();});
+    for(let r=0;r<NR;r++){steps.push(()=>{if(f.hp<=0||S.hp<=0)return false;chip('lab rd','Round '+(r+1));return false;});for(let i=0;i<n&&F.queryPower>0;i++)steps.push(()=>{if(f.hp<=0||S.hp<=0)return false;Scene.FX.swing('me',e,spell?'spell':sid,spell?Effects.spell(p.c,p.rare):null);if(rnd()*100<o){const d=Math.max(1,Math.round((rint(W.dmg[0],W.dmg[1])+rv(sid)/8)*mult));f.hp-=d;chip('hit',d);Scene.FX.hit(e,d,'#ffe9a0');}else{chip('miss','miss');Scene.FX.hit(e,'miss','#cfd6d8');}barsF();});
       if(!(W.opening&&F.round===1&&r===0))enemySteps(steps,1,gl,quality);}
     f.swings=oldSwings;play(steps,()=>finishCombatQuery(res,gl));
   }
@@ -733,7 +738,7 @@
     else { const first = !S.boss[t], b = F.boss; S.boss[t] = S.boss[t] || now(); S.stats.kills++; o.gold = (60 * t + 40) * (first ? 1 : .4); o.sigils = first ? 2 : 1; o.items.push(first ? uniq(b.drop) : makeItem(rollRarity(lk, 2), t)); if (rnd() < (first ? .3 : .08)) o.bless = 1; if (t >= 5 && rnd() < (first ? .6 : .15)) o.pscr = [makePscr(t)]; if (rnd() < .5) o.gscr = 1; head = first ? `The mark of the ${CIRCLE[t]} Circle` : b.name + ' yields again'; note = b.win; if (t === 8 && first) S.won = now(); }
     if (F.act === 'fight' && S.hp < maxHp()) { const hs = rv('healing'); if (rnd() * 100 < Math.max(40, Math.min(95, 40 + hs))) { const n = heal(Progression.bandage(S)), hg = !F.shown&&queryQuality(res)>0?gain('healing',F.diff,.6*queryQuality(res)):null; if (hg) gl.push(hg); Scene.FX.hit('me', '+' + n, '#9be08a'); } }
     S.hp=Math.min(S.hp,maxHp()); S.mana=Math.min(S.mana,Progression.maxMana(S)); S.stamina=Math.min(S.stamina,Progression.maxStamina(S)); const g = grant(body ? {} : o); F.over = true; tick(); save(); renderHud(); barsF();
-    F.after = `<h3 class="won">${esc(head)}</h3>${note ? `<p class="story">${esc(note)}</p>` : ''}${body ? '' : spoilsHTML(g)}${gainLine(gl)}${res.ok ? '' : answerHTML(F.task)}<div class="row end">${body ? `<button class="btn quiet" data-a="fdone">Leave it</button><button class="btn solid${S.tut <= 2 ? ' pulse' : ''}" data-a="floot">Loot</button>` : '<button class="btn solid" data-a="fdone">Continue</button>'}</div>`; F.st = 'after'; drawF();
+    F.after = `<h3 class="won">${esc(head)}</h3>${note ? `<p class="story">${esc(note)}</p>` : ''}${body ? '' : spoilsHTML(g)}${gainLine(gl)}<div class="row end">${body ? `<button class="btn quiet" data-a="fdone">Leave it</button><button class="btn solid${S.tut <= 2 ? ' pulse' : ''}" data-a="floot">Loot</button>` : '<button class="btn solid" data-a="fdone">Continue</button>'}</div>`; F.st = 'after'; drawF();
   }
   function loseF(res, gl) {
     F.over = true; const t = F.r; let head, msg, fine = 0;
@@ -742,7 +747,7 @@
     else { S.stats.falls++; F.kick = true; head = 'You fall'; const worn = new Set(Object.values(S.eq || {})), n = S.inv.filter(it => !worn.has(it.id)).length + Object.keys(S.scr || {}).length; const bare = Object.values(S.eq || {}).map(itemById).filter(it => it && !it.unique && !it.bless && !it.ins).length; msg = S.gold || n || bare ? `Your gold, your bag${bare ? ' and any gear that is not blessed or insured' : ''} stay on your body. You have ten minutes to get back to it.` : 'You had nothing on you to lose.'; }
     if(F.kick)prepareDeath();
     tick(); save(); renderHud(); barsF();
-    F.after = `<h3 class="lost">${head}</h3><p>${esc(msg)}</p>${gainLine(gl)}${res.ok ? '' : answerHTML(F.task)}<div class="row end"><button class="btn solid" data-a="fdone">${F.kick ? 'Wake up' : 'Continue'}</button></div>`; F.st = 'after'; drawF();
+    F.after = `<h3 class="lost">${head}</h3><p>${esc(msg)}</p>${gainLine(gl)}<div class="row end"><button class="btn solid" data-a="fdone">${F.kick ? 'Wake up' : 'Continue'}</button></div>`; F.st = 'after'; drawF();
   }
   function flee() {
     if (!F || F.busy) return;
@@ -1875,7 +1880,7 @@
     qstep: d => { if (!Q) return; Q.bout = ''; if (d.s === 'reps') { Q.step = 'turn'; Q.tasks = REPS; Q.i = 0; Q.task = REPS[0]; } else Q.step = d.s; drawQ(); $('#enc .q-body').scrollTop = 0; },
     blank: d => { if (!Q || !Q.blank || Q.bok) return; const i = Q.blank.indexOf(null); if (i < 0) return; Q.blank[i] = d.w; Q.bout = ''; drawQ(); }, unblank: d => { if (!Q || !Q.blank || Q.bok) return; Q.blank[+d.i] = null; Q.bout = ''; drawQ(); }, blankrun: () => blankRun(),
     fbackstab: () => pickBackstab(),
-    fprize: d => {if(F&&F.act==='steal'&&!F.busy){const old=F.prize==='prize'?15:0;F.prize=d.id==='prize'?'prize':'purse';F.bonus=(F.bonus||0)+old-(F.prize==='prize'?15:0);drawF();}}, fstance: d => {if(F&&!F.busy){F.stance=d.id;drawF();}}, futility: d => combatUtility(d.id), fscroll: () => {if(F&&!F.busy){F.scroll=!F.scroll;drawF();}}, fpage: d => pickPage(d.id), fsteal: () => pickSteal(), fchoose: () => { if (F && !F.busy && !F.over) { F.st = 'choose'; drawF(); } }, fdone: () => closeF(), floot: () => { const b = F && F.body; closeF(); if (b) lootOpen(b); }, flee: () => flee(),
+    fprize: d => {if(F&&F.act==='steal'&&!F.busy){const old=F.prize==='prize'?15:0;F.prize=d.id==='prize'?'prize':'purse';F.bonus=(F.bonus||0)+old-(F.prize==='prize'?15:0);drawF();}}, fstance: d => {if(F&&!F.busy){F.stance=d.id;drawF();}}, futility: d => combatUtility(d.id), fscroll: () => {if(F&&!F.busy){F.scroll=!F.scroll;drawF();}}, fpage: d => pickPage(d.id), fsteal: () => pickSteal(), fcompare: () => {if(F){F.compareOpen=!F.compareOpen;if(F.st==='prompt'){$('#f-out').innerHTML=QueryFeedback.html(F.comparison,{free:true,open:F.compareOpen});fitPanel();}else drawF();}}, fchoose: () => { if (F && !F.busy && !F.over) { F.st = 'choose'; drawF(); } }, fdone: () => closeF(), floot: () => { const b = F && F.body; closeF(); if (b) lootOpen(b); }, flee: () => flee(),
     cardno: () => { closeCard(); render(); },
     atlas: () => sheet('<h2>Tables of the Great Ledger</h2>' + atlasHTML()),
     peek: d => { const r = Engine.peek(d.t); sheet(`<h2>${d.t}</h2><p class="cap2">First four rows.</p>${tableHTML(r)}<div class="row end"><button class="btn sm quiet" data-a="atlas">All tables</button></div>`); },

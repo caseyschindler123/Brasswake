@@ -7,6 +7,7 @@ const R = { pick: a => a[Math.floor(rnd() * a.length)], int: (a, b) => a + Math.
 let bad = 0; const fail = (...a) => { bad++; console.log('FAIL', ...a); };
 init().then(SQL => {
   Engine.init(SQL, World);
+  require('./query-feedback-tests')(Engine);
   const verbose = process.argv.includes('-v');
   function vet(tag, t, quiet) {
     let want; try { want = Engine.target(t); } catch (e) { return fail(tag, 'target error', e.message, '\n   ', t.sql); }
