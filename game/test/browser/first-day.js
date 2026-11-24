@@ -64,8 +64,12 @@ async function query(f,sql){await f.locator('#sql').fill(sql);await f.locator('#
 async function visit(f,kind,stats,extra={}){
   for(let attempt=0;attempt<12;attempt++){
   await speech(f);
-  const e=await f.evaluate(({kind,extra})=>{const p=Scene.pos(),a=Scene.ents().filter(e=>e.kind===kind&&!e.dead&&!e.dying&&!e.hidden&&!(kind==='mon'&&e.inst.elite)&&Object.entries(extra).every(([k,v])=>e[k]===v));a.sort((a,b)=>Math.hypot(a.x-p[0],a.y-p[1])-Math.hypot(b.x-p[0],b.y-p[1]));if(!a.length)throw Error('Missing '+kind);return {at:[a[0].x,a[0].y],name:a[0].name};},{kind,extra});
-  await walk(f,e.at,stats,true);await speech(f);await f.waitForTimeout(500);if(kind==='guide'&&await f.locator('#say').isVisible())return;await speech(f);
+  const e=await f.evaluate(({kind,extra})=>{const p=Scene.pos(),a=Scene.ents().filter(e=>e.kind===kind&&!e.dead&&!e.dying&&!e.hidden&&!(kind==='mon'&&e.inst.elite)&&Object.entries(extra).every(([k,v])=>e[k]===v));a.sort((a,b)=>Math.hypot(a.x-p[0],a.y-p[1])-Math.hypot(b.x-p[0],b.y-p[1]));if(!a.length)throw Error('Missing '+kind);
+    // Follow the actual roaming creature, rather than its now-stale cell.
+    // This fixture identity changes no position, movement or combat rules.
+    if(kind==='mon'&&!a[0].id)a[0].id='firstday-approach-'+Scene.ents().indexOf(a[0]);
+    return {id:a[0].id,at:[a[0].x,a[0].y],name:a[0].name};},{kind,extra});
+  const reached=await walk(f,kind==='mon'?e.id:e.at,stats,true);if(kind==='mon'&&reached)e.at=[reached.x,reached.y];await speech(f);await f.waitForTimeout(500);if(kind==='guide'&&await f.locator('#say').isVisible())return;await speech(f);
   if(await f.locator('#ctx').isVisible()&&(await f.locator('#ctx').innerText()).includes(e.name))await f.locator('#ctx').click();else await clickWorld(f,e.at);
   await f.waitForTimeout(500);
   if(kind==='guide'){if(await f.locator('#say').isVisible())return;continue;}

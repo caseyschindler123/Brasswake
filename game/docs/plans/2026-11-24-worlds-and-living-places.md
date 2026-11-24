@@ -1,6 +1,6 @@
 # Worlds, movement and living places
 
-Status: implementation complete; combined verification/integration in progress; not released.
+Status: owned implementation and checks complete; automatic release gate and publication pending; not released.
 
 ## Scope and acceptance
 
@@ -53,3 +53,15 @@ Task-specific AI/agent billing is unavailable. Three bounded workers were used; 
 - The bounded dungeon-driver repair passed all 24 component cases (eight themes across three profiles) and all three death/reload cases. Strict texture pixels and victory/gate/table/loot/persistence assertions remain unchanged. Visible-controls arrival passed all three profiles after requiring a visible context button rather than stale hidden text. Actual revised town/NPC phone-WebKit and desktop captures were opened; final complete gate remains pending.
 
 - The complete local sweep subsequently exposed remaining legacy fixture assumptions: SQL-download recovery selected the old boat-menu action; the cloud-ferry fixture saved a fabricated position instead of positioning the owned scene; four cartography flows released input at movement start; and long-route fallback still used an 80ms auto-tile tap. These drivers now use the visible recovery button, live quayside position and complete movement. Three recovery reruns, nine ferry/fog/chart reruns and two Atlas/ferry-waypoint reruns passed. The revised Warrior first-day route passed; Mage and the remainder of the full sweep are pending. Any initial failed local command remains recorded as failed, with affected successful reruns distinguished; exact-commit CI must independently pass before deployment.
+
+- Updated affected rerun evidence: Warrior and Mage complete first days both passed (4.1m/4.6m). The updated full sweep subsequently passed all 134 WebKit cases, including all four professions and every new world/creation/service/keyboard/rendering check. Desktop sweep is running. Production source has not changed since `4e71ea7`; subsequent `7d216ce` is fixture/context repair. The local full command will retain its original phone-fixture failures; all affected reruns must pass and exact-commit CI must provide a clean complete gate before deployment.
+
+## Coordination clarification — 2026-11-24
+
+Casey clarified that coordination means avoiding overlapping ownership and edits, and that he did not request this task to test the other agent's battle changes. The battle task owns battle implementation and battle validation. This task owns its world, character, movement, environment, readability and audio changes; shared-file boundaries and commit handoffs must be coordinated before further edits. Existing local battle integrations and verification evidence are preserved as history. The overlapping broad test run was stopped and publication was temporarily held while ownership was clarified. At that checkpoint nothing had been pushed or deployed. Do not infer a request for another battle audit from the eventual release handoff.
+
+- Coordination resumed under the clarified boundary after Casey's status question: the battle agent supplied its completed commit/validation handoff and retains battle CI failure and hosted-battle verification responsibility. This task is finishing 53 owned desktop movement/world/creation/navigation/environment checks. The automatic repository release gate remains required; no further manual battle audit is assigned to this task. Original build/deploy authorization remains the release basis.
+
+- Owned desktop readiness: 52 of 53 scoped checks passed. The remaining Crafter route exposed a stale moving-target coordinate in the navigation fixture. It now follows that same creature by stable test identity and clicks its live position, without relocating it or changing game rules. The focused route rerun passed the previous stall and reached the cellar; completion is pending. Battle validation remains exclusively owned by the other task; its final signoff was received.
+
+- Owned readiness complete: all 53 selected desktop checks passed across the 52-case checkpoint and corrected Crafter rerun (3.5m). Opened final desktop creation and dungeon captures. Existing phone/WebKit evidence is retained above. No production source changed after `4e71ea7`; final changes are fixture/context repairs. The battle task supplied its own final signoff and owns any battle-specific CI failure plus hosted battle verification. The normal exact-commit repository CI is the remaining required complete gate before publication.
