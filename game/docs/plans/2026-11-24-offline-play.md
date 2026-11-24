@@ -1,6 +1,6 @@
 # Offline play and easy saves
 
-Status: local verification and scoped fixture repairs complete; exact-commit CI/deployment pending; not released. Class: complex because an opt-in offline asset download, release-consistent updates, browser storage and player saves must work together.
+Status: released and independently verified at `8b83e29242bd3535088da87bcd412d131b1ef1b7`; all milestones complete. See [release history](../RELEASE_HISTORY.md#offline-play-and-portable-saves). Class: complex because an opt-in offline asset download, release-consistent updates, browser storage and player saves must work together.
 
 ## Outcome and acceptance
 
@@ -14,8 +14,8 @@ Keep automatic device saves and existing codes; show actual save success/failure
 - [x] M2: implement opt-in service worker downloads, integrity/progress/retry, complete-release activation, scoped navigation/assets and stable updates.
 - [x] M3: implement main-screen/Hero offline and save controls, accessible feedback and save-file import/export.
 - [x] M4: meaningful worker/build and real-browser coverage for offline cold reopen, SQL, unseen art/music, persistence/backup, failures/eviction and update consistency. Inspect phone 390×720 and desktop screenshots; automated WebKit is not a physical iPhone.
-- [ ] M5: run `npm run verify`, review intended diff and master docs, commit scoped files and integrate/push normally without disturbing concurrent work. Monitor exact-commit Actions and independently verify hosted commit/hash and offline player flow.
-- [ ] M6: close plan and record full source SHA, Actions link, verification date/hash and limitations in RELEASE_HISTORY; commit/push documentation closure without redeploying.
+- [x] M5: run `npm run verify`, review intended diff and master docs, commit scoped files and integrate/push normally without disturbing concurrent work. Monitor exact-commit Actions and independently verify hosted commit/hash and offline player flow.
+- [x] M6: close plan and record full source SHA, Actions link, verification date/hash and limitations in RELEASE_HISTORY; commit/push documentation closure without redeploying.
 
 ## Verification and release notes
 
@@ -36,3 +36,14 @@ Accepted peer handoffs, pending integration after the running test graph finishe
 Remaining verification detail: after the complete run, integrate both one-file repairs; extend the existing offline cold-reopen flow to download a backup file after disconnecting and assert the latest skill target (56) before restoring the earlier backup (55). This adds evidence for file saving on the plane without changing game behavior. Run the affected offline flow on all three profiles, core/build checks as applicable, then exact-commit CI and live verification. Preserve the full-run failures and distinguish targeted repaired passes from a clean complete CI gate.
 
 Local verification completed: the required `npm run verify` passed all core suites/build and finished its full 423-case UI run at 421 passed / 2 failed (49.5 minutes); those exact two fixture failures were repaired and independently rerun as documented above, with no production change. The two reviewed handoffs are integrated as `0b2b86c` and `6904ace`. Final rebuilt candidate still has HTML hash c73d5cb7bac80769c9b397f2462a72f6dda2587aac9d4ca2a230762403e1c6b2. All 33 current offline/build/server/workflow checks passed; final focused offline matrix passed 15/15 (1.8 minutes) across all three profiles. This includes file backup after disconnect, explicit restore into an empty main screen, and full browser shutdown/relaunch on a disk profile after the local server is terminated, followed by saved-target and actual SQL assertions. Restart title images were opened on phone WebKit and desktop; main title/backup/restore/Hero images were reviewed earlier. The new process-restart fixture initially exposed Windows test-profile path limits: a one-byte Cache API probe failed with TypeError (filesystem write), then succeeded using the standard Win32 extended-length path form. Short/extended fixture profile paths fixed that test environment; no game/browser assertions were skipped or runtime code changed. Final clean exact-commit CI remains required before publishing.
+
+Release candidate `8b83e29242bd3535088da87bcd412d131b1ef1b7` is pushed to main after the agreed publisher handoff. [Actions 45484206324](https://github.com/caseyschindler123/Brasswake/actions/runs/45484206324) passed core and has started the three required browser profiles. The final graph contains 429 cases (143 per profile), including the added comparison and full-browser-restart regressions. The held audio modifications remain local and excluded. Deployment and independent live verification are pending; this is not a release-completion claim.
+
+## Verified release
+
+- Released source: `8b83e29242bd3535088da87bcd412d131b1ef1b7`. [Actions 45484206324](https://github.com/caseyschindler123/Brasswake/actions/runs/45484206324) succeeded: core, all 429 browser cases (143 per required profile), aggregate, Pages deployment and all four hosted checks, with zero retries or skipped required cases. Chromium phone/desktop passed in 32.8m/35.6m; WebKit passed in 48.7m. Deployment/hosted job completed 2026-11-24T21:42:04Z.
+- Independent verification: source/HTML receipt `2026-11-24T21:42:58.946Z` (UTC), followed by 4/4 fresh-browser hosted flows passed in 46.6s: battle comparison, visible rescue/arrival, normal SQL/save/reload and the complete offline download/reopen/SQL/offline backup/restore flow. Actual live title, backup and offline-save images were opened.
+- Published HTML SHA-256: `cae1bd9824ed80952643fb17288cd3c067ae6383e1ddcc3fc8557e20760a5e3d`. This is the production build fingerprint; the earlier local candidate c73d5c... fingerprint remains historical evidence and is not the released HTML hash.
+- Account v9/character v8 and released battle rules are preserved. No physical-iPhone Home Screen, native Files/share chooser, audio/performance or browser-retention guarantee is claimed; automated WebKit is engine coverage. Clearing site data still removes local saves/downloads, as explained in the game.
+- Coordination complete: incorporated prior publisher closure `7cff8c9`, reviewed/integrated the existing battle owner's two scoped test-only commits, and performed one next-release push. Held audio edits remain local/excluded. Task-specific AI/peer/tool/CI billing and fixed subscription allocation are unavailable; no paid image/audio generation was used.
+- This final closure changes Markdown only and requires wording/diff review; it does not rebuild, retest or redeploy unchanged game output.

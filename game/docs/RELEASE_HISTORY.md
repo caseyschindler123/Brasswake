@@ -1,8 +1,18 @@
 # Verified release history
 
-Dates below are UTC. Earlier entries were reconciled on 2026-11-23 from existing receipts and successful Actions runs; their evidence was not rerun during that documentation cleanup. New release entries identify checks performed for that release. The latest confirmed hosted source is the combined worlds/living-places and battle-risk release, `8602fa54fa1502f693b93e89be297c245be15427`.
+Dates below are UTC. Earlier entries were reconciled on 2026-11-23 from existing receipts and successful Actions runs; their evidence was not rerun during that documentation cleanup. New release entries identify checks performed for that release. The latest confirmed hosted source is the offline-play and portable-save release, `8b83e29242bd3535088da87bcd412d131b1ef1b7`, which includes the earlier worlds/living-places and battle-risk releases.
 
 Keep the released source commit distinct from any later documentation-only commit. Each entry preserves completion, verification and limitations without requiring local logs. Detailed receipts, screenshots and traces under ignored `work/` or test-results folders remain supplementary. A newer deployment supersedes the hosted version; earlier completed releases stay complete.
+
+## Offline play and portable saves
+
+- Plan: [offline play](plans/2026-11-24-offline-play.md). Status: complete, all milestones. Classification: complex. The prior publisher handed off after closing the battle/world release; its changes and held local audio edits were preserved.
+- Released source: `8b83e29242bd3535088da87bcd412d131b1ef1b7`. [Actions 45484206324](https://github.com/caseyschindler123/Brasswake/actions/runs/45484206324) passed core, all 429 browser cases (143 per phone Chromium/WebKit 390×720 and desktop 1280×800 profile), aggregate, Pages deployment and all four hosted flows, with zero retries or skipped required cases. Deployment/live job completed 2026-11-24 21:42:04 UTC.
+- Independent verification: source/hash receipt `2026-11-24T21:42:58.946Z` (UTC), followed by 4/4 fresh-browser hosted flows passed in 46.6s, including offline download, closed-page reopening, actual SQL, device save, file backup while disconnected and file restore. Hosted title/backup/offline-save captures were opened; phone/desktop local screenshots and real persistent-browser restart with its server stopped were also inspected.
+- HTML SHA-256: `cae1bd9824ed80952643fb17288cd3c067ae6383e1ddcc3fc8557e20760a5e3d`.
+- Shipped: explicit whole-game download with verified progress/readiness and resumable failures; complete-release activation with existing-tab asset isolation; packaged SQL/fonts and all current art/music; title/Hero Save now, truthful storage failure alerts and portable file/code backup/load. Account v9/character v8 and battle rules remain unchanged.
+- Local evidence: required full verify passed core and finished 421/423 UI cases; two prepared fixture failures were corrected without runtime/stat/timing changes and rerun (24 existing comparison cases plus 3 corrected adverse-RNG regressions; 12 native escape/compatibility cases). Final offline matrix passed 15/15, and 33 current build/offline/server/workflow checks passed. The exact-commit CI above is the clean complete release gate. Earlier local fingerprints/failures remain identified in the plan.
+- Limits: no physical-iPhone Home Screen/native Files chooser/audio/performance or human-learning study. Browser storage remains under browser control; clearing site data removes device progress/downloads, so separate backups remain useful. Detailed ignored logs, browser profiles and images supplement this tracked evidence.
 
 ## Worlds, movement, living places and battle risk
 
