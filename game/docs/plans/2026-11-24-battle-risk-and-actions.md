@@ -1,6 +1,6 @@
 # Battle risk, actions and pursuit
 
-Status: implementation authorized, not released. Classification: complex; combat resolution, resources, AI, pursuit and player controls change together.
+Status: complete and released with combined source `8602fa5`; [release history](../RELEASE_HISTORY.md#worlds-movement-living-places-and-battle-risk). Classification: complex; combat resolution, resources, AI, pursuit and player controls change together.
 
 ## Coordination
 
@@ -28,9 +28,9 @@ Casey authorized autonomous implementation, iteration and deployment after the a
 - [x] Update affected browser/campaign fixtures and add danger/escape/resource/UI regressions.
 - [x] Review actual 390x720 Chromium/WebKit and 1280x800 desktop screenshots.
 - [x] Reconcile master docs and dated decisions; review scoped diff and focused verification.
-- [ ] Complete the integrator-owned combined `npm run verify` gate before publication.
+- [x] Integrator completed required verification: local core/focused repairs plus clean exact-commit core and all browser profiles before publication.
 - [x] Commit intended files and send commit, tests and limitations to the single integrator.
-- [ ] Verify combined exact-commit CI, publication identity/HTML hash and live player flow; record release closure.
+- [x] Verify combined exact-commit CI, publication identity/HTML hash and live player flow; record release closure.
 
 ## Verification
 
@@ -38,7 +38,9 @@ Use pure rule tests for hit/damage bounds, weapon/role intent cycles, nonzero st
 
 Run focused checks while iterating. By explicit coordination, the single integrator runs `cd game; npm run verify` once on the combined candidate before publication, preserving its world/save changes. This task delivers focused rule/transaction/balance/browser evidence and a reviewable commit instead of duplicating the unchanged global gate. Screenshots and logs are supplementary; this tracked plan and release history preserve final evidence. Physical iPhone and human long-session balance evidence are unavailable. No paid image generation or art/settings change is planned. Task-specific AI billing is unavailable; costs will reflect actual agent/tool/CI activity.
 
-## Candidate evidence (publication pending)
+## Development checkpoints (historical)
+
+The entries below preserve prior checkpoint status. Verified publication and owner signoff are recorded in the final closure below.
 
 - Pure/system regression command passed 34 tests (BattleRules, progression, Backstab and dungeon adapter). Engine/content `node test/test.js` passed ALL GOOD. Initial outdated progression/stance and automatic-bandage assertions were updated to the explicit new behavior, with replacement rule/transaction assertions; query-power rounding tolerance tightened from twelve swings to two.
 - Phone diagnostic: 14/17 passed before correcting one stale supply-fixture render and two real prompt-layout failures. The prompt inherited a 160px vertical flex basis; compact explicit header layout and a bounded question/comparison scroller preserve the keyboard. Both focused free-fix/layout cases then passed without loosening assertions. Council’s real city-ring pursuit exception passed its original admission regression.
@@ -54,3 +56,10 @@ Run focused checks while iterating. By explicit coordination, the single integra
 - Integration: the single publisher merged scoped commit `1babb16` as `a6fdf71`, retaining account v9/character v8, all new world/presentation modules, fractional hero footprint reservations and actual-distance recovery events. The combined full verification gate is running; no deployment is claimed yet. Supplementary final-source Thief campaign earned all eight marks in 546 queries with normal economy and mixed answers. It retained two lost-concealment warnings and seven patrol interceptions, handled through combat rather than skipped. Three profession campaigns are automated prepared-completion evidence, not human learning or long-session balance validation.
 
 - Combined verification integration repair: optional metered concealment, scoped follow-up `a5b3c5b` integrated as `cd0e3e7`, plus HOST actual-distance callsite. Eight pure skill-action tests and six integrated Backstab/Examiner browser cases passed. Town safe-ground sensing now permits ordinary rival movement; affected NPC/sound checks passed. Existing dungeon drivers now process each draught as an entire response; all 24 components and three death/reload cases passed without changing rewards, texture assertions or death rules. Global gate/CI/live checks remain required.
+
+## Verified release closure — 2026-11-24
+
+- Released source `8602fa54fa1502f693b93e89be297c245be15427`; [Actions 45434557202](https://github.com/caseyschindler123/Brasswake/actions/runs/45434557202): core, all 411 browser cases, aggregate, Pages deployment and three hosted flows passed. The publisher owns central closure; the battle task supplied its implementation and focused/hosted validation signoff.
+- Scoped combat commits `1babb16` and `a5b3c5b` integrated as `a6fdf71` and `cd0e3e7`. Battle-owned reachable-foe fixture repair `fb3eec6` integrated as `24ffcf6`; its 54 risk/boundary cases passed all profiles. The owner confirmed six unchanged Backstab/Examiner cases against the final centred shared movement helper, preserving fractional endpoints and actual-distance concealment spending. Warrior/Mage/Thief prepared earned mixed-answer campaigns each completed eight marks, with paid supplies and unchanged death rules; detailed counts and limits remain above.
+- Battle owner independently verified the exact hosted commit/hash at `2026-11-24T19:50:25.896Z` (11:50:25 PST). HTML SHA-256: `ce38b32880397ff72f29a89ce333761f3afd4fa2789de090d60822ccd09a8799`. Hosted battle checks passed 2/2 (24.5s), phone Chromium390x720 and desktop1280x800, using public save preparation, visible controls and the real hosted SQL dependency without localhost debug handles. Wrong query gave zero power; corrected comparisons, enemy response and next action worked with readable health/intent and no observed JS/network errors. Both captures were opened by the battle owner. This publisher did not duplicate that battle audit.
+- Limits: prepared access/position/Strike with normal starting combat stats/resources; browser emulation, no physical iPhone or human long-session balance study. The later offline-play task's own fixture/gate work is separate from this completed release. Task-specific AI/delegated/CI billing is unavailable; one bounded combat worker, no paid-tool/image usage.
