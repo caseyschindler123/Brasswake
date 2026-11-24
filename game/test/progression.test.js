@@ -167,6 +167,7 @@ test('all occupied account slots normalize without changing learned SQL or posse
     dungeons: { 1: { keeper: true } },
   });
   const slots = [legacy('warrior', 42), null, legacy('thief', 80), legacy('crafter', 114), legacy('mage', 91)];
+  slots[2].bandages = 0;
   const account = { v: 7, cur: 2, slots, cmds: { SELECT: 2 }, homes: [{ id: 'h1', chest: [{ id: 'w3' }] }] };
   const before = structuredClone(account);
   const swords = slots[0].inv;
@@ -181,6 +182,7 @@ test('all occupied account slots normalize without changing learned SQL or posse
     assert.equal(slot.mana, P.maxMana(slot));
     assert.equal(slot.stamina, P.maxStamina(slot));
     assert.equal(slot.progression, 1);
+    assert.equal(slot.bandages, i === 2 ? 0 : 4);
     for (const [key, old] of Object.entries(before.slots[i])) assert.deepEqual(slot[key], old, `slot ${i} ${key}`);
   }
   assert.equal(account.slots[0].inv, swords);
@@ -203,9 +205,10 @@ test('over-cap saves normalize once to stable capped values', () => {
 test('combat support and recovered resources respond to their associated attributes and skills', () => {
   const base = hero({ attr: { str: 40, dex: 30, int: 40 }, mana: 0, stamina: 0 });
   const warrior = hero({ attr: { str: 80, dex: 70, int: 40 }, sk: { tactics: 70, anatomy: 70, parrying: 70, healing: 70 } });
-  const mage = hero({ attr: { str: 40, dex: 30, int: 90 }, sk: { eval: 70, inscription: 70, meditation: 70, resisting: 70 }, mana: 0, stamina: 0 });
-  assert.ok(P.physicalFactor(warrior) > P.physicalFactor(base));
-  assert.ok(P.physicalFactor(warrior, 'cleave') > P.physicalFactor(warrior));
+  const mage = hero({ attr: { str: 40, dex: 30, int: 90 }, sk: { eval: 70, meditation: 70, resisting: 70 }, mana: 0, stamina: 0 });
+  const untrainedWarrior = hero({ attr: warrior.attr });
+  assert.ok(P.physicalFactor(untrainedWarrior) > P.physicalFactor(base));
+  assert.ok(P.physicalFactor(warrior) > P.physicalFactor(untrainedWarrior));
   assert.ok(P.bandage(warrior) > P.bandage(base));
   assert.ok(P.parryChance(warrior) > P.parryChance(base));
   assert.equal(P.maxHp(warrior), 90);
@@ -213,7 +216,6 @@ test('combat support and recovered resources respond to their associated attribu
   assert.equal(P.maxMana(mage), 90);
   assert.ok(P.spellFactor(mage) > P.spellFactor(base));
   assert.ok(P.resistFactor(mage) < P.resistFactor(base));
-  assert.ok(P.ward(mage) > P.ward(base));
   assert.ok(P.recover(mage) > P.recover(base));
   assert.equal(mage.stamina, 12);
   mage.mana = 89;

@@ -11,7 +11,7 @@ window.installPathAudit = function ({ path, seed, mistakeEvery=0 }) {
   };
   const copy = x => JSON.parse(JSON.stringify(x));
   const snapshot = () => ({ path: B.S.path, sk: copy(B.S.sk), attr: copy(B.S.attr),
-    hp: B.S.hp, mana: B.S.mana, stamina: B.S.stamina, gold: B.S.gold,
+    hp: B.S.hp, mana: B.S.mana, stamina: B.S.stamina, bandages:B.S.bandages,tonics:B.S.tonics,gold: B.S.gold,
     modes: copy(B.S.skillModes), statModes: copy(B.S.attrModes), targets: copy(B.S.skillTargets),
     statTargets: copy(B.S.attrTargets), stats: copy(B.S.stats), marks: Object.keys(B.S.boss).length,
     pages: Object.keys(B.S.pages), equipment: Object.fromEntries(Object.entries(B.S.eq).map(([k,id])=>[k,B.S.inv.find(i=>i.id===id)])),
@@ -103,6 +103,7 @@ window.installPathAudit = function ({ path, seed, mistakeEvery=0 }) {
   function supplies(r,desired=5) {
     const healer=Scene.find(e=>e.r===r&&e.kind==='healer');if(!healer)return;B.setCE(healer);B.SH.healer(healer);const button=document.querySelector('[data-a=buytonic]');
     if(button)for(let n=0;n<desired&&B.S.tonics<desired&&B.S.gold>=Number(button.dataset.c);n++){const before=snapshot();act('buytonic',{c:button.dataset.c});record('buy-tonic',before);}
+    B.SH.healer(healer);const band=document.querySelector('[data-a=buybandages]');if(band)for(let n=0;n<3&&B.S.bandages<10&&B.S.gold>=Number(band.dataset.c);n++){const before=snapshot();act('buybandages',{c:band.dataset.c});record('buy-bandages',before);}
     dismiss();Scene.pause();
   }
   function closeFight() {
@@ -121,15 +122,16 @@ window.installPathAudit = function ({ path, seed, mistakeEvery=0 }) {
     let n=0;
     while(B.F&&!B.F.over&&n++<60) {
       if(B.F.st==='after')act('fchoose');
-      if(B.S.hp<Progression.maxHp(B.S)*.7&&B.S.tonics>0)act('tonic');
+      if(B.S.hp<Progression.maxHp(B.S)*.7&&B.S.tonics>0){const before=snapshot();act('tonic');record('combat-draught',before);continue;}
       const spell=path==='mage',pages=Content.PAGES.filter(p=>B.S.pages[p.id]&&p.book===(spell?'spell':'arms')).sort((a,b)=>b.c-a.c||b.rare-a.rare);
       const page=pages[0];if(!page)throw Error('No attack page');
       let utility=null;
       if(spell&&B.S.mana<Progression.castCost(page.c))utility='recover';
-      else if(B.S.hp<Progression.maxHp(B.S)*.55)utility=spell&&B.S.mana>=Progression.castCost(page.c)?'healspell':'bandage';
+      else if(B.S.hp<Progression.maxHp(B.S)*.55)utility=spell&&B.S.mana>=Progression.castCost(page.c)?'healspell':B.S.bandages>0?'bandage':null;
       else if(utilitySample&&n===1)utility=spell?'ward':'study';
+      const intent=BattleRules.intent({role:B.F.drole,boss:!!B.F.boss,magic:false,circle:B.F.r},B.F.round);if(!utility&&['heavy-blow','crushing-blow'].includes(intent.id)&&!B.F.defense)utility=spell&&B.S.mana>=Progression.castCost(page.c)?'ward':'guard';
       if(utility) {act('futility',{id:utility});answer('combat-'+utility);}
-      else {act('fstance',{id:n%3===0?'feint':'cleave'});act('fpage',{id:page.id});if(spell&&B.S.prepared>0)act('fscroll');answer('attack');}
+      else {act('fpage',{id:page.id,stance:!spell&&B.S.stamina>=8?(n%3===0?'feint':'cleave'):'strike'});if(spell&&B.S.prepared>0)act('fscroll');answer('attack');}
     }
     if(B.F&&!B.F.over){warnings.push('Combat stalled after 60 actions: '+e.name);act('flee');}
     const won=boss?!!B.S.boss[e.r]:B.F?.foe?.hp<=0;

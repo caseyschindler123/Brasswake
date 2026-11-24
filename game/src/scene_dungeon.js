@@ -64,7 +64,7 @@
   }
   function dungeonSpawn(m,source,tutorial) {
     const sp=Dungeons.species[source.species]||{},art=sp.art||source.species||'k'+m.r,keeper=source.kind==='keeper';
-    const e=Object.assign({},source,{r:m.r,floor:m.f,kind:keeper?'keeper':source.tutorial&&tutorial?'guard':'mon',sub:keeper?'Vault keeper':source.lieutenant?'Floor lieutenant':sp.description||sp.desc||'Dungeon creature',inst:{dungeon:1,tpl:sp.tpl||'b'+m.r+'01',art,role:source.role||sp.role||'skirmisher',elite:!!source.lieutenant},spr:dungeonMob(art)||monSprite(art),home:[source.x,source.y],range:source.lieutenant||keeper?2:4,wander:keeper||source.tutorial?0:1,t:2+Math.random()*4,agg:!keeper&&!source.tutorial&&!source.lieutenant&&(source.role||sp.role)==='skirmisher'?1:0,dir:'l'});
+    const e=Object.assign({},source,{r:m.r,floor:m.f,kind:keeper?'keeper':source.tutorial&&tutorial?'guard':'mon',sub:keeper?'Vault keeper':source.lieutenant?'Floor lieutenant':sp.description||sp.desc||'Dungeon creature',inst:{dungeon:1,tpl:sp.tpl||'b'+m.r+'01',art,role:source.role||sp.role||'skirmisher',elite:!!source.lieutenant},spr:dungeonMob(art)||monSprite(art),home:[source.x,source.y],range:source.lieutenant||keeper?2:4,wander:keeper||source.tutorial?0:1,t:2+Math.random()*4,agg:!keeper&&!source.tutorial&&!source.lieutenant?1:0,dir:'l'});
     if(m.occ.has(e.y*m.w+e.x))return false;
     addEnt(m,e);return true;
   }

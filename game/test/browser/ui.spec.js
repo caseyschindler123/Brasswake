@@ -2,6 +2,8 @@ const { test, expect } = require('@playwright/test');
 const { observeErrors, playerFlow, screenshot } = require('./flow');
 require('./playability');
 require('./query-feedback');
+require('./battle-risk');
+require('./battle-boundaries');
 require('./skill-system');
 require('./backstab');
 require('./npc-appearance');

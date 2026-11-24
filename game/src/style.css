@@ -882,3 +882,18 @@ html,body{background:#2b1c11;overscroll-behavior:none}
 .cmap-service.waypoint{outline:3px solid #62c9d6}
 .cmap-service.compact{width:13px;height:13px;border-radius:2px}.cmap-service.compact svg{width:10px;height:10px}
 @media(min-width:700px){.cr-appearance{grid-template-columns:240px minmax(0,1fr)}.cr-controls{align-content:start}}
+
+/* Battle health and announced responses remain visible while the query body scrolls. */
+#fight .battle-status{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;padding:7px 9px;border:1px solid #a87e36;border-radius:7px;background:#f7edce;color:#332b24}
+.battle-health{min-width:0;font:13px/1.2 var(--body)}.battle-health>span{display:flex;justify-content:space-between;gap:5px;white-space:nowrap;overflow:hidden}.battle-health b{flex:none;font-variant-numeric:tabular-nums}.battle-health [role=meter]{height:5px;margin-top:3px;background:#d7c7a5;overflow:hidden;border-radius:3px}.battle-health i{display:block;height:100%;background:#367352}.battle-health.foe-health i{background:#9d4937}
+.battle-status.danger{border:2px solid #a52d22;background:#ffe4cf}.battle-status.danger .hero-health{color:#8a201a}.battle-status .combat-resources,.battle-intent{grid-column:1/-1;margin:0;font:12px/1.25 var(--body);color:#4b3b2b}.battle-intent b{font-weight:700}.battle-intent span{color:#594732}
+#fight.st-prompt{max-height:100%;gap:5px;overflow:hidden}#fight.st-prompt .battle-question{min-height:42px;overflow-y:auto;flex-shrink:1;display:flex;flex-direction:column;gap:5px}#fight.st-prompt .battle-question>*{flex-shrink:0}#fight.st-prompt .qp{flex-shrink:0}#fight.st-prompt .f-btns{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:flex-end;gap:4px;max-width:68%}#fight.st-prompt .f-btns .btn{min-height:30px;font-size:12px;padding:3px 6px}
+.attack-choice{display:flex;flex-direction:column;gap:4px}.maneuver-choices{display:flex;gap:5px}.maneuver-choices .btn{flex:1}.maneuver-note{font:12px/1.25 var(--body);color:#5d4933}.combat-help{font:12px/1.25 var(--body);margin:2px 0}.combat-tools .btn{min-height:38px}#fight.st-choose{max-height:94%}
+
+#fight.st-prompt .battle-question #f-out:not(:empty){flex-shrink:0;max-height:none;min-height:0;overflow:visible}#fight.st-prompt .battle-question:has(.query-fix){min-height:190px}
+
+#fight.st-prompt .f-head{flex-direction:column;align-items:stretch;gap:4px}#fight.st-prompt .f-head .f-btns{max-width:none;width:100%;justify-content:flex-start;flex-direction:row}#fight.st-prompt .battle-question:has(.query-fix){min-height:215px}
+
+#fight.st-prompt .f-head>div:first-child{flex:none}
+
+#fight.st-prompt .f-head>div:first-child{flex-direction:row;align-items:baseline;gap:8px}

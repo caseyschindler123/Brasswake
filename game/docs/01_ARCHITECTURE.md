@@ -64,6 +64,7 @@ There is no framework and no bundler. Plain browser JavaScript modules are writt
 | Path | Role |
 |---|---|
 | `build.js` | Concatenates `src/*.js` in order into `shell.html` with `style.css` inlined, writes `dist/index.html` and `release.json` (source commit and HTML SHA-256), and copies `art/` to `dist/art/`. `BW_DIST`, `BW_ART_JS` and `BW_WORLD_ART_JS` build isolated snapshots against stand-in or prototype art. |
+| `src/battle_rules.js` | Battle-risk candidate (not published): pure weapon exchange, health/accuracy, maneuver, defense and announced role/Examiner intent rules, shared by runtime and focused tests. |
 | `src/progression.js`, `src/sneaking.js`, `src/skill_crafting.js` | Pure twenty-skill/attribute cap transactions, resource/combat helpers, temporary concealment rules and optional profession/lock rules. Loaded before game.js; CommonJS exports support focused regression tests. |
 | `src/character_worlds.js` | Pure three-world canonical saves, household isolation and legacy normalization. |
 | `src/movement.js`, `src/actor_rig.js` | Swept continuous manual motion over tile collision; immutable-source head calibration and distance-paced gait. |
@@ -283,3 +284,5 @@ GitHub Pages uses the Actions publishing source. The publication payload is buil
 - 2026-11-23: Boat-intro/writing candidate: preserve optional arrival state and isolated scene coordinates; expose checkpoints through normal player controls. Release status is tracked in the boat-intro plan.
 
 - 2026-11-24: Published the verified boat-intro/writing release, source `d516ce1`. Current behavior is described above; exact commit, Actions, hosted hash and verification limits are recorded in `RELEASE_HISTORY.md` and the completed boat-intro plan.
+
+- 2026-11-24 (battle-risk candidate, not published): isolate combat implementation in `codex/battle-risk-and-actions`; the worlds/living-places task owns combined integration and publication. Add pure BattleRules plus prepared runtime response/resource/escape/role/death/layout regressions. Preserve additive bandage migration, existing save versions, unchanged SQL thinking time and existing death penalties. Exact combined release evidence remains pending.

@@ -84,8 +84,8 @@ test('query feedback · damage scales with result progress and wrong attacks can
     damage.push(await f.evaluate(before => { Math.random = window.__feedbackRandom; return { dealt: before - __bw.F.foe.hp, power: __bw.F.queryPower, grade: __bw.F.res.grade }; }, before));
   }
   expect(damage[0].dealt).toBeGreaterThan(0); expect(damage[0].power).toBe(1);
-  // Twelve integer-rounded swings allow at most one point per swing of rounding difference.
-  expect(Math.abs(damage[1].dealt - damage[0].dealt * damage[1].power)).toBeLessThanOrEqual(12);
+  // Two integer-rounded swings allow at most one point per swing of rounding difference.
+  expect(Math.abs(damage[1].dealt - damage[0].dealt * damage[1].power)).toBeLessThanOrEqual(2);
   expect(damage[1].dealt).toBeLessThan(damage[0].dealt);
   expect(damage[2]).toEqual({ dealt: 0, power: 0, grade: 'wrong' });
   await expect(f.locator('.query-feedback')).toContainText('No useful effect');

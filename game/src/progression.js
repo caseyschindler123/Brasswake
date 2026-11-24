@@ -2,8 +2,8 @@
 const Progression = (() => {
   const CAP = 700, STAT_CAP = 225, STAT_MIN = 10, STAT_MAX = 100;
   const skills = [
-    ['swords', 'Swordsmanship', 'Heavy hits. Four swings a round.'], ['fencing', 'Fencing', 'Lighter hits. Five swings a round.'],
-    ['archery', 'Archery', 'A free opening round.'], ['magery', 'Magery', 'Cast attack, healing and protective spells.'],
+    ['swords', 'Swordsmanship', 'Heavy hits. Two swings an exchange.'], ['fencing', 'Fencing', 'Lighter hits. Three swings an exchange.'],
+    ['archery', 'Archery', 'A safer ranged opening exchange.'], ['magery', 'Magery', 'Cast attack, healing and protective spells.'],
     ['stealing', 'Stealing', 'Inspect a target and lift a purse or selected prize.'], ['hiding', 'Hiding', 'Become concealed before an approach.'],
     ['smith', 'Blacksmithing', 'Make equipment at the workbench.'], ['alchemy', 'Alchemy', 'Make draughts and Hint Keys.'],
     ['carpentry', 'Carpentry', 'Craft household storage, beds and shelves.'], ['healing', 'Healing', 'Bind wounds during and after combat.'],
@@ -24,6 +24,7 @@ const Progression = (() => {
   const skillCap = (s,id) => [105,110,115,120].includes(s.pcap?.[id]) ? s.pcap[id] : 100;
   const target = (s,id,stat=false) => finite((stat ? s.attrTargets : s.skillTargets)?.[id], stat ? STAT_MAX : skillCap(s,id));
   function normalize(s) {
+    s.bandages = s.bandages == null ? 4 : Math.max(0,Math.min(999,Math.floor(Number(s.bandages)||0)));
     s.sk = s.sk && typeof s.sk === 'object' ? s.sk : {};
     s.pcap = Object.fromEntries(ids.filter(id => [105,110,115,120].includes(s.pcap?.[id])).map(id => [id,s.pcap[id]]));
     s.sk = Object.fromEntries(ids.filter(id => finite(s.sk[id]) > 0).map(id => [id,value(Math.max(0, Math.min(units(skillCap(s,id)),units(s.sk[id]))))]));
@@ -88,7 +89,7 @@ const Progression = (() => {
     for(let k=0;k<Math.min(5,Math.max(1,Math.floor(n)||1))&&v<45;k++) {const add=Math.min(45,Math.floor(v)+1)-v;if(points+add>room+.00001)break;cost+=Math.round(10+1.5*Math.floor(v));points+=add;v+=add;}
     return {cost,to:value(units(v)),add:value(units(points))};
   }
-  const physicalFactor = (s,stance='strike') => .9+s.attr.str*.002+(s.sk.tactics||0)*.002+(s.sk.anatomy||0)*.0008+(stance==='cleave'?(s.sk.tactics||0)*.001:0);
+  const physicalFactor = (s,stance='strike') => .9+s.attr.str*.002+(s.sk.tactics||0)*.002+(s.sk.anatomy||0)*.0008;
   const spellFactor = s => .9+s.attr.int*.0015+(s.sk.eval||0)*.0025;
   const resistFactor = s => 1-Math.min(.35,(s.sk.resisting||0)*.0025);
   const parryChance = s => Math.min(.35,(s.sk.parrying||0)*.0025)*( .6+Math.min(100,s.attr.dex)*.004);

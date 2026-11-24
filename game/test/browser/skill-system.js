@@ -76,7 +76,7 @@ async function submit(f, surface, { sql, roll = 0, next = 'fchoose' } = {}) {
   await f.locator('#sql').fill(sql);
   await withRoll(f, roll, async () => {
     await f.locator('#kb [data-fn=run]').click();
-    if (surface === 'F') await expect(action(f, next)).toBeVisible();
+    if (surface === 'F') await expect(typeof next === 'string' ? action(f, next) : next).toBeVisible();
     else if (surface === 'FI') await expect(action(f, 'fiagain')).toBeVisible();
     else await expect(f.locator('#enc .q-foot [data-a=qleave]')).toBeVisible();
   });
@@ -194,34 +194,62 @@ test('skill system · a warrior bandages and spends stamina on a damaging maneuv
     const s = __bw.S;
     s.pages = { a1: 1 };
     s.sk = { swords: 32, tactics: 34, anatomy: 25, healing: 35, parrying: 40 };
-    s.attr = { str: 60, dex: 60, int: 25 }; s.hp = 28; s.stamina = 40;
+    s.attr = { str: 60, dex: 60, int: 25 }; s.hp = 28; s.stamina = 40; s.mana = 5; s.bandages = 2;
+    for (const e of Scene.ents()) {
+      if (e.kind === 'mon' && e.r === 1 && e.inst.tpl[0] === 'b' && !e.inst.elite && !e.inst.lair) {
+        e.testBandageFight = true;
+        e.agg = false;
+      }
+    }
     const sword = __bw.makeItem('common', 1, 'weapon', 'swords');
     const shield = __bw.makeItem('common', 1, 'shield');
     s.inv.push(sword, shield); s.eq = { weapon: sword.id, shield: shield.id };
   });
-  await standBy(f, 'mon');
+  await standBy(f, 'mon', { testBandageFight: true });
   await expect(f.locator('#fight')).toBeVisible();
-  // Give this foe room to survive the demonstrated full attack sequence.
+  // This fixture isolates action costs across several exchanges.
   await f.evaluate(() => { __bw.F.foe.hp = __bw.F.foe.max = 1200; });
-  await action(f, 'futility', '[data-id=bandage]').click();
+  const bandage = action(f, 'futility', '[data-id=bandage]');
+  await expect(bandage).toHaveText('Bandage ×2');
+  await bandage.click();
   await expect(f.locator('#fight .f-head b').first()).toHaveText('Bandage');
   await expect(f.locator('#f-odds')).toHaveText('Query quality · 1 response round');
   await expect(action(f,'fhint')).toHaveText('Hint · reduced power');
-  await screenshot(page,info,'bandage-prompt');
   await coach(f);
+  await screenshot(page,info,'bandage-prompt');
   await submit(f, 'F', { roll: .99 });
   await expect(f.locator('#f-after')).toContainText('Bandaged');
   expect(await f.evaluate(() => __bw.S.hp)).toBeGreaterThan(28);
   expect(await f.evaluate(() => __bw.S.sk.healing)).toBeGreaterThan(35);
+  const bandaged = await f.evaluate(() => ({
+    hp: __bw.S.hp, healing: __bw.S.sk.healing, mana: __bw.S.mana, stamina: __bw.S.stamina, bandages: __bw.S.bandages,
+  }));
+  expect(bandaged).toMatchObject({ mana: 5, stamina: 40, bandages: 1 });
   await action(f, 'fchoose').click();
-  const stamina = await f.evaluate(() => __bw.S.stamina);
-  await action(f, 'fstance', '[data-id=cleave]').click();
-  await action(f, 'fpage', '[data-id=a1]').click();
+  await expect(bandage).toHaveText('Bandage ×1');
+  await bandage.click();
+  await coach(f);
+  await submit(f, 'F', { sql: wrongSQL, roll: .99 });
+  await expect(f.locator('#f-after')).toContainText('The query gives no useful result.');
+  expect(await f.evaluate(() => ({
+    hp: __bw.S.hp, healing: __bw.S.sk.healing, mana: __bw.S.mana, stamina: __bw.S.stamina, bandages: __bw.S.bandages,
+  }))).toEqual({ ...bandaged, bandages: 0 });
+  await action(f, 'fchoose').click();
+  await expect(bandage).toBeDisabled();
+
+  await expect(action(f, 'fstance')).toHaveCount(0);
+  const cleave = action(f, 'fmaneuver', '[data-id=a1][data-stance=cleave]');
+  await expect(cleave).toHaveText('Cleave · 8 stamina');
+  await cleave.click();
+  await expect(f.locator('#kb [data-fn=run]')).toHaveText('Cleave');
   await coach(f);
   await submit(f, 'F', { roll: .02 });
   const result = await f.evaluate(() => ({ stamina: __bw.S.stamina, foe: __bw.F.foe.hp, tactics: __bw.S.sk.tactics }));
-  expect(result.stamina).toBe(stamina - 4);
+  expect(result.stamina).toBe(bandaged.stamina - 8 + 4);
   expect(result.foe).toBeLessThan(1200);
+  const strikes = (await f.locator('#e-sw .hit').allTextContents()).filter(text => /^\d+$/.test(text)).map(Number);
+  expect(strikes).toHaveLength(2);
+  expect(1200 - result.foe).toBe(strikes.reduce((total, strike) => total + strike, 0));
   expect(result.tactics).toBeGreaterThan(34);
   await expect(f.locator('#e-sw')).toContainText('blocked');
   expect(await f.evaluate(()=>__bw.S.sk.parrying)).toBeGreaterThan(40);
@@ -265,31 +293,35 @@ test('skill system · craft and install furniture, then spend a prepared scroll 
   await action(f, 'futility', '[data-id=recover]').click();
   await coach(f);
   await submit(f, 'F', { roll: .99 });
-  await expect(f.locator('#f-after')).toContainText('mana and stamina');
   const recovered = await f.evaluate(() => ({ mana: __bw.S.mana, stamina: __bw.S.stamina, meditation: __bw.S.sk.meditation }));
-  expect(recovered.mana).toBeGreaterThan(5);
-  expect(recovered.stamina).toBeGreaterThan(5);
+  expect(recovered.mana).toBe(2 + Math.round(8 + recovered.meditation * .2 + 80 * .08));
+  expect(recovered.stamina).toBe(5 + 12);
+  await expect(f.locator('#f-after')).toContainText(`Recovered ${recovered.mana - 2} mana and 12 stamina.`);
   expect(recovered.meditation).toBeGreaterThan(35);
   expect(await f.evaluate(()=>__bw.S.sk.resisting)).toBeGreaterThan(30);
   await action(f, 'fchoose').click();
   await action(f, 'fscroll').click();
-  await expect(action(f, 'fscroll')).toHaveText('Scroll selected');
+  await expect(action(f, 'fscroll')).toHaveAttribute('aria-pressed', 'true');
   await action(f, 'futility', '[data-id=ward]').click();
   await expect(f.locator('#fight .f-head b').first()).toHaveText('Ward');
   await expect(f.locator('#f-odds')).toHaveText('Query quality · 1 response round');
-  await screenshot(page,info,'ward-prompt');
   await coach(f);
+  await screenshot(page,info,'ward-prompt');
   await submit(f, 'F', { roll: .99 });
   await expect(f.locator('#f-after')).toContainText('Ward reduces');
-  expect(await f.evaluate(() => [__bw.S.prepared, __bw.S.mana])).toEqual([0, recovered.mana + 2]);
+  expect(await f.evaluate(() => ({
+    prepared: __bw.S.prepared, mana: __bw.S.mana, stamina: __bw.S.stamina, remaining: __bw.F.defense.left,
+  }))).toEqual({ prepared: 0, mana: recovered.mana, stamina: recovered.stamina, remaining: 1 });
   await screenshot(page, info, 'prepared-ward');
   await action(f, 'fchoose').click();
   await expect(action(f, 'fscroll')).toHaveCount(0);
+  await expect(action(f, 'fmaneuver', '[data-id=s1]')).toHaveCount(0);
   await action(f, 'fpage', '[data-id=s1]').click();
   await coach(f);
   await submit(f, 'F', { roll: .02 });
-  const cast = await f.evaluate(() => ({ mana: __bw.S.mana, foe: __bw.F.foe.hp, eval: __bw.S.sk.eval }));
-  expect(cast.mana).toBe(recovered.mana - 1);
+  const cast = await f.evaluate(() => ({ mana: __bw.S.mana, foe: __bw.F.foe.hp, eval: __bw.S.sk.eval, ward: __bw.F.defense }));
+  expect(cast.mana).toBe(recovered.mana - 5 + 2);
+  expect(cast.ward).toBe(null);
   expect(cast.foe).toBeLessThan(1200);
   expect(cast.eval).toBeGreaterThan(30);
   expect(errors).toEqual([]);
@@ -487,9 +519,14 @@ for(const prize of [false,true]) {
     expect(await theftPayout(f)).toEqual(lifted);
 
     if(!prize) {
-      await action(f,'fpage','[data-id=a1]').click();
-      await coach(f);
-      await submit(f,'F',{next:'floot'});
+      const loot = action(f, 'floot'), next = action(f, 'fchoose');
+      for (let turns = 0; turns < 6 && !await loot.isVisible(); turns++) {
+        await action(f, 'fpage', '[data-id=a1]').click();
+        await coach(f);
+        await submit(f, 'F', { next: loot.or(next) });
+        if (await next.isVisible()) await next.click();
+      }
+      await expect(loot).toBeVisible();
       const corpse=await f.evaluate(()=>{
         const target=window.__theftTarget;
         return {dead:target.dead,gold:target.loot.gold,mats:target.loot.mats[1],sigils:target.loot.sigils,items:target.loot.items.length};
@@ -505,9 +542,18 @@ for(const prize of [false,true]) {
 
       // Advance only the scheduled respawn timer and let the actual world spawn the replacement.
       await f.evaluate(()=>{
-        const map=Scene.debug().map, terr=window.__theftTarget.terr;
-        window.__beforeRespawn=new Set(map.ents);
-        map.respawn.find(entry=>entry.terr===terr).t=0;
+        const { map } = Scene.debug(), terr = window.__theftTarget.terr;
+        const [townX, townY] = Scene.towns()[1], minimum = (terr.rad || 7) * Math.SQRT2 + 5;
+        const tiles = Array.from({ length: 21 * 21 }, (_, i) => [townX + i % 21 - 10, townY + Math.floor(i / 21) - 10]);
+        const safe = tiles.find(([x, y]) => {
+          const i = y * map.w + x;
+          return Geography.inTown(x, y) && Math.hypot(x - terr.x, y - terr.y) >= minimum &&
+            !map.solid[i] && !map.occ.has(i) && map.t[i] !== 4;
+        });
+        if (!safe) throw Error('No clear town tile beyond the respawn radius');
+        Scene.hop(...safe);
+        window.__beforeRespawn = new Set(map.ents);
+        map.respawn.find(entry => entry.terr === terr).t = 0;
       });
       await f.waitForFunction(()=>Scene.ents().some(e=>e.kind==='mon'&&e.terr===window.__theftTarget.terr&&!window.__beforeRespawn.has(e)));
       await f.evaluate(()=>{
@@ -540,9 +586,9 @@ test('skill system · a failed ordinary theft starts pursuit after closing the r
   await action(f,'fdone').click();
   expect(await f.evaluate(()=>window.__theftTarget.chase)).toBeGreaterThan(0);
   await expect(f.locator('#fight')).toBeVisible();
-  const caught=await f.evaluate(()=>({pursuer:__bw.F.ent===window.__theftTarget,hp:__bw.S.hp}));
-  expect(caught.pursuer).toBe(true);
-  expect(caught.hp).toBeLessThan(hp);
+  const caught=await f.evaluate(()=>({pursuer:__bw.F.ent===window.__theftTarget,hp:__bw.S.hp,engaged:__bw.F.engaged}));
+  expect(caught).toEqual({ pursuer: true, hp, engaged: true });
+  await expect(action(f, 'flee')).toHaveText('Flee');
   expect(errors).toEqual([]);
 });
 

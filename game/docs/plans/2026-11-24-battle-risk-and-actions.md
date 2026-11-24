@@ -1,0 +1,52 @@
+# Battle risk, actions and pursuit
+
+Status: implementation authorized, not released. Classification: complex; combat resolution, resources, AI, pursuit and player controls change together.
+
+## Coordination
+
+Casey authorized autonomous implementation, iteration and deployment after the audit. The separate Various changes task owns the shared main checkout, world/save migration, movement/appearance, environments and the single combined publication. This task owns branch `codex/battle-risk-and-actions` in `C:/Users/caseys/.codex/worktrees/battle-risk-and-actions/Brasswake`, based on `49388e4`. It will deliver a reviewable commit for integration, preserve the other task's changes, and verify the final combined deployment. Dedicated main browser port: 8817; isolated worker/final boundary snapshots use 8799/8823. Initial 8797/8798 listeners were left untouched. Never independently push main while the integrator owns publication.
+
+## Acceptance and intended rules
+
+- Death penalties remain unchanged. Increase credible danger through actual enemy responses, resource decisions and persistent engagement; SQL thinking time, tables, hints and comparisons remain paused.
+- One query resolves one exchange. Sword/Archery/Magery make two swings and Fencing three; Backstab retains its two special thrusts and preparation requirements. Ordinary foe health scales by 1.6 over the existing role/elite templates; Examiner health remains unchanged. Balance targets are a few useful choices against matched dangerous foes, safe weak prey, meaningful cumulative wounds, and recoverable but consequential mistakes.
+- Pure shared battle rules own weapons, maneuver effects, health, enemy accuracy and deterministic announced intents. Role cycles give armored foes bracing, casters volleys/draining spells, brutes telegraphed heavy blows, and Examiners guarded/heavy phases. Difficulty, query-quality grading, equipment, support skills, rare pages and rewards remain meaningful.
+- Each attack page is a direct action. The old duplicate Strike stance button is removed. Explicit maneuver controls open their selected attack query directly and show effects/costs, reject insufficient stamina before commitment, and are not misleadingly offered for spells. Guard, Ward and Study have observable tactical benefits. Health/resources and the next enemy intent remain readable through choice, query and result states, including low-health cues and accessible labels.
+- Bandages are finite supplies, with an explicit starting allowance and local supply purchase. A correct Bandage uses one bandage, costs an enemy response, and cannot refill other resources for free. A draught uses one supply and one enemy response; food is out-of-combat recovery. Remove automatic post-victory bandaging; the earned Second Wind gift remains an explicit limited recovery source. Recovery/magic must preserve bounded mana/stamina and no free training.
+- Hostile surface creatures exist from the First Circle, while animals/towns/Examiners retain appropriate safe or deliberate interactions. Danger is signaled before contact and respects sight, concealment, tutorial protection and safe towns. Dungeon hostile roles can engage. Enemy activity pauses during SQL/UI reasoning.
+- Voluntary neutral inspection can back away. Being ambushed, committing an action or resuming pursuit marks the same live entity engaged. Flee allows a response and starts actual pursuit; initial Back away and immediate re-entry cannot erase engagement. No redundant unavoidable flat escape/contact damage. Wounds, phases, hide/Backstab ownership, guardian leashes and defeat/reward integrity remain intact. Pursuit and NPC collision preserve the integrator's fractional movement footprint reservations.
+- Examiner/elite no-hint declarations agree with available controls. Existing comparisons/partial credit/free syntax correction retain their protections. Dojo/rival contests keep their intentional separate rules.
+
+## Milestones
+
+- [x] Read relevant instructions, audit released source, inspect phone/desktop play and establish existing risk/escape defects.
+- [x] Coordinate ownership, independent worktree and one combined publisher.
+- [x] Add pure rules and meaningful deterministic regression/balance checks.
+- [x] Implement short exchanges, role intent, finite healing and tactical actions.
+- [x] Implement clear combat controls, persistent health/intent and constrained hints.
+- [x] Implement hostility, persistent disengagement/pursuit and safe pause/collision behavior.
+- [x] Update affected browser/campaign fixtures and add danger/escape/resource/UI regressions.
+- [x] Review actual 390x720 Chromium/WebKit and 1280x800 desktop screenshots.
+- [x] Reconcile master docs and dated decisions; review scoped diff and focused verification.
+- [ ] Complete the integrator-owned combined `npm run verify` gate before publication.
+- [x] Commit intended files and send commit, tests and limitations to the single integrator.
+- [ ] Verify combined exact-commit CI, publication identity/HTML hash and live player flow; record release closure.
+
+## Verification
+
+Use pure rule tests for hit/damage bounds, weapon/role intent cycles, nonzero starting maneuvers and health/resources. Exercise runtime transactions for correct/partial/wrong answers, supply consumption, meaningful Guard/Ward/Study, low-resource rejection, death, hints, busy action ownership, reward integrity and pause. Browser cases must reproduce initial ambush withdrawal and caught/reopened withdrawal before requiring persistent chase and real escape; retain hidden rear approach, wounded phases, guardian return and character replacement checks. Run representative ordinary, elite, caster/brute/armored and Examiner battles across starting paths, plus mixed answers and repeated encounters with finite supplies. Use existing campaigns where useful without presenting compressed automation as a human learner study.
+
+Run focused checks while iterating. By explicit coordination, the single integrator runs `cd game; npm run verify` once on the combined candidate before publication, preserving its world/save changes. This task delivers focused rule/transaction/balance/browser evidence and a reviewable commit instead of duplicating the unchanged global gate. Screenshots and logs are supplementary; this tracked plan and release history preserve final evidence. Physical iPhone and human long-session balance evidence are unavailable. No paid image generation or art/settings change is planned. Task-specific AI billing is unavailable; costs will reflect actual agent/tool/CI activity.
+
+## Candidate evidence (publication pending)
+
+- Pure/system regression command passed 34 tests (BattleRules, progression, Backstab and dungeon adapter). Engine/content `node test/test.js` passed ALL GOOD. Initial outdated progression/stance and automatic-bandage assertions were updated to the explicit new behavior, with replacement rule/transaction assertions; query-power rounding tolerance tightened from twelve swings to two.
+- Phone diagnostic: 14/17 passed before correcting one stale supply-fixture render and two real prompt-layout failures. The prompt inherited a 160px vertical flex basis; compact explicit header layout and a bounded question/comparison scroller preserve the keyboard. Both focused free-fix/layout cases then passed without loosening assertions. Council’s real city-ring pursuit exception passed its original admission regression.
+- Existing isolated skill/Backstab snapshot: 22/23 passed including focused reruns after fixture repairs (reported exact numeric recovery text; moved outside the existing protected respawn radius before advancing its timer). Its sole remaining Council safety failure passed against the corrected current source. The original gates, owner/phase/wounds/reward/leash checks remain.
+- Independent review found and corrected non-fight engagement/action switching, uncast rare-spell protection, first-hit Siphon drain, offscreen pursuit expiry/last-visible tracking and no-hint tip leakage. Four added boundary regressions passed phone Chromium. Late recovery gates also prevent paused pursuit from refilling health through walking, food, draughts or recovery/rest menus.
+- Two compressed earned-progression campaigns, seed1729, twelve ordinary encounters per Circle and every seventh offensive query wrong: Warrior383 queries and Mage621 queries, each104 kills/8 marks, zero falls, no warnings/errors. Warrior used25 combat draughts,7 bandages,15 Guards and62 paid rests; Mage used32 draughts,49 Wards,45 combat recoveries,14 healing spells and74 paid rests. These demonstrate prepared completion, not low risk without supplies. Travel/typing/presentation were shortened; normal stats, prices, loot and gains were retained. Saves/import/reload checks passed. Full logs and earned saves are supplementary under ignored work/path-audit/battle-risk-mixed.
+- Final three-profile risk/layout and boundary regressions, actual screenshot review, final combined gate/CI and deployment evidence remain to be completed below. One bounded delegated worker implemented pure rules and adapted/reviewed regression coverage; its task-specific AI dollar billing is unavailable. No paid-tool or image-generation usage.
+
+- Stable focused risk/layout matrix passed all33 cases (eleven each on phone Chromium/WebKit at390x720 and desktop Chromium at1280x800). Opened phone/WebKit/desktop action controls and free-fix/intent/death captures; health/resources and action footer remain readable, with bounded question/results scrolling for long content. This is browser emulation, not a real iPhone test. Final boundary/tactical matrix status follows before commit.
+
+- Final focused boundary matrix passed18/18 (tightened query-power damage plus five recovery/theft/rare-page/Siphon/offscreen cases across all three profiles). Separate novice Feint and actual Study-damage cases passed6/6 across all three. Source syntax and scoped `git diff --check` passed. Combined global verification/CI/deployment remain the integrator’s pending release gate.

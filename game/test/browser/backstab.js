@@ -34,11 +34,11 @@ async function dismiss(frame) {
   if (await coach.isVisible()) await coach.click();
 }
 
-async function fixture(page, { kind = 'mon', region = 1 } = {}) {
+async function fixture(page, { kind = 'mon', region = 1, elite = true } = {}) {
   await page.goto('/__visual?scene=tallyport');
   await expect(page.locator('body')).toHaveAttribute('data-ready', 'tallyport', { timeout: 45000 });
   const frame = page.frames().find(f => f.url().includes('visual_test=1'));
-  const lane = await frame.evaluate(({ kind, region }) => {
+  const lane = await frame.evaluate(({ kind, region, elite }) => {
     Sound.setMu(false);
     window.__bwFast = true;
     const s = __bw.S, blade = __bw.makeItem('common', 1, 'weapon', 'fencing');
@@ -66,7 +66,7 @@ async function fixture(page, { kind = 'mon', region = 1 } = {}) {
     const target = Scene.find(e => e.kind === kind && e.r === region &&
       (kind !== 'mon' || e.inst.tpl[0] === 'b' && !e.inst.lair));
     if (!target) throw Error('Missing ' + kind);
-    if (kind === 'mon') target.inst.elite = true;
+    if (kind === 'mon') target.inst.elite = elite;
     const bounds = kind === 'keeper' ? map.layout.rooms.find(r => r.id === target.room) : null;
     const town = Scene.towns()[region];
     const [x0, x1, y0, y1] = bounds
@@ -92,7 +92,7 @@ async function fixture(page, { kind = 'mon', region = 1 } = {}) {
       return { x, y, length };
     }
     throw Error('No open pursuit lane for ' + kind);
-  }, { kind, region });
+  }, { kind, region, elite });
   await dismiss(frame);
   return { frame, lane };
 }
@@ -158,7 +158,7 @@ async function engage(frame, examiner = false) {
 
 const combatState = frame => frame.evaluate(() => ({
   foe: __bw.F.foe.hp, max: __bw.F.foe.max, round: __bw.F.round, hp: __bw.S.hp,
-  hidden: __bw.CONCEAL.hidden, stamina: __bw.S.stamina, q: __bw.S.stats.q,
+  hidden: __bw.CONCEAL.hidden, stamina: __bw.S.stamina, bandages: __bw.S.bandages, q: __bw.S.stats.q,
   sk: { ...__bw.S.sk }, attr: { ...__bw.S.attr }, sql: structuredClone(__bw.S.skills),
   gold: __bw.S.gold, kills: __bw.S.stats.kills,
   marks: Object.keys(__bw.S.boss).length,
@@ -203,7 +203,7 @@ test('Backstab · real concealed rear walk at Stealth 10 unlocks two Fencing thr
   expect(hits).toHaveLength(2);
   expect(hits.every(hit => hit >= 25)).toBe(true);
   expect(initial.foe - result.foe).toBe(hits[0] + hits[1]);
-  await expect(frame.locator('#e-sw .rd')).toHaveCount(1);
+  await expect(frame.locator('#fight .f-head small')).toContainText('1 exchange');
   await expect(frame.locator('#e-sw .ouch')).toHaveCount(2);
   await screenshot(page, info, 'backstab-thrusts');
   await action(frame, 'fchoose').click();
@@ -214,12 +214,16 @@ test('Backstab · real concealed rear walk at Stealth 10 unlocks two Fencing thr
 
 for (const method of ['wrong', 'shown', 'low stamina']) {
   test(`Backstab · ${method} cannot award a bonus thrust or RPG gain`, async ({ page }) => {
-    const errors = observeErrors(page), { frame, lane } = await fixture(page);
+    const errors = observeErrors(page), { frame, lane } = await fixture(page, { elite: method !== 'shown' });
     await hideAndApproach(frame, lane);
     await engage(frame);
     await action(frame, 'fbackstab').click();
     await dismiss(frame);
     if (method === 'shown') await action(frame, 'fshow').click();
+    else {
+      await expect(action(frame, 'fshow')).toHaveCount(0);
+      await expect(action(frame, 'fhint')).toHaveCount(0);
+    }
     if (method === 'low stamina') await frame.evaluate(() => { __bw.S.stamina = 7; });
     const before = await combatState(frame);
     if (method === 'low stamina') {
@@ -246,7 +250,9 @@ for (const method of ['wrong', 'shown', 'low stamina']) {
         expect(damage).toBeGreaterThan(0);
         expect(damage).toBeLessThan(32);
       }
-      await expect(frame.locator('#e-sw .rd')).toHaveCount(1);
+      expect(after.round).toBe(before.round + 1);
+      expect(after.hp).toBeLessThan(before.hp);
+      await expect(frame.locator('#fight .f-head small')).toContainText('1 exchange');
     }
     expect(errors).toEqual([]);
   });
@@ -254,13 +260,12 @@ for (const method of ['wrong', 'shown', 'low stamina']) {
 
 for (const method of ['wrong', 'shown']) {
   test(`Backstab · ${method} answer preserves damage and training protections`, async ({ page }) => {
-    const errors = observeErrors(page), { frame, lane } = await fixture(page);
+    const errors = observeErrors(page), { frame, lane } = await fixture(page, { elite: method !== 'shown' });
     await hideAndApproach(frame, lane);
     await engage(frame);
-    const bandage = await frame.evaluate(() => {
+    await frame.evaluate(() => {
       __bw.F.foe.hp = 1;
       __bw.S.hp = __bw.maxHp() - 20;
-      return Progression.bandage(__bw.S);
     });
     await action(frame, 'fbackstab').click();
     await dismiss(frame);
@@ -278,8 +283,9 @@ for (const method of ['wrong', 'shown']) {
     } else {
       expect(result.foe).toBeLessThanOrEqual(0);
       expect(result.kills).toBe(before.kills + 1);
-      expect(result.hp).toBe(before.hp + bandage);
+      expect(result.hp).toBe(before.hp);
     }
+    expect(result.bandages).toBe(before.bandages);
     expect(result.sk).toEqual(before.sk);
     expect(result.attr).toEqual(before.attr);
     expect(result.sql).toEqual(before.sql);
@@ -292,6 +298,7 @@ async function disengage(frame) {
     await action(frame, 'flee').click();
     await expect(frame.locator('#fight')).toBeHidden();
   });
+  return frame.evaluate(() => ({ hp: __bw.S.hp, chase: window.backstabFixtureTarget.chase }));
 }
 
 test('Backstab · Examiner pursuit, escape and re-entry keep wounds and the next SQL phase', async ({ page }, info) => {
@@ -303,6 +310,8 @@ test('Backstab · Examiner pursuit, escape and re-entry keep wounds and the next
   const full = await combatState(frame);
   await action(frame, 'fbackstab').click();
   await expect(frame.locator('#fight .ask')).toContainText('lead_time_days');
+  await expect(action(frame, 'fshow')).toHaveCount(0);
+  await expect(action(frame, 'fhint')).toHaveCount(0);
   await submit(frame, 'F', action(frame, 'fchoose'));
   const wounded = await combatState(frame);
   expect(wounded.foe).toBeLessThan(full.foe);
@@ -350,9 +359,10 @@ test('Backstab · Examiner pursuit, escape and re-entry keep wounds and the next
     await dismiss(frame);
     resumed = await combatState(frame);
     expect(resumed.foe).toBe(wounded.foe);
-    expect(resumed.round).toBe(wounded.round);
+    expect(resumed.round).toBe(wounded.round + 1);
+    await expect(frame.locator('#fight .battle-intent')).toContainText('Guarded strike');
     await action(frame, 'fbackstab').click();
-    await expect(frame.locator('#fight .ask')).toContainText('unit_price');
+    await expect(frame.locator('#fight .ask')).toContainText('yearly');
   } finally {
     await frame.evaluate(() => {
       window.restoreBackstabWallClock();
@@ -366,15 +376,18 @@ test('Backstab · Examiner pursuit, escape and re-entry keep wounds and the next
   expect(second.foe).toBeGreaterThan(0);
   expect(second.gold).toBe(full.gold);
   expect(second.kills).toBe(full.kills);
-  await disengage(frame);
+  const escaped = await disengage(frame);
+  expect(escaped.chase).toBeGreaterThan(0);
   await action(frame, 'conceal').click();
   await expect(frame.locator('#toast')).toContainText('Break their line of sight or get farther away');
   expect(await frame.evaluate(() => __bw.Q)).toBe(null);
   await expect(frame.locator('#fight')).toBeVisible();
   const caught = await combatState(frame);
   expect(caught.foe).toBe(second.foe);
-  expect(caught.round).toBe(second.round);
-  expect(caught.hp).toBeLessThan(second.hp);
+  expect(caught.round).toBe(second.round + 1);
+  expect(caught.hp).toBe(escaped.hp);
+  expect(await frame.evaluate(() => __bw.F.ent === window.backstabFixtureTarget && __bw.F.engaged)).toBe(true);
+  await expect(action(frame, 'flee')).toHaveText('Flee');
   await action(frame, 'fpage', '[data-id=a1]').click();
   await submit(frame, 'F', action(frame, 'fdone'));
   const won = await combatState(frame);
@@ -407,7 +420,9 @@ test('Backstab · keeper pursuit stays in the dungeon and returns to its anchor'
   await engage(frame);
   expect(await frame.evaluate(() => ({ kind: __bw.F.kind, keeper: __bw.F.keeper, claimed: __bw.DP.current().keeper })))
     .toEqual({ kind: 'dungeon', keeper: 1, claimed: false });
-  expect((await combatState(frame)).foe).toBe(wounded.foe);
+  const returned = await combatState(frame);
+  expect(returned.foe).toBe(wounded.foe);
+  expect(returned.round).toBe(wounded.round + 1);
   expect(errors).toEqual([]);
 });
 
