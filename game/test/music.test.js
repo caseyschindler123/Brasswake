@@ -6,7 +6,7 @@ const { createHash } = require('node:crypto');
 const source = fs.readFileSync(path.join(__dirname, '../src/audio.js'), 'utf8');
 
 function fixture() {
-  const listeners = {}, calls = [], sources = [], effectNodes = [], store = {}, timers = new Map();
+  const listeners = {}, windowListeners = {}, calls = [], sources = [], effectNodes = [], store = {}, timers = new Map();
   let interval, context = { region: 1 }, timerId = 0;
   const param = () => ({ value: 1, setValueAtTime(v) { this.value = v; }, linearRampToValueAtTime(v) { this.value = v; },
     exponentialRampToValueAtTime(v) { this.value = v; }, setTargetAtTime(v) { this.value = v; }, cancelScheduledValues() {} });
@@ -14,13 +14,14 @@ function fixture() {
   const ctx = { currentTime: 0, sampleRate: 100, state: 'running', destination: {},
     createGain: node, createBuffer: () => ({ getChannelData: () => new Float32Array(100) }),
     createDynamicsCompressor: () => ({ ...node(), threshold: param(), knee: param(), ratio: param(), attack: param(), release: param() }),
+    createBiquadFilter: node,
     createOscillator() { const n = { ...node(), start() {}, stop() {} }; effectNodes.push(n); return n; },
     createBufferSource() { const n = { ...node(), start(t, off) { n.offset = off; n.started = true; }, stop() { n.stopped = true; } }; sources.push(n); return n; },
     decodeAudioData(ab, done) { done({ duration: ab.duration || 240 }); },
     suspend() { ctx.state = 'suspended'; return Promise.resolve(); }, resume() { ctx.state = 'running'; return Promise.resolve(); } };
   const document = { hidden: false, addEventListener(k, fn) { listeners[k] = fn; } };
   const Sound = new Function('window', 'navigator', 'document', 'localStorage', 'setInterval', 'setTimeout', 'clearTimeout', 'fetch', 'AbortController', source + '; return Sound;')(
-    { AudioContext: function () { return ctx; } }, {}, document,
+    { AudioContext: function () { return ctx; }, addEventListener(k, fn) { windowListeners[k] = fn; } }, {}, document,
     { getItem: () => null, setItem(k, v) { store[k] = v; } }, fn => { interval = fn; return 1; },
     fn => { timers.set(++timerId, fn); return timerId; }, id => timers.delete(id),
     (url, options) => new Promise((resolve, reject) => {
@@ -30,7 +31,7 @@ function fixture() {
   Sound.init(() => context); listeners.pointerdown();
   const settle = async () => { for (let i = 0; i < 12; i++) await Promise.resolve(); };
   const complete = async (duration) => { calls.at(-1).resolve(duration); await settle(); };
-  return { Sound, ctx, calls, sources, effectNodes, store, document, listeners, timers, settle, complete,
+  return { Sound, ctx, calls, sources, effectNodes, store, document, listeners, windowListeners, timers, settle, complete,
     tick: () => interval(), set: s => { context = s; interval(); } };
 }
 
@@ -41,14 +42,106 @@ test('all regions and contextual priorities select a distinct playable soundtrac
       const id = Sound.trackFor(c); assert.ok(Sound.MUSIC[id], JSON.stringify(c)); selected.add(id);
     }
   }
-  for (const venue of ['tavern', 'dojo', 'cards']) selected.add(Sound.trackFor({ region: 2, venue }));
+  for (const venue of ['tavern', 'dojo', 'cards']) assert.equal(Sound.trackFor({ region: 2, venue }), 'm_brackwater');
   for (const c of [{ title: true }, { fight: true }, { fight: true, boss: true }]) selected.add(Sound.trackFor(c));
-  assert.equal(selected.size, 26);
+  assert.equal(selected.size, 23);
   assert.equal(Sound.trackFor({ title: true, fight: true, dun: 4 }), 'm_title');
   assert.equal(Sound.trackFor({ fight: true, boss: true, dun: 4, venue: 'dojo' }), 'm_examiner');
   assert.equal(Sound.trackFor({ dun: 4, venue: 'tavern' }), 'm_tanglewarren');
   assert.equal(Sound.trackFor(null), null); assert.equal(Sound.trackFor({ region: 9 }), null);
   assert.equal(Object.keys(Sound.MUSIC).length, 28);
+});
+
+test('indoor activities retain the town track and its playback position', async () => {
+  const f = fixture(); await f.complete();
+  for (const venue of ['tavern', 'dojo', 'cards']) {
+    f.ctx.currentTime += 6; f.set({ region: 1, town: true, venue });
+    assert.equal(f.Sound.playing(), 'm_tallyport');
+  }
+  assert.equal(f.calls.length, 1);
+  assert.equal(f.sources.length, 1);
+  assert.equal(f.sources[0].stopped, undefined);
+});
+
+test('crossing and recrossing town and wilderness boundaries requires five continuous seconds', async () => {
+  const f = fixture(); await f.complete();
+  const town = { region: 1, town: true }, coast = { region: 2, town: false }, fields = { region: 3, town: false };
+  f.set(coast);
+  f.ctx.currentTime = 4; f.set(town);
+  f.ctx.currentTime = 5; f.set(coast);
+  f.ctx.currentTime = 9.9; f.tick();
+  assert.equal(f.calls.length, 1);
+  f.ctx.currentTime = 10; f.tick();
+  assert.match(f.calls.at(-1).url, /m_wild_coast.mp3$/);
+  assert.equal(f.Sound.playing(), 'm_tallyport');
+
+  f.set(town); await f.complete();
+  assert.equal(f.Sound.playing(), 'm_tallyport');
+  assert.equal(f.sources.length, 1);
+  f.set(coast); f.ctx.currentTime = 15; f.tick();
+  assert.equal(f.Sound.playing(), 'm_wild_coast');
+
+  f.set(fields);
+  f.ctx.currentTime = 19; f.set(coast);
+  f.ctx.currentTime = 20; f.set(fields);
+  f.ctx.currentTime = 24.9; f.tick();
+  assert.equal(f.calls.length, 2);
+  f.ctx.currentTime = 25; f.tick(); await f.complete();
+  assert.equal(f.Sound.playing(), 'm_wild_fields');
+  f.set({ ...fields, region: 4 });
+  f.ctx.currentTime = 30; f.tick();
+  assert.equal(f.calls.length, 3);
+  assert.equal(f.Sound.playing(), 'm_wild_fields');
+});
+
+test('focus and visibility reset an unfinished surface transition', async () => {
+  const f = fixture(); await f.complete();
+  f.set({ region: 1, town: false });
+  f.ctx.currentTime = 3; f.windowListeners.blur();
+  f.ctx.currentTime = 11; f.windowListeners.focus();
+  f.ctx.currentTime = 15.9; f.tick();
+  assert.equal(f.calls.length, 1);
+  assert.equal(f.Sound.playing(), 'm_tallyport');
+
+  f.document.hidden = true; f.listeners.visibilitychange();
+  assert.equal(f.Sound.playing(), null);
+  f.set({ region: 3, town: false });
+  assert.equal(f.calls.length, 1);
+  f.document.hidden = false; f.listeners.visibilitychange(); await f.settle();
+  assert.match(f.calls.at(-1).url, /m_wild_fields.mp3$/); await f.complete();
+  assert.equal(f.Sound.playing(), 'm_wild_fields');
+});
+
+test('combat and cues supersede an outstanding surface download', async () => {
+  const f = fixture(); await f.complete();
+  f.set({ region: 1, town: false }); f.ctx.currentTime = 5; f.tick();
+  assert.equal(f.Sound.status().pending, 'm_wild_coast');
+  f.set({ region: 1, town: false, fight: true }); await f.settle();
+  assert.equal(f.Sound.status().pending, 'm_combat'); await f.complete();
+  assert.equal(f.Sound.playing(), 'm_combat');
+  f.set({ region: 1 }); assert.equal(f.Sound.playing(), 'm_tallyport');
+  f.set({ region: 1, town: false }); f.ctx.currentTime = 10; f.tick();
+  assert.equal(f.Sound.status().pending, 'm_wild_coast');
+  f.Sound.sfx('win'); f.tick(); await f.settle();
+  assert.equal(f.Sound.status().pending, 'm_victory'); await f.complete();
+  assert.equal(f.Sound.playing(), 'm_victory');
+});
+
+test('local ambience respects effects settings, visibility and the shared cooldown', async () => {
+  const f = fixture(); await f.complete();
+  f.Sound.setMu(false);
+  f.Sound.sfx('ambient', 'hearth');
+  assert.equal(f.sources.length, 4);
+  f.ctx.currentTime = 6.9; f.Sound.sfx('ambient', 'drip');
+  assert.equal(f.effectNodes.length, 0);
+  f.ctx.currentTime = 7; f.Sound.sfx('ambient', 'drip');
+  assert.equal(f.effectNodes.length, 2);
+  f.ctx.currentTime = 14; f.Sound.setFx(false); f.Sound.sfx('ambient', 'market');
+  assert.equal(f.sources.length, 4);
+  f.Sound.setFx(true); f.document.hidden = true; f.Sound.sfx('ambient', 'market');
+  assert.equal(f.sources.length, 4);
+  f.document.hidden = false; f.Sound.sfx('ambient', 'market');
+  assert.equal(f.sources.length, 6);
 });
 
 test('one load in flight, no duplicate handlers, and late responses use the latest context', async () => {

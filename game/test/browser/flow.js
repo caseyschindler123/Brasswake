@@ -79,8 +79,11 @@ async function playerFlow(page, info) {
   await expect(page.locator('[data-a="progressmode"][data-id="inscription"]')).toHaveText('Locked');
   await page.locator('[data-a="export"]').click();
   const code = await page.locator('#savebox').inputValue();
-  expect(JSON.parse(Buffer.from(code, 'base64').toString('utf8')).slots.some(slot => slot?.name === 'Release Tester')).toBe(true);
-  const character = JSON.parse(Buffer.from(code, 'base64').toString('utf8')).slots.find(slot => slot?.name === 'Release Tester');
+  const account = JSON.parse(Buffer.from(code, 'base64').toString('utf8'));
+  expect(account.v).toBe(9);
+  expect(account.worlds).toHaveLength(3);
+  const world = account.worlds[account.world], character = world.slots[world.cur];
+  expect(character).toMatchObject({ name: 'Release Tester', v: 8 });
   expect(character.skillTargets.magery).toBe(55);
   expect(character.skillModes.inscription).toBe('lock');
   await page.locator('.sheet-x').click();

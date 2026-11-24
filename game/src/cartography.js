@@ -6,7 +6,7 @@ const Cartography = (() => {
   const groups = cols * rows / 6;
   const digits = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
   const regionCount = 8, atlasPrice = 30000;
-  const publicKinds = new Set(['town', 'stairs', 'poi', 'fish', 'ferry']);
+  const publicKinds = new Set(['town', 'stairs', 'poi', 'fish', 'ferry', 'service']);
   const own = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
   const inBounds = (x, y) => Number.isFinite(x) && Number.isFinite(y) && x >= 0 && x < width && y >= 0 && y < height;
   const validRegion = r => Number.isInteger(r) && r >= 1 && r <= regionCount;

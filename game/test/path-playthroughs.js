@@ -110,9 +110,9 @@ async function main(){
           PathAudit.controlTarget(id,+((__bw.S.sk[id]||0)+.5).toFixed(1));PathAudit.controlMode(id,'lock');PathAudit.controlMode(stat,'down',true);PathAudit.controlTarget(stat,+(__bw.S.attr[stat]+.5).toFixed(1),true);
           PathAudit.act('export');return document.querySelector('#savebox').value;
         },role);
-        const exported=JSON.parse(Buffer.from(controls,'base64').toString('utf8')),expected=exported.slots[exported.cur];
+        const exported=JSON.parse(Buffer.from(controls,'base64').toString('utf8')),world=exported.worlds[exported.world],expected=world.slots[world.cur];
         await page.evaluate(code=>{PathAudit.act('closesheet');PathAudit.act('import');document.querySelector('#savebox').value=code;PathAudit.act('doimport');},controls);
-        await page.waitForLoadState('networkidle');await page.goto(base+'/index.html?visual_test=1');await page.locator('#artload').waitFor({state:'hidden',timeout:45000});await page.locator('#st-load').waitFor({state:'hidden',timeout:45000});await page.locator(`[data-a=playslot][data-i="${exported.cur}"]`).click();
+        await page.waitForLoadState('networkidle');await page.goto(base+'/index.html?visual_test=1');await page.locator('#artload').waitFor({state:'hidden',timeout:45000});await page.locator('#st-load').waitFor({state:'hidden',timeout:45000});await page.locator(`[data-a=playslot][data-i="${world.cur}"]`).click();
         const persisted=await page.evaluate(()=>{const s=__bw.S;return Object.fromEntries(['sk','attr','skillModes','skillTargets','attrModes','attrTargets','mana','stamina','stats','pages'].map(k=>[k,s[k]]));});
         for(const [k,v]of Object.entries(persisted))assert.deepEqual(v,expected[k]);
         report.persistence={exportImportReload:true,checked:Object.keys(persisted)};report.earnedSaveCode=controls;

@@ -169,7 +169,7 @@ test('joystick · taps interact only in reach and a bank modal blocks movement',
   await expect(stick).toHaveAttribute('aria-disabled', 'false');
   await frame.locator('body').evaluate(body => body.focus({ preventScroll: true }));
   await page.keyboard.down(key);
-  try { await frame.waitForFunction(() => Scene.traveling()); } finally { await page.keyboard.up(key); }
+  try { await frame.waitForFunction(at=>Scene.pos().every((n,i)=>n===at[i]),target); } finally { await page.keyboard.up(key); }
   await expect.poll(() => position(frame)).toEqual(target);
   expect(errors).toEqual([]);
 });

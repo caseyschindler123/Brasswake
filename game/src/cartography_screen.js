@@ -1,13 +1,13 @@
 /* Cartography screens, save bridge and interaction sessions. Scene provides the live world. */
 const CartographyScreen = (() => {
   const C = Cartography, regions = [1, 2, 3, 4, 5, 6, 7, 8];
-  const labels = { town: 'Town', stairs: 'Dungeon entrance', poi: 'Landmark', fish: 'Fishing water', ferry: 'Ferry quay', home: 'Homestead', lair: 'Lair' };
+  const labels = { town: 'Town', stairs: 'Dungeon entrance', poi: 'Landmark', fish: 'Fishing water', ferry: 'Ferry quay', home: 'Homestead', lair: 'Lair', service:'Business' };
   const money = n => n.toLocaleString('en-US') + ' gold';
 
   function create(adapter) {
     const { state, account, scene, region, esc, sheet, save, toast, render, world, blocked, close, homes, houseSize } = adapter;
     let active, activeAccount, mask = C.createMask(), revision = 0, dirty = false, saveTimer = null;
-    let selected = 0, worldView = false, serial = 0, session = null;
+    let selected = 0, worldView = false, townView = false, serial = 0, session = null;
     let rasterRevision = -1;
     const rasters = new Map();
     const name = r => region(r).name;
@@ -20,7 +20,7 @@ const CartographyScreen = (() => {
     function current() {
       const s = state(), a = account();
       if (s === active && a === activeAccount) return s && s.cartography;
-      active = s; activeAccount = a; session = null; selected = 0; worldView = false;
+      active = s; activeAccount = a; session = null; selected = 0; worldView = false; townView=false;
       revision++;
       dirty = false;
       if (saveTimer !== null) { clearTimeout(saveTimer); saveTimer = null; }
@@ -98,6 +98,7 @@ const CartographyScreen = (() => {
     }
 
     function visible(site, cart, preview = 0) {
+      if(site.kind==='service')return !!(state().services&&state().services[site.id])&&(!preview||site.r===preview);
       if (preview) return site.r === preview;
       const s = state();
       return C.ownsMap(cart, site.r) || C.exploredAt(mask, site.x, site.y) ||
@@ -139,8 +140,9 @@ const CartographyScreen = (() => {
       return url;
     }
 
-    function chartImage(r, cart, sites, { preview = 0, mode = 'map', ticket = 0 } = {}) {
-      const bounds = r && scene.cartographyBounds(r) || [0, 0, C.width, C.height];
+    function chartImage(r, cart, sites, { preview = 0, mode = 'map', ticket = 0, town = false } = {}) {
+      const center=r&&Geography.towns[r],reach=r===8?85:42;
+      const bounds = town&&center?[Math.max(0,center[0]-reach),Math.max(0,center[1]-reach),Math.min(C.width,center[0]+reach),Math.min(C.height,center[1]+reach)]:r&&scene.cartographyBounds(r)||[0,0,C.width,C.height];
       const [x, y, x1, y1] = bounds, w = x1 - x, h = y1 - y;
       const url = raster(bounds, preview, cart);
       const at = (px, py) => `left:${100 * (px - x) / w}%;top:${100 * (py - y) / h}%`;
@@ -149,6 +151,7 @@ const CartographyScreen = (() => {
       const marks = sites.filter(p => within(p.x, p.y)).map(p => {
         const label = esc(p.name + (p.kind === 'town' && p.r === 8 ? ' · Capital' : '')), style = coordinate(p);
         const waypoint = cart.waypoint && cart.waypoint.id === p.id ? ' waypoint' : '';
+        if(p.kind==='service')return `<button class="cmap-service${town?'':' compact'}${waypoint}" style="${style}" data-a="cmapservice" data-id="${esc(p.id)}" aria-label="${label}" title="${label}">${ServicePlaces.html(p.type)}</button>`;
         if (p.kind === 'town' && !r && mode === 'map') return `<button class="pin cmap-town${waypoint}" style="${style}" data-a="cmapregion" data-r="${p.r}" aria-label="${label}"><b>${p.r}</b><span>${label}</span></button>`;
         if (p.kind === 'town' && !r && mode === 'atlas') return `<button class="pin cmap-town${waypoint}" style="${style}" data-a="cmapregion" data-mode="atlas" data-ticket="${ticket}" data-r="${p.r}" aria-label="${label}"><b>${p.r}</b><span>${label}</span></button>`;
         return `<i class="cmap-dot ${p.kind}${waypoint}" style="${style}" title="${label}" aria-hidden="true"></i>`;
@@ -206,8 +209,8 @@ const CartographyScreen = (() => {
       const projected = worldView ? known.concat(discoveries) : listing.concat(discoveries.filter(p => p.r === r));
       const details = region(r), owned = C.ownsMap(cart, r);
       return `<section class="place"><p class="eyebrow">World map</p><h1>${worldView ? 'Brasswake' : esc(details.name)}</h1></section>
-        <div class="row cmap-mode"><button class="btn sm ${worldView ? 'quiet' : 'solid'}" data-a="cmapview" data-mode="region" aria-pressed="${!worldView}">Region</button><button class="btn sm ${worldView ? 'solid' : 'quiet'}" data-a="cmapview" data-mode="world" aria-pressed="${worldView}">World</button></div>
-        ${!worldView && selectable.length > 1 ? regionButtons(selectable, r) : ''}${chartImage(worldView ? 0 : r, cart, projected)}
+        <div class="row cmap-mode"><button class="btn sm ${!worldView&&!townView ? 'solid' : 'quiet'}" data-a="cmapview" data-mode="region" aria-pressed="${!worldView&&!townView}">Region</button><button class="btn sm ${townView?'solid':'quiet'}" data-a="cmapview" data-mode="town" aria-pressed="${townView}">Town</button><button class="btn sm ${worldView ? 'solid' : 'quiet'}" data-a="cmapview" data-mode="world" aria-pressed="${worldView}">World</button></div>
+        ${!worldView && selectable.length > 1 ? regionButtons(selectable, r) : ''}${chartImage(worldView ? 0 : r, cart, projected,{town:townView})}
         ${waypointsHTML(cart)}<div class="card"><p class="eyebrow">${details.circle ? esc(details.circle) + ' Circle · ' : ''}${esc(details.sub)}</p><h3>${esc(details.name)}${r === 8 ? ' · Capital' : ''}</h3><p>${esc(details.blurb)}</p>
         <div class="kv"><span>Teaches</span><span>${esc(details.teaches)}</span></div><p class="cap2">${owned ? 'Your regional map shows the surveyed ground in muted colours. Travel is available within the region while you are there.' : 'Walking charts the terrain around you. The cartographer’s shop has a regional survey.'}</p>
         ${ferryList(r, known)}<h4>Destinations</h4>${destinationsHTML(listing, cart, 'regional')}
@@ -306,7 +309,8 @@ const CartographyScreen = (() => {
     }
 
     const actions = {
-      cmapview(d) { if (!mapOpen()) return; worldView = d.mode === 'world'; render(); },
+      cmapservice(d){const site=destination(d.id);if(site&&visible(site,current()))toast(site.name+' · '+ServicePlaces.types[site.type].name);},
+      cmapview(d) { if (!mapOpen()) return; worldView = d.mode === 'world'; townView=d.mode==='town'; render(); },
       cmapregion(d) {
         const r = +d.r;
         if (!C.price(r)) return;

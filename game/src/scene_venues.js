@@ -416,16 +416,19 @@
     const art = { c, ax:w/2, ay:h-1 }; venueArt.set(key,art); return art;
   }
 
+  const venueDoorArt = new Map();
   function venueDoorImage(r, side, frame) {
     const key = 'door/' + r + '/' + side + '/' + frame;
-    if (venueArt.has(key)) return venueArt.get(key);
-    const c = mk(32*K,34*K), g = c.getContext('2d'); c.hr=1; g.scale(K,K);
+    if (venueDoorArt.has(key)) {
+      const art=venueDoorArt.get(key);venueDoorArt.delete(key);venueDoorArt.set(key,art);return art;
+    }
+    const c = mk(40*K,68*K), g = c.getContext('2d'); c.hr=1; g.scale(K,K);
     const horizontal = side === 'north' || side === 'south';
     const t = frame * Math.PI / 16, direction = side === 'west' || side === 'north' ? -1 : 1;
-    const hingeX = horizontal ? 9 : 16, hingeY = horizontal ? 30 : 22;
-    const dx = horizontal ? 14*Math.cos(t) : direction*(2.8+10.2*Math.sin(t));
-    const dy = horizontal ? -7*Math.sin(t) : 10*Math.cos(t);
-    const point = (u,v) => [hingeX + dx*u, hingeY + dy*u - 23*v];
+    const hingeX = horizontal ? 12 : 20, hingeY = 48;
+    const dx = horizontal ? 16*Math.cos(t) : direction*(2.5+13.5*Math.sin(t));
+    const dy = horizontal ? direction*12*Math.sin(t) : 16*Math.cos(t);
+    const point = (u,v) => [hingeX + dx*u, hingeY + dy*u - 33*v];
     const face = (u,v,du,dv,color) => {
       const a=point(u,v), b=point(u+du,v), d=point(u+du,v+dv), e=point(u,v+dv);
       g.fillStyle=color;g.beginPath();g.moveTo(...a);g.lineTo(...b);g.lineTo(...d);g.lineTo(...e);g.closePath();g.fill();
@@ -443,7 +446,10 @@
     face(.03,.14,.69,.07,'#414248');face(.03,.76,.69,.07,'#414248');
     line(.1,.18,.95,.77,'#6c5140',1.4);line(.12,.2,.95,.78,'#b29170',.48);
     const [x,y]=point(.83,.45);g.fillStyle='#302e2a';g.fillRect(x-1,y-2,2,3);g.fillStyle='#d8b57a';g.fillRect(x-.6,y-1.5,1.3,1.3);
-    const value = { c, ax:16, ay:horizontal?30:22 };venueArt.set(key,value);return value;
+    const value = { c, ax:20, ay:48 };venueDoorArt.set(key,value);
+    // About 9 MiB at most, independent of the number of settlements visited.
+    if(venueDoorArt.size>96)venueDoorArt.delete(venueDoorArt.keys().next().value);
+    return value;
   }
 
   function venueDoors(b, list) {
@@ -468,12 +474,9 @@
       motion.amount=clamp(motion.amount+(open?1:-1)*dt*5.2,0,1);
       const art=venueDoorImage(b.r,d.side,Math.round(motion.amount*8));
       const wx=x*T+(d.side==='east'?T:d.side==='west'?0:T/2);
-      const wy=y*T+(d.side==='south'?T:d.side==='north'?0:T*.16);
-      list.push([wy+.65,art.c,wx-art.ax,wy-art.ay,false,1,0,b.inside && d.side!=='north'?.45:1]);
-      if(d.side==='south' && (b.slot==='shop'||b.slot==='tavern') && b.fa>.01){
-        const a=venueProp('venue_awning',b.r);
-        list.push([b.by+1.2,a.c,wx-a.ax,wy-36,false,1,0,b.fa]);
-      }
+      const wy=y*T+(d.side==='south'?T:0);
+      list.push([wy+(d.facing.x?T:0)+.65,art.c,wx-art.ax,wy-art.ay,false,1,0,b.inside && d.side!=='north'?.45:1]);
+      venueEntrance(b,d,list,wx,wy);
     }
   }
 

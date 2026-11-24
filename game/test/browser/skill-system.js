@@ -152,23 +152,22 @@ test('skill system · Hero controls govern actual capped fishing and survive rel
   await tab(f, 'hero');
   await expect(progressMode(f, 'fishing')).toHaveText('Locked');
   const exported = await exportCode(f);
-  const active = exported.slots[exported.cur];
-  expect(exported.v).toBe(8);
-  expect(active).toMatchObject({ v: 7, skillModes: { fishing: 'lock', swords: 'down' }, skillTargets: { fishing: 20.1 }, attrTargets: { dex: 40.2 } });
+  const world = exported.worlds[exported.world], active = world.slots[world.cur];
+  expect(exported.v).toBe(9);
+  expect(active).toMatchObject({ v: 8, skillModes: { fishing: 'lock', swords: 'down' }, skillTargets: { fishing: 20.1 }, attrTargets: { dex: 40.2 } });
 
   // Navigate away from the visual fixture so its disposable reset does not run again.
   await page.waitForLoadState('networkidle');
   await page.goto('/index.html?visual_test=1');
   await expect(page.locator('#artload')).toBeHidden({ timeout: 45000 });
   await expect(page.locator('#st-load')).toBeHidden({ timeout: 45000 });
-  await action(page, 'playslot', `[data-i="${exported.cur}"]`).click();
+  await action(page, 'playslot', `[data-i="${world.cur}"]`).click();
   await expect(page.locator('#title')).toBeHidden();
   await tab(page, 'hero');
   await expect(progressMode(page, 'fishing')).toHaveText('Locked');
   await expect(page.getByRole('spinbutton', { name: 'Dexterity stop target' })).toHaveValue('40.2');
 
-  const legacy = structuredClone(exported);
-  legacy.v = 7;
+  const legacy = { ...structuredClone(world), v: 7, rev: exported.rev, at: exported.at };
   const slot = legacy.slots[legacy.cur];
   const other = (legacy.cur + 2) % 5;
   legacy.slots[other] = { ...structuredClone(slot), path: 'thief', name: 'Old companion', bank: { gold: 79, items: [] } };
@@ -181,9 +180,11 @@ test('skill system · Hero controls govern actual capped fishing and survive rel
   await action(page, 'doimport').click();
   await expect(page.locator('#sheet')).toBeHidden();
   const migrated = await exportCode(page);
-  expect(migrated.v).toBe(8);
-  expect(migrated.slots[migrated.cur]).toMatchObject({ v: 7, sk: slot.sk, skills: slot.skills, inv: slot.inv, eq: slot.eq, bank: slot.bank });
-  expect(migrated.slots[other]).toMatchObject({ v: 7, name: 'Old companion', attr: { str: 35, dex: 60, int: 25 }, mana: 25, stamina: 60, bank: { gold: 79 } });
+  expect(migrated.v).toBe(9);
+  expect(migrated.world).toBe(0);
+  const migratedWorld = migrated.worlds[migrated.world];
+  expect(migratedWorld.slots[migratedWorld.cur]).toMatchObject({ v: 8, sk: slot.sk, skills: slot.skills, inv: slot.inv, eq: slot.eq, bank: slot.bank });
+  expect(migratedWorld.slots[other]).toMatchObject({ v: 8, name: 'Old companion', attr: { str: 35, dex: 60, int: 25 }, mana: 25, stamina: 60, bank: { gold: 79 } });
   expect(errors).toEqual([]);
 });
 
@@ -366,7 +367,7 @@ test('skill system · SQL concealment spends steps on a real approach and runnin
   await f.locator('body').evaluate(body => { body.tabIndex = -1; body.focus({ preventScroll: true }); });
   await withRoll(f, 0, async () => {
     await page.keyboard.down(route.key);
-    try { await f.waitForFunction(() => Scene.traveling()); }
+    try { await f.waitForFunction(() => __bw.CONCEAL.steps===5); }
     finally { await page.keyboard.up(route.key); }
     await expect.poll(() => f.evaluate(() => Scene.pos())).toEqual(route.cells[1]);
   });
@@ -386,6 +387,7 @@ test('skill system · SQL concealment spends steps on a real approach and runnin
     await page.mouse.move(x + route.dx * radius, y + route.dy * radius);
     await expect(stick).toHaveAttribute('data-mode', 'run');
     await expect(action(f, 'conceal')).toHaveText('Hide · SQL');
+    await f.waitForFunction(at=>Scene.pos().every((n,i)=>n===at[i]),route.cells[2]);
   } finally { await page.mouse.up(); }
   expect(await f.evaluate(() => [Scene.pos(), __bw.S.sk.stealth])).toEqual([route.cells[2], trained]);
   expect(errors).toEqual([]);
@@ -552,7 +554,8 @@ test('skill system · a newer cloud save cancels combat and migrates every chara
   const errors=observeErrors(page),f=await adventure(page);
   await f.evaluate(()=>{
     __bw.S.pages={a1:1};__bw.S.sk.swords=80;__bw.S.hp=__bw.maxHp();__bw.save();window.__bwFast=false;
-    const remote=JSON.parse(localStorage.getItem('brasswake.acct.v8'));remote.v=7;remote.rev+=10000;
+    const stored=JSON.parse(localStorage.getItem('brasswake.acct.v9'));
+    const remote={...stored.worlds[stored.world],v:7,rev:stored.rev+10000,at:stored.at};
     const active=remote.slots[remote.cur];active.v=6;active.bank.gold=321;
     for(const key of ['attr','mana','stamina','skillModes','skillTargets','attrModes','attrTargets'])delete active[key];
     remote.slots[(remote.cur+1)%5]={...structuredClone(active),name:'Cloud companion',path:'thief'};
@@ -565,7 +568,8 @@ test('skill system · a newer cloud save cancels combat and migrates every chara
   await expect(f.locator('#fight')).toBeHidden();await expect(f.locator('#hud')).toBeVisible();
   await expect(f.locator('#app')).not.toHaveClass(/infight/);
   await f.waitForTimeout(1200);
-  expect(await f.evaluate(()=>({bank:__bw.S.bank.gold,fight:__bw.F,busy:window.__oldSkillFoe.busy,versions:__bw.A.slots.filter(Boolean).map(s=>s.v),companion:__bw.A.slots.find(s=>s&&s.name==='Cloud companion').attr})))
-    .toEqual({bank:321,fight:null,busy:0,versions:[7,7],companion:{str:35,dex:60,int:25}});
+  expect(await f.evaluate(()=>({account:__bw.A.v,world:__bw.A.world,bank:__bw.S.bank.gold,fight:__bw.F,busy:window.__oldSkillFoe.busy,
+    versions:__bw.A.slots.filter(Boolean).map(s=>s.v),companion:__bw.A.slots.find(s=>s&&s.name==='Cloud companion').attr})))
+    .toEqual({account:9,world:0,bank:321,fight:null,busy:0,versions:[8,8],companion:{str:35,dex:60,int:25}});
   expect(errors).toEqual([]);
 });

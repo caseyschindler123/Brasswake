@@ -840,3 +840,45 @@ body.ui #enc.pk .btn:not(.solid) { color: #f5e2b8; text-shadow: 0 1px 0 #1b1008;
 .progress-controls{grid-column:1/-1;display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:5px}.progress-controls label{display:flex;align-items:center;gap:6px;font-size:13px}.progress-controls input{width:70px;min-height:36px;background:var(--paper);color:var(--ink);border:1px solid var(--rule);padding:4px}.progress-controls .btn{min-height:36px}.resource-line{color:#ffe9a6;font:12px var(--body);white-space:nowrap}.conceal-controls{display:flex;align-items:center;gap:6px;margin-top:3px;font-size:11px}.conceal-controls .btn{padding:3px 8px;min-height:28px}.combat-tools{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}.combat-tools .btn{font-size:13px;min-height:34px;padding:5px 7px}.combat-resources{font-size:12px;margin:4px 0;color:var(--dim)}
 
 .conceal-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.conceal-controls .btn{font:500 13px/1.1 var(--body);min-height:34px;white-space:nowrap}
+
+/* Phone readability and installed-web-app chrome. Keep actual game content
+   below the opaque status-bar backing, including title/creation overlays. */
+html,body{background:#2b1c11;overscroll-behavior:none}
+#app{height:100%;height:100dvh;padding-top:env(safe-area-inset-top,0px);background:#2b1c11}
+#app::before{content:'';position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:#2b1c11;z-index:100;pointer-events:none}
+#title{top:env(safe-area-inset-top,0px)}
+#hud{background-color:#2b1c11}
+.hud-id>b{font:600 19px/1.15 var(--body);color:#fff0cb;text-shadow:0 1px 1px #21160d}
+.hud-id .hpbar b{font-size:12px;font-weight:700}
+.resource-line{font-size:12.5px;color:#fff0ce}
+.stage-ui{top:42px}
+.stage-ui .obj{font:600 14px/1.25 var(--body);color:#302515;background:#f2e5c3;text-shadow:none}
+.cap2,.sec>.note,.cr-note{font-size:14px}
+.sheet-card .cap2,.sheet-card .note,.cr .cr-note{color:#59442b}
+.klist .lg{color:#604522;font-size:12.5px}
+.s-cm{color:#53634c}.s-op{color:#514a40}
+#nav button,#nav .lab{font:600 11.5px/1.15 var(--body);letter-spacing:.025em;text-shadow:0 1px 1px #140d08}
+.world-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0}
+.world-tabs .btn{padding:7px 4px;display:flex;flex-direction:column;gap:2px;font:700 15px/1.15 var(--body);min-height:50px;letter-spacing:0}
+.world-tabs small{font:500 12px var(--body)}
+.world-summary{font:600 14px/1.3 var(--body);color:#533c22;margin:4px 0 8px}
+.world-slot-label{font-weight:700;color:#ffe7a1}
+.tt-box.tt-slots{max-height:calc(100% - 16px);overflow:auto;padding:16px 12px}
+.tt-slots h1{font-size:34px}.tt-slots .tt-sub{font:500 15px/1.3 var(--body);margin-bottom:7px}
+.tt-slots .tt-btn{min-height:54px;font-size:20px}.tt-slots .tt-note{opacity:1;line-height:1.3;font-size:13.5px}
+.character-return{display:flex;flex-direction:column;gap:8px;margin-bottom:15px}
+.character-return .btn{font:600 15px var(--body)}
+.cr-appearance{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.cr-preview{display:flex;flex-direction:column;align-items:center;background:#ded4b5;border:1px solid #a48a59;border-radius:8px;padding:8px}
+.cr-preview canvas{width:200px;height:200px;max-width:100%;background:radial-gradient(ellipse at center,#f7edcd,#c4b797);border-radius:5px}
+.cr-preview .row{justify-content:center;gap:6px}.cr-preview .btn{font:600 14px var(--body);padding:5px 10px}
+.cr-controls{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.cr-controls label{display:flex;flex-direction:column;gap:4px;font:600 15px var(--body);color:#3d2c1b}
+.cr-controls select{width:100%;min-width:0;min-height:44px;padding:7px;background:#fff8e9;color:#302415;border:1px solid #9a7b4d;border-radius:5px;font:400 16px var(--body)}
+.cr-name input{color:#302415}
+.cr-path small{font-size:12px}.cr-path.on small{color:#57432a}
+.cmap-service{position:absolute;transform:translate(-50%,-50%);width:27px;height:27px;border:1px solid #483b27;border-radius:5px;background:#f8e8bb;color:#302b20;z-index:5;display:grid;place-items:center}
+.cmap-service svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.cmap-service.waypoint{outline:3px solid #62c9d6}
+.cmap-service.compact{width:13px;height:13px;border-radius:2px}.cmap-service.compact svg{width:10px;height:10px}
+@media(min-width:700px){.cr-appearance{grid-template-columns:240px minmax(0,1fr)}.cr-controls{align-content:start}}

@@ -13,6 +13,7 @@ const streetRooms = [
   ['house',5,4,['south']], ['cottage',5,4,['south']],
 ];
 const source = fs.readFileSync(path.resolve(__dirname,'../src/scene_venues.js'), 'utf8');
+const livingSource = fs.readFileSync(path.resolve(__dirname,'../src/scene_living.js'), 'utf8');
 const neighbors = [[0,-1], [1,0], [0,1], [-1,0]];
 
 test('all eight town kits compile distinct usable frontages, preserve both public shop doors, and leave actual exterior space', () => {
@@ -51,7 +52,7 @@ function fixture() {
     nextTo:e=>Math.abs(e.x-api.P.x)+Math.abs(e.y-api.P.y)===1,
     go(m,x,y) { api.map=m; Object.assign(api.P,{x,y,fx:x,fy:y}); },
   };
-  const methods=vm.runInNewContext(source+'\n({ venueUpper, enterVenue, exitVenue, restoreVenue, venueState, venueHall, venueDoors })', api);
+  const methods=vm.runInNewContext(source+'\n'+livingSource+'\n({ venueUpper, enterVenue, exitVenue, restoreVenue, venueState, venueHall, venueDoors })', api);
   return { api, methods, sounds, tick(ms) {time+=ms;} };
 }
 function floorFlood(m, entry, target) {
@@ -147,17 +148,19 @@ test('dojo uses an always-cut-away modular hall and preserves the real ring, ent
 
 test('door leaves swing progressively and sound once opening and once closing', () => {
   const {api,methods,tick,sounds}=fixture();
-  const b={x:10,y:10,r:1,plan:{doors:[{side:'south',x:1,y:1}]},slot:'house'};
-  api.go(api.world,11,14);
+  const b={x:10,y:10,w:5,h:5,r:1,by:15*16-1,fa:1,
+    plan:Buildings.compile({id:'door-motion',w:5,h:5,doors:['south']}),slot:'house'};
+  const door=b.plan.doors[0],x=b.x+door.x,y=b.y+door.y;
+  api.go(api.world,x,y+3);
   methods.venueDoors(b,[]);
   assert.equal(b.doorMotion[0].amount,0);
-  api.go(api.world,11,12);
+  api.go(api.world,x,y+1);
   tick(75); methods.venueDoors(b,[]);
   assert.ok(b.doorMotion[0].amount>0&&b.doorMotion[0].amount<1);
   for(let i=0;i<5;i++){tick(80);methods.venueDoors(b,[]);}
   assert.equal(b.doorMotion[0].amount,1);
   assert.deepEqual(sounds,['door']);
-  api.go(api.world,11,14);
+  api.go(api.world,x,y+3);
   for(let i=0;i<5;i++){tick(80);methods.venueDoors(b,[]);}
   assert.equal(b.doorMotion[0].amount,0);
   assert.deepEqual(sounds,['door','door']);

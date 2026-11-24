@@ -249,6 +249,22 @@ const BuildingView = (() => {
     }
   }
 
+  function windowCap(g,width,variant) {
+    const middle=width/2,half=Math.min(11,width*.32);
+    // These small caps sit over the painted facade's window panel. A sloped
+    // timber hood suits shuttered windows; paired stone bands suit the arch.
+    g.fillStyle='#4e4035';
+    if(variant===2){
+      g.beginPath();g.moveTo(middle-half-2,9);g.lineTo(middle,3);
+      g.lineTo(middle+half+2,9);g.closePath();g.fill();
+      g.fillStyle='#d3bd95';g.fillRect(middle-half-2,9,half*2+4,1.5);
+    }else{
+      g.fillStyle='#cebd9e';g.fillRect(middle-half-1,5,half*2+2,2);
+      g.fillStyle='#6f5a44';g.fillRect(middle-half-2,7,half*2+4,1.5);
+      g.fillStyle='#b1a080';g.fillRect(middle-half-1,27,half*2+2,2);
+    }
+  }
+
   function doorway(g, art, width) {
     const jamb = 3, lintel = 7;
     // A transparent opening stays one tile wide even if a regional painted frame is narrower.
@@ -260,7 +276,7 @@ const BuildingView = (() => {
     g.clip();
     wallPanel(g, art, 0, width, WALL_HEIGHT);
     g.restore();
-    // Shade the visible interior while retaining transparency across the passage.
+    // The opening and the moving leaf share a 16 by 33 logical-pixel aperture.
     const shade = g.createLinearGradient(0, lintel, 0, WALL_HEIGHT);
     shade.addColorStop(0, '#211b16db');
     shade.addColorStop(.35, '#28201ab0');
@@ -298,6 +314,7 @@ const BuildingView = (() => {
           const idx = length >= 2 && (start + line) % 3 !== 0 ? 1 + ((start + line) % 3) : 0;
           g.fillStyle = '#534333'; g.fillRect(0, 2, width, WALL_HEIGHT - 3);
           wallPanel(g, kit.face(idx), 0, width, WALL_HEIGHT);
+          if(idx>=1&&idx<=3)windowCap(g,width,idx===2?2:1);
           position(image, start * T, bottom - WALL_HEIGHT, bottom, front);
         });
         continue;
@@ -307,13 +324,18 @@ const BuildingView = (() => {
       for (let y = first; y < last; y++) {
         const top = y * T - WALL_HEIGHT;
         if (kind === Buildings.DOOR) {
-          const { image, g } = canvas(12, WALL_HEIGHT + T + 5);
-          const east = side === 'east', outside = east ? 4 : 0;
-          draw(g, kit.cap(east ? 12 : 13), outside, 0, 8, 11);
-          // Posts sit at opposite ends of the side-facing opening.
-          draw(g, kit.cap(14), outside, WALL_HEIGHT - 10, 8, 10);
-          draw(g, kit.cap(14), outside, WALL_HEIGHT + T - 5, 8, 10);
-          position(image, left - (east ? 0 : 6), top, (y + 1) * T + .4, front);
+          const { image, g } = canvas(10, 33 + T + 3);
+          const east = side === 'east', outside = east ? 2 : 1;
+          // Project the jambs along the full tile. Their feet, and the leaf's
+          // feet, remain at the actual north/south ends of this threshold.
+          g.fillStyle = '#302c29'; g.fillRect(outside, 0, 6, T + 3);
+          draw(g, kit.cap(east ? 12 : 13), outside, 0, 6, T + 3);
+          for (const [index,foot] of [33, 33 + T].entries()) {
+            const post = east ? (index ? 7 : 0) : (index ? 0 : 7);
+            g.fillStyle = '#514333'; g.fillRect(post, foot - 33, 2.5, 33);
+            g.fillStyle = '#c4ad87'; g.fillRect(post, foot - 33, .8, 33);
+          }
+          position(image, line * T - 4, y * T - 33, (y + 1) * T + .4, front);
           continue;
         }
         const { image, g } = canvas(6, WALL_HEIGHT + T);

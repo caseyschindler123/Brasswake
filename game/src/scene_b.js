@@ -20,7 +20,15 @@
   // D8 order is S, SW, W, NW, N, NE, E, SE; the sheets have S, SE, E, NE, N, and the rest are mirrors
   const DSRC = [[0, 0], [1, 1], [2, 1], [3, 1], [4, 0], [3, 0], [2, 0], [1, 0]];
   const hexRGB = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
-  const DOLL = {};   // cache of recoloured sheets and finished doll sprites
+  const DOLL_ORDERS={head:new Map(),body:new Map(),sprite:new Map(),portrait:new Map()};
+  const dollGroup=k=>k.startsWith('head|')?'head':k.startsWith('s{')?'sprite':k.startsWith('P')?'portrait':'body';
+  // Keep changing creation previews and fifteen character slots from retaining
+  // every recoloured atlas and complete animation forever. Live images survive
+  // ordinary cache eviction until the current scene releases them.
+  const DOLL=new Proxy(Object.create(null),{
+    get(target,key){const value=target[key];if(value){const order=DOLL_ORDERS[dollGroup(key)];order.delete(key);order.set(key,true);}return value;},
+    set(target,key,value){target[key]=value;const order=DOLL_ORDERS[dollGroup(key)];order.delete(key);order.set(key,true);while(order.size>3){const old=order.keys().next().value;order.delete(old);delete target[old];}return true;}
+  });
   function tintSource(src, area, scratch) {
     const [x, y, w, h] = area || [0, 0, src.width, src.height], c = scratch || mk(w, h);
     if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
@@ -48,11 +56,21 @@
     const key = 'head|' + [a.cloth, a.metal, a.hc].join('|');
     if (DOLL[key]) return DOLL[key];
     const head = IMG['hb/hair.webp'].im;
-    return DOLL[key] = { hair: gradMap(head, a.hc[0], a.hc[1]), gear: recolor(head, a.cloth, a.metal || '#9aa0a8', false) };
+    const frames=new Map();
+    return DOLL[key]={headFrame(area,hair){const key=(hair?'hair:':'gear:')+area.join(',');if(frames.has(key))return frames.get(key);const frame=hair?gradMap(head,a.hc[0],a.hc[1],area):recolor(head,a.cloth,a.metal||'#9aa0a8',false,false,area);frames.set(key,frame);return frame;}};
   }
   function dollLayers(a) {   // recoloured sheets for this look, cached
-    const key = [a.combo, a.cloth, a.metal, a.hc, !!a.fx].join('|'); if (DOLL[key]) return DOLL[key];
-    return DOLL[key] = { body: recolor(IMG['hb/C' + a.combo + '.webp'].im, a.cloth, a.metal, (a.combo - 1) % 5 >= 3, !!a.fx), ...dollHeadLayers(a) };
+    const key = [a.combo, a.cloth, a.metal, a.hc, a.skin, !!a.fx].join('|'); if (DOLL[key]) return DOLL[key];
+    const body=recolor(IMG['hb/C' + a.combo + '.webp'].im, a.cloth, a.metal, (a.combo - 1) % 5 >= 3, !!a.fx);
+    if(Number.isInteger(a.skin)){
+      const ctx=body.getContext('2d'),B=AD.body;
+      for(let row=0;row<23;row++)for(let frame=0;frame<8;frame++){
+        const anchor=B.combos[a.combo].a[row*8+frame];if(!anchor||!anchor[2])continue;
+        const data=ctx.getImageData(frame*B.cw,row*B.ch,B.cw,B.ch);
+        NpcAppearance.tintBody(data.data,B.cw,anchor,a.combo,null,a.skin);ctx.putImageData(data,frame*B.cw,row*B.ch);
+      }
+    }
+    return DOLL[key] = { body, ...dollHeadLayers(a) };
   }
   // one layer (hair, beard or hat) on a head: view v, head anchor [top, hx, hw]
   function headLayer(g, L, a, item, v, an, lift, flip) {
@@ -70,7 +88,7 @@
   const swingAng = (a, sr, k) => a.wkind === 'staff' && a.style === 'cast' ? -1.45 : (ARC[a.style] || ARC.thrust)[sr === 0 ? 0 : sr === 2 ? 1 : 2][k];
   const WLEN = { staff: 1.05, bow: .78, sword: .62, long: .8, dagger: .36, shield: .42, book: .31 };
   function dollFrame(a, L, row, k, sr) {   // sr: which facing the source row is, 0 S, 1 SE, 2 E, 3 NE, 4 N
-    const B = AD.body, CW = B.cw, CH = B.ch, an = B.combos[a.combo].a[row * 8 + k] || [0, 0, 0], c = mk(CW, CH), g = c.getContext('2d'); c.hr = 1;
+    const B = AD.body, CW = B.cw, CH = B.ch, an = ActorRig.headAnchor(B,a.combo,row,k), c = mk(CW, CH), g = c.getContext('2d'); c.hr = 1;c.human=1;
     const back = sr >= 3, atk = row >= 10 && row < 19, len = 64 * (WLEN[a.wkind] || .6), book = a.skin != null && a.wkind === 'book';
     const onBack = () => { if (a.wpn < 0 && a.shield < 0) return; const sx = an[1] + (sr === 2 ? -an[2] * .5 : an[2] * .3), sy = an[0] + an[2] * 1.45;
       if (a.shield >= 0) { const W = B.wx[a.shield], f = 64 * WLEN.shield / W[3]; g.drawImage(IMG['hb/wx.webp'].im, W[0], W[1], W[2], W[3], an[1] - W[2] * f / 2 + (sr === 2 ? -an[2] * .6 : 0), an[0] + an[2] * 1.6, W[2] * f, W[3] * f); }
@@ -97,7 +115,7 @@
     g.save(); if (fx.k === 'glow') { g.shadowColor = fx.c; g.shadowBlur = (7 + 3 * Math.sin(t / 280)) * K; g.globalCompositeOperation = 'lighter'; g.globalAlpha = .65 + .15 * Math.sin(t / 280); } else g.globalAlpha = fx.soft ? .45 : .72;
     if (flip) { g.translate(X + w, Y); g.scale(-1, 1); g.drawImage(c, 0, 0, w, h); } else g.drawImage(c, X, Y, w, h); g.restore();
   }
-  const flipC = c => { const o = mk(c.width, c.height), g = o.getContext('2d'); g.translate(c.width, 0); g.scale(-1, 1); g.drawImage(c, 0, 0); o.hr = 1; if (c.mask) o.mask = flipC(c.mask); return o; };
+  const flipC = c => { const o = mk(c.width, c.height), g = o.getContext('2d'); g.translate(c.width, 0); g.scale(-1, 1); g.drawImage(c, 0, 0); o.hr = 1; if (c.mask) o.mask = flipC(c.mask); if(c.human)o.human=1; return o; };
   function dollSprite(a) {
     const key = JSON.stringify(a); if (DOLL['s' + key]) return DOLL['s' + key]; if (!dollReady(a)) return null; const L = dollLayers(a), s = { art: 1, doll: 1, fx: a.fx };
     const dirRow = (row0, n) => { const rows = [0, 1, 2, 3, 4].map(sr => Array.from({ length: n }, (_, k) => dollFrame(a, L, row0 + sr, k, sr))); return DSRC.map(([sr, fl]) => fl ? rows[sr].map(flipC) : rows[sr]); };
@@ -163,6 +181,10 @@
     const pose = npcPose(e), image = npcFrame(e.npcLook, pose);
     if (!image) return false;
     const { scale, flip, lean } = pose;
+    const bounds=actorBounds(image),anchor=ActorRig.headAnchor(AD.body,e.npcLook.combo,pose.row,pose.frame);
+    const px=bx-lw(image)*scale/2+(e.ox||0)+lean,py=by-lh(image)*scale+1;
+    e.rendered={headX:px+(flip?image.width-anchor[1]:anchor[1])*scale/K,topY:py+bounds.top*scale/K};
+    list.push([sort-1,humanShadow(),bx-6,by-1]);
     list.push([sort, image, bx - lw(image) * scale / 2 + (e.ox || 0) + lean,
       by - lh(image) * scale + 1, flip, scale, e.flash > 0 ? 1 : 0]);
     return true;
@@ -253,18 +275,74 @@
       return false;
     }
     DOLL_PAINT.delete(cv);
-    const key = 'P' + [a.combo, a.cloth, a.metal, !!a.fx].join('|'), P = DOLL[key] || (DOLL[key] = recolor(IMG[pn].im, a.cloth, a.metal, (a.combo - 1) % 5 >= 3, !!a.fx)), L = dollHeadLayers(a), g = cv.getContext('2d');
+    const key = 'P' + [a.combo, a.cloth, a.metal, a.skin, !!a.fx].join('|');
+    if(!DOLL[key]){const image=recolor(IMG[pn].im,a.cloth,a.metal,(a.combo-1)%5>=3,!!a.fx);if(Number.isInteger(a.skin)){const q=image.getContext('2d'),data=q.getImageData(0,0,image.width,image.height);NpcAppearance.tintBody(data.data,image.width,[pd.top,pd.hx,pd.hw],a.combo,null,a.skin);q.putImageData(data,0,0);}DOLL[key]=image;}
+    const P=DOLL[key],L=dollHeadLayers(a),g=cv.getContext('2d');
     g.clearRect(0, 0, cv.width, cv.height);
     const S = Math.min(cv.width / 300, cv.height / 450);
     g.save();
     g.translate((cv.width - 300 * S) / 2, (cv.height - 450 * S) / 2);
     g.scale(S, S);
     g.drawImage(P, 0, 0); if (a.fx && P.mask) dollFx(g, a.fx, P.mask, 0, 0, 300, 450, false, performance.now());
-    const an = [pd.top, pd.hx, pd.hw], H = B.hair, big = (item, lift) => { const mv = H.v[item] && H.v[item][5], m0 = H.v[item] && H.v[item][0]; if (!mv) return; const r = H.r[mv[0]], f = an[2] / H.hw * (m0 ? m0[2] / mv[2] : .5), src = item < 18 ? L.hair : L.gear; g.drawImage(src, r[0], r[1], r[2], r[3], an[1] - mv[1] * f, an[0] + lift * an[2], r[2] * f, r[3] * f); };
+    const an = [pd.top, pd.hx, pd.hw], H = B.hair, big = (item, lift) => { const mv = H.v[item] && H.v[item][5], m0 = H.v[item] && H.v[item][0]; if (!mv) return; const r = H.r[mv[0]], f = an[2] / H.hw * (m0 ? m0[2] / mv[2] : .5), src = item < 18 ? L.hair : L.gear; if(L.headFrame)g.drawImage(L.headFrame(r,item<18),an[1]-mv[1]*f,an[0]+lift*an[2],r[2]*f,r[3]*f);else g.drawImage(src, r[0], r[1], r[2], r[3], an[1] - mv[1] * f, an[0] + lift * an[2], r[2] * f, r[3] * f); };
     if (a.hat >= 0) big(18 + a.hat, HAT_Y[a.hat]); else if (a.hair >= 0) big(a.hair, -.12); if (a.beard >= 0) big(12 + a.beard, BEARD_Y[a.beard]);
     paintHeld(g, P, a.wpn, hands[0], 1, a.glow);
     paintOffhand(g, P, a.shield, hands[1]);
     g.restore(); return true;
+  }
+  function previewHuman(canvas,a,direction,movingTime){
+    const sprite=dollSprite(a);if(!sprite)return false;
+    const moving=Number.isFinite(movingTime),frame=moving?Math.floor(movingTime/110)%8:2;
+    const image=sprite.w8[(direction||0)%8][frame],g=canvas.getContext('2d');
+    g.clearRect(0,0,canvas.width,canvas.height);g.imageSmoothingEnabled=true;
+    const size=Math.min(canvas.width,canvas.height)*.95;
+    g.drawImage(image,(canvas.width-size)/2,canvas.height-size,size,size);return true;
+  }
+  const ACTOR_BOUNDS=new WeakMap(),ACTOR_EDGES=new WeakMap();
+  let HUMAN_SHADOW;
+  function humanShadow(){if(HUMAN_SHADOW)return HUMAN_SHADOW;const c=mk(36,10);c.hr=1;const g=c.getContext('2d');g.fillStyle='rgba(13,19,15,.32)';g.beginPath();g.ellipse(18,5,17,4,0,0,Math.PI*2);g.fill();return HUMAN_SHADOW=c;}
+  function actorBounds(image){
+    let bounds=ACTOR_BOUNDS.get(image);if(bounds)return bounds;
+    const g=image.getContext('2d'),pixels=g.getImageData(0,0,image.width,image.height).data;
+    let left=image.width,right=0,top=image.height,bottom=0;
+    for(let y=0;y<image.height;y++)for(let x=0;x<image.width;x++)if(pixels[(y*image.width+x)*4+3]>45){left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);}
+    bounds={left,right,top,bottom};ACTOR_BOUNDS.set(image,bounds);return bounds;
+  }
+  function actorEdge(image){
+    let edge=ACTOR_EDGES.get(image);if(edge)return edge;
+    const matte=mk(image.width,image.height),q=matte.getContext('2d');q.drawImage(image,0,0);q.globalCompositeOperation='source-in';q.fillStyle='#18201f';q.fillRect(0,0,image.width,image.height);
+    edge=mk(image.width+8,image.height+8);const g=edge.getContext('2d');g.globalAlpha=.38;
+    // Less than one CSS pixel on the phone, with soft coverage at the edge.
+    // Ground shadows carry most of the separation from detailed backdrops.
+    for(const [x,y]of [[-1,0],[1,0],[0,-1],[0,1]])g.drawImage(matte,4+x,4+y);
+    ACTOR_EDGES.set(image,edge);return edge;
+  }
+  let lastPlace='',ambientWait=8;
+  function locationFacts(){
+    if(!map||!P||map.ship)return null;
+    if(map.dungeon&&!map.hall)return {id:'dungeon:'+map.r,name:host.dungeonName(map.r),town:false,region:map.r};
+    const c=musicContext();return {id:(c.town?'town:':'wild:')+c.region,name:c.town?host.regionName(c.region):'Wilderness',town:c.town,region:c.region};
+  }
+  function placePresentation(dt){
+    const place=locationFacts();if(!place)return;
+    if(lastPlace&&lastPlace!==place.id&&!map.dungeon)banner={a:place.name,b:place.town?'You have entered town.':'Beyond the town boundary',t:3.2};
+    lastPlace=place.id;
+    if(locked||document.hidden)return;
+    if((ambientWait-=dt)<=0){ambientWait=10+Math.random()*7;
+      emit('ambient',map.dungeon&&!map.hall?(map.r===1||map.r===2?'drip':map.r===7?'draft':'cave'):place.town?(place.region===1?'harbour':'market'):'draft');
+    }
+  }
+  function drawLocation(o){
+    const place=locationFacts();if(!place||locked)return;
+    o.save();o.font=`600 ${13*dpr}px 'Alegreya Sans',sans-serif`;o.textAlign='left';
+    const w=Math.min(o.measureText(place.name).width+18*dpr,ov.width-112*dpr);
+    o.fillStyle='rgba(18,29,27,.94)';o.fillRect(8*dpr,8*dpr,w,24*dpr);o.fillStyle='#fff0ce';o.fillText(place.name,17*dpr,25*dpr,w-12*dpr);o.restore();
+  }
+  function resetWorld(){
+    pause();clearSceneControls();
+    for(const m of new Set([world,map]))if(m&&m.chunks){for(const c of m.chunks.values())c.width=c.height=0;m.chunks.clear();}
+    world=null;map=null;P=null;lastPlace='';near=null;GUIDE=null;GHOST=null;
+    parts=[];flies=[];anims=[];floats=[];slashes=[];shots=[];bars=[];
   }
   function heroArt() { const ap = host.app && host.app(); if (ap && AD && AD.body) { const d = dollSprite(ap); if (d) return d; } const s = heroSprite(), C = AD && AD.chars; if (s && s.art && C && C.atk) { if (!IMG['atk.webp']) img('atk.webp'); if (have('atk.webp')) { const lk = host.look(), aw = C.aw || C.cw, row = i => [0, 1, 2, 3].map(f => cut('atk.webp', (i * 4 + f) * aw, lk * C.ch, aw, C.ch)); s.af = row(0); s.al = row(1); s.as = row(2); s.ab = row(3); } }
     if (s && s.art && C && C.diag) { if (!IMG['diag.webp']) img('diag.webp'); if (have('diag.webp')) { const lk = host.look(), row = i => [0, 1, 2, 3].map(f => cut('diag.webp', (i * 4 + f) * C.cw, lk * C.ch, C.cw, C.ch)); s.dl = row(0); s.dr = row(1); s.ul = row(2); s.ur = row(3); } }   // the four diagonals, once that sheet is packed
@@ -670,6 +748,7 @@
       g.strokeStyle = sh(base, 1.4); g.lineWidth = 1.6; g.beginPath(); g.moveTo(px + sk, by - hh); g.lineTo(px - w * .25, by - hh * .46); g.stroke();
       if (b.cap || hh > 124) { const c0 = by - hh, ch = hh * .34; g.fillStyle = '#f6f9fa'; g.beginPath(); g.moveTo(px + sk, c0); g.lineTo(px + sk - w * .19, c0 + ch); g.lineTo(px + sk - w * .08, c0 + ch * .78); g.lineTo(px + sk, c0 + ch * 1.05); g.lineTo(px + sk + w * .08, c0 + ch * .74); g.lineTo(px + sk + w * .17, c0 + ch); g.fill(); g.fillStyle = 'rgba(120,140,160,.35)'; g.beginPath(); g.moveTo(px + sk, c0); g.lineTo(px + sk + w * .17, c0 + ch); g.lineTo(px + sk + w * .08, c0 + ch * .74); g.lineTo(px + sk, c0 + ch * 1.05); g.fill(); } }
     worldPaintSurface(m, g, X0, Y0);
+    TerrainEdges.paint(m,g,X0,Y0,CS,TS);
     return c;
   }
   function trim() { if (map.chunks.size < 70) return; const pcx = P.x / CS | 0, pcy = P.y / CS | 0; for (const [k, c] of map.chunks) { const x = k % 1000, y = k / 1000 | 0; if (Math.abs(x - pcx) > 5 || Math.abs(y - pcy) > 6) { c.width = c.height = 0; map.chunks.delete(k); } } }
@@ -710,7 +789,8 @@
   const D8 = (dx, dy) => [[3, 4, 5], [2, 0, 6], [1, 0, 7]][Math.sign(dy) + 1][Math.sign(dx) + 1] ?? 0;   // 0 S, 1 SW, 2 W, 3 NW, 4 N, 5 NE, 6 E, 7 SE
   const WALK = 2.2, RUN = 4.6, WALK_CYC = 1.8, RUN_CYC = 2.6, DIRV = { f: [0, 1], b: [0, -1], s: [1, 0], l: [-1, 0] }, D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]], dirOf = (dx, dy) => dx > 0 ? 's' : dx < 0 ? 'l' : dy > 0 ? 'f' : 'b';
   const HUMAN_STEPS = [[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]];
-  const npcStepClear = (e,dx,dy) => !blocked(e.x+dx,e.y+dy) && (!dx||!dy||(!blocked(e.x+dx,e.y)&&!blocked(e.x,e.y+dy)));
+  const heroOverlaps=(x,y)=>!!P&&Math.abs(P.fx-x)<.5+Movement.radius&&Math.abs(P.fy-y)<.5+Movement.radius;
+  const npcStepClear = (e,dx,dy) => !heroOverlaps(e.x+dx,e.y+dy) && !blocked(e.x+dx,e.y+dy) && (!dx||!dy||(!blocked(e.x+dx,e.y)&&!blocked(e.x,e.y+dy)));
   function clearSight(ax,ay,bx,by) {const n=Math.ceil(Math.max(Math.abs(bx-ax),Math.abs(by-ay))*2);for(let k=1;k<n;k++){const x=Math.floor(ax+(bx-ax)*k/n+.5),y=Math.floor(ay+(by-ay)*k/n+.5);if(x<0||y<0||x>=map.w||y>=map.h||map.solid[y*map.w+x])return false;}return true;}
   const CHASE_SECONDS=20,CHASE_LEAD=1.3,CHASE_LEASH=8,HIDE_OBSERVATION=6.5;
   const hostile = e => ['mon','rival','boss','guard','keeper'].includes(e.kind);
@@ -731,8 +811,20 @@
     clock = (clock + dt / 600) % 1;
     for (const a of anims) { a.t += dt; a.f(Math.min(1, a.t / a.d)); if (a.t >= a.d && a.end) a.end(); } anims = anims.filter(a => a.t < a.d);
     if (P.atk > 0) P.atk -= dt; advanceEffects(dt);
-    manualMovement();
-    if (P.path.length) {
+    placePresentation(dt);
+    const manual = manualMovement();
+    if(manual) {
+      const actor=P,[dx,dy]=manual;
+      P.d8=D8(dx,dy);P.dir=dirOf(dx,dy);P.dg=null;
+      const distance=Movement.advance(P,dx,dy,(P.run?RUN*(host.runMul?host.runMul():1):WALK)*dt,blocked);
+      if(P===actor){P.moving=distance>.00001;P.wd=(P.wd||0)+distance;P.walk+=distance*(P.run?13/RUN:9/WALK);if(distance<.00001)P.path=[];
+        if(distance>0&&host.manualMotion)host.manualMotion(distance,P.run);
+        // Tile ownership updates at cell boundaries; footsteps/resources use
+        // actual distance so rocking across one boundary cannot farm steps.
+        P.footDistance=(P.footDistance||0)+distance;discoverServices();
+        if(P.footDistance>=1){P.footDistance-=1;onTile();}
+      }
+    } else if (P.path.length) {
       const [nx, ny] = P.path[0];
       if (blocked(nx, ny)) stopManualStep();
       else {
@@ -752,25 +844,25 @@
     near = null; let nd = 1.6;
     for (const e of map.ents) { if(e.hidden)continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy); if (d < nd && !e.empty && nextTo(e)) { nd = d; near = e; } if (e.dead && e.dying == null && (e.decay -= dt) <= 0) e.dying = 1; if (e.dying) { e.dying -= dt * 2.4; continue; } if ((!e.wander && !(e.chase>0) && !e.returning && !['boss','guard','keeper'].includes(e.kind)) || e.busy || (d > 26 && !e.returning)) continue; e.t -= dt; if (e.tired > 0) e.tired -= dt; else if (d < 4.4 && e.kind === 'mon' && PREY[e.inst.tpl]) e.t = 0;   // prey reacts at once
       if (hostile(e) && !locked) { const v = DIRV[e.dir] || [0, 1], facing = (P.fx - e.fx) * v[0] + (P.fy - e.fy) * v[1] > 0; if (clearSight(e.fx,e.fy,P.fx,P.fy) && (host.detects ? host.detects(d,facing,e.agg) : (d < 3.2 && facing) || (e.agg && d < 6.5))) {e.alert = 4;if(host.noticed)host.noticed();} else if(host.visibility && host.visibility().hidden) {endChase(e);} else if (e.alert > 0) e.alert = Math.max(0, e.alert - dt); if (e.calm > 0) e.calm -= dt;
-        if(e.pursuitAnchor && ['boss','guard','keeper'].includes(e.kind) && Math.hypot(e.x-e.pursuitAnchor[0],e.y-e.pursuitAnchor[1])>=CHASE_LEASH)endChase(e);if(e.chase>0){e.chase=Math.max(0,e.chase-dt);if(!e.chase)endChase(e);} if (e.wait > 0) e.wait -= dt; e.hunt = !(e.wait > 0) && (e.chase > 0 && d < 16 && !locked && host.chasing()) || (e.agg && e.alert > 0 && !(e.calm > 0) && d < 8 && !locked && host.aggro()); if (e.hunt && e.tx == null) { if (Math.abs(e.x - P.x) + Math.abs(e.y - P.y) === 1) { e.hunt = 0; e.calm = 12; host.ambush(e); break; } const ddx = P.x - e.x, ddy = P.y - e.y, st = Math.abs(ddx) >= Math.abs(ddy) ? [[Math.sign(ddx), 0], [0, Math.sign(ddy)]] : [[0, Math.sign(ddy)], [Math.sign(ddx), 0]]; for (const [sx, sy] of st) { if ((!sx && !sy) || blocked(e.x + sx, e.y + sy) || (e.x + sx === P.x && e.y + sy === P.y)) continue; e.dir = dirOf(sx, sy); sit(map, e, e.x + sx, e.y + sy); e.tx = e.x; e.ty = e.y; break; } e.t = 1; continue; } }
-      if(e.returning&&e.tx==null&&!locked&&e.t<=0){const [ax,ay]=e.pursuitAnchor;if(e.x===ax&&e.y===ay)e.returning=false;else{const next=Backstab.returnStep([e.x,e.y],[ax,ay],(x,y)=>!blocked(x,y)&&!(x===P.x&&y===P.y));e.t=next ? .15 : 1;if(next){e.dir=dirOf(next[0]-e.x,next[1]-e.y);sit(map,e,...next);e.tx=e.x;e.ty=e.y;}}}
+        if(e.pursuitAnchor && ['boss','guard','keeper'].includes(e.kind) && Math.hypot(e.x-e.pursuitAnchor[0],e.y-e.pursuitAnchor[1])>=CHASE_LEASH)endChase(e);if(e.chase>0){e.chase=Math.max(0,e.chase-dt);if(!e.chase)endChase(e);} if (e.wait > 0) e.wait -= dt; e.hunt = !(e.wait > 0) && (e.chase > 0 && d < 16 && !locked && host.chasing()) || (e.agg && e.alert > 0 && !(e.calm > 0) && d < 8 && !locked && host.aggro()); if (e.hunt && e.tx == null) { if (Math.abs(e.x - P.x) + Math.abs(e.y - P.y) === 1) { e.hunt = 0; e.calm = 12; host.ambush(e); break; } const ddx = P.x - e.x, ddy = P.y - e.y, st = Math.abs(ddx) >= Math.abs(ddy) ? [[Math.sign(ddx), 0], [0, Math.sign(ddy)]] : [[0, Math.sign(ddy)], [Math.sign(ddx), 0]]; for (const [sx, sy] of st) { if ((!sx && !sy) || blocked(e.x + sx, e.y + sy) || heroOverlaps(e.x+sx,e.y+sy)) continue; e.dir = dirOf(sx, sy); sit(map, e, e.x + sx, e.y + sy); e.tx = e.x; e.ty = e.y; break; } e.t = 1; continue; } }
+      if(e.returning&&e.tx==null&&!locked&&e.t<=0){const [ax,ay]=e.pursuitAnchor;if(e.x===ax&&e.y===ay)e.returning=false;else{const next=Backstab.returnStep([e.x,e.y],[ax,ay],(x,y)=>!blocked(x,y)&&!heroOverlaps(x,y));e.t=next ? .15 : 1;if(next){e.dir=dirOf(next[0]-e.x,next[1]-e.y);sit(map,e,...next);e.tx=e.x;e.ty=e.y;}}}
       if (e.tx != null) { const dx = e.tx - e.fx, dy = e.ty - e.fy, dd = Math.hypot(dx, dy), sp = (e.wander >= 2 ? 1.4 : e.hunt && e.chase > 0 ? (FLY[e.inst && e.inst.tpl] ? 4.0 : SLOW[e.inst && e.inst.tpl] ? 1.9 : 3.6) : e.hunt ? 2.0 : e.run ? 2.4 : e.kind === 'mon' ? (FLY[e.inst.tpl] ? 1.6 : SLOW[e.inst.tpl] ? .5 : .9) : 1.1) * dt; e.walk = (e.walk || 0) + dt * 7; if (dd <= sp) { e.fx = e.tx; e.fy = e.ty; e.tx = null; } else { e.fx += dx / dd * sp; e.fy += dy / dd * sp; } }
-      else if (e.wander && !e.returning && e.t <= 0 && d > 1.6) {
-        if (e.wander >= 2) { const choices=e.npcLook?HUMAN_STEPS:D4; let v = e.mv && Math.random() < .8 ? e.mv : choices[Math.random() * choices.length | 0]; const nx = e.x + v[0], ny = e.y + v[1], tt = nx >= 0 && ny >= 0 && nx < map.w && ny < map.h ? map.t[ny * map.w + nx] : 9; if ((tt === 2 || tt === 3 || (e.wander === 3 && tt === 6)) && npcStepClear(e,v[0],v[1]) && !(map.doorApproaches && map.doorApproaches.has(ny * map.w + nx)) && !(nx === P.x && ny === P.y) && (e.roam ? nx >= e.roam[0] && ny >= e.roam[1] && nx <= e.roam[2] && ny <= e.roam[3] : e.wander === 3 || Math.hypot(nx - TOWN[e.r][0], ny - TOWN[e.r][1]) < 26)) { e.mv = v; e.dir = dirOf(v[0], v[1]); sit(map, e, nx, ny); e.tx = nx; e.ty = ny; e.t = Math.random() < .12 ? 1 + Math.random() * 4 : 0; } else { e.mv = null; e.t = .2 + Math.random() * .8; } }
+      else if (e.wander && !e.returning && e.t <= 0 && d > 1.6) { if(livingNpcStep(e,dt))continue;
+        if (e.wander >= 2) { const choices=e.npcLook?HUMAN_STEPS:D4; let v = e.mv && Math.random() < .8 ? e.mv : choices[Math.random() * choices.length | 0]; const nx = e.x + v[0], ny = e.y + v[1], tt = nx >= 0 && ny >= 0 && nx < map.w && ny < map.h ? map.t[ny * map.w + nx] : 9; if ((tt === 2 || tt === 3 || (e.wander === 3 && tt === 6)) && npcStepClear(e,v[0],v[1]) && !(map.doorApproaches && map.doorApproaches.has(ny * map.w + nx)) && !heroOverlaps(nx,ny) && (e.roam ? nx >= e.roam[0] && ny >= e.roam[1] && nx <= e.roam[2] && ny <= e.roam[3] : e.wander === 3 || Math.hypot(nx - TOWN[e.r][0], ny - TOWN[e.r][1]) < 26)) { e.mv = v; e.dir = dirOf(v[0], v[1]); sit(map, e, nx, ny); e.tx = nx; e.ty = ny; e.t = Math.random() < .12 ? 1 + Math.random() * 4 : 0; } else { e.mv = null; e.t = .2 + Math.random() * .8; } }
         else if (e.kind === 'mon') {   // creatures roam their ground: pick a spot, walk to it, rest, go again. Prey bolts when you come close, then tires.
           const tp = e.inst.tpl, fly = FLY[tp]; if (PREY[tp] && d < 4.4 && !(e.tired > 0)) { e.goal = [e.x + Math.round((e.x - P.x) / d * 5), e.y + Math.round((e.y - P.y) / d * 5)]; e.steps = 0; e.run = 1; e.tired = 4.5; }
           if (!e.goal) { const a = Math.random() * 6.283, rr = 2 + Math.random() * e.range * (fly ? .95 : .65); e.goal = [Math.round(e.home[0] + Math.cos(a) * rr), Math.round(e.home[1] + Math.sin(a) * rr)]; e.steps = 0; e.run = 0; }
           const gx = e.goal[0] - e.x, gy = e.goal[1] - e.y, rest = () => { e.goal = null; e.run = 0; e.t = fly ? .3 + Math.random() * 1.4 : SLOW[tp] ? 1.5 + Math.random() * 3 : .7 + Math.random() * 3.2; };
           if ((!gx && !gy) || e.steps > 16) rest();
           else { const opts = Math.abs(gx) >= Math.abs(gy) ? [[Math.sign(gx), 0], [0, Math.sign(gy)]] : [[0, Math.sign(gy)], [Math.sign(gx), 0]]; let went = false; if (e.run) for (const v of D4) if (v[0] * (P.x - e.x) + v[1] * (P.y - e.y) <= 0) opts.push(v);   // bolting prey goes round whatever is in its way
-            for (const [sx, sy] of opts) { if (!sx && !sy) continue; const nx = e.x + sx, ny = e.y + sy; if (blocked(nx, ny) || (nx === P.x && ny === P.y) || map.keep[ny * map.w + nx] || Math.hypot(nx - e.home[0], ny - e.home[1]) > e.range + (e.run ? 5 : 0)) continue; e.dir = dirOf(sx, sy); sit(map, e, nx, ny); e.tx = nx; e.ty = ny; e.steps++; e.t = 0; went = true; break; }
+            for (const [sx, sy] of opts) { if (!sx && !sy) continue; const nx = e.x + sx, ny = e.y + sy; if (blocked(nx, ny) || heroOverlaps(nx,ny) || map.keep[ny * map.w + nx] || Math.hypot(nx - e.home[0], ny - e.home[1]) > e.range + (e.run ? 5 : 0)) continue; e.dir = dirOf(sx, sy); sit(map, e, nx, ny); e.tx = nx; e.ty = ny; e.steps++; e.t = 0; went = true; break; }
             if (!went) rest(); } }
-        else { e.t = 1.2 + Math.random() * 3.5; const choices=e.npcLook?HUMAN_STEPS:D4, [dx, dy] = choices[Math.random() * choices.length | 0], nx = e.x + dx, ny = e.y + dy; e.dir = dirOf(dx, dy); if (npcStepClear(e,dx,dy) && !(nx === P.x && ny === P.y) && Math.hypot(nx - e.home[0], ny - e.home[1]) <= e.range && (e.kind === 'rival' || !map.keep[ny * map.w + nx])) { sit(map, e, nx, ny); e.tx = nx; e.ty = ny; } } } }
+        else { e.t = 1.2 + Math.random() * 3.5; const choices=e.npcLook?HUMAN_STEPS:D4, [dx, dy] = choices[Math.random() * choices.length | 0], nx = e.x + dx, ny = e.y + dy; e.dir = dirOf(dx, dy); if (npcStepClear(e,dx,dy) && !heroOverlaps(nx,ny) && Math.hypot(nx - e.home[0], ny - e.home[1]) <= e.range && (e.kind === 'rival' || !map.keep[ny * map.w + nx])) { sit(map, e, nx, ny); e.tx = nx; e.ty = ny; } } } }
     if (map.ents.some(e => e.dying != null && e.dying <= 0)) map.ents = map.ents.filter(e => !(e.dying != null && e.dying <= 0));
     if(map.dungeonFloor && (map.respawnCheck=(map.respawnCheck||0)-dt)<=0){map.respawnCheck=1;dungeonRespawn(map);}
     if (map.respawn) { map.respawn = map.respawn.filter(o => { o.t -= dt; if (o.t > 0) return true; o.node ? spawnNode(map, o.terr) : spawnMon(map, o.terr); return false; }); }
     const pi = P.y * map.w + P.x, r = map.dungeon ? map.r : (map.reg[pi] || curReg), nb = map.dungeon ? map.r : (map.b[pi] || curB); if (nb !== curB) { if (map.pal[nb].fx !== map.pal[curB].fx) parts = []; curB = nb; need(map.pal[nb].ar || r); }
-    if (r !== curReg) { curReg = r; need(r); banner = { a: host.regionName(r), b: host.regionSub(r), t: 3.2 }; host.entered(r); }
+    if (r !== curReg) { curReg=r;need(r);const place=locationFacts();banner={a:place?place.name:host.regionName(r),b:place&&place.town?host.regionSub(r):'Countryside near '+host.regionName(r),t:3.2};host.entered(r); }
     if (!map.dungeon && (tcheck -= dt) <= 0) { tcheck = .5; let in_ = null; for (const t of map.terr) if (Math.abs(t.x - P.x) < 14 && Math.hypot(t.x - P.x, t.y - P.y) < (t.rad || 7) + 2) { in_ = t; break; } if (in_ !== curT) { curT = in_; if (in_ && in_.name && !banner) banner = { a: in_.name, b: host.monName({ tpl: in_.tpl }) + ' ground', t: 3.2 }; } }
     const bio = map.pal[curB], fx = bio.fx; ambNow += (bio.amb - ambNow) * Math.min(1, dt * 1.5);
     if (fx && parts.length < (fx === 'rain' ? 70 : 34)) parts.push({ x: Math.random() * vw, y: fx === 'ember' ? vh : (fx === 'mote' ? Math.random() * vh : -4), l: 1, s: Math.random() });
@@ -790,6 +882,7 @@
     const k = map.t[P.y * map.w + P.x], room = (map.blds || []).find(o => o.enter && buildingContains(o, P.x, P.y));
     const surface = room ? room.room.fl === 'flag' ? 'stone' : 'wood' : map.hall || k === 6 ? 'wood' : map.dungeon || k === 3 || k === 7 ? 'stone' : 'earth';
     if (map.dungeonFloor) dungeonReveal(map,P.x,P.y);
+    discoverServices();
     emit('step', surface); host.moved(P.x, P.y, map.dungeon, P.run);
   }
 
@@ -811,6 +904,7 @@
     for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const i = y * map.w + x; if (map.t[i] !== 4) continue; const b = map.pal[map.b[i]], lava = b.liquid === 'lava'; if (lava && x % 3 === 2 && y % 3 === 2) vl.push({ x: x + .5, y: y + .5, r: 34, c: 2 }); for (let k = 0; k < 3; k++) { const hx = hash(x * 3 + k, y, ph) * 13 | 0, hy = hash(x, y * 3 + k, ph + 7) * 15 | 0; g.fillStyle = lava ? (k ? '#f0a03a' : '#ffe08a') : (b.fx === 'snow' ? 'rgba(255,255,255,.5)' : 'rgba(190,220,225,.34)'); g.fillRect(x * T + hx - ox0, y * T + hy - oy0, lava ? 2 : 3, 1); } }
     const rdt = Math.min(.1, (now - (roomT || now)) / 1000); roomT = now;
     for (const o of map.blds) if (o.modular) { if(o.x+o.w>=x0-3&&o.x<=x1+3&&o.y+o.h>=y0-3&&o.y<=y1+5)worldBuildingFloor(o,g,ox0,oy0,rdt); } else if (o.enter) { roomFade(o, rdt); if (o.fa < 1) { const ra = roomArt(o); if (ra) g.drawImage(ra.fl, Math.round((o.x * T - ox0) * K) / K, Math.round((o.y * T - oy0) * K) / K, o.w * T, o.h * T); } }
+    livingDraw(g,ox0,oy0,now);
     const list = [];
     for (let y = y0; y <= Math.min(map.h - 1, y1 + 4); y++) for (let x = Math.max(0, x0 - 3); x <= Math.min(map.w - 1, x1 + 3); x++) { const i = y * map.w + x, o = map.o[i]; if (!o) continue; const pb = map.pal[map.b[i]], r = (pb && pb.ar) || map.reg[i] || curReg, s = spr(OBJK[o], r); if (!s) continue; list.push([y * T + (o === 7 || o === 10 ? 2 : 15), s.c, x * T + 8 - s.ax, y * T + 15 - s.ay]); if (o < 4 && map.pal[r].tree === 'shroom' && (x + y) % 2 === 0) vl.push({ x: x + .5, y: y - .5, r: 22, c: 3 }); }
     for (const o of map.props) { if (Math.abs(o.x * T - ox0 - vw / 2) > vw / 2 + 1100 || Math.abs(o.y * T - oy0 - vh / 2) > vh / 2 + 1100) continue; const s = spr(o.kind, o.r); if (!s || !s.c) continue; const sc = o.sc || 1, px = o.x * T + 8 - s.ax * sc, py = o.y * T + (o.hang ? 14 : 15) - s.ay * sc; if (px + lw(s.c) * sc < ox0 || px > ox0 + vw || py + lh(s.c) * sc < oy0 || py > oy0 + vh) continue; list.push([o.y * T + 15, s.c, px, py, false, o.sc || 0]); }
@@ -825,16 +919,18 @@
       if (e.npcLook && !e.dead && npcDraw(e, bx, by, by + (bars.some(b => b.e === e) ? 4000 : 0), list)) return;
       if (e.fs != null) { const c = fsCut(e.fs, e.ff | 0); if (c) list.push([by, c, bx - lw(c) / 2 + (e.ox || 0), by - lh(c) + 2, !!e.flip]); else if (e.spr) list.push([by, (e.spr.f || e.spr)[0], bx - 8, by - 15]); return; }
       if (!e.spr) return;
-      const s = e.spr, moving = me ? P.path.length && !locked : e.tx != null, left = e.dir === 'l', fl = me && s.w8 && !(P.atk > 0) ? (P.run && moving && s.r8 ? s.r8 : s.w8)[P.d8 || 0] : me && P.dg && s[P.dg] && !(P.atk > 0) ? s[P.dg] : left && s.l ? s.l : s[left ? 's' : (e.dir || 'f')], f = s.beast ? fr : (moving ? (me && s.w8 && !(P.atk > 0) ? Math.floor(P.wd / ((P.run ? RUN_CYC : WALK_CYC) / fl.length)) % fl.length : ((me ? P.walk : e.walk) | 0) % fl.length) : me && s.w8 && fl.length === 8 ? 2 : 0), ak = me && P.atk > 0 && s.af ? s['a' + (left ? 'l' : (e.dir || 'f'))] : null, baseImage = ak ? ak[Math.min(3, Math.floor((1 - P.atk / .3) * 4))] : fl[f], im = me && map.ship && map.ship.phase === 'rescue' && map.ship.time < 3.7 ? shipWaterFrame(baseImage) : baseImage, sc = e.big && !s.art ? 2 : s.msc || 1;
+      const s = e.spr, moving = me ? (P.moving||P.path.length) && !locked : e.tx != null, left = e.dir === 'l', fl = me && s.w8 && !(P.atk > 0) ? (P.run && moving && s.r8 ? s.r8 : s.w8)[P.d8 || 0] : me && P.dg && s[P.dg] && !(P.atk > 0) ? s[P.dg] : left && s.l ? s.l : s[left ? 's' : (e.dir || 'f')], f = s.beast ? fr : (moving ? (me && s.w8 && !(P.atk > 0) ? ActorRig.phase(P.wd,P.run,fl.length) : ((me ? P.walk : e.walk) | 0) % fl.length) : me && s.w8 && fl.length === 8 ? 2 : 0), ak = me && P.atk > 0 && s.af ? s['a' + (left ? 'l' : (e.dir || 'f'))] : null, baseImage = ak ? ak[Math.min(3, Math.floor((1 - P.atk / .3) * 4))] : fl[f], im = me && map.ship && map.ship.phase === 'rescue' && map.ship.time < 3.7 ? shipWaterFrame(baseImage) : baseImage, sc = e.big && !s.art ? 2 : s.msc || 1;
       if (e.dead) { const da = artDead(e.inst ? (e.inst.art || e.inst.tpl) : e.tpl); if (da) { const ds = s.msc || 1; list.push([by - 8, da, bx - lw(da) * ds / 2, by - lh(da) * ds + 3, false, ds, 0, e.dying != null ? Math.max(0, e.dying) : 1]); return; } const di = (s.s || s.f)[0]; list.push([by - 8, di, bx - lw(di) * sc / 2, by - lh(di) * sc + 1, false, sc, 0, e.dying != null ? Math.max(0, e.dying) : 1, 1]); return; }
       const flip = me && s.w8 && !(P.atk > 0) ? false : s.left ? (e.dir === 's' && !e.flip) : ((left && !s.l) || e.flip), bob = s.bob ? (moving && !(e.inst && FLY[e.inst.tpl]) ? -Math.round(Math.abs(Math.sin(now / 105 + e.x)) * 3) / K : Math.round(Math.sin(now / 320 + e.x * 2) * 2) / K) : (s.one && moving ? Math.round(Math.abs(Math.sin(now / 90)) * 3) / K : 0);
       list.push([(me ? worldHeroSort(by) : by) + (bars.length && (me || bars.some(b => b.e === e)) ? 4000 : 0), im, bx - lw(im) * sc / 2, by - lh(im) * sc + (s.art ? 1 : 2 + (s.beast ? 3 * sc : 0)) + (s.one && moving ? -bob : bob), flip, sc, e.flash > 0 ? 1 : 0, e.dying != null ? Math.max(0, e.dying) : me && host.visibility && host.visibility().hidden ? .45 : 1, 0, me && s.fx && im.mask ? s.fx : null]);
     };
     drawingNpcFrames = true;
     for (const e of map.ents) { if(e.hidden)continue; if (Math.abs(e.fx * T - ox0 - vw / 2) > vw / 2 + 60 || Math.abs(e.fy * T - oy0 - vh / 2) > vh / 2 + 70) continue; if (e.sv !== artVer) dress(e); else if (e.wk && !e.spr.l && AD && AD.chars.walk && have('folk.webp')) dress(e); if (e.flash > 0) e.flash -= .016; ent(e); }
+    if(P.spr&&P.spr.doll)list.push([worldHeroSort(P.fy*T+15)-1,humanShadow(),P.fx*T+2,P.fy*T+14]);
     if (P.flash > 0) P.flash -= .016; ent(P, true);
+    livingLayers(list,now);serviceLayers(list);
     list.sort((a, c2) => a[0] - c2[0]);
-    for (const [, im, px, py, flip, sc, fl, al, rot, fx] of list) { if (!im) continue; const X = Math.round((px - ox0) * K) / K, Y = Math.round((py - oy0) * K) / K, w = lw(im) * (sc || 1), h = lh(im) * (sc || 1); if (al != null && al < 1) g.globalAlpha = al; if (im.sm) { g.imageSmoothingEnabled = true; if (flip) { g.save(); g.translate(X + w, Y); g.scale(-1, 1); g.drawImage(im, 0, 0, w, h); g.restore(); } else g.drawImage(im, X, Y, w, h); g.imageSmoothingEnabled = false; continue; } if (rot) { g.fillStyle = 'rgba(0,0,0,.22)'; g.beginPath(); g.ellipse(X + w / 2, Y + h - 1, h * .46, 3, 0, 0, 7); g.fill(); g.save(); g.translate(X + w / 2 - h / 2, Y + h - w / 2); g.rotate(Math.PI / 2); g.drawImage(im, -w / 2, -h, w, h); g.restore(); g.globalAlpha = 1; continue; } if (flip) { g.save(); g.translate(X + w, Y); g.scale(-1, 1); g.drawImage(im, 0, 0, w, h); if (fl) { g.globalCompositeOperation = 'lighter'; g.drawImage(im, 0, 0, w, h); } g.restore(); } else { g.drawImage(im, X, Y, w, h); if (fl) { g.globalCompositeOperation = 'lighter'; g.drawImage(im, X, Y, w, h); g.globalCompositeOperation = 'source-over'; } } if (fx) dollFx(g, fx, im.mask, X, Y, w, h, flip, now); g.globalAlpha = 1; }
+    for (const [, im, px, py, flip, sc, fl, al, rot, fx] of list) { if (!im) continue; const X = Math.round((px - ox0) * K) / K, Y = Math.round((py - oy0) * K) / K, w = lw(im) * (sc || 1), h = lh(im) * (sc || 1); if (al != null && al < 1) g.globalAlpha = al; if(im.human){const edge=actorEdge(im);if(flip){g.save();g.translate(X+w,Y);g.scale(-1,1);g.drawImage(edge,-4/K,-4/K,(im.width+8)/K*(sc||1),(im.height+8)/K*(sc||1));g.restore();}else g.drawImage(edge,X-4/K,Y-4/K,(im.width+8)/K*(sc||1),(im.height+8)/K*(sc||1));} if (im.sm) { g.imageSmoothingEnabled = true; if (flip) { g.save(); g.translate(X + w, Y); g.scale(-1, 1); g.drawImage(im, 0, 0, w, h); g.restore(); } else g.drawImage(im, X, Y, w, h); g.imageSmoothingEnabled = false; continue; } if (rot) { g.fillStyle = 'rgba(0,0,0,.22)'; g.beginPath(); g.ellipse(X + w / 2, Y + h - 1, h * .46, 3, 0, 0, 7); g.fill(); g.save(); g.translate(X + w / 2 - h / 2, Y + h - w / 2); g.rotate(Math.PI / 2); g.drawImage(im, -w / 2, -h, w, h); g.restore(); g.globalAlpha = 1; continue; } if (flip) { g.save(); g.translate(X + w, Y); g.scale(-1, 1); g.drawImage(im, 0, 0, w, h); if (fl) { g.globalCompositeOperation = 'lighter'; g.drawImage(im, 0, 0, w, h); } g.restore(); } else { g.drawImage(im, X, Y, w, h); if (fl) { g.globalCompositeOperation = 'lighter'; g.drawImage(im, X, Y, w, h); g.globalCompositeOperation = 'source-over'; } } if (fx) dollFx(g, fx, im.mask, X, Y, w, h, flip, now); g.globalAlpha = 1; }
     if (map.ship) shipOverlay(g, ox0, oy0);
     drawingNpcFrames = false;
     for (const canvas of npcRetired) canvas.width = canvas.height = 0;
@@ -867,24 +963,26 @@
       g.imageSmoothingEnabled = true; g.drawImage(L, 0, 0); g.imageSmoothingEnabled = false; g.globalCompositeOperation = 'lighter'; for (const l of ls) { const x = l.x * T - ox0, y = l.y * T - oy0, gr = g.createRadialGradient(x, y, 0, x, y, l.r * .7); gr.addColorStop(0, l.c === 2 ? `rgba(255,120,40,${amb * .34})` : l.c === 3 ? `rgba(150,110,220,${amb * .28})` : `rgba(255,190,90,${amb * .3})`); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(x - l.r, y - l.r, l.r * 2, l.r * 2); } g.globalCompositeOperation = 'source-over'; }
     if (fade > 0) { g.fillStyle = `rgba(5,7,9,${fade})`; g.fillRect(0, 0, vw, vh); }
     // crisp overlay: names, markers, health bars, damage numbers, corner map
-    const o = ox, z = zoom * dpr; o.clearRect(0, 0, ov.width, ov.height); o.textAlign = 'center'; o.font = `500 ${11 * dpr}px 'Alegreya Sans', sans-serif`;
-    const top = e => (e.fy * T - (e.spr && e.spr.art ? Math.max(6, lh(e.spr.f[0]) * (e.spr.msc || 1) - 13 * Math.min(1, e.spr.msc || 1)) : e.obj && e.obj.c.hr ? lh(e.obj.c)*(e.objectScale||1) - 12 : e.big ? 34 : e.obj ? 8 : 12) - oy0) * z;
-    for (const e of map.ents) { if (e.hidden || e.dying != null || venueHiddenEntity(e)) continue; const sx = (e.fx * T + 8 - ox0) * z, sy = top(e); if (sx < -50 || sy < -30 || sx > ov.width + 50 || sy > ov.height) continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy), mark = e.kind === 'folk' ? null : host.mark(e);
-      if (mark) { o.font = `700 ${15 * dpr}px Georgia, serif`; o.fillStyle = '#0a0c0e'; o.fillText(mark[0], sx + dpr, sy - 2 * dpr + Math.sin(now / 300) * 2 * dpr + dpr); o.fillStyle = mark[1]; o.fillText(mark[0], sx, sy - 2 * dpr + Math.sin(now / 300) * 2 * dpr); o.font = `500 ${11 * dpr}px 'Alegreya Sans', sans-serif`; }
+    const o = ox, z = zoom * dpr; o.clearRect(0, 0, ov.width, ov.height); o.textAlign = 'center'; o.font = `600 ${12 * dpr}px 'Alegreya Sans', sans-serif`;
+    const top = e => e.rendered?(e.rendered.topY-oy0)*z:(e.fy * T - (e.spr && e.spr.art ? Math.max(6, lh(e.spr.f[0]) * (e.spr.msc || 1) - 13 * Math.min(1, e.spr.msc || 1)) : e.obj && e.obj.c.hr ? lh(e.obj.c)*(e.objectScale||1) - 12 : e.big ? 34 : e.obj ? 8 : 12) - oy0) * z;
+    for (const e of map.ents) { if (e.hidden || e.dying != null || venueHiddenEntity(e)) continue; const sx = ((e.rendered?e.rendered.headX:e.fx*T+8)-ox0)*z, sy = top(e); if (sx < -50 || sy < -30 || sx > ov.width + 50 || sy > ov.height) continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy), mark = e.kind === 'folk' ? null : host.mark(e);
+      if (mark) { o.font = `700 ${15 * dpr}px Georgia, serif`; o.fillStyle = '#0a0c0e'; o.fillText(mark[0], sx + dpr, sy - 2 * dpr + Math.sin(now / 300) * 2 * dpr + dpr); o.fillStyle = mark[1]; o.fillText(mark[0], sx, sy - 2 * dpr + Math.sin(now / 300) * 2 * dpr); o.font = `600 ${12 * dpr}px 'Alegreya Sans', sans-serif`; }
       if (d < (e.kind === 'mon' ? 3.4 : e.kind === 'folk' ? 2.2 : 4.6) && !bars.some(b => b.e === e)) { const y = sy - (mark ? 16 : 3) * dpr, txt = (e.inst && e.inst.elite ? 'Gilded ' : '') + e.name; o.lineWidth = 3 * dpr; o.strokeStyle = 'rgba(8,10,12,.85)'; o.strokeText(txt, sx, y); o.fillStyle = e.kind === 'mon' || e.kind === 'guard' ? (e.inst && e.inst.elite ? '#f3a53f' : '#e8b0a0') : e.kind === 'boss' ? '#e06a50' : '#ece5d0'; o.fillText(txt, sx, y); if ((e.kind === 'mon' || e.kind === 'rival') && e.alert > 0 && host.thief() && !locked) { o.fillStyle = '#e06a50'; o.fillText('sees you', sx, y - 12 * dpr); } } }
-    for (const b of bars) { const e = b.e === 'me' ? P : b.e, sx = (e.fx * T + 8 - ox0) * z, sy = (b.e === 'me' ? (P.fy * T - 14 - oy0) * z : top(e)) - 6 * dpr, w = 44 * dpr, h = 6 * dpr; o.fillStyle = 'rgba(8,10,12,.85)'; o.fillRect(sx - w / 2 - dpr, sy - dpr, w + 2 * dpr, h + 2 * dpr); o.fillStyle = '#3a1c18'; o.fillRect(sx - w / 2, sy, w, h); o.fillStyle = b.e === 'me' ? '#6fbf5a' : '#e0563e'; o.fillRect(sx - w / 2, sy, w * clamp(b.pct, 0, 1), h); if (b.name) { o.lineWidth = 3 * dpr; o.strokeStyle = 'rgba(8,10,12,.85)'; o.strokeText(b.name, sx, sy - 4 * dpr); o.fillStyle = '#ece5d0'; o.fillText(b.name, sx, sy - 4 * dpr); } }
+    for (const b of bars) { const e = b.e === 'me' ? P : b.e, sx = ((e.rendered?e.rendered.headX:e.fx*T+8)-ox0)*z, sy = (b.e === 'me' ? (P.fy * T - 14 - oy0) * z : top(e)) - 6 * dpr, w = 44 * dpr, h = 6 * dpr; o.fillStyle = 'rgba(8,10,12,.85)'; o.fillRect(sx - w / 2 - dpr, sy - dpr, w + 2 * dpr, h + 2 * dpr); o.fillStyle = '#3a1c18'; o.fillRect(sx - w / 2, sy, w, h); o.fillStyle = b.e === 'me' ? '#6fbf5a' : '#e0563e'; o.fillRect(sx - w / 2, sy, w * clamp(b.pct, 0, 1), h); if (b.name) { o.lineWidth = 3 * dpr; o.strokeStyle = 'rgba(8,10,12,.85)'; o.strokeText(b.name, sx, sy - 4 * dpr); o.fillStyle = '#ece5d0'; o.fillText(b.name, sx, sy - 4 * dpr); } }
     // the guided start: a bouncing arrow over the next thing to do, or at the screen edge pointing toward it
     { const gt = !locked && host.guide && host.guide(); if (gt) { const gx = (gt[0] * T + 8 - ox0) * z, gy = (gt[1] * T - 30 - oy0) * z + Math.sin(now / 220) * 5 * dpr, m = 26 * dpr, W2 = ov.width, H2 = ov.height, inside = gx > m && gx < W2 - m && gy > m && gy < H2 - m;
       o.save(); if (inside) { o.translate(gx, gy); o.rotate(Math.PI / 2); } else { const cx = W2 / 2, cy = H2 / 2, a = Math.atan2(gy - cy, gx - cx), k = Math.min((W2 / 2 - m) / Math.abs(Math.cos(a) || 1e-6), (H2 / 2 - m) / Math.abs(Math.sin(a) || 1e-6)); o.translate(cx + Math.cos(a) * k, cy + Math.sin(a) * k); o.rotate(a); }
       const L = 22 * dpr; o.beginPath(); o.moveTo(L * .55, 0); o.lineTo(-L * .45, -L * .42); o.lineTo(-L * .2, 0); o.lineTo(-L * .45, L * .42); o.closePath(); o.lineWidth = 3 * dpr; o.strokeStyle = 'rgba(20,12,4,.9)'; o.stroke(); o.fillStyle = '#f2c94c'; o.fill(); o.restore(); } }
     cartographyDrawGuide(o, ox0, oy0, z, now);
-    o.font = `700 ${17 * dpr}px 'Alegreya Sans', sans-serif`; for (const f of floats) { const e = f.e === 'me' ? P : f.e, sx = (e.fx * T + 8 - ox0) * z + f.dx * dpr, sy = (e.fy * T - 18 - oy0) * z - f.t * 34 * dpr; o.globalAlpha = Math.min(1, (1 - f.t) * 2.2); o.lineWidth = 4 * dpr; o.strokeStyle = 'rgba(8,10,12,.9)'; o.strokeText(f.txt, sx, sy); o.fillStyle = f.col; o.fillText(f.txt, sx, sy); } o.globalAlpha = 1; o.font = `500 ${11 * dpr}px 'Alegreya Sans', sans-serif`;
+    o.font = `700 ${17 * dpr}px 'Alegreya Sans', sans-serif`; for (const f of floats) { const e = f.e === 'me' ? P : f.e, sx = (e.fx * T + 8 - ox0) * z + f.dx * dpr, sy = (e.fy * T - 18 - oy0) * z - f.t * 34 * dpr; o.globalAlpha = Math.min(1, (1 - f.t) * 2.2); o.lineWidth = 4 * dpr; o.strokeStyle = 'rgba(8,10,12,.9)'; o.strokeText(f.txt, sx, sy); o.fillStyle = f.col; o.fillText(f.txt, sx, sy); } o.globalAlpha = 1; o.font = `600 ${12 * dpr}px 'Alegreya Sans', sans-serif`;
     if (!locked && !map.ship) { const MS = 44, ms = 1.5 * dpr, sz = MS * ms, mx = ov.width - sz - 8 * dpr, my = 8 * dpr, sx0 = clamp(P.x - MS / 2, 0, Math.max(0, map.w - MS)), sy0 = clamp(P.y - MS / 2, 0, Math.max(0, map.h - MS)), mw = Math.min(MS, map.w), mh = Math.min(MS, map.h); o.globalAlpha = .9; o.imageSmoothingEnabled = false; o.fillStyle = '#0a0c0e'; o.fillRect(mx - 2 * dpr, my - 2 * dpr, mw * ms + 4 * dpr, mh * ms + 4 * dpr); const cd = map === world && host.cartography ? host.cartography() : null; const chart = cd ? cartographyMap(cd.mask, cd.maps, 0, cd.revision) : map.mini; o.drawImage(chart, sx0, sy0, mw, mh, mx, my, mw * ms, mh * ms); o.globalAlpha = 1;
       for (const e of map.ents) { if (cd && !Cartography.exploredAt(cd.mask,e.x,e.y) && !cd.maps[e.r]) continue; if (e.x < sx0 || e.y < sy0 || e.x >= sx0 + mw || e.y >= sy0 + mh) continue; const c = e.kind === 'mon' || e.kind === 'guard' ? '#e06a50' : e.kind === 'npc' ? (host.mark(e) ? '#f3c95a' : '#d8d0c0') : e.kind === 'boss' ? '#ff5a3a' : e.kind === 'stairs' || e.kind === 'chest' ? '#a98be6' : e.kind === 'page' || e.kind === 'corpse' ? '#f3c95a' : e.kind === 'cache' && e.ok === 'chest' ? '#a98be6' : e.kind === 'camp' ? '#ff9a4a' : e.kind === 'node' ? host.hue(e.r) : null; if (!c) continue; o.fillStyle = c; o.fillRect(mx + (e.fx - sx0) * ms, my + (e.fy - sy0) * ms, 2 * dpr, 2 * dpr); }
+      serviceMini(o,mx,my,sx0,sy0,ms,mw,mh);
       o.fillStyle = '#fff'; o.fillRect(mx + (P.fx - sx0) * ms - dpr, my + (P.fy - sy0) * ms - dpr, 3 * dpr, 3 * dpr); }
+    drawLocation(o);
     if (banner) { const a = Math.min(1, banner.t, (3.2 - banner.t) * 2); o.globalAlpha = Math.max(0, a); o.font = `400 ${30 * dpr}px 'IM Fell English', Georgia, serif`; o.lineWidth = 5 * dpr; o.strokeStyle = 'rgba(8,10,12,.8)'; o.strokeText(banner.a, ov.width / 2, ov.height * .24); o.fillStyle = '#ece5d0'; o.fillText(banner.a, ov.width / 2, ov.height * .24); o.font = `italic 400 ${16 * dpr}px 'IM Fell English', Georgia, serif`; o.strokeText(banner.b, ov.width / 2, ov.height * .24 + 24 * dpr); o.fillStyle = '#d3a84c'; o.fillText(banner.b, ov.width / 2, ov.height * .24 + 24 * dpr); o.globalAlpha = 1; }
-    if(map.dungeonFloor && !locked){ const area=map.layout.rooms.find(R=>P.x>=R.x&&P.y>=R.y&&P.x<R.x+R.w&&P.y<R.y+R.h);o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const label='Floor '+(map.f+1)+' · '+(area?area.name:map.layout.name);const tw=o.measureText(label).width;o.fillStyle='rgba(8,15,22,.85)';o.fillRect(8*dpr,52*dpr,Math.min(tw+16*dpr,ov.width-16*dpr),23*dpr);o.fillStyle='#f4dfac';o.fillText(label,16*dpr,68*dpr,ov.width-36*dpr);o.textAlign='center';}
-    if(map.venue && !locked){o.save();o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const width=Math.min(ov.width-112*dpr,o.measureText('Upper floor · '+map.venue.name).width+16*dpr);o.fillStyle='rgba(12,24,28,.9)';o.fillRect(8*dpr,52*dpr,width,23*dpr);o.fillStyle='#f4dfac';o.fillText('Upper floor · '+map.venue.name,16*dpr,68*dpr,width-16*dpr);o.restore();}
+    if(map.dungeonFloor && !locked){ const area=map.layout.rooms.find(R=>P.x>=R.x&&P.y>=R.y&&P.x<R.x+R.w&&P.y<R.y+R.h);o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const label='Floor '+(map.f+1)+' · '+(area?area.name:map.layout.name);const tw=o.measureText(label).width;o.fillStyle='rgba(8,15,22,.85)';o.fillRect(8*dpr,84*dpr,Math.min(tw+16*dpr,ov.width-16*dpr),23*dpr);o.fillStyle='#f4dfac';o.fillText(label,16*dpr,100*dpr,ov.width-36*dpr);o.textAlign='center';}
+    if(map.venue && !locked){o.save();o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const width=Math.min(ov.width-112*dpr,o.measureText('Upper floor · '+map.venue.name).width+16*dpr);o.fillStyle='rgba(12,24,28,.9)';o.fillRect(8*dpr,84*dpr,width,23*dpr);o.fillStyle='#f4dfac';o.fillText('Upper floor · '+map.venue.name,16*dpr,100*dpr,width-16*dpr);o.restore();}
     host.hud(locked ? null : near);
     } finally { WORLD_BUILDING_CACHE.endFrame(); }
   }
@@ -905,7 +1003,7 @@
   function place(x, y) { if (map && map.solid[y * map.w + x]) { let best = null; for (let rr = 1; rr < 16 && !best; rr++) for (let dy = -rr; dy <= rr && !best; dy++) for (let dx = -rr; dx <= rr; dx++) { const i = (y + dy) * map.w + x + dx; if (x + dx > 0 && y + dy > 0 && x + dx < map.w && y + dy < map.h && !map.solid[i] && !map.occ.has(i) && (!map.seen || map.seen[i])) { best = [x + dx, y + dy]; break; } } if (best) { x = best[0]; y = best[1]; } }   // the world can gain a building where a saved game left the hero
     P = { x, y, fx: x, fy: y, dir: 'f', path: [], walk: 0, wd: 0, spr: heroArt() }; }
   let flies = [], flyT = 0, SHOWB = false;
-  function go(m, x, y) { if(host.relocated)host.relocated(); clearSceneControls(); map = m; place(x, y); if(!m.dungeon && !m.venue && host.revealSurface)host.revealSurface(P.x,P.y); fade = 1; parts = []; flies = []; anims = []; floats = []; slashes = []; shots = []; bars = []; locked = false; curReg = m.dungeon ? m.r : (m.reg[y * m.w + x] || 1); curB = m.dungeon ? m.r : (m.b[y * m.w + x] || curReg); curT = null; ambNow = m.pal[curB].amb; need(curReg); if (!m.ship) host.entered(curReg); if (AD && !packs(curReg).every(have)) { m.pending = true; const t = setTimeout(() => { m.pending = false; }, 5000); Promise.all(packs(curReg).map(n => img(n).p)).then(() => { clearTimeout(t); m.pending = false; if (P) P.spr = heroArt(); }); } banner = m.ship ? null : { a: m.venue ? m.venue.name : m.hall ? 'The dojo' : m.dungeon ? host.dungeonName(m.r) : host.regionName(curReg), b: m.venue ? host.regionName(m.r) + ' · Upper floor' : m.hall ? host.regionName(m.r) : m.dungeonFloor ? 'Floor ' + (m.f+1) + ' · ' + m.layout.name : m.dungeon ? 'walk in, walk out' : host.regionSub(curReg), t: 3.2 }; }
+  function go(m, x, y) { if(host.relocated)host.relocated(); clearSceneControls(); map = m; place(x, y); discoverServices(); if(!m.dungeon && !m.venue && host.revealSurface)host.revealSurface(P.x,P.y); fade = 1; parts = []; flies = []; anims = []; floats = []; slashes = []; shots = []; bars = []; locked = false; curReg = m.dungeon ? m.r : (m.reg[y * m.w + x] || 1); curB = m.dungeon ? m.r : (m.b[y * m.w + x] || curReg); curT = null; ambNow = m.pal[curB].amb; need(curReg); if (!m.ship) host.entered(curReg); if (AD && !packs(curReg).every(have)) { m.pending = true; const t = setTimeout(() => { m.pending = false; }, 5000); Promise.all(packs(curReg).map(n => img(n).p)).then(() => { clearTimeout(t); m.pending = false; if (P) P.spr = heroArt(); }); } banner = m.ship ? null : { a: m.venue ? m.venue.name : m.hall ? 'The dojo' : m.dungeon ? host.dungeonName(m.r) : (locationFacts()||{name:host.regionName(curReg)}).name, b: m.venue ? host.regionName(m.r) + ' · Upper floor' : m.hall ? host.regionName(m.r) : m.dungeonFloor ? 'Floor ' + (m.f+1) + ' · ' + m.layout.name : m.dungeon ? 'walk in, walk out' : locationFacts()?.town?host.regionSub(curReg):'Countryside near '+host.regionName(curReg), t: 3.2 }; }
   function load(pos, r) {
     if (!world) world = genWorld(); for (const [, c] of world.chunks) c.width = c.height = 0; world.chunks.clear();
     const preferred = r === 'dock' ? world.spots.dock : pos;
@@ -1091,10 +1189,10 @@
     return { region: r, town: !!Geography.inTown(P.x,P.y) || !!(map.districts&&map.districts.some(d=>P.x>=d.box[0]&&P.x<=d.box[2]&&P.y>=d.box[1]&&P.y<=d.box[3])),
       venue: room && room.slot === 'tavern' ? 'tavern' : null };
   }
-  return { preload, init, load, safePosition, restoreHomes, clearRemains: () => { if(world)world.ents=world.ents.filter(e=>!e.mine);if(map && map!==world)map.ents=map.ents.filter(e=>!e.mine); }, remains, emptied, musicContext, tacticalTime:()=>tacticalClock, chase: pursue, endChase, clearPursuits:()=>{for(const e of new Set([...(world?world.ents:[]),...(map?map.ents:[])]))if(e.chase>0||e.returning)endChase(e);}, behind, sight, observed, inDungeonMap: () => !!(map && map.dungeon && !map.ship), mapRegion: () => map ? (map.dungeon ? map.r : 0) : 0, enterDungeon, dungeonRefresh: p => { if(map && map.dungeonFloor)dungeonApply(map,p); }, backdrop, kill, corpse, refresh, resume, pause, portrait, act, FX, towns: () => TOWN, terr: () => world ? world.terr : [], sites: () => world ? world.sites : [], spots: () => world ? world.spots : {}, mini: () => world && world.mini, size: [WW, WH], ferries: () => world ? world.ferries : [], districts: () => world ? world.districts : [],
+  return { preload, init, load, resetWorld, previewHuman, location:locationFacts, safePosition, restoreHomes, clearRemains: () => { if(world)world.ents=world.ents.filter(e=>!e.mine);if(map && map!==world)map.ents=map.ents.filter(e=>!e.mine); }, remains, emptied, musicContext, tacticalTime:()=>tacticalClock, chase: pursue, endChase, clearPursuits:()=>{for(const e of new Set([...(world?world.ents:[]),...(map?map.ents:[])]))if(e.chase>0||e.returning)endChase(e);}, behind, sight, observed, inDungeonMap: () => !!(map && map.dungeon && !map.ship), mapRegion: () => map ? (map.dungeon ? map.r : 0) : 0, enterDungeon, dungeonRefresh: p => { if(map && map.dungeonFloor)dungeonApply(map,p); }, backdrop, kill, corpse, refresh, resume, pause, portrait, act, FX, towns: () => TOWN, terr: () => world ? world.terr : [], sites: () => world ? world.sites : [], spots: () => world ? world.spots : {}, mini: () => world && world.mini, size: [WW, WH], ferries: () => world ? world.ferries : [], districts: () => world ? world.districts : [],
     enterShip, shipStage, inShip: () => !!(map && map.ship),
     enterVenue, exitVenue, venueState, restoreVenue, inInterior: () => !!(map && map.venue), venues: () => world && world.venues ? Array.from(world.venues.values()) : [],
-    traveling: () => !!(P && P.path.length),
+    traveling: () => !!(P && (P.moving||P.path.length)),
     cartographyCatalogue, cartographyBounds, cartographyRoute, cartographyGuide, cartographyMap, cartographyAtlas, cartographyInsideHome, cartographySign,
     pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon && !map.ship), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ buildingCache: WORLD_BUILDING_CACHE.stats, map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, bldSpr, effects: { shots, slashes, floats }, advanceEffects, draw, npcPose, npcFrame, npcCache: () => ({ frames: NPC_FRAMES.size, limit: NPC_FRAME_LIMIT }) }),
     warp(x, y) { load([x, y]); }, hop(x, y) { go(map, x, y); }, guidePut, guideOff, guideEnt: () => GUIDE, drawDoll, dollKey: () => artVer, enterHall, inHall: () => map && map.hall ? map.r : 0, hallAdd: o => map ? addEnt(map, Object.assign({ r: map.r }, o)) : null, hallMove: (e, x, y) => { if (!map || !e) return; const k = e.y * map.w + e.x; if (map.occ.get(k) === e) map.occ.delete(k); e.x = e.fx = x; e.y = e.fy = y; e.tx = null; map.occ.set(y * map.w + x, e); }, ents: () => map ? map.ents : [], fsReady: () => !!(AD && AD.dojo && (IMG['dj/fs.webp'] || img('dj/fs.webp')) && have('dj/fs.webp')) };

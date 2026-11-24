@@ -216,8 +216,8 @@ test('venues · the joystick opens a real door, reveals the infirmary and trigge
     const g = document.querySelector('#stage canvas.game').getContext('2d'), original = g.drawImage;
     let leaf = null;
     g.drawImage = function (image, px, py, w, h, ...rest) {
-      if (w === 32 && h === 34 && Math.abs(px + cam.x - (16 * x - 8)) < 0.6 &&
-        Math.abs(py + cam.y - (16 * y - 14)) < 0.6) leaf = image.toDataURL();
+      if (w === 40 && h === 68 && Math.abs(px + cam.x - (16 * x - 12)) < 0.6 &&
+        Math.abs(py + cam.y - (16 * y - 32)) < 0.6) leaf = image.toDataURL();
       return original.call(this, image, px, py, w, h, ...rest);
     };
     try { draw(); } finally { g.drawImage = original; }
@@ -322,13 +322,14 @@ test('venues · a real staircase restores the same upper room and returns safely
   await screenshot(page, info, 'venue-upstairs-recovery-ward');
   const expected = { ...upstairs.state, x: upstairs.walk[0], y: upstairs.walk[1] };
   await expect.poll(() => frame.evaluate(() => {
-    const account = JSON.parse(localStorage.getItem('brasswake.acct.v8'));
-    return account.slots[account.cur].interior;
+    const account = JSON.parse(localStorage.getItem('brasswake.acct.v9'));
+    const world = account.worlds[account.world];
+    return world.slots[world.cur].interior;
   }), { message: 'Upstairs walking updates the device save without another interaction' }).toEqual(expected);
   await hero(frame);
   await frame.locator('[data-a=export]').click();
   const code = await frame.locator('#savebox').inputValue(), save = JSON.parse(Buffer.from(code, 'base64').toString('utf8'));
-  const traveler = save.slots[save.cur];
+  const world = save.worlds[save.world], traveler = world.slots[world.cur];
   expect(traveler.interior).toEqual(expected);
   expect(traveler.pos).toEqual(stairs.at);
 
@@ -349,7 +350,8 @@ test('venues · a real staircase restores the same upper room and returns safely
   await expect.poll(() => page.evaluate(() => Scene.inInterior())).toBe(false);
   const returned = await page.evaluate(() => {
     const at = Scene.pos(), { world } = Scene.debug(), i = at[1] * world.w + at[0];
-    const account = JSON.parse(localStorage.getItem('brasswake.acct.v8')), slot = account.slots[account.cur];
+    const account = JSON.parse(localStorage.getItem('brasswake.acct.v9'));
+    const savedWorld = account.worlds[account.world], slot = savedWorld.slots[savedWorld.cur];
     return { at, safe: !world.solid[i] && !world.occ.has(i) && world.t[i] !== 4,
       saved: slot.pos, floor: slot.interior ?? null, liveFloor: Scene.venueState() };
   });

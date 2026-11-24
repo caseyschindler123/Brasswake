@@ -7,10 +7,7 @@
 
   function stopManualStep() {
     if (!P) return;
-    P.path = [];
-    P.fx = P.x;
-    P.fy = P.y;
-    P.run = false;
+    Movement.stop(P);
   }
 
   function joystickVisual(x, y, mode) {
@@ -100,10 +97,10 @@
     if (!available) { if (key || joy && joy.pointer !== null || P.path.length) clearSceneControls(); return; }
     const joystick = joy && joy.pointer !== null;
     const direction = joystick ? joy.direction : ARROW_KEYS[key];
-    if (!direction) return;
+    if (!direction) { if(P.manual)stopManualStep(); return null; }
     const [dx, dy] = direction;
     P.run = !!(joystick && joy.run);
-    if (P.path.length) return;
+    P.manual = true;
     let x = P.x + dx, y = P.y + dy;
     const clearX = dx && !blocked(x, P.y), clearY = dy && !blocked(P.x, y);
     if (dx && dy && (!clearX || !clearY || blocked(x, y))) {
@@ -115,7 +112,9 @@
       P.dg = null;
       P.dir = dirOf(dx, dy);
       P.d8 = D8(dx, dy);
-      return;
+      P.path = [];
+      return direction;
     }
     P.path = [[x, y]];
+    return direction;
   }

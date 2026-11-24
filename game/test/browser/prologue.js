@@ -16,7 +16,10 @@ test('a failed SQL download explains the problem and leaves a saved way back',as
   await page.goto('/index.html?visual_test=1');await expect(page.locator('#artload')).toBeHidden({timeout:45000});
   await page.locator('[data-a=newslot]').first().click();await page.locator('[data-a=pick][data-look="0"]').click();await page.locator('[data-a=begin]').click();
   await expect(page.locator('#onboard')).toContainText('could not be downloaded');await page.locator('[data-a=boatmenu]').click();await expect(page.locator('#title')).toBeVisible();
-  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('brasswake.acct.v8')).slots[0].prologue.phase)).toBe('rescue');
+  expect(await page.evaluate(()=>{
+    const account=JSON.parse(localStorage.getItem('brasswake.acct.v9'));
+    return account.worlds[account.world].slots[0].prologue.phase;
+  })).toBe('rescue');
 });
 module.exports={visibleRescue};
 

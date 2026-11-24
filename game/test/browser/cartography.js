@@ -156,7 +156,7 @@ test('cartography · walking reveals the actual fog raster and persists by chara
   await action(frame, 'export').click();
   const code = await frame.locator('#savebox').inputValue();
   const exported = JSON.parse(Buffer.from(code, 'base64').toString('utf8'));
-  const walked = exported.slots[exported.cur];
+  const world = exported.worlds[exported.world], walked = world.slots[world.cur];
   expect(walked.pos).toEqual(route.at(-1));
   expect(walked.cartography.explored.length).toBeGreaterThan(0);
   await closeSheet(frame);
@@ -165,15 +165,16 @@ test('cartography · walking reveals the actual fog raster and persists by chara
   await action(frame, 'doimport').click();
   await expect(frame.locator('#sheet')).toBeHidden();
 
-  await reloadCharacter(page, exported.cur);
+  await reloadCharacter(page, world.cur);
   expect(await position(page)).toEqual(walked.pos);
   await showWorldMap(page);
   expect(await mapSamples(page, [newlyRevealed, far])).toEqual([revealed, black]);
 
   // Supply a supporting character at the original tile, then switch through the real title controls.
   await page.evaluate(start => {
-    const snapshot = JSON.parse(localStorage.getItem('brasswake.acct.v8'));
-    __bw.A.slots[1] = { ...snapshot.slots[snapshot.cur], name: 'Supporting Cartographer', pos: start,
+    const snapshot = JSON.parse(localStorage.getItem('brasswake.acct.v9'));
+    const world = snapshot.worlds[snapshot.world];
+    __bw.A.slots[1] = { ...world.slots[world.cur], name: 'Supporting Cartographer', pos: start,
       cartography: Cartography.create() };
     __bw.save();
   }, start);
@@ -318,8 +319,8 @@ test('cartography · buying a map charges once and only permits local regional t
   await frame.locator('#view [data-a=cmaptravel][data-id=stairs1]').click();
   await expect.poll(() => position(frame)).toEqual(arrival);
   expect(await frame.evaluate(() => {
-    const stored = JSON.parse(localStorage.getItem('brasswake.acct.v8'));
-    const s = stored.slots[stored.cur];
+    const stored = JSON.parse(localStorage.getItem('brasswake.acct.v9'));
+    const world = stored.worlds[stored.world], s = world.slots[world.cur];
     return { at: s.pos, region: s.region, gold: s.gold, owns: s.cartography.maps[1], surface: !Scene.inDungeon() };
   })).toEqual({ at: arrival, region: 1, gold: 400, owns: true, surface: true });
   await reloadCharacter(page);
@@ -415,8 +416,9 @@ test('cartography · the Grand Atlas is a single installed household feature gat
   expect(await page.evaluate(() => ({ at: Scene.pos(), house: __bw.A.atlas.homeId, gold: __bw.S.gold, restored: !!Scene.find(e => e.kind === 'homeatlas') })))
     .toEqual({ at: target, house: home.id, gold: 1500, restored: true });
   await page.evaluate(() => {
-    const stored = JSON.parse(localStorage.getItem('brasswake.acct.v8'));
-    __bw.A.slots[1] = { ...stored.slots[stored.cur], name: 'Supporting Atlas Reader', cartography: Cartography.create() };
+    const stored = JSON.parse(localStorage.getItem('brasswake.acct.v9'));
+    const world = stored.worlds[stored.world];
+    __bw.A.slots[1] = { ...world.slots[world.cur], name: 'Supporting Atlas Reader', cartography: Cartography.create() };
     __bw.save();
   });
   await openTab(page, 'hero');

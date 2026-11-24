@@ -21,10 +21,12 @@ async function press(frame, delta, target) {
   await keyboard.down(key);
   try {
     if (before.every((value, i) => value === target[i])) {
-      await frame.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      // Continuous motion can approach a wall within the current cell. Give
+      // that approach time to finish, then require collision to stop it.
+      await frame.waitForTimeout(280);
       expect(await frame.evaluate(() => Scene.traveling())).toBe(false);
     } else {
-      await frame.waitForFunction(() => Scene.traveling(), null, { timeout: 3500 });
+      await frame.waitForFunction(at=>Scene.pos().every((n,i)=>n===at[i]),target,{timeout:3500});
     }
   } finally {
     await keyboard.up(key);

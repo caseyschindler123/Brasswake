@@ -12,21 +12,21 @@
   let WOUNDS = Backstab.memory(), AMBUSH = null;
   function resetTactics(){WOUNDS=Backstab.memory();AMBUSH=null;if(sceneUp)Scene.clearPursuits();}
   let S, tab = 'world', sceneUp = false, sceneOwner = null, interiorSaveTimer = 0, sub = 'work', lsub = 'sandbox', sel = null, ready = false, engineErr = '', COLS = {}, benchSlot = 'weapon', con = { sql: '', res: null };
-  const fresh = () => ({ v: 7, wv: WorldProgress.revision, cartography: Cartography.create(), prologue:null, interior: null, dungeon: null, dungeons: {}, deathPending: null, seen: {}, gd: -1, gn: 0, bank: { gold: 0, items: [] }, homes: [], runes: 0, tabs: {}, tw: {}, vault: {}, letter: 0, archive: 0, cache: {}, campT: 0, meat: 0, met: {}, pk: { n: 0, net: 0 }, food: {}, er: { a: {}, d: {}, n: 0 }, poi: {}, fishd: {}, fishlog: {}, cs: {}, known: {}, name: '', tut: 0, pages: {}, scr: {}, jr: {}, hints: 1, page: null, gold: 30, path: null, look: null, hp: 50, sk: {}, wsk: null, been: { 1: 1 }, skills: {}, done: {}, seen: {}, boss: {}, rum: {}, inv: [], eq: {}, codex: {}, mats: {}, tonics: 1, streak: 0, best: 0, stats: { q: 0, ok: 0, kills: 0, steals: 0, dungeons: 0, falls: 0 }, region: 1, pos: null, intro: 0, mv: 0, talked: 0, rival: {}, dpity: {}, rounds: null, stall: null, won: 0, rev: 0, at: 0 });
-  const migrate = o => { if (!o || ![5,6,7].includes(o.v)) return fresh(); const f = fresh(), s = Object.assign(f, o, {v:7}); s.prologue=Prologue.normalize(s.prologue); if (!o.cartography) delete s.cartography; if (!o.seen && o.tut >= 3) s.seen = { fight: 1, fprompt: 1, bag: 1, hero: 1, map: 1, ledger: 1, shop: 1 }; if (!o.g && o.tut >= 3) s.g = 'done'; if (s.casino) { s.gold += s.casino.stack || 0; s.casino = null; } s.stats = Object.assign(fresh().stats, s.stats || {}); return Progression.normalize(s); };
+  const fresh = () => ({ v: 8, wv: WorldProgress.revision, cartography: Cartography.create(), prologue:null, interior: null, dungeon: null, dungeons: {}, deathPending: null, seen: {}, gd: -1, gn: 0, bank: { gold: 0, items: [] }, homes: [], runes: 0, tabs: {}, tw: {}, vault: {}, letter: 0, archive: 0, cache: {}, campT: 0, meat: 0, met: {}, pk: { n: 0, net: 0 }, food: {}, er: { a: {}, d: {}, n: 0 }, poi: {}, fishd: {}, fishlog: {}, cs: {}, known: {}, name: '', tut: 0, pages: {}, scr: {}, jr: {}, hints: 1, page: null, gold: 30, path: null, look: null, hp: 50, sk: {}, wsk: null, been: { 1: 1 }, skills: {}, done: {}, seen: {}, boss: {}, rum: {}, inv: [], eq: {}, codex: {}, mats: {}, tonics: 1, streak: 0, best: 0, stats: { q: 0, ok: 0, kills: 0, steals: 0, dungeons: 0, falls: 0 }, region: 1, pos: null, intro: 0, mv: 0, talked: 0, rival: {}, dpity: {}, rounds: null, stall: null, won: 0, rev: 0, at: 0 });
+  const migrate = o => { if (!o || ![5,6,7,8].includes(o.v)) return fresh(); const f = fresh(), s = Object.assign(f, o, {v:8}); s.prologue=Prologue.normalize(s.prologue); if (!o.cartography) delete s.cartography; if (!o.seen && o.tut >= 3) s.seen = { fight: 1, fprompt: 1, bag: 1, hero: 1, map: 1, ledger: 1, shop: 1 }; if (!o.g && o.tut >= 3) s.g = 'done'; if (s.casino) { s.gold += s.casino.stack || 0; s.casino = null; } s.stats = Object.assign(fresh().stats, s.stats || {}); return Progression.normalize(s); };
 
   /* ---------- saving: this device first, then the player's Claude account when available ---------- */
   const Cloud = { ref: null, state: 'device', busy: false, dirty: false, timer: 0 };
-  /* the account: five character slots. The first character made is the main and carries the story. Houses and named rares are shared; each character keeps its own bank */
-  const AKEY = 'brasswake.acct.v8', NSLOT = 5;
-  const freshA = () => ({ v: 8, rev: 0, at: 0, cur: -1, main: -1, slots: Array(NSLOT).fill(null), homes: [], codex: {}, paid: {}, djp: {}, cmds: {} });
+  /* Three independent worlds share geography; each world has one main and four supporting characters. */
+  const AKEY = 'brasswake.acct.v9', NSLOT = CharacterWorlds.slots;
+  const freshA = CharacterWorlds.fresh;
   let A = null;
   const isMain = () => !!A && A.cur >= 0 && A.cur === A.main, mainName = () => (A && A.main >= 0 && A.slots[A.main] && A.slots[A.main].name) || 'your main character';
   const linkS = s => { s.homes = A.homes; s.codex = A.codex; return s; }, slotOut = s => { const o = Object.assign({}, s); delete o.homes; delete o.codex; return o; };
   function purgeOld() { try { for (let i = localStorage.length - 1; i >= 0; i--) { const k = localStorage.key(i); if (k && k.indexOf('brasswake.save') === 0) localStorage.removeItem(k); } } catch (e) { } }
-  function loadA() { try { const t = localStorage.getItem(AKEY) || localStorage.getItem('brasswake.acct.v7') || localStorage.getItem('brasswake.acct.v6'), o = t ? JSON.parse(t) : null; return o && [6,7,8].includes(o.v) ? Object.assign(freshA(), o, {v:8}) : null; } catch (e) { return null; } }
-  function loadCur() { resetTactics();WorldProgress.migrateAccount(A); A.slots=A.slots.map(c=>c?migrate(c):null); S = linkS(Progression.normalize(A.cur >= 0 && A.slots[A.cur] ? migrate(A.slots[A.cur]) : fresh())); Sneaking.reveal(CONCEAL); if(S.deathPending){S.region=S.deathPending.r;S.pos=S.deathPending.at;S.dungeon=null;S.interior=null;S.hp=maxHp();S.deathPending=null;} if (!(S.hp > 0)) S.hp = maxHp(); if(sceneUp){clearInterval(GSAY);Scene.guideOff();} }
-  function syncA() { const draft=boatActive()&&S.prologue.phase==='name'&&$('#boat-name');if(draft&&Prologue.cleanName(draft.value))S.name=Prologue.cleanName(draft.value); if(sceneUp && sceneOwner===S && boatActive() && Scene.inShip())S.prologue=Prologue.moved(S.prologue,Scene.pos()); clearTimeout(interiorSaveTimer);interiorSaveTimer=0; if(sceneUp && sceneOwner === S)S.interior=Scene.venueState(); CMap.snapshot(); if (A && A.cur >= 0 && S && S.path) A.slots[A.cur] = slotOut(S); if(A)for(const s of A.slots)if(s){if(s.openLocks)s.openLocks=Object.fromEntries(Object.entries(s.openLocks).filter(([,v])=>v===dayKey()));DungeonProgress.compact(s,now());if(s.cartography)s.cartography=Cartography.normalize(s.cartography);s.interior=Interiors.normalizeProgress(s.interior);} }
+  function loadA() { try { const t = localStorage.getItem(AKEY) || localStorage.getItem('brasswake.acct.v8') || localStorage.getItem('brasswake.acct.v7') || localStorage.getItem('brasswake.acct.v6'); return t ? CharacterWorlds.normalize(JSON.parse(t)) : null; } catch (e) { return null; } }
+  function loadCur() { resetTactics();for(const w of A.worlds){WorldProgress.migrateAccount(w);w.slots=w.slots.map(c=>c?migrate(c):null);} S = linkS(Progression.normalize(A.cur >= 0 && A.slots[A.cur] ? migrate(A.slots[A.cur]) : fresh())); Sneaking.reveal(CONCEAL); if(S.deathPending){S.region=S.deathPending.r;S.pos=S.deathPending.at;S.dungeon=null;S.interior=null;S.hp=maxHp();S.deathPending=null;} if (!(S.hp > 0)) S.hp = maxHp(); if(sceneUp){clearInterval(GSAY);Scene.guideOff();} }
+  function syncA() { const draft=boatActive()&&S.prologue.phase==='name'&&$('#boat-name');if(draft&&Prologue.cleanName(draft.value))S.name=Prologue.cleanName(draft.value); if(sceneUp && sceneOwner===S && boatActive() && Scene.inShip())S.prologue=Prologue.moved(S.prologue,Scene.pos()); clearTimeout(interiorSaveTimer);interiorSaveTimer=0; if(sceneUp && sceneOwner === S)S.interior=Scene.venueState(); if(sceneUp&&sceneOwner===S&&!Scene.inDungeon()&&!Scene.inHall()&&!Scene.inInterior()&&!Scene.inShip())S.pos=Scene.pos(); CMap.snapshot(); if (A && A.cur >= 0 && S && S.path) A.slots[A.cur] = slotOut(S); if(A)for(const w of A.worlds)for(const s of w.slots)if(s){if(s.openLocks)s.openLocks=Object.fromEntries(Object.entries(s.openLocks).filter(([,v])=>v===dayKey()));DungeonProgress.compact(s,now());if(s.cartography)s.cartography=Cartography.normalize(s.cartography);s.interior=Interiors.normalizeProgress(s.interior);} }
   function save() { if (sceneUp && DG && Scene.inDungeon()) DP.snapshot(); if (!A) A = freshA(); if (A.cur >= 0 && S && S.path) { S.rev++; S.at = now(); } syncA(); A.rev++; A.at = now(); try { localStorage.setItem(AKEY, JSON.stringify(A)); } catch (e) { } if (Cloud.ref) { Cloud.dirty = true; clearTimeout(Cloud.timer); Cloud.timer = setTimeout(flush, 2500); } }
   async function flush() {
     if (Cloud.busy || !Cloud.dirty || !Cloud.ref) return; Cloud.busy = true; Cloud.dirty = false;
@@ -44,9 +44,9 @@
       const snap = await Promise.race([ref.get(), new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 10000))]);
       if (snap.exists) {
         const d = snap.data(), remote = d && d.json ? JSON.parse(d.json) : null;
-        if (remote && [6,7,8].includes(remote.v) && (remote.rev || 0) > (A.rev || 0)) {
+        if (remote && [6,7,8,9].includes(remote.v) && (remote.rev || 0) > (A.rev || 0)) {
           closeSheet(); CE = null;
-          discardEncounter(); A = Object.assign(freshA(), remote, {v:8}); loadCur(); cmdBackfill();
+          discardEncounter(); A = CharacterWorlds.normalize(remote); if(sceneUp&&Scene.resetWorld)Scene.resetWorld(); loadCur(); cmdBackfill();
           Q = null; F = null; DG = null;
           $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false;
           if (sceneUp) restoreAccountScene(true);
@@ -256,7 +256,7 @@
       const learned = SqlEd.LISTS.filter(([g]) => g !== 'Symbols').map(([g, xs]) => [g, xs.filter(cmdHas)]).filter(([g, xs]) => xs.length);
       const groups = KB.list === 'cmd' ? `<div class="lgrid ltop">${TOP.map(x => li(x, 'sy')).join('')}<button type="button" class="li lsym${KB.lsym ? ' on' : ''}" data-fn="lsym">Symbols ${KB.lsym ? '▴' : '▾'}</button></div>` + (KB.lsym ? `<div class="lgrid lsyms">${symAll.map(x => li(x, 'sy')).join('')}</div>` : '') + (learned.length ? learned.map(([g, xs]) => `<p class="lg">${g}</p><div class="lgrid">${xs.map(x => li(x, 'kw')).join('')}</div>`).join('') : '<p class="cap2 lnone">Commands appear here as lessons teach them. You can always type any command.</p>')
         : (() => { const mine = KB.tables, rest = World.ORDER.filter(t => !mine.includes(t)), tb = t => `<p class="lg">${li(t, 'tb', esc(t))}</p><div class="lgrid">${(COLS[t] || []).map(c => li(c, 'cl')).join('')}</div>`; return mine.map(tb).join('') + (rest.length && !TR ? `<p class="lg lg2">Other tables</p>` + rest.map(tb).join('') : ''); })();
-      el.className = 'kb listing'; el.innerHTML = bar + `<div class="klist" id="klist">${groups}</div><div class="row last"><button type="button" class="k fn" data-fn="ldone">Done</button>${KB.list === 'fld' ? '<button type="button" class="k sy ksy" data-ins="," aria-label="Comma">,</button><button type="button" class="k sy ksy" data-ins="*" aria-label="Star">*</button>' : ''}<button type="button" class="k fn" data-fn="del" aria-label="Delete">⌫</button><button type="button" class="k go" data-fn="run"${ready ? '' : ' disabled'}>${esc(ready ? KB.run : 'Opening…')}</button></div>`; return; }
+      el.className = 'kb listing'; el.innerHTML = bar + `<div class="klist" id="klist">${groups}</div><div class="row last"><button type="button" class="k fn" data-fn="ldone">Done</button><button type="button" class="k sy ksy" data-ins="," aria-label="Comma">,</button><button type="button" class="k sy ksy" data-ins="*" aria-label="Star">*</button><button type="button" class="k fn ret" data-fn="ret" aria-label="New line">Return ↵</button><button type="button" class="k fn" data-fn="del" aria-label="Delete">⌫</button><button type="button" class="k go" data-fn="run"${ready ? '' : ' disabled'}>${esc(ready ? KB.run : 'Opening…')}</button></div>`; return; }
     const chips = bar, row2 = '';
     const L = KB.sym ? [['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'], ['(', ')', "'", '=', '<', '>', ',', '.', '_', '%'], ['-', '+', '/', '*', ';', '|', '!']] : [['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'], ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'], ['z', 'x', 'c', 'v', 'b', 'n', 'm']];
     const up = s => KB.shift && !KB.sym ? s.toUpperCase() : s, del = '<button type="button" class="k fn" data-fn="del" aria-label="Delete">⌫</button>';
@@ -333,7 +333,7 @@
 
   /* ---------- rewards ---------- */
 
-  /* ---------- learned commands (account-wide): A.cmds[lesson] is 1 once the lesson is opened (its commands join the Commands panel) and 2 once a correct query has used one of them ---------- */
+  /* ---------- learned commands (world-wide): A.cmds[lesson] is 1 once the lesson is opened (its commands join the Commands panel) and 2 once a correct query has used one of them ---------- */
   const cmdTitle = k => k === 'intro' ? 'SELECT and FROM' : ((CONTRACTS.find(c => c.id === k) || {}).lesson || {}).title || k;
   const cmdSet = () => A.cmds || (A.cmds = {});
   function cmdTeach(k) { if (!CMDS[k] || cmdSet()[k]) return; A.cmds[k] = 1; if (!CMDS.intro.every(x => CMDS[k].includes(x))) toast('New in Commands: ' + cmdTitle(k)); }
@@ -592,6 +592,9 @@
   }
   function discardEncounter() {
     resetTactics();
+    // Account replacement and world changes must retire every old interaction.
+    FI=null;PK=null;WH=null;BJ=null;TR=null;LB=null;STY=null;PL=null;Scene.ghost(null);const placement=$('#placebar');if(placement)placement.remove();
+    if(DDB){DDB.close();DDB=null;}DDK='';felt(0);
     const old=F;F=null;Q=null;LOCK=null;if(DU){clearInterval(DU.timer);DU=null;}
     if(old&&old.ent)Scene.FX.free(old.ent);Sneaking.reveal(CONCEAL);
     $('#fight').hidden=true;$('#fight').innerHTML='';$('#enc').hidden=true;$('#enc').innerHTML='';$('#nav').hidden=false;$('#app').classList.remove('infight');Scene.FX.lock(false);Scene.FX.bars([]);Scene.FX.inset(0);
@@ -829,23 +832,51 @@
   const WSTART = { warrior: 'swords', thief: 'fencing', mage: 'magery', crafter: 'swords' }, NAMES = ['Edrik', 'Mara', 'Corin', 'Sable', 'Aldous', 'Ysanne', 'Brogan', 'Wren'];
   /* ---------- title, character creation, cold open ---------- */
   let CR = null;
+  const SKINN=['Fair','Light','Tan','Brown','Deep brown'];
   const tbg = n => ART ? ` style="background-image:url(art/t/${n}.jpg)"` : '';
   function showTitle(html, cls) { const t = $('#title'); t.hidden = false; t.className = cls || ''; t.innerHTML = html; if (sceneUp) Scene.pause(); }
-  function hideTitle() { $('#title').hidden = true; $('#title').innerHTML = ''; if (sceneUp && tab === 'world' && !Q) Scene.resume(); }
+  function hideTitle() { stopCreationPreview(); $('#title').hidden = true; $('#title').innerHTML = ''; if (sceneUp && tab === 'world' && !Q) Scene.resume(); }
   function title() {
-    const tot = c => Math.round(Object.values(c.sk || {}).reduce((a, b) => a + b, 0)), any = A.slots.some(Boolean);
-    const row = (c, i) => { if (!c) return `<button class="tt-btn quiet" data-a="newslot" data-i="${i}">New character<small>${A.main < 0 || !A.slots[A.main] ? 'Your main: the one entered in the Trials' : 'Supporting: everything but the Trials story'}</small></button>`;
-      const p = PATHS.find(x => x.id === c.path); return `<button class="tt-btn${i === A.cur ? '' : ' quiet'}" data-a="playslot" data-i="${i}">${esc(c.prologue&&!c.prologue.named&&c.prologue.phase!=='done'?'New arrival':c.name)}<small>${i === A.main ? 'Main · ' : ''}the ${p ? p.name : ''} · skills ${tot(c)}${c.boss && Object.keys(c.boss).length ? ' · ' + Object.keys(c.boss).length + ' of 8 marks' : ''}</small></button>`; };
-    showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box tt-slots"><h1>Brasswake</h1><p class="tt-sub">Pulled from the sea, entered in the Trials, and taught SQL from the first line</p>${A.slots.map(row).join('')}${any ? '<button class="tt-link" data-a="delpick">Delete a character</button>' : ''}<p class="tt-note">Your characters share your houses and what is in them. Each keeps their own bank.</p></div>`);
+    stopCreationPreview(); CR=null;
+    const tot = c => Math.round(Object.values(c.sk || {}).reduce((a,b)=>a+b,0)), any=A.slots.some(Boolean);
+    const emptyMain=A.main<0 ? A.slots.findIndex(c=>!c) : -1;
+    const row=(c,i)=>{
+      const role=i===A.main||i===emptyMain?'Main character':'Supporting character';
+      if(!c)return `<button class="tt-btn quiet" data-a="newslot" data-i="${i}"${A.main<0&&i!==emptyMain?' disabled':''}><span class="world-slot-label">${role}</span>New character<small>${i===emptyMain?'Follow the Trials story':A.main<0?'Create your main character first':'Explore, learn and build in this world'}</small></button>`;
+      const p=PATHS.find(x=>x.id===c.path);
+      return `<button class="tt-btn${i===A.cur?'':' quiet'}" data-a="playslot" data-i="${i}"><span class="world-slot-label">${role}</span>${esc(c.prologue&&!c.prologue.named&&c.prologue.phase!=='done'?'New arrival':c.name)}<small>${p?p.name:''} · skills ${tot(c)}${c.boss&&Object.keys(c.boss).length?' · '+Object.keys(c.boss).length+' of 8 marks':''}</small></button>`;
+    };
+    showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box tt-slots"><h1>Brasswake</h1><p class="tt-sub">Choose your world and character.</p><div class="world-tabs" role="group" aria-label="Worlds">${A.worlds.map((w,i)=>`<button class="btn${i===A.world?' solid':' quiet'}" data-a="worldpick" data-i="${i}" aria-pressed="${i===A.world}">World ${i+1}<small>${w.slots.filter(Boolean).length} / ${NSLOT}</small></button>`).join('')}</div><p class="world-summary">World ${A.world+1} · The same lands, with a separate story and saves.</p>${A.slots.map(row).join('')}${any?'<button class="tt-link" data-a="delpick">Delete a character</button>':''}<p class="tt-note">Characters in this world share houses, storage, named finds and learned commands. Each keeps their own bank. Your other worlds keep everything separate.</p></div>`);
+  }
+  function returnCharacters(){ save(); PL=null;Scene.ghost(null);const placement=$('#placebar');if(placement)placement.remove(); closeSheet(); closeSay(); tab='world'; title(); render(); }
+  function selectWorld(index){
+    if(index===A.world || !Number.isInteger(index) || index<0 || index>=CharacterWorlds.count)return;
+    save(); discardEncounter(); closeSheet(); closeSay(); CharacterWorlds.select(A,index); if(sceneUp&&Scene.resetWorld)Scene.resetWorld(); loadCur(); cmdBackfill();
+    Q=null; F=null; DG=null; CE=null; tab='world'; sel=S.region;
+    $('#enc').hidden=true; $('#fight').hidden=true; $('#nav').hidden=false;
+    if(sceneUp)restoreAccountScene(true);
+    save(); title(); render();
   }
   function delPick() { showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box tt-slots"><h1>Delete who?</h1>${A.slots.map((c, i) => c ? `<button class="tt-btn quiet" data-a="delslot" data-i="${i}">${esc(c.name)}<small>${i === A.main ? 'Main: the Trials start over with your next new character' : 'Supporting'}</small></button>` : '').join('')}<button class="tt-btn" data-a="totitle">Back</button></div>`); }
   function playSlot(i) { if (!A.slots[i]) return; if (i !== A.cur) { save(); discardEncounter(); A.cur = i; loadCur(); DG = null; Q = null; F = null; CE = null; S.pos = S.pos || null; $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; tab = 'world'; sel = S.region; save(); if (sceneUp) { restoreAccountScene(); Scene.refresh(); } } hideTitle(); render(); renderHud(); }
+  let creationFrame=0;
+  function stopCreationPreview(){cancelAnimationFrame(creationFrame);creationFrame=0;}
+  function creationAppearance(){const L=CR.app;return {combo:L.body*5+(CR.path==='mage'?2:1),skin:L.skin,hair:L.hair,hc:HAIRC[L.hc],beard:L.beard,hat:-1,cloth:null,metal:null,wpn:-1,wkind:'',shield:-1,style:'swing'};}
+  function startCreationPreview(){
+    stopCreationPreview();
+    const paint=t=>{const cv=$('#cr-preview');if(!CR||!cv||$('#title').hidden)return; if(Scene.previewHuman)Scene.previewHuman(cv,creationAppearance(),CR.direction||0,CR.moving?t:null);creationFrame=requestAnimationFrame(paint);};
+    creationFrame=requestAnimationFrame(paint);
+  }
   function create() {
-    CR = CR || { path: null, look: null, name: '' };
-    const firstArrival=A.main<0 || !A.slots[A.main];
-    showTitle(`<div class="cr"><h2>Who were you back home?</h2><p class="cr-note">People had started to talk about you. Pick what you were known for.</p>${firstArrival?'<p class="cr-note">Choose your appearance. You’ll give your name when someone asks aboard the ship.</p>':`<label class="cr-name"><span>Name</span><input id="cr-name" maxlength="16" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Your name" value="${esc(CR.name || '')}"></label>`}
-      <div class="cr-paths">${PATHS.map(p => `<div class="cr-path${CR.path === p.id ? ' on' : ''}"><b>${p.name}</b><small>${Object.keys(p.sk).map(k => rpgName(k) + ' ' + p.sk[k]).join(' · ')}</small><div class="looks">${LOOKS[p.id].map((g, i) => { const lk = LOOK0[p.id] + i; return `<button data-a="pick" data-id="${p.id}" data-look="${lk}" aria-pressed="${CR.look === lk}" aria-label="${p.name}, look ${i + 1}">${ART ? `<img alt="" src="art/p/${g}.webp">` : `<span class="nolook">${i ? 'Her' : 'Him'}</span>`}</button>`; }).join('')}</div></div>`).join('')}</div>
-      <p class="cr-note">You can learn any skill later by using it, and buy or find any page. Twenty skills share ${CAP} points. Your starting path leaves every skill available.</p><div class="row end"><button class="btn quiet" data-a="totitle">Back</button><button class="btn solid" data-a="begin"${CR.look == null ? ' disabled' : ''}>Begin</button></div></div>`, 'creating');
+    CR=CR||{path:null,look:null,name:''};
+    CR.app=CR.app||{body:0,skin:1,hair:0,hc:1,beard:-1,hat:-1,wear:0,dye:0};
+    const firstArrival=A.main<0||!A.slots[A.main], L=CR.app;
+    const select=(key,label,choices)=>`<label><span>${label}</span><select data-create="${key}" aria-label="${label}">${choices.map(([v,n])=>`<option value="${v}"${L[key]===v?' selected':''}>${esc(n)}</option>`).join('')}</select></label>`;
+    showTitle(`<div class="cr"><p class="eyebrow">World ${A.world+1} · ${firstArrival?'Main character':'Supporting character'}</p><h2>Who were you back home?</h2><p class="cr-note">People had started to talk about you. Pick what you were known for.</p>${firstArrival?'<p class="cr-note">You’ll give your name when someone asks aboard the ship.</p>':`<label class="cr-name"><span>Name</span><input id="cr-name" maxlength="16" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Your name" value="${esc(CR.name||'')}"></label>`}
+      <div class="cr-paths">${PATHS.map(p=>`<div class="cr-path${CR.path===p.id?' on':''}"><b>${p.name}</b><small>${Object.keys(p.sk).map(k=>rpgName(k)+' '+p.sk[k]).join(' · ')}</small><div class="looks">${LOOKS[p.id].map((g,i)=>`<button data-a="pick" data-id="${p.id}" data-look="${LOOK0[p.id]+i}" aria-pressed="${CR.path===p.id&&L.body===i}" aria-label="${p.name}, look ${i+1}">${ART?`<img alt="" src="art/p/${g}.webp">`:`<span class="nolook">${i?'Woman':'Man'}</span>`}</button>`).join('')}</div></div>`).join('')}</div>
+      <h3>Your appearance</h3><p class="cr-note">All creation choices are free. Turn and walk to see your character from every side.</p><div class="cr-appearance"><div class="cr-preview"><canvas id="cr-preview" width="240" height="240" aria-label="Your moving character preview"></canvas><div class="row"><button class="btn sm quiet" data-a="crturn" data-dir="-1" aria-label="Turn left">↶ Turn</button><button class="btn sm quiet" data-a="crwalk" aria-pressed="${!!CR.moving}">${CR.moving?'Stand':'Walk'}</button><button class="btn sm quiet" data-a="crturn" data-dir="1" aria-label="Turn right">Turn ↷</button></div></div><div class="cr-controls">${select('body','Body',[[0,'Man'],[1,'Woman']])}${select('skin','Skin tone',SKINN.map((n,i)=>[i,n]))}${select('hair','Hair',[[-1,'Bald'],...HAIRS.map((n,i)=>[i,n])])}${select('hc','Hair colour',HAIRCN.map((n,i)=>[i,n]))}${select('beard','Facial hair',[[-1,'None'],...BEARDS.map((n,i)=>[i,n])])}</div></div>
+      <p class="cr-note">You can learn any skill later by using it, and buy or find any page. Twenty skills share ${CAP} points. Your starting path leaves every skill available.</p><div class="row end"><button class="btn quiet" data-a="totitle">Back</button><button class="btn solid" data-a="begin"${CR.look==null?' disabled':''}>Begin</button></div></div>`,'creating');
+    startCreationPreview();
   }
   function boatActive() {return !!(S && S.path && S.gd<0 && S.tut===0 && Prologue.active(S.prologue));}
   function coldOpen() {hideTitle();boatRender();}
@@ -853,7 +884,7 @@
     if(!boatActive() || !$('#title').hidden)return;
     const panel=$('#onboard'),p=S.prologue,free=['walk','arrival'].includes(p.phase);
     $('#app').classList.add('prologue');panel.hidden=false;$('#nav').hidden=true;
-    if(!sceneUp){panel.innerHTML='<p>'+esc(engineErr||'The Marigold is coming into view…')+'</p><button class="btn" data-a="boatmenu">Save and return to characters</button>';return;}
+    if(!sceneUp){panel.innerHTML='<p>'+esc(engineErr||'The Marigold is coming into view…')+'</p><button class="btn" data-a="reset">Save and return to characters</button>';return;}
     Scene.enterShip(S,p.phase,p.pos);sceneOwner=S;Scene.FX.lock(!free);Scene.resume();
     const beat=Prologue.beat(p,S.name,S.path);panel.classList.toggle('boat-hint',free);panel.dataset.phase=p.phase;
     let controls='';
@@ -1633,6 +1664,8 @@
     app: () => ART && ArtData.body ? app() : null, role: () => S.path, look: () => S.look != null ? S.look : (LOOK0[S.path] || 0), thief: () => !!bestPage('shadow'), hue: r => HUES[r], folk: r => FOLK[r - 1], tavern: r => TAVERNS[r - 1], rivalName: r => RIVALS[r - 1].name, bossName: r => BOSSES[r - 1].name, dungeonName: r => DUNGEONS[r - 1].name, matName: r => MATS[r], regionName: r => region(r).name, regionSub: r => region(r).sub,
     homeRoles: r => [0, 1, 2, 3, 4, 5, 6].map(k => HOMES[(r * 3 + k * 4) % HOMES.length]), roamRoles: r => [0, 1, 2, 3, 4, 5, 6].map(k => ROAMERS[(r + k) % ROAMERS.length]), settler: role => SETTLE[role], settlerName: (hid, role) => FIRST[hsh(hid) % FIRST.length] + ' the ' + SETTLE[role].n, stockName: t => STOCK[t] || 'Animal', place: pk => PLACES[pk],
     tpls: r => BOUNTIES.filter(b => b.r === r).map(b => b.id), habitat: t => HAB[t] || 'open', wild: (r, h) => (WILD[r] || []).filter(w => w[1] === h || (h === 'coast' && w[1] === 'water') || (h === 'water' && w[1] === 'coast')).map(w => w[0]), hunts: t => !!HUNT[t], cacheOpen: id => S.cache[id] === dayKey(),
+    manualMotion:(distance,run)=>{if(run&&distance>0&&CONCEAL.hidden){Sneaking.reveal(CONCEAL);renderHud();}},
+    services:()=>S.services||(S.services={}), discoverService:id=>{if(!S.services)S.services={};if(!S.services[id]){S.services[id]=1;save();}},
     relocated: () => Sneaking.reveal(CONCEAL),
     visibility: () => ({hidden:CONCEAL.hidden,stealth:rv('stealth')}),
     detects: (d,facing,agg) => Sneaking.detection(CONCEAL,rv('stealth'),d,facing,agg),
@@ -1697,7 +1730,7 @@
   const DYES = [null, '#b23a2e', '#3a5aa8', '#3e7a40', '#6a3e8a', '#3c3c40', '#7a5232', '#c89a3a', '#2a3a6a'], DYEN = ['Undyed', 'Red', 'Blue', 'Green', 'Purple', 'Black', 'Brown', 'Gold', 'Navy'];
   // where each of the eight old heroes lands: [hair, colour, beard, hat]
   const LOOKAPP = { warrior: [[0, 1, -1, -1], [7, 3, -1, -1]], thief: [[1, 0, 5, 3], [6, 0, -1, -1]], mage: [[2, 5, 1, 4], [8, 0, -1, -1]], crafter: [[-1, 1, 0, -1], [6, 2, -1, -1]] };
-  function look0() { const lk = S.look != null ? S.look : 0, d = (LOOKAPP[S.path] || LOOKAPP.warrior)[lk % 2]; return { body: lk % 2, hair: d[0], hc: d[1], beard: d[2], hat: d[3], wear: S.path === 'mage' ? 1 : 0, dye: S.path === 'mage' ? (lk % 2 ? 4 : 2) : 0 }; }
+  function look0() { const lk = S.look != null ? S.look : 0, d = (LOOKAPP[S.path] || LOOKAPP.warrior)[lk % 2]; return { body: lk % 2, skin: 1, hair: d[0], hc: d[1], beard: d[2], hat: d[3], wear: S.path === 'mage' ? 1 : 0, dye: S.path === 'mage' ? (lk % 2 ? 4 : 2) : 0 }; }
   const myLook = () => S.app || (S.app = look0());
   const WPN = { swords: [0, 1, 1, 2], fencing: [14, 15, 0, 1], archery: [25, 26, 26, 27], magery: [9, 8, 10, 12] }, SHD = [20, 22, 21, 21];
   function appNow() {
@@ -1707,21 +1740,22 @@
     let wi = -1, wk = '', st = 'swing';
     if (wp) { const V = wp.v != null && WV.find(x => x.v === wp.v); if (V) { wi = V.v; wk = V.k; st = V.s; } else { const ix = (WN[wp.w] || []).findIndex(n => wp.name.indexOf(n) >= 0); wi = (WPN[wp.w] || WPN.swords)[Math.min(3, ix < 0 ? g(wp) : ix)]; wk = wp.w === 'magery' ? 'staff' : wp.w === 'archery' ? 'bow' : wi === 2 ? 'long' : wi === 14 || wi === 15 ? 'dagger' : 'sword'; st = wp.w === 'magery' ? 'cast' : wp.w === 'swords' ? 'swing' : 'thrust'; } }
     const wg = L.wglow && spec(L.wglow), hat = hd ? HATK(hd.name) : L.hat;
-    return { combo: L.body * 5 + outfit + 1, cloth: sp ? sp.base : DYES[L.dye] || null, fx: sp && sp.k ? { k: sp.k, c: sp.c || null, soft: sp.soft || 0 } : null, metal, hc: HAIRC[L.hc] || HAIRC[1], hair: L.hair, beard: L.body ? -1 : L.beard, hat,
+    return { combo: L.body * 5 + outfit + 1, skin: L.skin ?? 1, cloth: sp ? sp.base : DYES[L.dye] || null, fx: sp && sp.k ? { k: sp.k, c: sp.c || null, soft: sp.soft || 0 } : null, metal, hc: HAIRC[L.hc] || HAIRC[1], hair: L.hair, beard: L.beard, hat,
       wpn: wi, wkind: wk, style: st, glow: wg ? wg.c || '#e0d8ff' : wp ? { epic: '#8fc0ff', legendary: '#ffd76a' }[wp.rarity] || null : null, shield: sh ? (sh.off != null ? sh.off : SHD[Math.min(3, g(sh))]) : -1, gl: hn && /Thief/.test(hn.name) ? 1 : 0 };
   }
   let APPK = '', APPV = null; const app = () => { const a = appNow(), k = JSON.stringify(a); if (k !== APPK) { APPK = k; APPV = a; } return APPV; };
   const dollHTML = () => ART && ArtData.body ? `<section class="sec dollsec"><canvas id="doll" width="300" height="450" aria-label="Your character"></canvas><div class="row end"><button class="btn sm quiet" data-a="looks">Appearance</button></div></section>` : '';
   const paintDoll = () => setTimeout(() => ['#doll', '#doll2'].forEach(q => { const cv = $(q); if (cv && sceneUp) Scene.drawDoll(cv, app()); }), 0);
   // the barber, tailor and dyer charge once your first day is done
-  const LOOKC = { body: 250, hair: 30, hc: 20, beard: 20, hat: 15, wear: 10, dye: 25, wglow: 0 }, lookCost = k => gOn() ? 0 : LOOKC[k] || 0, lc$ = k => lookCost(k) ? ` <small>${lookCost(k)} gold</small>` : '';
+  const LOOKC = { body: 250, skin: 0, hair: 30, hc: 20, beard: 20, hat: 15, wear: 10, dye: 25, wglow: 0 }, lookCost = k => gOn() ? 0 : LOOKC[k] || 0, lc$ = k => lookCost(k) ? ` <small>${lookCost(k)} gold</small>` : '';
   function looksSheet() {
     const L = myLook(), opt = (k, v, t, on) => `<button class="chip${on ? ' on' : ''}" data-a="lookset" data-k="${k}" data-v="${v}">${esc(t)}</button>`;
     sheet(`<p class="eyebrow">The barber, the tailor and the dyer</p><h2>Appearance</h2><canvas id="doll2" class="dollbig" width="300" height="450"></canvas>
       <h3>Body${lc$('body')}</h3><div class="chips">${opt('body', 0, 'Man', L.body === 0)}${opt('body', 1, 'Woman', L.body === 1)}</div>
+      <h3>Skin tone</h3><div class="chips">${SKINN.map((n,i)=>opt('skin',i,n,(L.skin??1)===i)).join('')}</div>
       <h3>Hair${lc$('hair')}</h3><div class="chips">${opt('hair', -1, 'Bald', L.hair < 0)}${HAIRS.map((n, i) => opt('hair', i, n, L.hair === i)).join('')}</div>
       <h3>Hair colour${lc$('hc')}</h3><div class="chips">${HAIRCN.map((n, i) => opt('hc', i, n, L.hc === i)).join('')}</div>
-      ${L.body ? '' : `<h3>Beard${lc$('beard')}</h3><div class="chips">${opt('beard', -1, 'None', L.beard < 0)}${BEARDS.map((n, i) => opt('beard', i, n, L.beard === i)).join('')}</div>`}
+      <h3>Facial hair${lc$('beard')}</h3><div class="chips">${opt('beard', -1, 'None', L.beard < 0)}${BEARDS.map((n, i) => opt('beard', i, n, L.beard === i)).join('')}</div>
       <h3>Head${lc$('hat')}</h3><div class="chips">${opt('hat', -1, 'Nothing', L.hat < 0)}${HATS.map((n, i) => opt('hat', i, n, L.hat === i)).join('')}</div>
       <h3>Clothes without armour${lc$('wear')}</h3><div class="chips">${opt('wear', 0, 'Tunic', L.wear === 0)}${opt('wear', 1, 'Robe', L.wear === 1)}</div>
       <h3>Dye${lc$('dye')}</h3><div class="chips">${DYEN.map((n, i) => opt('dye', i, n, L.dye === i)).join('')}${(S.dyeU || []).map(id => opt('dye', id, spec(id).n + ' ✦', L.dye === id)).join('')}</div>
@@ -1735,7 +1769,7 @@
   function progressPanel() {return `<section class="sec"><h2>Attributes <small>${Progression.statTotal(S).toFixed(1)} / 225</small></h2><p class="note">Strength sets health and physical power. Dexterity supplies stamina for maneuvers. Intelligence supplies mana for magic. Practice trains related attributes, including when a skill reaches its cap.</p><ul class="skills">${[['str','Strength','Health and physical power.'],['dex','Dexterity','Stamina and shield efficiency.'],['int','Intelligence','Mana and spell power.']].map(x=>progressRow(...x,true)).join('')}</ul><p>Mana ${Math.round(S.mana)} / ${Progression.maxMana(S)} · Stamina ${Math.round(S.stamina)} / ${Progression.maxStamina(S)}</p></section><section class="sec"><h2>Skills <small>${total().toFixed(1)} / ${CAP}</small></h2><p class="note">Raise learns through use. Lower releases points only when another skill needs room at the shared cap, starting with the highest skill set to Lower. Locked preserves its value. All three settings allow you to use the skill. Set a stopping target to lock automatically; leave it blank to clear the target. No skills decay while you are away.</p><ul class="skills">${RPG.map(x=>progressRow(...x)).join('')}</ul><p class="note">Skills improve fastest near their difficulty. The last ten points to Grandmaster take the longest. SQL techniques below have their own learning record.</p>${scrollsHTML()}</section>`;}
   function vHero() {
     const p = PATHS.find(x => x.id === S.path), acc = S.stats.q ? Math.round(100 * S.stats.ok / S.stats.q) : 0, w = armsSkill();
-    paintDoll(); return `<section class="place"><p class="eyebrow">${p ? p.name : 'No path chosen'} · health ${S.hp} / ${maxHp()}</p><h1>${rankName()}</h1></section>${dollHTML()}
+    paintDoll(); return `<div class="character-return"><p class="eyebrow">World ${A.world+1} · ${isMain()?'Main character':'Supporting character'}</p><button class="btn solid" data-a="reset">Save and return to characters</button></div><section class="place"><p class="eyebrow">${p ? p.name : 'No path chosen'} · health ${S.hp} / ${maxHp()}</p><h1>${rankName()}</h1></section>${dollHTML()}
       <section class="sec"><h2>Books ${qm('hero')}</h2>${bookHTML()}</section>
       ${progressPanel()}
       <details class="lesson"><summary>SQL skills</summary><div class="lb"><ul class="skills">${SKILLS.map(s => { const v = S.skills[s.id] || { v: 0 }; return `<li><span class="nm"><b>${s.name}</b> ${rusty(s.id) ? '<span class="pill rust">rusty</span>' : ''}<small>${esc(s.what)}</small></span><span class="val">${v.v.toFixed(1)}</span><span class="bar"><i style="width:${v.v}%"></i></span></li>`; }).join('')}</ul><p class="cap2">Tracked in the background. Rusty skills come back in the daily drills.</p></div></details>
@@ -1743,7 +1777,7 @@
       ${djTokens()}<section class="sec"><h2>Worn gear</h2><div class="grid doll">${SLOTS.map(s => { const it = itemById(S.eq[s]); return it ? `<button class="cell rar-${it.rarity}" data-a="item" data-id="${it.id}" aria-label="${esc(it.name)}">${ico(it.ic)}<em>${s}</em></button>` : `<span class="cell empty"><em>${s}</em></span>`; }).join('')}</div><div class="kv" style="margin-top:12px"><span>Book of Arms uses</span><span>${rpgName(w)}</span><span>Damage with it</span><span>+${dmgPct(w)}%</span><span>Defence</span><span>${Math.min(60, bonus('def'))}%</span><span>Gold bonus</span><span>+${bonus('gold')}%</span><span>Skill gain bonus</span><span>+${learnPct()}%</span><span>Luck (with streak ${S.streak})</span><span>+${luck()}%</span></div></section>
       <section class="sec"><h2>Record</h2><div class="kv" style="margin-top:10px"><span>Queries run</span><span>${S.stats.q}</span><span>Correct</span><span>${S.stats.ok} (${acc}%)</span><span>Exercises</span><span>${Object.keys(S.done).length} / ${CONTRACTS.length}</span><span>Marks</span><span>${Object.keys(S.boss).length} / 8</span><span>Journal pages</span><span>${Object.keys(S.jr).length} / 8</span><span>Creatures</span><span>${S.stats.kills}</span><span>Thefts</span><span>${S.stats.steals}</span><span>Dungeon chests</span><span>${S.stats.dungeons}</span><span>Times fallen</span><span>${S.stats.falls}</span><span>Best streak</span><span>${S.best}</span></div></section>
       <section class="sec"><h2>Sound</h2><p class="note">Music follows towns, wilderness, dungeons and fights. If you hear nothing, tap the screen once and check your device volume.</p><div class="row" style="margin-top:10px"><button class="btn sm quiet" data-a="snd" data-k="mu">Music: ${Sound.pref().mu ? 'on' : 'off'}</button><button class="btn sm quiet" data-a="snd" data-k="fx">Effects: ${Sound.pref().fx ? 'on' : 'off'}</button></div></section>
-      <section class="sec"><h2>Save</h2><p class="note">${Cloud.state === 'account' ? 'Saved to your Claude account as you play, and on this device.' : 'Saved on this device. Account sync is not available in this view, so copy a save code before switching devices.'}</p><div class="row" style="margin-top:10px"><button class="btn sm quiet" data-a="export">Save code</button><button class="btn sm quiet" data-a="import">Load a code</button><button class="btn sm wax" data-a="reset">Switch character</button></div></section>`;
+      <section class="sec"><h2>Save</h2><p class="note">${Cloud.state === 'account' ? 'Saved to your Claude account as you play, and on this device.' : 'Saved on this device. Account sync is not available in this view, so copy a save code before switching devices.'}</p><div class="row" style="margin-top:10px"><button class="btn sm quiet" data-a="export">Save code</button><button class="btn sm quiet" data-a="import">Load a code</button></div></section>`;
   }
   function vBag() {
     const order = it => -RAR.indexOf(it.rarity) * 100 - Object.values(it.stats).reduce((a, b) => a + b, 0), inv = S.inv.slice().sort((a, b) => order(a) - order(b)), sc = Object.keys(S.scr);
@@ -1799,21 +1833,22 @@
     scroll: d => { const p = pageById(d.id); if (!p || !S.scr[p.id]) return; sheet(`${scrollHTML(p)}<p class="cap2">${esc(p.src)}.</p><div class="row end">${owned(p.id) ? `<button class="btn" data-a="sellscroll" data-id="${p.id}">Sell · ${20 * p.c} gold</button>` : `<button class="btn solid" data-a="inscribe" data-id="${p.id}">Add to the ${BOOKS[p.book].name}</button>`}</div>`); },
     inscribe: d => { const p = pageById(d.id); if (p && inscribe(p.id)) { save(); toast(`${p.name} added to your ${BOOKS[p.book].name}`); } closeSheet(); render(); },
     sellscroll: d => { const p = pageById(d.id); if (!p || !S.scr[p.id]) return; S.scr[p.id]--; if (!S.scr[p.id]) delete S.scr[p.id]; S.gold += 20 * p.c; save(); closeSheet(); render(); },
-    pick: d => { const n = $('#cr-name'); if (!CR) return; if (n) CR.name = n.value; CR.path = d.id; CR.look = +d.look; create(); },
+    pick: d => { const n = $('#cr-name'); if (!CR) return; if (n) CR.name = n.value; CR.path = d.id; CR.look = +d.look; if(CR.app)CR.app.body=CR.look%2; create(); },
     begin: () => {
       if (!CR || CR.look == null) return; const p = PATHS.find(x => x.id === CR.path), nm = (($('#cr-name')||{}).value || CR.name || '').trim().slice(0, 16) || NAMES[CR.look], rev = S.rev;
       const slot = CR.slot != null && !A.slots[CR.slot] ? CR.slot : A.slots.findIndex(c => !c); if (slot < 0) return toast('All five slots are taken'); syncA();
       const main = A.main < 0 || !A.slots[A.main]; A.cur = slot; if (main) A.main = slot;
-      resetTactics();S = linkS(fresh()); S.rev = rev; S.name = nm; S.path = p.id; S.look = CR.look; S.sk = Object.assign({}, p.sk); Progression.normalize(S); S.hp = maxHp(); give(makeItem('common', 1, 'weapon', WSTART[p.id])); for (const id of { warrior: ['a1'], thief: ['a1', 'h1'], mage: ['s1'], crafter: ['a1', 'c1'] }[p.id]) S.pages[id] = 1; S.intro = 1; S.pos = null; S.prologue=main?Prologue.fresh():null;
+      resetTactics();S = linkS(fresh()); S.rev = rev; S.name = nm; S.path = p.id; S.look = CR.look; S.app=Object.assign({},CR.app,{wear:p.id==='mage'?1:0}); S.sk = Object.assign({}, p.sk); Progression.normalize(S); S.hp = maxHp(); give(makeItem('common', 1, 'weapon', WSTART[p.id])); for (const id of { warrior: ['a1'], thief: ['a1', 'h1'], mage: ['s1'], crafter: ['a1', 'c1'] }[p.id]) S.pages[id] = 1; S.intro = 1; S.pos = null; S.prologue=main?Prologue.fresh():null;
       CR = null; DG = null; Q = null; F = null; if(sceneUp){clearInterval(GSAY);Scene.guideOff();} $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; tab = 'world'; save(); if (sceneUp && !main) { Scene.load(null, 'dock'); sceneOwner=S; } hideTitle(); render();
       if (main) coldOpen(); else { hideTitle(); gSkip(); toast(`${nm} arrives in Tallyport`); }
     },
     newgame: () => { CR = null; return title(); if (S.path) return showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box"><h1>Start over?</h1><p class="tt-sub">${esc(S.name)} and everything they own will be erased when the new game begins.</p><button class="tt-btn" data-a="newgame2">Make a new character</button><button class="tt-btn quiet" data-a="totitle">Back</button></div>`); create(); },
     newgame2: () => { CR = null; create(); }, totitle: () => title(), continue: () => hideTitle(),
+    worldpick: d => selectWorld(+d.i), crturn:d=>{if(CR)CR.direction=((CR.direction||0)+ +d.dir+8)%8;}, crwalk:()=>{if(!CR)return;const n=$('#cr-name');if(n)CR.name=n.value;CR.moving=!CR.moving;create();},
     playslot: d => playSlot(+d.i), newslot: d => { CR = { path: null, look: null, name: '', slot: +d.i }; create(); }, delpick: () => delPick(),
     delslot: d => { const i = +d.i, c = A.slots[i]; if (!c) return; showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box"><h1>Delete ${esc(c.name)}?</h1><p class="tt-sub">${esc(c.name)}, their bag, their bank and their skills are gone for good. Houses stay.</p><button class="tt-btn" data-a="delyes" data-i="${i}">Delete</button><button class="tt-btn quiet" data-a="totitle">Back</button></div>`); },
     delyes: d => { const i = +d.i; if (!A.slots[i]) return; A.slots[i] = null; if (A.main === i) A.main = -1; if (A.cur === i) { A.cur = -1; S = linkS(fresh()); } save(); title(); },
-    boatskiprescue:()=>boatAdvance('rescued'), boatname:()=>boatName(), boathome:d=>boatAdvance('home',d.id), boatnext:d=>boatAdvance(d.step), boatmenu:()=>{save();title();render();},
+    boatskiprescue:()=>boatAdvance('rescued'), boatname:()=>boatName(), boathome:d=>boatAdvance('home',d.id), boatnext:d=>boatAdvance(d.step), boatmenu:()=>returnCharacters(),
     skipguide: () => { if(boatActive())return boatLand(true); hideTitle(); gSkip(); }, gskip: () => gSkip(),
     looks: () => looksSheet(), lookset: d => { const L = myLook(), k = d.k, v = (k === 'dye' || k === 'wglow') && isNaN(+d.v) || d.v === '' ? d.v : +d.v; if (L[k] === v) return; const c = lookCost(k); if (c && S.gold < c) return toast(`That costs ${c} gold`); if (c) S.gold -= c; L[k] = v; if (k === 'body') { S.look = v; if (v && L.beard >= 0) L.beard = -1; if (L.hair >= 0 && (L.hair < 6) === !!v) L.hair = v ? 6 : 0; } save(); looksSheet(); renderHud(); },
     djboard: () => { closeSay(); djBoard(Scene.inHall()); }, djsign: () => { const r = Scene.inHall(); if (!r || S.gold < 15 * r) return; djSign(r); closeSheet(); Scene.enterHall(r, hallFill(r)); clearInterval(SPT); SPT = setInterval(sparTick, 140); Scene.hop(5, 13); toast('You’re in the bracket'); render(); setTimeout(() => djBoard(r), 300); },
@@ -1915,22 +1950,23 @@
     conrun: () => { con.sql = $('#con-sql').value; heroTables(); con.res = Engine.runSandbox(con.sql); $('#con-out').innerHTML = conHTML(con.res); },
     conq: d => { $('#con-sql').value = d.q; ACT.conrun(); },
     conreset: () => { Engine.resetSandbox(); con.res = null; render(); toast('Sandbox restored to the original ledger'); },
-    export: () => { if(DG)DP.snapshot(); syncA(); const code = btoa(unescape(encodeURIComponent(JSON.stringify(A)))); sheet(`<h2>Save code</h2><p class="cap2">Copy this somewhere safe. Loading it on any device restores all your characters and houses.</p><label class="vh" for="savebox">Save code</label><textarea id="savebox" class="savebox" readonly>${code}</textarea><div class="row end"><button class="btn solid" data-a="copy">Copy</button></div>`); },
+    export: () => { if(DG)DP.snapshot(); syncA(); const code = btoa(unescape(encodeURIComponent(JSON.stringify(A)))); sheet(`<h2>Save code</h2><p class="cap2">Copy this somewhere safe. Loading it on any device restores all three worlds, their characters and houses.</p><label class="vh" for="savebox">Save code</label><textarea id="savebox" class="savebox" readonly>${code}</textarea><div class="row end"><button class="btn solid" data-a="copy">Copy</button></div>`); },
     copy: async () => { const b = $('#savebox'); try { await navigator.clipboard.writeText(b.value); toast('Copied'); } catch (e) { b.focus(); b.select(); toast('Select all and copy'); } },
-    import: () => sheet(`<h2>Load a save code</h2><p class="cap2">This replaces all your characters and houses.</p><label class="vh" for="savebox">Save code</label><textarea id="savebox" class="savebox" placeholder="Paste a save code"></textarea><div class="row end"><button class="btn solid" data-a="doimport">Load</button></div>`),
+    import: () => sheet(`<h2>Load a save code</h2><p class="cap2">This replaces all three worlds, their characters and houses.</p><label class="vh" for="savebox">Save code</label><textarea id="savebox" class="savebox" placeholder="Paste a save code"></textarea><div class="row end"><button class="btn solid" data-a="doimport">Load</button></div>`),
     doimport: () => {
       try {
         const o = JSON.parse(decodeURIComponent(escape(atob($('#savebox').value.trim()))));
-        if (!o || ![6,7,8].includes(o.v)) throw 0;
-        discardEncounter(); A = Object.assign(freshA(), o, { v: 8, rev: Math.max(A.rev, o.rev || 0) });
+        if (!o || ![6,7,8,9].includes(o.v)) throw 0;
+        discardEncounter(); const revision=Math.max(A.rev,o.rev||0); A = CharacterWorlds.normalize(o); A.rev=revision; if(sceneUp&&Scene.resetWorld)Scene.resetWorld();
         loadCur(); cmdBackfill(); DG = null; Q = null; F = null; CE = null; closeSheet();
         if (A.cur < 0) { if (sceneUp) homesUp(); save(); return title(); }
         hideTitle(); if (sceneUp) restoreAccountScene(true);
         save(); render(); toast('Game loaded');
       } catch (e) { toast('That is not a valid save code'); }
     },
-    reset: () => { closeSheet(); tab = 'world'; render(); title(); }
+    reset: () => returnCharacters()
   };
+  document.addEventListener('change',e=>{const key=e.target.dataset&&e.target.dataset.create;if(!CR||!['body','skin','hair','hc','beard'].includes(key))return;CR.app[key]=+e.target.value;if(key==='body'&&CR.path)CR.look=LOOK0[CR.path]+CR.app.body;});
   document.addEventListener('click', e => { const el = e.target.closest('[data-a]'); if (!el || el.disabled || ghost(e)) return; const f = ACT[el.dataset.a]; if (f) f(el.dataset, el, e); });
   document.addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { if (Q || F) ACT.run(); else if ($('#con-sql')) ACT.conrun(); } if (e.key === 'Escape' && (!$('#sheet').hidden || SB)) closeSheet(); });
   document.addEventListener('click', e => { if (SB && !ghost(e) && e.target.closest('#say') && !e.target.closest('[data-a]')) sayTap(); });
@@ -1948,7 +1984,7 @@
   }
   window.addEventListener('pagehide',()=>{if(S && S.path)save();});
   document.addEventListener('visibilitychange',()=>{if(document.hidden && S && S.path)save();});
-  function start(hot) { purgeOld(); A = (hot && hot.acct && [6,7,8].includes(hot.acct.v) && Object.assign(freshA(), hot.acct, {v:8})) || loadA() || freshA(); loadCur(); cmdBackfill(); title(); artLoad(); if (hot && hot.tab) tab = hot.tab; sel = S.region; render(); setTimeout(bootEngine, 30); cloudInit(); }
+  function start(hot) { purgeOld(); A = (hot && hot.acct && CharacterWorlds.normalize(hot.acct)) || loadA() || freshA(); loadCur(); cmdBackfill(); title(); artLoad(); if (hot && hot.tab) tab = hot.tab; sel = S.region; render(); setTimeout(bootEngine, 30); cloudInit(); }
   if (location.protocol === 'file:' || location.hostname === 'localhost') window.__bw = { CMap, CONCEAL, beginSkillWork, combatUtility, maxHp, get A() { return A; }, makeItem, gain, odds, dropBody, insFee, trainCost, makePscr, maybeDye, homeSheet, get DU() { return DU; }, get FI() { return FI; }, errandFor, get PK() { return PK; }, get WH() { return WH; }, get BJ() { return BJ; }, get Q() { return Q; }, get F() { return F; }, KB, get S() { return S; }, get DG() { return DG; }, DP, get SB() { return SB; }, get TR() { return TR; }, setCE: e => { CE = e; }, HOST, SH, START, ACT, render, save, odds, gain, diffOf };
   // speech and story use curly quotes; SQL, code and table data keep straight ones
   const cq = t => t.replace(/"/g, (m, i) => (i === 0 || /[\s(\[\u2014\u2013-]/.test(t[i - 1])) ? '\u201c' : '\u201d'), RAW = 'pre,code,textarea,input,script,style,td,th,.qbox,.code,.sqlhl,[data-raw]';

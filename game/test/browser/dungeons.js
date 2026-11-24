@@ -175,17 +175,23 @@ test('version six accounts migrate without losing their character or bank',async
   await expect(page.locator('body')).toHaveAttribute('data-ready','tallyport',{timeout:45000});
   const f=page.frames().find(f=>f.url().includes('visual_test=1'));
   const account=await f.evaluate(()=>{
-    const a=JSON.parse(localStorage.getItem('brasswake.acct.v8'));a.v=6;a.slots[a.cur].v=5;a.slots[a.cur].bank.gold=321;
-    delete a.slots[a.cur].dungeon;delete a.slots[a.cur].dungeons;
-    return a;
+    const stored=JSON.parse(localStorage.getItem('brasswake.acct.v9'));
+    const legacy={...stored.worlds[stored.world],v:6,rev:stored.rev,at:stored.at};
+    const slot=legacy.slots[legacy.cur];slot.v=5;slot.bank.gold=321;
+    delete slot.dungeon;delete slot.dungeons;
+    return legacy;
   });
   const name=account.slots[account.cur].name;
-  await page.addInitScript(a=>{localStorage.setItem('brasswake.acct.v6',JSON.stringify(a));localStorage.removeItem('brasswake.acct.v8');},account);
+  await page.addInitScript(a=>{
+    for(const version of [7,8,9])localStorage.removeItem('brasswake.acct.v'+version);
+    localStorage.setItem('brasswake.acct.v6',JSON.stringify(a));
+  },account);
   await page.waitForLoadState('networkidle');
   await page.goto('/index.html?visual_test=1');
   await expect(page.locator('#artload')).toBeHidden({timeout:45000});
   await page.locator('[data-a=playslot]').first().click();
-  expect(await page.evaluate(()=>({v:__bw.A.v,character:__bw.S.v,name:__bw.S.name,gold:__bw.S.bank.gold,dungeon:__bw.S.dungeon}))).toEqual({v:8,character:7,name,gold:321,dungeon:null});
+  expect(await page.evaluate(()=>({v:__bw.A.v,world:__bw.A.world,character:__bw.S.v,name:__bw.S.name,gold:__bw.S.bank.gold,dungeon:__bw.S.dungeon})))
+    .toEqual({v:9,world:0,character:8,name,gold:321,dungeon:null});
 });
 
 test('five fully mapped characters compact local and cloud saves and reload an inactive slot',async({page},info)=>{
@@ -205,9 +211,9 @@ test('five fully mapped characters compact local and cloud saves and reload an i
     }
     __bw.S.dungeons=maps;__bw.save();
     const inspect=()=>{
-      const raw=localStorage.getItem('brasswake.acct.v8'),a=JSON.parse(raw);
-      return {bytes:raw.length*2,revision:a.rev,current:__bw.A.rev,slots:a.slots.filter(Boolean).length,
-        compact:a.slots.every(s=>Object.values(s.dungeons).every(p=>Object.values(p.seen).every(v=>typeof v==='string')))};
+      const raw=localStorage.getItem('brasswake.acct.v9'),a=JSON.parse(raw),world=a.worlds[a.world];
+      return {bytes:raw.length*2,revision:a.rev,current:__bw.A.rev,slots:world.slots.filter(Boolean).length,
+        compact:world.slots.every(s=>Object.values(s.dungeons).every(p=>Object.values(p.seen).every(v=>typeof v==='string')))};
     };
     const active=inspect();
     for(const s of __bw.A.slots)s.dungeons=JSON.parse(legacy);
@@ -216,8 +222,9 @@ test('five fully mapped characters compact local and cloud saves and reload an i
   });
   for(const state of saved){expect(state.revision).toBe(state.current);expect(state.slots).toBe(5);expect(state.compact).toBe(true);expect(state.bytes).toBeLessThan(1048576);}
   await page.addInitScript(()=>{
-    const remote=JSON.parse(localStorage.getItem('brasswake.acct.v8'));remote.rev+=10000;remote.cur=-1;
-    for(const s of remote.slots)for(const p of Object.values(s.dungeons))for(const floor of Object.keys(p.seen))p.seen[floor]=Array.from({length:124*109},(_,i)=>i);
+    const remote=JSON.parse(localStorage.getItem('brasswake.acct.v9')),world=remote.worlds[remote.world];
+    remote.rev+=10000;world.cur=-1;
+    for(const s of world.slots)for(const p of Object.values(s.dungeons))for(const floor of Object.keys(p.seen))p.seen[floor]=Array.from({length:124*109},(_,i)=>i);
     const db={doc:key=>({
       get:async()=>key.endsWith('/acct')?{exists:true,data:()=>({json:JSON.stringify(remote)})}:{exists:false},
       set:async data=>{window.__capacityCloudWrite=data.json.length*2;}
@@ -228,9 +235,9 @@ test('five fully mapped characters compact local and cloud saves and reload an i
   await page.goto('/index.html?visual_test=1');await expect(page.locator('#artload')).toBeHidden({timeout:45000});
   await page.waitForFunction(()=>window.__capacityCloudWrite>0);
   const cloud=await page.evaluate(()=>{
-    const raw=localStorage.getItem('brasswake.acct.v8'),a=JSON.parse(raw);
-    return {bytes:raw.length*2,cloudBytes:window.__capacityCloudWrite,rev:a.rev,cur:a.cur,
-      compact:a.slots.every(s=>Object.values(s.dungeons).every(p=>Object.values(p.seen).every(v=>typeof v==='string')))};
+    const raw=localStorage.getItem('brasswake.acct.v9'),a=JSON.parse(raw),world=a.worlds[a.world];
+    return {bytes:raw.length*2,cloudBytes:window.__capacityCloudWrite,rev:a.rev,cur:world.cur,
+      compact:world.slots.every(s=>Object.values(s.dungeons).every(p=>Object.values(p.seen).every(v=>typeof v==='string')))};
   });
   expect(cloud.rev).toBeGreaterThan(10000);expect(cloud.cur).toBe(-1);expect(cloud.compact).toBe(true);
   expect(cloud.bytes).toBeLessThan(1048576);expect(cloud.cloudBytes).toBeLessThan(1048576);

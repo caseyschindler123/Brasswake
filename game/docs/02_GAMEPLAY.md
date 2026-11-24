@@ -1,6 +1,6 @@
 # Brasswake: gameplay reference
 
-Last updated: 2026-11-24. SQL query power and battle comparisons are verified at `9853ea2`. The skill/attribute/NPC expansion is verified at aec11c0; the Backstab/pursuit audit release is verified at `dab3b4a`, with evidence and limitations in the closed [path playthrough plan](plans/2026-11-23-path-playthrough-and-balance.md). This describes world revision 3, modular buildings, the expanded capital and working ports, alongside the story/first-day revision, soundtrack and 28-floor dungeon rebuild. The retained artifact preview is `1795364400-6a70`. This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn. Verified release identities and limitations are in [release history](RELEASE_HISTORY.md).
+Last updated: 2026-11-24. The worlds/living-places implementation described below is a release candidate awaiting combined verification and deployment; see [plan](plans/2026-11-24-worlds-and-living-places.md). SQL query power and battle comparisons are verified at `9853ea2`. The skill/attribute/NPC expansion is verified at aec11c0; the Backstab/pursuit audit release is verified at `dab3b4a`, with evidence and limitations in the closed [path playthrough plan](plans/2026-11-23-path-playthrough-and-balance.md). This describes world revision 3, modular buildings, the expanded capital and working ports, alongside the story/first-day revision, soundtrack and 28-floor dungeon rebuild. The retained artifact preview is `1795364400-6a70`. This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn. Verified release identities and limitations are in [release history](RELEASE_HISTORY.md).
 
 ## 1. Premise and goals
 
@@ -18,23 +18,13 @@ Last updated: 2026-11-24. SQL query power and battle comparisons are verified at
 
 ## 2. Accounts and characters
 
-- **Five slots** on one account (`NSLOT`). The first character made is the **main**. Every other character is **supporting**. If the main is deleted, the next new character becomes the main and the Trials start over.
-- **Main only:**
-  - Examiners (bosses) and their marks
-  - Ilva's journal pages, Sorrel's notes, the masters' Ilva memories
-  - the keepers' Lost Ledger scrolls, the Odalys intro and guide
-  - the ending
-- **Supporting characters:**
-  - They can do everything else, exercises included.
-  - They skip the opening story and guide, and arrive in Tallyport with the guide marked done.
-- **Shared across the account:**
-  - houses and their chests (the way to move gold and gear between characters)
-  - the codex of named rares, so only one copy of each exists
-  - first-time payouts: exercise gold and drops, Great Truth rewards, dojo champion and master prizes
-- **Per character:**
-  - skills, gear, bag, bank, pages, gold, dailies, errands, rumors
-  - Banks are separate on purpose, to give a reason to own a house.
-- **Switching characters:** Hero tab → Save → Switch character, which opens the select screen.
+- **Three independent worlds**, each with five slots (`CharacterWorlds.count=3`, `NSLOT=5`): one story main and four supporting characters, fifteen total. They use the same geography with separate stories, households and progress. The first character in each world is its main; supporting slots require an existing main. Deleting a main allows the next new character to carry that world's story; existing supporters remain supporting.
+- **Main only:** Examiners/marks, Ilva's journal and the masters' memories, Sorrel's notes, Lost Ledger scrolls, the Odalys intro/guide and ending.
+- **Supporting characters:** all other activities, including exercises. They arrive ashore with the story introduction and guide skipped.
+- **Shared within each world; separate between worlds:** houses/chests and household gold/gear storage; the named-rare codex; learned commands; installed Grand Atlas; first-time exercise/Great Truth and dojo champion/master payouts.
+- **Per character:** skills, gear, bag, bank, pages, purse, dailies, errands, rumors, exploration and business discovery. Banks remain separate to give a reason to own a house.
+- **Selection:** Hero -> Save and return to characters opens the three-world screen. Every occupied slot explicitly states Main or Supporting. Returning saves progress. World changes retire encounters and regenerate the live scene so monsters/corpses and pending actions cannot cross worlds.
+- **Migration:** all five legacy slots and shared household data move into world one. Account v9/character v8 export/import includes all worlds. No save wipe.
 
 ## 3. World
 
@@ -57,7 +47,7 @@ Last updated: 2026-11-24. SQL query power and battle comparisons are verified at
 
 - **Getting around:**
   - Nothing is locked by region. Roads connect the six mainland towns. Four free, on-demand, two-way ferry routes join Tallyport–Brackwater, Brackwater–Haverly, Four Fords–Cinderwick, and Cinderwick–Aldermoot. Approach a ferryman and choose the destination; a safe quay landing and return service are available with zero gold. World-map lines follow actual open sea around headlands. Regional maps permit travel within their own region; cross-region journeys use roads/ferries unless the household Grand Atlas is used from home.
-  - Walking speed is 2.2 tiles/s and running is 4.6 tiles/s, controlled by the joystick displacement (keyboard arrows walk).
+  - Walking speed is 2.2 tiles/s and running is 4.6 tiles/s, controlled by joystick displacement (keyboard arrows walk). Manual motion is continuous, with immediate steering and stopping at the visible position. Swept body clearance prevents corner cutting and supports sliding. Tile ownership follows position; movement rewards, footsteps and resources are metered by actual travelled distance.
   - Teleport runes turn into house pads.
 - **Human residents:** named teachers, services, rivals, Tamsin, countryfolk and dojo fighters share the hero body layers, with stable skin, hair, facial hair, outfits/colors and job accessories. They face eight directions, wander diagonally where corner clearance permits, and turn toward the player during nearby interaction. Creatures retain their own artwork.
 - **Population:**
@@ -83,9 +73,15 @@ Shipped and independently verified on 2026-11-23; the [release history](RELEASE_
 - The Grand Atlas costs 30,000 gold and is sold only in Aldermoot after that character owns all eight regional maps. It is one shared household furnishing, installed through a house panel. Global destination travel requires interacting with it inside the installed house and owning all eight maps on the using character. It is never usable as a portable map-menu shortcut.
 - A bottom-right eight-direction joystick owns touch movement. Inner displacement walks, outer displacement runs, and release/cancel stops. Empty ground taps do nothing; nearby object taps interact and distant ones ask the player to move closer. Keyboard arrows and house-plot selection remain available.
 - Across all eight regions, service premises receive actual purposes, staff, specialized regional interiors, varied plans/frontages and usable civic spaces. Doors visibly open and close with sound. Dojos share modular construction; public building stairs connect useful upper rooms with persistent positions and safe return. Rectangles remain common without making every building identical.
+- Business picture signs use the same symbol catalogue as persistent discovered service markers. Entering a business records its symbol per character; minimap and larger map retain it. Symbols identify the business, with existing public waypoint/travel rules. The Town map zooms to local streets so recorded businesses remain distinguishable; Region and World views retain compact symbols.
+- Doors fill structural frames throughout their animation. Entrances use regional/use-specific steps, awnings, posts, civic pediments or workshop shelters; window caps, frontage stock and chimneys add depth. Structural collision remains authoritative.
+- Paved boundaries have segmented stone edging; dirt paths have worn irregular shoulders. Generic town residents follow short bounded public routes and pause facing activity. Named services and quest actors preserve their positions and identities.
+- A persistent location label distinguishes town from Wilderness; boundary announcements update independently of the music buffer.
 - Piers, stone quays and paved edges do not create shallow water. Pale shallows border natural shorelines; working harbour basins retain deep-water textures.
 
 ### Dungeons
+
+The living-places candidate adds raised wall coping, masonry faces/plinths and floor-edge shadows; purpose-selected recessed furnishings; room-scale drains, burial inlays, root patches, cooling grooves, crystal seams, ice cracks and archive borders; sparse visible-only ripples/drips/motes. These presentation layers preserve authored layouts, collision, bridges, hazards, stairs and progression.
 
 Release `dungeon-rebuild-2026-11-22` replaces the shared four-room corridor with 28 stable, authored tile floors. `src/dungeons.js` owns room diagrams, named chambers, connections, crossings, territories and entity anchors. Every floor is 124×109 tiles, with 16–19 named spaces, 2,692–3,742 connected safe tiles and 26–32 ordinary creatures. The closed-door route from the entry to the next stairs or final keeper spans 201–315 cardinal steps. These are measured geometry counts, not measured playtime.
 
@@ -105,10 +101,12 @@ Release `dungeon-rebuild-2026-11-22` replaces the shared four-room corridor with
 - **Inhabitants:** two new species per dungeon (16 total) join four suitable existing species and the named keeper. Creatures roam their room territory; skirmishers attack on sight, while the keeper and other inhabitants can be approached deliberately. Ordinary creatures respawn after 5 minutes and floor lieutenants/keepers after 15 minutes, away from the player and clear of occupied spawn anchors. Keepers remain repeatable after their lost table has been collected. Static creature sprites use the existing rotated-sprite fallback when no separate fallen artwork exists.
 - **Combat:** dungeon species use regional bounty templates for SQL, including valid template metadata for hunt errands. Skirmishers have 1.1× normal health, armored creatures 1.35×, casters 0.95× and brutes 1.6×. Armored creatures reduce non-spell damage by 20%; casters swing three times per round. Lieutenants use 1.8× health and elite rewards; keepers use 2.4×. Difficulty adds two points per floor; lieutenants/keepers use the elite difficulty, with another six points for keepers, capped at 100.
 - **Vault:** defeat the lieutenant on each earlier floor to recover its seal, then defeat the final keeper. Those seals and keeper victory unlock the final chest. Seals, keeper unlock and reward claims reset on the next local calendar day. Each cache and final vault pays once per character per day. Vault rewards retain the existing named-rare pity system. A cache gives `10 × Circle + 8` gold, two materials and an uncommon-or-better item. The lost table remains a one-time main-character story reward after defeating the keeper.
-- **Persistence:** mapped passages, opened shortcuts, read notes, kill/respawn times, unexpired corpse contents, seals and reward claims save per character and dungeon. Compact discovery bits keep fully explored maps for all five character slots within device storage; older discovery arrays are read and compacted automatically. Expired corpse records are removed while live loot remains. Reload and save-code import restore the floor and a safe position; leaving returns to the surface entrance. Dungeon deaths leave belongings at that surface entrance for the existing ten-minute recovery window. Characters, equipment and banks migrate from the previous save version.
+- **Persistence:** mapped passages, opened shortcuts, read notes, kill/respawn times, unexpired corpse contents, seals and reward claims save per character and dungeon. Compact discovery bits reduce exploration storage across the fifteen character slots; older discovery arrays are read and compacted automatically. Expired corpse records are removed while live loot remains. Reload and save-code import restore the floor and a safe position; leaving returns to the surface entrance. Dungeon deaths leave belongings at that surface entrance for the existing ten-minute recovery window. Characters, equipment and banks migrate from the previous save version.
 - **First day:** the Bilge entrance has a separate cellar rat and starter chest during the guided visit. One guardian unlocks this nearby chest; the other floors remain available after the guide. Leaving and returning before claiming it preserves this step.
 
 ## 4. Characters, skills and paths
+
+Creation offers free body, five skin tones, hairstyle, hair colour and facial-hair choices with a turning/walking preview of the actual layered avatar. Appearance persists in world animations and the paper doll. The in-game Appearance menu also offers free skin tones; existing barber/tailor prices remain for other services. Head layers retain direction-specific walking proportions throughout running; eight poses per direction are paced by distance. Actor separation uses a softened subpixel dark edge and ground shadow; 12 CSS px names anchor to the rendered head/silhouette.
 
 - **Paths:** each path sets the starting skills, weapon and pages.
 
@@ -313,10 +311,11 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
   - Hero tab → "Commands learned · n of 39" lists them; untaught ones show "?".
   - Supporting characters share the account's list. Existing characters were filled in from lessons already seen or done.
 - **Sound** (`src/audio.js`), modelled on UO: music by place and by situation, effects by type.
-  - Music: 28 tracks/cues cover all eight towns and eight dungeons, four shared wilderness themes (regions 1–2, 3–4, 5–6 and 7–8), ordinary combat, Examiner combat, taverns, dojo halls, card rooms, the title screen, victory and death. Town music covers each settlement; walking out changes to wilderness. A walked-in tavern or a conversation with its keeper plays tavern music; card-room conversations and active card games play the card-room theme. Dojos use their own theme even though their Scene map is marked as a dungeon. Fighting takes priority over location music. Title music starts after a user gesture.
+  - Music: the existing 28-track/cue asset catalogue is retained. Town music continues through all its buildings, taverns, dojos and card rooms. A different outdoor theme must remain the candidate for five continuous seconds before crossfading; returning cancels it. Four wilderness themes serve region pairs 1-2, 3-4, 5-6 and 7-8. Combat, Examiners, dungeons, title, victory and death retain priority. Venue-only tracks remain prepared assets. Title music starts after a user gesture.
   - Tracks crossfade over 1.6 s; combat/cues enter with a shorter handoff. Ambient music resumes at its previous position after a fight or cue; combat restarts. Victory and death are single-play musical cues, followed by the current location. Music mute controls those cues; effects mute separately controls synthesized feedback. With music off, short effects-only victory/death feedback remains. Hidden tabs stop music, and muting prevents new music requests. Two decoded tracks are cached, with only one new load at a time; delayed responses recheck the current location before playback.
   - Effects (synthesized): varied sword swings, fencing thrusts, bowshots, hit/hurt/miss; creature-family attack voices (small animals, beasts, birds, insects, wet creatures, constructs, spirits, dragons and ranged foes); healing, treasure/transactions, rare finds, query grades, victory, death and quiet button clicks. Crafting has smithing/alchemy success and ruined-work sounds; fishing has cast/splash, catch and empty-line sounds. Steps distinguish earth, wood and stone; walk-in room crossings have a door cue. Failed purchases and empty transactions make no coin sound. Passive walking recovery is quiet.
   - Magic images and sound follow the existing page: Spark (blue electricity), Frost Dart (cyan dart), Sunlance (gold beam), Chain Bolt (violet branching lightning), Fireball (orange flame), Crystal Shard (violet shards), Blizzard (white-blue swirling snow) and Rewrite (violet orbit/fragments). Every Circle has its own cast and impact timbre. Rare pages add a second ring, trailing sparks and a brighter sound layer; damage and existing rare bonuses are unchanged. Spells and arrows travel for 0.26 seconds before hit/miss presentation. A missed spell fizzles; healing uses green sparkles without a damage flash.
+  - Restrained synthesized harbour/market/wind/cave/water ambience plays during active visible world play, at 10-17 second opportunities with a shared seven-second effect cooldown and effects-mute support.
   - Levels: music 0.55, effects 0.7. Hero tab → Sound turns music and effects on or off; the setting is per device.
   - Audio starts on the first touch, as browsers require. On iOS 17+ it is set to play through the silent switch.
 
@@ -331,8 +330,8 @@ Workbench Carpentry crafts storage chests (6 regional materials, difficulty 25),
 - Dialogue portraits still use the old eight hero portraits.
 - Duel opponent speed needs playtest tuning.
 - Further professions: mining, lumberjacking, cooking, scouting, poisoning, mace fighting, wrestling, bard disciplines and animal companions remain deferred.
-- Rumors are per character. Their unique can only be found once per account.
-- **Further sound effects:** continuous regional ambience, occasional idle creature calls and separate creature death voices remain planned. All town/dungeon themes, four shared wilderness themes, ordinary/Examiner combat, venue/title music and victory/death cues are built, as described in Sound above.
+- Rumors are per character. Their unique can only be found once per world household.
+- **Further sound effects:** continuous regional ambience, occasional idle creature calls and separate creature death voices remain planned. Town/dungeon/wilderness, combat/title and victory/death music plus occasional contextual ambience are built as described above; venue tracks remain retained assets.
 - Not yet checked on Casey's iPhone: that audio plays in the Claude app, and what the silent switch does.
 
 ## Boat intro
@@ -340,6 +339,8 @@ Workbench Carpentry crafts storage chests (6 regional materials, difficulty 25),
 A new main character chooses appearance and former profession, then is hauled aboard the Marigold in the playable scene. Tamsin introduces herself, asks their name and homeland, recognizes their profession-specific reputation from merchant crews, and questions a journey that ordinary sailing cannot explain. Sunspire, Sylvanreach and Dwarrowdeep are existing distant trade realms, not new playable regions. The player walks on deck, meets Tamsin, can inspect cargo, rests during the three-day crossing, and walks off the gangplank at Tallyport. Tamsin explains Corin and the Trials ashore before Odalys's lesson. Odalys defines SQL and the Ledger before tables, rows, columns, queries and results; the source cargo, read-only teaching copy, full company records and safe ability practice have explicit handoffs. The entrance-cellar guardian, guided utility work and all guided Tallyport fishing casts use the SELECT/FROM forms taught that day. Existing guide indices, supplies, gold awards, equipment/paper-doll arming and the later story remain in place. The verified release is recorded in `RELEASE_HISTORY.md` and the completed boat-intro plan.
 
 ## Decision log
+
+- 2026-11-24: Casey authorized the complete worlds/living-places scope and autonomous verification/deployment, with a separate battle audit to integrate before release. Three households isolate story/shared rewards, each with one main and four supporters; banks remain individual. Free creation customization, continuous movement, stable music, readable names/text, fitted buildings/signs/edging, purposeful town activity and dungeon depth are implemented as a release candidate. Existing saves migrate into world one, account v9/character v8. Casey requested a softer actor outline after an early capture. Real iPhone Home Screen verification remains external; release evidence belongs in the linked plan/history.
 
 - 2026-11-24: Casey approved partial SQL power and immediate paired corrections, with iterative automated battles and visual review. Added result-based attack/effect strength, compact verified/reference comparisons, explicit hint/show protections and quicker zero-power exchanges; full-correct lesson/contract completion remains. See the SQL battle feedback plan for evidence and release status.
 

@@ -215,7 +215,15 @@ Casey approved up to $20 for this run. The two-image comparison and all 20 produ
 
 The new-only `arttools/prologue_prompts.json` supplies one authorized built-in image_gen deck/hull image. People are absent from the bitmap: the game draws the customized player, Tamsin and crew using the established character layers. Sea, rescue rope, mast fittings and gangplank are runtime layers. `arttools/prologue_art_inputs.json` records source/output hashes and geometry; `arttools/prologue_art.py` crops only transparent exterior margin and packs `game/art/ship/deck.webp` plus `src/artship.js` in the pinned Pillow/WebP environment. Existing prompts, settings, raw images and older packed outputs are unchanged. Source replay and focused alpha/input checks passed. Actual 390x720 Chromium/WebKit, 1280x800 desktop and hosted rendering captures were opened and reviewed; release evidence is recorded in `RELEASE_HISTORY.md`.
 
+## Living places and actor readability (release candidate)
+
+The worlds/living-places candidate reuses existing packed artwork. Fitted structural doors, shallow steps, awnings/porches/posts, civic pediments, window caps, frontage stock, chimneys and subdued smoke add architectural depth. Common drawn picture symbols identify businesses on signs and discovered maps. Segmented paving borders and worn dirt shoulders follow terrain boundaries. Dungeons use raised masonry faces/coping/plinths, recessed purpose-selected props and low-contrast room-scale floor details; visible-only drips/ripples/motes preserve readability.
+
+The existing eight-pose walk/run cycles contain contact, recovery and airborne side poses. Renderer-owned head-layer calibration keeps gait changes from changing skull/hair/hat scale; frame cadence follows distance. No new animation sheets are required for this implementation. Actor separation uses ground shadows and a very thin, low-opacity dark edge; Casey rejected the stronger early outline. Twelve-pixel overhead names follow rendered head/silhouette geometry. Full image generation was not run; no prompts/settings, originals, atlas coordinates or packed manifest changed. Real-iPhone visual approval remains external.
+
 ## Decision log
+
+- 2026-11-24: Casey authorized richer buildings/towns/dungeons and requested subtle actor visibility after reviewing an early outline. Reuse existing art and code-drawn architecture/effects; keep collision readable, avoid darkening dungeons to simulate depth, and preserve immutable generated assets. Full paid image runs still require separate approval. Candidate plan tracks verification/release.
 
 - 2026-11-23: Casey authorized modular human NPCs using the hero body/animation system, varied skin/hair/facial hair/clothes/colors and occupational accessories. Release aec11c0 uses existing packed layers with bounded lazy composition; no paid art was generated. Eight directions, actual motion, skin/cloth isolation and dojo layering passed browser checks and phone/desktop visual review. Hosted captures were also opened; [release history](RELEASE_HISTORY.md#skills-attributes-and-directional-npcs) records deployment evidence.
 

@@ -150,7 +150,7 @@ const NpcAppearance = (() => {
       const skin = (face || arms) && red >= (face ? 24 : 38) && gold >= 12 && r > 91;
       if (skin) {
         for (let c = 0; c < 3; c++) pixels[i + c] *= factors[c];
-      } else if (!face && down > head * 1.16 && down < head * (outfit === 1 ? 6.6 : 4.9) &&
+      } else if (cloth && !face && down > head * 1.16 && down < head * (outfit === 1 ? 6.6 : 4.9) &&
         (outfit < 3 || red > 9) && r > 105 && red >= -6 && red < 40 && gold >= -6 && gold < 43) {
         const light = (r + g + b) / 765, shade = .28 + light;
         const weight = .88 * Math.min(1, (r - 105) / 30, (40 - red) / 9, (43 - gold) / 12);

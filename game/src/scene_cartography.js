@@ -138,6 +138,13 @@
     }
     const roads = (x, y) => accessible(x, y) && [2, 3, 6].includes(m.t[y * m.w + x]) &&
       !m.blds.some(b => x >= b.x && x < b.x + b.w && y >= b.y && y < b.y + b.h);
+    for(const b of m.blds){
+      const type=ServicePlaces.typeFor(b),door=b.plan&&b.plan.doors.find(d=>d.side==='south')||b.plan&&b.plan.doors[0];
+      if(!type||!door||b.home)continue;
+      const at=nearest(b.x+door.outside.x,b.y+door.outside.y,4,accessible);
+      const p=destination('service:'+b.r+':'+type+':'+b.x+':'+b.y,b.r,'service',b.name||ServicePlaces.types[type].name,[b.x+door.x,b.y+door.y],at);
+      if(p){p.type=type;Object.defineProperties(p,{building:{value:b},door:{value:door}});}
+    }
     const ferryLinks = m.ferries.map(ferry => ({ id: ferry.id,
       from: named.get(chartFerryId(ferry.id, 'from')).at, to: named.get(chartFerryId(ferry.id, 'to')).at }));
     m.cartography = { destinations, named, ferryLinks, navigator: Navigation.create(m.w, m.h, (x, y) => chartOpen(m, x, y)) };

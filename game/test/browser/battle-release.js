@@ -27,7 +27,7 @@ async function battleRelease(page, info, { hosted = true } = {}) {
   const coach = page.locator('[data-a=coachok]'); if (await coach.isVisible()) await coach.click();
   await page.locator('[data-a=export]').click();
   const account = JSON.parse(Buffer.from(await page.locator('#savebox').inputValue(), 'base64').toString('utf8'));
-  const hero = account.slots[account.cur]; hero.pos = at; hero.region = 1; hero.gd = 99; hero.tut = 2; hero.pages.a1 = 1;
+  const world = account.worlds[account.world], hero = world.slots[world.cur]; hero.pos = at; hero.region = 1; hero.gd = 99; hero.tut = 2; hero.pages.a1 = 1;
   await page.locator('.sheet-x').click(); await page.locator('[data-a=import]').click();
   await page.locator('#savebox').fill(Buffer.from(JSON.stringify(account)).toString('base64'));
   await page.locator('[data-a=doimport]').click();

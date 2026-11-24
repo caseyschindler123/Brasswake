@@ -22,9 +22,11 @@ async function drivePath(frame, path, run = true) {
       let last = from.join(','), progressed = Date.now(), reached = false;
       while (Date.now() < deadline) {
         await frame.waitForTimeout(40);
-        const status = await frame.evaluate(() => ({ at: Scene.pos(), interrupted: !!(__bw.F || __bw.SB || __bw.Q) }));
+        // Stopping is now immediate between tiles. Drive to the actual cell
+        // centre rather than releasing at its rounded ownership boundary.
+        const status = await frame.evaluate(() => ({ at: [Scene.debug().P.fx,Scene.debug().P.fy], interrupted: !!(__bw.F || __bw.SB || __bw.Q) }));
         const [px, py] = status.at;
-        if ((dx ? (px - target[0]) * dx >= 0 : px === target[0]) && (dy ? (py - target[1]) * dy >= 0 : py === target[1])) { reached = true; break; }
+        if ((dx ? (px - target[0]) * dx >= 0 : Math.round(px) === target[0]) && (dy ? (py - target[1]) * dy >= 0 : Math.round(py) === target[1])) { reached = true; break; }
         if (status.interrupted) return;
         const position = status.at.join(',');
         if (position !== last) { last = position; progressed = Date.now(); }

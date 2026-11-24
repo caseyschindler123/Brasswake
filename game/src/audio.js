@@ -173,24 +173,24 @@ const Sound = (() => {
   const TOWN_MU = ['m_tallyport', 'm_brackwater', 'm_haverly', 'm_four_fords', 'm_cinderwick', 'm_kell', 'm_highwatch', 'm_aldermoot'];
   const DUN_MU = ['m_bilge', 'm_sunken_sluice', 'm_barrows', 'm_tanglewarren', 'm_slagdeep', 'm_crystal', 'm_ice', 'm_stacks'];
   const WILD_MU = ['m_wild_coast', 'm_wild_fields', 'm_wild_stone', 'm_wild_north'];
-  const VENUE_MU = { tavern: 'm_tavern', dojo: 'm_dojo', cards: 'm_cards' };
+  const SURFACE_MU = new Set([...TOWN_MU, ...WILD_MU]);
   const COMBAT_MU = 'm_combat';
   function trackFor(s) {
     if (!s) return null;
     if (s.title) return 'm_title';
     if (s.fight) return s.boss ? 'm_examiner' : COMBAT_MU;
     if (s.dun) return DUN_MU[s.dun - 1] || null;
-    if (VENUE_MU[s.venue]) return VENUE_MU[s.venue];
     if (!(s.region >= 1 && s.region <= 8)) return null;
     return s.town === false ? WILD_MU[Math.floor((s.region - 1) / 2)] : TOWN_MU[s.region - 1];
   }
-  const MU_VOL = .55, FX_VOL = .7, XFADE = 1.6, CACHE = 2, PREF = 'brasswake.sound';
+  const MU_VOL = .55, FX_VOL = .7, XFADE = 1.6, AREA_SETTLE = 5, CACHE = 2, PREF = 'brasswake.sound';
   let ctx = null, master = null, muBus = null, fxBus = null, noiseBuf = null, src = () => null, timer = 0;
   let pref = { mu: 1, fx: 1 };
   try { const p = JSON.parse(localStorage.getItem(PREF) || 'null'); if (p) pref = Object.assign(pref, p); } catch (e) { }
   const savePref = () => { try { localStorage.setItem(PREF, JSON.stringify(pref)); } catch (e) { } };
   const buf = {}, order = [], retry = {}, pos = {};
   let cur = null, want = null, pending = null, cueId = null, cueDeadline = 0;
+  let surface = null, candidate = null;
 
   function makeCtx() {
     if (ctx) return ctx;
@@ -219,6 +219,10 @@ const Sound = (() => {
     if (document.hidden) { tick(); ctx.suspend().catch(() => { }); }
     else ctx.resume().then(tick).catch(() => { });
   });
+  if (window.addEventListener) {
+    window.addEventListener('blur', () => { candidate = null; });
+    window.addEventListener('focus', () => { candidate = null; tick(); });
+  }
 
   function trimCache() {
     while (order.length > CACHE) {
@@ -228,9 +232,9 @@ const Sound = (() => {
     }
   }
   function load(id) {
-    pending = id;
-    const abort = new AbortController(), timeout = setTimeout(() => abort.abort(), 8000);
-    fetch('art/mu/' + id + (MUSIC[id].loop === false ? '.wav' : '.mp3'), { signal: abort.signal })
+    const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 8000);
+    const request = pending = { id, controller, superseded: false };
+    fetch('art/mu/' + id + (MUSIC[id].loop === false ? '.wav' : '.mp3'), { signal: controller.signal })
       .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
       .then(ab => new Promise((res, rej) => ctx.decodeAudioData(ab, res, rej)))
       .then(b => {
@@ -238,7 +242,11 @@ const Sound = (() => {
         if (MUSIC[id].loop !== false && !(b.duration >= MUSIC[id].b)) throw new Error('Music loop exceeds decoded duration');
         buf[id] = b; order.push(id); trimCache();
       })
-      .catch(() => { retry[id] = ctx.currentTime + 10; if (want === id) stopCur(XFADE); })
+      .catch(() => {
+        if (request.superseded) return;
+        retry[id] = ctx.currentTime + 10;
+        if (want === id && !(SURFACE_MU.has(id) && cur && cur.id === surface)) stopCur(XFADE);
+      })
       .finally(() => { clearTimeout(timeout); pending = null; tick(); });
   }
   const where = c => {
@@ -265,21 +273,37 @@ const Sound = (() => {
     node.start(0, off);
     const t = ctx.currentTime; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(m.v, t + (node.loop ? XFADE : .06));
     cur = { id, node, gain: g, t0: t, off };
+    if (SURFACE_MU.has(id)) { surface = id; candidate = null; }
+  }
+  function settledSurface(id) {
+    if (!surface || surface === id) { candidate = null; return id; }
+    const now = ctx.currentTime;
+    if (!candidate || candidate.id !== id) candidate = { id, since: now };
+    // Keep the last audible area until its replacement both settles and loads.
+    return now - candidate.since >= AREA_SETTLE ? id : surface;
   }
   function tick() {
     if (!ctx) return;
-    if (!pref.mu || document.hidden) { want = cueId = null; stopCur(.15); return; }
-    if (ctx.state !== 'running') return;
+    if (!pref.mu || document.hidden) { want = cueId = surface = candidate = null; stopCur(.15); return; }
+    if (ctx.state !== 'running') { candidate = null; return; }
     let s = null; try { s = src(); } catch (e) { }
     const base = trackFor(s);
     if (cueId && ((s && (s.title || s.fight)) || ((!cur || cur.id !== cueId) && ctx.currentTime > cueDeadline))) cueId = null;
-    const id = cueId || base; want = id;
+    if (cueId || !SURFACE_MU.has(base)) candidate = null;
+    if (!s || s.title || s.dun || (!s.fight && !base)) surface = null;
+    const id = cueId || (SURFACE_MU.has(base) ? settledSurface(base) : base); want = id;
     if (cur && cur.id === id) return;
     if (!id) { stopCur(XFADE); return; }
     if (buf[id]) {
       stopCur(MUSIC[id].loop === false || id === COMBAT_MU || id === 'm_examiner' ? .3 : XFADE);
       startTrack(id); trimCache();
-    } else if (!pending && !(retry[id] > ctx.currentTime)) load(id);
+    } else if (!(retry[id] > ctx.currentTime)) {
+      if (!pending) load(id);
+      else if (pending.id !== id && (cueId || s.fight) && !pending.superseded) {
+        pending.superseded = true;
+        pending.controller.abort();
+      }
+    }
   }
   function cue(id) {
     if (!ctx || ctx.state !== 'running' || !pref.mu || document.hidden) return false;
@@ -351,25 +375,36 @@ const Sound = (() => {
     fishEmpty: () => noise(ctx.currentTime, .15, .09, 'bandpass', 900, 350, .6),
     door: () => { const t = ctx.currentTime; tone('triangle', 170 * vary(), 95, t, .012, .16, .08); noise(t + .13, .05, .12, 'lowpass', 900, 200); },
     step: surface => { const t = ctx.currentTime, hard = surface === 'stone', wood = surface === 'wood'; noise(t, .045, .07, hard ? 'highpass' : 'lowpass', hard ? 1800 : wood ? 1300 : 650, hard ? 900 : 250); if (hard || wood) tone('sine', wood ? 190 : 120, 65, t, .002, .04, .08); },
+    ambient: place => {
+      const t = ctx.currentTime, k = vary();
+      switch (place) {
+        case 'harbour': noise(t, .4, .045, 'lowpass', 850, 280, .75); break;
+        case 'market': noise(t, .22, .025, 'bandpass', 650, 420, .6); noise(t + .2, .12, .022, 'bandpass', 490, 670, .65); break;
+        case 'hearth': [0, .085, .18].forEach(dt => noise(t + dt, .035, .028, 'bandpass', 1550 * k, 450, .85)); break;
+        case 'cave': noise(t, .4, .026, 'lowpass', 375, 145, .55); break;
+        case 'drip': tone('sine', 720 * k, 330 * k, t, .004, .12, .038); tone('sine', 390 * k, 310 * k, t + .14, .01, .15, .012); break;
+        case 'draft': noise(t, .45, .025, 'bandpass', 600, 1050, .45); break;
+      }
+    },
     reward: () => notes([659, 988, 1319], 'sine', .06, .12, .22)
   };
   const recent = {};
   function sfx(name, detail) {
     /* One musical phrase; effects-only cues remain available when music is muted. */
     if ((name === 'win' || name === 'death') && cue(name === 'win' ? 'm_victory' : 'm_death')) return;
-    if (!ctx || ctx.state !== 'running' || !pref.fx || !SFX[name]) return;
+    if (!ctx || ctx.state !== 'running' || document.hidden || !pref.fx || !SFX[name]) return;
     /* Only repetitive world events are throttled; query and combat outcomes remain audible. */
-    const gap = { step: .14, door: .35, click: .025 }[name] || 0, t = ctx.currentTime;
+    const gap = { step: .14, door: .35, click: .025, ambient: 7 }[name] || 0, t = ctx.currentTime;
     if (gap && recent[name] != null && t - recent[name] < gap) return;
     recent[name] = t; try { SFX[name](detail); } catch (e) { }
   }
 
   function setMu(on) { pref.mu = on ? 1 : 0; savePref(); if (muBus) { muBus.gain.setTargetAtTime(on ? MU_VOL : 0, ctx.currentTime, .15); tick(); } }
   function setFx(on) { pref.fx = on ? 1 : 0; savePref(); if (fxBus) fxBus.gain.setTargetAtTime(on ? FX_VOL : 0, ctx.currentTime, .05); }
-  /* source() returns title/fight/boss/dun/region/town/venue, or null for silence. */
+  /* source() returns title/fight/boss/dun/region/town, or null for silence. */
   function init(source) { src = source; if (!timer) timer = setInterval(tick, 400); }
   return { init, sfx, setMu, setFx, pref: () => Object.assign({}, pref), state: () => ctx ? ctx.state : 'none', playing: () => cur ? cur.id : null, MUSIC, trackFor, effects: () => Object.keys(SFX),
-    status: () => ({ wanted: want, playing: cur ? cur.id : null, pending, cached: order.slice(), cue: cueId }),
+    status: () => ({ wanted: want, playing: cur ? cur.id : null, pending: pending ? pending.id : null, cached: order.slice(), cue: cueId }),
     /* test hook: runs every effect once and returns the names that threw */
     _check: () => !ctx ? ['no context'] : Object.keys(SFX).filter(k => { try { SFX[k](); return false; } catch (e) { return true; } }) };
 })();

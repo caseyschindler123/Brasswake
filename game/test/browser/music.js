@@ -43,7 +43,7 @@ test('all 28 music files decode with valid loops and audible finite samples', as
   } else expect(result.rows.every(r => r.peak > 0 && r.peak < 1)).toBe(true);
 });
 
-test('scene contexts distinguish eight towns, wilderness, eight dungeons, dojo and tavern', async ({ page }) => {
+test('scene contexts distinguish towns, wilderness and dungeons while indoor venues retain town music', async ({ page }) => {
   const f = await fixture(page);
   const result = await f.evaluate(() => {
     const towns = [], wild = [], dungeons = [];
@@ -69,7 +69,7 @@ test('scene contexts distinguish eight towns, wilderness, eight dungeons, dojo a
   });
   expect(new Set(result.towns).size).toBe(8); expect(new Set(result.dungeons).size).toBe(8);
   expect(result.wild).toEqual(['m_wild_coast', 'm_wild_coast', 'm_wild_fields', 'm_wild_fields', 'm_wild_stone', 'm_wild_stone', 'm_wild_north', 'm_wild_north']);
-  expect(result.tavern).toBe('m_tavern'); expect(result.dojo).toBe('m_dojo');
+  expect(result.tavern).toBe('m_tallyport'); expect(result.dojo).toBe('m_tallyport');
 });
 
 test('a gesture starts actual music, contexts crossfade, and music mute persists', async ({ page }, info) => {
@@ -80,12 +80,20 @@ test('a gesture starts actual music, contexts crossfade, and music mute persists
   const available = await f.evaluate(() => !!(window.AudioContext || window.webkitAudioContext));
   if (available) {
     await f.waitForFunction(() => Sound.playing() === 'm_tallyport', null, { timeout: 20000 });
-    await f.evaluate(() => {
+    const crossing = await f.evaluate(() => {
       __bw.ACT.closesheet(); const t = Scene.towns()[2]; Scene.load([t[0], t[1] + 3], 2); Scene.pause();
+      return { location: Sound.trackFor(Scene.musicContext()), playing: Sound.playing() };
     });
+    expect(crossing).toEqual({ location: 'm_brackwater', playing: 'm_tallyport' });
     await f.waitForFunction(() => Sound.playing() === 'm_brackwater', null, { timeout: 20000 });
     await f.evaluate(() => { const e = Scene.find(e => e.kind === 'casino' && e.r === 2); __bw.HOST.interact(e); });
-    await f.waitForFunction(() => Sound.playing() === 'm_cards', null, { timeout: 20000 });
+    await expect(f.locator('#sheet [data-a=pkrules]')).toBeVisible();
+    const cardRoom = await f.evaluate(async () => {
+      // Give the 400 ms audio poll a chance to observe the open card room.
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return Sound.status();
+    });
+    expect(cardRoom).toMatchObject({ wanted: 'm_brackwater', playing: 'm_brackwater', pending: null });
     await f.evaluate(() => { __bw.ACT.closesheet(); const e = Scene.find(e => e.kind === 'mon' && e.r === 2); Scene.warp(e.x + 1, e.y); __bw.HOST.interact(e); });
     await f.waitForFunction(() => Sound.playing() === 'm_combat', null, { timeout: 20000 });
     await f.evaluate(() => { __bw.ACT.fdone(); const e = Scene.find(e => e.kind === 'boss' && e.r === 2); __bw.setCE(e); __bw.START.boss(); });

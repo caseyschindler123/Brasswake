@@ -150,8 +150,9 @@ test('regional town travel and a home pad save arrivals immediately and reject r
   await openMap(frame);
   await frame.locator('[data-a=cmaptravel][data-id=town2]').click();
   const brackwater = await frame.evaluate(() => {
-    const saved = JSON.parse(localStorage.getItem('brasswake.acct.v8'));
-    return { actual: Scene.pos(), stored: saved.slots[saved.cur].pos, region: saved.slots[saved.cur].region };
+    const saved = JSON.parse(localStorage.getItem('brasswake.acct.v9'));
+    const world = saved.worlds[saved.world], slot = world.slots[world.cur];
+    return { actual: Scene.pos(), stored: slot.pos, region: slot.region };
   });
   expect(brackwater.stored).toEqual(brackwater.actual);
   expect(brackwater.region).toBe(2);
@@ -162,8 +163,9 @@ test('regional town travel and a home pad save arrivals immediately and reject r
   await openMap(page);
   await page.locator('[data-a=tphome][data-h="h-travel"]').click();
   const cottage = await page.evaluate(() => {
-    const saved = JSON.parse(localStorage.getItem('brasswake.acct.v8'));
-    return { actual: Scene.pos(), stored: saved.slots[saved.cur].pos, region: saved.slots[saved.cur].region };
+    const saved = JSON.parse(localStorage.getItem('brasswake.acct.v9'));
+    const world = saved.worlds[saved.world], slot = world.slots[world.cur];
+    return { actual: Scene.pos(), stored: slot.pos, region: slot.region };
   });
   expect(cottage.stored).toEqual(cottage.actual);
   expect(cottage.region).toBe(1);
@@ -230,7 +232,8 @@ test('a cloud replacement invalidates an open ferry ticket at the same quay', as
   await page.evaluate(() => {
     const remote = JSON.parse(JSON.stringify(__bw.A));
     remote.rev += 10000;
-    remote.slots[remote.cur].name = 'Cloud Ferry Keeper';
+    const world = remote.worlds[remote.world];
+    world.slots[world.cur].name = 'Cloud Ferry Keeper';
     window.__restoreFerryAccount(JSON.stringify(remote));
   });
   await expect(page.locator('#hud')).toContainText('Cloud Ferry Keeper');
