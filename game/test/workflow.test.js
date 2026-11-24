@@ -3,11 +3,14 @@ const assert = require('node:assert/strict');
 const { chooseUI, runtimePackages } = require('./select-tests');
 
 for (const file of ['AGENTS.md', 'game/docs/05_CODING_WORKFLOW.md', '.github/workflows/pages.yml',
-  'game/test/browser/ui.spec.js', 'game/package-lock.json']) {
+  'game/package-lock.json']) {
   test('tooling-only change skips UI: ' + file, () => assert.equal(chooseUI({ files: [file] }).ui, false));
 }
 for (const file of ['game/src/game.js', 'game/src/style.css', 'game/src/shell.html', 'game/art/i/bag.webp']) {
   test('game change requires UI: ' + file, () => assert.equal(chooseUI({ files: [file] }).ui, true));
+}
+for (const file of ['game/test/browser/ui.spec.js', 'game/test/browser/dungeons.js', 'game/test/browser/flow.js']) {
+  test('browser regression repair requires UI: ' + file, () => assert.equal(chooseUI({ files: [file] }).ui, true));
 }
 test('runtime dependency changes require UI', () => assert.equal(chooseUI({ files: ['game/package.json'], runtimeChanged: true }).ui, true));
 test('metadata-only build changes skip UI when HTML matches', () => assert.equal(chooseUI({ files: ['game/build.js'], buildChanged: false }).ui, false));

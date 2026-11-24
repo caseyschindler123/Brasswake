@@ -276,6 +276,16 @@ for(let r=1;r<=8;r++){
   test('dungeon '+(expedition?'expedition ':'components ')+r+': rendered routes, controls, combat, loot and persistence',async({page},info)=>{
     test.setTimeout(expedition?1800000:240000);
     const errors=observeErrors(page),stats={r,fixture:!expedition,coverage:expedition?'complete expedition with actual canvas walking':'all-floor UI components with prepared positions',steps:0,queries:0,fights:0,pathRecoveries:0,floors:[]},start=Date.now();
+    // This verifies one day's vault. Keep its advancing calendar away from
+    // midnight; daily rollover itself is covered by dungeon-progress.test.js.
+    await page.addInitScript(offset => {
+      const NativeDate=Date;
+      globalThis.Date=new Proxy(NativeDate,{
+        apply:()=>new NativeDate(NativeDate.now()+offset).toString(),
+        construct:(target,args,newTarget)=>Reflect.construct(target,args.length?args:[NativeDate.now()+offset],newTarget),
+        get:(target,key)=>key==='now'?()=>NativeDate.now()+offset:Reflect.get(target,key),
+      });
+    },Date.parse('2026-11-23T12:00:00Z')-Date.now());
     await page.goto('/__visual?scene=tallyport');
     await expect(page.locator('body')).toHaveAttribute('data-ready','tallyport',{timeout:45000});
     let f=page.frames().find(f=>f.url().includes('visual_test=1'));

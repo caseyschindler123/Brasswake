@@ -15,6 +15,8 @@ function chooseUI({ files, runtimeChanged = false, buildChanged = false, baselin
   if (!baselineAvailable) return { ui: true, reason: 'No reliable comparison commit; verify the game conservatively.' };
   if (files.some(file => /^game\/(src|art)\//.test(file)))
     return { ui: true, reason: 'Game source or player assets changed.' };
+  if (files.some(file => /^game\/test\/browser\/.+\.js$/.test(file)))
+    return { ui: true, reason: 'Browser regression coverage changed; verify the player flows before deployment.' };
   if (runtimeChanged) return { ui: true, reason: 'Runtime dependencies changed.' };
   if (buildChanged) return { ui: true, reason: 'Build changes alter the shipped HTML, or equivalence could not be established.' };
   return { ui: false, reason: 'No game source, player asset, runtime dependency, or built HTML change; validate tooling without UI testing.' };
