@@ -204,7 +204,7 @@ GitHub Pages uses the Actions publishing source. The publication payload is buil
 ### Remaining work
 
 - **Saves:** the hosted game has its own localStorage and no `window.claude` account sync. The existing Hero → Save code / Load a code controls let Casey move characters between origins. Migration is manual; no existing artifact save is changed by deployment.
-- **Offline:** bundle sql.js instead of the current cdnjs script, add a service worker and web manifest, then verify airplane-mode play on Casey's iPhone. These are planned, not shipped by the hosting setup.
+- **Offline:** bundle sql.js instead of the current cdnjs script, add a service worker, then verify airplane-mode play on Casey's iPhone. These remain planned. The installed-app web manifest and opaque safe-area backing are included in the worlds/living-places candidate; they do not supply offline caching.
 - **Artifact:** retain the preview and its patch-publish steps until the hosted build and save migration have been checked on the phone. Repository commits remain the development record.
 - **Multiplayer:** discussed and set aside.
 
