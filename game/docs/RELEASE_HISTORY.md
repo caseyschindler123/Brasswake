@@ -1,9 +1,8 @@
 # Verified release history
 
-Dates below are UTC. Earlier entries were reconciled on 2026-11-23 from existing receipts and successful Actions runs; their evidence was not rerun during that documentation cleanup. New release entries identify checks performed for that release. The latest confirmed hosted source is the Marigold intro/full-script release, `d516ce18daf1a4b4e9d6639e9b981f668a60451e`.
+Dates below are UTC. Earlier entries were reconciled on 2026-11-23 from existing receipts and successful Actions runs; their evidence was not rerun during that documentation cleanup. New release entries identify checks performed for that release. The latest confirmed hosted source is the SQL answer-power and battle-comparison release, `9853ea269167c6bc4fa7af44d7d09f7315fa15fd`.
 
 Keep the released source commit distinct from any later documentation-only commit. Each entry preserves completion, verification and limitations without requiring local logs. Detailed receipts, screenshots and traces under ignored `work/` or test-results folders remain supplementary. A newer deployment supersedes the hosted version; earlier completed releases stay complete.
-
 
 ## SQL answer power and battle comparisons
 

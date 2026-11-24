@@ -16,9 +16,9 @@ Classification: complex. Status: complete; released and independently verified a
 | Milestone | Status |
 |---|---|
 | Wait for prior release, inspect baseline, save plan | Complete |
-| Result-quality/power rules and focused regression coverage | Complete locally; full release gate pending |
-| Compact battle comparison and interaction coverage | Complete locally |
-| Automated battle UX review, notes, corrections/retest and screenshot inspection | Complete for the current candidate; observations below |
+| Result-quality/power rules and focused regression coverage | Complete; local gate and exact-commit CI verified |
+| Compact battle comparison and interaction coverage | Complete |
+| Automated battle UX review, notes, corrections/retest and screenshot inspection | Complete; observations below |
 | Full release gate, diff and master docs | Complete locally: full npm run verify, 324 browser cases, visual review and diff check |
 | Exact-commit deployment/live verification and tracked closure | Complete: source 9853ea2, Actions 45375146692, independent source/hash and three hosted flows |
 
