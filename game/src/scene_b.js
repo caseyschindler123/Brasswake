@@ -980,7 +980,18 @@
       serviceMini(o,mx,my,sx0,sy0,ms,mw,mh);
       o.fillStyle = '#fff'; o.fillRect(mx + (P.fx - sx0) * ms - dpr, my + (P.fy - sy0) * ms - dpr, 3 * dpr, 3 * dpr); }
     drawLocation(o);
-    if (banner) { const a = Math.min(1, banner.t, (3.2 - banner.t) * 2); o.globalAlpha = Math.max(0, a); o.font = `400 ${30 * dpr}px 'IM Fell English', Georgia, serif`; o.lineWidth = 5 * dpr; o.strokeStyle = 'rgba(8,10,12,.8)'; o.strokeText(banner.a, ov.width / 2, ov.height * .24); o.fillStyle = '#ece5d0'; o.fillText(banner.a, ov.width / 2, ov.height * .24); o.font = `italic 400 ${16 * dpr}px 'IM Fell English', Georgia, serif`; o.strokeText(banner.b, ov.width / 2, ov.height * .24 + 24 * dpr); o.fillStyle = '#d3a84c'; o.fillText(banner.b, ov.width / 2, ov.height * .24 + 24 * dpr); o.globalAlpha = 1; }
+    if (banner) {
+      const a = Math.min(1, banner.t, (3.2 - banner.t) * 2), by = Math.max(142*dpr,ov.height*.24);
+      o.save();o.globalAlpha=Math.max(0,a);
+      o.font=`400 ${30*dpr}px 'IM Fell English',Georgia,serif`;const titleWidth=o.measureText(banner.a).width;
+      o.font=`italic 400 ${16*dpr}px 'IM Fell English',Georgia,serif`;
+      const width=Math.min(ov.width-24*dpr,Math.max(titleWidth,o.measureText(banner.b).width)+32*dpr),left=(ov.width-width)/2;
+      // A single opaque plate keeps world labels from showing through the arrival text.
+      o.fillStyle='#12191b';o.fillRect(left,by-34*dpr,width,70*dpr);
+      o.strokeStyle='#79633e';o.lineWidth=dpr;o.strokeRect(left+.5*dpr,by-34*dpr+.5*dpr,width-dpr,70*dpr-dpr);
+      o.font=`400 ${30*dpr}px 'IM Fell English',Georgia,serif`;o.fillStyle='#f3ead5';o.fillText(banner.a,ov.width/2,by,width-24*dpr);
+      o.font=`italic 400 ${16*dpr}px 'IM Fell English',Georgia,serif`;o.fillStyle='#e6c47c';o.fillText(banner.b,ov.width/2,by+24*dpr,width-24*dpr);o.restore();
+    }
     if(map.dungeonFloor && !locked){ const area=map.layout.rooms.find(R=>P.x>=R.x&&P.y>=R.y&&P.x<R.x+R.w&&P.y<R.y+R.h);o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const label='Floor '+(map.f+1)+' · '+(area?area.name:map.layout.name);const tw=o.measureText(label).width;o.fillStyle='rgba(8,15,22,.85)';o.fillRect(8*dpr,84*dpr,Math.min(tw+16*dpr,ov.width-16*dpr),23*dpr);o.fillStyle='#f4dfac';o.fillText(label,16*dpr,100*dpr,ov.width-36*dpr);o.textAlign='center';}
     if(map.venue && !locked){o.save();o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const width=Math.min(ov.width-112*dpr,o.measureText('Upper floor · '+map.venue.name).width+16*dpr);o.fillStyle='rgba(12,24,28,.9)';o.fillRect(8*dpr,84*dpr,width,23*dpr);o.fillStyle='#f4dfac';o.fillText('Upper floor · '+map.venue.name,16*dpr,100*dpr,width-16*dpr);o.restore();}
     host.hud(locked ? null : near);

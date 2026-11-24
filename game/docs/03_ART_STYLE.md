@@ -265,3 +265,5 @@ The existing eight-pose walk/run cycles contain contact, recovery and airborne s
 - 2026-11-23: Boat-intro/writing candidate: Casey authorized necessary new intro graphics. Generate one empty Marigold hull/deck and integrate existing dynamic characters with reproducible new-only packing. Release status is tracked in the boat-intro plan.
 
 - 2026-11-24: Published the verified boat-intro/writing release, source `d516ce1`. Current behavior is described above; exact commit, Actions, hosted hash and verification limits are recorded in `RELEASE_HISTORY.md` and the completed boat-intro plan.
+
+- 2026-11-24: Final living-places visual review found arrival titles colliding with world stair labels. Use a brief opaque, width-fitted title plate below the persistent corner labels; retain the existing fade and scene interactions.
