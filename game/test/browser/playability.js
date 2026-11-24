@@ -18,6 +18,8 @@ async function run(frame, sql) {
 async function winFight(frame) {
   for (let i = 0; i < 6; i++) {
     await coach(frame);
+    const next = frame.locator('[data-a=fchoose]');
+    if (await next.isVisible()) await next.click();
     await frame.locator('[data-a=fpage]').first().click();
     await coach(frame);
     await run(frame, await frame.evaluate(() => __bw.F.task.sql));

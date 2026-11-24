@@ -24,7 +24,7 @@ Casey authorized the full discussed scope on 2026-11-24, including autonomous te
 - [x] Implement buildings, service discovery, terrain edging and town activity.
 - [x] Implement dungeon depth and ambience.
 - [x] Integrate meaningful regressions, review diff and reconcile master docs/decision logs for this workstream; combined battle integration remains pending.
-- [ ] Integrate Casey's separately assigned battle-audit result (agent instructed to use a separate worktree/branch and not deploy); review its commit/tests and verify the combined release before publication.
+- [x] Integrate Casey's separately assigned battle-audit result: scoped commit `1babb16` integrated as `a6fdf71`, preserving canonical worlds, fractional movement/footprint reservations, appearance, keyboard and presentation. Combined gate/publication remain below.
 - [ ] Run `npm run verify` with relevant browser coverage; inspect actual 390x720 and desktop screenshots. Resolve failures without weakening checks.
 - [ ] Commit/push intended files; monitor exact-commit Actions; independently verify hosted commit/HTML and player flow.
 - [ ] Close plan and release history with source SHA, Actions URL, verification date/hash and limitations in a documentation-only commit.
@@ -44,3 +44,5 @@ Focused pure and browser regressions cover world isolation/migration and reload,
 - Casey's separate battle task (thread `01a20d65-aa00-73d3-b39d-068c6a402a71`) is implementing in its own worktree. Direct coordination authorization was read from Casey's message in that task; this task remains sole integrator/publisher. No deployment before combined verification.
 
 Task-specific AI/agent billing is unavailable. Three bounded workers were used; no paid image/tool run occurred. CI/deployment has not run for this candidate. Do not store private billing or the user's device identifiers/screenshots in the repository.
+
+- Initial combined gate passed every core group, then an existing playability driver tried to select an attack from the result screen after a shorter exchange. It now chooses the next action before each further attack, retaining victory/loot/bank checks. All three affected profile reruns passed. The initial browser pass was stopped after 53 cases and the complete gate restarted with the repair.
