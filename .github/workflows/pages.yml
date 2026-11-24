@@ -22,7 +22,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  core:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     outputs:
@@ -45,20 +45,18 @@ jobs:
       - name: Install game dependencies
         working-directory: game
         run: npm ci
-      - name: Verify art, game, build, and relevant tests
+      - name: Verify art, game and build; select required browser coverage
         id: verify
         working-directory: game
         env:
           BW_DIFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-        run: npm run verify
-      - name: Retain test selection and any browser evidence
+        run: npm run verify -- --defer-ui
+      - name: Retain core test selection
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: build-verification
           path: |
-            game/playwright-report/
-            game/test-results/
             work/test-selection.json
           if-no-files-found: ignore
           retention-days: 14
@@ -71,9 +69,79 @@ jobs:
         with:
           path: game/dist
 
+  browser:
+    if: needs.core.outputs.ui == 'true'
+    needs: core
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: phone-chromium
+            browser: chromium
+          - project: phone-webkit
+            browser: webkit
+          - project: desktop-chromium
+            browser: chromium
+    steps:
+      - name: Check out the same source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: game/package-lock.json
+      - name: Install locked dependencies
+        working-directory: game
+        run: npm ci
+      - name: Build the exact source for this profile
+        working-directory: game
+        run: npm run build
+      - name: Install this profile's browser
+        working-directory: game
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Verify all cases in this profile
+        working-directory: game
+        run: npx playwright test --project=${{ matrix.project }}
+      - name: Retain profile evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: browser-${{ matrix.project }}
+          path: |
+            game/playwright-report/
+            game/test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  build:
+    if: always() && !cancelled()
+    needs: [core, browser]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the validation gate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Require core and every selected browser profile
+        env:
+          BW_CORE_RESULT: ${{ needs.core.result }}
+          BW_UI_SELECTED: ${{ needs.core.outputs.ui }}
+          BW_BROWSER_RESULT: ${{ needs.browser.result }}
+        run: node game/test/release-gate.js
+
   deploy:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    needs: build
+    if: always() && !cancelled() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && needs.core.result == 'success' && needs.build.result == 'success'
+    needs: [core, build]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -98,7 +166,7 @@ jobs:
         working-directory: game
         run: npm ci
       - name: Install live browser when UI verification is relevant
-        if: needs.build.outputs.ui == 'true'
+        if: needs.core.outputs.ui == 'true'
         working-directory: game
         run: npx playwright install --with-deps chromium
       - name: Deploy to GitHub Pages
@@ -109,7 +177,7 @@ jobs:
         env:
           BW_BASE_URL: ${{ steps.deployment.outputs.page_url }}
           BW_EXPECT_COMMIT: ${{ github.sha }}
-          BW_LIVE_UI: ${{ needs.build.outputs.ui }}
+          BW_LIVE_UI: ${{ needs.core.outputs.ui }}
         run: npm run test:live
       - name: Retain live verification evidence
         if: always()

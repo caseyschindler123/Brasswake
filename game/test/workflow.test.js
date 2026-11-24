@@ -16,6 +16,56 @@ test('runtime dependency changes require UI', () => assert.equal(chooseUI({ file
 test('metadata-only build changes skip UI when HTML matches', () => assert.equal(chooseUI({ files: ['game/build.js'], buildChanged: false }).ui, false));
 test('changed build output requires UI', () => assert.equal(chooseUI({ files: ['game/build.js'], buildChanged: true }).ui, true));
 test('missing comparison fails toward UI coverage', () => assert.equal(chooseUI({ files: [], baselineAvailable: false }).ui, true));
+
+test('deferred CI execution cannot suppress explicitly requested UI coverage', () => {
+  const {spawnSync}=require('node:child_process'),path=require('node:path');
+  const result=spawnSync(process.execPath,[path.join(__dirname,'verify.js'),'--defer-ui','--ui'],{encoding:'utf8'});
+  assert.notEqual(result.status,0);
+  assert.match(result.stderr,/Cannot defer an explicit --ui request/);
+  assert.doesNotMatch(result.stdout,/Packed art/);
+});
+
+test('CI covers every configured browser profile and gates deployment on their result', () => {
+  const fs=require('node:fs'),path=require('node:path'),config=require('../playwright.config');
+  const workflow=fs.readFileSync(path.join(__dirname,'../../.github/workflows/pages.yml'),'utf8').replace(/\r/g,'');
+  const browser=workflow.split('\n  browser:\n')[1]?.split('\n  deploy:\n')[0];
+  assert.ok(browser,'required browser job exists');
+  const profiles=[...browser.matchAll(/- project: ([\w-]+)\n\s+browser: ([\w-]+)/g)].map(m=>[m[1],m[2]]).sort();
+  assert.deepEqual(profiles,config.projects.map(p=>[p.name,p.use.browserName]).sort());
+  assert.equal(config.retries,0);
+  assert.match(browser,/fail-fast: false/);
+  const aggregate=workflow.split('\n  build:\n')[1]?.split('\n  deploy:\n')[0];
+  assert.match(aggregate,/needs: \[core, browser\]/);
+  assert.match(aggregate,/always\(\) && !cancelled\(\)/);
+  assert.match(aggregate,/node game\/test\/release-gate\.js/);
+  const deploy=workflow.split('\n  deploy:\n')[1];
+  assert.match(deploy,/needs: \[core, build\]/);
+  assert.match(deploy,/needs\.build\.result == 'success'/);
+  assert.match(deploy,/!cancelled\(\)/);
+  assert.doesNotMatch(workflow,/continue-on-error: true/);
+});
+
+test('release gate rejects missing selection, failed core and incomplete selected browser jobs', () => {
+  const {releaseGate}=require('./release-gate');
+  assert.equal(releaseGate({core:'success',ui:'true',browser:'success'}),true);
+  assert.equal(releaseGate({core:'success',ui:'false',browser:'skipped'}),true);
+  for(const ui of ['true','false',undefined,'invalid'])for(const browser of ['success','failure','cancelled','skipped',undefined]) {
+    const approved=ui==='true'&&browser==='success'||ui==='false'&&browser==='skipped';
+    assert.equal(releaseGate({core:'success',ui,browser}),approved);
+    assert.equal(releaseGate({core:'failure',ui,browser}),false);
+    assert.equal(releaseGate({core:'cancelled',ui,browser}),false);
+  }
+});
+
+test('aggregate CLI reads the same result environment used by Actions', () => {
+  const {spawnSync}=require('node:child_process'),path=require('node:path');
+  for(const [ui,browser,approved] of [['true','success',true],['false','skipped',true],['','skipped',false],['true','failure',false],['true','skipped',false]]) {
+    const result=spawnSync(process.execPath,[path.join(__dirname,'release-gate.js')],{
+      encoding:'utf8',env:{...process.env,BW_CORE_RESULT:'success',BW_UI_SELECTED:ui,BW_BROWSER_RESULT:browser},
+    });
+    assert.equal(result.status===0,approved,JSON.stringify({ui,browser}));
+  }
+});
 test('development-only lockfile additions do not select game UI tests', () => {
   const packages = { 'node_modules/sql.js': { version: '1.17.0', integrity: 'runtime-hash' } };
   assert.deepEqual(runtimePackages({ packages }), runtimePackages({ packages: { ...packages,

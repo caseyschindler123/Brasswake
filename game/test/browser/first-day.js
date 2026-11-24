@@ -139,6 +139,16 @@ for(const choice of ['stay','gohome']) test('the recovered history leads to the 
   await expect(f.locator('.tt-story')).toContainText('2026-07-24');await expect(f.locator('.tt-story')).toContainText('forty days');await screenshot(page,info,'light-after-rescue');
   await f.locator('[data-a=sbeat]').click();await f.locator(`[data-a=${choice}]`).click();await expect(f.locator('.tt-story')).toContainText(choice==='stay'?'staying':'shore of your own world');expect(await f.evaluate(()=>__bw.S.ending)).toBe(choice==='stay'?'stay':'home');await screenshot(page,info,'ending-'+choice);
   while(await f.locator('[data-a=sbeat]').isVisible())await f.locator('[data-a=sbeat]').click();
+  await expect(f.locator('#title')).toBeHidden();
   await f.locator('#nav [data-t=world]').click();const coach=f.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
-  await f.locator('[data-a=journal]').click();await expect(f.locator('#sheet')).toContainText('The reopened archive');expect(errors).toEqual([]);
+  await expect(f.getByRole('group',{name:'Movement joystick'})).toHaveAttribute('aria-disabled','false');
+  // A new action follows the story transition, rather than its protected
+  // synthetic click. The existing touch-redraw guard lasts 450 milliseconds.
+  await f.waitForTimeout(500);
+  const journal=f.locator('[data-a=journal]');
+  if(info.project.use.hasTouch)await journal.tap();else await journal.click();
+  await expect(f.locator('#sheet')).toBeVisible();
+  await expect(f.locator('#sheet')).toContainText('The reopened archive');
+  await f.getByRole('heading',{name:'The reopened archive',exact:true}).scrollIntoViewIfNeeded();
+  await screenshot(page,info,'journal-'+choice);expect(errors).toEqual([]);
 });
