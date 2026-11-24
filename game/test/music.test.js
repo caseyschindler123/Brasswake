@@ -5,8 +5,8 @@ const path = require('node:path');
 const { createHash } = require('node:crypto');
 const source = fs.readFileSync(path.join(__dirname, '../src/audio.js'), 'utf8');
 
-function fixture() {
-  const listeners = {}, windowListeners = {}, calls = [], sources = [], effectNodes = [], store = {}, timers = new Map();
+function fixture({ cachedDuration } = {}) {
+  const listeners = {}, windowListeners = {}, calls = [], fxCalls = [], sources = [], effectNodes = [], store = {}, timers = new Map();
   let interval, context = { region: 1 }, timerId = 0;
   const param = () => ({ value: 1, setValueAtTime(v) { this.value = v; }, linearRampToValueAtTime(v) { this.value = v; },
     exponentialRampToValueAtTime(v) { this.value = v; }, setTargetAtTime(v) { this.value = v; }, cancelScheduledValues() {} });
@@ -16,8 +16,8 @@ function fixture() {
     createDynamicsCompressor: () => ({ ...node(), threshold: param(), knee: param(), ratio: param(), attack: param(), release: param() }),
     createBiquadFilter: node,
     createOscillator() { const n = { ...node(), start() {}, stop() {} }; effectNodes.push(n); return n; },
-    createBufferSource() { const n = { ...node(), start(t, off) { n.offset = off; n.started = true; }, stop() { n.stopped = true; } }; sources.push(n); return n; },
-    decodeAudioData(ab, done) { done({ duration: ab.duration || 240 }); },
+    createBufferSource() { const n = { ...node(), playbackRate: param(), start(t, off) { n.offset = off; n.started = true; }, stop() { n.stopped = true; } }; sources.push(n); return n; },
+    decodeAudioData(ab, done, fail) { if (ab.invalid) return fail(new Error('decode')); const duration = ab.duration || 240; done({ duration, length: Math.round(duration * 44100), numberOfChannels: 1 }); },
     suspend() { ctx.state = 'suspended'; return Promise.resolve(); }, resume() { ctx.state = 'running'; return Promise.resolve(); } };
   const document = { hidden: false, addEventListener(k, fn) { listeners[k] = fn; } };
   const Sound = new Function('window', 'navigator', 'document', 'localStorage', 'setInterval', 'setTimeout', 'clearTimeout', 'fetch', 'AbortController', source + '; return Sound;')(
@@ -25,13 +25,16 @@ function fixture() {
     { getItem: () => null, setItem(k, v) { store[k] = v; } }, fn => { interval = fn; return 1; },
     fn => { timers.set(++timerId, fn); return timerId; }, id => timers.delete(id),
     (url, options) => new Promise((resolve, reject) => {
-      const call = { url, resolve: (duration = 240) => resolve({ ok: true, arrayBuffer: () => Promise.resolve({ duration }) }), reject };
-      options.signal.addEventListener('abort', () => reject(new Error('aborted'))); calls.push(call);
+      const effect = url.includes('/fx/');
+      const call = { url, done: false, resolve: (duration = 240, invalid = false) => { call.done = true; const actual = cachedDuration != null && options.cache !== 'no-cache' ? cachedDuration : duration; resolve({ ok: true, arrayBuffer: () => Promise.resolve({ duration: actual, invalid }) }); }, reject };
+      options.signal.addEventListener('abort', () => reject(new Error('aborted'))); (effect ? fxCalls : calls).push(call);
     }), AbortController);
   Sound.init(() => context); listeners.pointerdown();
   const settle = async () => { for (let i = 0; i < 12; i++) await Promise.resolve(); };
   const complete = async (duration) => { calls.at(-1).resolve(duration); await settle(); };
-  return { Sound, ctx, calls, sources, effectNodes, store, document, listeners, windowListeners, timers, settle, complete,
+  const completeEffect = async id => { const call = fxCalls.find(c => !c.done && c.url.endsWith('/' + id + '.wav')); assert.ok(call, id); call.resolve(Sound.SAMPLES[id]); await settle(); };
+  const drainEffects = async () => { for (let n = 0; n < 100; n++) { const waiting = fxCalls.filter(c => !c.done); if (!waiting.length) break; for (const c of waiting) { const id = path.basename(c.url, '.wav'); c.resolve(Sound.SAMPLES[id]); } await settle(); } };
+  return { Sound, ctx, calls, fxCalls, sources, effectNodes, store, document, listeners, windowListeners, timers, settle, complete, completeEffect, drainEffects,
     tick: () => interval(), set: s => { context = s; interval(); } };
 }
 
@@ -42,9 +45,9 @@ test('all regions and contextual priorities select a distinct playable soundtrac
       const id = Sound.trackFor(c); assert.ok(Sound.MUSIC[id], JSON.stringify(c)); selected.add(id);
     }
   }
-  for (const venue of ['tavern', 'dojo', 'cards']) assert.equal(Sound.trackFor({ region: 2, venue }), 'm_brackwater');
+  for (const venue of ['tavern', 'dojo', 'cards']) { assert.equal(Sound.trackFor({ region: 2, venue }), 'm_' + venue); selected.add(Sound.trackFor({ region: 2, venue })); }
   for (const c of [{ title: true }, { fight: true }, { fight: true, boss: true }]) selected.add(Sound.trackFor(c));
-  assert.equal(selected.size, 23);
+  assert.equal(selected.size, 26);
   assert.equal(Sound.trackFor({ title: true, fight: true, dun: 4 }), 'm_title');
   assert.equal(Sound.trackFor({ fight: true, boss: true, dun: 4, venue: 'dojo' }), 'm_examiner');
   assert.equal(Sound.trackFor({ dun: 4, venue: 'tavern' }), 'm_tanglewarren');
@@ -52,15 +55,16 @@ test('all regions and contextual priorities select a distinct playable soundtrac
   assert.equal(Object.keys(Sound.MUSIC).length, 28);
 });
 
-test('indoor activities retain the town track and its playback position', async () => {
+test('venue tracks play and return to the retained town position', async () => {
   const f = fixture(); await f.complete();
+  f.ctx.currentTime = 8;
   for (const venue of ['tavern', 'dojo', 'cards']) {
     f.ctx.currentTime += 6; f.set({ region: 1, town: true, venue });
-    assert.equal(f.Sound.playing(), 'm_tallyport');
+    await f.complete(); assert.equal(f.Sound.playing(), 'm_' + venue);
   }
-  assert.equal(f.calls.length, 1);
-  assert.equal(f.sources.length, 1);
-  assert.equal(f.sources[0].stopped, undefined);
+  f.set({ region: 1, town: true }); await f.complete();
+  assert.equal(f.Sound.playing(), 'm_tallyport');
+  assert.equal(f.sources.at(-1).offset, 14);
 });
 
 test('crossing and recrossing town and wilderness boundaries requires five continuous seconds', async () => {
@@ -218,7 +222,8 @@ test('hidden tabs stop music, suppress requests, and safely resume current ambie
 test('every soundtrack entry has a committed audio file and valid bounded metadata', () => {
   const { Sound } = fixture();
   const catalog = JSON.parse(fs.readFileSync(path.join(__dirname, '../../arttools/music/soundtrack.json'), 'utf8'));
-  assert.equal(Object.keys(catalog.tracks).length, 25);
+  assert.equal(Object.keys(catalog.tracks).length, 28);
+  assert.deepEqual(catalog.retained, []);
   for (const [id, meta] of Object.entries(Sound.MUSIC)) {
     assert.ok(meta.a >= 0 && meta.b > meta.a && meta.v > 0 && meta.v <= 1);
     assert.ok(meta.b < 200, id);
@@ -249,4 +254,106 @@ test('unavailable audio and inaccessible device preferences safely preserve sile
     { getItem() { throw Error('storage blocked'); }, setItem() { throw Error('storage blocked'); } }, () => 1);
   Sound.init(() => ({ title: true })); listeners.pointerdown(); Sound.sfx('win'); Sound.sfx('death'); Sound.setMu(false); Sound.setFx(false);
   assert.equal(Sound.state(), 'none'); assert.equal(Sound.playing(), null); assert.deepEqual(Sound.pref(), { mu: 0, fx: 0 });
+});
+
+test('a cold effect responds immediately and a completed load never replays an old event', async () => {
+  const f = fixture(); await f.complete();
+  f.Sound.sfx('door', 'opening');
+  const count = f.sources.length;
+  assert.ok(f.effectNodes.length > 0, 'fallback responds before fetch finishes');
+  await f.completeEffect('s_door_open');
+  assert.equal(f.sources.length, count, 'no delayed duplicate after download');
+  f.ctx.currentTime = 1; f.Sound.sfx('door', 'opening');
+  assert.equal(f.Sound.status().effects.lastSample, 's_door_open');
+  const voice = f.sources.at(-1); assert.equal(voice.buffer.duration, f.Sound.SAMPLES.s_door_open);
+  assert.equal(f.Sound.status().effects.voices, 1);
+  voice.onended(); assert.equal(f.Sound.status().effects.voices, 0);
+});
+
+test('a new player revalidates old HTTP-cached music and effects before decoding them', async () => {
+  // Model a fresh browser cache containing an obsolete one-second export.
+  // Without revalidation it cannot satisfy either the new loop or click cue.
+  const f = fixture({ cachedDuration: 1 }); await f.complete();
+  assert.equal(f.Sound.playing(), 'm_tallyport');
+  await f.completeEffect('s_click'); f.Sound.sfx('click');
+  assert.equal(f.Sound.status().effects.lastSample, 's_click');
+  assert.equal(f.sources.at(-1).buffer.duration, f.Sound.SAMPLES.s_click);
+});
+
+test('sample mute and visibility cancel loading and stop active voices without late playback', async () => {
+  const f = fixture(); await f.complete(); await f.completeEffect('s_click');
+  f.Sound.sfx('click'); const voice = f.sources.at(-1);
+  assert.equal(f.Sound.status().effects.voices, 1);
+  f.Sound.setFx(false); await f.settle();
+  assert.equal(voice.stopped, true); assert.equal(f.Sound.status().effects.voices, 0);
+  assert.equal(f.Sound.status().effects.loading.length, 0);
+  const count = f.sources.length;
+  f.Sound.sfx('hit'); assert.equal(f.sources.length, count);
+  f.Sound.setFx(true); await f.drainEffects(); f.ctx.currentTime = 1; f.Sound.sfx('hit');
+  assert.equal(f.Sound.status().effects.lastSample, 's_hit');
+  f.document.hidden = true; f.listeners.visibilitychange(); await f.settle();
+  assert.equal(f.Sound.status().effects.voices, 0);
+  assert.equal(f.Sound.status().effects.loading.length, 0);
+  f.Sound.sfx('hit'); assert.equal(f.Sound.status().effects.voices, 0);
+});
+
+test('invalid effect decodes back off, retry safely and keep immediate fallback feedback', async () => {
+  const f = fixture(); await f.complete(); await f.drainEffects();
+  f.Sound.sfx('cast', { id: 'spark' });
+  const request = f.fxCalls.at(-1); assert.match(request.url, /s_cast_spark/);
+  request.resolve(f.Sound.SAMPLES.s_cast_spark, true); await f.settle();
+  assert.ok(!f.Sound.status().effects.cached.includes('s_cast_spark'));
+  const count = f.fxCalls.length, nodes = f.effectNodes.length;
+  f.Sound.sfx('cast', { id: 'spark' });
+  assert.equal(f.fxCalls.length, count); assert.ok(f.effectNodes.length > nodes);
+  f.ctx.currentTime = 11; f.Sound.sfx('cast', { id: 'spark' }); await f.completeEffect('s_cast_spark');
+  const serial = f.Sound.status().effects.serial;
+  f.Sound.sfx('cast', { id: 'spark', rare: true });
+  assert.equal(f.Sound.status().effects.serial, serial + 1);
+});
+
+test('effect inventory, load concurrency, LRU memory and rapid voice counts stay bounded', async () => {
+  const f = fixture(); await f.complete(); await f.drainEffects();
+  const catalog = JSON.parse(fs.readFileSync(path.join(__dirname, '../../arttools/music/effects.json')));
+  assert.equal(Object.keys(f.Sound.SAMPLES).length, 64);
+  for (const [id, entry] of Object.entries(catalog.effects)) {
+    assert.equal(f.Sound.SAMPLES[id], entry.duration);
+    const bytes = fs.readFileSync(path.join(__dirname, '../..', entry.path));
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.sha256, id);
+    const [name, detail] = entry.hook.split(':');
+    if (name === 'step') continue;
+    const value = ['cast', 'spellHit'].includes(name) ? { id: detail } : detail;
+    assert.equal(f.Sound.sampleFor(name, value), id);
+    f.ctx.currentTime += 8; f.Sound.sfx(name, value);
+    assert.ok(f.Sound.status().effects.loading.length <= 2);
+    assert.ok(f.Sound.status().effects.queued.length <= 16);
+    await f.drainEffects(); f.ctx.currentTime += 8; f.Sound.sfx(name, value);
+    const state = f.Sound.status().effects;
+    assert.ok(state.cached.length <= 24); assert.ok(state.bytes <= 4 * 1024 * 1024);
+    assert.ok(state.voices <= 12); assert.ok(state.synthVoices <= 32);
+  }
+  assert.equal(f.Sound.sampleFor('door', 'closing'), 's_door_close');
+  assert.equal(f.Sound.sampleFor('creature', 'bow'), 's_bow');
+  assert.equal(f.Sound.sampleFor('creature', 'swing'), 's_swing');
+});
+
+test('context changes stop old environmental samples even with music muted', async () => {
+  const f = fixture(); await f.complete(); await f.drainEffects(); f.Sound.setMu(false);
+  f.set({ region: 1, town: true });
+  f.Sound.sfx('ambient', 'hearth'); await f.completeEffect('s_ambient_hearth');
+  f.ctx.currentTime = 8; f.Sound.sfx('ambient', 'hearth');
+  const voice = f.sources.at(-1); assert.equal(f.Sound.status().effects.lastSample, 's_ambient_hearth');
+  f.set({ region: 1, town: false });
+  assert.equal(voice.stopped, true); assert.equal(f.Sound.status().effects.voices, 0);
+  f.ctx.currentTime = 16; f.Sound.sfx('ambient', 'hearth'); const next = f.sources.at(-1);
+  f.set({ region: 2, venue: 'cards' });
+  assert.equal(next.stopped, true); assert.equal(f.Sound.status().effects.voices, 0);
+});
+
+test('effects-only victory can reuse the generated musical cue without synthesis or a second download', async () => {
+  const f = fixture(); await f.complete(); f.Sound.sfx('win'); f.tick(); await f.complete(f.Sound.MUSIC.m_victory.b);
+  f.Sound.setMu(false); const count = f.calls.length, synth = f.effectNodes.length;
+  f.Sound.sfx('win');
+  assert.equal(f.Sound.status().effects.lastSample, 'm_victory');
+  assert.equal(f.effectNodes.length, synth); assert.equal(f.calls.length, count);
 });

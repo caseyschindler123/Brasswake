@@ -1,9 +1,16 @@
 const { test, expect } = require('@playwright/test');
 const fs = require('node:fs');
 const path = require('node:path');
-const { screenshot } = require('./flow');
+const { screenshot, observeErrors } = require('./flow');
 const audioSource = fs.readFileSync(path.join(__dirname, '../../src/audio.js'), 'utf8');
 const effectSource = fs.readFileSync(path.join(__dirname, '../../src/effects.js'), 'utf8');
+
+test('production audio uses generated samples and persistent independent controls', async ({ page }, info) => {
+  test.setTimeout(120000);
+  const errors = observeErrors(page);
+  await require('./audio-release').audioRelease(page, info, 'http://127.0.0.1:' + (process.env.BW_TEST_PORT || 8781) + '/index.html');
+  expect(errors).toEqual([]);
+});
 
 async function fixture(page) {
   await page.goto('/__visual?scene=tallyport');
@@ -49,6 +56,61 @@ test('every effect and all spell variants render audio or safely handle unavaila
   }, { audioSource, effectSource });
   if (result.unavailable) expect(result).toEqual({ unavailable: true, state: 'none', muted: true });
   else { expect(result.count).toBeGreaterThan(60); expect(result.maxPeak).toBeLessThan(1); }
+});
+
+test('all 64 generated effects decode with exact timing, headroom and responsive onsets', async ({ page }) => {
+  test.setTimeout(120000);
+  const f = await fixture(page);
+  const result = await f.evaluate(async () => {
+    const AC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!AC) return { available: false };
+    const ctx = new AC(1, 1, 44100), rows = [];
+    for (const [id, duration] of Object.entries(Sound.SAMPLES)) {
+      const response = await fetch('art/fx/' + id + '.wav');
+      if (!response.ok) throw Error(id + ': HTTP ' + response.status);
+      const b = await ctx.decodeAudioData(await response.arrayBuffer());
+      if (Math.abs(b.duration - duration) > 2 / 22050) throw Error(id + ': duration mismatch');
+      let peak = 0, energy = 0;
+      const y = b.getChannelData(0);
+      for (const value of y) {
+        if (!Number.isFinite(value)) throw Error(id + ': non-finite sample');
+        peak = Math.max(peak, Math.abs(value)); energy += value * value;
+      }
+      if (!(peak > .001 && peak < .6 && energy > .0001)) throw Error(id + ': invalid energy/headroom');
+      const first = y.findIndex(value => Math.abs(value) > peak * .01) / b.sampleRate;
+      if (first < 0 || first >= (id.startsWith('s_ambient_') ? .15 : .06)) throw Error(id + ': late onset ' + first);
+      if (y.slice(-Math.round(.015*b.sampleRate)).some(v => Math.abs(v) > .0002)) throw Error(id + ': cut-off decay');
+      rows.push({ id, duration: b.duration, peak, first });
+    }
+    return { available: true, rows };
+  });
+  if (result.available) expect(result.rows).toHaveLength(64);
+  else expect(await f.evaluate(() => !!(window.OfflineAudioContext || window.webkitOfflineAudioContext))).toBe(false);
+});
+
+test('generated effects play on the effects bus and stop independently of music', async ({ page }, info) => {
+  const f = await fixture(page);
+  await f.locator('#nav [data-t=hero]').click();
+  if (await f.locator('[data-a=coachok]').isVisible()) await f.locator('[data-a=coachok]').click();
+  const available = await f.evaluate(() => !!(window.AudioContext || window.webkitAudioContext));
+  if (available) {
+    await f.waitForFunction(() => Sound.status().effects.cached.includes('s_hit'), null, { timeout: 20000 });
+    const before = await f.evaluate(() => Sound.status().effects.serial);
+    await f.evaluate(() => { Sound.setMu(false); Sound.sfx('hit'); Sound.sfx('door', 'closing'); });
+    const playing = await f.evaluate(() => Sound.status());
+    expect(playing.playing).toBe(null);
+    expect(playing.effects.serial).toBeGreaterThan(before);
+    expect(playing.effects.lastSample).toBe('s_door_close');
+    expect(playing.effects.voices).toBeGreaterThan(0);
+    expect(playing.effects.voices).toBeLessThanOrEqual(12);
+    expect(playing.effects.bytes).toBeLessThanOrEqual(4 * 1024 * 1024);
+    await f.evaluate(() => Sound.setFx(false));
+    expect(await f.evaluate(() => Sound.status().effects.voices)).toBe(0);
+    await f.locator('[data-a=snd][data-k=mu]').click();
+    await f.waitForFunction(() => Sound.playing() === 'm_tallyport', null, { timeout: 20000 });
+    expect(await f.evaluate(() => Sound.pref())).toEqual({ mu: 1, fx: 0 });
+  }
+  await screenshot(page, info, 'generated-sound-settings');
 });
 
 test('sound controls unlock supported audio and persist effects mute across reload', async ({ page }) => {
@@ -214,4 +276,14 @@ test('crafting and fishing outcomes and walked room crossings have contextual so
   expect(await f.evaluate(() => Scene.pos())).toEqual(result.door);
   const steps = await f.evaluate(() => { Scene.pause(); return __sounds.filter(x => x.name === 'step'); });
   expect(steps.some(x => x.detail === 'wood')).toBe(true);
+  expect(await f.evaluate(() => __sounds.some(x => x.name === 'door' && x.detail === 'opening'))).toBe(true);
+  await f.evaluate(() => { __sounds.length = 0; Scene.resume(); });
+  const reverse = dx > 0 ? 'ArrowLeft' : dx < 0 ? 'ArrowRight' : dy > 0 ? 'ArrowUp' : 'ArrowDown';
+  await page.keyboard.down(reverse);
+  try {
+    await f.waitForFunction(({at,dx,dy}) => { const p=Scene.debug().P; return (dx ? (at[0]-p.fx)*dx>=0 : Math.round(p.fx)===at[0]) && (dy ? (at[1]-p.fy)*dy>=0 : Math.round(p.fy)===at[1]); }, {at:result.far,dx,dy}, {timeout:3500});
+  } finally { await page.keyboard.up(reverse); }
+  await expect.poll(() => f.evaluate(() => Scene.pos())).toEqual(result.far);
+  await f.waitForFunction(() => __sounds.some(x => x.name === 'door' && x.detail === 'closing'), null, {timeout:5000});
+  await f.evaluate(() => Scene.pause());
 });

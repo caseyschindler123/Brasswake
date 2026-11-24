@@ -468,7 +468,7 @@
         const e=map.occ.get((y+dy)*map.w+x+dx);
         if(e && e.wander && e.tx!=null && Math.hypot(e.fx-x,e.fy-y)<1.5) {open=true;break;}
       }
-      if (open!==motion.open && Math.hypot(P.fx-x,P.fy-y)<4) emit('door');
+      if (open!==motion.open && Math.hypot(P.fx-x,P.fy-y)<4) emit('door', open ? 'opening' : 'closing');
       motion.open=open;
       const dt=Math.min(.12,Math.max(0,now-motion.last)/1000); motion.last=now;
       motion.amount=clamp(motion.amount+(open?1:-1)*dt*5.2,0,1);

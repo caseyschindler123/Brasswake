@@ -3,6 +3,12 @@ const { observeErrors, playerFlow } = require('./flow');
 const {fullArrival}=require('./intro-helper');
 const {screenshot}=require('./flow');
 
+test('the published generated soundtrack and effects obey independent persistent controls', async ({ page }, info) => {
+  const errors = observeErrors(page);
+  await require('./audio-release').audioRelease(page, info, './?commit=' + process.env.BW_EXPECT_COMMIT);
+  expect(errors).toEqual([]);
+});
+
 test('the published game downloads, cold reopens offline, and restores a save file',async({page,context},info)=>{
   test.setTimeout(300000);
   await require('./offline-flow').offlineFlow(page,context,info,{url:'./',live:true});

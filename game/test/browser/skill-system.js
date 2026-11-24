@@ -540,7 +540,8 @@ for(const prize of [false,true]) {
       expect(killed.kills-lifted.kills).toBe(1);
       expect(killed.sigils-lifted.sigils).toBe(1);
 
-      // Advance only the scheduled respawn timer and let the actual world spawn the replacement.
+      // Expire the real timer. Force one unavailable placement, then reopen
+      // exactly the same ground; the live queue must retain and retry its slot.
       await f.evaluate(()=>{
         const { map } = Scene.debug(), terr = window.__theftTarget.terr;
         const [townX, townY] = Scene.towns()[1], minimum = (terr.rad || 7) * Math.SQRT2 + 5;
@@ -553,8 +554,20 @@ for(const prize of [false,true]) {
         if (!safe) throw Error('No clear town tile beyond the respawn radius');
         Scene.hop(...safe);
         window.__beforeRespawn = new Set(map.ents);
+        window.__respawnBlocked = [];
+        const radius = Math.ceil(terr.rad || 7);
+        for (let y=terr.y-radius;y<=terr.y+radius;y++) for (let x=terr.x-radius;x<=terr.x+radius;x++) {
+          if (x<0 || y<0 || x>=map.w || y>=map.h) continue;
+          const i=y*map.w+x; __respawnBlocked.push([i,map.keep[i]]); map.keep[i]=1;
+        }
         map.respawn.find(entry => entry.terr === terr).t = 0;
       });
+      try {
+        await f.waitForFunction(()=>Scene.debug().map.respawn.some(entry=>entry.terr===window.__theftTarget.terr&&entry.t>0));
+        expect(await f.evaluate(()=>Scene.ents().some(e=>e.kind==='mon'&&e.terr===window.__theftTarget.terr&&!window.__beforeRespawn.has(e)))).toBe(false);
+      } finally {
+        await f.evaluate(()=>{const {map}=Scene.debug();for(const [i,value] of __respawnBlocked)map.keep[i]=value;delete window.__respawnBlocked;});
+      }
       await f.waitForFunction(()=>Scene.ents().some(e=>e.kind==='mon'&&e.terr===window.__theftTarget.terr&&!window.__beforeRespawn.has(e)));
       await f.evaluate(()=>{
         const newcomer=Scene.find(e=>e.kind==='mon'&&e.terr===window.__theftTarget.terr&&!window.__beforeRespawn.has(e));

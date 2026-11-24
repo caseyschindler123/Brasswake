@@ -23,6 +23,10 @@ FFMPEG=None
 
 
 class CompositionTests(unittest.TestCase):
+    def test_legacy_builder_cannot_overwrite_the_replacement_catalog(self):
+        with self.assertRaisesRegex(ValueError,'Historical renderer cannot overwrite'):
+            music.build(None)
+
     def test_written_phrases_have_complete_bars_and_distinct_scores(self):
         signatures=set()
         for score in music.SCORES:
@@ -85,9 +89,9 @@ class AssetTests(unittest.TestCase):
 
     def test_complete_inventory_provenance_and_hashes(self):
         tracks=self.catalog['tracks']
-        self.assertEqual(len(tracks),25)
-        self.assertEqual(self.catalog['retained'],['m_tallyport','m_bilge','m_combat'])
-        original=0; source=0
+        self.assertEqual(len(tracks),28)
+        self.assertEqual({(music.ROOT/e['path']).name for e in tracks.values()}, {p.name for p in (music.ROOT/'game/art/mu').iterdir() if p.is_file()})
+        self.assertEqual(self.catalog['retained'],[])
         for ident,entry in tracks.items():
             path=music.ROOT/entry['path']
             self.assertEqual(path.name,ident+('.mp3' if entry['loop'] else '.wav'))
@@ -99,8 +103,8 @@ class AssetTests(unittest.TestCase):
             self.assertEqual(entry['channels'],2)
             self.assertEqual(entry['loop'],ident not in ('m_victory','m_death'))
             if entry['loop']:
-                self.assertGreaterEqual(entry['b'],35)
-                self.assertLessEqual(entry['b'],75)
+                self.assertGreaterEqual(entry['b'],24)
+                self.assertLessEqual(entry['b'],55)
                 self.assertGreaterEqual(entry['duration']-entry['b'],1)
             else:
                 self.assertEqual(entry['b'],entry['duration'])
@@ -112,18 +116,27 @@ class AssetTests(unittest.TestCase):
                 self.assertGreater(entry['duration'],3)
                 self.assertLess(entry['duration'],16)
             origin=entry['origin']
-            if origin['kind']=='original-midi':
-                original+=1
-                midi=music.ROOT/entry['midi']
-                self.assertEqual(midi.read_bytes()[:4],b'MThd')
-                self.assertEqual(hashlib.sha256(midi.read_bytes()).hexdigest(),origin['midiSHA256'])
-                self.assertNotIn('game/art',entry['midi'])
-            else:
-                source+=1
-                self.assertTrue(origin['songURL'].startswith('https://suno.com/song/'))
-                self.assertEqual(len(origin['sourceSHA256']),64)
-                self.assertEqual(len(origin['candidates']),2)
-        self.assertEqual((original,source),(17,8))
+            self.assertEqual(origin['kind'],'stable-audio')
+            self.assertEqual(origin['model'],'Stable Audio 3 (UI default)')
+            self.assertEqual(len(origin['sourceSHA256']),64)
+            self.assertIn('video game',origin['prompt'])
+            self.assertEqual(origin['take'],1)
+            self.assertEqual(origin['requestedSeconds'],60 if entry['loop'] else 6 if ident=='m_victory' else 9)
+            if entry['loop']:
+                selection=origin['selection']
+                self.assertIn(selection['periodBars'],(8,16))
+                self.assertAlmostEqual(entry['b'],selection['endSeconds']-selection['startSeconds'],places=4)
+                self.assertGreaterEqual(selection['phraseSimilarity'],.80)
+                self.assertLessEqual(selection['energyLogMismatch'],.5)
+                self.assertLessEqual(abs(selection['estimatedBPM']/selection['requestedBPM']-1),.13)
+        self.assertEqual(len({e['origin']['sourceSHA256'] for e in tracks.values()}),28)
+        # Historical scores remain editable and auditable without supplying the
+        # replacement game's soundtrack or overwriting the new catalog.
+        history=json.loads((HERE/'history/soundtrack-2026-11-22.json').read_text())
+        old_midis=[e for e in history['tracks'].values() if 'midi' in e]
+        self.assertEqual(len(old_midis),17)
+        for entry in old_midis:
+            self.assertEqual(hashlib.sha256((music.ROOT/entry['midi']).read_bytes()).hexdigest(),entry['origin']['midiSHA256'])
 
     def test_actual_audio_levels_lengths_and_loop_tails(self):
         if not FFMPEG: self.skipTest('Pass --ffmpeg for actual audio decode and level checks')
@@ -144,6 +157,43 @@ class AssetTests(unittest.TestCase):
                     self.assertLess(q['seamJump'],max(.02,q['localDerivativeP999']*3))
                 else:
                     self.assertLess(np.max(np.abs(y[-1000:])),.002)
+
+
+class EffectAssetTests(unittest.TestCase):
+    def test_complete_effect_inventory_and_actual_pcm(self):
+        catalog=json.loads((HERE/'effects.json').read_text())
+        effects=catalog['effects']
+        self.assertEqual(len(effects),64)
+        self.assertEqual({(music.ROOT/e['path']).name for e in effects.values()}, {p.name for p in (music.ROOT/'game/art/fx').iterdir() if p.is_file()})
+        self.assertEqual(len({e['sha256'] for e in effects.values()}),64)
+        for ident,entry in effects.items():
+            with self.subTest(effect=ident):
+                path=music.ROOT/entry['path']
+                self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(),entry['sha256'])
+                self.assertEqual(path.stat().st_size,entry['bytes'])
+                sr,pcm=music.wavfile.read(path)
+                self.assertEqual(sr,22050)
+                self.assertEqual(pcm.ndim,1)
+                self.assertEqual(pcm.dtype,np.dtype('int16'))
+                self.assertLess(abs(len(pcm)/sr-entry['duration']),1/sr)
+                self.assertGreater(entry['duration'],.03)
+                self.assertLess(entry['duration'],4.1)
+                y=pcm.astype(np.float64)/32768
+                peak=float(np.max(np.abs(y)))
+                self.assertGreater(peak,.001)
+                self.assertLess(peak,10**((entry['preparation']['peakCeilingDBFS']+.02)/20))
+                self.assertLess(float(np.sqrt(np.mean(y*y))),10**((entry['preparation']['peakCeilingDBFS']-6.9)/20))
+                self.assertLess(np.max(np.abs(y[-round(.02*sr):])),.0001)
+                activity=np.flatnonzero(np.abs(y)>peak*.01)
+                self.assertLess(activity[0]/sr,.15 if ident.startswith('s_ambient_') else .06)
+                self.assertEqual(len(entry['origin']['sourceSHA256']),64)
+                if ident.startswith('s_step_'):
+                    self.assertEqual(entry['origin']['kind'],'stable-audio-sampler')
+                    self.assertEqual(len(entry['origin']['packArchiveSHA256']),64)
+                else:
+                    self.assertEqual(entry['origin']['kind'],'stable-audio')
+                    self.assertIn('video game',entry['origin']['prompt'])
+        self.assertEqual(sum(e['bytes'] for e in effects.values()) < 5*1024*1024,True)
 
 
 if __name__=='__main__':

@@ -1,186 +1,257 @@
-/* ===== Sound: looping music by place and situation, synthesized sound effects ===== */
+/* ===== Sound: contextual music and generated effects with immediate fallback ===== */
 const Sound = (() => {
   /* Music files live in art/mu/. a and b are the loop start and end in seconds:
      the file plays from 0, then loops a..b. Each looping file carries a copied safety tail
      after b, so a small decoder offset stays seamless. One-shot cues play once. */
   const MUSIC = {
     "m_tallyport": {
-      "a": 10.658,
-      "b": 159.6553,
-      "v": 1
-    },
-    "m_bilge": {
-      "a": 14.721,
-      "b": 69.5739,
-      "v": 1
-    },
-    "m_combat": {
-      "a": 22.361,
-      "b": 75.5065,
-      "v": 1
-    },
-    "m_barrows": {
       "a": 0,
-      "b": 56.47059,
+      "b": 24.0,
       "v": 1,
       "loop": true
-    },
-    "m_tanglewarren": {
-      "a": 0,
-      "b": 45.714308,
-      "v": 1,
-      "loop": true
-    },
-    "m_slagdeep": {
-      "a": 0,
-      "b": 43.636349,
-      "v": 1,
-      "loop": true
-    },
-    "m_crystal": {
-      "a": 0,
-      "b": 53.333311,
-      "v": 1,
-      "loop": true
-    },
-    "m_ice": {
-      "a": 0,
-      "b": 61.935488,
-      "v": 1,
-      "loop": true
-    },
-    "m_stacks": {
-      "a": 0,
-      "b": 50.526327,
-      "v": 1,
-      "loop": true
-    },
-    "m_wild_coast": {
-      "a": 0,
-      "b": 48,
-      "v": 1,
-      "loop": true
-    },
-    "m_wild_fields": {
-      "a": 0,
-      "b": 51.428594,
-      "v": 1,
-      "loop": true
-    },
-    "m_wild_stone": {
-      "a": 0,
-      "b": 49.230794,
-      "v": 1,
-      "loop": true
-    },
-    "m_wild_north": {
-      "a": 0,
-      "b": 54.857143,
-      "v": 1,
-      "loop": true
-    },
-    "m_examiner": {
-      "a": 0,
-      "b": 44.44449,
-      "v": 1,
-      "loop": true
-    },
-    "m_tavern": {
-      "a": 0,
-      "b": 43.2,
-      "v": 1,
-      "loop": true
-    },
-    "m_dojo": {
-      "a": 0,
-      "b": 43.636349,
-      "v": 1,
-      "loop": true
-    },
-    "m_cards": {
-      "a": 0,
-      "b": 41.739138,
-      "v": 1,
-      "loop": true
-    },
-    "m_title": {
-      "a": 0,
-      "b": 50.526327,
-      "v": 1,
-      "loop": true
-    },
-    "m_victory": {
-      "a": 0,
-      "b": 6.137937,
-      "v": 1,
-      "loop": false
-    },
-    "m_death": {
-      "a": 0,
-      "b": 11.375011,
-      "v": 1,
-      "loop": false
     },
     "m_brackwater": {
       "a": 0,
-      "b": 53.638776,
+      "b": 50.526621,
       "v": 1,
       "loop": true
     },
     "m_haverly": {
       "a": 0,
-      "b": 44.582313,
+      "b": 45.714286,
       "v": 1,
       "loop": true
     },
     "m_four_fords": {
       "a": 0,
-      "b": 44.442313,
+      "b": 47.554467,
       "v": 1,
       "loop": true
     },
     "m_cinderwick": {
       "a": 0,
-      "b": 47.694467,
+      "b": 41.739138,
       "v": 1,
       "loop": true
     },
     "m_kell": {
       "a": 0,
-      "b": 53.498776,
+      "b": 53.333333,
       "v": 1,
       "loop": true
     },
     "m_highwatch": {
       "a": 0,
-      "b": 44.722313,
+      "b": 28.235283,
       "v": 1,
       "loop": true
     },
     "m_aldermoot": {
       "a": 0,
-      "b": 53.638776,
+      "b": 44.582313,
+      "v": 1,
+      "loop": true
+    },
+    "m_bilge": {
+      "a": 0,
+      "b": 26.749388,
       "v": 1,
       "loop": true
     },
     "m_sunken_sluice": {
       "a": 0,
-      "b": 35.66585,
+      "b": 53.333333,
       "v": 1,
       "loop": true
+    },
+    "m_barrows": {
+      "a": 0,
+      "b": 28.235283,
+      "v": 1,
+      "loop": true
+    },
+    "m_tanglewarren": {
+      "a": 0,
+      "b": 45.714286,
+      "v": 1,
+      "loop": true
+    },
+    "m_slagdeep": {
+      "a": 0,
+      "b": 43.636372,
+      "v": 1,
+      "loop": true
+    },
+    "m_crystal": {
+      "a": 0,
+      "b": 25.263311,
+      "v": 1,
+      "loop": true
+    },
+    "m_ice": {
+      "a": 0,
+      "b": 30.0,
+      "v": 1,
+      "loop": true
+    },
+    "m_stacks": {
+      "a": 0,
+      "b": 26.749388,
+      "v": 1,
+      "loop": true
+    },
+    "m_wild_coast": {
+      "a": 0,
+      "b": 44.582313,
+      "v": 1,
+      "loop": true
+    },
+    "m_wild_fields": {
+      "a": 0,
+      "b": 41.610159,
+      "v": 1,
+      "loop": true
+    },
+    "m_wild_stone": {
+      "a": 0,
+      "b": 44.582313,
+      "v": 1,
+      "loop": true
+    },
+    "m_wild_north": {
+      "a": 0,
+      "b": 28.235465,
+      "v": 1,
+      "loop": true
+    },
+    "m_combat": {
+      "a": 0,
+      "b": 32.693696,
+      "v": 1,
+      "loop": true
+    },
+    "m_examiner": {
+      "a": 0,
+      "b": 32.0,
+      "v": 1,
+      "loop": true
+    },
+    "m_tavern": {
+      "a": 0,
+      "b": 40.0,
+      "v": 1,
+      "loop": true
+    },
+    "m_dojo": {
+      "a": 0,
+      "b": 43.636372,
+      "v": 1,
+      "loop": true
+    },
+    "m_cards": {
+      "a": 0,
+      "b": 41.610159,
+      "v": 1,
+      "loop": true
+    },
+    "m_title": {
+      "a": 0,
+      "b": 28.235465,
+      "v": 1,
+      "loop": true
+    },
+    "m_victory": {
+      "a": 0,
+      "b": 5.644853,
+      "v": 1,
+      "loop": false
+    },
+    "m_death": {
+      "a": 0,
+      "b": 8.546893,
+      "v": 1,
+      "loop": false
     }
+  };
+  const SAMPLES = {
+    "s_door_open": 0.873787,
+    "s_door_close": 0.5239,
+    "s_swing": 0.245669,
+    "s_thrust": 0.266576,
+    "s_hit": 0.404671,
+    "s_hurt": 0.477098,
+    "s_bow": 0.276463,
+    "s_miss": 0.31229,
+    "s_coins": 0.437052,
+    "s_cast_spark": 0.356508,
+    "s_hit_spark": 0.322494,
+    "s_cast_frost": 0.563719,
+    "s_hit_frost": 0.557143,
+    "s_cast_sun": 0.33805,
+    "s_hit_sun": 0.589705,
+    "s_cast_storm": 0.533923,
+    "s_hit_storm": 1.501088,
+    "s_cast_fire": 0.654694,
+    "s_hit_fire": 0.884535,
+    "s_cast_crystal": 0.724898,
+    "s_hit_crystal": 0.708254,
+    "s_cast_blizzard": 0.685125,
+    "s_hit_blizzard": 1.138957,
+    "s_cast_rewrite": 0.734376,
+    "s_hit_rewrite": 0.904399,
+    "s_smith": 1.158957,
+    "s_alchemy": 1.278322,
+    "s_craft_fail": 0.525034,
+    "s_fish_cast": 0.960136,
+    "s_fish_catch": 0.892063,
+    "s_fish_empty": 0.754739,
+    "s_creature_bird": 0.402993,
+    "s_creature_small": 0.591701,
+    "s_creature_beast": 0.531474,
+    "s_creature_dragon": 1.421905,
+    "s_creature_spirit": 1.207982,
+    "s_creature_stone": 1.21424,
+    "s_creature_insect": 0.533469,
+    "s_creature_wet": 1.173469,
+    "s_ambient_harbour": 3.590431,
+    "s_ambient_market": 3.472834,
+    "s_ambient_hearth": 3.060181,
+    "s_ambient_cave": 2.888889,
+    "s_ambient_drip": 0.471383,
+    "s_ambient_draft": 2.837506,
+    "s_heal": 0.791655,
+    "s_grade_correct": 0.428798,
+    "s_grade_close": 0.685215,
+    "s_grade_partial": 0.124218,
+    "s_grade_wrong": 0.664853,
+    "s_click": 0.215737,
+    "s_reward": 0.593379,
+    "s_step_stone_1": 0.401859,
+    "s_step_stone_2": 0.441905,
+    "s_step_stone_3": 0.573651,
+    "s_step_stone_4": 0.432925,
+    "s_step_wood_1": 0.297143,
+    "s_step_wood_2": 0.807211,
+    "s_step_wood_3": 0.829569,
+    "s_step_wood_4": 0.786621,
+    "s_step_soil_1": 0.539546,
+    "s_step_soil_2": 0.420091,
+    "s_step_soil_3": 0.50517,
+    "s_step_soil_4": 0.464535
   };
   const TOWN_MU = ['m_tallyport', 'm_brackwater', 'm_haverly', 'm_four_fords', 'm_cinderwick', 'm_kell', 'm_highwatch', 'm_aldermoot'];
   const DUN_MU = ['m_bilge', 'm_sunken_sluice', 'm_barrows', 'm_tanglewarren', 'm_slagdeep', 'm_crystal', 'm_ice', 'm_stacks'];
   const WILD_MU = ['m_wild_coast', 'm_wild_fields', 'm_wild_stone', 'm_wild_north'];
   const SURFACE_MU = new Set([...TOWN_MU, ...WILD_MU]);
   const COMBAT_MU = 'm_combat';
+  const VENUE_MU = { tavern: 'm_tavern', dojo: 'm_dojo', cards: 'm_cards' };
   function trackFor(s) {
     if (!s) return null;
     if (s.title) return 'm_title';
     if (s.fight) return s.boss ? 'm_examiner' : COMBAT_MU;
     if (s.dun) return DUN_MU[s.dun - 1] || null;
     if (!(s.region >= 1 && s.region <= 8)) return null;
+    if (VENUE_MU[s.venue]) return VENUE_MU[s.venue];
     return s.town === false ? WILD_MU[Math.floor((s.region - 1) / 2)] : TOWN_MU[s.region - 1];
   }
   const MU_VOL = .55, FX_VOL = .7, XFADE = 1.6, AREA_SETTLE = 5, CACHE = 2, PREF = 'brasswake.sound';
@@ -209,15 +280,15 @@ const Sound = (() => {
   function unlock() {
     const c = makeCtx();
     if (!c) return;
-    if (c.state !== 'running') c.resume().then(tick).catch(() => { }); else tick();
+    if (c.state !== 'running') c.resume().then(() => { tick(); warmEffects(); }).catch(() => { }); else { tick(); warmEffects(); }
   }
   document.addEventListener('pointerdown', unlock, true);
   document.addEventListener('touchend', unlock, true);
   document.addEventListener('keydown', unlock, true);
   document.addEventListener('visibilitychange', () => {
     if (!ctx) return;
-    if (document.hidden) { tick(); ctx.suspend().catch(() => { }); }
-    else ctx.resume().then(tick).catch(() => { });
+    if (document.hidden) { silenceEffects(); tick(); ctx.suspend().catch(() => { }); }
+    else ctx.resume().then(() => { tick(); warmEffects(); }).catch(() => { });
   });
   if (window.addEventListener) {
     window.addEventListener('blur', () => { candidate = null; });
@@ -234,7 +305,7 @@ const Sound = (() => {
   function load(id) {
     const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 8000);
     const request = pending = { id, controller, superseded: false };
-    fetch('art/mu/' + id + (MUSIC[id].loop === false ? '.wav' : '.mp3'), { signal: controller.signal })
+    fetch('art/mu/' + id + (MUSIC[id].loop === false ? '.wav' : '.mp3'), { signal: controller.signal, cache: 'no-cache' })
       .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
       .then(ab => new Promise((res, rej) => ctx.decodeAudioData(ab, res, rej)))
       .then(b => {
@@ -284,13 +355,14 @@ const Sound = (() => {
   }
   function tick() {
     if (!ctx) return;
+    updateEffectContext();
     if (!pref.mu || document.hidden) { want = cueId = surface = candidate = null; stopCur(.15); return; }
     if (ctx.state !== 'running') { candidate = null; return; }
     let s = null; try { s = src(); } catch (e) { }
     const base = trackFor(s);
     if (cueId && ((s && (s.title || s.fight)) || ((!cur || cur.id !== cueId) && ctx.currentTime > cueDeadline))) cueId = null;
     if (cueId || !SURFACE_MU.has(base)) candidate = null;
-    if (!s || s.title || s.dun || (!s.fight && !base)) surface = null;
+    if (!s || s.title || s.dun || s.venue || (!s.fight && !base)) surface = null;
     const id = cueId || (SURFACE_MU.has(base) ? settledSurface(base) : base); want = id;
     if (cur && cur.id === id) return;
     if (!id) { stopCur(XFADE); return; }
@@ -313,16 +385,124 @@ const Sound = (() => {
     return true;
   }
 
-  /* ---------- sound effects, synthesized ---------- */
+  /* ---------- generated effects: bounded loads/cache/voices ---------- */
+  const FX_CACHE = 24, FX_BYTES = 4 * 1024 * 1024, FX_LOADS = 2, FX_QUEUE = 16, FX_VOICES = 12;
+  const fxBuffers = new Map(), fxLoads = new Map(), fxQueue = [], fxRetry = {}, fxVoices = new Set(), synthVoices = new Set();
+  let fxBytes = 0, fxWarmed = false, effectContext = '', effectSerial = 0, lastSample = null;
+  const fxVariants = {};
+  function sampleFor(name, detail) {
+    if (name === 'win' || name === 'death') return name === 'win' ? 'm_victory' : 'm_death';
+    if (name === 'step') {
+      const material = detail === 'wood' || detail === 'stone' ? detail : 'soil';
+      const prior = fxVariants[material] || 0;
+      const next = (prior + 1 + (Math.random() * 3 | 0)) % 4;
+      fxVariants[material] = next;
+      return 's_step_' + material + '_' + (next + 1);
+    }
+    if (name === 'door') return detail === 'closing' ? 's_door_close' : 's_door_open';
+    if (name === 'cast' || name === 'spellHit') return 's_' + (name === 'cast' ? 'cast_' : 'hit_') + ((detail && detail.id) || 'spark');
+    if (name === 'creature') return detail === 'bow' || detail === 'swing' ? 's_' + detail : 's_creature_' + (detail || 'beast');
+    if (name === 'ambient') return 's_ambient_' + detail;
+    if (['correct', 'close', 'partial', 'wrong'].includes(name)) return 's_grade_' + name;
+    return { craftFail: 's_craft_fail', fishCast: 's_fish_cast', fishCatch: 's_fish_catch', fishEmpty: 's_fish_empty' }[name] || 's_' + name;
+  }
+  const sampleDuration = id => SAMPLES[id] || (MUSIC[id] && MUSIC[id].loop === false ? MUSIC[id].b : 0);
+  function trimEffects() {
+    while (fxBuffers.size > FX_CACHE || fxBytes > FX_BYTES) {
+      const id = fxBuffers.keys().next().value, b = fxBuffers.get(id);
+      fxBytes -= b.length * b.numberOfChannels * 4; fxBuffers.delete(id);
+    }
+  }
+  function pumpEffects() {
+    if (!ctx || ctx.state !== 'running' || !pref.fx || document.hidden) return;
+    while (fxLoads.size < FX_LOADS && fxQueue.length) {
+      const id = fxQueue.shift();
+      if (fxBuffers.has(id) || fxLoads.has(id) || fxRetry[id] > ctx.currentTime) continue;
+      const controller = new AbortController(), request = { controller, canceled: false };
+      const timeout = setTimeout(() => controller.abort(), 8000);
+      fxLoads.set(id, request);
+      fetch((MUSIC[id] ? 'art/mu/' : 'art/fx/') + id + '.wav', { signal: controller.signal, cache: 'no-cache' })
+        .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+        .then(ab => new Promise((resolve, reject) => ctx.decodeAudioData(ab, resolve, reject)))
+        .then(b => {
+          if (request.canceled) return;
+          if (!(b.duration > 0 && Math.abs(b.duration - sampleDuration(id)) < .003 && b.length * b.numberOfChannels * 4 <= FX_BYTES)) throw new Error('Invalid effect buffer');
+          fxBuffers.set(id, b); fxBytes += b.length * b.numberOfChannels * 4; trimEffects();
+        })
+        .catch(() => { if (!request.canceled) fxRetry[id] = ctx.currentTime + 10; })
+        .finally(() => { clearTimeout(timeout); fxLoads.delete(id); pumpEffects(); });
+    }
+  }
+  function loadEffect(id, priority) {
+    if (!sampleDuration(id) || typeof fetch !== 'function' || typeof AbortController !== 'function' || fxBuffers.has(id) || fxLoads.has(id) || fxQueue.includes(id) || fxRetry[id] > ctx.currentTime) return;
+    if (fxQueue.length >= FX_QUEUE) { if (!priority) return; fxQueue.pop(); }
+    if (priority) fxQueue.unshift(id); else fxQueue.push(id);
+    pumpEffects();
+  }
+  function warmEffects() {
+    if (fxWarmed || !ctx || ctx.state !== 'running' || !pref.fx || document.hidden) return;
+    fxWarmed = true;
+    ['s_click', 's_door_open', 's_door_close', 's_step_stone_1', 's_step_wood_1', 's_step_soil_1', 's_swing', 's_thrust', 's_hit', 's_hurt', 's_bow', 's_miss'].forEach(id => loadEffect(id, false));
+  }
+  function stopVoice(voice, collection) {
+    if (!collection.has(voice)) return;
+    collection.delete(voice);
+    voice.node.onended = null;
+    try { voice.node.stop(); } catch (e) { }
+    voice.disconnect();
+  }
+  function silenceEffects() {
+    for (const v of [...fxVoices]) stopVoice(v, fxVoices);
+    for (const v of [...synthVoices]) stopVoice(v, synthVoices);
+    fxQueue.length = 0; fxWarmed = false;
+    for (const r of fxLoads.values()) { r.canceled = true; r.controller.abort(); }
+  }
+  function updateEffectContext() {
+    let s = null; try { s = src(); } catch (e) { }
+    const key = s ? [s.title, s.fight, s.dun, s.region, s.town, s.venue].join(':') : '';
+    if (key !== effectContext) {
+      effectContext = key;
+      for (const v of [...fxVoices]) if (v.ambient) stopVoice(v, fxVoices);
+    }
+  }
+  function playSample(id, name, detail) {
+    let b = fxBuffers.get(id) || buf[id];
+    if (!b) loadEffect(id, true);
+    if (!b && name === 'step') {
+      const prefix = id.slice(0, -1);
+      const cached = [...fxBuffers.keys()].filter(k => k.startsWith(prefix));
+      if (cached.length) { id = cached[Math.random() * cached.length | 0]; b = fxBuffers.get(id); }
+    }
+    if (!b) return false;
+    if (fxBuffers.has(id)) { fxBuffers.delete(id); fxBuffers.set(id, b); }
+    while (fxVoices.size >= FX_VOICES) stopVoice(fxVoices.values().next().value, fxVoices);
+    const node = ctx.createBufferSource(), gain = ctx.createGain(); node.buffer = b;
+    const variable = ['step', 'swing', 'thrust', 'bow', 'hit', 'miss', 'creature'].includes(name);
+    if (node.playbackRate) node.playbackRate.value = variable ? .98 + Math.random() * .04 : 1;
+    gain.gain.value = detail && detail.rare ? 1.1 : variable ? .94 + Math.random() * .12 : 1;
+    node.connect(gain); gain.connect(fxBus);
+    const voice = { node, ambient: name === 'ambient', disconnect: () => { node.disconnect(); gain.disconnect(); } };
+    fxVoices.add(voice);
+    node.onended = () => { fxVoices.delete(voice); voice.disconnect(); };
+    node.start(); lastSample = id; effectSerial++;
+    return true;
+  }
+  function boundSynth(node, disconnect) {
+    while (synthVoices.size >= 32) stopVoice(synthVoices.values().next().value, synthVoices);
+    const voice = { node, disconnect }; synthVoices.add(voice);
+    node.onended = () => { synthVoices.delete(voice); disconnect(); };
+  }
+
+  /* ---------- immediate synthesis fallback ---------- */
   function env(g, t, a, peak, d) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); }
   function tone(type, f0, f1, t, a, d, peak, dest) {
     const o = ctx.createOscillator(), g = ctx.createGain(); o.type = type; o.frequency.setValueAtTime(f0, t); if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t + a + d);
-    env(g, t, a, peak, d); o.connect(g); g.connect(dest || fxBus); o.onended = () => { o.disconnect(); g.disconnect(); }; o.start(t); o.stop(t + a + d + .05);
+    env(g, t, a, peak, d); o.connect(g); g.connect(dest || fxBus); boundSynth(o, () => { o.disconnect(); g.disconnect(); }); o.start(t); o.stop(t + a + d + .05);
   }
   function noise(t, d, peak, ftype, f0, f1, q) {
     const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain(); s.buffer = noiseBuf; f.type = ftype; f.Q.value = q || 1;
     f.frequency.setValueAtTime(f0, t); if (f1 && f1 !== f0) f.frequency.exponentialRampToValueAtTime(f1, t + d);
-    env(g, t, .005, peak, d); s.connect(f); f.connect(g); g.connect(fxBus); s.onended = () => { s.disconnect(); f.disconnect(); g.disconnect(); }; s.start(t, Math.random() * .5); s.stop(t + d + .05);
+    env(g, t, .005, peak, d); s.connect(f); f.connect(g); g.connect(fxBus); boundSynth(s, () => { s.disconnect(); f.disconnect(); g.disconnect(); }); s.start(t, Math.random() * .5); s.stop(t + d + .05);
   }
   const notes = (seq, type, gap, peak, d) => { const t = ctx.currentTime + .01; seq.forEach((f, i) => tone(type, f, f, t + i * gap, .008, d, peak)); };
   const vary = () => .93 + Math.random() * .14;
@@ -396,15 +576,18 @@ const Sound = (() => {
     /* Only repetitive world events are throttled; query and combat outcomes remain audible. */
     const gap = { step: .14, door: .35, click: .025, ambient: 7 }[name] || 0, t = ctx.currentTime;
     if (gap && recent[name] != null && t - recent[name] < gap) return;
-    recent[name] = t; try { SFX[name](detail); } catch (e) { }
+    recent[name] = t;
+    try { if (!playSample(sampleFor(name, detail), name, detail)) SFX[name](detail); } catch (e) { try { SFX[name](detail); } catch (e) { } }
   }
 
   function setMu(on) { pref.mu = on ? 1 : 0; savePref(); if (muBus) { muBus.gain.setTargetAtTime(on ? MU_VOL : 0, ctx.currentTime, .15); tick(); } }
-  function setFx(on) { pref.fx = on ? 1 : 0; savePref(); if (fxBus) fxBus.gain.setTargetAtTime(on ? FX_VOL : 0, ctx.currentTime, .05); }
+  function setFx(on) { pref.fx = on ? 1 : 0; savePref(); if (fxBus) { fxBus.gain.setTargetAtTime(on ? FX_VOL : 0, ctx.currentTime, .05); if (on) warmEffects(); else silenceEffects(); } }
   /* source() returns title/fight/boss/dun/region/town, or null for silence. */
   function init(source) { src = source; if (!timer) timer = setInterval(tick, 400); }
   return { init, sfx, setMu, setFx, pref: () => Object.assign({}, pref), state: () => ctx ? ctx.state : 'none', playing: () => cur ? cur.id : null, MUSIC, trackFor, effects: () => Object.keys(SFX),
-    status: () => ({ wanted: want, playing: cur ? cur.id : null, pending: pending ? pending.id : null, cached: order.slice(), cue: cueId }),
-    /* test hook: runs every effect once and returns the names that threw */
+    SAMPLES, sampleFor,
+    status: () => ({ wanted: want, playing: cur ? cur.id : null, pending: pending ? pending.id : null, cached: order.slice(), cue: cueId,
+      effects: { cached: [...fxBuffers.keys()], bytes: fxBytes, loading: [...fxLoads.keys()], queued: fxQueue.slice(), voices: fxVoices.size, synthVoices: synthVoices.size, lastSample, serial: effectSerial } }),
+    /* test hook: exercises every synthesis fallback and returns failures */
     _check: () => !ctx ? ['no context'] : Object.keys(SFX).filter(k => { try { SFX[k](); return false; } catch (e) { return true; } }) };
 })();

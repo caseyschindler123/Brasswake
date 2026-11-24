@@ -43,7 +43,7 @@ test('all 28 music files decode with valid loops and audible finite samples', as
   } else expect(result.rows.every(r => r.peak > 0 && r.peak < 1)).toBe(true);
 });
 
-test('scene contexts distinguish towns, wilderness and dungeons while indoor venues retain town music', async ({ page }) => {
+test('scene contexts distinguish towns, wilderness, dungeons and indoor venue music', async ({ page }) => {
   const f = await fixture(page);
   const result = await f.evaluate(() => {
     const towns = [], wild = [], dungeons = [];
@@ -69,7 +69,7 @@ test('scene contexts distinguish towns, wilderness and dungeons while indoor ven
   });
   expect(new Set(result.towns).size).toBe(8); expect(new Set(result.dungeons).size).toBe(8);
   expect(result.wild).toEqual(['m_wild_coast', 'm_wild_coast', 'm_wild_fields', 'm_wild_fields', 'm_wild_stone', 'm_wild_stone', 'm_wild_north', 'm_wild_north']);
-  expect(result.tavern).toBe('m_tallyport'); expect(result.dojo).toBe('m_tallyport');
+  expect(result.tavern).toBe('m_tavern'); expect(result.dojo).toBe('m_dojo');
 });
 
 test('a gesture starts actual music, contexts crossfade, and music mute persists', async ({ page }, info) => {
@@ -80,6 +80,20 @@ test('a gesture starts actual music, contexts crossfade, and music mute persists
   const available = await f.evaluate(() => !!(window.AudioContext || window.webkitAudioContext));
   if (available) {
     await f.waitForFunction(() => Sound.playing() === 'm_tallyport', null, { timeout: 20000 });
+    await f.evaluate(() => { __bw.ACT.closesheet(); Scene.enterHall(1, []); Scene.pause(); });
+    await f.waitForFunction(() => Sound.playing() === 'm_dojo', null, { timeout: 20000 });
+    await f.evaluate(() => {
+      const t = Scene.towns()[1]; Scene.load([t[0], t[1] + 3], 1); Scene.pause();
+    });
+    await f.waitForFunction(() => Sound.playing() === 'm_tallyport', null, { timeout: 20000 });
+    await f.evaluate(() => {
+      const room = Scene.debug().map.blds.find(b => b.enter && b.slot === 'tavern');
+      Scene.load([room.x + room.room.door, room.y + room.h - 2], 1); Scene.pause();
+    });
+    await f.waitForFunction(() => Sound.playing() === 'm_tavern', null, { timeout: 20000 });
+    await f.evaluate(() => { const t = Scene.towns()[1]; Scene.load([t[0], t[1] + 3], 1); Scene.pause(); });
+    await f.waitForFunction(() => Sound.playing() === 'm_tallyport', null, { timeout: 20000 });
+    await f.evaluate(() => __bw.ACT.tab({ t: 'hero' }));
     const crossing = await f.evaluate(() => {
       __bw.ACT.closesheet(); const t = Scene.towns()[2]; Scene.load([t[0], t[1] + 3], 2); Scene.pause();
       return { location: Sound.trackFor(Scene.musicContext()), playing: Sound.playing() };
@@ -88,12 +102,10 @@ test('a gesture starts actual music, contexts crossfade, and music mute persists
     await f.waitForFunction(() => Sound.playing() === 'm_brackwater', null, { timeout: 20000 });
     await f.evaluate(() => { const e = Scene.find(e => e.kind === 'casino' && e.r === 2); __bw.HOST.interact(e); });
     await expect(f.locator('#sheet [data-a=pkrules]')).toBeVisible();
-    const cardRoom = await f.evaluate(async () => {
-      // Give the 400 ms audio poll a chance to observe the open card room.
-      await new Promise(resolve => setTimeout(resolve, 500));
-      return Sound.status();
-    });
-    expect(cardRoom).toMatchObject({ wanted: 'm_brackwater', playing: 'm_brackwater', pending: null });
+    await f.waitForFunction(() => Sound.playing() === 'm_cards', null, { timeout: 20000 });
+    expect(await f.evaluate(() => Sound.status())).toMatchObject({ wanted: 'm_cards', playing: 'm_cards', pending: null });
+    await f.evaluate(() => __bw.ACT.closesheet());
+    await f.waitForFunction(() => Sound.playing() === 'm_brackwater', null, { timeout: 20000 });
     await f.evaluate(() => { __bw.ACT.closesheet(); const e = Scene.find(e => e.kind === 'mon' && e.r === 2); Scene.warp(e.x + 1, e.y); __bw.HOST.interact(e); });
     await f.waitForFunction(() => Sound.playing() === 'm_combat', null, { timeout: 20000 });
     await f.evaluate(() => { __bw.ACT.fdone(); const e = Scene.find(e => e.kind === 'boss' && e.r === 2); __bw.setCE(e); __bw.START.boss(); });

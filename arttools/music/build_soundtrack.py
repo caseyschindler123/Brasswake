@@ -506,6 +506,8 @@ def new_entry(ffmpeg,path,audio,period,work,origin,loop=True,midi=None,score=Non
 def build(args):
     work=ROOT/'work'/'soundtrack'; work.mkdir(parents=True,exist_ok=True)
     catalog_path=HERE/'soundtrack.json'
+    if catalog_path.exists() and json.loads(catalog_path.read_text()).get('schemaVersion',1)>=2:
+        raise ValueError('Historical renderer cannot overwrite the active Stable Audio catalog. Use --render-midi for an isolated preview.')
     catalog=json.loads(catalog_path.read_text()) if catalog_path.exists() else dict(
         schemaVersion=1,date='2026-11-22',
         description='25 new assets; existing m_tallyport, m_bilge and m_combat remain unchanged.',

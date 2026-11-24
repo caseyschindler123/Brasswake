@@ -1,0 +1,1663 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-24",
+  "provider": "Stable Audio",
+  "sampleRate": 22050,
+  "channels": 1,
+  "description": "64 prepared mono PCM16 effects, short onset/tail fades and per-role peak/energy bounds.",
+  "subjectiveListening": "Unavailable; technical inspection and browser verification only",
+  "effects": {
+    "s_door_open": {
+      "path": "game/art/fx/s_door_open.wav",
+      "hook": "door:opening",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "4ff515da98ba224501804c98e50a95006f5e5e37ab215305ca156ec97eed95f7",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One solid medieval wooden door opening: a clear iron-latch click followed by one restrained wooden hinge creak. A single opening, not a slam or repeated motion. Fit the complete event within 2 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 2,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0707936507936508,
+        "trimEndSeconds": 0.9195918367346939,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -14.182261889963462,
+        "peakCeilingDBFS": -12
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.873787,
+      "bytes": 38578,
+      "sha256": "69e4c9950be60c0d0eac6e17338cfbc6bba0576b67ae7b8a1865b8dc620d3cfc",
+      "samplePeakDBFS": -15.01,
+      "rmsDBFS": -35.584
+    },
+    "s_door_close": {
+      "path": "game/art/fx/s_door_close.wav",
+      "hook": "door:closing",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "a44e880fe4cfa8d72b5571deefa72f956cb3b391633dbde1689eab83a7693c4d",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One solid medieval wooden door closing: a warm wooden clunk and a short iron-latch catch. A single ordinary close, not an explosive slam, no opening creak. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.06213151927437642,
+        "trimEndSeconds": 0.5610430839002267,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -12.538393740060364,
+        "peakCeilingDBFS": -12
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.5239,
+      "bytes": 23148,
+      "sha256": "2a0eaeb4ed4bd01a74c333878989c5be185cb3bf262ad7c1cf9d28536435667b",
+      "samplePeakDBFS": -15.01,
+      "rmsDBFS": -33.072
+    },
+    "s_swing": {
+      "path": "game/art/fx/s_swing.wav",
+      "hook": "swing",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "30e5d96b419f9e0135acc2cd7162e481923a544583f63c3545de9cdb647ce4e0",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One quick one-handed steel sword swing through air: a focused short swish, with no impact or metal clash. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.013469387755102041,
+        "trimEndSeconds": 0.2341496598639456,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -8.42546973740981,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.245669,
+      "bytes": 10878,
+      "sha256": "315e95b525be288640baa89dcf2e24286345905ef6db9b821e0d0cceeca5f9a1",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -24.654
+    },
+    "s_thrust": {
+      "path": "game/art/fx/s_thrust.wav",
+      "hook": "thrust",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "b06e8c3f8c7d8533805cbf3c06dcc0a6b01e53cfde9d1de3c407bfc4676a001f",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One quick rapier thrust through air: a short narrow piercing swish, lighter and tighter than a broad sword swing, with no impact. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.018775510204081632,
+        "trimEndSeconds": 0.2603628117913832,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -8.9074400342329,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.266576,
+      "bytes": 11800,
+      "sha256": "7540858ace5a7b29bda7acf71b6ef4ada126b2f0b24186854f011e1450734d38",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -28.826
+    },
+    "s_hit": {
+      "path": "game/art/fx/s_hit.wav",
+      "hook": "hit",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "dad4a6493fbca11822dd4a7f1b8cf31fa88a7dfd93a394e8f1a8b604ae7d7d3e",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One solid weapon impact on leather armour and light mail: a compact body thud, a small sharp steel contact and very short ring. No gore or sustained ringing. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.05292517006802721,
+        "trimEndSeconds": 0.4326077097505669,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -8.711861097039602,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.404671,
+      "bytes": 17890,
+      "sha256": "6cba8e72141cc39ac224944bf71cc9f3f62079c4327cb60c617f9d463e3b15b1",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -28.681
+    },
+    "s_hurt": {
+      "path": "game/art/fx/s_hurt.wav",
+      "hook": "hurt",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "b5d5a2d2d8322cce67de6a0b2a090ef362227282044ad61116af6ebedd26317d",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One restrained adult nonverbal exertion grunt with a dull body impact, short and readable as a player taking a hit. No spoken words, scream or prolonged pain. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.03179138321995465,
+        "trimEndSeconds": 0.4839002267573696,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -8.080616741650218,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.477098,
+      "bytes": 21084,
+      "sha256": "1cf09f2f9303d2c26b9473e5b101d856cb8246ede740be5d20c50d3133e3d17b",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -26.311
+    },
+    "s_bow": {
+      "path": "game/art/fx/s_bow.wav",
+      "hook": "bow",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "71ccab7e56e1cb51d3c5ee3079cfc912683a1a39c3f3af8204a82c35ccafef04",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One wooden longbow release: brief wood flex and a tight taut bowstring snap, followed by a very short air flick. No arrow impact. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.05727891156462585,
+        "trimEndSeconds": 0.3087528344671202,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -10.039503491947478,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.276463,
+      "bytes": 12236,
+      "sha256": "c7778a98e50873f26a99e739d5e68c739ad1014d1967e68e26973fab3ded454b",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -31.033
+    },
+    "s_miss": {
+      "path": "game/art/fx/s_miss.wav",
+      "hook": "miss",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "c34c293881fcb9a8132462825f1d22e85c8dc3b41fe110d6deb0ae68bfa88c98",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One light passing air whoosh as an attack misses, a dry soft swish with no impact, no voice and no metal clash. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.024671201814058956,
+        "trimEndSeconds": 0.31197278911564624,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -8.037641423983446,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.31229,
+      "bytes": 13816,
+      "sha256": "da93713268025592d58d265bd3bad1f19d8624b29211d4e782a030347f9861de",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -26.526
+    },
+    "s_coins": {
+      "path": "game/art/fx/s_coins.wav",
+      "hook": "coins",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "71b3ca13c1f7d13f47f98cc977e6d99698987d802e0a0334e3ce0a95fbe48057",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. A small handful of metal coins landing once in a leather purse: a few clear delicate clinks and a soft leather catch. No long jingling sequence. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.07197278911564625,
+        "trimEndSeconds": 0.48403628117913833,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -13.552183375670293,
+        "peakCeilingDBFS": -14
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.437052,
+      "bytes": 19318,
+      "sha256": "26e785d0097843cab7101a4349a87818749169d27bc4e9e99be1e54c81f07972",
+      "samplePeakDBFS": -17.01,
+      "rmsDBFS": -40.102
+    },
+    "s_cast_spark": {
+      "path": "game/art/fx/s_cast_spark.wav",
+      "hook": "cast:spark",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "2fa0fff30d4aba81ed1489de979152aaaad5078c07199a4dc6296fb768cfd4fe",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One short Spark spell cast: a tight rising electrical snap and delicate crackle, immediate and nimble, no long charge-up. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.33151927437641726,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -9.264671733682874,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.356508,
+      "bytes": 15766,
+      "sha256": "21f73a208d21f8177b5bae5e742e8ba70de09b0aa7b49d11291577a1d8fef5de",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -31.0
+    },
+    "s_hit_spark": {
+      "path": "game/art/fx/s_hit_spark.wav",
+      "hook": "spellHit:spark",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "20888b97f44a29c6c31282006d4787a341a247fd0a7cc84511875a096be6850c",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One Spark spell impact: a crisp small electrical zap with a dry short crackling tail, no thunder or explosion. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.29750566893424035,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -8.228252160149548,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.322494,
+      "bytes": 14266,
+      "sha256": "2daa582687d89b42fd624b0d86bc677b1a3e540a95ad393147af23e529849960",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -29.581
+    },
+    "s_cast_frost": {
+      "path": "game/art/fx/s_cast_frost.wav",
+      "hook": "cast:frost",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "78fe6913f33514aeefd0f2f7ccda8aa8ae1d3b4bcb63bc351f4edc4d61ae25b4",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One Frost Dart spell cast: a focused icy air flick and tiny clear ice-grain tinkle, a quick launch with no wind bed. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.5387301587301587,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -9.952592525092424,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.563719,
+      "bytes": 24904,
+      "sha256": "727d377d5ec384d43668646359369a65af07d6d8ff61771bc319542c662f7432",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -33.494
+    },
+    "s_hit_frost": {
+      "path": "game/art/fx/s_hit_frost.wav",
+      "hook": "spellHit:frost",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "c2011b2f3ce49813fc64e05f995ca2214238af1f55305b3a4af7afbe250482c6",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One Frost Dart impact: a sharp brittle small ice crack and a short scattering of fine frost crystals, compact and dry. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.01056689342403628,
+        "trimEndSeconds": 0.5427210884353741,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -9.562718778906627,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.557143,
+      "bytes": 24614,
+      "sha256": "c50fa44b9027712e82b9e5e6f4f5c0eb317605b158cc745ae026894de6367ef4",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -32.39
+    },
+    "s_cast_sun": {
+      "path": "game/art/fx/s_cast_sun.wav",
+      "hook": "cast:sun",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "0b4e847b7340f24309be4d2b0f319c729aee2814e663abb2c35803f4456aef0c",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One Sunlance spell cast: a warm focused luminous ping that rises quickly into a light airy flick, restrained and clean, no choir or melody. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.029433106575963718,
+        "trimEndSeconds": 0.34249433106575966,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -8.136236535688363,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.33805,
+      "bytes": 14952,
+      "sha256": "b07d23a090923e4bbf0dfe14601491a537d567ffc3e5b4b0e13ee1555abbfe60",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -33.265
+    },
+    "s_hit_sun": {
+      "path": "game/art/fx/s_hit_sun.wav",
+      "hook": "spellHit:sun",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "f84c2c85c6463332ee2a0588a0bbb60b45b75b01dc3f1331e8804663d3e93d53",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One Sunlance impact: a concentrated bright clear chime-like snap and a warm short energy pulse, no melody or large cinematic boom. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.03337868480725623,
+        "trimEndSeconds": 0.5980952380952381,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -9.244478992291073,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.589705,
+      "bytes": 26050,
+      "sha256": "132fc94e12826d6e68b283c9456c57c113b7e6a7030fa3aeb4ae414346351666",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -32.913
+    },
+    "s_cast_storm": {
+      "path": "game/art/fx/s_cast_storm.wav",
+      "hook": "cast:storm",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "620babbc20381503793f03a6e8d9594938eaae1dfbc3c2bf2a6a1ea9047006d1",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One Chain Bolt spell cast: a quick concentrated electrical coil snap followed by a short branching crackle. Immediate launch, no long charging sequence. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.10575963718820862,
+        "trimEndSeconds": 0.6146938775510205,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -10.519519804574655,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.533923,
+      "bytes": 23590,
+      "sha256": "5e0f0cc1a30054b9352955ebdc88736af31ff7540994f2f8233fde02d8c81aa2",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -30.991
+    },
+    "s_hit_storm": {
+      "path": "game/art/fx/s_hit_storm.wav",
+      "hook": "spellHit:storm",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "954564abc6df3de824dbf05c715144afc5dc0399c03a5819852810cfe036c4c8",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One Chain Bolt impact event: three tightly spaced sharp electrical cracks with a brief low body, then a complete short crackling decay. No long storm ambience. Fit the complete event within 2 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 2,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.006031746031746032,
+        "trimEndSeconds": 1.4821315192743765,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -10.584836382686438,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 1.501088,
+      "bytes": 66242,
+      "sha256": "30d9d31be7014404f4d50bdcdc06ad34fbb971943cee0784b45a1b5af43eba3d",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -35.146
+    },
+    "s_cast_fire": {
+      "path": "game/art/fx/s_cast_fire.wav",
+      "hook": "cast:fire",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "a73c079d55b9d5cff26c307ed6e4ca2923a5eb7e3ad8fe0bf8e4806c6d652f36",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One Fireball spell cast: a compact ignition puff and fast outward fiery whoosh. Immediate launch, small controlled flame sound, no explosion yet. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.6297052154195011,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -6.175917201793114,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.654694,
+      "bytes": 28916,
+      "sha256": "4b5d5a0334f17b37fa14858cb7a772fb7f6ba1470d8a89d12462368a13a464d6",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -27.505
+    },
+    "s_hit_fire": {
+      "path": "game/art/fx/s_hit_fire.wav",
+      "hook": "spellHit:fire",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "2ed50b99d3f04e5c8bb306db1672d4be078361280630bfed6d7f75a42126a767",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One Fireball impact: a compact low fiery burst and brief crackling flame decay, powerful but restrained, no long rumble, debris sequence or cinematic explosion. Fit the complete event within 2 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 2,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.05786848072562358,
+        "trimEndSeconds": 0.9174149659863946,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -8.809994935226483,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.884535,
+      "bytes": 39052,
+      "sha256": "e03dee807759eb5feae3d547472af47f39d52c6408dd2684b23542c64c088773",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -27.451
+    },
+    "s_cast_crystal": {
+      "path": "game/art/fx/s_cast_crystal.wav",
+      "hook": "cast:crystal",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "12d38031a1222374438bab8c5ac1900d756c12adcc694a4cbc7b5c41395be5aa",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One Crystal Shard spell cast: a quick focused glassy shimmer and a fine sharp launch flick, bright and precise without a musical phrase. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.6999092970521542,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -5.463902535479216,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.724898,
+      "bytes": 32012,
+      "sha256": "bb19809d8eaa6e23757130e2b456e62e8015265e735dc718b2f2e4a75885e6f5",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -31.904
+    },
+    "s_hit_crystal": {
+      "path": "game/art/fx/s_hit_crystal.wav",
+      "hook": "spellHit:crystal",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "9aba0a8c76c4aec2819d3587b5b9c6d463ea4ada34e929c1d601b1573d8091ea",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One Crystal Shard impact: a focused brittle glass-like crack and a very short fine shard tinkle, no large window shatter or long debris fall. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.683265306122449,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -9.47752825079254,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.708254,
+      "bytes": 31278,
+      "sha256": "25477324491ef8730d3c51d69004d852bd61cedfb15296060a58ca601b168acf",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -30.075
+    },
+    "s_cast_blizzard": {
+      "path": "game/art/fx/s_cast_blizzard.wav",
+      "hook": "cast:blizzard",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "dd94b0c2e3153deddd140b7949906d9e8317ecb1b299e2c36dfcb981655128f0",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One Blizzard spell cast: a short gathering icy air rush with fine frost grains, immediate and concentrated, no sustained wind ambience. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.6601360544217687,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -6.269489039667269,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.685125,
+      "bytes": 30258,
+      "sha256": "c761ae7752cb296d9931800c3e203a2eb336f39f133c5c2f9b8072aa45255ba2",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -29.75
+    },
+    "s_hit_blizzard": {
+      "path": "game/art/fx/s_hit_blizzard.wav",
+      "hook": "spellHit:blizzard",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "7c594ea46f42c341dbb7b11a97587bd61b7ecc65e3bfb3489325ea0aec198839",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One Blizzard spell impact: a compact swirling cold gust with a soft granular snow-and-ice spray and complete short decay. No sustained wind bed or repeated attacks. Fit the complete event within 2 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 2,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.027755102040816326,
+        "trimEndSeconds": 1.1417233560090703,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -7.933647907675167,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 1.138957,
+      "bytes": 50272,
+      "sha256": "70a5da035b6d91f3dfb381149cf7ed65961bebee4ee6225d305d64aad6e08f65",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -33.12
+    },
+    "s_cast_rewrite": {
+      "path": "game/art/fx/s_cast_rewrite.wav",
+      "hook": "cast:rewrite",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "a1e28fdf7126a10d6b72283fd28f83a6872373bb53d9fba733625245b7da4d1d",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One Rewrite spell cast: a quick dry page rustle woven with a soft elastic arcane ripple, crisp immediate launch, no words or musical notes. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.7093877551020408,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -9.415613168347907,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.734376,
+      "bytes": 32430,
+      "sha256": "40de01f76e334a6e5b7d78ab1f11cd94ac66df3d40f4dd09ac213621ed780395",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -31.785
+    },
+    "s_hit_rewrite": {
+      "path": "game/art/fx/s_hit_rewrite.wav",
+      "hook": "spellHit:rewrite",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "a7e36283247406fbc67c07c55660e08367218a2ced1f428d1d3b822326abfad3",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One Rewrite spell impact: a precise parchment stamp and brief papery tear with a soft descending arcane pulse, then clean decay. No speech, ticking sequence or melody. Fit the complete event within 2 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 2,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.01981859410430839,
+        "trimEndSeconds": 0.8992290249433107,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -9.14302656852418,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.904399,
+      "bytes": 39928,
+      "sha256": "2c7c0c0256abac23710b1a9f7931a861bb468a564b9dd00665332c2ca64e3324",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -33.385
+    },
+    "s_smith": {
+      "path": "game/art/fx/s_smith.wav",
+      "hook": "smith",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "6ba9e0df3588d08d0a1b03926e0ae52af838767865248cd38d51569e4ee1f659",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. A brief smithing action: three light steel hammer taps on a small anvil, closely spaced, each crisp with restrained metallic ring. No workshop ambience or music. Fit the complete event within 2 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 2,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.02435374149659864,
+        "trimEndSeconds": 1.1583219954648527,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -8.911144017720519,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 1.158957,
+      "bytes": 51154,
+      "sha256": "f9678e6705ce202eadf4ead83851f532450608957664a6cf52f1b5140651195c",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -31.385
+    },
+    "s_alchemy": {
+      "path": "game/art/fx/s_alchemy.wav",
+      "hook": "alchemy",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "d7361110f3772e672db2aef10ea8fb3a9f88c492e65731312cfa9bb206586103",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One brief alchemy mixing action: a few small liquid bubbles in a glass flask and a delicate glass contact, a compact action with a clean tail. No magical melody or background room sound. Fit the complete event within 2 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 2,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.06394557823129252,
+        "trimEndSeconds": 1.317278911564626,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -9.472770904049396,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 1.278322,
+      "bytes": 56418,
+      "sha256": "fa045c152a6c42362b11cc4256a5c7f45df659a5c6e49146ae1f0601ae7aa64c",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -30.949
+    },
+    "s_craft_fail": {
+      "path": "game/art/fx/s_craft_fail.wav",
+      "hook": "craftFail",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "e33bdb31992b2899bb61c38a25dc1c3fcf28141a05ad6dcc586f65eeeac5826a",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One restrained failed crafting action: a small wooden or metal tool slip, a short dull clatter and a soft dry puff. Clear but not punishing or explosive. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.059773242630385484,
+        "trimEndSeconds": 0.5598185941043083,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -9.278162643360123,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.525034,
+      "bytes": 23198,
+      "sha256": "e64621c57b9bf9caf50a37847bab66b6be274678829d8209cd04ff2a39705c7c",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -32.209
+    },
+    "s_fish_cast": {
+      "path": "game/art/fx/s_fish_cast.wav",
+      "hook": "fishCast",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "88968d530a2615d7b6c181cd9d153716a8ee5395b28097d270ffcb24da240801",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One fishing cast: a quick rod-line swish followed shortly by one small float splash in water. A single compact action, no reeling, voices or continuous water bed. Fit the complete event within 2 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 2,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.04226757369614512,
+        "trimEndSeconds": 0.9774149659863945,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -9.953994142369092,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.960136,
+      "bytes": 42386,
+      "sha256": "d7a59d7806630056891f5b3b97142204b29a791abf05630a571880ab1d488d68",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -31.203
+    },
+    "s_fish_catch": {
+      "path": "game/art/fx/s_fish_catch.wav",
+      "hook": "fishCatch",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "73878be34938322351e1df6ec021b956cd4de209356f3034a6e4e157a5f4fbb0",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One small fish being landed: a compact water splash and two brief wet flutters close to the listener. No reward melody or large animal sound. Fit the complete event within 2 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 2,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.03850340136054422,
+        "trimEndSeconds": 0.905578231292517,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -10.058439264288133,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.892063,
+      "bytes": 39384,
+      "sha256": "33820bde77e84978f0f58f201c26019e5e649d4c927e3f55bf04fd0af25352f6",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -30.92
+    },
+    "s_fish_empty": {
+      "path": "game/art/fx/s_fish_empty.wav",
+      "hook": "fishEmpty",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "27b3c05d4d28adf64423ffd8340a43ca3056af95853da2eb899c56e56c845dee",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One empty fishing line lifting from water: a tiny soft water plip and light line flick, restrained and short, no successful-catch splash. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.03111111111111111,
+        "trimEndSeconds": 0.7608616780045352,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -10.498350968527536,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.754739,
+      "bytes": 33328,
+      "sha256": "e041509b5d5dc27f08ad450fd7b43fbdcc88a54a81518ac5297377cf035e8d7c",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -34.719
+    },
+    "s_creature_bird": {
+      "path": "game/art/fx/s_creature_bird.wav",
+      "hook": "creature:bird",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "18e915053f3ab3dbfc43b3ef0153f0f1b13b45a348f7ed5d794f9b42cdfac12e",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One short alert call from a small wild bird: a clear natural chirp pair, close and dry, no flock, music or surrounding outdoor ambience. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.3780045351473923,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -4.31110748076908,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.402993,
+      "bytes": 17816,
+      "sha256": "803bc4d75d7accd58dca9749212027ee66c16239b14f0b1a283dcaa030ce4a72",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -26.157
+    },
+    "s_creature_small": {
+      "path": "game/art/fx/s_creature_small.wav",
+      "hook": "creature:small",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "7b2066d1e506cc86621018c5369e585454b007e246d9fd411b150db7b2770d61",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One short alert squeak and tiny snuffle from a small fantasy woodland creature, restrained and natural, no human voice or prolonged chattering. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.04108843537414966,
+        "trimEndSeconds": 0.6078004535147392,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -8.075272351584193,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.591701,
+      "bytes": 26138,
+      "sha256": "ba71aab4b424d552c93a74007dfc4fbbc728724edf11e2b743f7a518472e353a",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -30.725
+    },
+    "s_creature_beast": {
+      "path": "game/art/fx/s_creature_beast.wav",
+      "hook": "creature:beast",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "0e83950828bd3e33091612dbc56259e04735685b859985ca979672b817223852",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One compact warning growl from a medium-sized fantasy beast, low textured throat sound with a short breath tail. No long roar, speech or cinematic bass. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.04122448979591837,
+        "trimEndSeconds": 0.5477097505668934,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -5.382897174483575,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.531474,
+      "bytes": 23482,
+      "sha256": "703d42c825b9e02b739711fd1aad9ab719677d995238130fdbec954297cde223",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -23.021
+    },
+    "s_creature_dragon": {
+      "path": "game/art/fx/s_creature_dragon.wav",
+      "hook": "creature:dragon",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "e0cfd7db4004260db5acbc4fe213f2b44bd69ab1473891a0769b70441b3fdf55",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One short controlled dragon warning roar: a deep rough animal throat growl with a small breath exhale, audible on small speakers, no earthquake rumble or flame explosion. Fit the complete event within 2 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 2,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.032426303854875285,
+        "trimEndSeconds": 1.429342403628118,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -5.812896907101713,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 1.421905,
+      "bytes": 62750,
+      "sha256": "041a7cb6fbd2ae5bda144fbe1cea4d0c293cb4811d654dfedd39af270c726583",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -25.366
+    },
+    "s_creature_spirit": {
+      "path": "game/art/fx/s_creature_spirit.wav",
+      "hook": "creature:spirit",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "55470100545d9e9ee85faa8dc266a0d4306220efe5e40f2ba30c93bb862aa293",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One brief ghostly creature presence: a soft hollow airy nonverbal breath-like waver and complete short decay. No words, scream, singing or choir. Fit the complete event within 2 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 2,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.032879818594104306,
+        "trimEndSeconds": 1.2158730158730158,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -6.027645517194652,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 1.207982,
+      "bytes": 53316,
+      "sha256": "b15cbc8a2c3cda6d6b8bf5c664df0b7406c69f9b33f213f4974dab3bc286b519",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -26.822
+    },
+    "s_creature_stone": {
+      "path": "game/art/fx/s_creature_stone.wav",
+      "hook": "creature:stone",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "d2ae1f1bc54c972feae9900ba22741936c3c613331fb9e6be6b88cf501bb515c",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One short stone-creature motion: a compact grinding rock scrape and heavy small stone knock with a dry settling tail. No landslide or sustained rumble. Fit the complete event within 2 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 2,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.00022675736961451248,
+        "trimEndSeconds": 1.1894784580498867,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -7.381303255111473,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 1.21424,
+      "bytes": 53592,
+      "sha256": "3ae99fd6eca589d171b31d54cefa032539651c895b917691ce17ffa18352b954",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -26.507
+    },
+    "s_creature_insect": {
+      "path": "game/art/fx/s_creature_insect.wav",
+      "hook": "creature:insect",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "c9fa3a958cdc1f8ba98e51bcb6c5425f01273196680aa2cfed5ee8c2401387f0",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One brief large-insect movement: a short chitin click and dry wing rasp, clear and compact, no continuous buzzing swarm or background ambience. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.5084807256235828,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -9.507979874929864,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.533469,
+      "bytes": 23570,
+      "sha256": "062ae51edcb0bc9dda73ac37cc50f11f9df23f0d01d5447eee0492e07deda39a",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -32.61
+    },
+    "s_creature_wet": {
+      "path": "game/art/fx/s_creature_wet.wav",
+      "hook": "creature:wet",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "cf3352f4d02881e0b54e119f6de1cb318576dfde19c6ad90809949f257ea1180",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One brief wet marsh-creature motion: a compact thick gurgle, soft suction pop and small damp squelch. No human voice or long water recording. Fit the complete event within 2 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 2,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.014285714285714285,
+        "trimEndSeconds": 1.162766439909297,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -8.195810072014437,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 1.173469,
+      "bytes": 51794,
+      "sha256": "fd76a836127668b5c1f6d46476d51ebac7a44320b933a19dcc99df6fdddb3cf6",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -29.359
+    },
+    "s_ambient_harbour": {
+      "path": "game/art/fx/s_ambient_harbour.wav",
+      "hook": "ambient:harbour",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "f47caef5560e51ee68c368ba9f129bf81e936fba76e72e899ef1ae60cdb64910",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. A short subdued harbour water cue: gentle close water lapping against a timber quay with one small rope or wood movement. Sparse natural detail, no ship horn, music, speech or waves crashing. Fit the complete event within 4 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 4,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 3.5654421768707483,
+        "fadeOutSeconds": 0.1,
+        "gainDB": -24.00289356923102,
+        "peakCeilingDBFS": -24
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 3.590431,
+      "bytes": 158382,
+      "sha256": "a6b261451a2569e13b67c482d338ed71e0b6e8b66a3e0a39ca5a058ca82d453c",
+      "samplePeakDBFS": -27.012,
+      "rmsDBFS": -44.121
+    },
+    "s_ambient_market": {
+      "path": "game/art/fx/s_ambient_market.wav",
+      "hook": "ambient:market",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "05b938d76e758bb0647ee80f325b158d016bd00f1f6ec31b990ba1f4faec8ecd",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. A short subdued medieval market activity cue: distant indistinct human bustle, a soft basket movement and small quiet foot movements. No intelligible words, calls, music or prominent repeated footsteps. Fit the complete event within 4 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 4,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 3.447845804988662,
+        "fadeOutSeconds": 0.1,
+        "gainDB": -24.027201825110424,
+        "peakCeilingDBFS": -24
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 3.472834,
+      "bytes": 153196,
+      "sha256": "a7bb9019efc918a2fd2de5ef096fd4009086206dc48b943a5ce27dbb3bd96d22",
+      "samplePeakDBFS": -27.012,
+      "rmsDBFS": -46.48
+    },
+    "s_ambient_hearth": {
+      "path": "game/art/fx/s_ambient_hearth.wav",
+      "hook": "ambient:hearth",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "11cc0f46b46bf4bd23b7c9109136dff3e0b7a4c89584ea43512033d5e6cfb99a",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. A short quiet hearth-fire cue: a few delicate dry wood crackles and one soft ember pop, intimate and restrained, no large bonfire roar, music or voices. Fit the complete event within 4 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 4,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0015873015873015873,
+        "trimEndSeconds": 3.036780045351474,
+        "fadeOutSeconds": 0.1,
+        "gainDB": -24.580261203527826,
+        "peakCeilingDBFS": -24
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 3.060181,
+      "bytes": 134998,
+      "sha256": "4b5c95c8952d29f4bd1980957ce45e75c136c08f520ba7fc0051a270d8236595",
+      "samplePeakDBFS": -27.012,
+      "rmsDBFS": -50.91
+    },
+    "s_ambient_cave": {
+      "path": "game/art/fx/s_ambient_cave.wav",
+      "hook": "ambient:cave",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "6504426d19e1053b8403957f6cb6988c864cb411c22fdbc4151c2ae1b3d8b51b",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. A short very subdued cave air cue: low gentle hollow air texture with a tiny distant stone movement. Sparse and quiet, no creature, musical drone or dramatic rumble. Fit the complete event within 4 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 4,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.027301587301587302,
+        "trimEndSeconds": 2.891201814058957,
+        "fadeOutSeconds": 0.1,
+        "gainDB": -20.732961067565224,
+        "peakCeilingDBFS": -24
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 2.888889,
+      "bytes": 127444,
+      "sha256": "1a038f3dc3d4af92536cf2df8b1b1d139aaa94d12dc544de3c7953f97e0ed861",
+      "samplePeakDBFS": -27.012,
+      "rmsDBFS": -40.789
+    },
+    "s_ambient_drip": {
+      "path": "game/art/fx/s_ambient_drip.wav",
+      "hook": "ambient:drip",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "2aaaf6beb827a4fbba4c8dee3eb8b24ea61197be9ea7ad88f0416d26e0a6c7bf",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One small cave-water drip landing in a shallow pool: a clear delicate plink and tiny short echo, one event only, no dripping sequence or continuous water ambience. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.025215419501133787,
+        "trimEndSeconds": 0.471609977324263,
+        "fadeOutSeconds": 0.1,
+        "gainDB": -24.26436194177269,
+        "peakCeilingDBFS": -24
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.471383,
+      "bytes": 20832,
+      "sha256": "bc8f646e895c46c8b0b73244808661bdb07a522f7f9c903058f6ce8976c78408",
+      "samplePeakDBFS": -27.012,
+      "rmsDBFS": -44.382
+    },
+    "s_ambient_draft": {
+      "path": "game/art/fx/s_ambient_draft.wav",
+      "hook": "ambient:draft",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "5963d1cd899a3f1e9856e8423ea2bc0829c992e3d030a234a7fbc8302cc7a8c2",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. A short subdued breeze passing through a stone passage: soft airy moving texture with restrained room resonance, no howl, whistle melody, voices or musical drone. Fit the complete event within 4 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 4,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.22390022675736962,
+        "trimEndSeconds": 3.0364172335600905,
+        "fadeOutSeconds": 0.1,
+        "gainDB": -19.317707197350614,
+        "peakCeilingDBFS": -24
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 2.837506,
+      "bytes": 125178,
+      "sha256": "d7027c73f69776f4dd23dcaac15ea4f73f186c748db0ce23d93c4b43adaf4ec1",
+      "samplePeakDBFS": -27.012,
+      "rmsDBFS": -42.541
+    },
+    "s_heal": {
+      "path": "game/art/fx/s_heal.wav",
+      "hook": "heal",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "c6173c00db47d6457eb4ec8317d8df3727ed131f6047d2db9ace4c09f6645abc",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One brief gentle magical healing feedback cue: a soft warm clear rising shimmer with a complete short decay, reassuring and restrained. A sound effect rather than a melody, no voice or choir. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.7666666666666667,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -0.2671571564422043,
+        "peakCeilingDBFS": -8
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.791655,
+      "bytes": 34956,
+      "sha256": "bd0bb1240d099993648bc52362a16c50c9e6378ffe52da32a0b7bb2391d9badf",
+      "samplePeakDBFS": -11.01,
+      "rmsDBFS": -25.29
+    },
+    "s_grade_correct": {
+      "path": "game/art/fx/s_grade_correct.wav",
+      "hook": "correct",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "98586c48fd88371272b162b4a813cc5aa247548954a52a397d98b9b557ffc499",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One very brief positive game-interface answer cue: two soft clear ascending taps, pleasant and understated, with a clean short decay. No fanfare, music or voice. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.04149659863945578,
+        "trimEndSeconds": 0.4453061224489796,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -14.083302061839717,
+        "peakCeilingDBFS": -14
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.428798,
+      "bytes": 18954,
+      "sha256": "23656074a3b607c4975694753596fe69c2fb3bdb4161a0c02ca265639ccc544f",
+      "samplePeakDBFS": -17.01,
+      "rmsDBFS": -34.124
+    },
+    "s_grade_close": {
+      "path": "game/art/fx/s_grade_close.wav",
+      "hook": "close",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "e56589b7e6f5480413739c4f25357148f1e1eefc9a2f0ab155e1239ee48cfb78",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One very brief encouraging game-interface near-correct cue: two gentle closely spaced bright taps with a slight upward feel, subtler than a success cue. No fanfare, music or voice. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.6602267573696146,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.855784040007107,
+        "peakCeilingDBFS": -14
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.685215,
+      "bytes": 30262,
+      "sha256": "2fc97351edb75750f5cac8636f39fb641da96b0fd75b60476929f4cd13516150",
+      "samplePeakDBFS": -17.01,
+      "rmsDBFS": -35.09
+    },
+    "s_grade_partial": {
+      "path": "game/art/fx/s_grade_partial.wav",
+      "hook": "partial",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "3dbda409258368d0e09b3b2dbaf18644539484da6c1c5b4c273b57460a8ba0dc",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One very brief neutral game-interface partial-answer cue: two soft rounded taps at nearly the same pitch with a tiny downward inflection. Calm and informative, no error alarm, music or voice. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.15024943310657596,
+        "trimEndSeconds": 0.2494784580498866,
+        "fadeOutSeconds": 0.024807256235827663,
+        "gainDB": -14.113556535391194,
+        "peakCeilingDBFS": -14
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.124218,
+      "bytes": 5522,
+      "sha256": "57c1375e7a4d09429eed3505d0c2f1422cfb242bdd3b3bb61155c31cc3c99909",
+      "samplePeakDBFS": -17.01,
+      "rmsDBFS": -30.862
+    },
+    "s_grade_wrong": {
+      "path": "game/art/fx/s_grade_wrong.wav",
+      "hook": "wrong",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "4d97898d7e989e7f4740ebe5ec3ed5a4ebdd8f550857dbf51d8563c55fe82b4a",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One very brief gentle game-interface try-again cue: a low soft rounded wooden-synth knock with a slight downward bend, unobtrusive and non-punishing. No buzzer, alarm, music or voice. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.6398639455782313,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -14.005928969050798,
+        "peakCeilingDBFS": -14
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.664853,
+      "bytes": 29364,
+      "sha256": "5aff6bc7b3c2d1e30256e4d6cd6c761c29b795ae62623eae7d7f420bae19adfb",
+      "samplePeakDBFS": -17.01,
+      "rmsDBFS": -30.552
+    },
+    "s_click": {
+      "path": "game/art/fx/s_click.wav",
+      "hook": "click",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "ad9f95247b64b36ce783de90aff85d02fecd72ec1007a9396845d99e72593536",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One tiny clean tactile game-interface button click: a soft dry fingertip-like tick, immediate attack and extremely short decay, quiet and precise. No mechanical clatter, music or voice. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.1907482993197279,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -29.572332402991897,
+        "peakCeilingDBFS": -26
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.215737,
+      "bytes": 9558,
+      "sha256": "9d7ace8d715f573b1739c273aa1611957e873ce7a10e7677dfb8a7417058adde",
+      "samplePeakDBFS": -29.012,
+      "rmsDBFS": -50.356
+    },
+    "s_reward": {
+      "path": "game/art/fx/s_reward.wav",
+      "hook": "reward",
+      "origin": {
+        "kind": "stable-audio",
+        "model": "Stable Audio 3 (UI default)",
+        "sourceSHA256": "6994fc3ae070ae33a1a0055c60fbeb2fa2819279b0d319722d676ef7acf5a96b",
+        "prompt": "TrackType: SFX. Isolated sound effect for Brasswake, a fantasy role-playing video game. One brief small game reward feedback cue: a delicate bright coin-like sparkle and soft rounded upward ping, modest and satisfying with a short clean tail. No victory fanfare, music or voice. Fit the complete event within 1 second(s). Immediate clear onset, complete short natural decay, close clean recording, restrained room reflection, audible on small speakers without excessive bass. One action per file. No lead-in silence, music, speech or unrelated background noise.",
+        "requestedSeconds": 1,
+        "take": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.04199546485260771,
+        "trimEndSeconds": 0.6103854875283447,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.2572115742928,
+        "peakCeilingDBFS": -14
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.593379,
+      "bytes": 26212,
+      "sha256": "7a74210ccce95149a8afee0fb0ee294da1588fb9b95338959de94774d6a613ea",
+      "samplePeakDBFS": -17.01,
+      "rmsDBFS": -33.4
+    },
+    "s_step_stone_1": {
+      "path": "game/art/fx/s_step_stone_1.wav",
+      "hook": "step:stone",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "sourceSHA256": "80d2080eeb32041f2a59a41dd692e373f7492c6c4c3373ce92ed214f8c86fd14",
+        "packArchiveSHA256": "46ce68c22d4cfe5136545b3019447ca193caa5531e532cc191b5ec036b88b8f8",
+        "variation": 1,
+        "promptRetention": "Exact pack prompt not retained; isolated fantasy-game footfall on stone"
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.3768707482993197,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.902867353545183,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.401859,
+      "bytes": 17766,
+      "sha256": "6306d5c2a09c6aab508ee9135a4b0a55219d103eee91b6dad9de08cb009f273b",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -32.07
+    },
+    "s_step_stone_2": {
+      "path": "game/art/fx/s_step_stone_2.wav",
+      "hook": "step:stone",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "sourceSHA256": "f61fab844a821e123b234ad65b449465c0af47d2422cee15dd5d7499d0d1d689",
+        "packArchiveSHA256": "46ce68c22d4cfe5136545b3019447ca193caa5531e532cc191b5ec036b88b8f8",
+        "variation": 2,
+        "promptRetention": "Exact pack prompt not retained; isolated fantasy-game footfall on stone"
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.4169160997732426,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.771078528669932,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.441905,
+      "bytes": 19532,
+      "sha256": "52daa91ca5f796ba929bb7818ad03bc73b1546029220e89d91d9bc1f44a1495d",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -36.039
+    },
+    "s_step_stone_3": {
+      "path": "game/art/fx/s_step_stone_3.wav",
+      "hook": "step:stone",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "sourceSHA256": "54cd3910dd4aa3ca55250db9df05323a2427acb43d96f72d468b74ccc6be3957",
+        "packArchiveSHA256": "46ce68c22d4cfe5136545b3019447ca193caa5531e532cc191b5ec036b88b8f8",
+        "variation": 3,
+        "promptRetention": "Exact pack prompt not retained; isolated fantasy-game footfall on stone"
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.5486621315192743,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.477824056933306,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.573651,
+      "bytes": 25342,
+      "sha256": "3ad0a17b6a63f8d8198d6f80490b3b0c09d3852685caf3bb99ce3c9c459bdf15",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -34.814
+    },
+    "s_step_stone_4": {
+      "path": "game/art/fx/s_step_stone_4.wav",
+      "hook": "step:stone",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "sourceSHA256": "80940704e13faafde92843923a09d513ef9308da671b094ac2b423caea9000a6",
+        "packArchiveSHA256": "46ce68c22d4cfe5136545b3019447ca193caa5531e532cc191b5ec036b88b8f8",
+        "variation": 4,
+        "promptRetention": "Exact pack prompt not retained; isolated fantasy-game footfall on stone"
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.40793650793650793,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.542753140032044,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.432925,
+      "bytes": 19136,
+      "sha256": "2ffc6eca8330ea86573cb82a247bd5120d6a6fd34a58bb74ec731bd466a5e67a",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -35.368
+    },
+    "s_step_wood_1": {
+      "path": "game/art/fx/s_step_wood_1.wav",
+      "hook": "step:wood",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "sourceSHA256": "5b859a614b05d25e477c5306faa5e4e910cc05bc0fb324d926b3e7f33a9d67bb",
+        "packArchiveSHA256": "ddedc57ccaa82a22f1a06e860be8e51cd3a7bfdb737f73039e3a4f8cac6e09ff",
+        "variation": 1,
+        "promptRetention": "Exact pack prompt not retained; isolated fantasy-game footfall on wood"
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.27215419501133786,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.486388952025274,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.297143,
+      "bytes": 13148,
+      "sha256": "6c3efd2d13c02b8d0c9c0f2fce09adf782d3860e38d7d1ff6bc7faed4a8a9b1f",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -32.325
+    },
+    "s_step_wood_2": {
+      "path": "game/art/fx/s_step_wood_2.wav",
+      "hook": "step:wood",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "sourceSHA256": "fba9d33b1a6ecd88971c06d05572c64aea57a11cdbc57bd2f29ecf9e0004de8e",
+        "packArchiveSHA256": "ddedc57ccaa82a22f1a06e860be8e51cd3a7bfdb737f73039e3a4f8cac6e09ff",
+        "variation": 2,
+        "promptRetention": "Exact pack prompt not retained; isolated fantasy-game footfall on wood"
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.7822222222222223,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.512999973481225,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.807211,
+      "bytes": 35642,
+      "sha256": "5fe1577fdb9f3e6fa0e6ab0c8b81d41d447006a9c0f0eda331a05d7807d7fa21",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -38.638
+    },
+    "s_step_wood_3": {
+      "path": "game/art/fx/s_step_wood_3.wav",
+      "hook": "step:wood",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "sourceSHA256": "2940159b3f2238644cacfe013abba9cdaf75b105f302a796488ba404d8aff383",
+        "packArchiveSHA256": "ddedc57ccaa82a22f1a06e860be8e51cd3a7bfdb737f73039e3a4f8cac6e09ff",
+        "variation": 3,
+        "promptRetention": "Exact pack prompt not retained; isolated fantasy-game footfall on wood"
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.8045804988662132,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.73529101748863,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.829569,
+      "bytes": 36628,
+      "sha256": "844843f4676b847eb7995a5089223efe81592161673aad9050babe3ba7a8f2fd",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -35.415
+    },
+    "s_step_wood_4": {
+      "path": "game/art/fx/s_step_wood_4.wav",
+      "hook": "step:wood",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "sourceSHA256": "bf5013423893da36a3fa6c1c189d0ba3be9d675f378b4fe0043693147e0daceb",
+        "packArchiveSHA256": "ddedc57ccaa82a22f1a06e860be8e51cd3a7bfdb737f73039e3a4f8cac6e09ff",
+        "variation": 4,
+        "promptRetention": "Exact pack prompt not retained; isolated fantasy-game footfall on wood"
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.7616326530612245,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -12.235053885464804,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.786621,
+      "bytes": 34734,
+      "sha256": "1b085d6419ae2d8e68c30f936600a7a63da2a3f03b376f6ee52ad83a644a2b48",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -37.622
+    },
+    "s_step_soil_1": {
+      "path": "game/art/fx/s_step_soil_1.wav",
+      "hook": "step:soil",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "sourceSHA256": "ed4ad1c7834b7c75e1be974a4bdbbcc0a35684e28182a15f4c7372761d097b97",
+        "packArchiveSHA256": "a9d2b5df9e30252d16e514018e2bc09f53d833eb307e829a81f4b3f6a02aa378",
+        "variation": 1,
+        "promptRetention": "Exact pack prompt not retained; isolated fantasy-game footfall on soil"
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.5145578231292517,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -12.088976555479666,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.539546,
+      "bytes": 23838,
+      "sha256": "e32b0f693ae3c5ec457cfe2cea462c03ad372aea3804c6653955030569587ad2",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -36.039
+    },
+    "s_step_soil_2": {
+      "path": "game/art/fx/s_step_soil_2.wav",
+      "hook": "step:soil",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "sourceSHA256": "b246e1f38dac5850274a715cf9b2280681ece401e689fc25ecb66f57c26ce987",
+        "packArchiveSHA256": "a9d2b5df9e30252d16e514018e2bc09f53d833eb307e829a81f4b3f6a02aa378",
+        "variation": 2,
+        "promptRetention": "Exact pack prompt not retained; isolated fantasy-game footfall on soil"
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.39510204081632655,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -12.124949442478577,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.420091,
+      "bytes": 18570,
+      "sha256": "2d78e68894726609d2de480c17a3c4028fc62fdf4d6344d15e7c148d3378c8ff",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -36.067
+    },
+    "s_step_soil_3": {
+      "path": "game/art/fx/s_step_soil_3.wav",
+      "hook": "step:soil",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "sourceSHA256": "3b1a9b599876f889b1ed345638ff47ddf67878157ddcddb0febbcddd3c39b549",
+        "packArchiveSHA256": "a9d2b5df9e30252d16e514018e2bc09f53d833eb307e829a81f4b3f6a02aa378",
+        "variation": 3,
+        "promptRetention": "Exact pack prompt not retained; isolated fantasy-game footfall on soil"
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.48018140589569164,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.536204811840145,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.50517,
+      "bytes": 22322,
+      "sha256": "61334d6e575dd4156bf2ccd32594e82fbc9ef75d80ef4d414ddbb70b402e23f5",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -37.897
+    },
+    "s_step_soil_4": {
+      "path": "game/art/fx/s_step_soil_4.wav",
+      "hook": "step:soil",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "sourceSHA256": "a5b8a516ca042ee84f89d45cac92776ee8eadc71739bc15472a1225ed1582864",
+        "packArchiveSHA256": "a9d2b5df9e30252d16e514018e2bc09f53d833eb307e829a81f4b3f6a02aa378",
+        "variation": 4,
+        "promptRetention": "Exact pack prompt not retained; isolated fantasy-game footfall on soil"
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.439546485260771,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.817272554435636,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.464535,
+      "bytes": 20530,
+      "sha256": "2d7337ce23dc4217a10559f38bbcca7c6256318942685f410c71c71f0a66c4da",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -34.67
+    }
+  }
+}

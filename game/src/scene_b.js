@@ -379,7 +379,7 @@
     const fh = 6 * K, fr = mk(W, fh); fillTex(fr, kitPiece('t_stone'), 0, 0, W, fh); fr.getContext('2d').clearRect(R.door * T * K, 0, T * K, fh); fr.hr = 1;
     return o.ra = { v: artVer, fl, wl, sd, fr }; }
   // Fade the building in or out as the hero crosses its footprint.
-  function roomFade(o, dt) { if(o.indoor){o.inside=true;o.fa=0;return 0;} const inside = !!(P && (map === world || o.indoor) && buildingContains(o, P.x, P.y)); if (!o.modular && o.inside != null && inside !== o.inside) emit('door'); o.inside = inside; o.fa += ((inside ? 0 : 1) - o.fa) * Math.min(1, dt * 7); if (Math.abs(o.fa - (inside ? 0 : 1)) < .01) o.fa = inside ? 0 : 1; return o.fa; }
+  function roomFade(o, dt) { if(o.indoor){o.inside=true;o.fa=0;return 0;} const inside = !!(P && (map === world || o.indoor) && buildingContains(o, P.x, P.y)); if (!o.modular && o.inside != null && inside !== o.inside) emit('door', inside ? 'opening' : 'closing'); o.inside = inside; o.fa += ((inside ? 0 : 1) - o.fa) * Math.min(1, dt * 7); if (Math.abs(o.fa - (inside ? 0 : 1)) < .01) o.fa = inside ? 0 : 1; return o.fa; }
   function dress(e) { e.sv = artVer; if (e.wk || e.ak) { e.spr = (e.wk && artWalk(e.wk)) || (e.ak && artFolk(e.ak)) || e.spr; if (e.hop && e.spr && !e.spr.l) e.spr.one = 1; } else if (e.kind === 'mon' || e.kind === 'guard' && e.inst && e.inst.dungeon || e.kind === 'keeper') e.spr = monSprite(e.inst && (e.inst.art || e.inst.lk || e.inst.tpl) || 'k' + e.r); else if (e.kind === 'stock') e.spr = monSprite(e.tpl); else if (e.kind === 'guard') e.spr = monSprite(e.tpl); else if (e.kind === 'boss') e.spr = bossSprite(e.r); if (e.ok) e.obj = spr(e.ok, e.r); else if (e.kind === 'dlever') e.obj = dungeonArt('control',e.r); else if(e.kind==='dgate')e.obj=dungeonGate(e,e.r); else if(e.kind==='dsecret')e.obj=dungeonArt('landmark',e.r); else if(e.kind==='dlore')e.obj=dungeonArt('lore',e.r); }
   // rings spreading on the water where the fish are
   const RIP = []; function ripple(t) { if (!RIP.length) for (let f = 0; f < 6; f++) { const c = mk(22, 12), g = c.getContext('2d'); g.strokeStyle = `rgba(255,255,255,${.75 - f * .11})`; g.lineWidth = 1; g.beginPath(); g.ellipse(11, 6, 2 + f * 1.7, 1 + f * .9, 0, 0, 6.283); g.stroke(); if (f < 3) { g.fillStyle = 'rgba(255,255,255,.8)'; g.fillRect(10, 5, 2, 1); } RIP.push(c); } return RIP[Math.floor(t / 170) % 6]; }
@@ -628,8 +628,19 @@
   }
   function reach(m, sx, sy) { const seen = new Uint8Array(m.w * m.h), qu = new Int32Array(m.w * m.h); let h = 0, tl = 0; qu[tl++] = sy * m.w + sx; seen[qu[0]] = 1; while (h < tl) { const k = qu[h++], x = k % m.w, y = k / m.w | 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= m.w || ny >= m.h) continue; const nk = ny * m.w + nx; if (seen[nk] || m.solid[nk]) continue; seen[nk] = 1; qu[tl++] = nk; } } return seen; }
   function freeNear(m, t, rad) { for (let i = 0; i < 60; i++) { const x = t.x + Math.round((Math.random() * 2 - 1) * rad), y = t.y + Math.round((Math.random() * 2 - 1) * rad), k = y * m.w + x; if (x < 2 || y < 2 || x >= m.w - 2 || y >= m.h - 2 || !m.seen[k] || m.solid[k] || m.keep[k] || m.t[k] > 1 || m.occ.has(k)) continue; if (P && Math.hypot(x - P.x, y - P.y) < 5) continue; return [x, y]; } return null; }
-  function spawnMon(m, t) { const p = freeNear(m, t, t.rad || 7); if (!p) return; const inst = host.spawn(t.tpl); if (t.lair) { inst.lk = t.lk; inst.nm = host.lairName(t.lk); inst.c = t.c; inst.lair = t.lair; inst.lead = t.lead; inst.elite = !!t.lead; } addEnt(m, { kind: 'mon', x: p[0], y: p[1], r: t.r, inst, terr: t, agg: t.agg, name: host.monName(inst), spr: monSprite(inst.lk || inst.tpl), big: t.lead && (t.lk === 'l14' || t.lk === 'l12' || t.lk === 'l11'), wander: 1, home: [t.x, t.y], range: (t.rad || 7) + 2, alert: 0, t: Math.random() * 3 }); }
-  function spawnNode(m, t) { const p = freeNear(m, t, (t.rad || 7) + 4); if (!p) return; addEnt(m, { kind: 'node', x: p[0], y: p[1], r: t.r, terr: t, name: host.matName(t.r), sub: 'Gather', ok: 'node' }); }
+  function spawnMon(m, t) { const p = freeNear(m, t, t.rad || 7); if (!p) return false; const inst = host.spawn(t.tpl); if (t.lair) { inst.lk = t.lk; inst.nm = host.lairName(t.lk); inst.c = t.c; inst.lair = t.lair; inst.lead = t.lead; inst.elite = !!t.lead; } addEnt(m, { kind: 'mon', x: p[0], y: p[1], r: t.r, inst, terr: t, agg: t.agg, name: host.monName(inst), spr: monSprite(inst.lk || inst.tpl), big: t.lead && (t.lk === 'l14' || t.lk === 'l12' || t.lk === 'l11'), wander: 1, home: [t.x, t.y], range: (t.rad || 7) + 2, alert: 0, t: Math.random() * 3 }); return true; }
+  function spawnNode(m, t) { const p = freeNear(m, t, (t.rad || 7) + 4); if (!p) return false; addEnt(m, { kind: 'node', x: p[0], y: p[1], r: t.r, terr: t, name: host.matName(t.r), sub: 'Gather', ok: 'node' }); return true; }
+  function advanceRespawns(dt) {
+    if (!map.respawn) return;
+    map.respawn = map.respawn.filter(o => {
+      o.t -= dt;
+      if (o.t > 0) return true;
+      if (o.node ? spawnNode(map, o.terr) : spawnMon(map, o.terr)) return false;
+      // A crowded area or an unlucky bounded search must not lose its slot.
+      o.t = 1;
+      return true;
+    });
+  }
 
   /* ---------- a dojo hall: one painted room, 14 x 21 tiles. The back wall takes the top four rows, the door is in the middle of the bottom. ---------- */
   function genHall(r, fill) {
@@ -861,7 +872,7 @@
         else { e.t = 1.2 + Math.random() * 3.5; const choices=e.npcLook?HUMAN_STEPS:D4, [dx, dy] = choices[Math.random() * choices.length | 0], nx = e.x + dx, ny = e.y + dy; e.dir = dirOf(dx, dy); if (npcStepClear(e,dx,dy) && !heroOverlaps(nx,ny) && Math.hypot(nx - e.home[0], ny - e.home[1]) <= e.range && (e.kind === 'rival' || !map.keep[ny * map.w + nx])) { sit(map, e, nx, ny); e.tx = nx; e.ty = ny; } } } }
     if (map.ents.some(e => e.dying != null && e.dying <= 0)) map.ents = map.ents.filter(e => !(e.dying != null && e.dying <= 0));
     if(map.dungeonFloor && (map.respawnCheck=(map.respawnCheck||0)-dt)<=0){map.respawnCheck=1;dungeonRespawn(map);}
-    if (map.respawn) { map.respawn = map.respawn.filter(o => { o.t -= dt; if (o.t > 0) return true; o.node ? spawnNode(map, o.terr) : spawnMon(map, o.terr); return false; }); }
+    advanceRespawns(dt);
     const pi = P.y * map.w + P.x, r = map.dungeon ? map.r : (map.reg[pi] || curReg), nb = map.dungeon ? map.r : (map.b[pi] || curB); if (nb !== curB) { if (map.pal[nb].fx !== map.pal[curB].fx) parts = []; curB = nb; need(map.pal[nb].ar || r); }
     if (r !== curReg) { curReg=r;need(r);const place=locationFacts();banner={a:place?place.name:host.regionName(r),b:place&&place.town?host.regionSub(r):'Countryside near '+host.regionName(r),t:3.2};host.entered(r); }
     if (!map.dungeon && (tcheck -= dt) <= 0) { tcheck = .5; let in_ = null; for (const t of map.terr) if (Math.abs(t.x - P.x) < 14 && Math.hypot(t.x - P.x, t.y - P.y) < (t.rad || 7) + 2) { in_ = t; break; } if (in_ !== curT) { curT = in_; if (in_ && in_.name && !banner) banner = { a: in_.name, b: host.monName({ tpl: in_.tpl }) + ' ground', t: 3.2 }; } }
