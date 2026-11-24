@@ -99,6 +99,14 @@ async function beginnerFight(f,stats){
   await expect(f.locator('[data-a=floot]')).toBeVisible();await f.locator('[data-a=floot]').click();
   await expect(f.locator('[data-a=lootall]')).toBeVisible();await f.locator('[data-a=lootall]').click();await f.waitForTimeout(300);await speech(f);
 }
+async function roadFarewell(f,stats){
+  const ring=await f.evaluate(()=>Scene.spots().boss1);
+  // Progress is checked on actual-distance ticks. Continue far enough inside
+  // the six-cell radius for a tick after rounded ownership enters that radius.
+  stats.stopWhenGuideEnds=true;
+  try{await walk(f,[ring[0],ring[1]+4],stats,false);}
+  finally{delete stats.stopWhenGuideEnds;}
+}
 async function finishGuidedDay(f,info,stats,fish=false){
   await f.locator('[data-a=qleave]').last().click();await speech(f);await visit(f,'hallexit',stats);await speech(f);
   await visit(f,'mon',stats,{r:1});await beginnerFight(f,stats);await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(6);
@@ -126,7 +134,7 @@ async function finishGuidedDay(f,info,stats,fish=false){
   await visit(f,'guard',stats,{tutorial:true});await beginnerFight(f,stats);
   await visit(f,'chest',stats,{tutorial:true});await expect(f.locator('#sheet')).toContainText('vault chest');await screenshot(f,info,'first-cellar-chest');await f.locator('#sheet button[data-a=closesheet]').last().click();await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(14);
   await visit(f,'dtravel',stats,{to:-1});await speech(f,'[data-a=dtravel]');await speech(f);
-  const ring=await f.evaluate(()=>Scene.spots().boss1);stats.stopWhenGuideEnds=true;await walk(f,[ring[0],ring[1]+5],stats,false);delete stats.stopWhenGuideEnds;await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(15);
+  await roadFarewell(f,stats);await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(15);
   await expect(f.locator('#say')).toBeVisible();await expect(f.locator('#say-text')).toContainText('New Reader.');await expect(f.locator('#say-text')).toContainText('Marigold');await screenshot(f,info,'tamsin-farewell-at-the-road');await speech(f);
   expect(await f.evaluate(()=>({tut:__bw.S.tut,practice:!!__bw.S.seen['intro.practice'],bank:__bw.S.bank.gold>0}))).toEqual({tut:3,practice:true,bank:true});
 }
@@ -156,6 +164,44 @@ for (const [path,look] of [['warrior',0],['thief',2],['mage',4],['crafter',6]]) 
   await expect(page.locator('#enc')).toContainText('Your first ability');expect(await page.evaluate(()=>!!__bw.S.seen['intro.practice'])).toBe(true);await screenshot(page,info,'safe-first-ability');
   await finishGuidedDay(page,info,stats,path==='mage');
   expect(stats.steps).toBeGreaterThan(10);expect(errors).toEqual([]);
+});
+
+test('first-day · road farewell completes across actual-distance phases before its inner waypoint',async({page},info)=>{
+  const errors=observeErrors(page),evidence=[];
+  await page.goto('/__visual?scene=tallyport');await expect(page.locator('body')).toHaveAttribute('data-ready','tallyport',{timeout:45000});
+  const f=page.frames().find(f=>f.url().includes('visual_test=1'));
+  const ring=await f.evaluate(()=>{
+    for(const e of Scene.ents())if(e.wander){e.wander=0;e.tx=null;e.fx=e.x;e.fy=e.y;}
+    __bw.S.name='New Reader';
+    return Scene.spots().boss1;
+  });
+  await f.locator('.movement-joystick').evaluate(node=>{
+    node.__roadPointers=0;node.addEventListener('pointerdown',e=>{if(e.isTrusted)node.__roadPointers++;});
+  });
+  for(const phase of [0,.25,.6,.8,.99]){
+    const hints=await f.evaluate(({ring,phase})=>{
+      __bw.ACT.closesheet();__bw.S.gd=14;__bw.S.tut=2;__bw.S.region=1;
+      Scene.hop(ring[0],ring[1]+7);Scene.debug().P.footDistance=phase;
+      return __bw.S.hints;
+    },{ring,phase});
+    await roadFarewell(f,{fixture:false,steps:0,queries:0});
+    await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(15);
+    await expect(f.locator('#say')).toBeVisible();
+    await expect(f.locator('#say-text')).toContainText('New Reader.');
+    await expect(f.locator('#say-text')).toContainText('Marigold');
+    const state=await f.evaluate(()=>{
+      const p=Scene.debug().P;return{gd:__bw.S.gd,tut:__bw.S.tut,hints:__bw.S.hints,at:Scene.pos(),distance:p.wd,phase:p.footDistance};
+    });
+    expect(state.tut).toBe(3);expect(state.hints).toBe(hints+1);
+    expect(Math.hypot(state.at[0]-ring[0],state.at[1]-ring[1])).toBeLessThan(6);
+    expect(state.distance).toBeGreaterThan(1);
+    evidence.push({initialPhase:phase,...state});
+    if(phase===.8)await screenshot(page,info,'farewell-after-fractional-distance-tick');
+    await speech(f);
+  }
+  expect(await f.locator('.movement-joystick').evaluate(node=>node.__roadPointers)).toBeGreaterThanOrEqual(5);
+  await info.attach('road-distance-phase-evidence',{body:JSON.stringify(evidence,null,2),contentType:'application/json'});
+  expect(errors).toEqual([]);
 });
 
 test('supplies explain full health, consume once, and restore the actual amount',async({page},info)=>{
