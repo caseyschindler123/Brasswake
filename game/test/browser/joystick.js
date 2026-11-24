@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { observeErrors, screenshot } = require('./flow');
+const { drivePath } = require('./movement');
 
 async function adventure(page) {
   await page.goto('/__visual?scene=tallyport');
@@ -206,5 +207,57 @@ test('joystick · cancellation, capture loss and focus loss clear a held directi
       expect(await position(frame)).toEqual(stoppedAt);
     } finally { await page.mouse.up(); }
   }
+  expect(errors).toEqual([]);
+});
+
+test('joystick · fixture routes centre stopped feet before the dojo dummy lane and retain fractional endpoints',async({page},info)=>{
+  const errors=observeErrors(page),{frame,stick}=await adventure(page);
+  await frame.evaluate(()=>{__bw.S.gd=3;__bw.S.tut=0;__bw.SH.dojo({r:1});});
+  // Keep the real first-day instructor and dummy. Let the existing welcome
+  // dialogue arrive before preparing the interrupted-movement position.
+  await frame.waitForTimeout(900);await frame.evaluate(()=>__bw.ACT.closesheet());
+  await expect(stick).toHaveAttribute('aria-disabled','false');
+  expect(await frame.evaluate(()=>{const e=Scene.find(e=>e.kind==='dummy'&&e.i===9);return[e.x,e.y];})).toEqual([5,8]);
+  await stick.evaluate(node=>{
+    node.__routePointers=[];
+    for(const type of ['pointerdown','pointercancel'])node.addEventListener(type,e=>node.__routePointers.push({type,trusted:e.isTrusted}));
+  });
+  await frame.evaluate(()=>Scene.hop(6,9));
+  // Stop through the real control in the owned cell's left edge, where an
+  // uncentred northward route collides with the dummy's radius clearance.
+  await drivePath(frame,[[5.64,9]],false);
+  expect(await position(frame)).toEqual([6,9]);
+  const stopped=await frame.evaluate(()=>{const p=Scene.debug().P;return{fx:p.fx,fy:p.fy,wd:p.wd};});
+  expect(stopped.fx).toBeGreaterThan(5.5);expect(stopped.fx).toBeLessThan(5.66);
+  await drivePath(frame,[[6,8],[6,7]],false);
+  expect(await position(frame)).toEqual([6,7]);
+  const arrived=await frame.evaluate(()=>{const p=Scene.debug().P;return{fx:p.fx,fy:p.fy,wd:p.wd};});
+  expect(Math.abs(arrived.fx-6)).toBeLessThanOrEqual(.12);
+  expect(Math.abs(arrived.fy-7)).toBeLessThanOrEqual(.12);
+  // Recentring adds real distance; the driver must not assign coordinates or wd.
+  expect(arrived.wd-stopped.wd).toBeGreaterThan(2.25);
+  expect(arrived.wd-stopped.wd).toBeLessThan(2.9);
+  await screenshot(page,info,'dojo-fractional-lane');
+
+  await frame.evaluate(()=>Scene.hop(6,9));
+  await drivePath(frame,[[5.64,9]],false);
+  const before=await frame.evaluate(()=>({fx:Scene.debug().P.fx,wd:Scene.debug().P.wd}));
+  await drivePath(frame,[[6,9]],false);
+  const centred=await frame.evaluate(()=>({fx:Scene.debug().P.fx,wd:Scene.debug().P.wd}));
+  expect(await position(frame)).toEqual([6,9]);
+  expect(Math.abs(centred.fx-6)).toBeLessThanOrEqual(.12);
+  expect(centred.wd-before.wd).toBeGreaterThan(.25);
+
+  await frame.evaluate(()=>Scene.hop(6,10));
+  await drivePath(frame,[[7.25,10]],false);
+  const fractional=await frame.evaluate(()=>[Scene.debug().P.fx,Scene.debug().P.fy]);
+  expect(await position(frame)).toEqual([7,10]);
+  expect(fractional[0]).toBeGreaterThanOrEqual(7.25);
+  expect(fractional[0]).toBeLessThanOrEqual(7.37);
+  expect(Math.abs(fractional[1]-10)).toBeLessThanOrEqual(.12);
+  const events=await stick.evaluate(node=>node.__routePointers);
+  expect(events.filter(e=>e.type==='pointerdown'&&e.trusted).length).toBeGreaterThanOrEqual(6);
+  expect(events.filter(e=>e.type==='pointercancel').length).toBeGreaterThanOrEqual(6);
+  await settled(frame);expect(await position(frame)).toEqual([7,10]);
   expect(errors).toEqual([]);
 });

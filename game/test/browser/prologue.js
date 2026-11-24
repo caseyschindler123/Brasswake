@@ -31,6 +31,9 @@ test('boat checkpoints resume and character switching keeps ship coordinates out
   await page.locator('[data-a=boathome][data-id=sylvanreach]').click();
   async function reopen(phase){
     await page.locator('[data-a=boatmenu]').click();await expect(page.locator('#title')).toBeVisible();
+    // Let the title's actual music fetch settle before deliberately unloading it.
+    // WebKit reports an interrupted fetch as an access-control console error.
+    await page.waitForLoadState('networkidle');
     await page.reload();await expect(page.locator('#artload')).toBeHidden({timeout:45000});await page.locator('[data-a=playslot][data-i="0"]').click();
     await expect(page.locator('#onboard')).toHaveAttribute('data-phase',phase);expect(await page.evaluate(()=>__bw.S.pos)).toBe(null);
   }
