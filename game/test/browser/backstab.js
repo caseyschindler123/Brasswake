@@ -315,6 +315,44 @@ async function disengage(frame) {
   return frame.evaluate(() => ({ hp: __bw.S.hp, chase: window.backstabFixtureTarget.chase }));
 }
 
+async function prepareEscapeRun(frame, target) {
+  // Prepare the straight fixture lane while combat still pauses pursuit.
+  // After Flee, one geometry read and a deflected native pointer-down start
+  // running immediately; cross-process path setup must not spend the chase lead.
+  const travel = await frame.evaluate(target => {
+    const node = document.querySelector('.movement-joystick'), from = Scene.pos();
+    const dx = Math.sign(target[0] - from[0]);
+    node.dataset.escapeReached = '';
+    node.addEventListener('pointerdown', event => {
+      const id = event.pointerId;
+      function stopAtTarget() {
+        if (!node.hasPointerCapture(id)) return;
+        const p = Scene.debug().P;
+        if ((p.fx - target[0]) * dx >= 0 && Math.round(p.fy) === target[1]) {
+          node.dataset.escapeReached = 'true';
+          node.dispatchEvent(new PointerEvent('pointercancel', { pointerId: id }));
+        } else requestAnimationFrame(stopAtTarget);
+      }
+      requestAnimationFrame(stopAtTarget);
+    }, { once: true });
+    return { dx, tiles: Math.abs(target[0] - from[0]) };
+  }, target);
+  return async () => {
+    await expect(frame.getByRole('group', { name: 'Movement joystick' })).toHaveAttribute('aria-disabled', 'false');
+    const at = await frame.evaluate(dx => {
+      const b = document.querySelector('.movement-joystick').getBoundingClientRect();
+      return { x: b.x + b.width * (.5 + dx * .42), y: b.y + b.height / 2 };
+    }, travel.dx);
+    const mouse = frame.page().mouse;
+    await mouse.move(at.x, at.y); await mouse.down();
+    try {
+      await frame.waitForFunction(() => document.querySelector('.movement-joystick').dataset.escapeReached === 'true' || __bw.F,
+        null, { timeout: (travel.tiles + 1) * 600 + 1200 });
+      expect(await frame.evaluate(() => document.querySelector('.movement-joystick').dataset.escapeReached)).toBe('true');
+    } finally { await mouse.up(); }
+  };
+}
+
 test('Backstab · Examiner pursuit, escape and re-entry keep wounds and the next SQL phase', async ({ page }, info) => {
   test.setTimeout(90000);
   const errors = observeErrors(page), { frame, lane } = await fixture(page, { kind: 'boss' });
@@ -330,8 +368,9 @@ test('Backstab · Examiner pursuit, escape and re-entry keep wounds and the next
   const wounded = await combatState(frame);
   expect(wounded.foe).toBeLessThan(full.foe);
   expect(wounded.foe).toBeGreaterThan(0);
+  const run = await prepareEscapeRun(frame, [x + length - 1, y]);
   await disengage(frame);
-  await move(frame, row(x + 2, y, length - 2, 1), true);
+  await run();
   expect(await position(frame)).toEqual([x + length - 1, y]);
   await expect.poll(() => frame.evaluate(() => {
     const e = window.backstabFixtureTarget;
@@ -420,9 +459,10 @@ test('Backstab · keeper pursuit stays in the dungeon and returns to its anchor'
   await action(frame, 'fbackstab').click();
   await submit(frame, 'F', action(frame, 'fchoose'));
   const wounded = await combatState(frame);
+  const run = await prepareEscapeRun(frame, [lane.x + lane.length - 1, lane.y]);
   await disengage(frame);
   await expect.poll(() => frame.evaluate(() => window.backstabFixtureTarget.chase)).toBeGreaterThan(0);
-  await move(frame, row(lane.x + 2, lane.y, lane.length - 2, 1), true);
+  await run();
   expect(await position(frame)).toEqual([lane.x + lane.length - 1, lane.y]);
   await frame.waitForFunction(() => window.backstabFixtureTarget.returning, null, { timeout: 10000 });
   expect(await frame.evaluate(() => window.backstabFixtureTarget.x - window.backstabFixtureTarget.pursuitAnchor[0])).toBeLessThanOrEqual(8);
@@ -477,8 +517,9 @@ test('Backstab · switching character clears pursuit and wounds from the previou
   await action(frame, 'fbackstab').click();
   await submit(frame, 'F', action(frame, 'fchoose'));
   expect((await combatState(frame)).foe).toBeLessThan(before.max);
+  const run = await prepareEscapeRun(frame, [lane.x + 6, lane.y]);
   await disengage(frame);
-  await move(frame, row(lane.x + 2, lane.y, 5, 1), true);
+  await run();
   expect(await frame.evaluate(() => window.backstabFixtureTarget.chase)).toBeGreaterThan(0);
   await frame.locator('#nav [data-t=hero]').click();
   await dismiss(frame);
