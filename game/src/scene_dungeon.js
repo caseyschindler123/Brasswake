@@ -106,8 +106,19 @@
   const DUNPAT={};
   const DUNFIX = new Map();
   function dungeonFixture(kind,r) {
-    const key=kind+'/'+r;if(DUNFIX.has(key))return DUNFIX.get(key);
+    const key=kind+'/'+r;
+    const preferred={wheel:'control',forge:'control',tomb:'landmark',crystal:'landmark',roots:'landmark',records:'lore',shelf:'lore',bed:'decoration',crates:'decoration'}[kind]||'decoration';
+    const painted=dungeonArt(preferred,r);
+    const source=painted&&painted.c,cached=DUNFIX.get(key);
+    // Resolve readiness before looking up the cache. Loaded atlas cuts replace
+    // the temporary procedural fallback on their first available render.
+    if(cached&&cached.source===source)return cached;
     const c=mk(48*K,40*K),g=c.getContext('2d');c.hr=1;g.scale(K,K);
+    if(source){
+      const fit=Math.min(44/source.width,34/source.height),w=source.width*fit,h=source.height*fit;
+      g.drawImage(source,(48-w)/2,37-h,w,h);
+      const art={c,ax:24,ay:38,source};DUNFIX.set(key,art);return art;
+    }
     const accent=Dungeons.themes[r].accent, wood=r===7?'#788d9b':'#79604a', dark='#352f2c', light=r===7?'#b2c9d1':'#b29a76';
     const rect=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(x,y,w,h);};
     const poly=(p,col)=>{g.fillStyle=col;g.beginPath();g.moveTo(...p[0]);for(const q of p.slice(1))g.lineTo(...q);g.closePath();g.fill();};
@@ -159,7 +170,7 @@
         g.strokeStyle=light;g.lineWidth=1;g.beginPath();g.moveTo(x+3,y+2);g.lineTo(x+s-4,y+s*.65-2);g.stroke();
       }
     }
-    const art={c,ax:24,ay:38};DUNFIX.set(key,art);return art;
+    const art={c,ax:24,ay:38,source};DUNFIX.set(key,art);return art;
   }
   function dungeonRoomUse(name,r) {
     if(/bed|bunk|berth|rest|camp|refuge|shelter/i.test(name))return 'bed';
@@ -182,6 +193,20 @@
         if(layout.tiles[y*layout.w+x]!==0||layout.tiles[(y+1)*layout.w+x]!==1)continue;
         if(layout.entities.some(e=>Math.abs(e.x-x)<2&&Math.abs(e.y-y)<3))continue;
         result.push({x,y,kind:'dn_fixture_'+kind,r,sc:.9});
+      }
+      // The north displays can be above a phone's first arrival view. Carve a
+      // second visual recess into the near wall's existing solid mass. At .75
+      // scale its complete 36×30px image fits behind a 3×2 solid-cell footprint.
+      const wallY=R.y+R.h;
+      const candidates=[R.cx-2,R.cx+2,R.cx-3,R.cx+3].sort((a,b)=>{
+        const arrival=R.id==='A'&&layout.entry?layout.entry[0]:R.cx;
+        return Math.abs(a-arrival)-Math.abs(b-arrival);
+      });
+      for(const x of candidates){
+        const clear=[0,1].every(dy=>[-1,0,1].every(dx=>layout.tiles[(wallY+dy)*layout.w+x+dx]===0));
+        const nearbyFloor=[1,2,3].some(dy=>layout.tiles[(wallY-dy)*layout.w+x]===1);
+        if(!clear||!nearbyFloor||layout.entities.some(e=>Math.abs(e.x-x)<3&&Math.abs(e.y-wallY)<3))continue;
+        result.push({x,y:wallY+1,kind:'dn_fixture_'+kind,r,sc:.75,hang:1,recess:{x,y:wallY,side:'south'}});break;
       }
     }
     return result;
@@ -286,8 +311,11 @@
       g.fillRect(x*TS,y*TS,TS,TS);
       if(t===1&&room)dungeonFloorDetail(m,g,x,y,room);
       if(t===0){
-        const floor=t=>t===1||t===4, south=y+1<m.h&&floor(m.dt[i+m.w]);
-        g.fillStyle='#0e1418b8';g.fillRect(x*TS,y*TS,TS,TS);
+        const floor=t=>t===1||t===4, south=y+1<m.h&&floor(m.dt[i+m.w]),north=y>0&&floor(m.dt[i-m.w]);
+        // The ceiling mass has no floor-like masonry courses. Texture returns
+        // on its exposed cutaway faces, with relief inside solid cells only.
+        g.fillStyle=th.wall;g.fillRect(x*TS,y*TS,TS,TS);
+        g.fillStyle='#070c1266';g.fillRect(x*TS,y*TS,TS,TS);
         if(south){
           // A bright coping, textured masonry face, and dark plinth distinguish
           // the raised wall from the floor below it in all eight palettes.
@@ -299,11 +327,53 @@
           g.fillStyle='#080d1099';g.fillRect(x*TS,(y+1)*TS-5,TS,5);
           g.fillStyle=th.accent+'24';g.fillRect(x*TS,(y+1)*TS-6,TS,1);
         }
+        if(north){
+          const X=x*TS,Y=y*TS;
+          g.fillStyle=texture('wall')||th.alternate;g.fillRect(X,Y+5,TS,25);
+          g.fillStyle=th.accent+'36';g.fillRect(X,Y+5,TS,25);
+          g.fillStyle='#0a101351';g.fillRect(X,Y+17,TS,1.5);
+          g.fillRect(X+((x+y)%2?13:33),Y+6,1.5,11);g.fillRect(X+((x+y)%2?32:12),Y+19,1.5,10);
+          g.fillStyle=th.accent+'94';g.fillRect(X,Y,TS,4);
+          g.fillStyle='#dce3c74d';g.fillRect(X,Y,TS,1);
+          g.fillStyle='#070c14bb';g.fillRect(X,Y+30,TS,5);
+          if((x+m.r)%5===0){
+            g.fillStyle='#0a0e16b3';g.fillRect(X+14,Y+3,23,34);
+            g.fillStyle=texture('wall')||th.alternate;g.fillRect(X+13,Y+4,16,29);
+            g.fillStyle=th.accent+'66';g.fillRect(X+13,Y+4,3,29);
+            g.fillStyle=th.accent+'8f';g.fillRect(X+11,Y+1,20,4);
+            g.fillStyle='#080c15aa';g.fillRect(X+12,Y+33,19,4);
+          }
+        }
         for(const [dx,dy]of [[-1,0],[1,0]]){
           if(x+dx<0||x+dx>=m.w||!floor(m.dt[i+dx]))continue;
-          const xx=x*TS+(dx>0?TS-5:0);
-          g.fillStyle=th.accent+'30';g.fillRect(xx,y*TS,5,TS);
-          g.fillStyle='#080c1077';g.fillRect(xx+(dx>0?3:0),y*TS,2,TS);
+          const xx=x*TS+(dx>0?TS-22:0),yy=y*TS;
+          g.fillStyle=texture('wall')||th.alternate;g.fillRect(xx,yy,22,TS);
+          g.fillStyle='#090f185e';g.fillRect(xx,yy,22,TS);
+          g.fillStyle=th.accent+'80';g.fillRect(xx+(dx>0?17:0),yy,5,TS);
+          g.fillStyle='#e0e2ca3b';g.fillRect(xx+(dx>0?20:0),yy,2,TS);
+          g.fillStyle='#060b159c';g.fillRect(xx+(dx>0?0:19),yy,3,TS);
+          g.fillStyle='#080d155e';g.fillRect(xx,yy+18,22,1.5);g.fillRect(xx,yy+36,22,1.5);
+          if((y+m.r)%5===0){
+            g.fillStyle=texture('wall')||th.alternate;g.fillRect(xx+(dx>0?0:5),yy+13,17,20);
+            g.fillStyle=th.accent+'68';g.fillRect(xx+(dx>0?0:5),yy+13,17,3);
+            g.fillStyle='#080c15aa';g.fillRect(xx+(dx>0?0:5),yy+30,17,3);
+          }
+        }
+        for(const prop of m.props||[]){
+          const recess=prop.recess;if(!recess||recess.side!=='south'||Math.abs(x-recess.x)>2||y<recess.y||y>recess.y+1)continue;
+          g.save();g.beginPath();g.rect(x*TS,y*TS,TS,TS);g.clip();
+          const X=prop.x*TS-33,Y=recess.y*TS+3;
+          g.fillStyle='#080c1278';g.fillRect(X,Y,114,87);
+          g.fillStyle='#080d16aa';g.fillRect(X+2,Y+3,110,7);g.fillRect(X+1,Y+6,4,76);
+          g.fillStyle=texture('wall')||th.alternate;g.fillRect(X-2,Y+82,118,5);
+          g.fillStyle='#a8ada738';g.fillRect(X-2,Y+82,118,1.2);
+          g.fillStyle='#0a111a8a';g.fillRect(X-2,Y+87,118,3);
+          // Broken masonry courses and shadow replace a picture-frame outline.
+          for(let n=0;n<6;n++){
+            g.fillStyle='#9da69e28';g.fillRect(X+n*19,Y,17,2.2);
+            g.fillStyle='#0b111a70';g.fillRect(X+n*19+17,Y,2,4);
+          }
+          g.restore();
         }
       } else {
         if(y>0&&m.dt[i-m.w]===0){g.fillStyle='#080e143f';g.fillRect(x*TS,y*TS,TS,7);}

@@ -1731,7 +1731,7 @@
   // where each of the eight old heroes lands: [hair, colour, beard, hat]
   const LOOKAPP = { warrior: [[0, 1, -1, -1], [7, 3, -1, -1]], thief: [[1, 0, 5, 3], [6, 0, -1, -1]], mage: [[2, 5, 1, 4], [8, 0, -1, -1]], crafter: [[-1, 1, 0, -1], [6, 2, -1, -1]] };
   function look0() { const lk = S.look != null ? S.look : 0, d = (LOOKAPP[S.path] || LOOKAPP.warrior)[lk % 2]; return { body: lk % 2, skin: 1, hair: d[0], hc: d[1], beard: d[2], hat: d[3], wear: S.path === 'mage' ? 1 : 0, dye: S.path === 'mage' ? (lk % 2 ? 4 : 2) : 0 }; }
-  const myLook = () => S.app || (S.app = look0());
+  const myLook = () => (S.app=ActorRig.normalizeLook(S.app,look0()));
   const WPN = { swords: [0, 1, 1, 2], fencing: [14, 15, 0, 1], archery: [25, 26, 26, 27], magery: [9, 8, 10, 12] }, SHD = [20, 22, 21, 21];
   function appNow() {
     if (!S || !S.path) return null; const L = myLook(), arm = itemById(S.eq.armor), wp = itemById(S.eq.weapon), sh = itemById(S.eq.shield), hd = itemById(S.eq.head), hn = itemById(S.eq.hands);

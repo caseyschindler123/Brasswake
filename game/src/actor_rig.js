@@ -12,6 +12,13 @@ const ActorRig = (() => {
     const stride=running?2.25:1.8;
     return Math.floor(Math.max(0,distance)/stride*count)%count;
   }
-  return {headAnchor,phase};
+  function normalizeLook(value,fallback){
+    const look=value&&typeof value==='object'&&!Array.isArray(value)?value:{...fallback};
+    const limits={body:[0,1],skin:[0,4],hair:[-1,11],hc:[0,6],beard:[-1,5],hat:[-1,5],wear:[0,1]};
+    for(const [key,[min,max]]of Object.entries(limits))if(!Number.isInteger(look[key])||look[key]<min||look[key]>max)look[key]=fallback[key];
+    if(!(typeof look.dye==='string'||Number.isInteger(look.dye)&&look.dye>=0&&look.dye<=8))look.dye=fallback.dye;
+    return look;
+  }
+  return {headAnchor,phase,normalizeLook};
 })();
 if(typeof module!=='undefined')module.exports=ActorRig;

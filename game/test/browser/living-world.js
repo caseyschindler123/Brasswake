@@ -32,8 +32,11 @@ test('living world · entering a business records its matching map symbol across
     if(!p)throw Error('Missing shop service');for(let i=0;i<b.plan.tiles.length;i++){if(b.plan.tiles[i]!==Buildings.FLOOR)continue;const x=b.x+i%b.w,y=b.y+Math.floor(i/b.w);if(!Scene.debug().world.solid[y*Scene.debug().world.w+x]&&!Scene.debug().world.occ.has(y*Scene.debug().world.w+x)){Scene.hop(x,y);return {id:p.id,name:p.name};}}throw Error('No shop interior');});
   await expect.poll(()=>f.evaluate(id=>!!__bw.S.services?.[id],service.id)).toBe(true);
   await f.locator('#nav [data-t=map]').click();await f.locator('[data-a=cmapview][data-mode=town]').click();const marker=f.locator('.cmap-service').filter({has:f.locator('svg')});await expect(marker).not.toHaveCount(0);await screenshot(page,info,'remembered-business-map');
-  await f.evaluate(()=>__bw.save());await f.waitForLoadState('networkidle');await f.goto('/index.html?visual_test=1');await expect(f.locator('#artload')).toBeHidden({timeout:45000});await f.locator('[data-a=playslot]').click();
-  expect(await f.evaluate(id=>!!__bw.S.services?.[id],service.id)).toBe(true);expect(errors).toEqual([]);
+  await f.evaluate(()=>__bw.save());await f.waitForLoadState('networkidle');
+  // Leave the visual harness: reloading its iframe would rerun its disposable
+  // character setup and race the real save-restoration screen on WebKit.
+  await page.goto('/index.html?visual_test=1');await expect(page.locator('#artload')).toBeHidden({timeout:45000});await page.locator('[data-a=playslot]').click();
+  expect(await page.evaluate(id=>!!__bw.S.services?.[id],service.id)).toBe(true);expect(errors).toEqual([]);
 });
 test('living world · enhanced dungeon depth remains readable at phone and desktop sizes',async({page},info)=>{
   const errors=observeErrors(page),f=await scene(page,'dungeon');await f.evaluate(()=>Scene.debug().draw());await screenshot(page,info,'living-dungeon-depth');

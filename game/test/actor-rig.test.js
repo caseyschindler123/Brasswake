@@ -13,3 +13,10 @@ test('the complete gait advances by travelled distance regardless of render samp
   const frames=new Set();for(let d=0;d<2.25;d+=.01)frames.add(Rig.phase(d,true));
   assert.equal(frames.size,8);assert.equal(Rig.phase(2.25,true),0);assert.equal(Rig.phase(0,false),0);
 });
+test('legacy and malformed appearance saves cannot request nonexistent atlases or skin transforms',()=>{
+  const fallback={body:0,skin:1,hair:0,hc:1,beard:-1,hat:-1,wear:0,dye:0};
+  const look=Rig.normalizeLook({body:99,skin:99,hair:NaN,hc:-3,beard:8,hat:'bad',wear:4,dye:null},fallback);
+  assert.deepEqual(look,fallback);
+  const legacy={body:1,hair:8,hc:2,beard:-1,hat:3,wear:1,dye:'frost'};
+  assert.equal(Rig.normalizeLook(legacy,fallback),legacy);assert.equal(legacy.skin,1);assert.equal(legacy.dye,'frost');
+});

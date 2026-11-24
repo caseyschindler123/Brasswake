@@ -77,7 +77,12 @@ test('all dungeon themes get purposeful furnishings exclusively in recesses with
     assert.ok(props.length>=12,`${r}/${f.f}: ${props.length}`);
     for(const p of props){
       assert.equal(layout.tiles[p.y*layout.w+p.x],Dungeons.WALL);
-      assert.equal(layout.tiles[(p.y+1)*layout.w+p.x],Dungeons.FLOOR);
+      if(p.recess){
+        assert.equal(p.recess.side,'south');
+        assert.ok([1,2,3].some(dy=>layout.tiles[(p.recess.y-dy)*layout.w+p.x]===Dungeons.FLOOR));
+        for(const dy of [0,1])for(const dx of [-1,0,1])assert.equal(layout.tiles[(p.recess.y+dy)*layout.w+p.x+dx],Dungeons.WALL);
+        assert.equal(p.sc,.75,'the full image fits inside the solid 3×2 recess');
+      }else assert.equal(layout.tiles[(p.y+1)*layout.w+p.x],Dungeons.FLOOR);
       assert.ok(!layout.entities.some(e=>Math.abs(e.x-p.x)<2&&Math.abs(e.y-p.y)<3));
       kinds.add(p.kind);count++;
     }
@@ -87,6 +92,58 @@ test('all dungeon themes get purposeful furnishings exclusively in recesses with
   assert.equal(h.dungeonRoomUse('Empty Bunks',1),'bed');
   assert.equal(h.dungeonRoomUse('Scribe’s Bench',1),'records');
   assert.equal(h.dungeonRoomUse('Pump Room',1),'wheel');
+});
+
+test('all eight arrivals have nearby near-wall recesses with their complete fixture behind solid ground',()=>{
+  const h=harness();
+  for(let r=1;r<=8;r++){
+    const layout=Dungeons.build(r,0),room=layout.rooms[0];
+    const props=h.dungeonDress(layout,r),p=props.find(p=>p.recess&&p.recess.y===room.y+room.h&&Math.abs(p.x-room.cx)<=3);
+    assert.ok(p,`${r}: a near-wall display can be seen from the entry`);
+    const art=h.dungeonFixture(p.kind.slice('dn_fixture_'.length),r);
+    const left=p.x*16+8-art.ax*p.sc,top=p.y*16+(p.hang?14:15)-art.ay*p.sc;
+    const right=left+art.c.width/3*p.sc,bottom=top+art.c.height/3*p.sc;
+    assert.ok(top>=p.recess.y*16&&bottom<=(p.recess.y+2)*16,`${r}: fixture stays behind the near boundary`);
+    assert.ok(left>=(p.x-1)*16&&right<=(p.x+2)*16);
+  }
+});
+
+test('purpose fixtures prefer proportional painted atlas cuts and replace cached fallbacks when art arrives',()=>{
+  const h=harness(),atlas={},cuts={};let ready=false;
+  const choices={wheel:'control',forge:'control',tomb:'landmark',crystal:'landmark',roots:'landmark',records:'lore',shelf:'lore',bed:'decoration',crates:'decoration'};
+  for(let r=1;r<=8;r++)for(const type of ['control','landmark','lore','decoration']){
+    const rc=[r,type,60+r*3,90-r*2];atlas[r+'-'+type]=rc;
+    cuts[rc.join('/')]=h.canvas(rc[2],rc[3]);
+  }
+  h.context.DungeonArt={image:'dun/kit.webp',props:atlas};
+  h.context.artRect=(name,rc)=>ready?{c:cuts[rc.join('/')]}:null;
+  const fallback=h.dungeonFixture('forge',5);
+  assert.equal(fallback.c.ops.some(([op])=>op==='drawImage'),false);
+  assert.equal(h.dungeonFixture('forge',5),fallback);
+  ready=true;
+  const upgraded=h.dungeonFixture('forge',5);
+  assert.notEqual(upgraded,fallback);
+  for(let r=1;r<=8;r++)for(const [kind,type]of Object.entries(choices)){
+    const art=h.dungeonFixture(kind,r),op=art.c.ops.find(([op])=>op==='drawImage');
+    assert.ok(op,`${r}/${kind}: uses painted art`);
+    const [,source,x,y,width,height]=op;
+    assert.equal(source,cuts[atlas[r+'-'+type].join('/')]);
+    assert.ok(Math.abs(width/height-source.width/source.height)<1e-9,'preserves painted proportions');
+    assert.ok(x>=2&&y>=3&&x+width<=46&&y+height<=37.000001,'fits existing fixture frame');
+    assert.equal(h.dungeonFixture(kind,r),art,'reuses the ready painted canvas');
+  }
+});
+
+test('near and side cutaway faces, coping and piers stay inside already-solid tiles',()=>{
+  const h=harness(),w=16,dt=new Uint8Array(w*w),room={x:3,y:3,w:8,h:7,cx:7,cy:6,name:'Test'};
+  for(let y=3;y<10;y++)for(let x=3;x<11;x++)dt[y*w+x]=1;
+  const m={w,h:w,r:1,f:0,dt,props:[],layout:{theme:Dungeons.themes[1],rooms:[],entities:[]}};
+  const before=dt.slice(),c=h.canvas(800,800);h.dungeonPaint(m,c.getContext('2d'),0,0);
+  // The near-wall face starts below the last floor row, in wall row 10.
+  assert.ok(c.ops.some(([op,x,y,width,height])=>op==='fillRect'&&x===5*48&&y===10*48+5&&width===48&&height===25));
+  assert.ok(c.ops.some(([op,x,y,width,height])=>op==='fillRect'&&x===11*48&&y===6*48&&width===22&&height===48));
+  assert.ok(c.ops.some(([op,x,y,width,height])=>op==='fillRect'&&x===4*48+13&&y===10*48+4&&width===16&&height===29),'periodic front pier');
+  assert.deepEqual(dt,before);
 });
 
 test('wall faces have actual coping and plinth depth; visible water and motes remain presentation only',()=>{
