@@ -38,6 +38,18 @@ test('concealed movement spends the budget, and running or explicit revelation e
   assert.equal(Sneaking.reveal(state), false);
 });
 
+test('concealed metered movement spends actual steps independently of rounded cells', () => {
+  const state = Sneaking.create();
+  hide(state, { stealth: 80 });
+  assert.equal(Sneaking.move(state, 0, 0, false, 1).hidden, true);
+  assert.equal(state.steps, 12, 'one actual step within the same rounded cell costs one');
+  assert.equal(Sneaking.move(state, 2, 0, false, 1).hidden, true);
+  assert.equal(state.steps, 11, 'a later two-cell ownership change still costs one actual step');
+  assert.equal(Sneaking.move(state, 5, 0, false, 1).hidden, false, 'teleports still reveal');
+  hide(state);
+  assert.equal(Sneaking.move(state, 0, 0, true, 1).hidden, false, 'running still reveals');
+});
+
 test('stealth trains once after getting closer to a nearby target on foot', () => {
   const state = Sneaking.create();
   const target = { id: 'merchant', x: 2, y: 0 };

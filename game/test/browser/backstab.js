@@ -137,9 +137,23 @@ async function finishHideAndApproach(frame, lane) {
   const reveal = action(frame, 'conceal');
   await expect(reveal).toHaveText(/Reveal · [1-9]\d* steps/);
   const available = Number((await reveal.textContent()).match(/\d+/)[0]);
-  await move(frame, [[lane.x + 1, lane.y]], false);
+  const before = await frame.evaluate(() => {
+    const p = Scene.debug().P;
+    return { distance: p.wd || 0, remainder: p.footDistance || 0 };
+  });
+  // Release before the target cell centre: input polling can overshoot a
+  // little, and physically touching the observer correctly breaks hiding.
+  await move(frame, [[lane.x + 1.25, lane.y]], false);
+  // A return walk can stop between centres. If this short approach has not
+  // completed a real footstep, take another concealed walk out and back.
+  if (await frame.evaluate(() => Scene.debug().P.wd || 0) - before.distance + before.remainder < 1) {
+    await move(frame, [[lane.x + 2, lane.y], [lane.x + 1.25, lane.y]], false);
+  }
   expect(await position(frame)).toEqual([lane.x + 1, lane.y]);
-  await expect(reveal).toHaveText(`Reveal · ${available - 1} steps`);
+  const distance = await frame.evaluate(() => Scene.debug().P.wd || 0) - before.distance;
+  const spent = Math.floor(before.remainder + distance + 1e-7);
+  expect(spent).toBeGreaterThanOrEqual(1);
+  await expect(reveal).toHaveText(`Reveal · ${available - spent} steps`);
   await expect(frame.locator('#ctx')).toContainText('Backstab ready');
 }
 

@@ -8,12 +8,14 @@ const Sneaking = (() => {
     Object.assign(state,create()); if(ok)Object.assign(state,{hidden:true,steps:budget(options.stealth),max:budget(options.stealth),x:options.x,y:options.y,sx:options.x,sy:options.y});return ok;
   }
   function reveal(state) {const was=state.hidden;Object.assign(state,create());return was;}
-  function move(state,x,y,run=false) {
+  function move(state,x,y,run=false,meteredDistance=null) {
     if(!state.hidden)return {hidden:false,train:false};
     if(state.x==null){state.x=x;state.y=y;return {hidden:true,train:false};}
-    const distance=Math.max(Math.abs(x-state.x),Math.abs(y-state.y));state.x=x;state.y=y;
+    const displacement=Math.max(Math.abs(x-state.x),Math.abs(y-state.y));state.x=x;state.y=y;
+    const distance=Number.isFinite(meteredDistance)?Math.max(0,meteredDistance):displacement;
+    if(run||displacement>2){reveal(state);return {hidden:false,train:false};}
     if(!distance)return {hidden:true,train:false};
-    if(run||distance>2||distance>state.steps){reveal(state);return {hidden:false,train:false};}
+    if(distance>2||distance>state.steps){reveal(state);return {hidden:false,train:false};}
     state.steps-=distance;return {hidden:true,train:false};
   }
   function approach(state,target,distance) {if(!state.hidden||state.trained||state.steps===state.max||!Number.isFinite(distance)||distance>2||!target||!Number.isFinite(target.x)||!Number.isFinite(target.y)||Math.hypot(target.x-state.sx,target.y-state.sy)<=distance+.5)return false;state.trained=true;state.target=target.id;return true;}
