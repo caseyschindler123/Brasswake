@@ -1,6 +1,6 @@
 # Story coverage register
 
-Revision 2026-11-22. The source is authoritative. See `STORY_BIBLE.md` for chronology, knowledge, and promised payoffs. This register distinguishes source review, execution of the SQL, and observation of a player path. A source review is not a browser playthrough.
+Source review recorded 2026-11-22; writing-guidance follow-up added 2026-11-23. The source is authoritative. See `STORY_BIBLE.md` for chronology, knowledge, and promised payoffs. This register distinguishes source review, execution of the SQL, and observation of a player path. A source review is not a browser playthrough.
 
 ## Contracts and lessons
 
@@ -63,3 +63,9 @@ Total 84 contract premises and 63 attached lesson explanations revised. Optional
 | Audit, archive, and two endings | Council hearing, independent records restored, reason for Ilva's private erasure, supported choice at the harbor. Source reviewed in both outcome orders and special time/erasure claims are covered by factual tests. Player flow evidence for actual ending delivery is tracked in the implementation plan. |
 
 Local semantic checks cover histories, references, thresholds, trigger branches, and canonical dates. They do not measure whether someone new to SQL understands the story or the lesson. Browser emulation is separate from real-phone review. See the implementation plan for the exact verification run and any remaining limitations.
+
+## Natural-speech follow-up — planned, not shipped
+
+2026-11-23: Casey identified omitted spoken grammar in the proposed boat dialogue: "Another three days if the weather holds" should read "It'll be another three days if the weather holds." The writing rules now explicitly preserve natural sentence structure, contractions and connected rhythm across player-facing prose.
+
+A targeted source sample found compressed generated task requests in `quests.js` (`b201`, `b202` and related variants), explanatory table-note fragments in `deep.js`, and natural short reactions such as "Good fight" in `dojo.js`. These are review candidates with different contexts; the sample is not a full audit or a finding that every fragment needs expansion. A follow-up script pass should review dialogue, narration, quest premises, generated instructions, lessons and explanatory feedback in context, preserving distinct voices, facts, SQL requirements and useful short labels. Runtime wording and the proposed boat opening remain unchanged by this documentation-only update. The earlier coverage above records the prior editorial pass and does not certify compliance with the strengthened guidance.

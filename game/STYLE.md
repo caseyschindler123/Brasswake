@@ -1,14 +1,34 @@
 # Brasswake writing rules
 
-Last updated 2026-11-22. Keep `game/STYLE.md` byte-for-byte identical to this file. The [story bible](STORY_BIBLE.md) owns continuity, character briefs, and what each scene can assume. The [coverage register](STORY_COVERAGE.md) records the content families reviewed in the current pass.
+Last updated 2026-11-23. Keep `game/STYLE.md` byte-for-byte identical to this file. The [story bible](STORY_BIBLE.md) owns continuity, character briefs, and what each scene can assume. The [coverage register](STORY_COVERAGE.md) records the content families reviewed in the current pass.
 
 ## Write a connected thought
 
-Use ordinary language that a person would read or say naturally. Give a reader the person, thing, or event a sentence refers to before relying on it. A deliberate fragment can work when a speaker is interrupted, hurried, or answering a question. It still needs enough context to make sense. Read a whole passage aloud with the lines around it. If it sounds as if every sentence had to fit in one breath, give it room.
+Use ordinary language that a person would read or say naturally. Complete, connected sentences are the default for dialogue and narration. Keep the subjects, verbs, articles and connecting words that make a thought sound natural. Give a reader the person, thing or event a sentence refers to before relying on it. Write the exchange in the speaker's voice before shortening it; remove repetition and unnecessary detail while preserving its spoken rhythm.
+
+A fragment needs a reason in the scene: a direct answer, interruption, urgent warning or familiar reaction. "Three days" can answer "How long?" and "Good fight" can acknowledge a bout. Do not use fragments as the default way of delivering new information. A blunt or impatient character can still speak in complete sentences. Read the whole passage aloud with the lines around it. Check whether the speaker would actually say the line in that moment.
 
 Prefer familiar words, concrete details, and active verbs. An unfamiliar word should earn its place by describing something accurately or by belonging to the speaker. Keep a surprising turn of phrase if it says something that the rest of the passage needs. Remove adjectives, invented nouns, and comparisons that only call attention to themselves. First make the meaning clear, then see what the character would do with it.
 
 A scene needs a reason to happen. A person asks because a delivery is late, a decision is due, or someone needs help. Give the player the facts that make the task actionable. Let the result change something the speaker cares about. In a series of optional encounters, each scene supplies its own premise so it can work on its own.
+
+## Natural speech and rhythm
+
+Use ordinary contractions when they suit the speaker: "it'll," "we're," "you've," "that's" and "don't." Restoring a missing subject or verb should preserve the character's natural register. A formal speaker may prefer "it will"; Tamsin would usually say "it'll."
+
+Casey's correction establishes the preference:
+
+> Compressed: "Another three days if the weather holds."
+>
+> Natural: "It'll be another three days if the weather holds."
+
+Those extra words carry the rhythm of the spoken sentence. Keep them. Read the surrounding lines as an exchange, too. Two complete sentences can still sound mechanical when each delivers an isolated fact. Where thoughts belong together, connect them naturally:
+
+> "It'll be another three days if the weather holds, so try to get some rest."
+
+Let sentence length vary with the thought and the speaker. Use "and," "but," "because," "while" or "so" where they express a real relationship. Avoid a succession of short declarations, forced punchlines or cryptic sayings. Expanding a clipped line into stiff, formal language creates another voice problem; choose the ordinary words that person would use.
+
+Phone presentation should wrap, scroll or divide a passage at a complete thought. Preserve the sentence's natural grammar when arranging those beats. A small screen does not require a compressed writing style.
 
 ## Dialogue
 
@@ -20,7 +40,7 @@ A scene needs a reason to happen. A person asks because a delivery is late, a de
 
 ## Instructions and SQL
 
-Use the labels the player can see. If a button says **Run**, tell the player to tap **Run**. A sign, heading, or item caption can be short when the context makes its meaning clear. Feedback says what happened, where to look, or what the player can do next. Give actual numbers for rewards and healing when the game knows them.
+Use the labels the player can see. If a button says **Run**, tell the player to tap **Run**. A sign, heading, item caption or brief status such as "Saved" can be short when the context makes its meaning clear. Dialogue, narration, quest premises, task instructions, lessons and explanatory feedback follow the natural-prose rules above. A task instruction should state the action: "Show the names and cities of [tier]-tier customers in the [region] region" gives the player more direction than "[Tier]-tier customers in the [region] region." Feedback says what happened, where to look, or what the player can do next. Give actual numbers for rewards and healing when the game knows them.
 
 Use the names **SQL**, **query**, **table**, **column**, **row**, and **result**. Refer to clauses by their actual names, including `SELECT`, `FROM`, `WHERE`, `ORDER BY`, and `JOIN`. Define new terms with a visible example and use the same words for the same idea afterward. Write for SQLite as used here when behavior varies between databases.
 
@@ -32,12 +52,15 @@ Useful game terms still need a first-use explanation. A **page** is an ability y
 
 Read the scene as a player who reached it normally and as someone who arrived early or came back after it. Check the identity and relationship the first line establishes, what the speaker actually knows, what the player must decide or do, and what follows as a result. Follow a pronoun back to its subject. Compare the task to its reference query, check the numbers against a real result, and verify that combat, item, or travel claims match what the game does. A clean line in isolation can still fail when repeated in a different state.
 
+During the prose pass, restore omitted grammar wherever brevity has made a line sound clipped. Read it aloud again in the full exchange, checking contractions, connections between thoughts and variation in rhythm. Keep a fragment when the scene gives it a natural purpose. Recheck meaning and voice after any shortening; do not treat a scan for fragments as a substitute for editorial review.
+
 > “A wagoner showed me his signed delivery slip. The customer says the guild never sent a bill. Compare the shipped orders with the invoices and see how often that happened.”
 
 Bly's request identifies both records and why he is comparing them. When the result comes back, he can check the missing invoices against delivery slips. The player gets a reason to learn the join before seeing its syntax.
 
 ## Decision log
 
+- 2026-11-23. Casey's correction from "Another three days if the weather holds" to "It'll be another three days if the weather holds" makes natural spoken grammar and rhythm explicit. Preserve ordinary subjects, verbs, contractions and connective words; use fragments for a clear conversational purpose and use layout to handle phone space. Apply this standard across player-facing prose. This documentation update does not rewrite or certify the existing script; the follow-up review is recorded in STORY_COVERAGE.md.
 - 2026-11-22. Release candidate `story-first-day-2026-11-22`: the story and first-day revision puts natural, connected thoughts before compression. Characters can be generous, difficult, or funny in their own ways. Use coherent phone dialogue beats, grounded state and evidence, and direct SQL vocabulary. The story bible and coverage register document the continuity and editorial decisions for this release.
 - 2026-11-21. Supporting characters can do company work. Story NPCs can refer them to the main character when that character is the one involved.
 - 2026-11-21. Town names should sound like places people live in. The current names are in `02_GAMEPLAY.md`.
