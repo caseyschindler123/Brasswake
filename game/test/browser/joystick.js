@@ -183,17 +183,27 @@ test('joystick · cancellation, capture loss and focus loss clear a held directi
     try {
       await hold(page, box, 1, 0, .38);
       await expect(stick).toHaveAttribute('data-mode', 'walk');
-      await frame.waitForFunction(() => Scene.traveling());
+      // Establish real movement before interrupting it. A completed tile while
+      // the direction is still held is valid, regardless of browser/API speed.
+      await frame.waitForFunction(start => Scene.traveling() && Scene.pos().some((n, i) => n !== start[i]), start);
       await stick.evaluate((node, stop) => {
         const pointerId = Number(node.dataset.testPointer);
+        delete node.dataset.testStoppedAt;
+        const event = stop === 'cancel' ? 'pointercancel' : stop === 'capture' ? 'lostpointercapture' : 'blur';
+        const target = stop === 'blur' ? window : node;
+        // The game's existing handler runs first. Record the exact delivered
+        // event boundary, including deferred native lostpointercapture events.
+        target.addEventListener(event, () => { node.dataset.testStoppedAt = JSON.stringify(Scene.pos()); }, { once: true });
         if (stop === 'cancel') node.dispatchEvent(new PointerEvent('pointercancel', { pointerId }));
         else if (stop === 'capture') node.releasePointerCapture(pointerId);
         else window.dispatchEvent(new Event('blur'));
       }, stop);
       if (stop === 'capture') await page.mouse.move(...joystickPoint(box, 1, 0, .42));
       await expect(stick).toHaveAttribute('data-mode', 'rest');
+      await expect(stick).toHaveAttribute('data-test-stopped-at', /^\[/);
+      const stoppedAt = JSON.parse(await stick.getAttribute('data-test-stopped-at'));
       await settled(frame);
-      expect(await position(frame)).toEqual(start);
+      expect(await position(frame)).toEqual(stoppedAt);
     } finally { await page.mouse.up(); }
   }
   expect(errors).toEqual([]);

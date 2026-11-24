@@ -211,6 +211,8 @@ GitHub Pages uses the Actions publishing source. The publication payload is buil
 
 ## Decision log
 
+- 2026-11-24: SQL battle-feedback CI exposed a joystick-test timing assumption: a held direction can legitimately complete a tile before cancellation arrives. The fixture now establishes real movement, samples the delivered cancel/capture-loss/blur event, and requires exact unchanged position plus cleared movement after settling. No control/gameplay behavior or assertion tolerance changed. The SQL-feedback plan retains the failed run and correction evidence.
+
 - 2026-11-24: Added a pure comparison/power presentation module, result-quality grading and write-baseline progress, independent attack accuracy and encounter-only comparison state. No save, art or runtime dependency change. See the SQL battle feedback plan for verification and release status.
 
 - 2026-11-23: Casey requested truncated path playthroughs and primary stealth/Fencing Backstab. The implementation separates pure eligibility/damage/wound memory from real combat, gives stationary guardians bounded pursuit/return routing, preserves settled target HP/Examiner phase for 120 seconds of active world play and clears tactics on owner/death replacement. Questions/menus/loading/background pause the timer to avoid a typing race. It repairs busy-Flee, repeated living-target theft and shown/wrong training, and makes action feedback match the actual roll/response rules. Opt-in fresh-character campaigns complement prepared regressions; no save version, raster asset or dependency changed. Release `dab3b4a` passed all local and exact-commit browser checks, deployed and passed independent hosted verification; the closed plan and release history preserve evidence and limitations.
