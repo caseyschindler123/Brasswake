@@ -20,6 +20,7 @@ require('./joystick');
 require('./venues');
 require('./worlds');
 require('./living-world');
+require('./offline');
 
 // Local tests use the installed SQL engine and local game fonts. The live test
 // deliberately uses the real hosted dependencies without these substitutions.

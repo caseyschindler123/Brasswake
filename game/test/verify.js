@@ -27,7 +27,7 @@ for (const [label, args] of [
   ['Music routing, assets and playback lifecycle', ['--test', 'test/music.test.js']],
   ['World ownership, continuous motion and presentation', ['--test', 'test/worlds_test.js', 'test/movement.test.js', 'test/actor-rig.test.js', 'test/living-places.test.js']],
   ['Build', ['build.js']],
-  ['Workflow tooling', ['--test', 'test/workflow.test.js', 'test/server.test.js']],
+  ['Workflow tooling and offline storage', ['--test', 'test/workflow.test.js', 'test/server.test.js', 'test/offline.test.js']],
 ]) {
   run(label, args);
 }

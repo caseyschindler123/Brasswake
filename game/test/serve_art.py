@@ -2,14 +2,13 @@
 
 Run from anywhere: python -I game/test/serve_art.py --port 8779
 Open http://localhost:8779/__visual?scene=title at 390x720.
-The fixture supplies the installed sql.js locally, as the older browser tests
-did, and uses a fresh test account on this dedicated localhost origin.
+The fixture uses the same bundled sql.js as production and a fresh test
+account on this dedicated localhost origin.
 """
 import argparse
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
 from pathlib import Path
-import re
 from urllib.parse import urlsplit
 
 GAME = Path(__file__).resolve().parents[1]
@@ -28,13 +27,6 @@ class Handler(SimpleHTTPRequestHandler):
             return self.reply((GAME / 'node_modules/sql.js/dist/sql-asm.js').read_bytes(), 'application/javascript')
         if parsed.path == '/__request_errors':
             return self.reply(json.dumps(REQUEST_ERRORS).encode(), 'application/json')
-        if parsed.path == '/index.html' and parsed.query == 'visual_test=1':
-            html = (GAME / 'dist/index.html').read_text(encoding='utf-8')
-            html, count = re.subn(r'https://cdnjs\.cloudflare\.com/ajax/libs/sql\.js/[^"\s]+/sql-asm\.js',
-                                  '/__sql.js', html)
-            if count != 1:
-                return self.send_error(500, 'Expected one SQL dependency in the test build')
-            return self.reply(html.encode('utf-8'), 'text/html; charset=utf-8')
         super().do_GET()
 
     def reply(self, content, content_type):

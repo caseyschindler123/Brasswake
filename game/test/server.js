@@ -11,6 +11,7 @@ const types = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascr
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://localhost');
+    const pathname=url.pathname.startsWith('/Brasswake/')?url.pathname.slice('/Brasswake'.length):url.pathname;
     let file;
     if (url.pathname === '/__health') {
       res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -19,19 +20,13 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname === '/__visual') file = path.join(__dirname, 'visual_art.html');
     else if (url.pathname === '/__sql.js') file = path.join(game, 'node_modules/sql.js/dist/sql-asm.js');
     else {
-      file = path.resolve(dist, '.' + decodeURIComponent(url.pathname === '/' ? '/index.html' : url.pathname));
+      file = path.resolve(dist, '.' + decodeURIComponent(pathname === '/' ? '/index.html' : pathname));
       if (!file.startsWith(dist + path.sep)) {
         res.writeHead(403);
         return res.end('Forbidden');
       }
     }
-    let body = await fs.readFile(file);
-    if (url.pathname === '/index.html' && url.searchParams.get('visual_test') === '1') {
-      const html = body.toString('utf8');
-      const dependency = /https:\/\/cdnjs\.cloudflare\.com\/ajax\/libs\/sql\.js\/[^"\s]+\/sql-asm\.js/g;
-      if ([...html.matchAll(dependency)].length !== 1) throw new Error('Expected one SQL dependency');
-      body = Buffer.from(html.replace(dependency, '/__sql.js'));
-    }
+    const body = await fs.readFile(file);
     res.writeHead(200, { 'Content-Type': types[path.extname(file)] || 'application/octet-stream',
       'Cache-Control': 'no-store', 'Content-Length': body.length });
     res.end(body);

@@ -17,12 +17,15 @@ test('localhost tooling serves the built game and isolated fixtures safely', { t
   const health = await fetch(base + '/__health');
   assert.equal(health.status, 200);
   const production = await (await fetch(base + '/index.html')).text();
-  assert.match(production, /https:\/\/cdnjs\.cloudflare\.com/);
+  assert.match(production, /src="vendor\/sql-asm.js"/);
+  assert.doesNotMatch(production, /https:\/\/(cdnjs|fonts\.googleapis)/);
   const fixture = await (await fetch(base + '/index.html?visual_test=1')).text();
-  assert.match(fixture, /src="\/__sql.js"/);
+  assert.equal(fixture, production, 'Fixtures use the same bundled SQL engine as production');
   assert.doesNotMatch(fixture, /src="https:\/\/cdnjs\.cloudflare\.com/);
   assert.match(await (await fetch(base + '/__visual')).text(), /Preparing visual test/);
   assert.equal((await fetch(base + '/__sql.js')).status, 200);
+  assert.equal((await fetch(base + '/vendor/sql-asm.js')).status, 200);
+  assert.equal((await fetch(base + '/service-worker.js')).status, 200);
   assert.equal((await fetch(base + '/%2e%2e%2fpackage.json')).status, 403);
   assert.equal((await fetch(base + '/not-a-game-file')).status, 404);
 });

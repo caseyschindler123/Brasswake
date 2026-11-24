@@ -3,6 +3,11 @@ const { observeErrors, playerFlow } = require('./flow');
 const {fullArrival}=require('./intro-helper');
 const {screenshot}=require('./flow');
 
+test('the published game downloads, cold reopens offline, and restores a save file',async({page,context},info)=>{
+  test.setTimeout(300000);
+  await require('./offline-flow').offlineFlow(page,context,info,{url:'./',live:true});
+});
+
 test('the published battle grades SQL and compares the wrong query', async ({ page }, info) => {
   const errors = observeErrors(page);
   await page.goto('./?commit=' + process.env.BW_EXPECT_COMMIT);
