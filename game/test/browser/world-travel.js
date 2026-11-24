@@ -18,6 +18,12 @@ async function openMap(frame) {
 }
 
 async function reopenSavedCharacter(page) {
+  const game=page.frames().find(frame=>frame.url().includes('visual_test=1'));
+  if(!game)throw Error('Missing game frame before deliberate save reload');
+  // Finish the current view and stop old-world animation before navigation.
+  // Otherwise an NPC can request a new body sheet after networkidle but
+  // before the old document unloads, producing an expected ERR_ABORTED.
+  await game.evaluate(()=>{Scene.debug().draw();Scene.pause();});
   await page.waitForLoadState('networkidle');
   await page.goto('/index.html?visual_test=1');
   await expect(page.locator('#artload')).toBeHidden({ timeout: 45000 });
