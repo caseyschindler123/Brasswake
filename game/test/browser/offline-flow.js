@@ -46,6 +46,10 @@ async function offlineFlow(page,context,info,{url='/Brasswake/',live=false}={}){
   await reopened.locator('#con-sql').fill('SELECT 43 AS airplane_check');await reopened.locator('[data-a=conrun]').click();await expect(reopened.locator('#con-out td')).toHaveText('43');
   await hero(reopened);await reopened.locator('input[data-target=magery]').fill('56');await reopened.locator('[data-a=progresstarget][data-id=magery]').click();
   await reopened.locator('#view [data-a=savenow]').click();await expect(reopened.locator('#view [data-save-status]')).toContainText('Saved on this device');
+  const planeBackup=await downloadFile(reopened);
+  const planeAccount=JSON.parse(Buffer.from(planeBackup.bytes.toString().trim(),'base64').toString('utf8'));
+  expect(planeAccount.worlds[planeAccount.world].slots[0].skillTargets.magery).toBe(56);
+  await reopened.locator('.sheet-x').click();
   await screenshot(reopened,info,'offline-playing-and-saving');
   await reopened.locator('#view [data-a=import]').click();
   await reopened.locator('#save-file').setInputFiles({name:backup.name,mimeType:'text/plain',buffer:backup.bytes});

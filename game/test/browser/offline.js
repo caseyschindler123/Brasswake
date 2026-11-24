@@ -60,4 +60,12 @@ test('save-file import waits for confirmation and native sharing receives the fu
   expect(await page.locator('#savebox').inputValue()).toBe('');
   await page.locator('#save-file').setInputFiles({name:shared.name,mimeType:'text/plain',buffer:Buffer.from(shared.code)});await expect(page.locator('#save-file-status')).toContainText('Choose Load');
   await expect(page.locator('#sheet')).toBeVisible();await page.locator('[data-a=doimport]').click();await expect(page.locator('#sheet')).toBeHidden();
+  await page.waitForLoadState('networkidle');await page.goto('/__health');
+  await page.evaluate(()=>localStorage.removeItem('brasswake.acct.v9'));
+  await page.goto('/index.html?visual_test=1');await expect(page.locator('#artload')).toBeHidden({timeout:45000});
+  await expect(page.locator('[data-a=playslot]')).toHaveCount(0);
+  await page.locator('#title [data-a=import]').click();
+  await page.locator('#save-file').setInputFiles({name:shared.name,mimeType:'text/plain',buffer:Buffer.from(shared.code)});
+  await expect(page.locator('#save-file-status')).toContainText('Choose Load');await page.locator('[data-a=doimport]').click();
+  await expect(page.locator('#title')).toBeHidden();await expect(page.locator('#hud')).toContainText('Plane Traveller');
 });
