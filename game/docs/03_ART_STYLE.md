@@ -1,6 +1,6 @@
 # Brasswake: art style and art pipeline
 
-Last updated: 2026-11-23. This covers image style, asset preparation, music sources and how they get into the game. Verified release identities and limitations are in [release history](RELEASE_HISTORY.md).
+Last updated: 2026-11-24. This covers image style, asset preparation, music sources and how they get into the game. Verified release identities and limitations are in [release history](RELEASE_HISTORY.md).
 
 ## The look in one paragraph
 
@@ -167,6 +167,10 @@ Every required sheet is present. Recursive discovery prefers current `kit/out` o
 - **Output:** browser-compatible 44.1 kHz stereo MP3 loops and 16-bit PCM WAV one-shot cues under `game/art/mu/`, normalized around -18 LUFS with peak headroom. Loop files include a decoder safety tail copied from their start; Suno loops use a prepared crossfade. Playback metadata in `src/audio.js` must match the catalog. The accepted packed manifest includes audio files and is updated deliberately for these additions.
 - **Testing:** re-decode actual output for loudness, peak, seam/tail and non-silence checks; validate MIDI determinism and note timing. Browser tests decode every shipped audio file, check loop bounds and tail length, exercise music transitions and persistent mute. Final speaker balance and real iPhone playback require device listening.
 
+### Planned, not built: consistent Stable Audio replacement
+
+Casey requested replacing all 28 music entries, including the Suno imports and rendered MIDI, through browser-operated Stable Audio generation, plus a bounded sound-effect pass. The [replacement plan](plans/2026-11-24-stable-audio-replacement.md) contains the shared acoustic fantasy-game brief, all context-specific prompts, loop preparation, credit envelope and release gates. The agent handles routine take selection; Casey does not need to review every track. Generate 26 repeatable themes and two resolving victory/death cues, then prepare and verify real loop boundaries locally. Casey intends one subscription month; purchase, generation and implementation have not started. The shipped sources and rules above remain current until the replacement release.
+
 ## Modular buildings, regional interiors and working harbours
 
 Settlement buildings now assemble reusable structural pieces; distinctive palace/temple/gate/lighthouse silhouettes keep authored landmark art. Doors are actual openings and roofs are separate clipped layers. Existing small countryside landmarks, dojo halls and recolourable player houses retain painted assets.
@@ -222,6 +226,8 @@ The worlds/living-places candidate reuses existing packed artwork. Fitted struct
 The existing eight-pose walk/run cycles contain contact, recovery and airborne side poses. Renderer-owned head-layer calibration keeps gait changes from changing skull/hair/hat scale; frame cadence follows distance. No new animation sheets are required for this implementation. Actor separation uses ground shadows and a very thin, low-opacity dark edge; Casey rejected the stronger early outline. Twelve-pixel overhead names follow rendered head/silhouette geometry. Full image generation was not run; no prompts/settings, originals, atlas coordinates or packed manifest changed. Real-iPhone visual approval remains external.
 
 ## Decision log
+
+- 2026-11-24: Casey requested a plan for browser-operated Stable Audio music and effects, replacing the existing Suno tracks as well as local MIDI for consistent production. Plan all 28 entries with explicit fantasy-game/loop prompts and a bounded one-month credit envelope. This is planned only; no purchase, generation or game deployment is authorized by the planning request.
 
 - 2026-11-24: Casey authorized richer buildings/towns/dungeons and requested subtle actor visibility after reviewing an early outline. Reuse existing art and code-drawn architecture/effects; keep collision readable, avoid darkening dungeons to simulate depth, and preserve immutable generated assets. Full paid image runs still require separate approval. Candidate plan tracks verification/release.
 
