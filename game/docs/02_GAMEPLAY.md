@@ -1,6 +1,6 @@
 # Brasswake: gameplay reference
 
-Last updated: 2026-11-23. The skill/attribute/NPC expansion is verified at aec11c0; the Backstab/pursuit audit release is verified at `dab3b4a`, with evidence and limitations in the closed [path playthrough plan](plans/2026-11-23-path-playthrough-and-balance.md). This describes world revision 3, modular buildings, the expanded capital and working ports, alongside the story/first-day revision, soundtrack and 28-floor dungeon rebuild. The retained artifact preview is `1795364400-6a70`. This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn. Verified release identities and limitations are in [release history](RELEASE_HISTORY.md).
+Last updated: 2026-11-24. SQL query power and battle comparisons are verified at `9853ea2`. The skill/attribute/NPC expansion is verified at aec11c0; the Backstab/pursuit audit release is verified at `dab3b4a`, with evidence and limitations in the closed [path playthrough plan](plans/2026-11-23-path-playthrough-and-balance.md). This describes world revision 3, modular buildings, the expanded capital and working ports, alongside the story/first-day revision, soundtrack and 28-floor dungeon rebuild. The retained artifact preview is `1795364400-6a70`. This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn. Verified release identities and limitations are in [release history](RELEASE_HISTORY.md).
 
 ## 1. Premise and goals
 
@@ -146,7 +146,7 @@ Release `dungeon-rebuild-2026-11-22` replaces the shared four-room corridor with
 
 ## 5. Combat and covert work
 
-The query-power and comparison changes below are a planned release, implemented locally but not yet published. The [SQL battle feedback plan](plans/2026-11-24-sql-battle-feedback.md) tracks verification and release status.
+Query power and battle comparisons shipped as `9853ea2`, independently verified on 2026-11-24 UTC. The closed [SQL battle feedback plan](plans/2026-11-24-sql-battle-feedback.md) and [release history](RELEASE_HISTORY.md#sql-answer-power-and-battle-comparisons) preserve verification and UX observations.
 
 - **Difficulty:** `min(100,(Circle−1)×12+8+elite8+boss14)`. Dungeon role/floor additions remain as described above.
 - **Attack accuracy:** `max(35,clamp(10,95,50+2×(skill−difficulty)))`, independent of answer grade. Hint 1 costs 15 percentage points; Study/Feint add their existing bonuses, capped at 95%. SQL quality sets damage power separately. Covert work, fishing and ordinary crafting retain grade-scaled success odds (close .6 of base, partial .3–.5, wrong .05).

@@ -1,6 +1,6 @@
 # SQL answer power and battle comparison
 
-Classification: complex. Status: local game verification complete; CI fixture correction verified locally, new exact-commit release pending. Casey authorized autonomous implementation, repeated automated battles, visual review/correction and deployment. Wait dependency satisfied: Marigold release `d516ce18daf1a4b4e9d6639e9b981f668a60451e`, Actions [45350677507](https://github.com/caseyschindler123/Brasswake/actions/runs/45350677507), including required browser profiles and deploy/hosted verification. Implementation uses an isolated worktree; preserve the other task's closure edits.
+Classification: complex. Status: complete; released and independently verified at `9853ea269167c6bc4fa7af44d7d09f7315fa15fd`. [Release evidence](../RELEASE_HISTORY.md#sql-answer-power-and-battle-comparisons). Casey authorized autonomous implementation, repeated automated battles, visual review/correction and deployment. Wait dependency satisfied: Marigold release `d516ce18daf1a4b4e9d6639e9b981f668a60451e`, Actions [45350677507](https://github.com/caseyschindler123/Brasswake/actions/runs/45350677507), including required browser profiles and deploy/hosted verification. Implementation uses an isolated worktree; preserve the other task's closure edits.
 
 ## Acceptance
 
@@ -20,7 +20,7 @@ Classification: complex. Status: local game verification complete; CI fixture co
 | Compact battle comparison and interaction coverage | Complete locally |
 | Automated battle UX review, notes, corrections/retest and screenshot inspection | Complete for the current candidate; observations below |
 | Full release gate, diff and master docs | Complete locally: full npm run verify, 324 browser cases, visual review and diff check |
-| Exact-commit deployment/live verification and tracked closure | Pending |
+| Exact-commit deployment/live verification and tracked closure | Complete: source 9853ea2, Actions 45375146692, independent source/hash and three hosted flows |
 
 ## Verification and evidence
 
@@ -58,3 +58,11 @@ Initial focused pure tests also found the pre-write baseline check could query a
 
 - First exact-commit CI: source `8a9793452352c754792b5c3bbbe549bf2d52be0e`, [Actions 45369173416](https://github.com/caseyschindler123/Brasswake/actions/runs/45369173416). Core and desktop passed; phone Chromium passed 107/108, including every new feedback case, then failed the pre-existing joystick cancellation test. That fixture compared against the position before holding the direction, so a legitimate completed tile before the interruption could fail it. The game already clears unfinished movement when interruption is delivered.
 - Fixture repair: deliberately establish native walking, record position at the actual cancel/capture-loss/blur event after the game handler, then require the exact same position and no travel after the existing settling interval. No tolerated extra movement, retry, skipped case or control/gameplay edit was introduced. Three repetitions in each browser profile passed (9 cases / 27 interruption modes). Rebuild confirms unchanged runtime HTML; reuse the earlier complete local 324-case/core result for unchanged gameplay. The new commit must still pass all exact-commit CI profiles, deploy and independent hosted verification; this test-only correction uses focused local automation checks rather than repeating unchanged game tests.
+
+## Verified release closure
+
+- Released source `9853ea269167c6bc4fa7af44d7d09f7315fa15fd`, gameplay implementation `8a9793452352c754792b5c3bbbe549bf2d52be0e`; [Actions 45375146692](https://github.com/caseyschindler123/Brasswake/actions/runs/45375146692) passed core, all 324 browser cases (108 per profile), stable aggregate, Pages and all three hosted flows. Exact-commit WebKit completed all 108 cases in 44.8 minutes; no timeout/coverage settings changed.
+- Independent source/hash check at `2026-11-24T11:24:18.197Z` and all three hosted flows completed by 2026-11-24 11:25:06 UTC (03:25:06 PST). The battle used public save preparation and visible controls with real production SQL and no debug handles; its generated screenshot was opened. The first independent two-worker invocation timed out loading the battle page before interaction, while its other two flows passed. A fresh sequential invocation retained every assertion/dependency and passed all three (48.0 seconds). No game/test source changed for that transport timeout.
+- Published HTML SHA-256 `75f8609d86c130947c18a215ed34b75c9792ec23d2113b2862606694b6a1fa0c`. The local test-only correction retained identical local HTML before/after rebuild; the published hash above is the independently verified CI build, not a substituted local hash.
+- The superseded Actions 45369173416 passed core/desktop and 107 phone-Chromium cases, failed the old pre-hold cancellation comparison, then was cancelled while WebKit was still running to unblock the corrected commit. It did not deploy. Final exact-commit CI reran all profiles without skipped cases or retries.
+- Master architecture/gameplay/world-rule descriptions now reflect the shipped behavior; all milestones are complete. Historical pending/failed checkpoints above are retained as earlier evidence. [Tracked release history](../RELEASE_HISTORY.md#sql-answer-power-and-battle-comparisons) is the concise fresh-clone record; ignored logs/captures are supplementary. No delegated agents or paid tools were used; task-specific AI and CI dollar billing is unavailable. No physical iPhone or human learner study is claimed.
