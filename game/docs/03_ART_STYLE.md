@@ -211,9 +211,9 @@ Casey approved up to $20 for this run. The two-image comparison and all 20 produ
 - The largest mountain ranges are upscaled up to 2.7× on a phone.
 - Cloak, glove and boot layers aren't drawn on the body yet.
 
-## Marigold deck release candidate
+## Marigold deck
 
-The new-only `arttools/prologue_prompts.json` supplies one authorized built-in image_gen deck/hull image. People are absent from the bitmap: the game draws the customized player, Tamsin and crew using the established character layers. Sea, rescue rope, mast fittings and gangplank are runtime layers. `arttools/prologue_art_inputs.json` records source/output hashes and geometry; `arttools/prologue_art.py` crops only transparent exterior margin and packs `game/art/ship/deck.webp` plus `src/artship.js` in the pinned Pillow/WebP environment. Existing prompts, settings, raw images and older packed outputs are unchanged. Source replay and focused alpha/input checks pass; this candidate awaits in-game release verification.
+The new-only `arttools/prologue_prompts.json` supplies one authorized built-in image_gen deck/hull image. People are absent from the bitmap: the game draws the customized player, Tamsin and crew using the established character layers. Sea, rescue rope, mast fittings and gangplank are runtime layers. `arttools/prologue_art_inputs.json` records source/output hashes and geometry; `arttools/prologue_art.py` crops only transparent exterior margin and packs `game/art/ship/deck.webp` plus `src/artship.js` in the pinned Pillow/WebP environment. Existing prompts, settings, raw images and older packed outputs are unchanged. Source replay and focused alpha/input checks passed. Actual 390x720 Chromium/WebKit, 1280x800 desktop and hosted rendering captures were opened and reviewed; release evidence is recorded in `RELEASE_HISTORY.md`.
 
 ## Decision log
 
@@ -255,3 +255,5 @@ The new-only `arttools/prologue_prompts.json` supplies one authorized built-in i
 - 2026-11-22: Casey authorized modular exterior construction and up to $20 for autonomous production after the story deployment. Kept Sunburst/high settings; packed the 20-sheet run with existing regional interiors, capital and harbour art. Whole-component crop replay fixes shifted roof fragments without rerolls or changing raw art. The earlier interiors-only decision is superseded for settlement buildings.
 
 - 2026-11-23: Boat-intro/writing candidate: Casey authorized necessary new intro graphics. Generate one empty Marigold hull/deck and integrate existing dynamic characters with reproducible new-only packing. Release status is tracked in the boat-intro plan.
+
+- 2026-11-24: Published the verified boat-intro/writing release, source `d516ce1`. Current behavior is described above; exact commit, Actions, hosted hash and verification limits are recorded in `RELEASE_HISTORY.md` and the completed boat-intro plan.

@@ -65,4 +65,6 @@ Bly's request identifies both records and why he is comparing them. When the res
 - 2026-11-21. Supporting characters can do company work. Story NPCs can refer them to the main character when that character is the one involved.
 - 2026-11-21. Town names should sound like places people live in. The current names are in `02_GAMEPLAY.md`.
 
-- 2026-11-23. The boat-intro candidate applies these rules to character introductions, regional/optional/generated script families and explanatory feedback. Keep every newcomer’s immediate purpose, source of knowledge and next action explicit; use phone layout and full-thought dialogue beats to preserve ordinary grammar. Scope and execution evidence are tracked in STORY_COVERAGE.md and the boat-intro plan.
+- 2026-11-23. The boat-intro release applies these rules to character introductions, regional/optional/generated script families and explanatory feedback. Keep every newcomer’s immediate purpose, source of knowledge and next action explicit; use phone layout and full-thought dialogue beats to preserve ordinary grammar. Scope and execution evidence are tracked in STORY_COVERAGE.md and the boat-intro plan.
+
+- 2026-11-24. The full-script pass and playable boat introduction are released after complete guided-day, browser and hosted checks. The coverage register and completed plan distinguish source review, automated player execution and external human/real-device limitations.

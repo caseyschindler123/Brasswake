@@ -1,8 +1,18 @@
 # Verified release history
 
-Dates below are UTC. Earlier entries were reconciled on 2026-11-23 from existing receipts and successful Actions runs; their evidence was not rerun during that documentation cleanup. New release entries identify checks performed for that release. The latest confirmed hosted source is the Backstab/path-audit release, `dab3b4a5361468ab793b347c0472fcf6ddff5b23`.
+Dates below are UTC. Earlier entries were reconciled on 2026-11-23 from existing receipts and successful Actions runs; their evidence was not rerun during that documentation cleanup. New release entries identify checks performed for that release. The latest confirmed hosted source is the Marigold intro/full-script release, `d516ce18daf1a4b4e9d6639e9b981f668a60451e`.
 
 Keep the released source commit distinct from any later documentation-only commit. Each entry preserves completion, verification and limitations without requiring local logs. Detailed receipts, screenshots and traces under ignored `work/` or test-results folders remain supplementary. A newer deployment supersedes the hosted version; earlier completed releases stay complete.
+
+## Marigold rescue and full-script writing review
+
+- Plan: [boat intro and writing review](plans/2026-11-23-boat-intro-and-writing-review.md). Status: complete, M0–M7. Classification: complex. [Script coverage and limits](STORY_COVERAGE.md).
+- Released source: `d516ce18daf1a4b4e9d6639e9b981f668a60451e`. [Actions 45350677507](https://github.com/caseyschindler123/Brasswake/actions/runs/45350677507) passed core, all 300 browser cases (100 per profile), the aggregate gate, Pages deployment and both hosted player flows, with zero retries.
+- Independent live verification: `2026-11-24T08:33:12.742Z` (UTC). Exact published source/HTML and two explicitly enabled hosted phone-Chromium flows passed: visible-control rescue through Tallyport, plus real SQL, skills/targets/locks and export/import/reload. Debug handles were unavailable; actual hosted rescue/crossing/gangplank/world/restored captures were opened.
+- HTML SHA-256: `6a6cf287a28371554e5ad3156975c7a10a3549ea6bc5d3181104d1b7f82ebbee`.
+- Shipped: customized-avatar rescue and walkable Marigold with one new deck asset; saved on-boat name/homeland/reputation conversation; coherent three-day crossing and shore handoff. The full script uses connected ordinary speech and grounded character knowledge. SQL/Ledger, table/row/column/query/result, source/practice records and safe ability application precede independent work; guided encounters, utility work and all guided fishing casts retain taught SELECT/FROM forms. Weapon holding/equip/reload, supplies and readable gold-pile rewards are retained and verified. Account v8/character v7 and older progress are preserved.
+- Other checks: clean local `npm run verify` passed required non-browser checks/build, 526 packed hashes and all 300 browser cases. Twelve ordinary-resource full guided days covered all four professions on 390x720 Chromium/WebKit and 1280x800 desktop; mage took actual fishing and other professions the offered optional skip. Opened affected intro/SQL/weapon/reward/fishing/cellar/farewell captures. New-art packer checks (2) and exact-source replay passed; all 525 older packed outputs stayed unchanged. Generated script review compared 5,334 combinations against baseline gameplay fields.
+- Limits: no human beginner study or physical-iPhone test; source review does not claim manual play of every optional story branch. Existing saves resume their own progress. A failed standalone deck-image download needs reload to retry, with visible skip/save exits available; offline/general asset retry is outside this release. Ignored local receipts and screenshots supplement this tracked evidence.
 
 ## Backstab and path balance audit
 

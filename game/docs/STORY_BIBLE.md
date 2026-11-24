@@ -1,6 +1,6 @@
 # Brasswake story bible
 
-Continuity for the boat-intro/writing release candidate of 2026-11-23; publication awaits verification. The runtime rules and release evidence live in `02_GAMEPLAY.md` and the implementation plan. The writing standard lives in `04_WRITING_STYLE.md`.
+Continuity for the boat-intro/writing release verified on 2026-11-24 UTC. The runtime rules and release evidence live in `02_GAMEPLAY.md` and the implementation plan. The writing standard lives in `04_WRITING_STYLE.md`.
 
 ## Synopsis
 
@@ -106,3 +106,5 @@ Dregan Vosk tries to get a rise out of Tallyport's replacement. Sister Calloway 
 - 2026-11-22. Rescues and return lights have authored dates and traceable witnesses. The missing company invoices form a complete optional case. The council squarely faces the independent removal record once both the Audit and archive discovery are complete. The chronological distinction between Odalys, Ilva, and Corin, and the institutional distinction between examiner and keeper, carry through the revised dialogue.
 
 - 2026-11-23. The boat-intro candidate makes the rescue, identity questions, reputation source and three-day passage playable. Tamsin explains the town’s loss ashore, and the ending returns to the named homeland. The canonical rescue/light dates, historical ship IDs and later evidence are unchanged.
+
+- 2026-11-24. Published the boat-intro/writing release after complete guided-day and exact-commit/hosted verification. The story dates, identity branches and shore handoff are verified; source and evidence are recorded in RELEASE_HISTORY.md and the completed boat-intro plan.

@@ -1,6 +1,6 @@
 # Story coverage register
 
-Source reviews recorded 2026-11-22 and 2026-11-23; the boat-intro candidate is under release verification. The source is authoritative. See `STORY_BIBLE.md` for chronology, knowledge, and promised payoffs. This register distinguishes source review, execution of the SQL, and observation of a player path. A source review is not a browser playthrough.
+Source reviews recorded 2026-11-22 and 2026-11-23; the boat-intro/writing release was verified on 2026-11-24 UTC. The source is authoritative. See `STORY_BIBLE.md` for chronology, knowledge, and promised payoffs. This register distinguishes source review, execution of the SQL, and observation of a player path. A source review is not a browser playthrough.
 
 ## Contracts and lessons
 
@@ -64,10 +64,10 @@ Total 84 contract premises and 63 attached lesson explanations revised. Optional
 
 Local semantic checks cover histories, references, thresholds, trigger branches, and canonical dates. They do not measure whether someone new to SQL understands the story or the lesson. Browser emulation is separate from real-phone review. See the implementation plan for the exact verification run and any remaining limitations.
 
-## Natural-speech and boat-intro follow-up — candidate under verification
+## Natural-speech and boat-intro follow-up — released
 
 2026-11-23: Applied the strengthened ordinary-speech standard across all 84 contract premises, 63 attached lessons, generated bounty/Examiner families, regional introductions and outcomes, journals/witnesses, rumors, country life, dojo scenes/memories/notes, first-day dialogue, archive explanations and game feedback. Kept purposeful conversational fragments such as “Good fight,” compact labels, stable IDs, reference queries and mechanical data. The generated-choice review checked 5,334 combinations against baseline gameplay fields. `c603` now requests the category column its unchanged reference query returns.
 
 The new Prologue replaces static opening cards with rescue, identity, reputation, impossible-distance question, world orientation, actual deck movement and arrival. Tamsin’s shore conversation supplies the Corin/Trials premise. SQL, Ledger, source/practice copy, table/row/column/query/result and the ability handoff are explicit. Guided encounters, utility work and all cast choices remain within the SELECT/FROM forms taught so far. Earned mage walkthroughs take the optional fishing path; a separate prepared-state regression checks every cast and protects the results from queued companion speech. Current reward captions describe damage and reward-gold bonuses accurately.
 
-An independent source/phone-image review identified and prompted fixes for homeland contrast, footer access, viewport handling, SQL-load failure escape and the worked result’s placement. Complete guided-day, phone/WebKit/desktop and exact published-flow evidence will be recorded in the plan and release history after verification. The earlier register remains source-review scope, not a claim that every optional story branch was played manually. Automated and agent review do not constitute a human beginner study or a physical-iPhone test.
+An independent source/phone-image review identified and prompted fixes for homeland contrast, footer access, viewport handling, SQL-load failure escape and the worked result’s placement. All twelve complete guided days passed locally and in exact-commit CI: four professions on 390x720 phone Chromium/WebKit and 1280x800 desktop Chromium. All 300 browser cases passed in each full gate, and both hosted flows passed in the workflow and independently. Actual generated captures were opened. The plan and release history record the full commit, Actions link, UTC verification time, HTML hash and limits. The earlier register remains source-review scope, not a claim that every optional story branch was played manually. Automated and agent review do not constitute a human beginner study or a physical-iPhone test.
