@@ -1,8 +1,19 @@
 # Verified release history
 
-Dates below are UTC. Earlier entries were reconciled on 2026-11-23 from existing receipts and successful Actions runs; their evidence was not rerun during that documentation cleanup. New release entries identify checks performed for that release. The latest confirmed hosted source is the skills/attributes/directional NPC release, `aec11c0124479aee5feb0d906f871a15e2a6f1aa`.
+Dates below are UTC. Earlier entries were reconciled on 2026-11-23 from existing receipts and successful Actions runs; their evidence was not rerun during that documentation cleanup. New release entries identify checks performed for that release. The latest confirmed hosted source is the Backstab/path-audit release, `dab3b4a5361468ab793b347c0472fcf6ddff5b23`.
 
 Keep the released source commit distinct from any later documentation-only commit. Each entry preserves completion, verification and limitations without requiring local logs. Detailed receipts, screenshots and traces under ignored `work/` or test-results folders remain supplementary. A newer deployment supersedes the hosted version; earlier completed releases stay complete.
+
+## Backstab and path balance audit
+
+- Plan: [warrior, mage and thief playthrough audit](plans/2026-11-23-path-playthrough-and-balance.md). Status: complete, milestones 1–5. Classification: complex. [Campaign results and limitations](PATH_PLAYTHROUGH_AUDIT.md).
+- Released source: `dab3b4a5361468ab793b347c0472fcf6ddff5b23`; gameplay implementation: `ae490793c84c2de07e138450c54ca67720d46aee`. Later fixture/CI commits retain that built gameplay.
+- Deployment: [Actions 45322676588](https://github.com/caseyschindler123/Brasswake/actions/runs/45322676588), successful core, all 288 browser cases (96 per profile), stable aggregate, Pages deployment and hosted commit/HTML/player-flow verification. Required browser profiles now run in parallel with zero retries and all checks retained. Earlier failed runs did not deploy; their fixture causes and focused repair evidence remain in the plan.
+- Independent live verification: 2026-11-24T04:27:56.201Z (UTC). Exact source/hash and one explicitly enabled hosted phone-Chromium real-SQL flow passed, covering twenty skill controls, three stat controls, targets/locks, export/import/reload and unavailable debug handles. Hosted world/restored-character captures were opened.
+- HTML SHA-256: `287172c77d4d16fb6b50b3ab590b1767d82b3893891f7e56fb7b6b5d394f0f8d`.
+- Shipped: concealed rear-approach Stealth/Fencing Backstab, reveal/retaliation, pursuit/escape/reconcealment and same-living-target wounds/Examiner phase recall for 120 seconds of active world play. SQL questions/menus pause that timer. Busy Flee, repeat theft rewards, caught-theft pursuit and wrong/Shown learning defects were repaired; action odds and support feedback match their rules. No save-format, raster-art, runtime-dependency, starting-stat or gain-curve changes.
+- Other checks: clean local `npm run verify -- --ui` passed all 288 browser cases, required non-browser checks and 525 packed hashes. Focused pursuit/ownership/active-clock/action and fixture regressions passed; affected 390×720 phone and 1280×800 desktop captures were opened. Parallel-core/selection/release-gate checks passed. Twelve selected compressed earned campaigns completed all eight Trials; an earlier failed thief Council attempt and preparation replay are retained.
+- Limitations: compressed automated Trials audit, not a human beginner/long-session study or every optional quest/all 28 floors with each earned build; no real iPhone test. Path query counts include different optional/support content and do not establish equal-content DPS. Hosted UI covers progression/persistence; Backstab loops are verified locally and in exact-commit CI. No paid image generation or art-setting changes. Detailed ignored logs supplement this tracked record.
 
 ## Skills, attributes and directional NPCs
 

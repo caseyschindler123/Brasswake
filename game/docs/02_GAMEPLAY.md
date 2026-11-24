@@ -1,6 +1,6 @@
 # Brasswake: gameplay reference
 
-Last updated: 2026-11-23. The skill/attribute/NPC expansion is verified at aec11c0; the Backstab/pursuit audit additions below are a working candidate awaiting release verification in the [path playthrough plan](plans/2026-11-23-path-playthrough-and-balance.md). This describes world revision 3, modular buildings, the expanded capital and working ports, alongside the story/first-day revision, soundtrack and 28-floor dungeon rebuild. The retained artifact preview is `1795364400-6a70`. This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn. Verified release identities and limitations are in [release history](RELEASE_HISTORY.md).
+Last updated: 2026-11-23. The skill/attribute/NPC expansion is verified at aec11c0; the Backstab/pursuit audit release is verified at `dab3b4a`, with evidence and limitations in the closed [path playthrough plan](plans/2026-11-23-path-playthrough-and-balance.md). This describes world revision 3, modular buildings, the expanded capital and working ports, alongside the story/first-day revision, soundtrack and 28-floor dungeon rebuild. The retained artifact preview is `1795364400-6a70`. This is the source of truth for rules, numbers and content. Code constants are named in `code` so they can be found. If you change a number in code, change it here in the same turn. Verified release identities and limitations are in [release history](RELEASE_HISTORY.md).
 
 ## 1. Premise and goals
 
@@ -162,7 +162,7 @@ HUD Hide opens a SQL setup action. Hiding determines concealment chance: `clamp(
 
 A meaningful concealed approach that gets closer to a nearby hostile target trains Stealth once per setup; stationary time, repeated tiles near an unchanged target and per-frame updates grant no training. Thieves can also approach from behind without requiring Hiding. A theft query chooses an easier purse or an identified equipment prize (−15 effective Stealing, half the purse gold). The attempt reveals the thief. Failure retains existing Circle-scaled gold fines and pursuit behavior. Rival prize pages remain part of their theft reward.
 
-### Backstab and repeat approaches (working candidate)
+### Backstab and repeat approaches
 
 Backstab is the thief's primary ambush attack. It requires Stealth 10, an equipped Fencing weapon, an owned Arms page and Shadows page, 8 stamina, and a fresh successful concealed rear approach to an adjacent living hostile target with clear sight. These are skill/equipment requirements, not a class restriction. Locked skills can still use it. Dojo lessons can teach the first ten Stealth points with earned gold; they grant no attribute gains. Light Leather armor avoids the existing 20-point heavy-armor concealment penalty.
 
@@ -196,7 +196,7 @@ Optional surface treasure and dungeon caches offer Lockpicking with disarming or
   - Gold: (6 × circle + 4) × (2 if elite) × (1.4 in dungeons) × 0.8–1.2.
   - Item drop chance: 35% (50% in dungeons, 100% for elites).
   - Materials: 1, or 3 from elites.
-- **Steal:** (12 × circle + 8) purse gold and double materials; selecting an identified prize gives that item at half gold and −15 effective skill. The working audit candidate limits rewards to one successful lift per living creature.
+- **Steal:** (12 × circle + 8) purse gold and double materials; selecting an identified prize gives that item at half gold and −15 effective skill. Rewards are limited to one successful lift per living creature.
 - **Elites:** a sigil and a 50% rare Arms page, plus 1.5% bless deed and 6% Scroll of Study.
 - **Lair leader**, once per day per character: +40 × circle gold, a rare-or-better item, a rune chance, 20% Scroll of Study, and a 5% power scroll in circles 6+.
 - **Examiner:**
@@ -332,7 +332,7 @@ Workbench Carpentry crafts storage chests (6 regional materials, difficulty 25),
 
 ## Decision log
 
-- 2026-11-23: Casey requested repeatable truncated warrior/mage/thief playthroughs, then added stealth-and-Fencing Backstab as the thief's primary attack. The candidate implements a real concealed rear approach, committed high-damage thrusts, escape/pursuit and bounded same-target wounds/Examiner phase recall. Reproduced busy-Flee training, repeated theft rewards and missing caught-theft pursuit were repaired. Starting skills, stat presets, caps and gain curves remain unchanged; candidate validation and balance evidence belong to the path playthrough plan until release verification completes.
+- 2026-11-23: Casey requested repeatable truncated warrior/mage/thief playthroughs, then added stealth-and-Fencing Backstab as the thief's primary attack. The release implements a real concealed rear approach, committed high-damage thrusts, escape/pursuit and bounded same-target wounds/Examiner phase recall. Reproduced busy-Flee training, repeated theft rewards and missing caught-theft pursuit were repaired. Starting skills, stat presets, caps and gain curves remain unchanged; the closed path playthrough plan and audit preserve campaign results, failures and balance limitations. Release `dab3b4a` passed all 288 local and CI browser cases plus independent hosted verification.
 
 - 2026-11-23: Casey authorized implementation and deployment of the full agreed UO-style skill/attribute and shared directional NPC design. Release `skills-attributes-and-directional-npcs` at aec11c0 adds twenty skills with a 700-point budget, independent STR/DEX/INT and resources, controlled replacement/targets, meaningful support actions, concealed approaches, optional locks and profession recipes. Existing saves migrate without a wipe; SQL learning remains separate. Further proposed professions remain deferred. Required local/CI checks and independent hosted verification passed; the closed plan and [release history](RELEASE_HISTORY.md#skills-attributes-and-directional-npcs) preserve evidence and limitations.
 
