@@ -1,6 +1,6 @@
 {
   "date": "2026-11-25",
-  "status": "All 28 music and 64 effect sources captured; technical preparation and release checks pending.",
+  "status": "Complete captured source inventory; release status is tracked in game/docs/plans/2026-11-25-classical-audio-batch.md.",
   "music": [
     {
       "id": "m_tallyport",

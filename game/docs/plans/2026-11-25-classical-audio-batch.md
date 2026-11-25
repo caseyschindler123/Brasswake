@@ -1,6 +1,6 @@
 # Complete classical soundtrack and sound-effect pass
 
-Classification: complex. Status: all sources captured and complete batch prepared; final validation, integration and publication are pending. This expands the tested, unpublished Tallyport candidate `a0832ef` after Casey requested all music and SFX together on 2026-11-25. Browser generation/download finished before game integration, so Casey can reclaim computer control during validation and deployment.
+Classification: complex. Status: complete batch prepared, predecessor integrated and local checks passed; authoritative CI/publication and hosted verification are pending. This expands the tested, unpublished Tallyport candidate `a0832ef` after Casey requested all music and SFX together on 2026-11-25. Browser generation/download finished before game integration, so Casey can reclaim computer control during validation and deployment.
 
 ## Acceptance criteria
 
@@ -16,7 +16,7 @@ Classification: complex. Status: all sources captured and complete batch prepare
 1. [x] Inspect the current catalogs and tested Tallyport candidate; read relevant project/audio/workflow instructions. Notify the scenery chat under Casey's explicit messaging authorization.
 2. [x] Save the complete prompt/role inventory and observe pack output/cost behavior before the batch. Generate/download the remaining 27 music sources and all 64 effect sources, recording actual mappings and failures.
 3. [x] Archive previous provenance; prepare the complete catalog and runtime/packed metadata. Verify exact inventories and review only intended changes.
-4. [ ] Run actual-audio regressions, local core verification and smoke/scenes/music/sound suites in all three browser profiles. Open relevant 390×720 and desktop screenshots. Add meaningful coverage for any changed preparation behavior.
+4. [x] Run actual-audio regressions, local core verification and smoke/scenes/music/sound suites in all three browser profiles. Open relevant 390×720 and desktop screenshots. Add meaningful coverage for any changed preparation behavior.
 5. [ ] Integrate the scenery publisher's final source/closure, rerun checks justified by integration, commit/push normally to main and monitor the exact-commit authoritative release gate.
 6. [ ] Verify live source, HTML hash, served audio hashes and real hosted player/audio/offline flows. Reconcile master docs and record concise release evidence/limitations in release history; commit/push documentation closure without redeployment.
 
@@ -35,7 +35,7 @@ Use eight requested pads per pack, with explicit unique role instructions. This 
 
 ## Verification and limits
 
-Prepared-output checkpoint: all 15 audio/preparation regressions passed against the actual 28 music and 64 effect files. Hash comparison confirms exactly 92 audio replacements among 617 assets; all 525 other assets, destination IDs and effect hooks are unchanged. Prepared music totals 24,419,181 bytes and effects 3,249,284 bytes. Browser/core and authoritative release checks remain pending.
+Prepared-output checkpoint: all 15 audio/preparation regressions passed against the actual 28 music and 64 effect files. Hash comparison confirms exactly 92 audio replacements among 617 assets; all 525 other assets, destination IDs and effect hooks are unchanged. Prepared music totals 24,419,181 bytes and effects 3,249,284 bytes. Local `npm run verify -- --defer-ui` passed, including 51 protocol/offline/server checks. All 63 smoke/scenes/music/sound cases passed across phone Chromium, phone WebKit (390×720) and desktop Chromium (1280×800), with zero retries. Opened sound controls and Tallyport captures at both sizes. Initial restricted local-server runs were stopped and rerun with the required process/server access; they are not counted as passing checks. Authoritative CI/publication and hosted checks remain pending.
 
 Coverage review: prepared effect bytes use the same unchanged loader/routing as music metadata, and the sound suite decodes all 64 effects in each browser. Add the missing `art/fx/` family to existing smoke/scenes/sound/music selection. Regression checks every effect path and verifies shared code/fixtures, packaging and unavailable baselines still require full coverage. Predecessor `3c80162` passed all 495 cases and hosted checks, with closure `2e682fe` integrated; no previous failure is bypassed.
 
