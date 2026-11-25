@@ -94,9 +94,9 @@ NPCs compose visible frames lazily, sharing mirrored source directions through a
 
 ## Generating art
 
-### Planned whole-world vegetation kit
+### Whole-world vegetation kit (2026-11-25)
 
-The [living-landscape plan](plans/2026-11-25-living-landscape.md) is in development, not released. Eight new transparent regional sheets supply eight tree silhouettes (two species, four ages) and eight undergrowth/debris pieces each. New-only prompts live in `arttools/landscape_prompts.json`; `arttools/landscape_art.py` records source hashes/crops, removes transparent matte fringe, derives ground-contact anchors from opaque base pixels and packs independent `art/landscape/region-*.webp` atlases plus generated `src/artlandscape.js`. Existing packed artwork, master prompts and generation settings remain unchanged. Built-in image generation is used; no paid API run. Raw filenames remain intact in the local source archive. Managed orchard rows reuse the Four Fords apple silhouettes near suitable temperate farms; wild trees follow the ground biome.
+The [living-landscape plan](plans/2026-11-25-living-landscape.md) is released and verified at `3c80162`; exact evidence is in [release history](RELEASE_HISTORY.md#whole-world-living-landscape). Eight new transparent regional sheets supply eight tree silhouettes (two species, four ages) and eight undergrowth/debris pieces each. New-only prompts live in `arttools/landscape_prompts.json`; `arttools/landscape_art.py` records source hashes/crops, removes transparent matte fringe, derives ground-contact anchors from opaque base pixels and packs independent `art/landscape/region-*.webp` atlases plus generated `src/artlandscape.js`. Existing packed artwork, master prompts and generation settings remain unchanged. Eight built-in image-generation calls supplied the kit; no CLI/API image run was used. Raw filenames remain intact in the local source archive. Managed orchard rows reuse the Four Fords apple silhouettes near suitable temperate farms; wild trees follow the ground biome.
 
 ### Cartography (2026-11-23)
 
@@ -261,11 +261,13 @@ The motion sample uses actual game-composed frames on moving ground at enlarged 
 
 ## Decision log
 
+- 2026-11-25: Verified the whole-world living-landscape release at `3c80162` with core, all 495 browser cases and six CI hosted flows. Physical navigation, saves and gameplay RNG remain intact. Current descriptions now mark the vegetation kit as shipped; the plan and release history retain the exact hash, repaired fixture failures and hosted CDN availability limits.
+
 - 2026-11-25: The living-landscape audit requires explicit ground-contact anchors derived from opaque base pixels. Preserve the visible root position through scale, mirror and wind transforms so asymmetric crowns remain aligned with existing collision. Packed images stay unchanged; the landscape plan tracks verification/publication.
 
 - 2026-11-25: Casey authorized the entire living-landscape pass across all eight regions: diverse species/ages, undergrowth and ground integration, natural patches, signs of use, restrained movement and readable actors. Develop in an isolated worktree and wait for concurrent publishers; the living-landscape plan owns implementation and release evidence.
 
-- 2026-11-25: Verified combined supported-stair/grounded-locomotion recovery at `359f497`: full CI, Pages and hosted checks passed. Current descriptions now reflect wall-supported ascents, relocated arrivals and the rebuilt gait. Release history records exact source/hash, prior repaired failures and the independent offline CDN 503 limitation; landscape remains a separate pending release.
+- 2026-11-25: Verified combined supported-stair/grounded-locomotion recovery at `359f497`: full CI, Pages and hosted checks passed. Current descriptions now reflect wall-supported ascents, relocated arrivals and the rebuilt gait. Release history records exact source/hash, prior repaired failures and the independent offline CDN 503 limitation; the landscape release is recorded separately.
 
 - 2026-11-25: Casey rejected the freestanding dungeon ascent and authorized supported wall recesses, matching masonry and relocated interaction/arrival points. Every stair must show its support, direction and connection to another level. Inspect this spatial logic at real phone/desktop size; successful scale/alpha assertions do not approve it. The stair-support plan tracks implementation and release.
 

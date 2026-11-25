@@ -1,6 +1,6 @@
 # Living landscape across the whole world
 
-Classification: complex. Status: implemented; verified recovery and closure integrated. The first full release gate failed three WebKit cases; fixture repairs are locally verified and the fresh full gate remains required. Not published. Casey authorized the whole-world vegetation/liveliness pass and asked that concurrent work and deployments remain undisturbed.
+Classification: complex. Status: complete; released and verified at `3c8016268a0d839ad61864813ed524c6d596dbb9` on 2026-11-25 (UTC). All milestones are closed; [release history](../RELEASE_HISTORY.md#whole-world-living-landscape) records exact CI, hash, public-flow evidence and limitations. Casey authorized the whole-world pass, with concurrent releases preserved.
 
 ## Scope and acceptance criteria
 
@@ -22,16 +22,18 @@ Worktree: `C:/Users/caseys/.codex/worktrees/living-landscape/Brasswake`, branch 
 3. [x] Implement stable placement/variation, ground integration, wind and wildlife with bounded visible-only work and actor visibility.
 4. [x] Add pure regressions for deterministic placement, protected ground, physical-world preservation and budgets; add browser checks for all eight regional families, actor reveal and navigation.
 5. [x] Run local core (`npm run verify -- --defer-ui`) and focused browser suites in three profiles; open phone/desktop screenshots; review diff and master docs/Decision logs.
-6. [ ] Wait for other publishers, integrate latest main, push intended source without force and monitor full exact-commit CI (shared Scene/build/art change).
-7. [ ] Verify hosted source commit/HTML hash/player flow; reconcile master docs, close this plan and add tracked release evidence; commit/push docs without another deployment.
+6. [x] Wait for other publishers, integrate latest main, push intended source without force and monitor full exact-commit CI (shared Scene/build/art change).
+7. [x] Verify hosted source commit/HTML hash/player flow; reconcile master docs, close this plan and add tracked release evidence; commit/push docs without another deployment.
 
 ## Checks and evidence
 
-Planned: pure landscape invariants and packer replay, existing art-manifest verification, core checks, smoke/living-world/world-buildings/world-travel during local development, full exact-commit CI and hosted UI. Record only checks actually run. New visual checks include variation within species, natural grouping, ground contact, foreground actor reveal, doors/routes unobscured and bounded decoration/wind state. Retain failures until fixed.
+Checkpoint notes below are historical. The final verified-release section supersedes their earlier pending/publication status while retaining failed-run evidence.
+
+Verification scope: pure landscape invariants and packer replay, existing art-manifest verification, core checks, smoke/living-world/world-buildings/world-travel during local development, full exact-commit CI and hosted UI. Record only checks actually run. New visual checks include variation within species, natural grouping, ground contact, foreground actor reveal, doors/routes unobscured and bounded decoration/wind state. Retain failures until fixed.
 
 ## Costs and limits
 
-Task-specific AI, image-tool and CI dollar billing unavailable unless returned by existing evidence. No delegated workers at planning. Built-in image usage will be reported separately from any paid API usage; no paid API run authorized or planned. Physical iPhone and subjective performance require actual device evidence.
+Eight built-in image-generation calls; no CLI/API image runs or new delegated workers. Task-specific AI/image-tool incremental charges, CI/Pages billing and separate fixed-subscription allocation are unavailable. Existing concurrent-task costs are not attributed here. Physical-iPhone performance remains unverified; existing capital roofs partly conceal rear garden beds.
 
 ### Local verification checkpoint
 
@@ -75,3 +77,10 @@ Candidate `004f018fc2220bc39c234cf7d359c96aa0bfe4e0`, [Actions 45663390526](http
 The NPC fixture varied appearance keys at one pose, filling composed frames while reusing anatomical source pixels. Its exact 256-pixel-cache assertion depended on prior ambient animation. Explicitly exercise all 64 walking frames in all five source directions; retain exact 160/256 cache limits. All 18 focused NPC/smoke cases passed across three profiles on that repair.
 
 Opened the failed guided-day screenshots and read the HTML action report directly from the large retained artifact. Each day generated roughly 5,000 browser-control steps; late farewell/end assertions are present but do not establish a passing test because the overall deadline failed. The shared joystick fixture now observes crossing, interruption, stalling and its original bounded deadline inside the page rather than polling through protocol round trips every 40 ms. Real pointer input, physical movement/collision, stopping precision, progression assertions, 750-second day deadlines, coverage and zero retries remain. All 24 focused joystick/smoke checks passed across three profiles (3.0 minutes), including real fractional stopping, capture/cancellation and gait checks. All four complete WebKit guided days passed with the original assertions and 750-second deadlines: warrior/thief 5.6 minutes, crafter 5.8, mage 6.3; 12.0 minutes total. Opened repaired NPC WebKit, dojo WebKit/desktop and warrior/mage farewell captures. A fresh full exact-commit gate is now required. No game/runtime or art changes for these fixture repairs.
+
+### Final verified release
+
+- Source `3c8016268a0d839ad61864813ed524c6d596dbb9`, [Actions 45681038767](https://github.com/caseyschindler123/Brasswake/actions/runs/45681038767) (successful hosted recheck in [attempt 3](https://github.com/caseyschindler123/Brasswake/actions/runs/45681038767/attempts/3)). Core and all 495 cases passed: 165 per phone Chromium/WebKit 390×720 and desktop Chromium 1280×800, with zero Playwright retries or skipped required cases. Pages published the candidate in attempt 1; attempt 3 verified all six hosted flows on the exact already-live candidate without republishing. Hosted job completed 2026-11-25 20:16:56 UTC.
+- Final independent identity matched at `2026-11-25T20:18:17.768Z` (UTC). HTML SHA-256: `fdd3b91f8f694dd8ced32612db4b32746a1e886f087d672761d431f2158d2c1c`. Two standard independent runs each passed five public flows but stopped offline downloading on confirmed CDN HTTP 503s (`art/f/F18_1.webp`, then `art/i/hq8.webp`). Both subsequently returned HTTP 200 with exact committed hashes. A separate public offline/save probe retained every original completion, integrity, cold-reopen, SQL, backup, import and persistence assertion and passed in 56.8 seconds with zero Retry clicks. Its bounded public-recovery hook was armed but no retry interaction was exercised. CI attempts 1–2 also reported incomplete offline downloads; retain these failed one-shot probes as availability limits, not passing suites. No source, assertion, timeout, retry policy or coverage changes accompanied these hosted rechecks.
+- Opened the hosted world, offline-ready and offline-playing/saving captures, alongside prior eight-region phone/desktop, orchard/garden/wetland and complete native-kit/root-anchor reviews. Earlier local core, 13 pure landscape cases, three Python art-tool cases, exact archive replay and the 617-file packed baseline passed; all 609 incoming asset records remain intact. Final fixture repairs passed 18 NPC/smoke checks, 24 control/smoke checks and all four earned WebKit guided days before the fresh full gate.
+- Current master descriptions and the coordination milestones are reconciled in documentation-only closure. Physical-iPhone behavior/performance, occasional one-shot CDN availability and partial rear-garden occlusion by existing capital roofs remain limitations. Costs remain unavailable as stated above; no new image generation, API spend or delegated worker was added during repair/closure.
