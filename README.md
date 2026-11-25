@@ -11,22 +11,30 @@ Mobile SQL-learning RPG.
 
 ## Automatic coding workflow
 
-Codex reads root `AGENTS.md` automatically, classifies implementation tasks as
-simple or complex, plans proportionally, develops, verifies, updates the docs,
-commits, pushes, deploys, and checks the live release. Both classes deploy after
-required checks pass without a skill invocation or routine approval. Discussion
-and explicit requests to hold deployment take precedence. The main agent chooses
-bounded subagent work and appropriate models only when the benefit warrants their
-cost. See [`05_CODING_WORKFLOW.md`](game/docs/05_CODING_WORKFLOW.md).
+Codex reads root `AGENTS.md` automatically and defaults to simple for understood
+work. Planning and checks follow actual risk. Game output deploys after required
+checks; documentation and tooling-only changes do not publish unchanged output.
+Discussion, planning-only work and deployment holds take precedence. The main
+agent uses bounded delegation only when useful. Detailed current commands and
+planned scope criteria live in [`05_CODING_WORKFLOW.md`](game/docs/05_CODING_WORKFLOW.md).
 
-From `game/`, run `npm ci`, then `npm run verify` before release. Verification
-checks packed art, the engine/content, poker, casino, tooling, and the build.
-Game changes select Playwright tests on phone Chromium/WebKit and desktop Chromium;
-framework/documentation-only changes skip UI testing. On a new machine, use
-`npm run test:install` when browser tests are needed (CI installs them automatically).
-Use `npm run verify -- --ui` to request extra coverage. Review relevant generated
-screenshots for player-facing changes. Reports stay in ignored folders; browser
-emulation does not establish testing on a real iPhone.
+Current commands, from `game/`:
+
+- Documentation/instructions: review wording/links and run `git diff --check`; no game build/tests/screenshots.
+- Tooling: run affected automation checks; `npm run test:protocol` checks selection, real discovery and release guards. Runner changes can also need short browser execution.
+- Game development: `npm run verify -- --defer-ui` runs core/build checks; `npm run test:ui -- --suites=<names>` runs smoke plus affected suites. Exact-commit CI owns the current release gate, including all three profiles and full fallback for risky/unknown changes.
+- `npm run verify` includes selected local UI; `npm run verify -- --ui` explicitly requests full coverage. `--defer-ui` does not skip core checks. `--suites=journeys` selects all four profession days; nightly/full and relevant risky selections retain them.
+
+Install locked dependencies with `npm ci` only when needed. On a new machine use
+`npm run test:install` when browser checks are required. Codex opens relevant
+phone/desktop captures; Casey is not assigned routine QA. Browser emulation is
+not a real-iPhone test.
+
+**Planned, not built:** narrower cosmetic/rules/feature/registration criteria and
+resettable Dev scenarios for battles, gear, buildings and travel. The
+[implementation plan](game/docs/plans/2026-11-25-scope-based-testing-and-dev-mode.md)
+defines milestones, safeguards and measured rollout. Current executable gates
+remain in force until replacements pass validation; no new Dev command is available yet.
 
 Rebuild the packed art from a read-only raw folder:
 
@@ -51,15 +59,16 @@ reference. Decoded pixel comparisons require actual reference image bytes.
 
 ## GitHub Pages deployment
 
-Push to `main` to deploy. `.github/workflows/pages.yml` installs locked dependencies,
-runs `npm run verify`, and publishes only `game/dist/` to GitHub Pages. The build
-includes `release.json` with its source commit and HTML hash. After deployment,
-CI verifies the exact live commit and HTML; game changes also get a browser check
-of SQL, navigation, and saves. Pull requests validate without deploying. Reports
-and any screenshots are retained as Actions artifacts for 14 days. Official
-actions are pinned; no custom deployment secret is needed. Raw art and sliced
-pieces stay on this PC.
+Main pushes use `.github/workflows/pages.yml` to select checks and publication
+from verified live changes. Markdown-only pushes skip it. Tooling/test-only
+changes validate without publishing unchanged output. Actual game changes publish
+`game/dist/` only after required checks, followed by exact hosted commit/HTML and
+selected player-flow verification. The build writes `release.json` with source
+commit and HTML hash. Pull requests and nightly/manual validation do not publish
+by default. Reports/captures remain Actions artifacts for 14 days. Raw art and
+sliced pieces are not published. See 05 for baseline guards and failure handling.
 
-The hosted game saves on its own browser origin. Use Hero → Save code / Load a
-code to move a character from the artifact; Claude account sync is available
-only in the artifact. Offline installation remains planned.
+The hosted game saves on its own browser origin and supports portable backups
+and an explicit offline download. Artifact-origin saves must be transferred
+through the existing import/export controls; see the architecture's released
+offline/save behavior and tracked release history.

@@ -15,6 +15,8 @@ State the class and reason early. Default to simple unless evidence establishes 
 
 ## Choose checks by impact
 
+This section and the commands below describe the **current executable gate**. The scope-based criteria below are **planned, not built**. Writing a smaller proposed check list does not override the current selector or a known relevant failure. The [implementation plan](plans/2026-11-25-scope-based-testing-and-dev-mode.md) owns the staged transition, discovery/import cleanup and development scenarios.
+
 | Changed behavior | Required checks | Release |
 |---|---|---|
 | Documentation or Codex instructions | Review wording, consistency and `git diff --check` | No game build, tests, screenshots or deployment |
@@ -22,6 +24,31 @@ State the class and reason early. Default to simple unless evidence establishes 
 | Game code, player assets, runtime dependencies or built game output | Meaningful regressions and `npm run verify`; relevant browser tests and visual inspection | Automatic deployment and exact live commit/HTML verification |
 
 A simple gameplay fix can need browser testing. A complex documentation change can need no executable tests. Do not add tests that merely repeat prose or run unrelated suites to satisfy a task label. Stop verification when the required checks pass unless new changes or unresolved evidence justify more. Markdown-only pushes are excluded from the Pages workflow; mixed changes retain their normal checks.
+
+## Planned scope-based criteria (not built)
+
+Choose by the behavior and contracts affected, the current development stage, supported browsers/devices, persistence risk and publication impact. Task complexity, file count, a Dev-mode label or the mere presence of a new feature does not set verification scope. At the start, name the changed behavior, relevant risk, proposed checks and stop condition briefly in chat; do not create another reporting system.
+
+| Scope | Examples | Target development checks | Target release checks |
+|---|---|---|---|
+| D — Documentation | Instructions, plans, prose about existing behavior | Wording/link consistency and `git diff --check` | No game checks, build or publication; already supported |
+| T — Tooling/registration | Test discovery, suite wiring, developer scripts | Affected protocol/configuration checks; actual discovery and short runner coverage when registration changes; no complete journeys solely for registration | Required automation checks; no publication of unchanged game. Scenario/assertion/shared-helper behavior changes retain their affected real flows |
+| V — Local cosmetic | Recolor, decorative texture, local icon/spacing without input/layout/physical contract change | Build and affected asset integrity; direct changed-scene captures at phone 390×720 and desktop 1280×800; Codex opens/reviews them. No unrelated core groups, campaigns or new test mirroring appearance | Candidate/artifact integrity, genuinely short common release canary, exact hosted identity and deployment-sensitive affected checks; no repetition of every visual scenario across every profile |
+| U — Local layout/interaction | A control, responsive panel, readable results, local equipment placement | Affected scenario and useful interaction/overflow assertions; phone and desktop captures; phone WebKit when CSS/font/compositing/native input risk warrants it | Short common canary plus affected profile/interaction checks; scope broadens for shared layout or physical anchors |
+| R — Isolated rules/data | Weapon stats, damage calculation, skill transaction in a reviewed narrow module | Small tests of actual runtime rules/boundaries; prepared real-game interaction only for its integration risk | Affected rules/integration checks plus short common canary. Shared combat/progression contracts still use S |
+| F — Feature integration | Battle actions, new gear behavior, building entrances | Resettable direct scenario setup, ordinary player actions and relevant state assertions; relevant visual/profile checks | Affected system/boundary checks and common canary. Supplying gear, enemies or position does not establish earning, natural travel or progression |
+| S — Shared/high risk/unknown | Saves/ownership, movement/ActorRig speed, broad combat/progression, global layout, packaging/runtime/cache, unknown path or missing evidence | Core and affected boundary checks; direct scenarios may help diagnosis | Conservative broad/full required profiles and journeys; preserve cumulative unpublished game risk and live-baseline guards |
+| J — Exhaustive validation | Complete profession days, broad regression/campaign exploration | Explicit diagnostic/balance/progression investigation when relevant | Complete inventory nightly/manual full; journeys remain mandatory for relevant S changes and known failures. Extended campaign tools retain their separate opt-in purpose |
+
+For V, a real CSS engine difference can require WebKit even when the screen looks cosmetic. Doors, hitboxes, sprite ground anchors, camera or input surfaces can be U/F/S rather than V. A change in monolithic `game.js` or global CSS remains conservative until a reviewed dependency boundary proves smaller impact. Mixed changes take the union and strongest applicable risk; unknown impact never becomes cosmetic by assertion.
+
+The planned common release canary covers a bounded boot/real-SQL/save round-trip on supported engines; it must not grow into a profession journey or eight-scene gallery. Feature scenarios/captures use affected profiles rather than multiplying every test across every browser. Production source identity, changed-asset/manifest integrity and relevant offline behavior remain required. Full offline download/reopen is mandatory for cache/runtime/packaging/inventory changes or unknown risk; a cheaper check for a same-path cosmetic asset replacement must prove changed-asset availability/integrity before it can replace the current broader offline check.
+
+Codex performs routine automation and visual inspection. Casey may provide design feedback; task completion must not assume he will run the QA matrix. Add a regression when it protects behavior or a meaningful recurring failure; cosmetic edits do not automatically need a new test. Keep existing assertions and full inventory. Failures remain mandatory until diagnosed/repaired, and timing targets never authorize skipping checks or extending deadlines to hide a problem.
+
+The planned Dev command interface prepares disposable battles, equipment/skills, catalog monsters and valid destinations, and resets them without touching player saves. It reuses real game code; tests call setup directly and then exercise the actual behavior. An optional panel uses the same interface. Existing `__bw`/visual fixtures are available now; the unified Dev mode and scope tiers are not. Fast cosmetic checks must not wait for an exhaustive developer editor.
+
+Implement registration/helper separation, core/scenario selection and fail-closed CI metadata before activating these reduced gates. See the plan for acceptance cases, source ownership, timing measurements, rollout, provenance requirements and the audit of active versus historical documentation. No new CLI flag or command is available until implemented and verified.
 
 ## Develop and verify
 
@@ -69,6 +96,8 @@ Prefer one task per chat. For multiple releases in one chat, use task-specific u
 The main agent owns classification, acceptance criteria, task decomposition, integration, and release. Use the delegation rules in root `AGENTS.md`: default to one agent, delegate only bounded independent work with a clear expected benefit, select the least expensive suitable available model and reasoning effort, and escalate capability when the evidence warrants it. Avoid duplicate reading, overlapping edits, recursive delegation, unnecessary screenshots, and repeated unchanged test runs. Prefer narrow worker context and concise deliverables. Exact costs depend on the available product/model; do not invent a price or promised savings.
 
 ## Decision log
+
+- 2026-11-25: Casey requested a full implementation plan and consistent testing documentation after the framework change ran expensive journeys. Record target scope criteria for cosmetic/layout/rules/features/tooling/shared changes and direct resettable Dev scenarios. This is a documentation/planning change only: current executable gates remain in force; reduced selection, registration/helper isolation and unified Dev mode are planned, not built. The [scope-based testing plan](plans/2026-11-25-scope-based-testing-and-dev-mode.md) owns milestones and acceptance evidence. Codex performs routine checks and capture review; Casey is not assigned manual QA.
 
 - 2026-11-25: Casey requested a faster routine path with simple as the default. Require a named consequential risk for complex planning; separate four profession journeys from targeted first-day tests while retaining them in nightly/manual full, risky fallbacks and owning-fixture changes. Add reviewed presentation-only landscape and architecture/cartography atlas mappings and conditional hosted checks; keep three-profile smoke, exact-commit/live-baseline guards, zero retries and mandatory relevant failures. Reuse successful CI hosted evidence and update master docs for changed behavior/lasting decisions rather than every fix. The [framework plan](plans/2026-11-25-proportionate-framework.md) owns validation and non-publication status; unrelated nightly failures remain under their existing repair task.
 

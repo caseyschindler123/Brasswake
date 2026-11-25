@@ -14,6 +14,7 @@ Apply this workflow automatically to every implementation task in this repositor
 - **Simple (default):** understood fixes, presentation/content adjustments, isolated helpers/features, and ordinary docs/tooling changes. State a short approach and observable acceptance criteria in chat; no saved plan.
 - **Complex:** identify the actual save/schema migration, changed shared contract, new persistent subsystem, consequential release-gate change, or unresolved design choice and its failure risk. Merely touching connected systems, adding a module, changing several files or needing browser tests does not qualify. Save an actionable plan in `game/docs/plans/` before complex implementation and keep its milestones, checks and release status current.
 - Planning and verification are independent. Upgrade only when investigation establishes a concrete wider risk. Casey's override takes effect immediately. The canonical command, suite and release rules live in `game/docs/05_CODING_WORKFLOW.md`; keep this entry point concise.
+- Scope-based cosmetic/rule/feature/tooling criteria and unified Dev scenarios are planned in `game/docs/plans/2026-11-25-scope-based-testing-and-dev-mode.md`. Use the current executable gates until their replacements are implemented and verified. A planning/documentation task stays simple; a requested full plan does not imply implementing it or running game tests.
 
 ## Required completion gates
 

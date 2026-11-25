@@ -2,6 +2,8 @@
 
 The repository owns the game source, packed art, pipeline and master context docs in `game/docs/`. Raw art stays outside the repo and is read-only during rebuilds. Existing art is never regenerated to fix a pipeline defect.
 
+The commands below verify the art pipeline; they are not the complete release gate or a requirement for every cosmetic edit. Choose current release checks using [05_CODING_WORKFLOW.md](game/docs/05_CODING_WORKFLOW.md). Its scope-based cosmetic criteria and direct affected-scene checks are planned in the [implementation plan](game/docs/plans/2026-11-25-scope-based-testing-and-dev-mode.md), not built. A pipeline/coordinate/anchor change has broader risk than an isolated decorative recolor; keep affected integrity and opened phone/desktop evidence, and preserve current unknown-risk fallback.
+
 ## Run on this PC
 
 From `C:\Users\caseys\source\Brasswake`:

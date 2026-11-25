@@ -2,6 +2,8 @@
 
 Source reviews recorded 2026-11-22 and 2026-11-23; the boat-intro/writing release was verified on 2026-11-24 UTC. The source is authoritative. See `STORY_BIBLE.md` for chronology, knowledge, and promised payoffs. This register distinguishes source review, execution of the SQL, and observation of a player path. A source review is not a browser playthrough.
 
+Use [05_CODING_WORKFLOW.md](05_CODING_WORKFLOW.md) for current gates and planned scope-based criteria, with implementation tracked in the [testing plan](plans/2026-11-25-scope-based-testing-and-dev-mode.md). A wording edit does not by itself require a complete profession journey; changed teaching, branch/checkpoint or progression behavior needs its affected checks under the current gate. Direct Dev setup is planned and does not prove an earned first-day path. Historical case counts and observations in this register describe the original releases and are not instructions to rerun every case for every edit.
+
 ## Current intro correction
 
 The animation/world-polish release `d3850c3`, verified on 2026-11-25 UTC, revises Tamsin’s deck conversation and Odalys’s first explanation to establish SQL’s skilled-action purpose before manifest practice. Character selection moves from repeated dialogue controls to the portrait menu, preserving arrival checkpoints and name drafts. Source review and targeted browser verification are recorded in [the plan](plans/2026-11-24-animation-and-world-polish.md); exact release identity and hosted evidence are in [release history](RELEASE_HISTORY.md#character-motion-intro-and-world-presentation). This targeted correction does not certify a new whole-script source review or human editorial approval.

@@ -40,6 +40,8 @@ Defense skills rose more slowly: Parrying needs a shield and a live counterattac
 
 ## Reuse and limitations
 
+Current selection and planned scope criteria are owned by [05_CODING_WORKFLOW.md](05_CODING_WORKFLOW.md) and the [scope-based implementation plan](plans/2026-11-25-scope-based-testing-and-dev-mode.md). These compressed campaigns are opt-in evidence for relevant progression/balance work, not a blanket prerequisite for a cosmetic change or prepared battle. Future Dev setup may supply items/skills/position for an isolated interaction; it cannot establish that this campaign earns them. Historical results below retain their original evidence boundaries.
+
 From `game/`, `npm run test:paths` runs the three compressed campaigns. For a targeted run use `npm run test:paths -- --paths=thief --seeds=27182 --label=thief-check`; add `--mistake-every=7` for the mixed-answer scenario. `--encounters=12` is the default per region. Runs build an isolated snapshot and write source/HTML identity, action logs, checkpoints, screenshots and earned save codes under ignored `work/path-audit/<label>/`. An existing snapshot there can be selected with `--snapshot=<absolute path>`. The harness is never shipped, and hosted `__bw` remains unavailable.
 
 This is an automated compressed Trials audit, not a manual exploration of every optional quest or all 28 dungeon floors with each earned build. Prepared browser tests separately exercise dungeon keepers and the full escape/reconceal/re-entry loop on phone Chromium/WebKit and desktop. No real iPhone or human beginner/long-session balance study was performed. Final local/CI/deployment evidence is recorded in the closed plan and release history.

@@ -10,6 +10,7 @@ You are helping build Brasswake, a mobile SQL-learning RPG in the spirit of Ulti
 
 - Before changing code, read 01_ARCHITECTURE.md.
 - Follow [05_CODING_WORKFLOW.md](05_CODING_WORKFLOW.md) automatically; it owns detailed process and verification rules. Default to simple and name a concrete consequential risk or unresolved design decision before choosing complex. Planning and testing are independent. Routine releases use short three-profile smoke plus affected checks; nightly/manual full and risky/unknown changes retain complete journeys. Documentation needs review/diff checks; tooling uses affected automation checks and does not deploy unchanged game output. Reuse successful CI hosted evidence. Honor local-only requests, report available costs honestly and use subagents economically.
+- The [scope-based criteria and Dev-mode plan](plans/2026-11-25-scope-based-testing-and-dev-mode.md) describes planned efficiency work. Reduced cosmetic/registration gates and unified Dev commands are not built. Keep current executable safeguards until verified replacements exist; Codex handles routine automation and capture inspection without assigning Casey manual QA.
 - Before changing rules, numbers, content or story, read 02_GAMEPLAY.md.
 - Before writing any image prompt or packing art, read 03_ART_STYLE.md.
 - Before writing any text a player will see, read 04_WRITING_STYLE.md.

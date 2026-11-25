@@ -19,7 +19,7 @@ Music uses 44.1 kHz stereo 192 kb/s gapless MP3 loops and PCM16 WAV cues. An 8/1
 
 Technical recurrence, waveform and browser checks do not establish subjective musical/foley quality. No subjective listening or physical iPhone listening is claimed. Headroom in prepared files does not prove that full-scale raw generated sources have no audible distortion. Originals/C2PA data are retained locally; prepared derivatives intentionally remove vendor metadata.
 
-After preparation, run actual-output Python checks, the pinned art-tool tests and packed verifier, then `cd game; npm run verify`. Browser coverage decodes every music/effect asset and checks context routing, generated sample playback, independent mute, fallback, bounded cache/loading/voices and existing event timing.
+After preparation, run actual-output Python checks and the packed verifier. Image-packing tests apply when their pipeline is affected. Follow [05_CODING_WORKFLOW.md](../../game/docs/05_CODING_WORKFLOW.md) for current core/build and selected sound/music browser gates; a preparation-only tooling edit uses its affected automation checks and does not publish unchanged audio. Browser coverage decodes music/effect assets and checks routing, playback, persistent mute, fallback and bounded resources. The [scope-based plan](../../game/docs/plans/2026-11-25-scope-based-testing-and-dev-mode.md) describes future finer selection; those reduced gates and Dev commands are not implemented yet. Technical audio checks do not establish subjective quality or physical-device behavior.
 
 The runtime revalidates the ordinary HTTP cache when loading a buffer so same-name replacement files refresh after deployment. Its decoded LRU and coherent offline snapshots still provide cached playback.
 
