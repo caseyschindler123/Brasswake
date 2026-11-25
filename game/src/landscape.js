@@ -23,7 +23,7 @@ const Landscape = (() => {
   }
   const family=(region,biome)=>biome>=1&&biome<=8?biome:biome===9?3:biome===10?7:region||1;
   function build(m) {
-    const chunks=new Map(),trees=new Map(),trails=[],stats={trees:0,details:0,ground:0,gardens:0,regions:Array(9).fill(0)};
+    const chunks=new Map(),trees=new Map(),trails=[],orchards=[],stats={trees:0,details:0,ground:0,gardens:0,regions:Array(9).fill(0)};
     const add=o=>{const key=Math.floor(o.x/CHUNK)+','+Math.floor(o.y/CHUNK),a=chunks.get(key)||[];
       if(a.length>=MAX_CHUNK)return false;a.push(o);chunks.set(key,a);stats.details++;stats.regions[o.r]++;if(o.ground)stats.ground++;if(o.tended)stats.gardens++;return true;};
     const inside=(x,y)=>x>1&&y>1&&x<m.w-2&&y<m.h-2;
@@ -75,14 +75,38 @@ const Landscape = (() => {
       if(end>=0){const points=[];for(let i=end;i!==-1;i=parents.get(i))points.push([i%m.w+.5,Math.floor(i/m.w)+.75]);
         if(points.length>2&&points.length<=32)trails.push({r:st.r,points});}
     }
+    // Tended fruit rows reuse real, already-blocked trunks south of suitable
+    // farms. No tree, route or saved plot is physically moved or introduced.
+    const orchardRoots=[];
+    for(const st of m.sites||[])if(st.kind==='home'&&['farmer','beekeeper'].includes(st.role)&&[1,3,4,8].includes(st.r)){
+      const rows=new Map();
+      for(const [i,t]of trees)if(!t.orchard&&[1,3,4,8].includes(t.biome)&&Math.abs(t.x-st.x)<=17&&t.y>=st.y+6&&t.y<=st.y+23
+        &&(!m.seen||[-m.w,m.w,-1,1].some(d=>m.seen[i+d]&&!m.solid[i+d]))){
+        const row=rows.get(t.y)||[];row.push([i,t]);rows.set(t.y,row);
+      }
+      const ranked=[...rows.values()].filter(row=>row.length>=3).sort((a,b)=>b.length-a.length||a[0][1].y-b[0][1].y);
+      if(!ranked.length)continue;
+      const first=ranked[0],next=ranked.find(row=>Math.abs(row[0][1].y-first[0][1].y)>=2&&Math.abs(row[0][1].y-first[0][1].y)<=6);
+      const selected=[first,...(next?[next]:[])].map(row=>row.sort((a,b)=>a[1].x-b[1].x).slice(0,6));
+      const orchard={id:st.id||'orchard-'+st.x+'-'+st.y,r:st.r,rows:[]};
+      for(const row of selected){const points=[];
+        for(const [i,t]of row){
+          const stage=hash(t.x,t.y,291)<.15?1:hash(t.x,t.y,292)<.13?3:2;
+          Object.assign(t,{r:4,species:1,stage,key:'tree'+(4+stage),scale:.76+hash(t.x,t.y,293)*.12,orchard:orchard.id});
+          points.push([t.x,t.y]);orchardRoots.push([t.x,t.y]);
+        }orchard.rows.push(points);
+      }orchards.push(orchard);
+    }
+    const orchardClear=new Set();for(const [x,y]of orchardRoots)for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)orchardClear.add((y+dy)*m.w+x+dx);
     const trailCells=new Set(trails.flatMap(t=>t.points.map(([x,y])=>Math.floor(y)*m.w+Math.floor(x))));
     for(const [key,items]of chunks){
       chunks.set(key,items.filter(o=>{
-        if(o.ground||!trailCells.has(o.anchor))return true;
+        const tendedEdge=!o.ground&&orchardClear.has(o.anchor);
+        if(!tendedEdge&&(o.ground||!trailCells.has(o.anchor)))return true;
         stats.details--;stats.regions[o.r]--;if(o.tended)stats.gardens--;return false;
       }));
     }
-    return {chunks,trees,trails,stats};
+    return {chunks,trees,trails,orchards,stats};
   }
   function visible(data,x0,y0,x1,y1) {
     const out=[];if(!data)return out;

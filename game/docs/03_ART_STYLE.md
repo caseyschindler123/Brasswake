@@ -96,7 +96,7 @@ NPCs compose visible frames lazily, sharing mirrored source directions through a
 
 ### Planned whole-world vegetation kit
 
-The [living-landscape plan](plans/2026-11-25-living-landscape.md) is in development, not released. Eight new transparent regional sheets supply eight tree silhouettes (two species, four ages) and eight undergrowth/debris pieces each. New-only prompts live in `arttools/landscape_prompts.json`; `arttools/landscape_art.py` records source hashes/crops, removes transparent matte fringe, derives ground-contact anchors from opaque base pixels and packs independent `art/landscape/region-*.webp` atlases plus generated `src/artlandscape.js`. Existing packed artwork, master prompts and generation settings remain unchanged. Built-in image generation is used; no paid API run. Raw filenames remain intact in the local source archive.
+The [living-landscape plan](plans/2026-11-25-living-landscape.md) is in development, not released. Eight new transparent regional sheets supply eight tree silhouettes (two species, four ages) and eight undergrowth/debris pieces each. New-only prompts live in `arttools/landscape_prompts.json`; `arttools/landscape_art.py` records source hashes/crops, removes transparent matte fringe, derives ground-contact anchors from opaque base pixels and packs independent `art/landscape/region-*.webp` atlases plus generated `src/artlandscape.js`. Existing packed artwork, master prompts and generation settings remain unchanged. Built-in image generation is used; no paid API run. Raw filenames remain intact in the local source archive. Managed orchard rows reuse the Four Fords apple silhouettes near suitable temperate farms; wild trees follow the ground biome.
 
 ### Cartography (2026-11-23)
 

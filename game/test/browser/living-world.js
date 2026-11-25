@@ -70,6 +70,23 @@ test('living landscape · tended planting stays on public garden soil beside cle
   await f.waitForTimeout(3400);await f.evaluate(()=>{Scene.pause();Scene.debug().draw();});
   await screenshot(page,info,'landscape-tended-capital-garden');expect(errors).toEqual([]);
 });
+
+test('living landscape · managed fruit rows retain existing trunks and reachable farm approaches',async({page},info)=>{
+  const errors=observeErrors(page),f=await scene(page);
+  const facts=await f.evaluate(()=>{
+    const m=Scene.debug().world,orchards=m.landscape.orchards;
+    if(!orchards.length)throw Error('No managed orchard rows beside suitable farms');
+    const o=orchards.find(o=>o.rows.length===2)||orchards[0],row=o.rows[0],[x,y]=row[Math.floor(row.length/2)];
+    Scene.hop(...Scene.safePosition([x,y+1],o.r));
+    return {count:orchards.length,rows:o.rows.length,trees:o.rows.flat().length,
+      rooted:orchards.every(o=>o.rows.every(row=>row.length>=3&&row.every(([x,y])=>{
+        const i=y*m.w+x,t=m.landscape.trees.get(i);return y===row[0][1]&&m.solid[i]&&m.o[i]>0&&m.o[i]<4&&t.r===4&&t.species===1;
+      }))),near:Math.hypot(Scene.pos()[0]-x,Scene.pos()[1]-(y+1))};
+  });
+  expect(facts.count).toBeGreaterThan(0);expect(facts.trees).toBeGreaterThanOrEqual(3);expect(facts.rooted).toBe(true);expect(facts.near).toBeLessThan(3);
+  await f.waitForTimeout(3400);await f.evaluate(()=>{Scene.pause();Scene.debug().draw();});
+  await screenshot(page,info,'landscape-managed-orchard');expect(errors).toEqual([]);
+});
 test('living world · cancellation freezes the actual between-tile position without rollback',async({page})=>{
   const errors=observeErrors(page),f=await scene(page);
   await f.evaluate(()=>{for(const e of Scene.ents()){e.wander=0;e.tx=null;e.fx=e.x;e.fy=e.y;}

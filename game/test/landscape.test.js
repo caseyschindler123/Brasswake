@@ -50,6 +50,16 @@ test('tended public planting stays on the grass side of planted trees and leaves
   assert.equal(beds.length,2);assert.ok(beds.every(o=>o.y===y-1&&m.t[o.anchor]===0));
 });
 
+test('farm orchards use aligned existing trunks without introducing or moving physical obstacles',()=>{
+  const m=world();m.sites.push({id:'fruit-farm',kind:'home',role:'farmer',x:70,y:25,r:4});
+  const before=physical(m),data=Landscape.build(m);assert.equal(physical(m),before);
+  assert.ok(data.orchards.length>0);
+  for(const orchard of data.orchards)for(const row of orchard.rows){
+    assert.ok(row.length>=3);assert.ok(row.every(p=>p[1]===row[0][1]));
+    for(const [x,y]of row){const i=y*m.w+x,t=data.trees.get(i);assert.ok(m.solid[i]&&m.o[i]>0&&m.o[i]<4);assert.equal(t.species,1);assert.equal(t.r,4);assert.ok(t.orchard);}
+  }
+});
+
 test('every regional family has two species and four distinct growth stages with stable shape variation',()=>{
   for(let r=1;r<=8;r++){
     const keys=new Set(),scales=new Set(),widths=new Set();

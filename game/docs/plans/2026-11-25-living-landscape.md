@@ -5,7 +5,7 @@ Classification: complex. Status: implemented and locally verified; waiting for t
 ## Scope and acceptance criteria
 
 - Eight regional planting families, each with two recognizable species and authored young, slender, mature and old silhouettes. Stable individual height/width/foliage variation supplements distinct artwork.
-- Painted bushes, regional undergrowth, reeds, grasses/flowers, fallen leaves/needles, roots, fallen timber/stumps and tended planting around appropriate settlements/homesteads.
+- Painted bushes, regional undergrowth, reeds, grasses/flowers, fallen leaves/needles, roots, fallen timber/stumps and tended planting and managed orchard rows around appropriate settlements/homesteads.
 - Natural-looking groves, woodland margins and clearings through a separate deterministic decoration stream. Retain the existing physical world, entity identities, roads, protected sites, housing clearance, saves and gameplay RNG. Additional clusters use nonblocking decoration around existing trunks; no new barrier closes a route.
 - Restrained connected wind movement, occasional perched/taking-flight birds, and revealed silhouettes for the hero and nearby actors under foreground foliage. Preserve phone readability and entrance visibility.
 - Source/output receipts and repeatable packing for new-only assets. Existing packed art, source prompts and image-generation settings stay untouched. Use built-in image generation; no paid API run.
@@ -52,6 +52,10 @@ An additional art audit found that asymmetric old crowns need explicit root anch
 
 ### Coordinated publication assignment
 
-Casey requested review/assignment of the three concurrent agents in the coordination chat. The recovery publisher owns both failed WebKit cases, the dungeon/locomotion recovery release, live verification and closure. This landscape workstream is the next publisher after that verified release and its documentation closure. Independent landscape review is complete at `809f244`; no recovery fixes, peer checkouts or workflows are owned here.
+Casey requested review/assignment of the three concurrent agents in the coordination chat. The recovery publisher owns both failed WebKit cases, the dungeon/locomotion recovery release, live verification and closure. This landscape workstream is the next publisher after that verified release and its documentation closure. Independent landscape review is complete, including derived root anchors and managed orchard rows; no recovery fixes, peer checkouts or workflows are owned here.
 
 Owned files are the new landscape packer/prompts/receipt/atlases/metadata, `landscape.js`, `scene_landscape.js`, Scene preload/draw hooks and build registration, landscape pure/browser coverage, the isolated world-travel reload fixture correction, and affected master docs/this plan. Before publication, integrate final main normally and explicitly preserve its cartography/recovery fixes, human locomotion and dungeon assets, Scene/build registrations, packed manifest entries and shared documentation. Reuse prior unchanged local evidence, run applicable post-merge checks, then the mandatory full exact-commit gate and live SHA/hash/player flows. Do not repeatedly monitor or duplicate the recovery investigation; wait for the coordinated handoff once independent work is complete.
+
+### Managed orchard completion
+
+Complete the original human-use scope with visible fruit rows near suitable temperate farms/beekeepers. Select aligned, accessible existing tree anchors south of the farm; use the existing apple silhouettes and tidy only nonblocking decorative undergrowth. Existing trees, collision, terrain, entity IDs and saves remain fixed. No new images or asset changes. All 13 landscape pure regressions and all 33 landscape/orchard browser cases passed in three profiles (4.5 minutes). Opened the orchard phone Chromium, phone WebKit and desktop captures; existing roots, farm approaches and foreground visibility remain correct. No additional image generation or asset changes.
