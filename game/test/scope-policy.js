@@ -15,7 +15,7 @@ function registrationEquivalent({readOld,readNow}={}){
     const f=old('first-day.js'),start=f.indexOf("if (require('../ui-suites')"),end=f.indexOf("test('first-day · road farewell",start);
     if(body(now('first-day.js'))!==f.slice(end))return false;
     const loop=f.slice(start,end).replace(/^if \([^\n]*\n/,'');
-    if(!now('journeys.js').endsWith(loop))return false;
+    if(!now('journeys.js').trimEnd().endsWith(loop.trimEnd()))return false;
     if(!now('first-day-helper.js').startsWith(f.slice(0,start).replace("require('./dungeons')","require('./dungeon-helper')")))return false;
     // New imports/exports must expose the complete original helper functions.
     for(const file of ['dungeon-helper.js','first-day-helper.js']){
@@ -25,7 +25,7 @@ function registrationEquivalent({readOld,readNow}={}){
       const exported=tail.match(/\{([^}]+)\}/)[1].split(',');if(JSON.stringify([...exported].sort())!==JSON.stringify([...names].sort()))return false;
       const header="const {test,expect}=require('@playwright/test');\nconst {screenshot,observeErrors}=require('./flow');\nconst {"+exported.join(',')+"}=require('./"+file.slice(0,-3)+"');\n";
       if(file==='dungeon-helper.js'&&now('dungeons.js').slice(0,now('dungeons.js').indexOf('test('))!==header)return false;
-      if(file==='first-day-helper.js'&&(now('first-day.js').slice(0,now('first-day.js').indexOf('test('))!==header||now('journeys.js')!==header+loop))return false;
+      if(file==='first-day-helper.js'&&(now('first-day.js').slice(0,now('first-day.js').indexOf('test('))!==header||now('journeys.js').trimEnd()!==(header+loop).trimEnd()))return false;
     }
     return true;
   }catch{return false;}

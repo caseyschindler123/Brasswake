@@ -27,4 +27,3 @@ for (const [path,look] of [['warrior',0],['thief',2],['mage',4],['crafter',6]]) 
   await finishGuidedDay(page,info,stats,path==='mage');
   expect(stats.steps).toBeGreaterThan(10);expect(errors).toEqual([]);
 });
-
