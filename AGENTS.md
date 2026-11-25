@@ -25,15 +25,7 @@ Apply this workflow automatically to every implementation task in this repositor
 - Update the owning master doc and dated Decision log when documented behavior, a lasting decision or a current/planned description changes. Routine fixes that restore documented behavior need no master-doc or decision-log entry. Mark unshipped features as planned. Never edit `game/dist/` or generated art coordinates by hand.
 - After game releases, keep a concise tracked record of released commit, Actions link, verification date, available HTML hash and limitations; close a plan only when one exists. Reconcile affected descriptions without duplicating the release narrative in every doc. Documentation-only closure needs no redeployment. Honor local-only requests; otherwise commit/push closure. Ignored receipts are supplementary.
 - Unless Casey requests local-only work, commit only intended files and push to `main` without force. Tooling/test-only changes validate without deploying unchanged game output. Nightly full checks and manual validation do not publish by default; manual publication requires explicit full checks on main. For a game release, monitor the GitHub Actions run for that exact commit and verify the published commit and HTML hash. Verify the live player flow when game changes require UI testing. Documentation-only work is complete after its applicable checks; it does not require deployment. See the workflow document for commands and failure handling.
-- Report the classification, outcome, checks actually run, commit or local-only status, deployment result when applicable, costs, and limitations. A requested game release with pending or failed deployment is not complete.
-
-## Cost summary in each completion message
-
-- Include the task's available AI development costs, delegated-agent costs, paid-tool costs, and CI/deployment costs. Identify the commit/run when available; for local-only work, say no deployment occurred.
-- Label each monetary figure as measured or estimated and identify its source. Say unavailable when task-specific billing cannot be accessed. Unknown is never $0, and a known subtotal is never a complete total when categories are missing.
-- Report confirmed absence of delegated or paid-tool activity as no usage. Keep fixed subscription allocation separate from incremental charges. Account-wide usage percentages and elapsed time do not establish this task's dollar cost.
-- Prefer one task per chat. If a chat covers several releases, use task-specific usage deltas where available; otherwise report that attribution is unavailable. Include separate agents/tools when evidence exists.
-- Keep the summary concise. Use existing usage/billing evidence; do not build collectors, create ledgers, install plugins, or request billing access unless Casey asks for that additional work. Do not publish private billing details in the public repository.
+- Report the classification, outcome, checks actually run, commit or local-only status, deployment result when applicable, and limitations. Do not add routine cost attribution to completion reports. A requested game release with pending or failed deployment is not complete.
 
 ## Boundaries
 

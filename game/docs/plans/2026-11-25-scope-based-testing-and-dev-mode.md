@@ -136,8 +136,6 @@ Review wording/link consistency and `git diff --check` for this task only. No ex
 
 Planning validation (2026-11-25 America/Los_Angeles): reviewed all tracked active Markdown testing entry points and relevant topic references; changed ten active guides plus this plan. Checked relative file links in all eleven changed/new Markdown files with code examples excluded; no missing local targets. `git diff --check` passed. Historical release receipts, closed plans, unrelated gameplay/writing rules and all executable files remain unchanged. No game tests, dependency installation, build, screenshots, CI or deployment were started for this documentation task.
 
-## References and cost limits
+## References
 
 Design guidance: [Google: smallest effective tests](https://abseil.io/resources/swe-book/html/ch11.html), [Playwright: isolation and user-visible behavior](https://playwright.dev/docs/best-practices), [Epic: distinct smoke/feature/stress tests](https://dev.epicgames.com/documentation/en-us/unreal-engine/automation-test-framework-in-unreal-engine). The target criteria are Brasswake-specific recommendations informed by those sources; measured results determine whether each change earns its maintenance cost.
-
-Task-specific AI and fixed-subscription dollar allocation are unavailable. This documentation task uses no delegated agents or paid-generation tools and starts no CI/deployment. Future implementation reports actual usage from existing evidence; never infer dollar cost from elapsed time or build billing collectors for this plan.

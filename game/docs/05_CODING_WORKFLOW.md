@@ -81,21 +81,21 @@ Implement registration/helper separation, core/scenario selection and fail-close
 
 ## Completion report
 
-Report the task class, outcome, checks actually run, visual evidence when applicable, commit SHA or local-only status, deployment status when applicable, a concise cost summary, and material limitations. A documentation-only task has no game-release gate.
+Report the task class, outcome, checks actually run, visual evidence when applicable, commit SHA or local-only status, deployment status when applicable, and material limitations. Do not add routine cost attribution to completion reports. A documentation-only task has no game-release gate.
 
 After successful game deployment/live verification, record concise evidence in `game/docs/RELEASE_HISTORY.md`: released SHA, Actions link, verification date/timezone, available HTML hash, checks passed and limitations. Close/link a plan only when one exists. Avoid repeating the release narrative across master docs; update affected current-state descriptions and lasting decisions. Tooling-only work records its checks and non-publication status in its plan or completion report. Distinguish historical failures/checkpoints from current evidence; missing evidence stays unavailable.
 
 Ignored `work/` receipts, logs and screenshots are supplementary; they must never be the only record of release completion. Review affected master summaries and planned sections for contradictions before ending the task. Closure is a documentation-only change: it does not require another game test/build/deployment or rewriting the released commit. Commit/push documentation normally when authorized; under a local-only/no-deploy hold, leave it uncommitted and say so. Review enforces prose consistency; CI does not automatically verify the meaning of decisions or summaries.
 
-Every completion message includes costs for that task/release: main AI, delegated AI, paid tools and CI/deployment. Use existing task-specific usage/billing evidence, label amounts measured or estimated, and identify the source. If unavailable, say so; never turn unknown data into $0 or present a partial subtotal as a complete total. Confirmed absence of agent/tool activity can be reported as no usage. Fixed subscription allocation is separate from incremental charges. Account-wide usage percentages and elapsed time cannot establish a per-task dollar cost.
-
-Prefer one task per chat. For multiple releases in one chat, use task-specific usage deltas when available; otherwise say attribution is unavailable. Identify the commit/run when there is a release and say no deployment for local-only work. This is a reporting rule: do not build collectors, maintain ledgers, install plugins or request billing access unless Casey asks. Keep private billing information out of git.
+Discuss costs when Casey asks or when a paid action needs approval. Existing paid-image approval requirements and private-data boundaries remain in force; removing routine attribution does not authorize new purchases or paid runs.
 
 ## Delegation and cost
 
 The main agent owns classification, acceptance criteria, task decomposition, integration, and release. Use the delegation rules in root `AGENTS.md`: default to one agent, delegate only bounded independent work with a clear expected benefit, select the least expensive suitable available model and reasoning effort, and escalate capability when the evidence warrants it. Avoid duplicate reading, overlapping edits, recursive delegation, unnecessary screenshots, and repeated unchanged test runs. Prefer narrow worker context and concise deliverables. Exact costs depend on the available product/model; do not invent a price or promised savings.
 
 ## Decision log
+
+- 2026-11-25: Casey removed mandatory cost attribution from completed-task reports because it was not useful. Remove the active rule and its current-plan references; preserve historical release evidence and earlier decisions. Cost-conscious delegation and approval for paid actions remain unchanged.
 
 - 2026-11-25: Casey requested a full implementation plan and consistent testing documentation after the framework change ran expensive journeys. Record target scope criteria for cosmetic/layout/rules/features/tooling/shared changes and direct resettable Dev scenarios. This is a documentation/planning change only: current executable gates remain in force; reduced selection, registration/helper isolation and unified Dev mode are planned, not built. The [scope-based testing plan](plans/2026-11-25-scope-based-testing-and-dev-mode.md) owns milestones and acceptance evidence. Codex performs routine checks and capture review; Casey is not assigned manual QA.
 

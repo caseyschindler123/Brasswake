@@ -9,7 +9,7 @@ You are helping build Brasswake, a mobile SQL-learning RPG in the spirit of Ulti
 ## Read before you work
 
 - Before changing code, read 01_ARCHITECTURE.md.
-- Follow [05_CODING_WORKFLOW.md](05_CODING_WORKFLOW.md) automatically; it owns detailed process and verification rules. Default to simple and name a concrete consequential risk or unresolved design decision before choosing complex. Planning and testing are independent. Routine releases use short three-profile smoke plus affected checks; nightly/manual full and risky/unknown changes retain complete journeys. Documentation needs review/diff checks; tooling uses affected automation checks and does not deploy unchanged game output. Reuse successful CI hosted evidence. Honor local-only requests, report available costs honestly and use subagents economically.
+- Follow [05_CODING_WORKFLOW.md](05_CODING_WORKFLOW.md) automatically; it owns detailed process and verification rules. Default to simple and name a concrete consequential risk or unresolved design decision before choosing complex. Planning and testing are independent. Routine releases use short three-profile smoke plus affected checks; nightly/manual full and risky/unknown changes retain complete journeys. Documentation needs review/diff checks; tooling uses affected automation checks and does not deploy unchanged game output. Reuse successful CI hosted evidence. Honor local-only requests and use subagents economically.
 - The [scope-based criteria and Dev-mode plan](plans/2026-11-25-scope-based-testing-and-dev-mode.md) describes planned efficiency work. Reduced cosmetic/registration gates and unified Dev commands are not built. Keep current executable safeguards until verified replacements exist; Codex handles routine automation and capture inspection without assigning Casey manual QA.
 - Before changing rules, numbers, content or story, read 02_GAMEPLAY.md.
 - Before writing any image prompt or packing art, read 03_ART_STYLE.md.
@@ -31,7 +31,7 @@ The documents are the project's memory. Keep their current-state descriptions ac
    - **Gameplay:** systems, numbers, content, story, what is and is not built.
    - **Art style:** how images look, art sizes, prompt rules, packing.
    - **Writing style:** voice and wording.
-   - **Coding workflow:** agent process, classification, verification, delegation and cost reporting.
+   - **Coding workflow:** agent process, classification, verification, delegation and completion reporting.
 2. **Write the current state**, not a story of how it got there. Replace the old number or rule in place. Add a dated line to that document's "Decision log" at the bottom: the date, what was decided, and why if Casey gave a reason.
 3. **Mark plans as plans.** Anything agreed but not yet built goes under "Planned, not built", and moves into the body once it ships. Never describe a planned feature as live.
 4. **How to apply the update:**

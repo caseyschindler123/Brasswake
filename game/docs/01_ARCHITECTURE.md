@@ -14,7 +14,7 @@ The [world architecture rollout](plans/2026-11-25-world-architecture.md) is rele
 
 The verified [path playthrough/Backstab release](plans/2026-11-23-path-playthrough-and-balance.md), source `dab3b4a`, adds opt-in compressed campaigns, pure Backstab rules and temporary per-character/live-entity wound memory, with no save-format change.
 
-Root `AGENTS.md` applies [05_CODING_WORKFLOW.md](05_CODING_WORKFLOW.md), the detailed process authority. Default to simple unless a named consequential risk or unresolved design choice requires a saved plan. Verification follows affected behavior independently. Docs use review/diff checks; tooling uses focused automation checks without publishing unchanged output. Both classes of game changes deploy after their required checks. Reuse passing CI hosted evidence and update owning context for changed behavior/lasting decisions. Honor local-only requests and report available costs honestly.
+Root `AGENTS.md` applies [05_CODING_WORKFLOW.md](05_CODING_WORKFLOW.md), the detailed process authority. Default to simple unless a named consequential risk or unresolved design choice requires a saved plan. Verification follows affected behavior independently. Docs use review/diff checks; tooling uses focused automation checks without publishing unchanged output. Both classes of game changes deploy after their required checks. Reuse passing CI hosted evidence and update owning context for changed behavior/lasting decisions. Honor local-only requests.
 
 Read these master docs before changing their topic: 01 architecture, 02 gameplay, 03 art, 04 writing, 05 coding workflow. `game/STYLE.md` is a byte-for-byte copy of `game/docs/04_WRITING_STYLE.md`; update the master first and copy it when writing rules change.
 
