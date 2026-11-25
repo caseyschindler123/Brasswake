@@ -1,0 +1,32 @@
+{
+  "source": "Carnegie Mellon University Graphics Lab Motion Capture Database",
+  "acknowledgment": "Motion capture data from the CMU Graphics Lab Motion Capture Database, created with support from NSF EIA-0196217.",
+  "terms": "CMU permits copying, modification, and redistribution without permission, including inclusion in commercial products. CMU prohibits reselling the data directly, including in converted form.",
+  "termsUrls": ["https://mocap.cs.cmu.edu/", "https://mocap.cs.cmu.edu/faqs.php"],
+  "indexUrl": "https://mocap.cs.cmu.edu/search.php?subjectnumber=35",
+  "captureFps": 120,
+  "framesPerCycle": 64,
+  "height": 1.8,
+  "heightDefinition": "Y distance from the lowest rest-pose toe endpoint to the rest-pose head endpoint in the zero-channel ASF skeleton. The head endpoint is a skeleton landmark rather than the anatomical top of the scalp.",
+  "contactDefinition": "Inferred stance from low, slow foot and toe points in the captured world space, before removing root travel. CMU flags toe channels as noisy. Contact flags describe phase windows for retargeting and do not guarantee zero drift in the source.",
+  "skeleton": {
+    "url": "https://mocap.cs.cmu.edu/subjects/35/35.asf",
+    "sha256": "2a8e2eda3c0d7d828566b2a9a8ab36b2b8b3864110574e8b73c8f069fded416c"
+  },
+  "clips": {
+    "walk": {
+      "url": "https://mocap.cs.cmu.edu/subjects/35/35_02.amc",
+      "sha256": "c2573ac32712c503d0d957a4708e0f3488348269485cdc7b00266b44d116c903",
+      "sourceStartFrame": 192,
+      "sourceRepeatFrame": 327,
+      "cadence": 132
+    },
+    "run": {
+      "url": "https://mocap.cs.cmu.edu/subjects/35/35_18.amc",
+      "sha256": "b83673d6f66b56eef95beda511ebca7ae9c759c1a1694c852bc602623430aa42",
+      "sourceStartFrame": 24,
+      "sourceRepeatFrame": 116,
+      "cadence": 180
+    }
+  }
+}

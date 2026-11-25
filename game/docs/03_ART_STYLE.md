@@ -223,7 +223,27 @@ The verified worlds/living-places release reuses existing packed artwork. Fitted
 
 The existing eight-pose walk/run sources are retained. The packer had pinned the lowest foot in every frame to the ground; runtime foot calibration restores contact/flight while preserving the painted limb poses. Actual skull silhouettes locate heads independently of body-centred anchors. Running frames reuse the same facing's walking head, with aligned hair/headgear and attached equipment; the torso and limbs retain their original proportions. Frame cadence follows travelled distance, and the preview uses the same cadence as play. A browser-generated standalone walk/run sample provides enlarged and phone-scale side/diagonal/front loops. These corrections do not claim an exact reproduction of UO animation or physical-device approval. Actor separation uses ground shadows and a very thin, low-opacity dark edge; Casey rejected the stronger early outline. Twelve-pixel overhead names follow rendered head/silhouette geometry. Full image generation was not run; no prompts/settings, originals, atlas coordinates or packed manifest changed. Real-iPhone visual approval remains external.
 
+## Unreleased anatomical locomotion candidate
+
+The full rebuild replaces the operating human walk/run poses with a new adult rig, opposing arm motion, anatomical leg recovery, a stable rigid skull and heel/sole/toe support. Each cycle has 64 poses. The ten body/outfit combinations have tailored tunic, articulated split robe, leather, mail and plate geometry, with coherent idle and action poses on the same body. Existing hair, beards, headwear, dye, skin and equipment recipes remain attached; facing-specific attachment widths stay fixed through gait changes. Portraits and the large illustrated paper doll retain their authored art.
+
+MakeHuman core mesh/rig assets are CC0; capture is from the CMU Graphics Lab database with NSF EIA-0196217 acknowledgment and its redistribution terms recorded in pinned source manifests and `game/art/human/LICENSE.txt`. No UO artwork, MakeHuman application code, paid generation or prompt/settings changes are included. This is a newly rendered UO-inspired character style. Original packed art remains unchanged. A CPU renderer runs offline, generating palette material/shade frames in ten new lossless WebP atlases plus source-generated coordinates/calibration. The game recolours cropped frames without rendering a 3D mesh. Replay uses locked game Playwright Chromium and Pillow 12.0.0:
+
+```
+python -I arttools/human_mesh.py --check
+python -I arttools/human_motion.py --check
+node arttools/human_sprites.js --check --python=<Pillow-12-python-executable>
+```
+
+The motion sample uses actual game-composed frames on moving ground at enlarged and game scale. Planted support is locked to the world, and free running soles clear the ground during flight. Assertions inspect physical support and actual visible sole pixels; a global lowest-pixel comparison across different projected foot lanes is not a valid height measurement. Publication and real-device/subjective review remain pending in the grounded-cadence plan.
+
 ## Decision log
+
+- 2026-11-25: Built the unreleased full human rig/wardrobe and captured walk/run candidate. Keep old art immutable, add a reproducible offline bake and derive travel from the new stride at 132/180 steps/min. Physical flight and visible contact replace the timing-only head/flight patch as the operating solution.
+
+- 2026-11-25: Casey expanded the grounded-cadence job to a full human locomotion rebuild: proportions, posture, arm/leg action, weight transfer and ground contact. Rebuilt pose motion determines stride and travel speed at target 132 walking / 180 running steps/min. The earlier timing-only prototype is locally verified but not the final visual solution. Prove one character on moving ground before broad outfit/direction integration; keep deployment isolated from the active town/dungeon rollout. See the expanded grounded-cadence plan.
+
+- 2026-11-25: Casey wants footfalls equivalent to travel speed and permits slower movement. The preliminary cadence prototype retained painted stride lengths; Casey subsequently expanded the job to replace the entire operating gait. Original art, prompts, settings and earlier coordinates/assets remain unchanged; the full candidate adds new generated art and calibration. Release status is in the grounded-cadence plan.
 
 - 2026-11-24: Published character motion, intro/menu continuity and world presentation at `d3850c3`. Core, all 450 browser cases, deployment and six CI hosted flows passed; independent source/hash and all six public flows were verified. The closed polish plan and release history preserve the input-paced audio recheck, failed candidates and physical-device/subjective limits.
 

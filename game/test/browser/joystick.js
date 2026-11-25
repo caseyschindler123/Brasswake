@@ -261,3 +261,50 @@ test('joystick · fixture routes centre stopped feet before the dojo dummy lane 
   await settled(frame);expect(await position(frame)).toEqual([7,10]);
   expect(errors).toEqual([]);
 });
+
+
+test('joystick · slower gaits keep travel, contact sounds and distance events synchronized',async({page},info)=>{
+  const errors=observeErrors(page),{frame,stick}=await adventure(page),box=await stick.boundingBox();
+  const driver=await pointerDriver(page,box,info.project.name);let holding=false;
+  await frame.evaluate(()=>{
+    for(const e of Scene.ents()){e.wander=0;e.tx=null;e.fx=e.x;e.fy=e.y;}
+    window.__gaitSounds=[];window.__gaitMoved=[];window.__gaitOriginalSound=Sound.sfx;window.__gaitOriginalMoved=__bw.HOST.moved;
+    Sound.sfx=(name,detail)=>{if(name==='step'){const p=Scene.debug().P,distance=ActorRig.distance(p),frame=ActorRig.phase(distance,p.run),image=(p.run?p.spr.r8:p.spr.w8)[p.d8||0][frame],gait=ActorRig.gait(p.run);__gaitSounds.push({wd:p.wd,run:p.run,frame,cycle:distance/gait.stride,grounded:!image.flight&&image.supports.length>0,offsets:gait.contacts,detail});}return __gaitOriginalSound(name,detail);};
+    __bw.HOST.moved=(...args)=>{__gaitMoved.push(Scene.debug().P.wd);return __gaitOriginalMoved(...args);};
+  });
+  try{
+    for(const [run,dx,dy]of [[false,1,0],[true,1,0],[true,1,1]]){
+      await frame.evaluate(({dx,dy})=>{
+        const {map:m}=Scene.debug(),[cx,cy]=Scene.towns()[1];
+        const free=(x,y)=>{const i=y*m.w+x;return m.reg[i]===1&&m.seen[i]&&!m.solid[i]&&!m.occ.has(i);};
+        for(let y=cy-32;y<cy+32;y++)for(let x=cx-40;x<cx+40;x++){
+          if(!Array.from({length:12},(_,k)=>[x+k*dx,y+k*dy]).every(([xx,yy])=>free(xx,yy)&&free(xx+1,yy)&&free(xx,yy+1)))continue;
+          Scene.hop(x,y);window.__gaitSounds=[];window.__gaitMoved=[];return;
+        }
+        throw Error('No clear gait lane');
+      },{dx,dy});
+      await frame.waitForFunction(()=>!Scene.debug().map.pending);
+      await driver.start();holding=true;await driver.move(dx,dy,run?.8:.45);
+      try{
+        await frame.waitForFunction(()=>Scene.debug().P.moving);
+        const start=await frame.evaluate(()=>({wd:Scene.debug().P.wd,time:Scene.tacticalTime()}));
+        await frame.waitForFunction(t=>Scene.tacticalTime()-t>=1800,start.time);
+        const end=await frame.evaluate(()=>({wd:Scene.debug().P.wd,time:Scene.tacticalTime(),run:Scene.debug().P.run,mul:__bw.HOST.runMul(),gait:ActorRig.gait(Scene.debug().P.run)}));
+        expect(end.run).toBe(run);
+        const speed=(end.wd-start.wd)/((end.time-start.time)/1000),multiplier=run?end.mul:1;
+        expect(speed).toBeCloseTo(end.gait.stride*end.gait.cadence/120*multiplier,3);
+        expect(speed/end.gait.stride*120).toBeCloseTo((run?180:132)*multiplier,3);
+      }finally{if(holding){await driver.end();holding=false;}}
+      await frame.waitForFunction(()=>!Scene.traveling());
+      const stopped=await frame.evaluate(run=>({wd:Scene.debug().P.wd,sounds:__gaitSounds,moved:__gaitMoved,expected:ActorRig.contacts(0,Scene.debug().P.wd,run)}),run);
+      expect(stopped.sounds.length).toBe(stopped.expected);expect(stopped.sounds.length).toBeGreaterThanOrEqual(3);
+      expect(stopped.sounds.every(s=>s.run===run&&s.grounded&&s.offsets.some(offset=>(s.cycle-offset+1)%1<.1))).toBe(true);
+      expect(stopped.moved.length).toBe(Math.floor(stopped.wd));
+      await frame.waitForTimeout(160);expect(await frame.evaluate(()=>__gaitSounds.length)).toBe(stopped.sounds.length);
+      await frame.evaluate(()=>Scene.hop(...Scene.pos()));expect(await frame.evaluate(()=>__gaitSounds.length)).toBe(stopped.sounds.length);
+    }
+    const settledTime=await frame.evaluate(()=>Scene.tacticalTime());await frame.waitForFunction(t=>Scene.tacticalTime()-t>=600,settledTime);
+    await screenshot(page,info,'grounded-cadence');
+  }finally{if(holding)await driver.end();await frame.evaluate(()=>{Sound.sfx=__gaitOriginalSound;__bw.HOST.moved=__gaitOriginalMoved;delete window.__gaitOriginalSound;delete window.__gaitOriginalMoved;});}
+  expect(errors).toEqual([]);
+});

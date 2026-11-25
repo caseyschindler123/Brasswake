@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "encoder": "Pillow 12.0.0 / lossless WebP method 6 exact",
+  "browser": "159.0.8154.6",
+  "inputTextNewlines": "LF",
+  "inputs": [
+    {
+      "path": "game/src/human_mesh_data.js",
+      "sha256": "854eefbeaf91c3a8181534a0da5e32739d59c49d37ca4559bf092a560ba50354"
+    },
+    {
+      "path": "game/src/human_motion_data.js",
+      "sha256": "c99fae050afed907f352b94399d866b008c74c59f3816b465c5fbea114071741"
+    },
+    {
+      "path": "game/src/human_locomotion.js",
+      "sha256": "81725d8120e4cc1b7577cb01233604a6b99467fce23178304efaca664d830a9c"
+    },
+    {
+      "path": "arttools/human_costume.js",
+      "sha256": "72320de200fac1d395904802ba5f659671fa8d6d538da873e26bc95256986d16"
+    },
+    {
+      "path": "arttools/human_encode.py",
+      "sha256": "91262d1f57ab255f8f6f075acd98f687720cb530597a4d3afc6df2328c05b681"
+    },
+    {
+      "path": "arttools/human_sprites.js",
+      "sha256": "420bd5440be79b59262d9cf31a5a3ec906b54dbc4fea2045389cc263de7bc2f9"
+    }
+  ],
+  "files": [
+    {
+      "path": "art/human/LICENSE.txt",
+      "size": 771,
+      "sha256": "1f05136785c69c610840496a51b92990cd8785b01bb262366f340ceece4ceaff",
+      "dimensions": null
+    },
+    {
+      "path": "art/human/C1.webp",
+      "size": 804394,
+      "sha256": "fd69aa32cc7fffbc443b6832f51a7d7dde1fef5a7f252fc96a5970e5bfc5abb5",
+      "dimensions": [
+        2048,
+        1030
+      ]
+    },
+    {
+      "path": "art/human/C2.webp",
+      "size": 843400,
+      "sha256": "08d977f8789f90d28eeacfdbeb8bdc55463d77a5a58ae143fd0b7af9dc3643b5",
+      "dimensions": [
+        2048,
+        1039
+      ]
+    },
+    {
+      "path": "art/human/C3.webp",
+      "size": 839190,
+      "sha256": "aeb948b46362be9e9adc8795c8b4bd377991769e396ed11cd2f8c226e61a335b",
+      "dimensions": [
+        2048,
+        1030
+      ]
+    },
+    {
+      "path": "art/human/C4.webp",
+      "size": 838938,
+      "sha256": "5b0a1bea01e129f4c1a2a5ed15f4b6750c801b3e5b77f809a4cd2cfe8c6f146a",
+      "dimensions": [
+        2048,
+        1030
+      ]
+    },
+    {
+      "path": "art/human/C5.webp",
+      "size": 900602,
+      "sha256": "06c23827c2d7656ae1636a70db8df90bb61d870bcce1aaa96eecf5e476eaf0db",
+      "dimensions": [
+        2048,
+        1041
+      ]
+    },
+    {
+      "path": "art/human/C6.webp",
+      "size": 806980,
+      "sha256": "2ac7f73e7a025271296163d598cd6aaf9da6050a021738050e2a636bcbd3aa70",
+      "dimensions": [
+        2048,
+        1030
+      ]
+    },
+    {
+      "path": "art/human/C7.webp",
+      "size": 848072,
+      "sha256": "757a02f3a51fbd610be1a072169cca862339b3c1ffe5eebaaf01497d01c47bf6",
+      "dimensions": [
+        2048,
+        1039
+      ]
+    },
+    {
+      "path": "art/human/C8.webp",
+      "size": 843596,
+      "sha256": "960116548f84713821c581d892e67717ba310a9c86da0ab39f559f5ae1c0855c",
+      "dimensions": [
+        2048,
+        1030
+      ]
+    },
+    {
+      "path": "art/human/C9.webp",
+      "size": 841778,
+      "sha256": "dd46491e47a4edfd309194e3c40bf518e01a19e67b69c12d01cd1b49f9464f44",
+      "dimensions": [
+        2048,
+        1030
+      ]
+    },
+    {
+      "path": "art/human/C10.webp",
+      "size": 905222,
+      "sha256": "9c9eb440864d1ce495028c06bea9015810950bf9f5ed838390fa9ebc4d7eb508",
+      "dimensions": [
+        2048,
+        1041
+      ]
+    }
+  ],
+  "metadata": {
+    "path": "game/src/arthuman.js",
+    "sha256": "18cd376433c8b85a80f9a6a07328ccc930b006926a9640d408cefc3fa260c2b7"
+  },
+  "gaits": {
+    "path": "game/src/human_gaits.js",
+    "sha256": "3e8f37e294a30ef080b91175bd165230ce9bfa6eff6ec120c107dfe66686f1f5"
+  }
+}

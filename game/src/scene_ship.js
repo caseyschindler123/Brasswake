@@ -3,8 +3,9 @@
   const SHIP_WATER = new WeakMap();
   function shipWaterFrame(im) {
     if (SHIP_WATER.has(im)) return SHIP_WATER.get(im);
-    const c = mk(im.width, Math.max(1, Math.round(im.height * .56)));
+    const c = mk(im.width, Math.max(1, Math.round(im.originY!=null?im.originY-16:im.height*.56)));
     c.getContext('2d').drawImage(im, 0, 0, c.width, c.height, 0, 0, c.width, c.height); c.hr = im.hr;
+    if(im.originY!=null){c.originX=im.originX;c.originY=c.height;c.anchor=im.anchor;c.human=1;}
     SHIP_WATER.set(im, c); return c;
   }
   function genShip(owner, phase, pos) {
@@ -54,9 +55,9 @@
       if(u===1){s.rescued=true;P.x=P.fx=5;P.y=P.fy=18;if(host.shipRescued)host.shipRescued(s.owner);}
     }
     if (t && s.route && s.route.length) {
-      const [x,y]=s.route[0],dx=x-t.fx,dy=y-t.fy,d=Math.hypot(dx,dy),distance=1.7*dt;
+      const [x,y]=s.route[0],dx=x-t.fx,dy=y-t.fy,d=Math.hypot(dx,dy),distance=1.7*WALK_SCALE*dt;
       if(x===P.x && y===P.y)return;
-      t.tx=x;t.ty=y;t.walk=(t.walk||0)+dt*7;
+      t.tx=x;t.ty=y;advanceGait(t,Math.min(d,distance),false);t.walk=(t.walk||0)+dt*7*WALK_SCALE;
       if(d<=distance){sit(map,t,x,y);t.fx=x;t.fy=y;t.tx=null;s.route.shift();}
       else{t.fx+=dx/d*distance;t.fy+=dy/d*distance;}
     }

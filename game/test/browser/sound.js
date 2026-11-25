@@ -240,7 +240,7 @@ test('crafting and fishing outcomes and walked room crossings have contextual so
         const far = [outside[0] * 2 - door[0], outside[1] * 2 - door[1]];
         if (![far, outside, door, inside].every(open)) continue;
         Scene.load(far, room.r);
-        return { crafts, fish, far, outside, door, roomId: room.plan.id };
+        return { crafts, fish, far, outside, door, inside, roomId: room.plan.id };
       }
     }
     throw new Error('No unoccupied wood-floored tavern entrance');
@@ -262,7 +262,9 @@ test('crafting and fishing outcomes and walked room crossings have contextual so
   expect(Math.abs(dx) + Math.abs(dy)).toBe(1);
   const key = dx > 0 ? 'ArrowRight' : dx < 0 ? 'ArrowLeft' : dy > 0 ? 'ArrowDown' : 'ArrowUp';
   await f.locator('body').evaluate(body => { body.tabIndex = -1; body.focus({ preventScroll: true }); });
-  for (const at of [result.outside, result.door]) {
+  // Contact-driven footsteps need not land on the threshold itself. Walk onto
+  // the actual room floor before requiring a wood footfall.
+  for (const at of [result.outside, result.door, result.inside]) {
     await page.keyboard.down(key);
     try {
       await f.waitForFunction(({at,dx,dy}) => {const p=Scene.debug().P;return (dx ? (p.fx-at[0])*dx>=0 : Math.round(p.fx)===at[0]) && (dy ? (p.fy-at[1])*dy>=0 : Math.round(p.fy)===at[1]);}, {at,dx,dy}, { timeout: 3500 });
@@ -273,7 +275,7 @@ test('crafting and fishing outcomes and walked room crossings have contextual so
     await f.waitForFunction(() => !Scene.traveling());
   }
   await f.waitForFunction(() => __sounds.some(x => x.name === 'door'), null, { timeout: 5000 });
-  expect(await f.evaluate(() => Scene.pos())).toEqual(result.door);
+  expect(await f.evaluate(() => Scene.pos())).toEqual(result.inside);
   const steps = await f.evaluate(() => { Scene.pause(); return __sounds.filter(x => x.name === 'step'); });
   expect(steps.some(x => x.detail === 'wood')).toBe(true);
   expect(await f.evaluate(() => __sounds.some(x => x.name === 'door' && x.detail === 'opening'))).toBe(true);

@@ -1,0 +1,13 @@
+Human locomotion sources
+
+Motion capture data from the CMU Graphics Lab Motion Capture Database, created with support from NSF EIA-0196217.
+https://mocap.cs.cmu.edu/
+https://mocap.cs.cmu.edu/faqs.php
+CMU permits copying, modification, redistribution and inclusion in commercial products. Do not resell the motion data directly, including converted forms.
+
+Anatomical mesh and rig weights: MakeHuman core assets, CC0-1.0. No MakeHuman program code is included.
+https://www.makehumancommunity.org/about/license.html
+https://github.com/makehumancommunity/makehuman/blob/master/LICENSE.ASSETS.md
+
+Brasswake wardrobe, retargeting, foot locking and sprite renderer: repository source.
+Pinned source files/hashes: arttools/human_mesh_sources.json and human_motion_sources.json.

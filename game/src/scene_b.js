@@ -51,13 +51,23 @@
     for (let i = 0; i < p.length; i += 4) { if (p[i + 3] < 8) continue; const l = Math.min(1, (p[i] + p[i + 1] + p[i + 2]) / 765 * 1.15); for (let j = 0; j < 3; j++) p[i + j] = A[j] + (B[j] - A[j]) * l; }
     g.putImageData(d, 0, 0); return c;
   }
-  function dollReady(a) { const B = AD && AD.body; if (!B || !a) return false; const need = ['hb/C' + a.combo + '.webp', 'hb/hair.webp', 'hb/wx.webp']; need.forEach(n => { if (!IMG[n]) img(n); }); return need.every(have); }
+  function dollReady(a) { const B = AD && AD.body; if (!B || !a) return false; const need = [AD.human?AD.human.combos[a.combo].file:'hb/C' + a.combo + '.webp', 'hb/hair.webp', 'hb/wx.webp']; need.forEach(n => { if (!IMG[n]) img(n); }); return need.every(have); }
   function dollHeadLayers(a) {
     const key = 'head|' + [a.cloth, a.metal, a.hc].join('|');
     if (DOLL[key]) return DOLL[key];
     const head = IMG['hb/hair.webp'].im;
     const frames=new Map();
     return DOLL[key]={headFrame(area,hair){const key=(hair?'hair:':'gear:')+area.join(',');if(frames.has(key))return frames.get(key);const frame=hair?gradMap(head,a.hc[0],a.hc[1],area):recolor(head,a.cloth,a.metal||'#9aa0a8',false,false,area);frames.set(key,frame);return frame;}};
+  }
+  const BODY_PROFILES = new Map();
+  function bodyProfiles(combo) {
+    if(BODY_PROFILES.has(combo))return BODY_PROFILES.get(combo);
+    const B=AD.body,c=mk(B.cw,B.ch),q=c.getContext('2d'),profiles=[];
+    for(let row=0;row<10;row++)for(let frame=0;frame<8;frame++){
+      q.clearRect(0,0,B.cw,B.ch);q.drawImage(IMG['hb/C'+combo+'.webp'].im,frame*B.cw,row*B.ch,B.cw,B.ch,0,0,B.cw,B.ch);
+      profiles[row*8+frame]=ActorRig.headProfile(q.getImageData(0,0,B.cw,B.ch).data,B.cw,B.ch);
+    }
+    c.width=c.height=0;BODY_PROFILES.set(combo,profiles);return profiles;
   }
   function dollLayers(a) {   // recoloured sheets for this look, cached
     const key = [a.combo, a.cloth, a.metal, a.hc, a.skin, !!a.fx].join('|'); if (DOLL[key]) return DOLL[key];
@@ -70,14 +80,16 @@
         NpcAppearance.tintBody(data.data,B.cw,anchor,a.combo,null,a.skin);ctx.putImageData(data,frame*B.cw,row*B.ch);
       }
     }
-    const profiles=[],q=body.getContext('2d'),B=AD.body;
-    for(let row=0;row<10;row++)for(let frame=0;frame<8;frame++)profiles[row*8+frame]=ActorRig.headProfile(q.getImageData(frame*B.cw,row*B.ch,B.cw,B.ch).data,B.cw,B.ch);
-    return DOLL[key] = { body, profiles, ...dollHeadLayers(a) };
+    return DOLL[key] = { body, profiles:bodyProfiles(a.combo), ...dollHeadLayers(a) };
   }
   // one layer (hair, beard or hat) on a head: view v, head anchor [top, hx, hw]
-  function headLayer(g, L, a, item, v, an, lift, flip) {
+  function headPlacement(item,v,an,lift){
     const H = AD.body.hair, mv = H.v[item] && H.v[item][v]; if (!mv || !an[2]) return; const [ri, cx] = mv, r = H.r[ri], f = an[2] / H.hw, w = r[2] * f, h = r[3] * f;
     const dx = an[1] - cx * f, dy = an[0] + lift * an[2], hair = item < 18;
+    return {r,w,h,dx,dy,hair};
+  }
+  function headLayer(g, L, a, item, v, an, lift, flip) {
+    const placement=headPlacement(item,v,an,lift);if(!placement)return;const {r,w,h,dx,dy,hair}=placement;
     if (L.headFrame) g.drawImage(L.headFrame(r, hair), dx, dy, w, h);
     else g.drawImage(hair ? L.hair : L.gear, r[0], r[1], r[2], r[3], dx, dy, w, h);
   }
@@ -89,7 +101,58 @@
   const ARC = { swing: [[-2.3, -1.3, .6, 1.6], [-2.2, -1.2, .1, .9], [-.8, -1.6, -2.6, 2.4]], thrust: [[1.3, 1.3, 1.4, 1.3], [.1, .05, 0, .1], [-1.5, -1.5, -1.55, -1.5]] };
   const swingAng = (a, sr, k) => a.wkind === 'staff' && a.style === 'cast' ? -1.45 : (ARC[a.style] || ARC.thrust)[sr === 0 ? 0 : sr === 2 ? 1 : 2][k];
   const WLEN = { staff: 1.05, bow: .78, sword: .62, long: .8, dagger: .36, shield: .42, book: .31 };
+  const HUMAN_HEAD_WIDTHS=new Map();
+  const HUMAN_PIXELS=new Map(),HUMAN_PIXEL_LIMIT=256;
+  let humanPixelScratch;
+  function humanPixels(file,frame){
+    if(HUMAN_PIXELS.has(frame)){const pixels=HUMAN_PIXELS.get(frame);HUMAN_PIXELS.delete(frame);HUMAN_PIXELS.set(frame,pixels);return pixels;}
+    const [x,y,w,h]=frame.r,c=humanPixelScratch||(humanPixelScratch=mk(w,h));c.width=w;c.height=h;const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(IMG[file].im,x,y,w,h,0,0,w,h);const pixels=g.getImageData(0,0,w,h).data;
+    HUMAN_PIXELS.set(frame,pixels);if(HUMAN_PIXELS.size>HUMAN_PIXEL_LIMIT)HUMAN_PIXELS.delete(HUMAN_PIXELS.keys().next().value);return pixels;
+  }
+  function humanHeadWidth(combo,source){
+    const key=combo+':'+source;if(HUMAN_HEAD_WIDTHS.has(key))return HUMAN_HEAD_WIDTHS.get(key);
+    const body=AD.human.combos[combo],widths=[...body.walk[source],...body.run[source]].map(f=>f.head[2]).sort((a,b)=>a-b),width=widths[widths.length>>1];
+    HUMAN_HEAD_WIDTHS.set(key,width);return width;
+  }
+  // The offline anatomical bake stores material/shade pixels. Recolouring a
+  // cropped visible frame preserves skin, leather and anti-aliased coverage.
+  function anatomicalFrame(a,row,k,sr){
+    const H=AD.human,combo=H.combos[a.combo],state=row<0?'idle':row<5?'walk':row<10?'run':row===19?'fall':row===20?'hit':row<13?'swing':row<16?'thrust':'cast';
+    const frame=state==='idle'?combo.idle[sr]:state==='walk'||state==='run'?combo[state][sr][k%H.frames]:combo[state][sr===0?0:sr>=3?2:1][k%4];
+    const c=mk(H.width,H.height),g=c.getContext('2d'),[x,y,w,h]=frame.r,scratch=mk(w,h),q=scratch.getContext('2d');
+    const data=q.createImageData(w,h),p=data.data;p.set(humanPixels(combo.file,frame));
+    const skin=[[184,145,116],[179,132,95],[155,111,78],[116,77,50],[82,50,32]][a.skin??1],cloth=hexRGB(a.cloth||'#b9ac8f'),metal=hexRGB(a.metal||'#a9afb2');
+    const palette=[cloth,[79,66,49],[56,40,28],skin,skin,[57,40,25],[194,190,170],[81,47,38],metal,cloth.map(v=>Math.round(v*.73))],mask=a.fx&&mk(H.width,H.height),maskPixels=a.fx&&q.createImageData(w,h);
+    for(let i=0;i<p.length;i+=4){if(!p[i+3])continue;const material=Math.round(p[i]/24)-1,base=palette[material];if(!base)throw Error('Unknown anatomical material '+material);const shade=p[i+1]/200;for(let j=0;j<3;j++)p[i+j]=Math.min(255,base[j]*shade);if(maskPixels&&(material===0||material===9)){maskPixels.data[i]=maskPixels.data[i+1]=maskPixels.data[i+2]=Math.min(255,shade*220);maskPixels.data[i+3]=p[i+3];}}
+    q.putImageData(data,0,0);const an=[frame.head[0],frame.head[1],humanHeadWidth(a.combo,sr)],L=dollHeadLayers(a),back=sr>=3,atk=['swing','thrust','cast'].includes(state),len=64*(WLEN[a.wkind]||.6);
+    const carry=()=>{
+      if(a.shield>=0){const W=AD.body.wx[a.shield],f=64*WLEN.shield/W[3];g.drawImage(IMG['hb/wx.webp'].im,W[0],W[1],W[2],W[3],an[1]-W[2]*f/2+(sr===2?-an[2]*.6:0),an[0]+an[2]*1.6,W[2]*f,W[3]*f);}
+      if(a.wpn>=0&&!atk&&a.wkind!=='book'){const staff=a.wkind==='staff'||a.wkind==='bow';weapon(g,a,an[1]+an[2]*(sr===2?-.4:sr>=3?-.55:.55),an[0]+an[2]*(staff?3.6:1.05),staff?(a.wkind==='bow'?-1.35:sr===2?-1.75:sr>=3?-1.2:-1.95):(sr===2?1.75:sr>=3?1.2:1.95),len);}
+    };
+    const held=()=>{if(a.wpn>=0){const hand=frame.hands.slice(2,4);weapon(g,a,hand[0],hand[1],swingAng(a,sr,k),len);}};
+    if(!back)carry();if(atk&&back)held();g.drawImage(scratch,...frame.offset);if(back)carry();
+    if(a.hat>=0)headLayer(g,L,a,18+a.hat,sr,an,HAT_Y[a.hat],false);else if(a.hair>=0)headLayer(g,L,a,a.hair,sr,an,-.12,false);
+    if(a.beard>=0&&sr<=2)headLayer(g,L,a,12+a.beard,sr,an,BEARD_Y[a.beard],false);
+    if(atk&&!back)held();if(a.wpn>=0&&a.wkind==='book'&&!atk)weapon(g,a,an[1]+an[2]*(sr===2?1.1:1.4),an[0]+an[2]*2.65,.22,len);
+    if(maskPixels){q.putImageData(maskPixels,0,0);mask.getContext('2d').drawImage(scratch,...frame.offset);}
+    // Transparent margins are excluded from live canvases. The root is an
+    // explicit ground anchor, independent of a swinging or airborne foot.
+    let bounds;
+    if(a.wpn<0&&a.shield<0){
+      bounds={left:frame.offset[0],top:frame.offset[1],right:frame.offset[0]+w-1,bottom:frame.offset[1]+h-1};
+      for(const [item,lift]of [[a.hat>=0?18+a.hat:a.hair,a.hat>=0?HAT_Y[a.hat]:-.12],[a.beard>=0&&sr<=2?12+a.beard:-1,BEARD_Y[a.beard]]]){
+        if(item<0)continue;const p=headPlacement(item,sr,an,lift);if(!p)continue;bounds.left=Math.min(bounds.left,Math.floor(p.dx));bounds.top=Math.min(bounds.top,Math.floor(p.dy));bounds.right=Math.max(bounds.right,Math.ceil(p.dx+p.w));bounds.bottom=Math.max(bounds.bottom,Math.ceil(p.dy+p.h));
+      }
+    }else bounds=actorBounds(c);
+    const left=Math.max(0,bounds.left-1),top=Math.max(0,bounds.top-1),out=mk(bounds.right-left+2,bounds.bottom-top+2);out.getContext('2d').drawImage(c,-left,-top);out.hr=1;out.human=1;
+    out.originX=H.origin[0]-left;out.originY=H.origin[1]-top;out.anchor=[an[0]-top,an[1]-left,an[2]];out.gait=state;out.gaitFrame=k;
+    out.supports=(frame.supports||[]).map(([x,y])=>[x-left,y-top]);out.flight=frame.flight;
+    out.feet=(frame.feet||[]).map(([x,y,floor,height])=>[x-left,y-top,floor-top,height]);
+    if(mask){out.mask=mk(out.width,out.height);out.mask.getContext('2d').drawImage(mask,-left,-top);out.mask.hr=1;mask.width=mask.height=0;}
+    c.width=c.height=scratch.width=scratch.height=0;return out;
+  }
   function dollFrame(a, L, row, k, sr) {   // sr: which facing the source row is, 0 S, 1 SE, 2 E, 3 NE, 4 N
+    if(AD.human)return anatomicalFrame(a,row,k,sr);
     const B = AD.body, CW = B.cw, CH = B.ch, pose=ActorRig.pose(B,a.combo,row,k,L.profiles), an = pose.anchor, c = mk(CW, CH), g = c.getContext('2d'); c.hr = 1;c.human=1;
     g.translate(0,-pose.lift);
     const back = sr >= 3, atk = row >= 10 && row < 19, len = 64 * (WLEN[a.wkind] || .6), book = a.skin != null && a.wkind === 'book';
@@ -99,19 +162,19 @@
         else weapon(g, a, an[1] + an[2] * (sr === 2 ? -.45 : sr >= 3 ? -.5 : .5), an[0] + an[2] * 1.05, sr === 2 ? 1.75 : sr >= 3 ? 1.2 : 1.95, len); } };
     if (!back) onBack();
     if (atk && back) { const h = B.combos[a.combo].h[row + '.' + k]; if (h && a.wpn >= 0) weapon(g, a, h[0], h[1], swingAng(a, sr, k), len); }
-    if (L.bodyFrame) g.drawImage(L.bodyFrame([k * CW, row * CH, CW, CH], an), 0, 0);
-    else {
+    {
       if(!L.motionFrames)L.motionFrames=new Map();
-      if(!pose.running)g.drawImage(L.body,k*CW,row*CH,CW,CH,0,0,CW,CH);
+      if(!pose.running){if(L.bodyFrame)g.drawImage(L.bodyFrame([k*CW,row*CH,CW,CH],an),0,0);else g.drawImage(L.body,k*CW,row*CH,CW,CH,0,0,CW,CH);}
       else {
         const key=row+':'+k;let frame=L.motionFrames.get(key);
         if(!frame){
           frame=mk(CW,CH);const q=frame.getContext('2d'),ref=pose.reference,h=pose.headHeight,half=Math.max(ref[2]*.72,8),source=pose.source;
-          q.drawImage(L.body,k*CW,row*CH,CW,CH,0,0,CW,CH);
+          if(L.bodyFrame)q.drawImage(L.bodyFrame([k*CW,row*CH,CW,CH],an),0,0);else q.drawImage(L.body,k*CW,row*CH,CW,CH,0,0,CW,CH);
           // Use the same painted head in walk and run. Only this small crown/
           // face region is replaced; the original neck, torso and limbs remain.
           q.clearRect(source?source.left:an[1]-half,0,source?source.right-source.left:half*2,an[0]+h);
-          q.drawImage(L.body,2*CW+ref[1]-half,(row-5)*CH,half*2,ref[0]+h,an[1]-half,an[0]-ref[0],half*2,ref[0]+h);
+          const head=L.bodyFrame?L.bodyFrame([2*CW,(row-5)*CH,CW,CH],ref):L.body;
+          q.drawImage(head,(L.bodyFrame?0:2*CW)+ref[1]-half,L.bodyFrame?0:(row-5)*CH,half*2,ref[0]+h,an[1]-half,an[0]-ref[0],half*2,ref[0]+h);
           L.motionFrames.set(key,frame);
         }
         g.drawImage(frame,0,0);
@@ -134,9 +197,17 @@
     g.save(); if (fx.k === 'glow') { g.shadowColor = fx.c; g.shadowBlur = (7 + 3 * Math.sin(t / 280)) * K; g.globalCompositeOperation = 'lighter'; g.globalAlpha = .65 + .15 * Math.sin(t / 280); } else g.globalAlpha = fx.soft ? .45 : .72;
     if (flip) { g.translate(X + w, Y); g.scale(-1, 1); g.drawImage(c, 0, 0, w, h); } else g.drawImage(c, X, Y, w, h); g.restore();
   }
-  const flipC = c => { const o = mk(c.width, c.height), g = o.getContext('2d'); g.translate(c.width, 0); g.scale(-1, 1); g.drawImage(c, 0, 0); o.hr = 1; if (c.mask) o.mask = flipC(c.mask); if(c.human)o.human=1; return o; };
+  const flipC = c => { const o = mk(c.width, c.height), g = o.getContext('2d'); g.translate(c.width, 0); g.scale(-1, 1); g.drawImage(c, 0, 0); o.hr = 1; if (c.mask) o.mask = flipC(c.mask); if(c.human)o.human=1;if(c.originX!=null){o.originX=c.width-c.originX;o.originY=c.originY;o.anchor=[c.anchor[0],c.width-c.anchor[1],c.anchor[2]];o.gait=c.gait;o.gaitFrame=c.gaitFrame;o.supports=(c.supports||[]).map(([x,y])=>[c.width-x,y]);o.flight=c.flight;o.feet=(c.feet||[]).map(([x,y,floor,height])=>[c.width-x,y,floor,height]);} return o; };
   function dollSprite(a) {
-    const key = JSON.stringify(a); if (DOLL['s' + key]) return DOLL['s' + key]; if (!dollReady(a)) return null; const L = dollLayers(a), s = { art: 1, doll: 1, fx: a.fx };
+    const key = JSON.stringify(a); if (DOLL['s' + key]) return DOLL['s' + key]; if (!dollReady(a)) return null;
+    if(AD.human){
+      const s={art:1,doll:1,fx:a.fx},look={...a,key:'hero:'+key};
+      const lazy=(row,n,sources=DSRC)=>sources.map(([source,flip])=>{const frames=Array(n);for(let frame=0;frame<n;frame++)Object.defineProperty(frames,frame,{get(){const c=npcFrame(look,{row:row<0?-1:row<10?row+source:row,frame,source});return flip?mirroredHuman(c):c;},enumerable:true});return frames;});
+      s.w8=lazy(0,AD.human.frames);s.r8=lazy(5,AD.human.frames);s.idle8=lazy(-1,1);
+      const ar={swing:10,thrust:13,cast:16}[a.style]||10,attacks=lazy(ar,4,[[0,0],[2,0],[4,0],[2,1]]);[s.af,s.as,s.ab,s.al]=attacks;
+      s.f=s.idle8[0];s.s=s.idle8[6];s.l=s.idle8[2];s.b=s.idle8[4];s.fall=lazy(19,4,[[0,0]])[0];return DOLL['s'+key]=s;
+    }
+    const L = dollLayers(a), s = { art: 1, doll: 1, fx: a.fx };
     const dirRow = (row0, n) => { const rows = [0, 1, 2, 3, 4].map(sr => Array.from({ length: n }, (_, k) => dollFrame(a, L, row0 + sr, k, sr))); return DSRC.map(([sr, fl]) => fl ? rows[sr].map(flipC) : rows[sr]); };
     s.w8 = dirRow(0, 8); s.r8 = dirRow(5, 8); const ar = { swing: 10, thrust: 13, cast: 16 }[a.style] || 10, at = sr => [0, 1, 2, 3].map(k => dollFrame(a, L, ar + [0, 1, 2][sr], k, [0, 2, 4][sr]));
     s.af = at(0); s.as = at(1); s.al = s.as.map(flipC); s.ab = at(2); s.f = [s.w8[0][2]]; s.s = [s.w8[6][2]]; s.l = [s.w8[2][2]]; s.b = [s.w8[4][2]];
@@ -146,6 +217,8 @@
   // NPCs compose only a visible frame. The five painted directions share
   // the same cached frame with their mirrored views.
   const NPC_FRAMES = new Map(), NPC_FRAME_LIMIT = 160, npcRetired = [];
+  const HUMAN_MIRRORS=new WeakMap();
+  function mirroredHuman(c){let mirror=HUMAN_MIRRORS.get(c);if(!mirror){mirror=flipC(c);HUMAN_MIRRORS.set(c,mirror);}return mirror;}
   let npcBodyScratch, npcHeadScratch, drawingNpcFrames = false;
   const CARDINAL_D8 = { f: 0, l: 2, b: 4, s: 6 };
   function npcPose(e) {
@@ -154,7 +227,7 @@
     const direction = moving ? NpcAppearance.direction(e.tx - e.fx, e.ty - e.fy, still) : still;
     if (moving) e.npcFacing = direction;
     const [source, flip] = DSRC[direction];
-    let row = source, frame = moving ? Math.floor(e.walk || 0) % 8 : 2;
+    let row = !moving&&AD.human?-1:source+(moving&&e.npcRun?5:0), frame = moving ? ActorRig.phase(ActorRig.distance(e),!!e.npcRun,AD.human?AD.human.frames:8) : AD.human?0:2;
     let scale = 1, lean = 0;
     if (!moving && e.fs != null && e.ff >= 2 && e.ff <= 5) {
       const attack = { swing: 10, thrust: 13, cast: 16 }[e.npcLook.style];
@@ -163,15 +236,17 @@
       return { direction, row, frame, source: source === 0 ? 0 : source >= 3 ? 4 : 2, flip, scale, lean };
     }
     if (!moving && e.fs != null && e.ff === 6) lean = flip ? 2 : -2;
-    if (!moving && e.fs != null && e.ff === 7) { scale = .94; row += 5; frame = 3; }
+    if (!moving && e.fs != null && e.ff === 7) { if(AD.human){row=20;frame=2;}else{scale=.94;row+=5;frame=3;} }
     return { direction, row, frame, source, flip, scale, lean };
   }
   function npcFrame(a, { row, frame, source }) {
     if (!dollReady(a)) return null;
     const key = [a.key, row, frame, source].join('|'), cached = NPC_FRAMES.get(key);
     if (cached) { NPC_FRAMES.delete(key); NPC_FRAMES.set(key, cached); return cached; }
+    if(AD.human){const image=anatomicalFrame(a,row,frame,source);NPC_FRAMES.set(key,image);retireNpcFrames();return image;}
     const cloth = hexRGB(a.cloth), head = IMG['hb/hair.webp'].im;
     const L = {
+      profiles:bodyProfiles(a.combo),
       bodyFrame(area, anchor) {
         if (!npcBodyScratch) npcBodyScratch = mk(area[2], area[3]);
         const [canvas, g] = tintSource(IMG['hb/C' + a.combo + '.webp'].im, area, npcBodyScratch);
@@ -188,24 +263,26 @@
     };
     const image = dollFrame(a, L, row, frame, source);
     NPC_FRAMES.set(key, image);
+    retireNpcFrames();return image;
+  }
+  function retireNpcFrames(){
     if (NPC_FRAMES.size > NPC_FRAME_LIMIT) {
       const oldest = NPC_FRAMES.keys().next().value, canvas = NPC_FRAMES.get(oldest);
       NPC_FRAMES.delete(oldest);
       if (drawingNpcFrames) npcRetired.push(canvas);
-      else canvas.width = canvas.height = 0;
+      else releaseHumanFrame(canvas);
     }
-    return image;
   }
+  function releaseHumanFrame(canvas){const mirror=HUMAN_MIRRORS.get(canvas);if(mirror){if(mirror.mask)mirror.mask.width=mirror.mask.height=0;mirror.width=mirror.height=0;}if(canvas.mask)canvas.mask.width=canvas.mask.height=0;canvas.width=canvas.height=0;}
   function npcDraw(e, bx, by, sort, list) {
     const pose = npcPose(e), image = npcFrame(e.npcLook, pose);
     if (!image) return false;
     const { scale, flip, lean } = pose;
-    const bounds=actorBounds(image),anchor=ActorRig.headAnchor(AD.body,e.npcLook.combo,pose.row,pose.frame);
-    const px=bx-lw(image)*scale/2+(e.ox||0)+lean,py=by-lh(image)*scale+1;
+    const bounds=actorBounds(image),anchor=image.anchor||ActorRig.pose(AD.body,e.npcLook.combo,pose.row,pose.frame,bodyProfiles(e.npcLook.combo)).anchor;
+    const px=bx-(image.originX==null?image.width/2:flip?image.width-image.originX:image.originX)/K*scale+(e.ox||0)+lean,py=by-(image.originY??image.height)/K*scale+1;
     e.rendered={headX:px+(flip?image.width-anchor[1]:anchor[1])*scale/K,topY:py+bounds.top*scale/K};
     list.push([sort-1,humanShadow(),bx-6,by-1]);
-    list.push([sort, image, bx - lw(image) * scale / 2 + (e.ox || 0) + lean,
-      by - lh(image) * scale + 1, flip, scale, e.flash > 0 ? 1 : 0]);
+    list.push([sort, image, px, py, flip, scale, e.flash > 0 ? 1 : 0]);
     return true;
   }
   // The ten painted figures have distinct sleeve and finger positions. These
@@ -311,11 +388,11 @@
   }
   function previewHuman(canvas,a,direction,movingTime,running=false){
     const sprite=dollSprite(a);if(!sprite)return false;
-    const moving=Number.isFinite(movingTime),distance=moving?movingTime/1000*(running?4.6:2.2):0,frame=moving?ActorRig.phase(distance,running):2;
-    const image=(running?sprite.r8:sprite.w8)[(direction||0)%8][frame],g=canvas.getContext('2d');
+    const moving=Number.isFinite(movingTime),distance=moving?movingTime/1000*ActorRig.speed(running):0,frame=moving?ActorRig.phase(distance,running,AD.human?AD.human.frames:8):2;
+    const image=!moving&&sprite.idle8?sprite.idle8[(direction||0)%8][0]:(running?sprite.r8:sprite.w8)[(direction||0)%8][frame],g=canvas.getContext('2d');
     g.clearRect(0,0,canvas.width,canvas.height);g.imageSmoothingEnabled=true;
     const size=Math.min(canvas.width,canvas.height)*.95;
-    g.drawImage(image,(canvas.width-size)/2,canvas.height-size,size,size);return true;
+    if(image.originX!=null){const scale=size/80;g.drawImage(image,canvas.width/2-image.originX*scale,canvas.height-5-image.originY*scale,image.width*scale,image.height*scale);}else g.drawImage(image,(canvas.width-size)/2,canvas.height-size,size,size);return true;
   }
   const ACTOR_BOUNDS=new WeakMap(),ACTOR_EDGES=new WeakMap();
   let HUMAN_SHADOW;
@@ -815,7 +892,7 @@
   }
   const setOf = t => { const o = {}; t.split(' ').forEach(k => { o[k] = 1; }); return o; }, PREY = setOf('a1 a2 a4 a5 a6 a7 a8'), FLY = setOf('b102 b204 b303 b304 b402 b404 b502 b602 b603 b701 b702 b704 b802 b803'), SLOW = setOf('b202 b302 b801 b501 b604 b804');
   const D8 = (dx, dy) => [[3, 4, 5], [2, 0, 6], [1, 0, 7]][Math.sign(dy) + 1][Math.sign(dx) + 1] ?? 0;   // 0 S, 1 SW, 2 W, 3 NW, 4 N, 5 NE, 6 E, 7 SE
-  const WALK = 2.2, RUN = 4.6, WALK_CYC = 1.8, RUN_CYC = 2.6, DIRV = { f: [0, 1], b: [0, -1], s: [1, 0], l: [-1, 0] }, D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]], dirOf = (dx, dy) => dx > 0 ? 's' : dx < 0 ? 'l' : dy > 0 ? 'f' : 'b';
+  const WALK = ActorRig.speed(false), RUN = ActorRig.speed(true), WALK_SCALE=ActorRig.paceScale(false), RUN_SCALE=ActorRig.paceScale(true), DIRV = { f: [0, 1], b: [0, -1], s: [1, 0], l: [-1, 0] }, D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]], dirOf = (dx, dy) => dx > 0 ? 's' : dx < 0 ? 'l' : dy > 0 ? 'f' : 'b';
   const HUMAN_STEPS = [[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]];
   const heroOverlaps=(x,y)=>!!P&&Math.abs(P.fx-x)<.5+Movement.radius&&Math.abs(P.fy-y)<.5+Movement.radius;
   const npcStepClear = (e,dx,dy) => !heroOverlaps(e.x+dx,e.y+dy) && !blocked(e.x+dx,e.y+dy) && (!dx||!dy||(!blocked(e.x+dx,e.y)&&!blocked(e.x,e.y+dy)));
@@ -845,7 +922,7 @@
       const actor=P,[dx,dy]=manual;
       P.d8=D8(dx,dy);P.dir=dirOf(dx,dy);P.dg=null;
       const distance=Movement.advance(P,dx,dy,(P.run?RUN*(host.runMul?host.runMul():1):WALK)*dt,blocked);
-      if(P===actor){P.moving=distance>.00001;P.wd=(P.wd||0)+distance;P.walk+=distance*(P.run?13/RUN:9/WALK);if(distance<.00001)P.path=[];
+      if(P===actor){P.moving=distance>.00001;advanceGait(P,distance,P.run);P.walk+=distance*(P.run?13/4.6:9/2.2);if(distance<.00001)P.path=[];
         if(distance>0&&host.manualMotion)host.manualMotion(distance,P.run);
         // Tile ownership updates at cell boundaries; footsteps/resources use
         // actual distance so rocking across one boundary cannot farm steps.
@@ -862,10 +939,12 @@
         P.dg = sx && sy ? (sy > 0 ? 'd' : 'u') + (sx > 0 ? 'r' : 'l') : null;
         P.d8 = D8(sx, sy);
         P.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 's' : 'l') : (dy > 0 ? 'f' : 'b');
-        P.walk += dt * (P.run ? 13 : 9);
-        P.wd = (P.wd || 0) + Math.min(distance, d);
-        if (d <= distance) { P.fx = P.x = nx; P.fy = P.y = ny; P.path.shift(); onTile(); }
+        const travelled=Math.min(distance,d);
+        P.walk += travelled * (P.run ? 13/4.6 : 9/2.2);
+        if (d <= distance) { P.fx = P.x = nx; P.fy = P.y = ny; P.path.shift(); }
         else { P.fx += dx / d * distance; P.fy += dy / d * distance; }
+        advanceGait(P,travelled,P.run);
+        if(d<=distance)onTile();
       }
     } else P.walk = 0;
     guideStep(dt);
@@ -875,7 +954,7 @@
       if (hostile(e) && !locked && !safeGround && (host.chasing()||host.aggro())) { const v = DIRV[e.dir] || [0, 1], facing = (P.fx - e.fx) * v[0] + (P.fy - e.fy) * v[1] > 0; if (clearSight(e.fx,e.fy,P.fx,P.fy) && (host.detects ? host.detects(d,facing,e.agg) : (d < 3.2 && facing) || (e.agg && d < 6.5))) {e.alert = 4;if(host.noticed)host.noticed();} else if(host.visibility && host.visibility().hidden) {endChase(e);} else if (e.alert > 0) e.alert = Math.max(0, e.alert - dt); if (e.calm > 0) e.calm -= dt;
         if(e.pursuitAnchor && ['boss','guard','keeper'].includes(e.kind) && Math.hypot(e.x-e.pursuitAnchor[0],e.y-e.pursuitAnchor[1])>=CHASE_LEASH)endChase(e);if(e.chase>0){if(sight(e)&&d<16)e.lastSeen=[P.x,P.y];else e.chase=Math.max(0,e.chase-dt);if(!e.chase)endChase(e);} if (e.wait > 0) e.wait -= dt; e.hunt = !(e.wait > 0) && (e.chase > 0 && d < 16 && !locked && host.chasing()) || (e.agg && e.alert > 0 && !(e.calm > 0) && d < 8 && sight(e) && !locked && host.aggro()); if (e.hunt && e.tx == null) { if (Math.abs(e.x - P.x) + Math.abs(e.y - P.y) === 1 && sight(e)) { e.hunt = 0; e.engaged=true; e.calm = 0; host.ambush(e); break; } const target=e.chase>0&&e.lastSeen?e.lastSeen:[P.x,P.y];if(e.chase>0&&!sight(e)&&e.x===target[0]&&e.y===target[1]){endChase(e);continue;}const ddx = target[0] - e.x, ddy = target[1] - e.y, st = Math.abs(ddx) >= Math.abs(ddy) ? [[Math.sign(ddx), 0], [0, Math.sign(ddy)]] : [[0, Math.sign(ddy)], [Math.sign(ddx), 0]]; for (const [sx, sy] of st) { if ((!sx && !sy) || blocked(e.x + sx, e.y + sy) || heroOverlaps(e.x+sx,e.y+sy)) continue; e.dir = dirOf(sx, sy); sit(map, e, e.x + sx, e.y + sy); e.tx = e.x; e.ty = e.y; break; } e.t = 1; continue; } }
       if(e.returning&&e.tx==null&&!locked&&e.t<=0){const [ax,ay]=e.pursuitAnchor;if(e.x===ax&&e.y===ay)e.returning=false;else{const next=Backstab.returnStep([e.x,e.y],[ax,ay],(x,y)=>!blocked(x,y)&&!heroOverlaps(x,y));e.t=next ? .15 : 1;if(next){e.dir=dirOf(next[0]-e.x,next[1]-e.y);sit(map,e,...next);e.tx=e.x;e.ty=e.y;}}}
-      if (e.tx != null) { const dx = e.tx - e.fx, dy = e.ty - e.fy, dd = Math.hypot(dx, dy), sp = (e.wander >= 2 ? 1.4 : e.hunt && e.chase > 0 ? (FLY[e.inst && e.inst.tpl] ? 4.0 : SLOW[e.inst && e.inst.tpl] ? 1.9 : 3.6) : e.hunt ? 2.0 : e.run ? 2.4 : e.kind === 'mon' ? (FLY[e.inst.tpl] ? 1.6 : SLOW[e.inst.tpl] ? .5 : .9) : 1.1) * dt; e.walk = (e.walk || 0) + dt * 7; if (dd <= sp) { e.fx = e.tx; e.fy = e.ty; e.tx = null; } else { e.fx += dx / dd * sp; e.fy += dy / dd * sp; } }
+      if (e.tx != null) { const dx = e.tx - e.fx, dy = e.ty - e.fy, dd = Math.hypot(dx, dy), npcRun = !(e.wander >= 2) && !!(e.hunt&&e.chase>0||!e.hunt&&e.run), sp = (e.wander >= 2 ? 1.4 : e.hunt && e.chase > 0 ? (FLY[e.inst && e.inst.tpl] ? 4.0 : SLOW[e.inst && e.inst.tpl] ? 1.9 : 3.6) : e.hunt ? 2.0 : e.run ? 2.4 : e.kind === 'mon' ? (FLY[e.inst.tpl] ? 1.6 : SLOW[e.inst.tpl] ? .5 : .9) : 1.1) * (npcRun?RUN_SCALE:WALK_SCALE) * dt; advanceGait(e,Math.min(sp,dd),npcRun); e.walk = (e.walk || 0) + dt * 7 * (npcRun?RUN_SCALE:WALK_SCALE); if (dd <= sp) { e.fx = e.tx; e.fy = e.ty; e.tx = null; } else { e.fx += dx / dd * sp; e.fy += dy / dd * sp; } }
       else if (e.wander && !e.returning && e.t <= 0 && d > 1.6) { if(livingNpcStep(e,dt))continue;
         if (e.wander >= 2) { const choices=e.npcLook?HUMAN_STEPS:D4; let v = e.mv && Math.random() < .8 ? e.mv : choices[Math.random() * choices.length | 0]; const nx = e.x + v[0], ny = e.y + v[1], tt = nx >= 0 && ny >= 0 && nx < map.w && ny < map.h ? map.t[ny * map.w + nx] : 9; if ((tt === 2 || tt === 3 || (e.wander === 3 && tt === 6)) && npcStepClear(e,v[0],v[1]) && !(map.doorApproaches && map.doorApproaches.has(ny * map.w + nx)) && !heroOverlaps(nx,ny) && (e.roam ? nx >= e.roam[0] && ny >= e.roam[1] && nx <= e.roam[2] && ny <= e.roam[3] : e.wander === 3 || Math.hypot(nx - TOWN[e.r][0], ny - TOWN[e.r][1]) < 26)) { e.mv = v; e.dir = dirOf(v[0], v[1]); sit(map, e, nx, ny); e.tx = nx; e.ty = ny; e.t = Math.random() < .12 ? 1 + Math.random() * 4 : 0; } else { e.mv = null; e.t = .2 + Math.random() * .8; } }
         else if (e.kind === 'mon') {   // creatures roam their ground: pick a spot, walk to it, rest, go again. Prey bolts when you come close, then tires.
@@ -907,12 +986,19 @@
     if (banner) { banner.t -= dt; if (banner.t <= 0) banner = null; }
     if (!map.pending) fade = Math.max(0, fade - dt * 2.2);
   }
-  function onTile() {
+  function advanceGait(actor,distance,running) {
+    const contacts=ActorRig.advance(actor,distance,running);
+    if(actor===P)for(let n=contacts;n>0;n--)footfall();
+  }
+  function footfall() {
     const k = map.t[P.y * map.w + P.x], room = (map.blds || []).find(o => o.enter && buildingContains(o, P.x, P.y));
     const surface = room ? room.room.fl === 'flag' ? 'stone' : 'wood' : map.hall || k === 6 ? 'wood' : map.dungeon || k === 3 || k === 7 ? 'stone' : 'earth';
+    emit('step',surface);
+  }
+  function onTile() {
     if (map.dungeonFloor) dungeonReveal(map,P.x,P.y);
     discoverServices();
-    emit('step', surface); host.moved(P.x, P.y, map.dungeon, P.run);
+    host.moved(P.x, P.y, map.dungeon, P.run);
   }
 
   /* ---------- drawing ---------- */
@@ -948,10 +1034,10 @@
       if (e.npcLook && !e.dead && npcDraw(e, bx, by, by + (bars.some(b => b.e === e) ? 4000 : 0), list)) return;
       if (e.fs != null) { const c = fsCut(e.fs, e.ff | 0); if (c) list.push([by, c, bx - lw(c) / 2 + (e.ox || 0), by - lh(c) + 2, !!e.flip]); else if (e.spr) list.push([by, (e.spr.f || e.spr)[0], bx - 8, by - 15]); return; }
       if (!e.spr) return;
-      const s = e.spr, moving = me ? (P.moving||P.path.length) && !locked : e.tx != null, left = e.dir === 'l', fl = me && s.w8 && !(P.atk > 0) ? (P.run && moving && s.r8 ? s.r8 : s.w8)[P.d8 || 0] : me && P.dg && s[P.dg] && !(P.atk > 0) ? s[P.dg] : left && s.l ? s.l : s[left ? 's' : (e.dir || 'f')], f = s.beast ? fr : (moving ? (me && s.w8 && !(P.atk > 0) ? ActorRig.phase(P.wd,P.run,fl.length) : ((me ? P.walk : e.walk) | 0) % fl.length) : me && s.w8 && fl.length === 8 ? 2 : 0), ak = me && P.atk > 0 && s.af ? s['a' + (left ? 'l' : (e.dir || 'f'))] : null, baseImage = ak ? ak[Math.min(3, Math.floor((1 - P.atk / .3) * 4))] : fl[f], im = me && map.ship && map.ship.phase === 'rescue' && map.ship.time < 3.7 ? shipWaterFrame(baseImage) : baseImage, sc = e.big && !s.art ? 2 : s.msc || 1;
+      const s = e.spr, moving = me ? (P.moving||P.path.length) && !locked : e.tx != null, left = e.dir === 'l', fl = me && s.w8 && !(P.atk > 0) ? (P.run && moving && s.r8 ? s.r8 : s.w8)[P.d8 || 0] : me && P.dg && s[P.dg] && !(P.atk > 0) ? s[P.dg] : left && s.l ? s.l : s[left ? 's' : (e.dir || 'f')], f = s.beast ? fr : (moving ? (me && s.w8 && !(P.atk > 0) ? ActorRig.phase(ActorRig.distance(P),P.run,fl.length) : ((me ? P.walk : e.walk) | 0) % fl.length) : me && s.w8 && fl.length === 8 ? 2 : 0), ak = me && P.atk > 0 && s.af ? s['a' + (left ? 'l' : (e.dir || 'f'))] : null, baseImage = ak ? ak[Math.min(3, Math.floor((1 - P.atk / .3) * 4))] : me && !moving && s.idle8 ? s.idle8[P.d8 || 0][0] : fl[f], im = me && map.ship && map.ship.phase === 'rescue' && map.ship.time < 3.7 ? shipWaterFrame(baseImage) : baseImage, sc = e.big && !s.art ? 2 : s.msc || 1;
       if (e.dead) { const da = artDead(e.inst ? (e.inst.art || e.inst.tpl) : e.tpl); if (da) { const ds = s.msc || 1; list.push([by - 8, da, bx - lw(da) * ds / 2, by - lh(da) * ds + 3, false, ds, 0, e.dying != null ? Math.max(0, e.dying) : 1]); return; } const di = (s.s || s.f)[0]; list.push([by - 8, di, bx - lw(di) * sc / 2, by - lh(di) * sc + 1, false, sc, 0, e.dying != null ? Math.max(0, e.dying) : 1, 1]); return; }
       const flip = me && s.w8 && !(P.atk > 0) ? false : s.left ? (e.dir === 's' && !e.flip) : ((left && !s.l) || e.flip), bob = s.bob ? (moving && !(e.inst && FLY[e.inst.tpl]) ? -Math.round(Math.abs(Math.sin(now / 105 + e.x)) * 3) / K : Math.round(Math.sin(now / 320 + e.x * 2) * 2) / K) : (s.one && moving ? Math.round(Math.abs(Math.sin(now / 90)) * 3) / K : 0);
-      list.push([(me ? worldHeroSort(by) : by) + (bars.length && (me || bars.some(b => b.e === e)) ? 4000 : 0), im, bx - lw(im) * sc / 2, by - lh(im) * sc + (s.art ? 1 : 2 + (s.beast ? 3 * sc : 0)) + (s.one && moving ? -bob : bob), flip, sc, e.flash > 0 ? 1 : 0, e.dying != null ? Math.max(0, e.dying) : me && host.visibility && host.visibility().hidden ? .45 : 1, 0, me && s.fx && im.mask ? s.fx : null]);
+      list.push([(me ? worldHeroSort(by) : by) + (bars.length && (me || bars.some(b => b.e === e)) ? 4000 : 0), im, bx - (im.originX != null ? im.originX/K : lw(im)/2) * sc, by - (im.originY != null ? im.originY/K : lh(im)) * sc + (s.art ? 1 : 2 + (s.beast ? 3 * sc : 0)) + (s.one && moving ? -bob : bob), flip, sc, e.flash > 0 ? 1 : 0, e.dying != null ? Math.max(0, e.dying) : me && host.visibility && host.visibility().hidden ? .45 : 1, 0, me && s.fx && im.mask ? s.fx : null]);
     };
     drawingNpcFrames = true;
     for (const e of map.ents) { if(e.hidden)continue; if (Math.abs(e.fx * T - ox0 - vw / 2) > vw / 2 + 60 || Math.abs(e.fy * T - oy0 - vh / 2) > vh / 2 + 70) continue; if (e.sv !== artVer) dress(e); else if (e.wk && !e.spr.l && AD && AD.chars.walk && have('folk.webp')) dress(e); if (e.flash > 0) e.flash -= .016; ent(e); }
@@ -962,7 +1048,7 @@
     for (const [, im, px, py, flip, sc, fl, al, rot, fx] of list) { if (!im) continue; const X = Math.round((px - ox0) * K) / K, Y = Math.round((py - oy0) * K) / K, w = lw(im) * (sc || 1), h = lh(im) * (sc || 1); if (al != null && al < 1) g.globalAlpha = al; if(im.human){const edge=actorEdge(im);if(flip){g.save();g.translate(X+w,Y);g.scale(-1,1);g.drawImage(edge,-4/K,-4/K,(im.width+8)/K*(sc||1),(im.height+8)/K*(sc||1));g.restore();}else g.drawImage(edge,X-4/K,Y-4/K,(im.width+8)/K*(sc||1),(im.height+8)/K*(sc||1));} if (im.sm) { g.imageSmoothingEnabled = true; if (flip) { g.save(); g.translate(X + w, Y); g.scale(-1, 1); g.drawImage(im, 0, 0, w, h); g.restore(); } else g.drawImage(im, X, Y, w, h); g.imageSmoothingEnabled = false; continue; } if (rot) { g.fillStyle = 'rgba(0,0,0,.22)'; g.beginPath(); g.ellipse(X + w / 2, Y + h - 1, h * .46, 3, 0, 0, 7); g.fill(); g.save(); g.translate(X + w / 2 - h / 2, Y + h - w / 2); g.rotate(Math.PI / 2); g.drawImage(im, -w / 2, -h, w, h); g.restore(); g.globalAlpha = 1; continue; } if (flip) { g.save(); g.translate(X + w, Y); g.scale(-1, 1); g.drawImage(im, 0, 0, w, h); if (fl) { g.globalCompositeOperation = 'lighter'; g.drawImage(im, 0, 0, w, h); } g.restore(); } else { g.drawImage(im, X, Y, w, h); if (fl) { g.globalCompositeOperation = 'lighter'; g.drawImage(im, X, Y, w, h); g.globalCompositeOperation = 'source-over'; } } if (fx) dollFx(g, fx, im.mask, X, Y, w, h, flip, now); g.globalAlpha = 1; }
     if (map.ship) shipOverlay(g, ox0, oy0);
     drawingNpcFrames = false;
-    for (const canvas of npcRetired) canvas.width = canvas.height = 0;
+    for (const canvas of npcRetired) releaseHumanFrame(canvas);
     npcRetired.length = 0;
     // blows and bolts
     for (const s of slashes) { const u = s.t / (s.d || .2), X = s.x * T + 8 - ox0, Y = s.y * T + 4 - oy0 - (s.rise || 0) * u * T;
@@ -1163,8 +1249,8 @@
     }
     if (e.tx != null) {
       if (blocked(e.tx,e.ty,e)) {e.tx=null;return;}
-      const dx=e.tx-e.fx,dy=e.ty-e.fy,n=Math.hypot(dx,dy),speed=(d>4?5.4:2.5)*dt;
-      e.walk=(e.walk||0)+dt*9;
+      const dx=e.tx-e.fx,dy=e.ty-e.fy,n=Math.hypot(dx,dy),running=d>4,speed=(running?5.4*RUN_SCALE:2.5*WALK_SCALE)*dt;
+      advanceGait(e,Math.min(n,speed),running);e.walk=(e.walk||0)+dt*9*(running?RUN_SCALE:WALK_SCALE);
       if(n<=speed){e.fx=e.x=e.tx;e.fy=e.y=e.ty;e.tx=null;e.repath=0;}
       else{e.fx+=dx/n*speed;e.fy+=dy/n*speed;}
     }
@@ -1239,6 +1325,6 @@
     enterVenue, exitVenue, venueState, restoreVenue, inInterior: () => !!(map && map.venue), venues: () => world && world.venues ? Array.from(world.venues.values()) : [],
     traveling: () => !!(P && (P.moving||P.path.length)),
     cartographyCatalogue, cartographyBounds, cartographyRoute, cartographyGuide, cartographyMap, cartographyAtlas, cartographyInsideHome, cartographySign,
-    pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon && !map.ship), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ buildingCache: WORLD_BUILDING_CACHE.stats, map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, groundKinds, paintGround, humanSprite:dollSprite, bldSpr, effects: { shots, slashes, floats }, advanceEffects, draw, npcPose, npcFrame, npcCache: () => ({ frames: NPC_FRAMES.size, limit: NPC_FRAME_LIMIT }) }),
+    pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon && !map.ship), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ buildingCache: WORLD_BUILDING_CACHE.stats, map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, groundKinds, paintGround, humanSprite:dollSprite, bldSpr, effects: { shots, slashes, floats }, advanceEffects, draw, npcPose, npcFrame, npcCache: () => ({ frames: NPC_FRAMES.size, limit: NPC_FRAME_LIMIT, materials:HUMAN_PIXELS.size, materialLimit:HUMAN_PIXEL_LIMIT }) }),
     warp(x, y) { load([x, y]); }, hop(x, y) { go(map, x, y); }, guidePut, guideOff, guideEnt: () => GUIDE, drawDoll, dollKey: () => artVer, enterHall, inHall: () => map && map.hall ? map.r : 0, hallAdd: o => map ? addEnt(map, Object.assign({ r: map.r }, o)) : null, hallMove: (e, x, y) => { if (!map || !e) return; const k = e.y * map.w + e.x; if (map.occ.get(k) === e) map.occ.delete(k); e.x = e.fx = x; e.y = e.fy = y; e.tx = null; map.occ.set(y * map.w + x, e); }, ents: () => map ? map.ents : [], fsReady: () => !!(AD && AD.dojo && (IMG['dj/fs.webp'] || img('dj/fs.webp')) && have('dj/fs.webp')) };
 })();

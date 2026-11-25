@@ -61,44 +61,62 @@ test('living world · returning to characters retires house placement and dojo k
   await f.evaluate(()=>Scene.enterHall(1,[]));expect(await f.evaluate(()=>Scene.location().name)).toBe('Tallyport');expect(errors).toEqual([]);
 });
 
-test('living world · painted walk and run keep one skull and restore flight in every outfit and direction',async({page},info)=>{
+test('living world · rebuilt walk and run preserve adult heads, planted feet and flight in every outfit and direction',async({page},info)=>{
   const errors=observeErrors(page),f=await scene(page);
   await f.waitForFunction(()=>Array.from({length:10},(_,i)=>!!Scene.debug().humanSprite({...__bw.HOST.app(),combo:i+1,hair:-1,hat:-1,beard:-1,wpn:-1,shield:-1,fx:null})).every(Boolean));
   const result=await f.evaluate(()=>{
     Scene.pause();const debug=Scene.debug(),base={...__bw.HOST.app(),hair:-1,hat:-1,beard:-1,wpn:-1,shield:-1,fx:null},failures=[],sample=[];
-    const bounds=im=>{const p=im.getContext('2d').getImageData(0,0,80,80).data;let bottom=0;for(let y=0;y<80;y++)for(let x=0;x<80;x++)if(p[(y*80+x)*4+3]>160)bottom=y;return {bottom,head:ActorRig.headProfile(p,80,80)};};
+    const bounds=im=>{
+      const w=im.width,h=im.height,p=im.getContext('2d').getImageData(0,0,w,h).data;let bottom=0;
+      for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(p[(y*w+x)*4+3]>160)bottom=y;
+      const inkAt=([sx,sy])=>{for(let y=Math.max(0,Math.floor(sy)-2);y<=Math.min(h-1,Math.ceil(sy)+2);y++)for(let x=Math.max(0,Math.floor(sx)-2);x<=Math.min(w-1,Math.ceil(sx)+2);x++)if(p[(y*w+x)*4+3]>100)return true;return false;};
+      return {bottom:bottom-im.originY,headWidth:im.anchor[2],supports:im.supports.length,flight:im.flight,grounded:im.supports.every(inkAt),feet:im.feet.map(p=>({height:p[3],lift:p[2]-p[1],visible:inkAt(p)}))};
+    };
+    const encoded=im=>({src:im.toDataURL(),x:im.originX,y:im.originY,width:im.width,height:im.height});
     for(let combo=1;combo<=10;combo++){
       const sprite=debug.humanSprite({...base,combo});
       for(let direction=0;direction<8;direction++){
         const run=sprite.r8[direction].map(bounds),walk=sprite.w8[direction].map(bounds);
-        const widths=run.map(b=>b.head.width);
+        const widths=run.map(b=>b.headWidth);
         if(Math.max(...widths)-Math.min(...widths)>2)failures.push({combo,direction,issue:'changing skull width',widths});
-        for(const [contact,flight]of [[0,2],[4,6]])if(run[contact].bottom-run[flight].bottom<2)failures.push({combo,direction,issue:'no flight',contact:run[contact].bottom,flight:run[flight].bottom});
+        if(!run.some(b=>b.flight)||run.some(b=>b.supports>1))failures.push({combo,direction,issue:'missing running flight or unexpected double support'});
+        if(walk.some(b=>b.flight||b.supports<1)||!walk.some(b=>b.supports===2))failures.push({combo,direction,issue:'walking lost continuous/double support'});
+        if([...run,...walk].some(b=>!b.grounded))failures.push({combo,direction,issue:'visible sole misses its planted support'});
+        for(const phase of [27,59])if(!run[phase].flight||run[phase].feet.some(f=>f.height<.06||f.lift<2||!f.visible))failures.push({combo,direction,issue:'no visible sole clearance during flight',phase,feet:run[phase].feet});
         if(combo===1&&[6,7,0].includes(direction)){
           const dressed=debug.humanSprite({...base,combo,hair:0});
-          sample.push({direction,walk:dressed.w8[direction].map(im=>im.toDataURL()),run:dressed.r8[direction].map(im=>im.toDataURL())});
+          sample.push({direction,walk:dressed.w8[direction].map(encoded),run:dressed.r8[direction].map(encoded)});
         }
-        if(walk.some(b=>b.bottom<70))failures.push({combo,direction,issue:'walking feet displaced'});
+        const still=sprite.idle8[direction][0];if(still.gait!=='idle'||!still.width||!still.height)failures.push({combo,direction,issue:'missing coherent standing pose'});
       }
     }
     for(const combo of [1,6])for(const gear of [{hair:0},{hair:5},{hat:0},{hat:3},{beard:2}]){
       const s=debug.humanSprite({...base,combo,...gear});
       for(const direction of [0,6,7]){
-        const width=im=>{const h=bounds(im).head;return h.width;};
-        const walk=width(s.w8[direction][2]),run=s.r8[direction].map(width);
+        const width=(running,k)=>{
+          const dressed=(running?s.r8:s.w8)[direction][k],plain=(running?debug.humanSprite({...base,combo}).r8:debug.humanSprite({...base,combo}).w8)[direction][k];
+          const canvases=[dressed,plain].map(im=>{const c=document.createElement('canvas');c.width=c.height=128;c.getContext('2d').drawImage(im,64-im.originX,96-im.originY);return c.getContext('2d').getImageData(0,0,128,128).data;});
+          const end=Math.min(128,Math.ceil(96-dressed.originY+dressed.anchor[0]+13));let left=128,right=0;
+          for(let y=0;y<end;y++)for(let x=0;x<128;x++){const i=(y*128+x)*4,a=canvases[0],b=canvases[1];if(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2])+Math.abs(a[i+3]-b[i+3])>16){left=Math.min(left,x);right=Math.max(right,x);}}
+          return right-left;
+        };
+        const walk=width(false,16),run=s.r8[direction].map((_,k)=>width(true,k));
         if(run.some(w=>Math.abs(w-walk)>2))failures.push({combo,direction,gear,issue:'head layer changes size',walk,run});
       }
     }
-    return {failures,sample,scale:debug.zoom/3};
+    return {failures,sample,cache:debug.npcCache(),scale:debug.zoom/3,gaits:{walk:ActorRig.gait(false),run:ActorRig.gait(true)}};
   });
   expect(result.failures).toEqual([]);expect(errors).toEqual([]);
-  const html=`<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>Brasswake walk and run sample</title><style>body{background:#343b32;color:#f1ead7;font:17px system-ui;margin:24px}h1{font:28px Georgia}button{font:inherit;padding:8px;margin:4px}section{display:flex;flex-wrap:wrap;gap:20px}article{background:#858c75;padding:12px;color:#152016}canvas{display:block}small{display:block;max-width:34em}</style><h1>Walk and run sample</h1><p>Original Brasswake artwork with corrected head placement and running flight.</p><button id="pause">Pause</button><button id="slow">Slow motion</button><section id="sample"></section><p><small>Side, diagonal and front views. Large views are 3× the source frame; small views use the tested phone camera scale. Walking stays grounded. Running has two contact and flight phases.</small></p><script>const rows=${JSON.stringify(result.sample)},scale=${result.scale};let paused=false,slow=false,time=0,last=performance.now();document.getElementById('pause').onclick=()=>paused=!paused;document.getElementById('slow').onclick=()=>slow=!slow;const scenes=[];for(const row of rows)for(const gait of ['walk','run']){const a=document.createElement('article');a.innerHTML='<b>'+({6:'Side',7:'Diagonal',0:'Front'}[row.direction])+' · '+gait+'</b>';for(const size of [240,80*scale]){const c=document.createElement('canvas');c.width=c.height=Math.ceil(size);a.append(c);scenes.push({c,gait,images:row[gait].map(src=>{const i=new Image();i.src=src;return i;})});}document.getElementById('sample').append(a);}function paint(now){if(!paused)time+=Math.max(0,now-last)*(slow?.3:1);last=Math.max(last,now);for(const s of scenes){const g=s.c.getContext('2d'),cycle=s.gait==='run'?2250/4.6:1800/2.2,k=Math.floor(time/cycle*8)%8;g.clearRect(0,0,s.c.width,s.c.height);g.fillStyle='#606e50';g.fillRect(0,s.c.height*77/80,s.c.width,1);if(s.images[k].complete)g.drawImage(s.images[k],0,0,s.c.width,s.c.height);}}function draw(now){paint(now);requestAnimationFrame(draw);}Promise.all(scenes.flatMap(s=>s.images).map(i=>i.decode())).then(()=>{last=performance.now();paint(last);requestAnimationFrame(draw);document.body.dataset.ready='true';});</script>`;
+  expect(result.cache.frames).toBeLessThanOrEqual(result.cache.limit);expect(result.cache.materials).toBeGreaterThan(0);expect(result.cache.materials).toBeLessThanOrEqual(result.cache.materialLimit);
+  const html=require('../motion-sample')(result);
   const path=info.outputPath('motion-sample.html');await fs.writeFile(path,html);await info.attach('motion-sample',{path,contentType:'text/html'});
   // Load the standalone sample in place of the game harness before checking playback.
   const gallery=page,galleryErrors=errors;await gallery.waitForLoadState('networkidle');await gallery.goto('about:blank');await gallery.setContent(html);await gallery.waitForFunction(()=>document.body.dataset.ready==='true'&&time>40);await expect(gallery.locator('canvas')).toHaveCount(12);
   // rAF timestamps describe frame start and may precede initialization in that frame.
   expect(await gallery.evaluate(()=>{const before={time,last};paint(last-1);return {time:time-before.time,last:last-before.last};})).toEqual({time:0,last:0});
   const first=await gallery.locator('canvas').first().evaluate(c=>c.toDataURL());await expect.poll(()=>gallery.locator('canvas').first().evaluate(c=>c.toDataURL())).not.toBe(first);
+  await gallery.getByRole('button',{name:'Slow motion',exact:true}).click();expect(await gallery.evaluate(()=>{const before=time;paint(last+100);return time-before;})).toBeCloseTo(30,5);
+  await gallery.getByRole('button',{name:'Normal speed',exact:true}).click();expect(await gallery.evaluate(()=>{const before=time;paint(last+100);return time-before;})).toBeCloseTo(100,5);
   await gallery.getByRole('button',{name:'Pause',exact:true}).click();const stopped=await gallery.locator('canvas').first().evaluate(c=>c.toDataURL());await gallery.waitForTimeout(150);expect(await gallery.locator('canvas').first().evaluate(c=>c.toDataURL())).toBe(stopped);expect(galleryErrors).toEqual([]);
   await gallery.screenshot({path:info.outputPath('motion-sample.png'),fullPage:true});
 });
