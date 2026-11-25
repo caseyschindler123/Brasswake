@@ -38,7 +38,7 @@ test('free creation controls change the real turning and walking preview and per
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.locator('[data-a=begin]').click();
   expect(await page.evaluate(()=>({app:__bw.S.app,gold:__bw.S.gold}))).toMatchObject({gold:30,app:{body:0,skin:4,hair:3,hc:2,beard:3}});
-  await page.locator('[data-a=boatmenu]').click();await page.reload();await ready(page);await page.locator('[data-a=playslot]').click();
+  await require('./intro-helper').returnToCharacters(page);await page.reload();await ready(page);await page.locator('[data-a=playslot]').click();
   expect(await page.evaluate(()=>__bw.S.app)).toMatchObject({body:0,skin:4,hair:3,hc:2,beard:3});expect(errors).toEqual([]);
 });
 

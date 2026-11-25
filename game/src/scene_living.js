@@ -147,7 +147,8 @@
       });
       const column=Math.max(1,Math.min(b.w-2,Math.floor(b.w*.7))), row=Math.max(1,Math.floor(b.h*.38));
       if(!b.plan.roof[row*b.w+column])continue;
-      const x=(b.x+column)*T, y=(b.y+row)*T-40-(b.storeyLift||0);
+      const view=worldView(b),lift=view.roofLift?view.roofLift(column*T,row*T):0;
+      const x=(b.x+column)*T, y=(b.y+row)*T-view.wallHeight-(b.storeyLift||0)-lift;
       list.push([b.by+1.4,chimney,x-6,y-21,false,1,0,b.fa]);
       for(let j=0;j<3;j++){
         const life=((now/4100+j/3+(b.x%13)/13)%1), sway=Math.sin(life*4+b.y)*2;

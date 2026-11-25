@@ -10,6 +10,13 @@ async function nameAboard(page,name){
   await page.locator('[data-a=boatname]').click();
 }
 async function skipArrival(page,name){await nameAboard(page,name);await page.locator('[data-a=skipguide]').click();}
+async function returnToCharacters(page){
+  await expect(page.locator('#onboard [data-a=boatmenu]')).toHaveCount(0);
+  await page.getByRole('button',{name:'Character menu',exact:true}).click();
+  await expect(page.locator('#sheet-body')).toContainText('Progress saves automatically');
+  await page.locator('#sheet [data-a=boatmenu]').click();
+  await expect(page.locator('#title')).toBeVisible();
+}
 async function shipApproach(page,property){
   for(let attempt=0;attempt<10;attempt++){
     const path=await page.evaluate(property=>{
@@ -64,4 +71,4 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
   await expect(page.locator('#ctx')).toHaveText('Step ashore');if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();
   await expect(page.locator('#onboard')).toBeHidden();await expect(page.locator('#hud')).toContainText(name);
 }
-module.exports={nameAboard,skipArrival,shipApproach,fullArrival};
+module.exports={nameAboard,skipArrival,shipApproach,fullArrival,returnToCharacters};

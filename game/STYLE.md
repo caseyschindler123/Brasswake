@@ -42,6 +42,8 @@ Phone presentation should wrap, scroll or divide a passage at a complete thought
 
 Use the labels the player can see. If a button says **Run**, tell the player to tap **Run**. A sign, heading, item caption or brief status such as "Saved" can be short when the context makes its meaning clear. Dialogue, narration, quest premises, task instructions, lessons and explanatory feedback follow the natural-prose rules above. A task instruction should state the action: "Show the names and cities of [tier]-tier customers in the [region] region" gives the player more direction than "[Tier]-tier customers in the [region] region." Feedback says what happened, where to look, or what the player can do next. Give actual numbers for rewards and healing when the game knows them.
 
+In the introduction, establish SQL as the language that powers skilled actions before teaching with records. Explain the manifest as a safe practice example and connect that practice to an ability demonstration. Keep ordinary company records and the fantasy role of skilled actions clear.
+
 Use the names **SQL**, **query**, **table**, **column**, **row**, and **result**. Refer to clauses by their actual names, including `SELECT`, `FROM`, `WHERE`, `ORDER BY`, and `JOIN`. Define new terms with a visible example and use the same words for the same idea afterward. Write for SQLite as used here when behavior varies between databases.
 
 Teach in this order when a concept is new. Give the player a practical reason to use it. Explain what it does, show a small example, then let the player try it and read the result. A later exercise can assume earlier knowledge where the progression supplies it. Repeat a brief explanation or point to the relevant lesson where optional routes may have skipped it. Make a practice copy explicit before adding, changing, or deleting data. Historical restoration is a story act with its own source evidence.
@@ -59,6 +61,8 @@ During the prose pass, restore omitted grammar wherever brevity has made a line 
 Bly's request identifies both records and why he is comparing them. When the result comes back, he can check the missing invoices against delivery slips. The player gets a reason to learn the join before seeing its syntax.
 
 ## Decision log
+
+- 2026-11-24: Casey found the boat explanation too narrowly about bookkeeping. Tamsin establishes SQL’s role in skilled actions; Odalys explains the practice records and demonstrates the connection. Preserve actual SQL terminology and the practical teaching example.
 
 - 2026-11-23. Casey's correction from "Another three days if the weather holds" to "It'll be another three days if the weather holds" makes natural spoken grammar and rhythm explicit. Preserve ordinary subjects, verbs, contractions and connective words; use fragments for a clear conversational purpose and use layout to handle phone space. Apply this standard across player-facing prose. This documentation update does not rewrite or certify the existing script; the follow-up review is recorded in STORY_COVERAGE.md.
 - 2026-11-22. Release candidate `story-first-day-2026-11-22`: the story and first-day revision puts natural, connected thoughts before compression. Characters can be generous, difficult, or funny in their own ways. Use coherent phone dialogue beats, grounded state and evidence, and direct SQL vocabulary. The story bible and coverage register document the continuity and editorial decisions for this release.

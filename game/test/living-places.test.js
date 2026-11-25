@@ -19,6 +19,7 @@ function harness(){
     Interiors:{timber:Array(9).fill('#796047'),trim:Array(9).fill('#826f62')},
     performance:{now:()=>1000},cam:{x:0,y:0},vw:200,vh:220,map:null,world:null,P:{x:0,y:0,fx:0,fy:0},
     have:()=>false,artRect:()=>null,img:()=>{},clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),
+    worldView:()=>({wallHeight:40,roofLift:()=>0}),
     emit:()=>{},chartSteps:[[1,0],[-1,0],[0,1],[0,-1]],lw:c=>c.width/3,lh:c=>c.height/3};
   context.dirOf=(dx,dy)=>dx>0?'s':dx<0?'l':dy>0?'f':'b';
   context.npcStepClear=(e,dx,dy)=>{
@@ -36,16 +37,20 @@ function harness(){
   return {context,canvases,canvas,...context.api};
 }
 
-function polygon(c){
-  const result=[];
-  for(const [op,...a]of c.ops){if(op==='fill'&&result.length)break;if(op==='moveTo'||op==='lineTo')result.push(a);}
-  return result;
+function leafProjection(c){
+  const clip=c.ops.findIndex(([op])=>op==='clip'), transform=c.ops.findIndex(([op])=>op==='transform');
+  assert.ok(clip>=0 && transform>clip,'clip the painted leaf in screen coordinates');
+  const [,left,top,width,height]=c.ops.slice(0,clip).find(([op])=>op==='rect');
+  const [,xx,yx,xy,yy,tx,ty]=c.ops[transform];
+  const [,u,v,w,h]=c.ops.slice(transform+1).find(([op])=>op==='fillRect');
+  const corners=[[u,v],[u+w,v],[u+w,v+h],[u,v+h]].map(([p,q])=>[xx*p+xy*q+tx,yx*p+yy*q+ty]);
+  return {corners, clip:[left,top,left+width,top+height]};
 }
 
 test('closed leaves fill the entire structural doorway and all animation frames stay inside their canvases',()=>{
   const h=harness();
   for(const side of ['north','east','south','west']){
-    const art=h.venueDoorImage(1,side,0),points=polygon(art.c).map(([x,y])=>[x-art.ax,y-art.ay]);
+    const art=h.venueDoorImage(1,side,0),points=leafProjection(art.c).corners.map(([x,y])=>[x-art.ax,y-art.ay]);
     const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);
     assert.equal(Math.min(...ys),-33,side);
     if(side==='north'||side==='south'){
@@ -53,7 +58,11 @@ test('closed leaves fill the entire structural doorway and all animation frames 
     }else assert.equal(Math.max(...ys),16);
     for(let f=0;f<=8;f++){
       const a=h.venueDoorImage(1,side,f);
-      for(const [x,y]of polygon(a.c))assert.ok(x>=0&&x<=a.c.width/3&&y>=0&&y<=a.c.height/3,`${side}/${f}: ${x},${y}`);
+      const {corners,clip:[left,top,right,bottom]}=leafProjection(a.c);
+      assert.ok(left>=0&&right<=a.c.width/3&&top>=0&&bottom<=a.c.height/3,`${side}/${f}: clip stays on canvas`);
+      const xs=corners.map(p=>p[0]),ys=corners.map(p=>p[1]);
+      assert.ok(Math.max(left,Math.min(...xs))<Math.min(right,Math.max(...xs)),`${side}/${f}: visible width`);
+      assert.ok(Math.max(top,Math.min(...ys))<Math.min(bottom,Math.max(...ys)),`${side}/${f}: visible height`);
     }
   }
 });
@@ -163,9 +172,17 @@ test('wall faces have actual coping and plinth depth; visible water and motes re
 test('frontage decoration and roof smoke leave collision and occupied ground untouched',()=>{
   const h=harness(),plan=Buildings.compile({id:'inn',w:7,h:7,doors:['south','east']}),b={x:2,y:2,w:7,h:7,by:144,r:1,slot:'tavern',modular:true,fa:1,plan};
   const map={w:32,h:32,blds:[b],solid:new Uint8Array(1024),ents:[],occ:new Map()};h.context.map=map;
-  const before=JSON.stringify(map),list=[];
+  const before=JSON.stringify(map),list=[],levelRoof=[],raisedRoof=[];
   for(const d of plan.doors)h.venueEntrance(b,d,list,0,0);
-  h.livingDraw(h.canvas(300,300).getContext('2d'),0,0,1234);h.livingLayers(list,1234);
+  h.livingDraw(h.canvas(300,300).getContext('2d'),0,0,1234);
+  h.livingLayers(levelRoof,1234);
+  h.context.worldView=()=>({wallHeight:40,roofLift:(x,y)=>{
+    assert.ok(plan.roof[y/16*plan.w+x/16],'chimney is anchored to the covered roof');
+    return 11;
+  }});
+  h.livingLayers(raisedRoof,1234);
+  assert.deepEqual(raisedRoof.map(a=>a[3]),levelRoof.map(a=>a[3]-11),'chimney and smoke follow projected roof height');
+  list.push(...raisedRoof);
   assert.ok(list.length>=7,'two entrances, wall-side stock, chimney and bounded smoke');
   assert.equal(JSON.stringify(map),before);
 });

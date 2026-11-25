@@ -31,13 +31,13 @@ test('all eight town kits compile distinct usable frontages, preserve both publi
 
 function canvas(w,h) {
   const noop=()=>{};
-  return { width:w, height:h, getContext:()=>new Proxy({}, { get:()=>noop, set:()=>true }) };
+  return { width:w, height:h, getContext:()=>new Proxy({createLinearGradient:()=>({addColorStop:noop})}, { get:(target,key)=>target[key]||noop, set:()=>true }) };
 }
 function fixture() {
   const world = { w:80, h:80, venues:new Map(), ents:[], occ:new Map(), solid:new Uint8Array(6400) };
   let time=0;
   const sounds=[];
-  const api = { world, map:world, P:{x:1,y:1,fx:1,fy:1}, Buildings, Interiors, T:16, K:3, mk:canvas, AD:null,
+  const api = { world, map:world, P:{x:1,y:1,fx:1,fy:1}, Buildings, Interiors, T:16, K:3, mk:canvas, AD:null,document:{createElement:()=>canvas(0,0)},
     BIO:Object.fromEntries(regions.map(r=>[r,{}])), chartSteps:neighbors,
     performance:{ now:()=>time }, clamp:(n,a,b)=>Math.max(a,Math.min(b,n)), emit:s=>sounds.push(s),
     folkSprite:()=>null, host:{regionName:r=>'Region '+r},
@@ -52,7 +52,8 @@ function fixture() {
     nextTo:e=>Math.abs(e.x-api.P.x)+Math.abs(e.y-api.P.y)===1,
     go(m,x,y) { api.map=m; Object.assign(api.P,{x,y,fx:x,fy:y}); },
   };
-  const methods=vm.runInNewContext(source+'\n'+livingSource+'\n({ venueUpper, enterVenue, exitVenue, restoreVenue, venueState, venueHall, venueDoors })', api);
+  const view=fs.readFileSync(path.join(__dirname,'../src/building_view.js'),'utf8');
+  const methods=vm.runInNewContext(view+'\n'+source+'\n'+livingSource+'\n({ venueUpper, enterVenue, exitVenue, restoreVenue, venueState, venueHall, venueDoors })', api);
   return { api, methods, sounds, tick(ms) {time+=ms;} };
 }
 function floorFlood(m, entry, target) {

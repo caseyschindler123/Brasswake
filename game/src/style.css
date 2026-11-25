@@ -20,7 +20,12 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; text-wrap: balance; 
 #app { position: relative; height: 100%; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; background: var(--ink); border-inline: 1px solid var(--rule); }
 
 /* The arrival uses the actual stage and people; its dialogue leaves the deck visible. */
-#app.prologue #hud, #app.prologue #nav, #app.prologue .stage-ui { display: none; }
+#app.prologue #nav, #app.prologue .stage-ui { display: none; }
+#app.prologue #hud { display: block; position: absolute; top: 9px; right: 10px; z-index: 13; padding: 0; border: 0; background: none; }
+#app.prologue #hud .hud-row > :not(.hud-face), #app.prologue #hud .conceal-controls { display: none; }
+#app.prologue #hud .hud-face { width: 44px; height: 44px; margin: 0; }
+#app.prologue #hud .hud-row { padding: 0; }
+#app.prologue #sheet { z-index: 20; }
 #onboard { display: flex; flex-direction: column; position: absolute; inset: auto 10px calc(12px + var(--boat-kb, 0px)); z-index: 12; padding: 14px 16px; max-height: min(49%, calc(100% - var(--boat-kb, 0px) - 24px)); overflow: hidden; color: #382919; background: #f4e8c8; border: 2px solid #a7803d; border-radius: 6px; box-shadow: 0 4px 12px #0006; }
 #onboard .eyebrow { color: #725325; }
 #onboard h2 { font-size: 25px; margin: 4px 0 8px; }
@@ -37,7 +42,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; text-wrap: balance; 
 #onboard[data-phase=home] { max-height: 62%; }
 #onboard .boat-menu { flex: none; display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; font-size: 14px; }
 #onboard .boat-menu button { min-height: 36px; text-decoration: underline; text-underline-offset: 3px; }
-#onboard.boat-hint { inset: 10px 10px auto; max-height: 30%; font-size: 16px; padding: 10px 13px; }
+#onboard.boat-hint { inset: 10px 65px auto 10px; max-height: 30%; font-size: 16px; padding: 10px 13px; }
 #onboard.boat-hint h2 { font-size: 21px; margin: 0 0 4px; }
 #onboard.boat-hint .boat-menu { margin: 2px 0 0; }
 #onboard .boat-error { color: #9c311b; font-weight: 700; margin: 8px 0; }

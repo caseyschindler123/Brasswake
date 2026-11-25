@@ -41,6 +41,131 @@ async function stage(frame, tile) {
   expect(await at(frame)).toEqual(tile);
 }
 
+test('raised roof faces share continuous creases and respect structural holes', async ({ page }) => {
+  const errors = observeErrors(page), frame = await surface(page);
+  const result = await frame.evaluate(() => {
+    const build = (spec, piece = () => null) => {
+      const plan = Buildings.compile({ id: 'roof-fixture', doors: [], ...spec });
+      return { plan, ...BuildingView.create(plan, { piece }) };
+    };
+    const rectangle = build({ w: 10, h: 4 });
+    const elbow = build({ w: 8, h: 8, shape: 'L' });
+    const courtyard = build({ w: 11, h: 11, shape: 'courtyard' });
+    const ctx = rectangle.roof.getContext('2d');
+    const luma = (x, y) => {
+      const [r, g, b] = ctx.getImageData(x * 3, Math.round(y * 3), 1, 1).data;
+      return (r + 2 * g + b) / 4;
+    };
+    const ridge = rectangle.roofLift(80, 32);
+    const longitudinal = [39, 47, 48, 49, 72, 97, 119].map(x => ({
+      height: rectangle.roofLift(x, 32), ridge: luma(x, 32 - ridge),
+      back: luma(x, 12), front: luma(x, 32),
+    }));
+    // A seven-pixel repeat crosses the sixteen-pixel floor grid out of phase.
+    // The roof material keeps the same repeat through that boundary.
+    const stripe = document.createElement('canvas');
+    stripe.width = 21;
+    stripe.height = 3;
+    const paint = stripe.getContext('2d');
+    paint.fillStyle = '#73382a'; paint.fillRect(0, 0, 21, 3);
+    paint.fillStyle = '#d08356'; paint.fillRect(9, 0, 9, 3);
+    const textured = build({ w: 10, h: 4 }, name => name === 'wr1_0' ? stripe : null);
+    const texture = textured.roof.getContext('2d');
+    const repeat = [45, 46, 47, 48, 49, 50, 51].map(x =>
+      [x, x + 7].map(px => texture.getImageData(px * 3 + 1, 96, 1, 1).data[0]));
+    const maskMismatches = [];
+    for (const { plan, roof } of [rectangle, elbow, courtyard]) {
+      const pixels = roof.getContext('2d').getImageData(0, 0, roof.width, roof.height).data;
+      const tileSize = roof.width / plan.w;
+      for (let i = 0; i < pixels.length / 4; i++) {
+        const tile = Math.floor(i / roof.width / tileSize) * plan.w + Math.floor(i % roof.width / tileSize);
+        if (pixels[i * 4 + 3] === plan.roof[tile] * 255) continue;
+        maskMismatches.push(plan.shape);
+        break;
+      }
+    }
+    return { ridge, longitudinal, repeat, maskMismatches,
+      eaves: [rectangle.roofLift(0, 32), rectangle.roofLift(80, 0), rectangle.roofLift(80, 64)],
+      valley: [elbow.roofLift(64, 64), elbow.roofLift(56, 72), elbow.roofLift(48, 80)],
+    };
+  });
+  expect(result.maskMismatches).toEqual([]);
+  expect(result.eaves).toEqual([0, 0, 0]);
+  expect(result.ridge).toBeGreaterThan(8);
+  expect(result.ridge).toBeLessThan(20);
+  expect(result.valley[0]).toBe(0);
+  expect(result.valley[1]).toBeGreaterThan(2);
+  expect(result.valley[2]).toBeGreaterThan(result.valley[1]);
+  expect(new Set(result.repeat.map(([shade]) => shade)).size).toBeGreaterThan(1);
+  for (const [first, next] of result.repeat) expect(Math.abs(first - next)).toBeLessThan(3);
+  for (const face of result.longitudinal) {
+    expect(face.height).toBeCloseTo(result.ridge);
+    expect(face.front - face.back).toBeGreaterThan(25);
+    expect(face.ridge).toBeGreaterThan(face.back);
+  }
+  for (const which of ['ridge', 'back', 'front']) {
+    const values = result.longitudinal.map(face => face[which]);
+    expect(Math.max(...values) - Math.min(...values)).toBeLessThan(3);
+  }
+  expect(errors).toEqual([]);
+});
+
+test('door leaves stay within their fitted thresholds through every swing frame', async ({ page }, info) => {
+  const errors = observeErrors(page), frame = await surface(page);
+  const samples = await frame.evaluate(() => {
+    return ['north', 'south', 'west', 'east'].map(side => {
+      const frames = Array.from({ length: 9 }, (_, i) => {
+        const { c, ax, ay } = BuildingView.doorLeaf(Interiors.timber[1], side, i);
+        const rgba = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+        let left = Infinity, right = -Infinity, top = Infinity, bottom = -Infinity, count = 0, centre = 0, brightest = 0;
+        for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) {
+          const idx = (y * c.width + x) * 4;
+          if (rgba[idx + 3] < 128) continue;
+          const px = (x + .5) / 3 - ax, py = (y + .5) / 3 - ay;
+          left = Math.min(left, px); right = Math.max(right, px);
+          top = Math.min(top, py); bottom = Math.max(bottom, py);
+          brightest = Math.max(brightest, (rgba[idx] + 2 * rgba[idx + 1] + rgba[idx + 2]) / 4);
+          centre += px; count++;
+        }
+        return { left, right, top, bottom, count, centre: centre / count, brightest };
+      });
+      return { side, frames };
+    });
+  });
+  for (const { side, frames } of samples) {
+    const sideOn = side === 'west' || side === 'east';
+    for (const leaf of frames) {
+      expect(leaf.count).toBeGreaterThan(100);
+      expect(leaf.top).toBeGreaterThanOrEqual(-33);
+      expect(leaf.bottom).toBeLessThanOrEqual(sideOn ? 16 : 0);
+      expect(leaf.left).toBeGreaterThanOrEqual(side === 'west' ? 0 : sideOn ? -16 : -8);
+      expect(leaf.right).toBeLessThanOrEqual(side === 'east' ? 0 : sideOn ? 16 : 8);
+      expect(leaf.brightest).toBeLessThan(145);
+    }
+    const [closed, , , , middle, , , , open] = frames;
+    if (sideOn) {
+      expect(closed.right - closed.left).toBeLessThan(3);
+      expect(Math.abs(open.centre)).toBeGreaterThan(Math.abs(closed.centre) + 5);
+      expect(open.bottom).toBeLessThan(closed.bottom - 14);
+    } else {
+      expect(closed.right - closed.left).toBeGreaterThan(14);
+      expect(open.count).toBeLessThan(middle.count / 4);
+    }
+  }
+
+  const approach = await frame.evaluate(async () => {
+    await Scene.preload(8);
+    const { world } = Scene.debug();
+    const inn = world.blds.find(b => b.r === 8 && b.slot === 'inn' && b.modular);
+    const door = inn.plan.doors.find(d => d.side === 'south');
+    return Scene.safePosition([inn.x + door.outside.x - 1, inn.y + door.outside.y + 1], 8);
+  });
+  await stage(frame, approach);
+  await frame.waitForTimeout(3400); // Capture the closed door after the arrival banner clears.
+  await screenshot(page, info, 'capital-inn-raised-roof-and-door');
+  expect(errors).toEqual([]);
+});
+
 test('surface roads join the mainland towns and connect each island town to its ferry piers', async ({ page }, info) => {
   const errors = observeErrors(page), frame = await surface(page);
   const facts = await frame.evaluate(() => {
@@ -252,7 +377,7 @@ test('side entrances use the same walls and cutaway as a walkable courtyard inn'
   await stage(frame, court.covered);
   await frame.waitForFunction(id => Scene.debug().map.blds.some(b => b.plan?.id === id && b.inside && b.fa === 0), east.id);
   await press(frame, [1, 0], court.yard);
-  await frame.waitForFunction(id => Scene.debug().map.blds.some(b => b.plan?.id === id && !b.inside), east.id);
+  await frame.waitForFunction(id => Scene.debug().map.blds.some(b => b.plan?.id === id && !b.inside && b.fa === 1), east.id);
   const depth = await frame.evaluate(id => {
     Scene.pause();
     const d = Scene.debug(), b = d.map.blds.find(b => b.plan?.id === id), order = [];

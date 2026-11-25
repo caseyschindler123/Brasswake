@@ -1,8 +1,10 @@
 // Build the reusable canvas layers from the same tile plan that owns collision.
 const BuildingView = (() => {
   const T = 16, K = 3, WALL_HEIGHT = 40;
+  const DOOR_LINTEL = 7, DOOR_HEIGHT = WALL_HEIGHT - DOOR_LINTEL;
   const VERTICAL = new Set(['west', 'east']);
   const EAVES = { north: 5, east: 7, south: 4, west: 6 };
+  const ROOF_PITCH = .38;
 
   function canvas(w, h) {
     const image = document.createElement('canvas');
@@ -121,124 +123,121 @@ const BuildingView = (() => {
     return image;
   }
 
-  function roofRuns(plan) {
-    const { w, h, roof } = plan, rows = [], cols = [];
-    for (let y = 0; y < h; y++) {
-      for (let x = 0; x < w;) {
-        if (!roof[y * w + x]) { x++; continue; }
-        const start = x++;
-        while (x < w && roof[y * w + x]) x++;
-        const limits = [start, x];
-        for (let i = start; i < x; i++) rows[y * w + i] = limits;
-      }
+  // A uniform hip roof rises in proportion to distance from the nearest eave.
+  // Measure to the finite edge, including its ends. Extending an interior
+  // eave through the next wing would put a false fold in the middle of it.
+  function roofInset(edges, x, y) {
+    let inset = Infinity;
+    for (const { first, last, line, vertical } of edges) {
+      const across = vertical ? x : y, along = vertical ? y : x;
+      inset = Math.min(inset, Math.max(Math.abs(across - line), first - along, along - last));
     }
-    for (let x = 0; x < w; x++) {
-      for (let y = 0; y < h;) {
-        if (!roof[y * w + x]) { y++; continue; }
-        const start = y++;
-        while (y < h && roof[y * w + x]) y++;
-        const limits = [start, y];
-        for (let i = start; i < y; i++) cols[i * w + x] = limits;
-      }
-    }
-    return { rows, cols };
+    return inset;
   }
 
-  function roofPlanes(plan, g, kit, w, h) {
-    const { rows, cols } = roofRuns(plan), planes = Array.from({ length: 4 }, () => new Path2D());
-    const ridges = new Map();
-    const triangles = [[0, 0, 1, 0], [1, 0, 1, 1], [1, 1, 0, 1], [0, 1, 0, 0]];
-    const samples = [[.5, .17], [.83, .5], [.5, .83], [.17, .5]];
+  function roofMesh(plan, lift) {
+    const planes = new Map(), meshEdges = new Map(), vertices = new Map();
+    const caps = new Path2D(), valleys = new Path2D();
+    // Edge endpoints lie on the tile grid. Equal-pitch planes can therefore
+    // meet on grid lines, diagonals and midlines. These eight triangles per
+    // tile include each of those lines and share the same raised vertices.
+    const ring = [[0, 0], [.5, 0], [1, 0], [1, .5], [1, 1], [.5, 1], [0, 1], [0, .5]];
+    const stride = plan.w * 2 + 1;
+    function vertex(x, y) {
+      const id = y / (T / 2) * stride + x / (T / 2);
+      if (!vertices.has(id)) vertices.set(id, { id, x, y, z: lift(x, y) });
+      return vertices.get(id);
+    }
+    function project(p, a, b) {
+      p.moveTo(a.x, a.y - a.z);
+      p.lineTo(b.x, b.y - b.z);
+    }
+    function crease(a, b, opposite, plane) {
+      const key = a.id < b.id ? a.id + ':' + b.id : b.id + ':' + a.id;
+      const previous = meshEdges.get(key);
+      if (!previous) {
+        meshEdges.set(key, plane);
+        return;
+      }
+      if (plane === previous) return;
+      const { x, y, z } = opposite;
+      const priorHeight = previous.dx * x + previous.dy * y + previous.offset;
+      project(priorHeight > z ? caps : valleys, a, b);
+    }
+
     for (let y = 0; y < plan.h; y++) {
       for (let x = 0; x < plan.w; x++) {
-        const i = y * plan.w + x;
-        if (!plan.roof[i]) continue;
-        const [l, r] = rows[i], [n, s] = cols[i];
-        for (let f = 0; f < 4; f++) {
-          const [dx, dy] = samples[f];
-          const distances = [y + dy - n, r - x - dx, s - y - dy, x + dx - l];
-          const p = planes[distances.indexOf(Math.min(...distances))];
-          const [ax, ay, bx, by] = triangles[f];
-          p.moveTo((x + ax) * T, (y + ay) * T);
-          p.lineTo((x + bx) * T, (y + by) * T);
-          p.lineTo((x + .5) * T, (y + .5) * T);
-          p.closePath();
-        }
-        const mx = (l + r) / 2, my = (n + s) / 2;
-        if (y <= my && my < y + 1 && Math.min(x + .5 - l, r - x - .5) >= (s - n) / 2) {
-          const key = `h:${my}`;
-          if (!ridges.has(key)) ridges.set(key, []);
-          ridges.get(key).push(x);
-        }
-        if (x <= mx && mx < x + 1 && Math.min(y + .5 - n, s - y - .5) > (r - l) / 2) {
-          const key = `v:${mx}`;
-          if (!ridges.has(key)) ridges.set(key, []);
-          ridges.get(key).push(y);
+        if (!plan.roof[y * plan.w + x]) continue;
+        const center = vertex((x + .5) * T, (y + .5) * T);
+        const outline = ring.map(([u, v]) => vertex((x + u) * T, (y + v) * T));
+        for (let i = 0; i < outline.length; i++) {
+          const a = outline[i], b = outline[(i + 1) % outline.length];
+          const axis = a.x === b.x ? 'y' : 'x', across = axis === 'x' ? 'y' : 'x';
+          const slope = Math.round((b.z - a.z) / ((b[axis] - a[axis]) * ROOF_PITCH));
+          const other = Math.round((center.z - a.z - slope * ROOF_PITCH * (center[axis] - a[axis])) /
+            ((center[across] - a[across]) * ROOF_PITCH));
+          const dx = (axis === 'x' ? slope : other) * ROOF_PITCH;
+          const dy = (axis === 'y' ? slope : other) * ROOF_PITCH;
+          const offset = Math.round((a.z - dx * a.x - dy * a.y) / ROOF_PITCH) * ROOF_PITCH;
+          const key = dx + ':' + dy + ':' + offset;
+          if (!planes.has(key)) planes.set(key, { dx, dy, offset, path: new Path2D() });
+          const plane = planes.get(key);
+          project(plane.path, a, b);
+          plane.path.lineTo(center.x, center.y - center.z);
+          plane.path.closePath();
+          crease(a, b, center, plane);
+          crease(b, center, a, plane);
+          crease(center, a, b, plane);
         }
       }
     }
-    repeat(g, kit.roof(0), w, h, '#9c4c2c');
-    const tint = ['#32181147', '#4d251a22', '#fbc69518', '#3b23143b'];
-    for (let face = 0; face < planes.length; face++) {
-      g.save();
-      g.clip(planes[face]);
-      if (face === 1 || face === 3) {
-        g.save();
-        g.translate(w, 0); g.rotate(Math.PI / 2);
-        repeat(g, kit.roof(1), h, w, '#9c4c2c');
-        g.restore();
-      }
-      g.fillStyle = tint[face]; g.fillRect(0, 0, w, h);
-      g.restore();
-    }
-    return ridges;
+    return { planes, caps, valleys };
   }
 
-  function renderRoof(plan, kit) {
+  function renderRoof(plan, kit, edges, lift) {
     const w = plan.w * T, h = plan.h * T, { image, g } = canvas(w, h);
     tilePath(plan, i => !!plan.roof[i], g);
     g.clip();
-    const ridges = roofPlanes(plan, g, kit, w, h);
-    for (const { first, last, side, vertical, line } of runs(plan.roofEdges)) {
-      const shift = side === 'south' || side === 'east' ? -5 : 0;
+    // The projected north and south slopes have different apparent depths.
+    // Their shared eaves stay fixed and the projection preserves each hole.
+    repeat(g, kit.roof(0), w, h, '#9c4c2c');
+    const { planes, caps, valleys } = roofMesh(plan, lift);
+    for (const { dx, dy, offset, path } of planes.values()) {
+      g.save();
+      g.clip(path);
+      g.save();
+      g.transform(1, -dx, 0, 1 - dy, 0, -offset);
+      if (dx) {
+        g.translate(w, 0);
+        g.rotate(Math.PI / 2);
+        repeat(g, kit.roof(0), h, w, '#9c4c2c');
+      } else repeat(g, kit.roof(0), w, h, '#9c4c2c');
+      g.restore();
+      g.fillStyle = dy > 0 ? '#211c2371' : dy < 0 ? '#f7d4a52e' : dx > 0 ? '#d8bb991b' : '#27222c3d';
+      g.fillRect(0, 0, w, h);
+      g.restore();
+    }
+
+    // Caps and flashing follow the actual creases. The old stamped corner
+    // patches brought their own roof planes and could read as extra dormers.
+    g.lineJoin = 'round';
+    g.lineCap = 'round';
+    g.strokeStyle = '#241d1b64'; g.lineWidth = 2; g.stroke(valleys);
+    g.strokeStyle = '#3a291eae'; g.lineWidth = 2.8; g.stroke(caps);
+    g.strokeStyle = '#e4c3a38e'; g.lineWidth = 1.05; g.stroke(caps);
+    for (const { first, last, side, vertical, line } of edges) {
+      const thickness = side === 'south' ? 3.5 : 2.5;
+      const origin = line * T - (side === 'south' || side === 'east' ? thickness : 0);
       span(first * T, last * T, 44, (start, length) => {
-        const origin = line * T + shift;
-        g.fillStyle = '#48281da0';
-        g.fillRect(vertical ? origin : start, vertical ? start : origin, vertical ? 5 : length, vertical ? length : 5);
+        g.fillStyle = '#482e24b0';
+        g.fillRect(vertical ? origin : start, vertical ? start : origin, vertical ? thickness : length, vertical ? length : thickness);
         draw(g, kit.roof(EAVES[side]), vertical ? origin : start, vertical ? start : origin,
-          vertical ? 5 : length, vertical ? length : 5);
-      });
-    }
-    const covered = (x, y) => x >= 0 && y >= 0 && x < plan.w && y < plan.h && !!plan.roof[y * plan.w + x];
-    const corners = [[-1, -1, 8, 12], [1, -1, 9, 13], [-1, 1, 10, 14], [1, 1, 11, 15]];
-    for (let y = 0; y < plan.h; y++) {
-      for (let x = 0; x < plan.w; x++) {
-        if (!covered(x, y)) continue;
-        for (const [dx, dy, hip, valley] of corners) {
-          const a = covered(x + dx, y), b = covered(x, y + dy);
-          if (!a && !b) draw(g, kit.roof(hip), x * T + (dx > 0 ? -3 : 0), y * T + (dy > 0 ? -3 : 0), 19, 19);
-          if (a && b && !covered(x + dx, y + dy)) {
-            draw(g, kit.roof(valley), x * T + (dx < 0 ? -7 : 5), y * T + (dy < 0 ? -7 : 5), 18, 18);
-          }
-        }
-      }
-    }
-    for (const [key, positions] of ridges) {
-      const [axis, line] = key.split(':'), vertical = axis === 'v';
-      const across = +line * T - 2.5;
-      const bands = [];
-      for (const pos of positions.sort((a, b) => a - b)) {
-        const tail = bands[bands.length - 1];
-        if (tail && tail.end === pos) tail.end++;
-        else bands.push({ start: pos, end: pos + 1 });
-      }
-      for (const band of bands) span(band.start * T, band.end * T, 42, (start, length) => {
-        draw(g, kit.roof(vertical ? 3 : 2), vertical ? across : start, vertical ? start : across,
-          vertical ? 5 : length, vertical ? length : 5);
+          vertical ? thickness : length, vertical ? length : thickness);
       });
     }
     return image;
   }
+
 
   function wallPanel(g, art, x, w, height) {
     if (art) draw(g, art, x, 0, w, height);
@@ -266,8 +265,8 @@ const BuildingView = (() => {
   }
 
   function doorway(g, art, width) {
-    const jamb = 3, lintel = 7;
-    // A transparent opening stays one tile wide even if a regional painted frame is narrower.
+    const jamb = 3, lintel = DOOR_LINTEL;
+    // The opening stays one tile wide even if a regional painted frame is narrower.
     g.save();
     g.beginPath();
     g.rect(0, 0, width, lintel);
@@ -283,6 +282,66 @@ const BuildingView = (() => {
     shade.addColorStop(1, '#2f251b25');
     g.fillStyle = shade;
     g.fillRect(jamb, lintel, width - 2 * jamb, WALL_HEIGHT - lintel);
+    g.fillStyle = '#251b16a8';
+    g.fillRect(jamb, lintel, width - 2 * jamb, 1);
+    g.fillRect(jamb, lintel, .8, WALL_HEIGHT - lintel);
+    g.fillRect(width - jamb - .8, lintel, .8, WALL_HEIGHT - lintel);
+  }
+
+  function doorLeaf(timber, side, frame) {
+    const ax = 17, ay = DOOR_HEIGHT, { image, g } = canvas(ax * 2, ay + T);
+    const vertical = VERTICAL.has(side), inward = side === 'west' || side === 'north' ? 1 : -1;
+    const swing = frame * Math.PI / 16, close = Math.cos(swing), open = Math.sin(swing);
+    const hinge = vertical ? ax : ax - T / 2;
+    const dx = vertical ? inward * (2.7 * close + 14.8 * open) : T * close + .85 * open;
+    const dy = vertical ? T * close : inward * 10 * open;
+    // Keep the horizontal leaf within its jambs and lintel. The near-vertical
+    // side projection folds into its own threshold tile as the leaf swings.
+    g.beginPath();
+    if (vertical) g.rect(inward > 0 ? ax : ax - T, 0, T, ay + T);
+    else g.rect(ax - T / 2, 0, T, ay);
+    g.clip();
+    g.transform(dx / T, dy / T, 0, 1, hinge, 0);
+
+    g.fillStyle = timber;
+    g.fillRect(0, 0, T, ay);
+    const wood = g.createLinearGradient(0, 0, T, ay);
+    wood.addColorStop(0, '#35221984');
+    wood.addColorStop(.44, '#2c1b1470');
+    wood.addColorStop(.76, '#2f211745');
+    wood.addColorStop(1, '#20181280');
+    g.fillStyle = wood;
+    g.fillRect(0, 0, T, ay);
+    for (let i = 0; i < 5; i++) {
+      const x = i * T / 5;
+      g.fillStyle = i % 2 ? '#241a1833' : '#ce9e7330';
+      g.fillRect(x, 0, T / 5, ay);
+      g.fillStyle = '#271e1980';
+      g.fillRect(x, 0, .45, ay);
+      g.fillStyle = '#e1b48838';
+      g.fillRect(x + .55, 1, .45, ay - 2);
+      g.fillStyle = '#2f201746';
+      g.fillRect(x + 1.7, 3 + i * 4 % 13, .35, 7 + i % 3 * 2);
+      g.fillRect(x + 2.4, 21 + i * 3 % 8, .35, 3.5);
+    }
+    g.fillStyle = '#211b185e';
+    g.fillRect(0, 0, T, 1.1);
+    g.fillRect(0, ay - 1, T, 1);
+    g.fillRect(T - .85, 0, .85, ay);
+    for (const y of [7, 24]) {
+      g.fillStyle = '#312f2c';
+      g.fillRect(0, y, 7.6, 1.7);
+      g.fillStyle = '#8f887044';
+      g.fillRect(.5, y, 6.6, .4);
+      g.fillStyle = '#8a7964';
+      g.fillRect(1.3, y + .55, .65, .65);
+      g.fillRect(5.9, y + .55, .65, .65);
+    }
+    g.fillStyle = '#302922';
+    g.fillRect(12, 15.5, 1.95, 3.8);
+    g.fillStyle = '#9c815c';
+    g.fillRect(12.35, 16.2, 1.15, .9);
+    return { c: image, ax, ay };
   }
 
   function renderWalls(plan, kit) {
@@ -324,18 +383,18 @@ const BuildingView = (() => {
       for (let y = first; y < last; y++) {
         const top = y * T - WALL_HEIGHT;
         if (kind === Buildings.DOOR) {
-          const { image, g } = canvas(10, 33 + T + 3);
+          const { image, g } = canvas(10, DOOR_HEIGHT + T + 3);
           const east = side === 'east', outside = east ? 2 : 1;
           // Project the jambs along the full tile. Their feet, and the leaf's
           // feet, remain at the actual north/south ends of this threshold.
           g.fillStyle = '#302c29'; g.fillRect(outside, 0, 6, T + 3);
           draw(g, kit.cap(east ? 12 : 13), outside, 0, 6, T + 3);
-          for (const [index,foot] of [33, 33 + T].entries()) {
-            const post = east ? (index ? 7 : 0) : (index ? 0 : 7);
-            g.fillStyle = '#514333'; g.fillRect(post, foot - 33, 2.5, 33);
-            g.fillStyle = '#c4ad87'; g.fillRect(post, foot - 33, .8, 33);
+          for (const [index, foot] of [DOOR_HEIGHT, DOOR_HEIGHT + T].entries()) {
+            const post = 3 + index * (east ? -2.7 : 2.7);
+            g.fillStyle = '#514333'; g.fillRect(post, foot - DOOR_HEIGHT, 2.5, DOOR_HEIGHT);
+            g.fillStyle = '#a38c6b'; g.fillRect(post + .4, foot - DOOR_HEIGHT, .65, DOOR_HEIGHT);
           }
-          position(image, line * T - 4, y * T - 33, (y + 1) * T + .4, front);
+          position(image, line * T - 4, y * T - DOOR_HEIGHT, (y + 1) * T + .4, front);
           continue;
         }
         const { image, g } = canvas(6, WALL_HEIGHT + T);
@@ -388,7 +447,9 @@ const BuildingView = (() => {
       floor: piece(`floor${r}`) || piece('floor1'),
       court: piece('plaza'),
     };
-    const floor = renderFloor(plan, kit), roof = renderRoof(plan, kit), walls = renderWalls(plan, kit);
+    const roofEdges = runs(plan.roofEdges);
+    const roofLift = (x, y) => T * ROOF_PITCH * roofInset(roofEdges, x / T, y / T);
+    const floor = renderFloor(plan, kit), roof = renderRoof(plan, kit, roofEdges, roofLift), walls = renderWalls(plan, kit);
     const fittings = [];
     for (const { p, x, y } of furniture) {
       const art = piece(p) || piece(p.replace(/^f\d+_/, 'f1_'));
@@ -404,8 +465,8 @@ const BuildingView = (() => {
     const right = Math.max(plan.w * T, ...walls.map(wall => wall.x + wall.image.width / K), ...fittings.map(item => item.x + item.image.width / K));
     const bottom = Math.max(plan.h * T, ...walls.map(wall => wall.y + wall.image.height / K), ...fittings.map(item => item.y + item.image.height / K));
     const bounds = { x: left, y: top, w: right - left, h: bottom - top };
-    return { floor, roof, walls, furniture: fittings, wallHeight: WALL_HEIGHT, bounds };
+    return { floor, roof, roofLift, walls, furniture: fittings, wallHeight: WALL_HEIGHT, bounds };
   }
 
-  return { create };
+  return { create, doorLeaf };
 })();

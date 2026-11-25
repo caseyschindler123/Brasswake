@@ -70,7 +70,9 @@
         NpcAppearance.tintBody(data.data,B.cw,anchor,a.combo,null,a.skin);ctx.putImageData(data,frame*B.cw,row*B.ch);
       }
     }
-    return DOLL[key] = { body, ...dollHeadLayers(a) };
+    const profiles=[],q=body.getContext('2d'),B=AD.body;
+    for(let row=0;row<10;row++)for(let frame=0;frame<8;frame++)profiles[row*8+frame]=ActorRig.headProfile(q.getImageData(frame*B.cw,row*B.ch,B.cw,B.ch).data,B.cw,B.ch);
+    return DOLL[key] = { body, profiles, ...dollHeadLayers(a) };
   }
   // one layer (hair, beard or hat) on a head: view v, head anchor [top, hx, hw]
   function headLayer(g, L, a, item, v, an, lift, flip) {
@@ -88,7 +90,8 @@
   const swingAng = (a, sr, k) => a.wkind === 'staff' && a.style === 'cast' ? -1.45 : (ARC[a.style] || ARC.thrust)[sr === 0 ? 0 : sr === 2 ? 1 : 2][k];
   const WLEN = { staff: 1.05, bow: .78, sword: .62, long: .8, dagger: .36, shield: .42, book: .31 };
   function dollFrame(a, L, row, k, sr) {   // sr: which facing the source row is, 0 S, 1 SE, 2 E, 3 NE, 4 N
-    const B = AD.body, CW = B.cw, CH = B.ch, an = ActorRig.headAnchor(B,a.combo,row,k), c = mk(CW, CH), g = c.getContext('2d'); c.hr = 1;c.human=1;
+    const B = AD.body, CW = B.cw, CH = B.ch, pose=ActorRig.pose(B,a.combo,row,k,L.profiles), an = pose.anchor, c = mk(CW, CH), g = c.getContext('2d'); c.hr = 1;c.human=1;
+    g.translate(0,-pose.lift);
     const back = sr >= 3, atk = row >= 10 && row < 19, len = 64 * (WLEN[a.wkind] || .6), book = a.skin != null && a.wkind === 'book';
     const onBack = () => { if (a.wpn < 0 && a.shield < 0) return; const sx = an[1] + (sr === 2 ? -an[2] * .5 : an[2] * .3), sy = an[0] + an[2] * 1.45;
       if (a.shield >= 0) { const W = B.wx[a.shield], f = 64 * WLEN.shield / W[3]; g.drawImage(IMG['hb/wx.webp'].im, W[0], W[1], W[2], W[3], an[1] - W[2] * f / 2 + (sr === 2 ? -an[2] * .6 : 0), an[0] + an[2] * 1.6, W[2] * f, W[3] * f); }
@@ -97,13 +100,29 @@
     if (!back) onBack();
     if (atk && back) { const h = B.combos[a.combo].h[row + '.' + k]; if (h && a.wpn >= 0) weapon(g, a, h[0], h[1], swingAng(a, sr, k), len); }
     if (L.bodyFrame) g.drawImage(L.bodyFrame([k * CW, row * CH, CW, CH], an), 0, 0);
-    else g.drawImage(L.body, k * CW, row * CH, CW, CH, 0, 0, CW, CH);
+    else {
+      if(!L.motionFrames)L.motionFrames=new Map();
+      if(!pose.running)g.drawImage(L.body,k*CW,row*CH,CW,CH,0,0,CW,CH);
+      else {
+        const key=row+':'+k;let frame=L.motionFrames.get(key);
+        if(!frame){
+          frame=mk(CW,CH);const q=frame.getContext('2d'),ref=pose.reference,h=pose.headHeight,half=Math.max(ref[2]*.72,8),source=pose.source;
+          q.drawImage(L.body,k*CW,row*CH,CW,CH,0,0,CW,CH);
+          // Use the same painted head in walk and run. Only this small crown/
+          // face region is replaced; the original neck, torso and limbs remain.
+          q.clearRect(source?source.left:an[1]-half,0,source?source.right-source.left:half*2,an[0]+h);
+          q.drawImage(L.body,2*CW+ref[1]-half,(row-5)*CH,half*2,ref[0]+h,an[1]-half,an[0]-ref[0],half*2,ref[0]+h);
+          L.motionFrames.set(key,frame);
+        }
+        g.drawImage(frame,0,0);
+      }
+    }
     if (back) onBack();
     if (an[2]) { const v = sr; if (a.hat >= 0) headLayer(g, L, a, 18 + a.hat, v, an, HAT_Y[a.hat], false); else if (a.hair >= 0) headLayer(g, L, a, a.hair, v, an, -.12, false); if (a.beard >= 0 && sr <= 2) headLayer(g, L, a, 12 + a.beard, v, an, BEARD_Y[a.beard], false); }
     if (atk && !back) { const h = B.combos[a.combo].h[row + '.' + k]; if (h && a.wpn >= 0) weapon(g, a, h[0], h[1], swingAng(a, sr, k), len); }
     if (book && !atk && an[2]) weapon(g, a, an[1] + an[2] * (sr === 2 ? 1.1 : 1.4), an[0] + an[2] * 2.65, .22, len);
     if (atk && a.gl && k >= 1 && k <= 2) { const h = B.combos[a.combo].h[row + '.' + k]; if (h) { const gr = g.createRadialGradient(h[0], h[1], 0, h[0], h[1], 7); gr.addColorStop(0, 'rgba(255,244,190,.95)'); gr.addColorStop(1, 'rgba(255,220,120,0)'); g.fillStyle = gr; g.fillRect(h[0] - 7, h[1] - 7, 14, 14); } }
-    if (L.body && L.body.mask) { const m = mk(CW, CH); m.getContext('2d').drawImage(L.body.mask, k * CW, row * CH, CW, CH, 0, 0, CW, CH); m.hr = 1; c.mask = m; }
+    if (L.body && L.body.mask) { const m = mk(CW, CH); m.getContext('2d').drawImage(L.body.mask, k * CW, row * CH, CW, CH, 0, -pose.lift, CW, CH); m.hr = 1; c.mask = m; }
     return c;
   }
   const FXC = mk(80, 80);
@@ -290,10 +309,10 @@
     paintOffhand(g, P, a.shield, hands[1]);
     g.restore(); return true;
   }
-  function previewHuman(canvas,a,direction,movingTime){
+  function previewHuman(canvas,a,direction,movingTime,running=false){
     const sprite=dollSprite(a);if(!sprite)return false;
-    const moving=Number.isFinite(movingTime),frame=moving?Math.floor(movingTime/110)%8:2;
-    const image=sprite.w8[(direction||0)%8][frame],g=canvas.getContext('2d');
+    const moving=Number.isFinite(movingTime),distance=moving?movingTime/1000*(running?4.6:2.2):0,frame=moving?ActorRig.phase(distance,running):2;
+    const image=(running?sprite.r8:sprite.w8)[(direction||0)%8][frame],g=canvas.getContext('2d');
     g.clearRect(0,0,canvas.width,canvas.height);g.imageSmoothingEnabled=true;
     const size=Math.min(canvas.width,canvas.height)*.95;
     g.drawImage(image,(canvas.width-size)/2,canvas.height-size,size,size);return true;
@@ -700,21 +719,19 @@
     const field = o => { for (let i = 0; i < S * S; i++) A[i] = raw[i] >= o ? 1 : 0;
       for (let y = 0; y < S; y++) { let acc = 0; const r0 = y * S; for (let x = 0; x < RB; x++) acc += A[r0 + x]; for (let x = 0; x < S; x++) { if (x + RB < S) acc += A[r0 + x + RB]; if (x - RB - 1 >= 0) acc -= A[r0 + x - RB - 1]; Tm[r0 + x] = acc; } }
       for (let x = 0; x < S; x++) { let acc = 0; for (let y = 0; y < RB; y++) acc += Tm[y * S + x]; for (let y = 0; y < S; y++) { if (y + RB < S) acc += Tm[(y + RB) * S + x]; if (y - RB - 1 >= 0) acc -= Tm[(y - RB - 1) * S + x]; F[y * S + x] = acc / ((2 * RB + 1) * (2 * RB + 1)) - .5; } } };
-    const trace = () => { const P = new Path2D(); let any = false, n = 0;
+    const trace = (threshold=0) => { const P = new Path2D(); let any = false, n = 0;
       for (let y = 0; y < S - 1; y++) { let run = -1;
-        for (let x = 0; x <= S - 1; x++) { const a = x < S - 1 ? F[y * S + x] : -1, b = x < S - 1 ? F[y * S + x + 1] : -1, c = x < S - 1 ? F[(y + 1) * S + x + 1] : -1, d = x < S - 1 ? F[(y + 1) * S + x] : -1, all = a >= 0 && b >= 0 && c >= 0 && d >= 0;
+        for (let x = 0; x <= S - 1; x++) { const a = x < S - 1 ? F[y * S + x] - threshold : -1, b = x < S - 1 ? F[y * S + x + 1] - threshold : -1, c = x < S - 1 ? F[(y + 1) * S + x + 1] - threshold : -1, d = x < S - 1 ? F[(y + 1) * S + x] - threshold : -1, all = a >= 0 && b >= 0 && c >= 0 && d >= 0;
           if (all) { if (run < 0) run = x; continue; } if (run >= 0) { P.rect(ox + run * step, oy + y * step, (x - run) * step, step); any = true; n++; run = -1; } if (x === S - 1 || !(a >= 0 || b >= 0 || c >= 0 || d >= 0)) continue;
           const cx = [x, x + 1, x + 1, x], cy = [y, y, y + 1, y + 1], v = [a, b, c, d], pts = [];
           for (let k = 0; k < 4; k++) { const k2 = (k + 1) & 3; if (v[k] >= 0) pts.push(cx[k], cy[k]); if ((v[k] >= 0) !== (v[k2] >= 0)) { const t = v[k] / (v[k] - v[k2]); pts.push(cx[k] + (cx[k2] - cx[k]) * t, cy[k] + (cy[k2] - cy[k]) * t); } }
           if (pts.length < 6) continue; P.moveTo(ox + pts[0] * step, oy + pts[1] * step); for (let k = 2; k < pts.length; k += 2) P.lineTo(ox + pts[k] * step, oy + pts[k + 1] * step); P.closePath(); any = true; n++; } }
       return any ? P : null; };
-    let foamed = false;
     cls.forEach((o, k) => { const C = GCL[o & 63], fs = fillOf(o);
-      if (!k) { g.fillStyle = fs; g.fillRect(x0, y0, full, full); if (C.tint) { g.fillStyle = C.tint; g.fillRect(x0, y0, full, full); } return; }
-      field(o); const P = trace(); if (!P) return;
-      if (!foamed && C.rank > 1 && GCL[cls[k - 1] & 63].rank <= 1) { foamed = true; const lava = GCL[cls[0] & 63].name === 'lava'; g.save(); g.lineJoin = 'round'; g.strokeStyle = lava ? 'rgba(255,190,90,.45)' : 'rgba(255,255,255,.4)'; g.lineWidth = 14; g.stroke(P); g.lineWidth = 6; g.strokeStyle = lava ? 'rgba(255,220,140,.5)' : 'rgba(255,255,255,.55)'; g.stroke(P); g.restore(); }   // a pale fringe where water meets land
-      if (C.mt) { g.save(); g.lineJoin = 'round'; g.strokeStyle = 'rgba(28,22,16,.55)'; g.lineWidth = 7; g.stroke(P); g.restore(); }   // a dark rim round ground you cannot walk on
-      g.save(); g.clip(P); g.fillStyle = fs; g.fillRect(x0, y0, full, full); if (C.tint) { g.fillStyle = C.tint; g.fillRect(x0, y0, full, full); } g.restore(); });
+      const fill=()=>{g.fillStyle=fs;g.fillRect(x0,y0,full,full);if(C.tint){g.fillStyle=C.tint;g.fillRect(x0,y0,full,full);}};
+      if(!k){fill();return;}
+      field(o);TerrainEdges.blend(g,trace,fill);
+    });
     // broad light and shade, so a repeating texture never reads as a repeat
     for (let ly = Math.floor((Y0 - 6) / 6); ly <= Math.floor((Y0 + CS + 6) / 6); ly++) for (let lx = Math.floor((X0 - 6) / 6); lx <= Math.floor((X0 + CS + 6) / 6); lx++) { const h1 = hash(lx, ly, 61), px = (lx * 6 + hash(lx, ly, 62) * 6) * TS, py = (ly * 6 + hash(lx, ly, 63) * 6) * TS, r = (3 + hash(lx, ly, 64) * 2.6) * TS, a = .05 + hash(lx, ly, 65) * .06, gr = g.createRadialGradient(px, py, 0, px, py, r);
       gr.addColorStop(0, h1 < .5 ? `rgba(16,28,12,${a})` : `rgba(255,248,206,${a})`); gr.addColorStop(1, h1 < .5 ? 'rgba(16,28,12,0)' : 'rgba(255,248,206,0)'); g.fillStyle = gr; g.fillRect(x0, y0, full, full); }
@@ -759,7 +776,7 @@
       g.strokeStyle = sh(base, 1.4); g.lineWidth = 1.6; g.beginPath(); g.moveTo(px + sk, by - hh); g.lineTo(px - w * .25, by - hh * .46); g.stroke();
       if (b.cap || hh > 124) { const c0 = by - hh, ch = hh * .34; g.fillStyle = '#f6f9fa'; g.beginPath(); g.moveTo(px + sk, c0); g.lineTo(px + sk - w * .19, c0 + ch); g.lineTo(px + sk - w * .08, c0 + ch * .78); g.lineTo(px + sk, c0 + ch * 1.05); g.lineTo(px + sk + w * .08, c0 + ch * .74); g.lineTo(px + sk + w * .17, c0 + ch); g.fill(); g.fillStyle = 'rgba(120,140,160,.35)'; g.beginPath(); g.moveTo(px + sk, c0); g.lineTo(px + sk + w * .17, c0 + ch); g.lineTo(px + sk + w * .08, c0 + ch * .74); g.lineTo(px + sk, c0 + ch * 1.05); g.fill(); } }
     worldPaintSurface(m, g, X0, Y0);
-    TerrainEdges.paint(m,g,X0,Y0,CS,TS);
+    TerrainEdges.paint(m,g,X0,Y0,CS,TS,tx);
     return c;
   }
   function trim() { if (map.chunks.size < 70) return; const pcx = P.x / CS | 0, pcy = P.y / CS | 0; for (const [k, c] of map.chunks) { const x = k % 1000, y = k / 1000 | 0; if (Math.abs(x - pcx) > 5 || Math.abs(y - pcy) > 6) { c.width = c.height = 0; map.chunks.delete(k); } } }
@@ -1222,6 +1239,6 @@
     enterVenue, exitVenue, venueState, restoreVenue, inInterior: () => !!(map && map.venue), venues: () => world && world.venues ? Array.from(world.venues.values()) : [],
     traveling: () => !!(P && (P.moving||P.path.length)),
     cartographyCatalogue, cartographyBounds, cartographyRoute, cartographyGuide, cartographyMap, cartographyAtlas, cartographyInsideHome, cartographySign,
-    pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon && !map.ship), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ buildingCache: WORLD_BUILDING_CACHE.stats, map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, bldSpr, effects: { shots, slashes, floats }, advanceEffects, draw, npcPose, npcFrame, npcCache: () => ({ frames: NPC_FRAMES.size, limit: NPC_FRAME_LIMIT }) }),
+    pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon && !map.ship), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ buildingCache: WORLD_BUILDING_CACHE.stats, map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, groundKinds, paintGround, humanSprite:dollSprite, bldSpr, effects: { shots, slashes, floats }, advanceEffects, draw, npcPose, npcFrame, npcCache: () => ({ frames: NPC_FRAMES.size, limit: NPC_FRAME_LIMIT }) }),
     warp(x, y) { load([x, y]); }, hop(x, y) { go(map, x, y); }, guidePut, guideOff, guideEnt: () => GUIDE, drawDoll, dollKey: () => artVer, enterHall, inHall: () => map && map.hall ? map.r : 0, hallAdd: o => map ? addEnt(map, Object.assign({ r: map.r }, o)) : null, hallMove: (e, x, y) => { if (!map || !e) return; const k = e.y * map.w + e.x; if (map.occ.get(k) === e) map.occ.delete(k); e.x = e.fx = x; e.y = e.fy = y; e.tx = null; map.occ.set(y * map.w + x, e); }, ents: () => map ? map.ents : [], fsReady: () => !!(AD && AD.dojo && (IMG['dj/fs.webp'] || img('dj/fs.webp')) && have('dj/fs.webp')) };
 })();

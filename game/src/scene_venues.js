@@ -422,32 +422,9 @@
     if (venueDoorArt.has(key)) {
       const art=venueDoorArt.get(key);venueDoorArt.delete(key);venueDoorArt.set(key,art);return art;
     }
-    const c = mk(40*K,68*K), g = c.getContext('2d'); c.hr=1; g.scale(K,K);
-    const horizontal = side === 'north' || side === 'south';
-    const t = frame * Math.PI / 16, direction = side === 'west' || side === 'north' ? -1 : 1;
-    const hingeX = horizontal ? 12 : 20, hingeY = 48;
-    const dx = horizontal ? 16*Math.cos(t) : direction*(2.5+13.5*Math.sin(t));
-    const dy = horizontal ? direction*12*Math.sin(t) : 16*Math.cos(t);
-    const point = (u,v) => [hingeX + dx*u, hingeY + dy*u - 33*v];
-    const face = (u,v,du,dv,color) => {
-      const a=point(u,v), b=point(u+du,v), d=point(u+du,v+dv), e=point(u,v+dv);
-      g.fillStyle=color;g.beginPath();g.moveTo(...a);g.lineTo(...b);g.lineTo(...d);g.lineTo(...e);g.closePath();g.fill();
-    };
-    const line = (u1,v1,u2,v2,color,width) => {
-      g.beginPath();g.moveTo(...point(u1,v1));g.lineTo(...point(u2,v2));g.strokeStyle=color;g.lineWidth=width;g.stroke();
-    };
-    face(0,0,1,1,Interiors.timber[r]);
-    for(let i=0;i<5;i++) {
-      line(i/5,0,i/5,1,'#57493d',.65);
-      line(i/5+.03,.05,i/5+.03,.94,'#c2a187',.38);
-    }
-    line(0,0,1,0,'#493b30',1);line(1,0,1,1,'#44382f',1.15);
-    line(0,1,1,1,'#c9ac87',1);line(0,0,0,1,'#4d4237',1);
-    face(.03,.14,.69,.07,'#414248');face(.03,.76,.69,.07,'#414248');
-    line(.1,.18,.95,.77,'#6c5140',1.4);line(.12,.2,.95,.78,'#b29170',.48);
-    const [x,y]=point(.83,.45);g.fillStyle='#302e2a';g.fillRect(x-1,y-2,2,3);g.fillStyle='#d8b57a';g.fillRect(x-.6,y-1.5,1.3,1.3);
-    const value = { c, ax:20, ay:48 };venueDoorArt.set(key,value);
-    // About 9 MiB at most, independent of the number of settlements visited.
+    const value = BuildingView.doorLeaf(Interiors.timber[r], side, frame);
+    venueDoorArt.set(key, value);
+    // Under 6 MiB, independent of the number of settlements visited.
     if(venueDoorArt.size>96)venueDoorArt.delete(venueDoorArt.keys().next().value);
     return value;
   }
