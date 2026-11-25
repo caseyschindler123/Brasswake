@@ -1,6 +1,6 @@
 # Brasswake: art style and art pipeline
 
-Last updated: 2026-11-24. Character motion, intro/menu continuity and world presentation are verified at `d3850c3`; see the closed [polish plan](plans/2026-11-24-animation-and-world-polish.md) and release history. This covers image style, asset preparation, music sources and how they get into the game. Verified release identities and limitations are in [release history](RELEASE_HISTORY.md).
+Last updated: 2026-11-25. Painted modular world/dungeon architecture is verified at `639f24e`; see the closed [rollout plan](plans/2026-11-25-world-architecture.md) and release history. Character motion, intro/menu continuity and world presentation are verified at `d3850c3`; see the closed [polish plan](plans/2026-11-24-animation-and-world-polish.md) and release history. This covers image style, asset preparation, music sources and how they get into the game. Verified release identities and limitations are in [release history](RELEASE_HISTORY.md).
 
 ## The look in one paragraph
 
@@ -174,7 +174,9 @@ The Stable Audio replacement is released. The [replacement plan](plans/2026-11-2
 
 ## Modular buildings, regional interiors and working harbours
 
-### World architecture rollout (implemented, release pending)
+### Painted modular world architecture
+
+Released and verified at `639f24e`; see the closed [rollout plan](plans/2026-11-25-world-architecture.md) and [release history](RELEASE_HISTORY.md#painted-modular-world-and-dungeon-architecture).
 
 The approved modular finish now covers all eight regional families: Tallyport plaster/oak/clay, Brackwater weathered timber/reed, Haverly warm carved sandstone, Four Fords brick/oak/thatch, Cinderwick basalt/copper, Kell cave masonry/slate, Highwatch stone/timber/snow-edged slate and Aldermoot pale carved masonry/bronze. Shared geometry constructs walls, convex/recessed corners, directional eaves, roofs, fitted caps/terminals/valleys and matching upper storeys. Entrances use regional carved surrounds; no canopy covers their leaf. Picture signs combine painted regional framing with existing painted stock/furnishing images. Chimneys sample the roof height and overlap its painted lip.
 
@@ -186,9 +188,7 @@ All eight dungeon themes and 28 floors use painted wall faces, coping, returns, 
 
 Eight new built-in transparent component sheets supply sixteen authored pieces per region. Reproducible crops/derivatives produce the 224-piece kit in eight independent `art/architecture/region-*.webp` atlases and generated `src/artarchitecture.js`. The new-only prompts are `arttools/architecture_prompts.json`; source hashes, crop rectangles, aperture recipe and alpha cleanup are `arttools/architecture_inputs.json`. Existing master prompts, generation script/settings, raw art and older atlas coordinates are unchanged. A weathered valley strip reuses the approved pilot's preserved PNG. Original filenames and exact prompts are archived under `C:/Users/caseys/source/SQL Game/architecture_2026_11_25/`; replay with `python -I arttools/architecture_art.py --raw-dir <archive>/out` in the pinned art environment. Rebuilds validate inputs before replacing each output and never call image generation.
 
-The accepted candidate replay matched all eight atlases/generated metadata/manifest. All 590 older packed entries stayed unchanged. Exports have two-pixel transparent padding; alpha review uses light, dark, pink and green backgrounds. Phone/desktop captures cover every region and dungeon theme, plus owned house shapes and native-resolution joins. See the [rollout plan](plans/2026-11-25-world-architecture.md) for actual checks and release status. Browser emulation does not establish physical-iPhone validation.
-
-Settlement buildings now assemble reusable structural pieces; distinctive palace/temple/gate/lighthouse silhouettes keep authored landmark art. Doors are actual openings and roofs are separate clipped layers. Existing small countryside landmarks, dojo halls and recolourable player houses retain painted assets.
+The accepted replay matched all eight atlases/generated metadata/manifest. All 590 older packed entries stayed unchanged. Exports have two-pixel transparent padding; alpha review uses light, dark, pink and green backgrounds. Opened phone/desktop captures cover every region and dungeon theme, plus owned house shapes, all door facings, upper-room stairs and native-resolution joins. Browser emulation does not establish physical-iPhone validation.
 
 `arttools/world_art.py` packs 551 pieces from 56 source sheets into eight `game/art/world/*.webp` atlases (4,018,958 bytes) and generates `src/artworld.js`. Inputs: 20 new WF/WC/WR sheets plus 36 existing harbour, capital, market, coast, floor and furniture sheets. New WF01–08 are regional fronts; WC01–08 are coping, posts, corners, side-door frames and foundations; WR01–04 are clay, slate, thatch and copper roof fields, edges, ridges, hips and valleys. Each new sheet is a transparent 1024² 4×4 grid. Connected components are assigned by their nominal cell centre so shifted roof tips remain whole. Structural joins and placements come from code, independently of sprite alpha bounds.
 
@@ -236,11 +236,15 @@ The new-only `arttools/prologue_prompts.json` supplies one authorized built-in i
 
 ## Living places and actor readability
 
-The verified worlds/living-places release reuses existing packed artwork. Fitted structural doors, shallow steps, awnings/porches/posts, civic pediments, window caps, frontage stock, chimneys and subdued smoke add architectural depth. Common drawn picture symbols identify businesses on signs and discovered maps. Natural materials feather through nested source-over texture masks; sparse partly buried paving stones replace continuous bright borders. Connected projected roof slopes replace stamped hip/valley patches, and subdued wood/iron door leaves follow the actual apertures. Chimneys use the same roof-height field. Dungeons use raised masonry faces/coping/plinths, short near/side cutaways with piers, purpose-selected existing painted atlas props fitted into wall recesses, and low-contrast room-scale floor details; visible-only drips/ripples/motes preserve readability.
+Buildings and dungeon masonry use the regional component system above. Business picture signs retain their discovered-map symbols. Natural materials feather through nested source-over texture masks; sparse partly buried paving stones replace continuous bright borders. Subdued smoke follows fitted chimneys. Dungeon props remain in supporting wall recesses, with low-contrast room-scale floor details; visible-only drips/ripples/motes preserve readability.
 
 The existing eight-pose walk/run sources are retained. The packer had pinned the lowest foot in every frame to the ground; runtime foot calibration restores contact/flight while preserving the painted limb poses. Actual skull silhouettes locate heads independently of body-centred anchors. Running frames reuse the same facing's walking head, with aligned hair/headgear and attached equipment; the torso and limbs retain their original proportions. Frame cadence follows travelled distance, and the preview uses the same cadence as play. A browser-generated standalone walk/run sample provides enlarged and phone-scale side/diagonal/front loops. These corrections do not claim an exact reproduction of UO animation or physical-device approval. Actor separation uses ground shadows and a very thin, low-opacity dark edge; Casey rejected the stronger early outline. Twelve-pixel overhead names follow rendered head/silhouette geometry. Full image generation was not run; no prompts/settings, originals, atlas coordinates or packed manifest changed. Real-iPhone visual approval remains external.
 
 ## Decision log
+
+- 2026-11-25: Released painted modular architecture at `639f24e`: full 456-case CI, deployment and six CI hosted flows passed; independent source/hash and all six hosted flows passed. The closed rollout plan and release history record exact identity, visual review, repaired candidates, costs and device limits.
+
+- 2026-11-25: Casey requires the same detailed finish standard for every visible game element, including code-drawn details and interface ornament. Check actual size, perspective, texture, lighting, connection and adult comparison before acceptance; modular construction does not justify flat filler.
 
 - 2026-11-25: Casey approved the working modular pilot, removed entrance awnings because they block doors, and authorized the full-world/dungeon implementation through testing and deployment. Apply the same painted construction/scale standard to every regional part, use fitted visible door surrounds, and retain gameplay/save ownership. New regional components are isolated from existing raw art and generation settings; the full exact-commit release gate is required.
 
