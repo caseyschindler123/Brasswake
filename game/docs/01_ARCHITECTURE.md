@@ -224,6 +224,8 @@ The isolated grounded-cadence candidate adds `human_mesh_data.js`, `human_motion
 
 ## Decision log
 
+- 2026-11-25: Locomotion candidate `6d066cd` passed core and phone Chromium, but desktop's map-purchase reload probe cancelled a newly starting ambient fetch. Trace evidence shows the old `networkidle` event had already fired before navigation. Pause through the real Hero menu and drain current effect loads/queue before document teardown; retain every request/error and map/save assertion. Full exact-commit movement verification remains required.
+
 - 2026-11-25: Implemented the unreleased anatomical locomotion candidate using pinned permitted sources and an offline sprite bake. Preserve original artwork, add new generated assets, keep runtime caches bounded and keep deployment behind the active town/dungeon publisher. No paid art generation or image settings changed.
 
 - 2026-11-25: Casey expanded the grounded-cadence job to a full human locomotion rebuild: proportions, posture, arm/leg action, weight transfer and ground contact. Rebuilt pose motion determines stride and travel speed at target 132 walking / 180 running steps/min. The earlier timing-only prototype is locally verified but not the final visual solution. Prove one character on moving ground before broad outfit/direction integration; keep deployment isolated from the active town/dungeon rollout. See the expanded grounded-cadence plan.
