@@ -367,8 +367,16 @@
 
   const venueArt = new Map();
   function venueProp(kind, r) {
-    const key = kind + '/' + r;
+    const stair=kind==='venue_stairs_up'||kind==='venue_stairs_down';
+    const source=stair?architecturePiece(r,kind==='venue_stairs_up'?'stairs_up':'stairs_down'):null;
+    const key = kind + '/' + r+(source?'/painted/'+artVer:'');
     if (venueArt.has(key)) return venueArt.get(key);
+    if(source){
+      const up=kind==='venue_stairs_up',scale=Math.min((up?32:34)*K/source.width,(up?32:24)*K/source.height);
+      const c=mk(Math.round(source.width*scale),Math.round(source.height*scale));c.hr=1;
+      const g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(source,0,0,c.width,c.height);
+      const art={c,ax:c.width/K/2,ay:c.height/K-1,source};venueArt.set(key,art);return art;
+    }
     const w = kind === 'venue_training_mat' ? 38 : 24;
     const h = kind === 'venue_training_mat' ? 23 : kind === 'venue_medicine' ? 16 : 29;
     const c = mk(w * K, h * K), g = c.getContext('2d'); c.hr = 1; g.scale(K, K);

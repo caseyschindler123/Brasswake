@@ -53,7 +53,7 @@ function fixture() {
     go(m,x,y) { api.map=m; Object.assign(api.P,{x,y,fx:x,fy:y}); },
   };
   const view=fs.readFileSync(path.join(__dirname,'../src/building_view.js'),'utf8');
-  const methods=vm.runInNewContext(view+'\n'+source+'\n'+livingSource+'\n({ venueUpper, enterVenue, exitVenue, restoreVenue, venueState, venueHall, venueDoors })', api);
+  const methods=vm.runInNewContext(view+'\n'+source+'\n'+livingSource+'\n({ venueUpper, enterVenue, exitVenue, restoreVenue, venueState, venueHall, venueDoors, venueProp })', api);
   return { api, methods, sounds, tick(ms) {time+=ms;} };
 }
 function floorFlood(m, entry, target) {
@@ -78,6 +78,26 @@ function groundVenue(r,type) {
   const building={name:type,w,h,plan,x:10,y:10};
   return {id:plan.id,name:type,type,r,building,stair:{x:10+at%w,y:10+Math.floor(at/w)}};
 }
+
+test('indoor stairs upgrade after art readiness and fit regional painted travel pieces without distortion', () => {
+  const {api,methods}=fixture(),art=new Map();api.artVer=1;
+  api.architecturePiece=(r,name)=>art.get(r+':'+name);
+  for(const r of regions){
+    const fallback=methods.venueProp('venue_stairs_up',r);
+    assert.equal(fallback.source,undefined);
+    for(const [kind,name,width,height,maxW,maxH] of [
+      ['venue_stairs_up','stairs_up',260,208,32,32],
+      ['venue_stairs_down','stairs_down',322,165,34,24]]){
+      const source=canvas(width,height);art.set(r+':'+name,source);
+      const sprite=methods.venueProp(kind,r),scale=Math.min(maxW*3/width,maxH*3/height);
+      assert.equal(sprite.source,source);assert.notEqual(sprite,fallback);
+      assert.equal(sprite.c.width,Math.round(width*scale));assert.equal(sprite.c.height,Math.round(height*scale));
+      assert.ok(sprite.c.width/3>=30&&sprite.c.height/3>=17,'stair remains readable beside an adult');
+      assert.equal(sprite.ax,sprite.c.width/6);assert.equal(sprite.ay,sprite.c.height/3-1);
+      assert.equal(methods.venueProp(kind,r),sprite);
+    }
+  }
+});
 
 test('all 24 upper rooms have dry landings and reachable attendants and return stairs', () => {
   const {api,methods}=fixture();

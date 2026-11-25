@@ -12,7 +12,7 @@ Every prompt starts with the global style line kept in `art_prompts.json`:
 
 ## Rules for every image
 
-- **One finish standard for every visible architectural element:** shape, texture, lighting, perspective, adult scale and connection to surrounding construction must meet the approved painted pixel style. Jambs, lintels, corners, flashing, coping, signs, stair housings and roof junctions are artwork, not flat filler shapes. Inspect actual game-size and native-resolution images before accepting them.
+- **One finish standard for every visible game element:** shape, texture, lighting, perspective, scale and connection to its surroundings must meet the approved painted style. This applies to generated assets and code-drawn details alike. Jambs, lintels, corners, flashing, coping, signs, stair housings and roof junctions need the same care as characters, props, terrain and interface ornament. Inspect actual game-size and native-resolution images before accepting them; compare world objects with an adult and their supporting construction.
 - **Keep entrances visible:** buildings have fitted regional door surrounds with no entrance awnings or canopies. Framing sits outside the real aperture and moving leaf. Grade-level thresholds meet the land; stairs belong to actual changes of level.
 
 - **No text** anywhere: no letters, numbers or signs with writing. A shop sign is a picture, such as crossed staves or a tankard.
@@ -177,6 +177,8 @@ The Stable Audio replacement is released. The [replacement plan](plans/2026-11-2
 ### World architecture rollout (implemented, release pending)
 
 The approved modular finish now covers all eight regional families: Tallyport plaster/oak/clay, Brackwater weathered timber/reed, Haverly warm carved sandstone, Four Fords brick/oak/thatch, Cinderwick basalt/copper, Kell cave masonry/slate, Highwatch stone/timber/snow-edged slate and Aldermoot pale carved masonry/bronze. Shared geometry constructs walls, convex/recessed corners, directional eaves, roofs, fitted caps/terminals/valleys and matching upper storeys. Entrances use regional carved surrounds; no canopy covers their leaf. Picture signs combine painted regional framing with existing painted stock/furnishing images. Chimneys sample the roof height and overlap its painted lip.
+
+Indoor storey stairs reuse the regional painted ascent/descent pieces, fitted proportionally within 32×32 and 34×24 logical bounds and anchored at their existing interaction points. Late source readiness replaces the fallback; travel, landing occupancy and saves remain unchanged.
 
 Town/civic/dojo and landmark footprints use the shared layered renderer. Small countryside structures and owned homes flatten the same component renderer into cached facades; they do not substitute a whole-building illustration. Country facades participate in the existing 32 MiB building budget. Owned homes preserve material choice, recolouring, the L-shaped option and rounded tower silhouette; their existing logical footprint and legacy clearance policy remain authoritative. Authored civic plans and roles remain; their old fixed building illustrations are replaced by the shared regional roof construction.
 
