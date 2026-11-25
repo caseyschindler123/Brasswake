@@ -3,7 +3,7 @@
   const WORLD_BUILDING_CACHE = BuildingCache.create(32 * 1024 * 1024);
   function architecturePiece(r,name) { return worldPiece('architecture_'+r+'_'+name); }
   function architectureHome(o) {
-    const home=o.home,r=clamp((home.mat||0)+1,1,8);
+    const home=o.home,r=home.natural?o.r:([7,1,2][home.mat||0]||7);
     if(!architecturePiece(r,'wall_plain')||!architecturePiece(r,'door')||!architecturePiece(r,'roof_surface'))return null;
     const floors=home.shape===5?3:[2,6,8,9].includes(home.shape)?2:1,extra=(floors-1)*38,head=40+extra;
     const tinted=new Map(),piece=key=>{

@@ -32,7 +32,7 @@ const out=path.resolve(__dirname,'../../work/world-architecture/review');fs.mkdi
     const homes=await f.evaluate(()=>{
       const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=760;const g=canvas.getContext('2d');g.fillStyle='#e8dfcd';g.fillRect(0,0,1200,760);
       for(let shape=0;shape<Content.HOUSES.length;shape++){
-        const [,w,h]=Content.HOUSES[shape],o={w,h,r:1,home:{id:'review-'+shape,shape,mat:shape%8,wall:'#e0c9ab',roof:'#95533a'}};
+        const [,w,h]=Content.HOUSES[shape],o={w,h,r:1,home:{id:'review-'+shape,shape,mat:shape%Content.HMAT.length,wall:'#e0c9ab',roof:'#95533a'}};
         const sprite=Scene.homeSpr(o),scale=1.5,x=22+shape%5*238,y=330+Math.floor(shape/5)*370;
         g.drawImage(sprite.c,x,y-sprite.c.height/3*scale,sprite.c.width/3*scale,sprite.c.height/3*scale);
         g.fillStyle='#342c24';g.font='17px Georgia';g.fillText(Content.HOUSES[shape][0],x,y+24);

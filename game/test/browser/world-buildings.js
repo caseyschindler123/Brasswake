@@ -50,9 +50,11 @@ test('world and owned-house architecture retain regional materials, paint choice
     for(const b of scenery){const image=bldSpr(b);if(!image.architecture||image.architectureRegion!==b.r||!image.c.width)missing.push(b.slot);}
     const homes=[];
     for(let shape=0;shape<Content.HOUSES.length;shape++){
-      const [,w,h]=Content.HOUSES[shape],home={id:'visual-'+shape,shape,mat:shape%8,wall:'#e0c9ab',roof:'#95533a'},o={w,h,r:1,home},saved=JSON.stringify(home);
+      const [,w,h]=Content.HOUSES[shape],home={id:'visual-'+shape,shape,mat:shape%Content.HMAT.length,wall:'#e0c9ab',roof:'#95533a'},o={w,h,r:1,home},saved=JSON.stringify(home);
       const a=Scene.homeSpr(o),first=a.c.toDataURL();home.wall='#7da6bd';home.roof='#4a687c';const b=Scene.homeSpr(o);
-      homes.push({shape,painted:!!a.architecture&&!!b.architecture,recoloured:first!==b.c.toDataURL(),dimensions:a.c.width===b.c.width&&a.c.height===b.c.height,
+      const expectedMaterial={Stone:7,Timber:1,Log:2}[Content.HMAT[home.mat][0]];
+      homes.push({shape,painted:!!a.architecture&&!!b.architecture,material:a.architectureRegion===expectedMaterial&&b.architectureRegion===expectedMaterial,
+        recoloured:first!==b.c.toDataURL(),dimensions:a.c.width===b.c.width&&a.c.height===b.c.height,
         unchanged:JSON.stringify({...home,wall:'#e0c9ab',roof:'#95533a'})===saved});
     }
     const portalPads=world.ents.filter(e=>e.kind==='stairs').map(e=>({r:e.r,clear:[-2,2].every(dx=>!world.solid[(e.y-1)*world.w+e.x+dx])}));
@@ -60,7 +62,7 @@ test('world and owned-house architecture retain regional materials, paint choice
     return {scenery:scenery.length,missing,homes,collision:world.solid.every((v,i)=>v===before[i]),portalPads};
   });
   expect(result.scenery).toBeGreaterThan(50);expect(result.missing).toEqual([]);expect(result.collision).toBe(true);
-  for(const home of result.homes)expect(home).toMatchObject({painted:true,recoloured:true,dimensions:true,unchanged:true});
+  for(const home of result.homes)expect(home).toMatchObject({painted:true,material:true,recoloured:true,dimensions:true,unchanged:true});
   expect(result.portalPads).toHaveLength(8);expect(result.portalPads.every(p=>p.clear)).toBe(true);expect(errors).toEqual([]);
 });
 
