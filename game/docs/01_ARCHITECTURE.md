@@ -216,6 +216,8 @@ GitHub Pages uses the Actions publishing source. The publication payload is buil
 
 ## Decision log
 
+- 2026-11-24: The animation sample must tolerate rAF timestamps preceding initialization within the same frame. Clamp its elapsed time and clock, exercise the earlier-timestamp case and retain live playback/pause checks. Candidate b06d786 passed all desktop cases but its mobile preview crashed; the plan preserves screenshot/trace evidence and the failed run. This is a test-artifact repair; release verification remains required.
+
 - 2026-11-24: Visual-polish CI exposed the existing infirmary probe identifying a live door by retired canvas padding/dimensions. Identify the exact current leaf pixels painted at its structural threshold and intended scale, preserving the native movement, cutaway and opening/closing cue assertions. This is a browser-fixture correction; runtime art/geometry remain as implemented. The animation/world-polish plan retains the failed run and requires a fresh full release gate.
 
 - 2026-11-24: Casey requested a deliberate intro character menu, fantasy-first SQL introduction and UO-inspired character/building/terrain corrections. The presentation candidate uses original packed art with measured skull placement, canonical run heads, contact/flight offsets, continuous roof planes and feathered material masks; generated coordinates, saves, collision and runtime dependencies are unchanged. Plan: plans/2026-11-24-animation-and-world-polish.md; release verification is pending.
