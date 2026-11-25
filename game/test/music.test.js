@@ -7,7 +7,7 @@ const source = fs.readFileSync(path.join(__dirname, '../src/audio.js'), 'utf8');
 
 function fixture({ cachedDuration } = {}) {
   const listeners = {}, windowListeners = {}, calls = [], fxCalls = [], sources = [], effectNodes = [], store = {}, timers = new Map();
-  let interval, context = { region: 1 }, timerId = 0;
+  let interval, context = { region: 1 }, timerId = 0, clock = 0;
   const param = () => ({ value: 1, setValueAtTime(v) { this.value = v; }, linearRampToValueAtTime(v) { this.value = v; },
     exponentialRampToValueAtTime(v) { this.value = v; }, setTargetAtTime(v) { this.value = v; }, cancelScheduledValues() {} });
   const node = () => ({ connect() {}, disconnect() {}, gain: param(), frequency: param(), Q: param() });
@@ -20,23 +20,32 @@ function fixture({ cachedDuration } = {}) {
     decodeAudioData(ab, done, fail) { if (ab.invalid) return fail(new Error('decode')); const duration = ab.duration || 240; done({ duration, length: Math.round(duration * 44100), numberOfChannels: 1 }); },
     suspend() { ctx.state = 'suspended'; return Promise.resolve(); }, resume() { ctx.state = 'running'; return Promise.resolve(); } };
   const document = { hidden: false, addEventListener(k, fn) { listeners[k] = fn; } };
-  const Sound = new Function('window', 'navigator', 'document', 'localStorage', 'setInterval', 'setTimeout', 'clearTimeout', 'fetch', 'AbortController', source + '; return Sound;')(
+  const Sound = new Function('window', 'navigator', 'document', 'localStorage', 'setInterval', 'setTimeout', 'clearTimeout', 'fetch', 'AbortController', 'performance', source + '; return Sound;')(
     { AudioContext: function () { return ctx; }, addEventListener(k, fn) { windowListeners[k] = fn; } }, {}, document,
     { getItem: () => null, setItem(k, v) { store[k] = v; } }, fn => { interval = fn; return 1; },
     fn => { timers.set(++timerId, fn); return timerId; }, id => timers.delete(id),
     (url, options) => new Promise((resolve, reject) => {
       const effect = url.includes('/fx/');
       const call = { url, done: false, resolve: (duration = 240, invalid = false) => { call.done = true; const actual = cachedDuration != null && options.cache !== 'no-cache' ? cachedDuration : duration; resolve({ ok: true, arrayBuffer: () => Promise.resolve({ duration: actual, invalid }) }); }, reject };
-      options.signal.addEventListener('abort', () => reject(new Error('aborted'))); (effect ? fxCalls : calls).push(call);
-    }), AbortController);
+      options.signal.addEventListener('abort', () => {call.aborted=true;reject(new Error('aborted'));}); (effect ? fxCalls : calls).push(call);
+    }), AbortController, {now:()=>clock});
   Sound.init(() => context); listeners.pointerdown();
   const settle = async () => { for (let i = 0; i < 12; i++) await Promise.resolve(); };
   const complete = async (duration) => { calls.at(-1).resolve(duration); await settle(); };
   const completeEffect = async id => { const call = fxCalls.find(c => !c.done && c.url.endsWith('/' + id + '.wav')); assert.ok(call, id); call.resolve(Sound.SAMPLES[id]); await settle(); };
   const drainEffects = async () => { for (let n = 0; n < 100; n++) { const waiting = fxCalls.filter(c => !c.done); if (!waiting.length) break; for (const c of waiting) { const id = path.basename(c.url, '.wav'); c.resolve(Sound.SAMPLES[id]); } await settle(); } };
   return { Sound, ctx, calls, fxCalls, sources, effectNodes, store, document, listeners, windowListeners, timers, settle, complete, completeEffect, drainEffects,
-    tick: () => interval(), set: s => { context = s; interval(); } };
+    tick: () => interval(), set: s => { context = s; interval(); }, advanceInput: ms => {clock+=ms;} };
 }
+
+test('UI click cooldown advances even when a running device audio clock is stalled',async()=>{
+  const f=fixture();await f.completeEffect('s_click');
+  f.Sound.sfx('click');const first=f.Sound.status().effects.serial;
+  f.advanceInput(24);f.Sound.sfx('click');assert.equal(f.Sound.status().effects.serial,first,'duplicate input remains throttled');
+  f.advanceInput(2);f.Sound.sfx('click');assert.equal(f.Sound.status().effects.serial,first+1);
+  f.advanceInput(100);f.Sound.sfx('click');assert.equal(f.Sound.status().effects.serial,first+2);
+  assert.equal(f.ctx.currentTime,0,'actual device audio time never advanced');
+});
 
 test('all regions and contextual priorities select a distinct playable soundtrack entry', () => {
   const { Sound } = fixture(), selected = new Set();
@@ -129,6 +138,21 @@ test('combat and cues supersede an outstanding surface download', async () => {
   f.Sound.sfx('win'); f.tick(); await f.settle();
   assert.equal(f.Sound.status().pending, 'm_victory'); await f.complete();
   assert.equal(f.Sound.playing(), 'm_victory');
+});
+
+test('priority music uses a bounded second slot and late background completion preserves its owner',async()=>{
+  const f=fixture();await f.complete();f.set({region:1,town:false});f.ctx.currentTime=5;f.tick();
+  const surface=f.calls.at(-1);f.set({region:1,town:false,fight:true});const combat=f.calls.at(-1);
+  assert.match(combat.url,/m_combat.mp3$/);assert.equal(surface.aborted,undefined);
+  assert.equal(f.Sound.status().loading.length,2);assert.equal(f.Sound.status().loadLimit,2);
+  f.set({region:1,town:false});f.Sound.sfx('win');f.tick();
+  assert.equal(f.calls.length,3,'a third request waits for a slot');
+  surface.resolve();await f.settle();const victory=f.calls.at(-1);assert.match(victory.url,/m_victory.wav$/);
+  assert.equal(f.Sound.status().loading.length,2);assert.equal(f.Sound.status().pending,'m_victory');
+  combat.resolve();await f.settle();assert.equal(f.Sound.status().pending,'m_victory','late combat completion cannot clear the newer request');
+  assert.notEqual(f.Sound.playing(),'m_combat','an obsolete decoded theme never interrupts the cue');
+  victory.resolve();await f.settle();assert.equal(f.Sound.playing(),'m_victory');assert.deepEqual(f.Sound.status().loading,[]);
+  assert.ok(f.calls.every(c=>!c.aborted),'healthy transitions do not cancel network requests');
 });
 
 test('local ambience respects effects settings, visibility and the shared cooldown', async () => {

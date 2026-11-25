@@ -59,3 +59,7 @@ Owned files are the new landscape packer/prompts/receipt/atlases/metadata, `land
 ### Managed orchard completion
 
 Complete the original human-use scope with visible fruit rows near suitable temperate farms/beekeepers. Select aligned, accessible existing tree anchors south of the farm; use the existing apple silhouettes and tidy only nonblocking decorative undergrowth. Existing trees, collision, terrain, entity IDs and saves remain fixed. No new images or asset changes. All 13 landscape pure regressions and all 33 landscape/orchard browser cases passed in three profiles (4.5 minutes). Opened the orchard phone Chromium, phone WebKit and desktop captures; existing roots, farm approaches and foreground visibility remain correct. No additional image generation or asset changes.
+
+### Preliminary recovery integration
+
+Merged the current recovery candidate `359f497` into this isolated branch for local compatibility checks while its CI runs. Recovery is not yet verified/published; the landscape gate and publication remain held until final verified main and documentation closure are integrated. The only merge conflicts were adjacent Decision-log additions in architecture/gameplay; both tasks' entries were retained. Incoming audio, intro/prologue and music-test changes, cartography repair, locomotion assets/rig and dungeon source are preserved byte-for-byte. Packed manifest comparison retains every incoming asset record and adds only the eight landscape files. Post-merge local checks are in progress.

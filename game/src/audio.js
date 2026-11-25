@@ -260,6 +260,7 @@ const Sound = (() => {
   try { const p = JSON.parse(localStorage.getItem(PREF) || 'null'); if (p) pref = Object.assign(pref, p); } catch (e) { }
   const savePref = () => { try { localStorage.setItem(PREF, JSON.stringify(pref)); } catch (e) { } };
   const buf = {}, order = [], retry = {}, pos = {};
+  const musicLoads = new Map(), MUSIC_LOAD_LIMIT = 2;
   let cur = null, want = null, pending = null, cueId = null, cueDeadline = 0;
   let surface = null, candidate = null;
 
@@ -304,7 +305,7 @@ const Sound = (() => {
   }
   function load(id) {
     const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 8000);
-    const request = pending = { id, controller, superseded: false };
+    const request = pending = { id, controller }; musicLoads.set(id,request);
     fetch('art/mu/' + id + (MUSIC[id].loop === false ? '.wav' : '.mp3'), { signal: controller.signal, cache: 'no-cache' })
       .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
       .then(ab => new Promise((res, rej) => ctx.decodeAudioData(ab, res, rej)))
@@ -314,11 +315,10 @@ const Sound = (() => {
         buf[id] = b; order.push(id); trimCache();
       })
       .catch(() => {
-        if (request.superseded) return;
         retry[id] = ctx.currentTime + 10;
         if (want === id && !(SURFACE_MU.has(id) && cur && cur.id === surface)) stopCur(XFADE);
       })
-      .finally(() => { clearTimeout(timeout); pending = null; tick(); });
+      .finally(() => { clearTimeout(timeout); musicLoads.delete(id); if(pending===request)pending=null; tick(); });
   }
   const where = c => {
     const m = MUSIC[c.id], t = c.off + ctx.currentTime - c.t0;
@@ -370,11 +370,11 @@ const Sound = (() => {
       stopCur(MUSIC[id].loop === false || id === COMBAT_MU || id === 'm_examiner' ? .3 : XFADE);
       startTrack(id); trimCache();
     } else if (!(retry[id] > ctx.currentTime)) {
-      if (!pending) load(id);
-      else if (pending.id !== id && (cueId || s.fight) && !pending.superseded) {
-        pending.superseded = true;
-        pending.controller.abort();
-      }
+      // Preserve a healthy surface fetch when combat/cues take priority.
+      // One extra bounded slot keeps the new theme responsive without native
+      // request cancellation; late completion cannot clear the priority load.
+      if(musicLoads.has(id))pending=musicLoads.get(id);
+      else if(musicLoads.size<MUSIC_LOAD_LIMIT&&(!pending||cueId||s.fight))load(id);
     }
   }
   function cue(id) {
@@ -574,7 +574,10 @@ const Sound = (() => {
     if ((name === 'win' || name === 'death') && cue(name === 'win' ? 'm_victory' : 'm_death')) return;
     if (!ctx || ctx.state !== 'running' || document.hidden || !pref.fx || !SFX[name]) return;
     /* Only repetitive world events are throttled; query and combat outcomes remain audible. */
-    const gap = { step: .14, door: .35, click: .025, ambient: 7 }[name] || 0, t = ctx.currentTime;
+    // Device audio clocks can remain at zero briefly after reporting running.
+    // UI clicks follow real input time; world events retain the audio clock.
+    const gap = { step: .14, door: .35, click: .025, ambient: 7 }[name] || 0,
+      t = name === 'click' ? performance.now() / 1000 : ctx.currentTime;
     if (gap && recent[name] != null && t - recent[name] < gap) return;
     recent[name] = t;
     try { if (!playSample(sampleFor(name, detail), name, detail)) SFX[name](detail); } catch (e) { try { SFX[name](detail); } catch (e) { } }
@@ -586,7 +589,7 @@ const Sound = (() => {
   function init(source) { src = source; if (!timer) timer = setInterval(tick, 400); }
   return { init, sfx, setMu, setFx, pref: () => Object.assign({}, pref), state: () => ctx ? ctx.state : 'none', playing: () => cur ? cur.id : null, MUSIC, trackFor, effects: () => Object.keys(SFX),
     SAMPLES, sampleFor,
-    status: () => ({ wanted: want, playing: cur ? cur.id : null, pending: pending ? pending.id : null, cached: order.slice(), cue: cueId,
+    status: () => ({ wanted: want, playing: cur ? cur.id : null, pending: pending ? pending.id : musicLoads.keys().next().value || null, loading:[...musicLoads.keys()], loadLimit:MUSIC_LOAD_LIMIT, cached: order.slice(), cue: cueId,
       effects: { cached: [...fxBuffers.keys()], bytes: fxBytes, loading: [...fxLoads.keys()], queued: fxQueue.slice(), voices: fxVoices.size, synthVoices: synthVoices.size, lastSample, serial: effectSerial } }),
     /* test hook: exercises every synthesis fallback and returns failures */
     _check: () => !ctx ? ['no context'] : Object.keys(SFX).filter(k => { try { SFX[k](); return false; } catch (e) { return true; } }) };
