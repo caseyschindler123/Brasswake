@@ -13,6 +13,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 
@@ -20,9 +21,25 @@ HERE=Path(__file__).resolve().parent
 spec=importlib.util.spec_from_file_location('soundtrack',HERE/'build_soundtrack.py')
 music=importlib.util.module_from_spec(spec); spec.loader.exec_module(music)
 FFMPEG=None
+prep_spec=importlib.util.spec_from_file_location('stable_preparation',HERE/'prepare_stable_audio.py')
+preparation=importlib.util.module_from_spec(prep_spec); prep_spec.loader.exec_module(preparation)
 
 
 class CompositionTests(unittest.TestCase):
+    def test_triple_metre_loop_preserves_complete_sixteen_bar_phrases(self):
+        sr=11025
+        t=np.arange(sr*60,dtype=np.float64)/sr
+        beat=t*76/60
+        notes=np.array([0,4,7,2,5,9,4,7,11,0,5,9,2,7,11,0])
+        frequency=220*2**(notes[(beat//3).astype(int)%16]/12)
+        tone=(np.sin(np.cumsum(2*np.pi*frequency/sr))*(.3+.7*np.exp(-5*(beat%1)))).astype(np.float32)
+        with patch.object(preparation.audio,'decode',return_value=np.column_stack([tone,tone])):
+            result=preparation.select_loop(None,Path('triple-metre-fixture.wav'),76,3)
+        self.assertEqual(result['meter'],'3/4')
+        self.assertEqual(result['periodBars'],16)
+        self.assertAlmostEqual((result['endSeconds']-result['startSeconds'])*result['estimatedBPM']/60,48)
+        self.assertGreaterEqual(result['phraseSimilarity'],.80)
+
     def test_legacy_builder_cannot_overwrite_the_replacement_catalog(self):
         with self.assertRaisesRegex(ValueError,'Historical renderer cannot overwrite'):
             music.build(None)
@@ -119,7 +136,7 @@ class AssetTests(unittest.TestCase):
             self.assertEqual(origin['kind'],'stable-audio')
             self.assertEqual(origin['model'],'Stable Audio 3 (UI default)')
             self.assertEqual(len(origin['sourceSHA256']),64)
-            self.assertIn('video game',origin['prompt'])
+            self.assertRegex(origin['prompt'],r'video game|fantasy role-playing game')
             self.assertEqual(origin['take'],1)
             self.assertEqual(origin['requestedSeconds'],60 if entry['loop'] else 6 if ident=='m_victory' else 9)
             if entry['loop']:
@@ -137,6 +154,13 @@ class AssetTests(unittest.TestCase):
         self.assertEqual(len(old_midis),17)
         for entry in old_midis:
             self.assertEqual(hashlib.sha256((music.ROOT/entry['midi']).read_bytes()).hexdigest(),entry['origin']['midiSHA256'])
+
+    def test_tallyport_classical_trial_keeps_its_approved_instrumentation_and_metre(self):
+        origin=self.catalog['tracks']['m_tallyport']['origin']
+        for phrase in ['classical chamber music','violins and cellos','flute, oboe and bassoon','Percussion-free: no drums','game loop']:
+            self.assertIn(phrase,origin['prompt'])
+        self.assertEqual(origin['selection']['meter'],'3/4')
+        self.assertEqual(origin['selection']['requestedBPM'],76)
 
     def test_actual_audio_levels_lengths_and_loop_tails(self):
         if not FFMPEG: self.skipTest('Pass --ffmpeg for actual audio decode and level checks')

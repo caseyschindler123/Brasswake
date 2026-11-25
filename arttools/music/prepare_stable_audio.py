@@ -27,12 +27,14 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def select_loop(ffmpeg, path, requested_bpm):
+def select_loop(ffmpeg, path, requested_bpm, beats_per_bar=4):
     """Compare complete 8/16-bar passages on an inferred beat grid.
 
     Spectral recurrence/energy/onset agreement is a technical heuristic, not
     subjective musical approval. A short blend handles the waveform seam only.
     """
+    if beats_per_bar not in (3,4):
+        raise ValueError('Supported loop metres are 3/4 and 4/4')
     sr, hop = 11025, 512
     y = audio.decode(ffmpeg, path, sr).mean(axis=1)
     _, times, z = signal.stft(y, fs=sr, nperseg=2048, noverlap=2048-hop)
@@ -59,7 +61,7 @@ def select_loop(ffmpeg, path, requested_bpm):
     win = round(1.5/dt)
     for beat_seconds in periods:
         for bars in (8,16):
-            period = beat_seconds*4*bars
+            period = beat_seconds*beats_per_bar*bars
             if not 24 <= period <= 55:
                 continue
             for start in starts:
@@ -74,7 +76,7 @@ def select_loop(ffmpeg, path, requested_bpm):
                 onset_error = abs(flux[ia:ia+win].sum()-flux[ib:ib+win].sum())/(flux[ia:ia+win].sum()+flux[ib:ib+win].sum()+1e-9)
                 score = similarity-.15*mismatch-.2*quiet-.04*onset_error+.012*(bars==16)
                 if best is None or score > best['score']:
-                    best = dict(startSeconds=start,endSeconds=end,periodBars=bars,meter='4/4',
+                    best = dict(startSeconds=start,endSeconds=end,periodBars=bars,meter=f'{beats_per_bar}/4',
                                 estimatedBPM=60/beat_seconds,requestedBPM=requested_bpm,
                                 phraseSimilarity=similarity,energyLogMismatch=mismatch,score=float(score))
     if best is None or best['phraseSimilarity'] < .80 or best['energyLogMismatch'] > .5:
@@ -127,28 +129,35 @@ def effect_level(ident):
 def prepare(args):
     work = ROOT/'work/audio/stable-preparation-2026-11-24'
     work.mkdir(parents=True,exist_ok=True)
-    music_root, fx_root = Path(args.music_sources),Path(args.effect_sources)
+    music_root = Path(args.music_sources)
     music_session = json.loads((music_root/'generation-session.json').read_text())
-    fx_session = json.loads((fx_root/'sfx-session.json').read_text())
-    catalog = dict(schemaVersion=2,date='2026-11-24',provider='Stable Audio',
-                   description='Complete replacement: 26 loops and two musical cues; no historical tracks retained in playback.',
-                   retained=[],toolchain=dict(python='3.12',numpy=np.__version__,scipy=__import__('scipy').__version__,
-                   ffmpeg=audio.run(args.ffmpeg,'-version').stdout.decode().splitlines()[0],
-                   normalization='Constant gain near -18 LUFS; -2.7 dBTP encode ceiling; decoded verification',
-                   loopPreparation='8/16-bar recurrence heuristic, 200 ms linear seam blend, 1.25 s copied safety tail',
-                   subjectiveListening='Unavailable; technical inspection and browser verification only'),tracks={})
-    for source in music_session['tracks']:
+    only_track = getattr(args,'only_track',None)
+    sources = music_session['tracks']
+    if only_track:
+        catalog = json.loads((HERE/'soundtrack.json').read_text())
+        sources = [source for source in sources if source['id']==only_track]
+        if len(sources)!=1 or only_track not in catalog['tracks']:
+            raise ValueError('A single-track replacement needs exactly one known music ID')
+        old_entry = catalog['tracks'][only_track]
+    else:
+        if not args.effect_sources:
+            raise ValueError('Full preparation requires --effect-sources')
+        fx_root = Path(args.effect_sources)
+        fx_session = json.loads((fx_root/'sfx-session.json').read_text())
+    if not only_track:
+        catalog = new_catalog(args)
+    for source in sources:
         ident, loop = source['id'],source['loop']
         path = music_root/source['sourceFiles'][0]
         assert digest(path)==source['sourceSHA256'],ident
         prompt = source.get('submittedPrompt',source['prompt'])
-        origin = dict(kind='stable-audio',provider='Stable Audio',model=source['model'],sourceDate='2026-11-24',
+        origin = dict(kind='stable-audio',provider='Stable Audio',model=source['model'],sourceDate=source.get('sourceDate','2026-11-24'),
                       sourceSHA256=digest(path),prompt=prompt,requestedSeconds=source['requestedSeconds'],
                       shape=source['shape'],take=1,subjectiveListening='not performed')
         y = audio.decode(args.ffmpeg,path)
         if loop:
             bpm = float(re.search(r'(\d+) BPM',prompt,re.I)[1])
-            selection = select_loop(args.ffmpeg,path,bpm)
+            selection = select_loop(args.ffmpeg,path,bpm,source.get('beatsPerBar',4))
             y,period = bake_loop(y,selection)
             origin.update(selection=selection,crossfadeSeconds=.2)
         else:
@@ -165,8 +174,42 @@ def prepare(args):
             raise ValueError(f'Music mix outside target: {ident}: {entry}')
         catalog['tracks'][ident]=entry
         print(ident,entry['duration'],entry['integratedLUFS'],entry.get('quality',{}),flush=True)
+    if only_track:
+        if old_entry['sha256']!=entry['sha256']:
+            archive=HERE/'history'/f"{only_track}-{old_entry['origin']['sourceDate']}-{old_entry['sha256'][:8]}.json"
+            previous=json.dumps(dict(id=only_track,track=old_entry),indent=2)+'\n'
+            if archive.exists() and archive.read_text()!=previous:
+                raise ValueError('Refusing to replace an existing historical music entry')
+            archive.write_text(previous)
+        (HERE/'soundtrack.json').write_text(json.dumps(catalog,indent=2)+'\n')
+        script=ROOT/'game/src/audio.js'
+        meta={ident:{k:v[k] for k in ('a','b','v','loop')} for ident,v in catalog['tracks'].items()}
+        text=re.sub(r'  const MUSIC = \{.*?\n  \};','  const MUSIC = '+json.dumps(meta,indent=2).replace('\n','\n  ')+';',script.read_text(encoding='utf-8'),count=1,flags=re.S)
+        script.write_text(text,encoding='utf-8')
+        packed=ROOT/'arttools/packed_manifest.json'
+        manifest=json.loads(packed.read_text())
+        matched=[row for row in manifest if row['path']==entry['path'].removeprefix('game/')]
+        if len(matched)!=1: raise ValueError('Expected one existing packed music entry')
+        matched[0].update(size=entry['bytes'],sha256=entry['sha256'])
+        packed.write_text(json.dumps(manifest,indent=2)+'\n')
+        return
     (HERE/'soundtrack.json').write_text(json.dumps(catalog,indent=2)+'\n')
 
+    prepare_effects(args,fx_root,fx_session,catalog,work)
+
+
+def new_catalog(args):
+    catalog = dict(schemaVersion=2,date='2026-11-24',provider='Stable Audio',
+                   description='Complete replacement: 26 loops and two musical cues; no historical tracks retained in playback.',
+                   retained=[],toolchain=dict(python='3.12',numpy=np.__version__,scipy=__import__('scipy').__version__,
+                   ffmpeg=audio.run(args.ffmpeg,'-version').stdout.decode().splitlines()[0],
+                   normalization='Constant gain near -18 LUFS; -2.7 dBTP encode ceiling; decoded verification',
+                   loopPreparation='8/16-bar recurrence heuristic, 200 ms linear seam blend, 1.25 s copied safety tail',
+                   subjectiveListening='Unavailable; technical inspection and browser verification only'),tracks={})
+    return catalog
+
+
+def prepare_effects(args,fx_root,fx_session,catalog,work):
     effects = dict(schemaVersion=1,date='2026-11-24',provider='Stable Audio',sampleRate=FX_SR,channels=1,
                    description='64 prepared mono PCM16 effects, short onset/tail fades and per-role peak/energy bounds.',
                    subjectiveListening='Unavailable; technical inspection and browser verification only',effects={})
@@ -224,5 +267,6 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--ffmpeg',required=True)
     parser.add_argument('--music-sources',required=True)
-    parser.add_argument('--effect-sources',required=True)
+    parser.add_argument('--effect-sources')
+    parser.add_argument('--only-track',help='Replace one existing music entry; preserve every other asset')
     prepare(parser.parse_args())

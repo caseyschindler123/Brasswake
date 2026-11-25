@@ -351,6 +351,8 @@ A new main character chooses appearance and former profession, then is hauled ab
 
 ## Decision log
 
+- 2026-11-25: Casey requested a single Tallyport music test with the approved classical strings/woodwinds brief and no percussion. The candidate keeps town routing and independent music/effects preferences; other town, venue, wilderness and battle tracks stay unchanged. Published status and verification belong in release history.
+
 - 2026-11-25: Managed orchard rows are part of the approved whole-world living-landscape pass. They reuse existing trunks near temperate farms/beekeepers and preserve all collision, navigation and saves. They add scenery rather than a new harvesting/reward mechanic; publication remains owned by the landscape plan.
 
 - 2026-11-25: Casey authorized the entire living-landscape pass across all eight regions: diverse species/ages, undergrowth and ground integration, natural patches, signs of use, restrained movement and readable actors. Develop in an isolated worktree and wait for concurrent publishers; the living-landscape plan owns implementation and release evidence.

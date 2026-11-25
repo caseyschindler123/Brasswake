@@ -6,7 +6,7 @@ const Sound = (() => {
   const MUSIC = {
     "m_tallyport": {
       "a": 0,
-      "b": 24.0,
+      "b": 37.894739,
       "v": 1,
       "loop": true
     },

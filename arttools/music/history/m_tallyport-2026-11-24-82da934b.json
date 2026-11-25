@@ -1,0 +1,48 @@
+{
+  "id": "m_tallyport",
+  "track": {
+    "a": 0,
+    "b": 24.0,
+    "v": 1,
+    "loop": true,
+    "path": "game/art/mu/m_tallyport.mp3",
+    "origin": {
+      "kind": "stable-audio",
+      "provider": "Stable Audio",
+      "model": "Stable Audio 3 (UI default)",
+      "sourceDate": "2026-11-24",
+      "sourceSHA256": "8860ed4f32b570042dd366462f1bcc0f86cbf2bee39af01c970cda0bd8db36a9",
+      "prompt": "TrackType: Music. Instrumental background music for a fantasy role-playing video game: a welcoming working harbour town where players explore, read dialogue and solve SQL puzzles. Intimate acoustic fantasy ensemble inspired by 1990s PC RPG composition, with natural expressive recorder, lute, warm cello and soft hand drum. Hopeful understated melody, D major, fixed 80 BPM, 4/4, balanced 8-bar A/B phrases with subtle variation. Polished clear mix, moderate room reverb, gentle transients and steady unobtrusive volume. Start on the downbeat already in the ongoing texture. Make a continuous repeatable gameplay loop: the final phrase leads straight back to the opening harmony, rhythm and energy. No intro, ending, final cadence, breakdown, tempo change or fades. No vocals, choir, speech, modern drum kit, electric guitar, EDM or environmental sound effects. Leave space for reading and game sounds, loop.",
+      "requestedSeconds": 60,
+      "shape": "loop",
+      "take": 1,
+      "subjectiveListening": "not performed",
+      "selection": {
+        "startSeconds": 17.972244897959186,
+        "endSeconds": 41.972244897959186,
+        "periodBars": 8,
+        "meter": "4/4",
+        "estimatedBPM": 80.0,
+        "requestedBPM": 80.0,
+        "phraseSimilarity": 0.9472590153359065,
+        "energyLogMismatch": 0.06314496642240944,
+        "score": 0.9326984286308289
+      },
+      "crossfadeSeconds": 0.2
+    },
+    "duration": 25.25,
+    "sampleRate": 44100,
+    "channels": 2,
+    "bytes": 607546,
+    "sha256": "82da934bde50b25ac1f8b4cb3501593155431ac7ba62f86a868b7e621559248a",
+    "integratedLUFS": -18.26,
+    "truePeakDBTP": -4.79,
+    "samplePeakDBFS": -4.811,
+    "quality": {
+      "seamJump": 0.0040904,
+      "localDerivativeP999": 0.0450399,
+      "wrapTailRMSDifference": 0.0030643,
+      "tailSeconds": 1.25
+    }
+  }
+}
