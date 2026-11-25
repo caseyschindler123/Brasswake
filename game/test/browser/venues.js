@@ -211,18 +211,23 @@ test('venues · the joystick opens a real door, reveals the infirmary and trigge
     const b = Scene.debug().world.blds.find(b => b.plan?.id === id);
     return { open: b.doorMotion?.[index].open, amount: b.doorMotion?.[index].amount, inside: !!b.inside, cues: window.__venueDoorCues || 0 };
   }, door);
-  const renderedLeaf = () => frame.evaluate(([x, y]) => {
-    const { cam, draw } = Scene.debug();
+  const renderedLeaf = () => frame.evaluate(({id,index}) => {
+    const { cam, draw, world } = Scene.debug(),building=world.blds.find(b=>b.plan?.id===id),d=building.plan.doors[index];
+    const expected=BuildingView.doorLeaf(Interiors.timber[building.r],d.side,Math.round(building.doorMotion[index].amount*8));
+    const pixels=expected.c.toDataURL(),width=expected.c.width/3,height=expected.c.height/3;
+    const left=(building.x+d.x)*16+8-expected.ax,top=(building.y+d.y)*16+16-expected.ay;
     const g = document.querySelector('#stage canvas.game').getContext('2d'), original = g.drawImage;
     let leaf = null;
     g.drawImage = function (image, px, py, w, h, ...rest) {
-      if (w === 40 && h === 68 && Math.abs(px + cam.x - (16 * x - 12)) < 0.6 &&
-        Math.abs(py + cam.y - (16 * y - 32)) < 0.6) leaf = image.toDataURL();
+      // Canvas padding is packaging, not the aperture. Require the exact leaf
+      // pixels to be painted at this real threshold at its intended scale.
+      if (w === width && h === height && Math.abs(px + cam.x - left) < 0.6 &&
+        Math.abs(py + cam.y - top) < 0.6 && image.toDataURL()===pixels) leaf = pixels;
       return original.call(this, image, px, py, w, h, ...rest);
     };
     try { draw(); } finally { g.drawImage = original; }
     return leaf;
-  }, door.threshold);
+  }, door);
   await expect.poll(readDoor).toEqual({ open: false, amount: 0, inside: false, cues: 0 });
   const closed = await renderedLeaf();
   expect(closed, 'The closed south door is drawn on the live canvas').toBeTruthy();
