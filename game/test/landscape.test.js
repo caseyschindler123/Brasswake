@@ -85,7 +85,7 @@ test('wild species follow the ground biome across political borders, including s
 
 function renderer(){
   const state={Landscape,Map,T:16,K:3,matchMedia:()=>({matches:false}),IMG:{},
-    LandscapeArt:{files:['landscape/test.webp'],at:{1:{tree2:[2,2,180,240],detail0:[190,2,48,54]}}},
+    LandscapeArt:{files:['landscape/test.webp'],at:{1:{tree2:[2,2,180,240],detail0:[190,2,48,54]}},anchors:{1:{tree2:[124,238],detail0:[23,53]}}},
     img:n=>{state.IMG[n]={ok:false};},have:n=>state.IMG[n]?.ok,
     cut:(n,x,y,w,h)=>({width:w,height:h,hr:1}),lw:c=>c.width/3,lh:c=>c.height/3};
   vm.createContext(state);vm.runInContext(fs.readFileSync(require.resolve('../src/scene_landscape.js'),'utf8')+
@@ -105,9 +105,11 @@ test('late vegetation loads never cache a missing frame, and wind keeps the trun
   const transforms=[],g={save(){},restore(){},translate(){},transform(...a){transforms.push(a);},drawImage(){}};
   const t={...Landscape.tree(50,60,1),stage:2,key:'tree2',r:1};
   const entry=s.api.landscapeEntry(t,975,[],1000),plant=entry[10];
-  assert.equal(entry[3]+plant.h,976);
+  assert.equal(entry[2]+plant.originX,t.x*16+8);assert.equal(entry[3]+plant.originY,975);
   s.api.landscapePaint(g,piece.c,0,0,false,.38,plant,1000);
-  const [a,b,c,d,tx,ty]=transforms[0];assert.equal(c*plant.h+tx,0);assert.equal(d*plant.h+ty,plant.h);assert.equal(g.globalAlpha,1);
+  const [a,b,c,d,tx,ty]=transforms[0];assert.equal(c*plant.originY+tx,0);assert.equal(d*plant.originY+ty,plant.originY);assert.equal(g.globalAlpha,1);
+  const mirrored=s.api.landscapeEntry({...t,flip:!t.flip,width:1.08},975,[],1000);
+  assert.equal(mirrored[2]+mirrored[10].originX,t.x*16+8);assert.equal(mirrored[3]+mirrored[10].originY,975);
 });
 
 test('placing a house suppresses decorative undergrowth without rebuilding the physical world',()=>{
@@ -128,6 +130,7 @@ test('packed regional vegetation has complete bounded, padded source rectangles'
   for(let r=1;r<=8;r++){
     const record=manifest.find(a=>a.path==='art/'+ctx.kit.files[r-1]);assert.ok(record);
     const rects=Object.values(ctx.kit.at[r]);assert.equal(rects.length,16);
+    for(const [key,[x,y]]of Object.entries(ctx.kit.anchors[r])){const [, ,w,h]=ctx.kit.at[r][key];assert.ok(x>0&&x<w&&y>h*.8&&y<=h);}
     for(const [x,y,w,h]of rects){assert.ok(w>6&&h>6&&x>=2&&y>=2&&x+w<=record.dimensions[0]-2&&y+h<=record.dimensions[1]-2);}
     for(let a=0;a<rects.length;a++)for(let b=a+1;b<rects.length;b++){
       const [x,y,w,h]=rects[a],[u,v,s,t]=rects[b];assert.ok(x+w+2<=u||u+s+2<=x||y+h+2<=v||v+t+2<=y,'no sprite bleed');

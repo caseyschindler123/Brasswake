@@ -6,14 +6,16 @@
     const name=LandscapeArt.files[r-1],rc=LandscapeArt.at[r]&&LandscapeArt.at[r][key];
     if(!name||!rc)return null;if(!IMG[name])img(name);if(!have(name))return null;
     const id=r+'/'+key;if(LANDSCAPE_IMAGES.has(id))return LANDSCAPE_IMAGES.get(id);
-    const c=cut(name,...rc),s={c,ax:lw(c)/2,ay:lh(c)-1};LANDSCAPE_IMAGES.set(id,s);return s;
+    const c=cut(name,...rc),anchor=LandscapeArt.anchors&&LandscapeArt.anchors[r][key];
+    const s={c,ax:anchor?anchor[0]/K:lw(c)/2,ay:anchor?anchor[1]/K:lh(c)-1};LANDSCAPE_IMAGES.set(id,s);return s;
   }
   function landscapeEntry(o,foot,actors,now) {
     const s=landscapePiece(o.r,o.key);if(!s)return null;
     const scale=o.scale||1,w=lw(s.c)*scale*(o.width||1),h=lh(s.c)*scale;
-    const x=o.x*T+8-w/2,y=foot-h+1;
+    const originX=o.flip?w-s.ax*scale*(o.width||1):s.ax*scale*(o.width||1),originY=s.ay*scale;
+    const x=o.x*T+8-originX,y=foot-originY;
     const al=o.key.startsWith('tree')?Landscape.alpha({x,y,w,h,foot},actors):1;
-    const item=[foot,s.c,x,y,o.flip,scale,0,al,0,null,{...o,w,h}];
+    const item=[foot,s.c,x,y,o.flip,scale,0,al,0,null,{...o,w,h,originX,originY}];
     return item;
   }
   function landscapeActors() {
@@ -63,7 +65,7 @@
   function landscapePaint(g,im,x,y,flip,al,plant,now) {
     const {w,h}=plant,shear=Landscape.wind(plant,now/1000,landscapeReduced&&landscapeReduced.matches);
     g.save();g.globalAlpha=al==null?1:al;g.translate(x,y);
-    g.transform(1,0,shear,1,-shear*h,0);
+    g.transform(1,0,shear,1,-shear*plant.originY,0);
     if(flip){g.translate(w,0);g.scale(-1,1);}g.drawImage(im,0,0,w,h);g.restore();g.globalAlpha=1;
   }
   function landscapeBird(list,o,foot,now) {
@@ -72,6 +74,8 @@
     const im=artFx2(3,t<10?2:Math.floor(now/115)%4);if(!im)return;
     const s=landscapePiece(o.r,o.key);if(!s)return;
     const flight=Math.max(0,t-10),direction=o.flip?-1:1;
-    const x=o.x*T+8+direction*(7+flight*19),y=foot-lh(s.c)*o.scale*.77-flight*7;
+    const width=o.width||1,root=o.flip?lw(s.c)-s.ax:s.ax;
+    const x=o.x*T+8+((o.flip?.45:.55)*lw(s.c)-root)*o.scale*width+direction*flight*19;
+    const y=foot-s.ay*o.scale+lh(s.c)*o.scale*.23-flight*7;
     list.push([foot+.1,im,x-3,y-3,direction<0,.17,0,t>13?14-t:1]);
   }

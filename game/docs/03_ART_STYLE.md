@@ -96,7 +96,7 @@ NPCs compose visible frames lazily, sharing mirrored source directions through a
 
 ### Planned whole-world vegetation kit
 
-The [living-landscape plan](plans/2026-11-25-living-landscape.md) is in development, not released. Eight new transparent regional sheets supply eight tree silhouettes (two species, four ages) and eight undergrowth/debris pieces each. New-only prompts live in `arttools/landscape_prompts.json`; `arttools/landscape_art.py` records source hashes/crops, removes transparent matte fringe and packs independent `art/landscape/region-*.webp` atlases plus generated `src/artlandscape.js`. Existing packed artwork, master prompts and generation settings remain unchanged. Built-in image generation is used; no paid API run. Raw filenames remain intact in the local source archive.
+The [living-landscape plan](plans/2026-11-25-living-landscape.md) is in development, not released. Eight new transparent regional sheets supply eight tree silhouettes (two species, four ages) and eight undergrowth/debris pieces each. New-only prompts live in `arttools/landscape_prompts.json`; `arttools/landscape_art.py` records source hashes/crops, removes transparent matte fringe, derives ground-contact anchors from opaque base pixels and packs independent `art/landscape/region-*.webp` atlases plus generated `src/artlandscape.js`. Existing packed artwork, master prompts and generation settings remain unchanged. Built-in image generation is used; no paid API run. Raw filenames remain intact in the local source archive.
 
 ### Cartography (2026-11-23)
 
@@ -260,6 +260,8 @@ node arttools/human_sprites.js --check --python=<Pillow-12-python-executable>
 The motion sample uses actual game-composed frames on moving ground at enlarged and game scale. Planted support is locked to the world, and free running soles clear the ground during flight. Assertions inspect physical support and actual visible sole pixels; a global lowest-pixel comparison across different projected foot lanes is not a valid height measurement. Publication and real-device/subjective review remain pending in the grounded-cadence plan.
 
 ## Decision log
+
+- 2026-11-25: The living-landscape audit requires explicit ground-contact anchors derived from opaque base pixels. Preserve the visible root position through scale, mirror and wind transforms so asymmetric crowns remain aligned with existing collision. Packed images stay unchanged; the landscape plan tracks verification/publication.
 
 - 2026-11-25: Casey authorized the entire living-landscape pass across all eight regions: diverse species/ages, undergrowth and ground integration, natural patches, signs of use, restrained movement and readable actors. Develop in an isolated worktree and wait for concurrent publishers; the living-landscape plan owns implementation and release evidence.
 

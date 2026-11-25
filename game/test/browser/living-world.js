@@ -21,12 +21,18 @@ for(let region=1;region<=8;region++)test('living landscape · regional woodland 
     const actors=landscape.actors(),entry=landscape.entry(found,found.y*16+15,actors,1000);
     const keys=Object.keys(LandscapeArt.at[r]);
     const details=Landscape.visible(m.landscape,found.x-9,found.y-9,found.x+9,found.y+9);
+    let anchorError=0;
+    for(const key of keys.filter(k=>k.startsWith('tree')))for(const flip of [false,true])for(const width of [.91,1.09]){
+      const item=landscape.entry({...found,key,flip,width},found.y*16+15,[],1000),p=item[10];
+      anchorError=Math.max(anchorError,Math.abs(item[2]+p.originX-(found.x*16+8)),Math.abs(item[3]+p.originY-(found.y*16+15)));
+    }
     return {r,keys,stageKeys:[...new Set([...m.landscape.trees.values()].filter(t=>t.r===r).map(t=>t.key))],
       alpha:entry&&entry[7],pieces:keys.map(k=>!!landscape.piece(r,k)),details:details.length,
-      physical:m.solid[(found.y-1)*m.w+found.x],family:Landscape.families[r]};
+      anchorError,physical:m.solid[(found.y-1)*m.w+found.x],family:Landscape.families[r]};
   },region);
   expect(facts.keys).toHaveLength(16);expect(facts.stageKeys).toHaveLength(8);expect(facts.pieces.every(Boolean)).toBe(true);
   expect(facts.alpha).toBe(.16);expect(facts.physical).toBe(0);expect(facts.details).toBeGreaterThan(2);
+  expect(facts.anchorError).toBeLessThan(1e-8);
   await f.waitForTimeout(3400);await f.evaluate(()=>{Scene.pause();Scene.debug().draw();});
   await screenshot(page,info,'landscape-region-'+region);expect(errors).toEqual([]);
 });
