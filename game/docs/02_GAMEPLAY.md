@@ -351,6 +351,8 @@ A new main character chooses appearance and former profession, then is hauled ab
 
 ## Decision log
 
+- 2026-11-25: Casey expanded the unpublished Tallyport trial to all 28 music entries and 64 effects. The classical batch preserves every context, event hook, sound preference, cache bound and save rule; strings and woodwinds replace the score's earlier percussion palette. Generate/download the whole batch before game integration, then publish together after technical/browser checks. The [batch plan](plans/2026-11-25-classical-audio-batch.md) records release status and listening limits.
+
 - 2026-11-25: Casey requested a single Tallyport music test with the approved classical strings/woodwinds brief and no percussion. The candidate keeps town routing and independent music/effects preferences; other town, venue, wilderness and battle tracks stay unchanged. Published status and verification belong in release history.
 
 - 2026-11-25: Managed orchard rows are part of the approved whole-world living-landscape pass. They reuse existing trunks near temperate farms/beekeepers and preserve all collision, navigation and saves. They add scenery rather than a new harvesting/reward mechanic; publication remains owned by the landscape plan.

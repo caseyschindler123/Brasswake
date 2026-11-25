@@ -1,0 +1,882 @@
+{
+  "date": "2026-11-25",
+  "status": "All 28 music and 64 effect sources captured; technical preparation and release checks pending.",
+  "music": [
+    {
+      "id": "m_tallyport",
+      "bpm": 76,
+      "beatsPerBar": 3,
+      "key": "D major",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Tallyport, a welcoming harbour town in a fantasy role-playing game. Warm, lyrical violins and cellos lead, supported by rich viola harmonies and graceful flute, oboe and bassoon passages. A memorable, understated melody develops through elegant counterpoint and connected musical phrases. Gentle, flowing triple metre at a relaxed walking pace. Convey sea air, sunlight on wooden docks and quiet everyday activity. Lifelike acoustic instruments, expressive bowing, natural breathing, restrained dynamics and a clear, intimate concert-room recording. Keep the music comfortable beneath exploration and dialogue. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No vocals or electronic instruments. Begin immediately with the established ensemble. Create a seamless repeating game loop whose final phrase flows naturally back into the opening, maintaining consistent instrumentation and volume. No introductory swell, closing flourish or fade-out, 76 BPM, loop, in 3/4 time.",
+      "reuseApprovedSource": true,
+      "submittedPrompt": "Instrumental classical chamber music for Tallyport, a welcoming harbour town in a fantasy role-playing game. Warm, lyrical violins and cellos lead, supported by rich viola harmonies and graceful flute, oboe and bassoon passages. A memorable, understated melody develops through elegant counterpoint and connected musical phrases. Gentle, flowing triple metre at a relaxed walking pace. Convey sea air, sunlight on wooden docks and quiet everyday activity. Lifelike acoustic instruments, expressive bowing, natural breathing, restrained dynamics and a clear, intimate concert-room recording. Keep the music comfortable beneath exploration and dialogue. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No vocals or electronic instruments. Begin immediately with the established ensemble. Create a seamless repeating game loop whose final phrase flows naturally back into the opening, maintaining consistent instrumentation and volume. No introductory swell, closing flourish or fade-out, 76 BPM, loop, in 3/4 time.",
+      "sourceSHA256": "707b8aab2b527a7cf96a271771781e3bd22b9166d21c1eddcfac813845a4ce53"
+    },
+    {
+      "id": "m_brackwater",
+      "bpm": 72,
+      "beatsPerBar": 4,
+      "key": "D Dorian",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A resilient marsh town with mist and weathered timber; warm viola and cello with low clarinet and gentle oboe, patient and reflective. D Dorian, 72 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A resilient marsh town with mist and weathered timber; warm viola and cello with low clarinet and gentle oboe, patient and reflective. D Dorian, 72 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "3b3a100e07919fb5a5110659cedf5a2f7a3d6199832a060cda56cd9172863cd6"
+    },
+    {
+      "id": "m_haverly",
+      "bpm": 78,
+      "beatsPerBar": 4,
+      "key": "G major",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Haverly, a pastoral hill town in Brasswake, a fantasy role-playing video game. Warm lyrical violins and cellos lead, with viola harmonies and graceful oboe and flute answers; gentle bassoon supports the ensemble. Convey green hills, old stone and quiet everyday life. Natural acoustic instruments, expressive bowing, clear intimate concert-room recording, restrained room reverberation. G major, fixed 78 BPM in 4/4 time, steady moderate-soft volume and consistent instrumental density beneath exploration and dialogue. A memorable short four-note motif in one simple repeating eight-bar harmonic phrase. Repeat the same eight-bar phrase without changing key, melody, instruments or level. Begin immediately inside the established ensemble. Make a seamless repeating game loop: the last phrase returns directly to the first harmony and energy. No intro, swells, near-silence, breakdown, new section, ending, final flourish or fades. Percussion-free: no drums, rock backbeat or rhythmic ostinato. No vocals, choir, electronic instruments or environmental sound effects.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Haverly, a pastoral hill town in Brasswake, a fantasy role-playing video game. Warm lyrical violins and cellos lead, with viola harmonies and graceful oboe and flute answers; gentle bassoon supports the ensemble. Convey green hills, old stone and quiet everyday life. Natural acoustic instruments, expressive bowing, clear intimate concert-room recording, restrained room reverberation. G major, fixed 78 BPM in 4/4 time, steady moderate-soft volume and consistent instrumental density beneath exploration and dialogue. A memorable short four-note motif in one simple repeating eight-bar harmonic phrase. Repeat the same eight-bar phrase without changing key, melody, instruments or level. Begin immediately inside the established ensemble. Make a seamless repeating game loop: the last phrase returns directly to the first harmony and energy. No intro, swells, near-silence, breakdown, new section, ending, final flourish or fades. Percussion-free: no drums, rock backbeat or rhythmic ostinato. No vocals, choir, electronic instruments or environmental sound effects, loop.",
+      "sourceSHA256": "a68c023b7eac46b91936a58044021ed826919eab1497ba3217ffea475e1423dd"
+    },
+    {
+      "id": "m_four_fords",
+      "bpm": 84,
+      "beatsPerBar": 3,
+      "key": "C major",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A prosperous river-crossroads farming town, fields and everyday trade; graceful string chamber dance with flute and bassoon, warm and unhurried. C major, 84 BPM, 3/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A prosperous river-crossroads farming town, fields and everyday trade; graceful string chamber dance with flute and bassoon, warm and unhurried. C major, 84 BPM, 3/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop, in 3/4 time.",
+      "sourceSHA256": "8fa53435fa038bf91924c7e99ed409c6f52443561cc7f0ba0a18b1a17aef0179"
+    },
+    {
+      "id": "m_cinderwick",
+      "bpm": 88,
+      "beatsPerBar": 4,
+      "key": "A Dorian",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A volcanic forge town with determined warmth and skilled artisans; rich cellos and violas with bassoon and oboe counterpoint, noble and industrious without hammering rhythms. A Dorian, 88 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A volcanic forge town with determined warmth and skilled artisans; rich cellos and violas with bassoon and oboe counterpoint, noble and industrious without hammering rhythms. A Dorian, 88 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "737661acaf41c13a83dade36d7030c906d6b36b8963c420bb491148ddc154361"
+    },
+    {
+      "id": "m_kell",
+      "bpm": 68,
+      "beatsPerBar": 4,
+      "key": "E minor",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A sheltered cavern settlement, intimate and thoughtful; low clarinet, bassoon and warm viola, delicate violin harmonics and spacious phrases. E minor, 68 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A sheltered cavern settlement, intimate and thoughtful; low clarinet, bassoon and warm viola, delicate violin harmonics and spacious phrases. E minor, 68 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "ea975587217bd05b1f0079897fa11225a5de420af639a2128f738eb83d42eb04"
+    },
+    {
+      "id": "m_highwatch",
+      "bpm": 64,
+      "beatsPerBar": 3,
+      "key": "D major",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A quiet snowy mountain refuge and winter resolve; tender flute and oboe over sustained chamber strings, clear restrained warmth. D major, 64 BPM, 3/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Keep the same moderate-soft dynamic, instrumental density and clearly audible volume through both A and B. No crescendos, thinning textures, dropouts or near-silent passages. Keep the repeated motif evenly voiced across the loop boundary. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A quiet snowy mountain refuge and winter resolve; tender flute and oboe over sustained chamber strings, clear restrained warmth. D major, 64 BPM, 3/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Keep the same moderate-soft dynamic, instrumental density and clearly audible volume through both A and B. No crescendos, thinning textures, dropouts or near-silent passages. Keep the repeated motif evenly voiced across the loop boundary. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop, in 3/4 time.",
+      "sourceSHA256": "9517179c5e450cf0e626440ecf50500a41114bc9660011c83b13fdc920611e2c"
+    },
+    {
+      "id": "m_aldermoot",
+      "bpm": 76,
+      "beatsPerBar": 3,
+      "key": "F major",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. The capital with marble courts, libraries and civic dignity; elegant string quartet writing, oboe and bassoon, stately and welcoming rather than triumphant. F major, 76 BPM, 3/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Keep the same moderate-soft dynamic, instrumental density and clearly audible volume through both A and B. No crescendos, thinning textures, dropouts or near-silent passages. Keep the repeated motif evenly voiced across the loop boundary. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. The capital with marble courts, libraries and civic dignity; elegant string quartet writing, oboe and bassoon, stately and welcoming rather than triumphant. F major, 76 BPM, 3/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Keep the same moderate-soft dynamic, instrumental density and clearly audible volume through both A and B. No crescendos, thinning textures, dropouts or near-silent passages. Keep the repeated motif evenly voiced across the loop boundary. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop, in 3/4 time.",
+      "sourceSHA256": "81fecad23ae088e14fabb19ec3bb2871a1c9b59cb49706932e0fb3ea2494cb02"
+    },
+    {
+      "id": "m_bilge",
+      "bpm": 76,
+      "beatsPerBar": 4,
+      "key": "D minor",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Exploring old cramped vaults under a port; low clarinet, pizzicato cello and quiet viola counterpoint, wary curiosity, no horror stings. D minor, 76 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Exploring old cramped vaults under a port; low clarinet, pizzicato cello and quiet viola counterpoint, wary curiosity, no horror stings. D minor, 76 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "741be1ef520fbb5117e2dc0923a4da3b4058241bed8d87b5cf25f62ea7cdc7f4"
+    },
+    {
+      "id": "m_sunken_sluice",
+      "bpm": 72,
+      "beatsPerBar": 4,
+      "key": "A minor",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Flooded stone channels with concealed danger; low woodwinds and suspended string harmonies, fluid restrained tension, no literal water sounds. A minor, 72 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Flooded stone channels with concealed danger; low woodwinds and suspended string harmonies, fluid restrained tension, no literal water sounds. A minor, 72 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "cd58669d10b052f13114efd5a4d05ca838648f9f9b17db6770528596afd52044"
+    },
+    {
+      "id": "m_barrows",
+      "bpm": 68,
+      "beatsPerBar": 4,
+      "key": "D minor",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Ancient burial passages; solemn cello and oboe with hushed violin answers, dignified unease rather than melodramatic horror. D minor, 68 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Ancient burial passages; solemn cello and oboe with hushed violin answers, dignified unease rather than melodramatic horror. D minor, 68 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "4fee019ea2b33c0634e42c145e6159d9943af8a2827a769e9ddc6f015d74be63"
+    },
+    {
+      "id": "m_tanglewarren",
+      "bpm": 84,
+      "beatsPerBar": 4,
+      "key": "E Dorian",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Root-filled silk tunnels and watchful exploration; nimble clarinet with conversational pizzicato and bowed strings, subtly inquisitive. E Dorian, 84 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Root-filled silk tunnels and watchful exploration; nimble clarinet with conversational pizzicato and bowed strings, subtly inquisitive. E Dorian, 84 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "5f247af9098478ece37cc1bb95090916e08eedc6232577d2857916c4aa48ed4c"
+    },
+    {
+      "id": "m_slagdeep",
+      "bpm": 88,
+      "beatsPerBar": 4,
+      "key": "C minor",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Deep abandoned forge passages and controlled pressure; low strings and bassoon with tense oboe answers, urgency from shifting classical counterpoint. C minor, 88 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Deep abandoned forge passages and controlled pressure; low strings and bassoon with tense oboe answers, urgency from shifting classical counterpoint. C minor, 88 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "5a2a9eea4c69bcf57e2e6eb5a8dd8354a9957804a71b540023addbf69072d70f"
+    },
+    {
+      "id": "m_crystal",
+      "bpm": 72,
+      "beatsPerBar": 4,
+      "key": "B minor",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Refracting crystal vaults, strange wonder and quiet tension; high flute and delicate violin harmonics over warm sustained viola and cello. B minor, 72 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Refracting crystal vaults, strange wonder and quiet tension; high flute and delicate violin harmonics over warm sustained viola and cello. B minor, 72 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "c7037714a83b03138ff6353a82afa5851df0879465677e12ba6bcbaf1117caea"
+    },
+    {
+      "id": "m_ice",
+      "bpm": 64,
+      "beatsPerBar": 4,
+      "key": "E minor",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Vast frozen halls and solitude; breathy natural flute and a clear repeated oboe melody over continuous low bowed strings, spacious but steadily audible. E minor, 64 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Keep both phrases at the same soft but clearly audible level. No dynamic swells, thinning texture or near-silent passages. Flute and bowed strings remain continuous, with a clearly repeating four-note motif. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Vast frozen halls and solitude; breathy natural flute and a clear repeated oboe melody over continuous low bowed strings, spacious but steadily audible. E minor, 64 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Keep both phrases at the same soft but clearly audible level. No dynamic swells, thinning texture or near-silent passages. Flute and bowed strings remain continuous, with a clearly repeating four-note motif. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "ac3d2c9502586fb2763c1ac89a4a2189bac2bc512ef0684ebaed5824626f0b04"
+    },
+    {
+      "id": "m_stacks",
+      "bpm": 76,
+      "beatsPerBar": 4,
+      "key": "F-sharp minor",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Forbidden library stacks and intellectual mystery; bass clarinet and viola trade an understated motif with soft cello and violin responses. F-sharp minor, 76 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Forbidden library stacks and intellectual mystery; bass clarinet and viola trade an understated motif with soft cello and violin responses. F-sharp minor, 76 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "cda4e5d31471ae3384e1c118b3ac13dd239ea3f07993cc3d9e6117a5783befce"
+    },
+    {
+      "id": "m_wild_coast",
+      "bpm": 80,
+      "beatsPerBar": 4,
+      "key": "D Dorian",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Exploration of salt roads, reeds and broad coastal horizons; lyrical flute and oboe with flowing bowed strings, spacious curious movement. D Dorian, 80 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Exploration of salt roads, reeds and broad coastal horizons; lyrical flute and oboe with flowing bowed strings, spacious curious movement. D Dorian, 80 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "661b46aeab471274692761b8a3f171a90f2b50b58f724e6752effe594d260387"
+    },
+    {
+      "id": "m_wild_fields",
+      "bpm": 84,
+      "beatsPerBar": 3,
+      "key": "G major",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Long country roads and rolling green hills; pastoral oboe and flute with expressive violins and cellos, relaxed forward motion. G major, 84 BPM, 3/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Keep the same moderate-soft dynamic, instrumental density and clearly audible volume through both A and B. No crescendos, thinning textures, dropouts or near-silent passages. Keep the repeated motif evenly voiced across the loop boundary. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Long country roads and rolling green hills; pastoral oboe and flute with expressive violins and cellos, relaxed forward motion. G major, 84 BPM, 3/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Keep the same moderate-soft dynamic, instrumental density and clearly audible volume through both A and B. No crescendos, thinning textures, dropouts or near-silent passages. Keep the repeated motif evenly voiced across the loop boundary. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop, in 3/4 time.",
+      "sourceSHA256": "45a13d11ca33c49204655a1e26eedefac6768013e6f794bc6e769e795ac7ff0f"
+    },
+    {
+      "id": "m_wild_stone",
+      "bpm": 78,
+      "beatsPerBar": 4,
+      "key": "A Dorian",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Rocky trails, ash and distant peaks; sturdy cello and viola with low woodwind answers, reflective and quietly adventurous. A Dorian, 78 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Rocky trails, ash and distant peaks; sturdy cello and viola with low woodwind answers, reflective and quietly adventurous. A Dorian, 78 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "85983747aee1b7e9c964d376355903f26408dc75cec3470ab760df2f2d969359"
+    },
+    {
+      "id": "m_wild_north",
+      "bpm": 72,
+      "beatsPerBar": 3,
+      "key": "E Dorian",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Cold pine forests, old roads and mountain air; clear flute and viola lines over warm cello, measured wonder and determination. E Dorian, 72 BPM, 3/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Keep the same moderate-soft dynamic, instrumental density and clearly audible volume through both A and B. No crescendos, thinning textures, dropouts or near-silent passages. Keep the repeated motif evenly voiced across the loop boundary. Use one simple eight-bar motif and harmonic phrase repeated literally with identical melody, accompaniment and voicing throughout; never vary or develop it. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Cold pine forests, old roads and mountain air; clear flute and viola lines over warm cello, measured wonder and determination. E Dorian, 72 BPM, 3/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Keep the same moderate-soft dynamic, instrumental density and clearly audible volume through both A and B. No crescendos, thinning textures, dropouts or near-silent passages. Keep the repeated motif evenly voiced across the loop boundary. Use one simple eight-bar motif and harmonic phrase repeated literally with identical melody, accompaniment and voicing throughout; never vary or develop it. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop, in 3/4 time.",
+      "sourceSHA256": "354b0b75c27cdba809ed757932bfc1f661f16e732e4cbc8fca26432a412318c0"
+    },
+    {
+      "id": "m_combat",
+      "bpm": 108,
+      "beatsPerBar": 4,
+      "key": "D minor",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Tactical fantasy battle; agile bowed-string exchanges and short woodwind answers, alert controlled classical tension with melodic development, never a rock groove or trailer crescendo. D minor, 108 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Tactical fantasy battle; agile bowed-string exchanges and short woodwind answers, alert controlled classical tension with melodic development, never a rock groove or trailer crescendo. D minor, 108 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "829a2b9e28e12f04212af61dbcd32d74b3e1e68d785ec03facf0b9eca762820f"
+    },
+    {
+      "id": "m_examiner",
+      "bpm": 116,
+      "beatsPerBar": 4,
+      "key": "D minor",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A formidable formal boss trial; intense chamber strings, bassoon and oboe in determined classical counterpoint, more urgent than ordinary battle without a cinematic climax. D minor, 116 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Keep a fixed 116 BPM without rubato. Repeat the same short violin motif over one stable D-minor harmonic cycle in both A and B. Keep exactly the same instrumental texture and level on every repetition. Do not add a new melody, transition, final build or cadence. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A formidable formal boss trial; intense chamber strings, bassoon and oboe in determined classical counterpoint, more urgent than ordinary battle without a cinematic climax. D minor, 116 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Keep a fixed 116 BPM without rubato. Repeat the same short violin motif over one stable D-minor harmonic cycle in both A and B. Keep exactly the same instrumental texture and level on every repetition. Do not add a new melody, transition, final build or cadence. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "3bdf14fcba3a0bbb20c0011f9c8879232e40a6ee154e37f1d3be2a638bb3ebd2"
+    },
+    {
+      "id": "m_tavern",
+      "bpm": 92,
+      "beatsPerBar": 3,
+      "key": "G major",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A friendly inn performed by a small acoustic chamber group; graceful violin and clarinet dance with cello and viola, lively understated conversation, no crowd recording. G major, 92 BPM, 3/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Keep the same moderate-soft dynamic, instrumental density and clearly audible volume through both A and B. No crescendos, thinning textures, dropouts or near-silent passages. Keep the repeated motif evenly voiced across the loop boundary. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A friendly inn performed by a small acoustic chamber group; graceful violin and clarinet dance with cello and viola, lively understated conversation, no crowd recording. G major, 92 BPM, 3/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Keep the same moderate-soft dynamic, instrumental density and clearly audible volume through both A and B. No crescendos, thinning textures, dropouts or near-silent passages. Keep the repeated motif evenly voiced across the loop boundary. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop, in 3/4 time.",
+      "sourceSHA256": "47924728d6d7d6be2cdf0ea2afd249a0f5a9d1ae3f92afc8bad51933f2698971"
+    },
+    {
+      "id": "m_dojo",
+      "bpm": 72,
+      "beatsPerBar": 4,
+      "key": "A Dorian",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Calm focused training; expressive viola and cello with measured flute phrases, disciplined and contemplative, no martial drums. A Dorian, 72 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. Calm focused training; expressive viola and cello with measured flute phrases, disciplined and contemplative, no martial drums. A Dorian, 72 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "70a51f7062e922998908be115b8c915605553de6049748bebbb09f3062eed7c7"
+    },
+    {
+      "id": "m_cards",
+      "bpm": 84,
+      "beatsPerBar": 4,
+      "key": "E minor",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A quiet card room, friendly risk and calculation; playful restrained pizzicato strings with warm clarinet and bassoon, elegant chamber scherzo without a repetitive beat. E minor, 84 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A quiet card room, friendly risk and calculation; playful restrained pizzicato strings with warm clarinet and bassoon, elegant chamber scherzo without a repetitive beat. E minor, 84 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop.",
+      "sourceSHA256": "547696e55d5a4d4b421b4ff8564cbb750116fcde63a9be49d90518b9ecb29084"
+    },
+    {
+      "id": "m_title",
+      "bpm": 76,
+      "beatsPerBar": 3,
+      "key": "D major",
+      "loop": true,
+      "shape": "loop",
+      "requestedSeconds": 60,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. The main theme for a ledger and a lantern, inviting a thoughtful adventure; a clear hopeful oboe motif answered by lyrical violins and warm cellos, intimate and memorable. D major, 76 BPM, 3/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Keep the same moderate-soft dynamic, instrumental density and clearly audible volume through both A and B. No crescendos, thinning textures, dropouts or near-silent passages. Keep the repeated motif evenly voiced across the loop boundary. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. The main theme for a ledger and a lantern, inviting a thoughtful adventure; a clear hopeful oboe motif answered by lyrical violins and warm cellos, intimate and memorable. D major, 76 BPM, 3/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. Keep the same moderate-soft dynamic, instrumental density and clearly audible volume through both A and B. No crescendos, thinning textures, dropouts or near-silent passages. Keep the repeated motif evenly voiced across the loop boundary. Use a repeating eight-bar A / eight-bar B cycle, then repeat A and B exactly. Return to the same opening motif, harmony, ensemble and energy each cycle; no key change or new section. Begin immediately with the established ensemble. Compose balanced connected 8-bar phrases as a continuous seamless repeating game loop. The final phrase flows naturally back into the opening harmony, melody, tempo, instrumentation and volume. No introductory swell, breakdown, closing flourish, final cadence, ending or fade-in/fade-out, loop, in 3/4 time.",
+      "sourceSHA256": "5241ac6f89f74dd2ccff535ca154895de8c3fe6407ba9d26c46549101f3912f3"
+    },
+    {
+      "id": "m_victory",
+      "bpm": 76,
+      "beatsPerBar": 4,
+      "key": "D major",
+      "loop": false,
+      "shape": "one-shot",
+      "requestedSeconds": 6,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A brief earned success: one rising flute and oboe gesture answered by warm chamber strings, modest and satisfying, complete within six seconds. D major, 76 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. One complete immediate musical gesture with a clean natural resolving decay. One-shot cue; no repeating loop or long introduction. Preserve the complete tail.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A brief earned success: one rising flute and oboe gesture answered by warm chamber strings, modest and satisfying, complete within six seconds. D major, 76 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. One complete immediate musical gesture with a clean natural resolving decay. One-shot cue; no repeating loop or long introduction. Preserve the complete tail, one-shot.",
+      "sourceSHA256": "fbada1af78ac37454f11098da37c4dfb163afd981f32928b067b2a5fdb9338ec"
+    },
+    {
+      "id": "m_death",
+      "bpm": 68,
+      "beatsPerBar": 4,
+      "key": "D minor",
+      "loop": false,
+      "shape": "one-shot",
+      "requestedSeconds": 9,
+      "model": "Stable Audio 3 (UI default)",
+      "prompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A restrained melancholy loss: one descending cello and clarinet phrase answered gently by viola, complete within nine seconds, no horror sting. D minor, 68 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. One complete immediate musical gesture with a clean natural resolving decay. One-shot cue; no repeating loop or long introduction. Preserve the complete tail.",
+      "reuseApprovedSource": false,
+      "submittedPrompt": "Instrumental classical chamber music for Brasswake, a fantasy role-playing video game. Lifelike acoustic violins, violas and cellos with natural breathing flute, oboe, clarinet and bassoon. Elegant Classical-era phrasing, expressive bowing, connected lyrical melodies and refined counterpoint. Clear intimate concert-room recording, restrained natural dynamics and balanced midrange. Comfortable beneath gameplay, reading and dialogue. A restrained melancholy loss: one descending cello and clarinet phrase answered gently by viola, complete within nine seconds, no horror sting. D minor, 68 BPM, 4/4 time. Percussion-free: no drums, backbeat or driving rhythmic ostinato. No rock rhythm, drum kit, electronic instruments, synthesized pads, vocals, choir, speech or environmental sound effects. One complete immediate musical gesture with a clean natural resolving decay. One-shot cue; no repeating loop or long introduction. Preserve the complete tail, one-shot.",
+      "sourceSHA256": "daf79f1115a0b35d3be25c43640aa51864a7e476cc88ed1bb8a4be673a75ba4c"
+    }
+  ],
+  "effectPacks": [
+    {
+      "id": "pack01",
+      "kind": "kit",
+      "count": 8,
+      "requestedSeconds": 1,
+      "roles": [
+        {
+          "id": "s_step_stone_1",
+          "hook": "step:stone",
+          "brief": "One isolated leather boot footfall on stone with small natural variation."
+        },
+        {
+          "id": "s_step_stone_2",
+          "hook": "step:stone",
+          "brief": "One isolated leather boot footfall on stone with small natural variation."
+        },
+        {
+          "id": "s_step_stone_3",
+          "hook": "step:stone",
+          "brief": "One isolated leather boot footfall on stone with small natural variation."
+        },
+        {
+          "id": "s_step_stone_4",
+          "hook": "step:stone",
+          "brief": "One isolated leather boot footfall on stone with small natural variation."
+        },
+        {
+          "id": "s_step_wood_1",
+          "hook": "step:wood",
+          "brief": "One isolated leather boot footfall on wood with small natural variation."
+        },
+        {
+          "id": "s_step_wood_2",
+          "hook": "step:wood",
+          "brief": "One isolated leather boot footfall on wood with small natural variation."
+        },
+        {
+          "id": "s_step_wood_3",
+          "hook": "step:wood",
+          "brief": "One isolated leather boot footfall on wood with small natural variation."
+        },
+        {
+          "id": "s_step_wood_4",
+          "hook": "step:wood",
+          "brief": "One isolated leather boot footfall on wood with small natural variation."
+        }
+      ],
+      "prompt": "A pack of exactly eight isolated sound effects for Brasswake, a fantasy role-playing video game. This is a realistic foley collection, not a musical drum kit. Give each pad a different specific role and label: Stone step 1, Stone step 2, Stone step 3, Stone step 4, Timber step 1, Timber step 2, Timber step 3, Timber step 4. The first four are single leather-boot footfalls on dry stone paving, with small natural variations in heel contact and sole scuff. The last four are single leather-boot footfalls on solid wooden floorboards, with small natural variations in weight and creak. One footfall per file, never a walking sequence. Immediate clear attack and a complete short natural decay, close dry recording with restrained room reflection. Quiet, grounded and comfortable at game-footstep volume. Each sound must fit within one second. No music, tuned notes, percussion instruments, voices, background ambience or leading silence.",
+      "sourcePrompts": [
+        "Solo foley one-shot, single leather boot footfall on dry stone paving, firm heel contact with slight sole scuff, immediate clear attack, short natural decay, close dry recording, restrained room reflection, isolated single step",
+        "Solo foley one-shot, single leather boot footstep on dry stone paving, softer heel strike with gentle grit scrape from the sole, clear attack, brief natural decay, close dry recording, isolated single step",
+        "Solo foley one-shot, single leather boot footfall on dry stone paving, flatter whole-sole landing with a crisp tap and tiny pebble grit, immediate attack, short decay, close dry mic, isolated single step",
+        "Solo foley one-shot, single leather boot footfall on dry stone paving, heavier heel-first impact with a short sole drag at the end, clear attack, complete short natural decay, dry close recording, isolated single step",
+        "Solo foley one-shot, single leather boot footfall on solid wooden floorboards, medium weight heel contact with a faint low creak, immediate clear attack, short natural decay, close dry recording, isolated single step",
+        "Solo foley one-shot, single leather boot footstep on solid wooden floorboards, lighter weight toe-and-heel landing with a subtle board flex creak, clear attack, brief decay, close dry mic, isolated single step",
+        "Solo foley one-shot, single leather boot footfall on solid wooden floorboards, heavy planted step with a deep hollow thud and a short groan of timber, clear attack, natural short decay, dry close recording, isolated single step",
+        "Solo foley one-shot, single leather boot footfall on solid wooden floorboards, quick tight step with a dry knock and a small high creak at the end, immediate attack, short natural decay, close dry recording, isolated single step"
+      ],
+      "archiveSHA256": "f416b722e9e2f9084615b7673a9efcca1f9106efdc73e6db6b5c02ff065c08f2"
+    },
+    {
+      "id": "pack02",
+      "kind": "kit",
+      "count": 8,
+      "requestedSeconds": 2,
+      "roles": [
+        {
+          "id": "s_step_soil_1",
+          "hook": "step:soil",
+          "brief": "One isolated leather boot footfall on soil with small natural variation."
+        },
+        {
+          "id": "s_step_soil_2",
+          "hook": "step:soil",
+          "brief": "One isolated leather boot footfall on soil with small natural variation."
+        },
+        {
+          "id": "s_step_soil_3",
+          "hook": "step:soil",
+          "brief": "One isolated leather boot footfall on soil with small natural variation."
+        },
+        {
+          "id": "s_step_soil_4",
+          "hook": "step:soil",
+          "brief": "One isolated leather boot footfall on soil with small natural variation."
+        },
+        {
+          "id": "s_door_open",
+          "hook": "door:opening",
+          "brief": "One solid medieval wooden door opening: a clear iron-latch click followed by one restrained wooden hinge creak. A single opening, not a slam or repeated motion."
+        },
+        {
+          "id": "s_door_close",
+          "hook": "door:closing",
+          "brief": "One solid medieval wooden door closing: a warm wooden clunk and a short iron-latch catch. A single ordinary close, not an explosive slam, no opening creak."
+        },
+        {
+          "id": "s_coins",
+          "hook": "coins",
+          "brief": "A small handful of metal coins landing once in a leather purse: a few clear delicate clinks and a soft leather catch. No long jingling sequence."
+        },
+        {
+          "id": "s_click",
+          "hook": "click",
+          "brief": "One tiny clean tactile game-interface button click: a soft dry fingertip-like tick, immediate attack and extremely short decay, quiet and precise. No mechanical clatter, music or voice."
+        }
+      ],
+      "prompt": "Exactly eight isolated realistic sound effects for Brasswake, a fantasy role-playing video game. Make eight separately labelled one-shot files, one named action per pad, in this exact order: 1 Soil step 1: one leather boot landing on packed dry earth with a tiny grit crunch. 2 Soil step 2: one softer leather boot footfall on a dirt path with a brief sole scuff. 3 Soil step 3: one firm boot footfall on dry soil with fine gravel under the heel. 4 Soil step 4: one quick boot step on packed earth with a very short sandy scrape. 5 Door open: one old solid wooden door opening, a brief wood-and-iron hinge creak and light latch release, no slam. 6 Door close: the same wooden door closing with one compact wooden thunk and latch click, no opening creak. 7 Coins: a few small metal coins dropping into a leather pouch, a restrained close jingle and short tail. 8 Click: one tiny soft dry tactile interface tick, unobtrusive and extremely short. Realistic close dry foley with restrained room reflection, clear immediate attacks, complete natural short decays and quiet game-ready balance. Fit each event within two seconds. No musical instruments, beats, tuned notes, voices, lead-in silence, continuous ambience or repeated sequences. This is a game foley pack, not a musical drum kit.",
+      "sourcePrompts": [
+        "Solo foley one-shot, isolated single leather boot landing on packed dry earth, tiny grit crunch, clear immediate attack, close dry recording, restrained room reflection, natural short decay",
+        "Solo foley one-shot, isolated single softer leather boot footfall on a dirt path, brief sole scuff, gentle attack, close dry recording, restrained room reflection, natural short decay",
+        "Solo foley one-shot, isolated single firm leather boot footfall on dry soil, fine gravel shifting under the heel, clear attack, close dry recording, restrained room reflection, short decay",
+        "Solo foley one-shot, isolated single quick boot step on packed earth, very short sandy scrape, light fast attack, close dry recording, restrained room reflection, short natural decay",
+        "Solo foley one-shot, isolated old solid wooden door opening, brief wood-and-iron hinge creak, light latch release, gentle motion, close dry recording, restrained room reflection, natural decay",
+        "Solo foley one-shot, isolated heavy wooden door closing, one compact wooden thunk and metal latch click, close dry recording, restrained room reflection, clear attack, short natural decay",
+        "Solo foley one-shot, isolated few small metal coins dropping into a leather pouch, restrained close jingle, soft cloth-leather impact, dry recording, short natural tail",
+        "Solo foley one-shot, isolated tiny soft dry tactile interface tick, unobtrusive and extremely short, subtle click transient, close dry recording, clean and quiet"
+      ],
+      "archiveSHA256": "711435eedbb209f06a9ebcbc0e8f5d35811b9ae092942770d8ef580ce57db709"
+    },
+    {
+      "id": "pack03",
+      "kind": "kit",
+      "count": 8,
+      "requestedSeconds": 2,
+      "roles": [
+        {
+          "id": "s_swing",
+          "hook": "swing",
+          "brief": "One quick one-handed steel sword swing through air: a focused short swish, with no impact or metal clash."
+        },
+        {
+          "id": "s_thrust",
+          "hook": "thrust",
+          "brief": "One quick rapier thrust through air: a short narrow piercing swish, lighter and tighter than a broad sword swing, with no impact."
+        },
+        {
+          "id": "s_hit",
+          "hook": "hit",
+          "brief": "One solid weapon impact on leather armour and light mail: a compact body thud, a small sharp steel contact and very short ring. No gore or sustained ringing."
+        },
+        {
+          "id": "s_hurt",
+          "hook": "hurt",
+          "brief": "One restrained adult nonverbal exertion grunt with a dull body impact, short and readable as a player taking a hit. No spoken words, scream or prolonged pain."
+        },
+        {
+          "id": "s_bow",
+          "hook": "bow",
+          "brief": "One wooden longbow release: brief wood flex and a tight taut bowstring snap, followed by a very short air flick. No arrow impact."
+        },
+        {
+          "id": "s_miss",
+          "hook": "miss",
+          "brief": "One light passing air whoosh as an attack misses, a dry soft swish with no impact, no voice and no metal clash."
+        },
+        {
+          "id": "s_smith",
+          "hook": "smith",
+          "brief": "A brief smithing action: three light steel hammer taps on a small anvil, closely spaced, each crisp with restrained metallic ring. No workshop ambience or music."
+        },
+        {
+          "id": "s_craft_fail",
+          "hook": "craftFail",
+          "brief": "One restrained failed crafting action: a small wooden or metal tool slip, a short dull clatter and a soft dry puff. Clear but not punishing or explosive."
+        }
+      ],
+      "prompt": "Eight separate isolated foley sound effects for Brasswake, a fantasy role-playing video game. One different named action per pad in this exact order: 1 Sword swing: a quick broad steel sword swish through air, no impact. 2 Rapier thrust: a quick narrow piercing air flick, lighter than the sword swing, no impact. 3 Weapon hit: a compact leather-armour thud with a small light-mail clink, no gore. 4 Hurt: a restrained short adult exertion breath with a dull armour thud, no words or scream. 5 Bow release: brief wooden bow flex, a tight taut string snap and tiny air flick, no impact. 6 Miss: a soft dry passing air whoosh, no contact. 7 Smithing: three light steel hammer taps on a small anvil with short restrained rings. 8 Craft failure: a small tool slip, dull clatter and tiny dry puff. Close clean natural foley, immediate attacks, complete short decays, restrained room reflection, audible on small speakers without excessive bass. Each complete event fits within two seconds. No lead-in silence, music, musical drum instruments, voices other than the brief nonverbal hurt breath, background ambience or repeated action sequences. This is a game sound-effect collection, never a musical kit.",
+      "sourcePrompts": [
+        "Solo sword swing foley effect, isolated single event, quick broad steel blade swish through air, fast sweep with bright airy tail, close clean natural recording, immediate attack, short decay, fantasy game sound",
+        "Solo rapier thrust foley effect, isolated single event, quick narrow piercing air flick from a thin steel blade, lighter and higher than a broad swing, close clean natural recording, short decay, fantasy game sound",
+        "Solo weapon hit foley effect, isolated single event, compact leather armour thud with a small light mail clink, tight dry impact, close clean natural recording, short decay, fantasy game sound",
+        "Solo hurt reaction foley effect, isolated single event, restrained short adult exertion breath, nonverbal, with a dull armour thud, close clean natural recording, short decay, fantasy game sound",
+        "Solo bow release foley effect, isolated single event, brief wooden bow flex, tight taut string snap and tiny air flick, close clean natural recording, immediate attack, short decay, fantasy game sound",
+        "Solo miss whoosh foley effect, isolated single event, soft dry passing air whoosh, smooth gentle swell and fade, close clean natural recording, short decay, fantasy game sound",
+        "Solo smithing foley effect, isolated sequence of three light steel hammer taps on a small anvil, short restrained metallic rings, evenly spaced, close clean natural recording, complete short decay, fantasy game sound",
+        "Solo craft failure foley effect, isolated single event, small metal tool slip, dull wooden clatter and a tiny dry puff, close clean natural recording, short decay, fantasy game sound"
+      ],
+      "archiveSHA256": "bf03d9b455d645f1810445b016c0a49a76c93cca7ae4fa918f315fae5508f7fd"
+    },
+    {
+      "id": "pack04",
+      "kind": "kit",
+      "count": 8,
+      "requestedSeconds": 1,
+      "roles": [
+        {
+          "id": "s_cast_spark",
+          "hook": "cast:spark",
+          "brief": "One short Spark spell cast: a tight rising electrical snap and delicate crackle, immediate and nimble, no long charge-up."
+        },
+        {
+          "id": "s_cast_frost",
+          "hook": "cast:frost",
+          "brief": "One Frost Dart spell cast: a focused icy air flick and tiny clear ice-grain tinkle, a quick launch with no wind bed."
+        },
+        {
+          "id": "s_cast_sun",
+          "hook": "cast:sun",
+          "brief": "One Sunlance spell cast: a warm focused luminous ping that rises quickly into a light airy flick, restrained and clean, no choir or melody."
+        },
+        {
+          "id": "s_cast_storm",
+          "hook": "cast:storm",
+          "brief": "One Chain Bolt spell cast: a quick concentrated electrical coil snap followed by a short branching crackle. Immediate launch, no long charging sequence."
+        },
+        {
+          "id": "s_cast_fire",
+          "hook": "cast:fire",
+          "brief": "One Fireball spell cast: a compact ignition puff and fast outward fiery whoosh. Immediate launch, small controlled flame sound, no explosion yet."
+        },
+        {
+          "id": "s_cast_crystal",
+          "hook": "cast:crystal",
+          "brief": "One Crystal Shard spell cast: a quick focused glassy shimmer and a fine sharp launch flick, bright and precise without a musical phrase."
+        },
+        {
+          "id": "s_cast_blizzard",
+          "hook": "cast:blizzard",
+          "brief": "One Blizzard spell cast: a short gathering icy air rush with fine frost grains, immediate and concentrated, no sustained wind ambience."
+        },
+        {
+          "id": "s_cast_rewrite",
+          "hook": "cast:rewrite",
+          "brief": "One Rewrite spell cast: a quick dry page rustle woven with a soft elastic arcane ripple, crisp immediate launch, no words or musical notes."
+        }
+      ],
+      "prompt": "Eight separate isolated magic CAST sound effects for Brasswake, a fantasy role-playing video game. One named launch per pad in this exact order: 1 Spark cast: a tight rising electrical snap with delicate crackle. 2 Frost Dart cast: a focused icy air flick with tiny ice-grain tinkle. 3 Sunlance cast: a warm luminous ping rising into a light airy flick, no melody. 4 Chain Bolt cast: a concentrated electrical coil snap and short branching crackle. 5 Fireball cast: a compact ignition puff and fast outward fiery whoosh, no explosion. 6 Crystal Shard cast: a focused glassy shimmer and sharp launch flick. 7 Blizzard cast: a concentrated icy air rush with fine frost grains, no wind bed. 8 Rewrite cast: a quick dry page rustle woven with a soft elastic arcane ripple, no words. Each file contains only its spell launch, not an impact. Immediate clear attacks, complete short natural decays within one second, close clean recording, restrained room reflection and controlled bass. No lead-in silence, music, beats, tuned melody, voices, sustained ambience or repeated casts.",
+      "sourcePrompts": [
+        "Solo fantasy magic spark cast sound effect, isolated single launch, tight rising electrical snap with delicate fine crackle, immediate attack, short natural decay, close clean dry recording, controlled bass, game audio",
+        "Solo fantasy frost dart cast sound effect, isolated single launch, focused icy air flick with tiny ice-grain tinkle, immediate attack, short natural decay, close clean dry recording, controlled bass, game audio",
+        "Solo fantasy sunlance cast sound effect, isolated single launch, warm luminous ping rising into a light airy flick, unpitched texture, immediate attack, short natural decay, close clean dry recording, game audio",
+        "Solo fantasy chain bolt cast sound effect, isolated single launch, concentrated electrical coil snap with short branching crackle, immediate attack, short natural decay, close clean dry recording, controlled bass, game audio",
+        "Solo fantasy fireball cast sound effect, isolated single launch, compact ignition puff and fast outward fiery whoosh, small and tight, immediate attack, short natural decay, close clean dry recording, game audio",
+        "Solo fantasy crystal shard cast sound effect, isolated single launch, focused glassy shimmer and sharp launch flick, immediate attack, short natural decay, close clean dry recording, controlled bass, game audio",
+        "Solo fantasy blizzard cast sound effect, isolated single launch, concentrated icy air rush with fine frost grains, immediate attack, short natural decay, close clean dry recording, controlled bass, game audio",
+        "Solo fantasy rewrite cast sound effect, isolated single launch, quick dry page rustle woven with a soft elastic arcane ripple, wordless, immediate attack, short natural decay, close clean dry recording, game audio"
+      ],
+      "archiveSHA256": "a4062619489cfa3f4f41d16b44eab755e0cad72904ac8665a5d0f7ef031c8d70"
+    },
+    {
+      "id": "pack05",
+      "kind": "kit",
+      "count": 8,
+      "requestedSeconds": 2,
+      "roles": [
+        {
+          "id": "s_hit_spark",
+          "hook": "spellHit:spark",
+          "brief": "One Spark spell impact: a crisp small electrical zap with a dry short crackling tail, no thunder or explosion."
+        },
+        {
+          "id": "s_hit_frost",
+          "hook": "spellHit:frost",
+          "brief": "One Frost Dart impact: a sharp brittle small ice crack and a short scattering of fine frost crystals, compact and dry."
+        },
+        {
+          "id": "s_hit_sun",
+          "hook": "spellHit:sun",
+          "brief": "One Sunlance impact: a concentrated bright clear chime-like snap and a warm short energy pulse, no melody or large cinematic boom."
+        },
+        {
+          "id": "s_hit_storm",
+          "hook": "spellHit:storm",
+          "brief": "One Chain Bolt impact event: three tightly spaced sharp electrical cracks with a brief low body, then a complete short crackling decay. No long storm ambience."
+        },
+        {
+          "id": "s_hit_fire",
+          "hook": "spellHit:fire",
+          "brief": "One Fireball impact: a compact low fiery burst and brief crackling flame decay, powerful but restrained, no long rumble, debris sequence or cinematic explosion."
+        },
+        {
+          "id": "s_hit_crystal",
+          "hook": "spellHit:crystal",
+          "brief": "One Crystal Shard impact: a focused brittle glass-like crack and a very short fine shard tinkle, no large window shatter or long debris fall."
+        },
+        {
+          "id": "s_hit_blizzard",
+          "hook": "spellHit:blizzard",
+          "brief": "One Blizzard spell impact: a compact swirling cold gust with a soft granular snow-and-ice spray and complete short decay. No sustained wind bed or repeated attacks."
+        },
+        {
+          "id": "s_hit_rewrite",
+          "hook": "spellHit:rewrite",
+          "brief": "One Rewrite spell impact: a precise parchment stamp and brief papery tear with a soft descending arcane pulse, then clean decay. No speech, ticking sequence or melody."
+        }
+      ],
+      "prompt": "Eight separate isolated magic IMPACT sound effects for Brasswake, a fantasy role-playing video game. One named hit per pad in this exact order: 1 Spark impact: a short dry electrical pop and tiny crackle. 2 Frost Dart impact: a compact brittle ice-chip crack and short granular scatter. 3 Sunlance impact: a warm focused radiant burst with a short clear airy ring, no melody. 4 Chain Bolt impact: one sharp electrical crack with two tiny branching snaps and a brief decay. 5 Fireball impact: a compact fiery burst and brief restrained flame crackle, no long bass rumble. 6 Crystal Shard impact: a focused brittle glass-like crack with a short fine shard tinkle. 7 Blizzard impact: a compact swirling cold gust with fine snow-and-ice spray. 8 Rewrite impact: a precise parchment stamp, brief papery tear and soft descending arcane pulse. Each file contains only its spell impact, no cast or charge-up. Immediate clear attacks and complete short decays within two seconds, close clean recording, restrained reflection and controlled bass. No lead-in silence, music, beats, voices, long cinematic explosions, sustained ambience or repeated attacks.",
+      "sourcePrompts": [
+        "Solo spark magic impact sound effect, isolated single hit, short dry electrical pop with a tiny crackle, immediate attack, close clean recording, very short decay, controlled bass, fantasy game SFX",
+        "Solo frost dart magic impact sound effect, isolated single hit, compact brittle ice-chip crack with short granular scatter, immediate attack, close clean recording, quick decay, fantasy game SFX",
+        "Solo sunlance magic impact sound effect, isolated single hit, warm focused radiant burst with a short clear airy ring, unpitched texture, immediate attack, close clean recording, short decay, fantasy game SFX",
+        "Solo chain bolt magic impact sound effect, isolated single hit, one sharp electrical crack followed by two tiny branching snaps, immediate attack, close clean recording, brief decay, fantasy game SFX",
+        "Solo fireball magic impact sound effect, isolated single hit, compact fiery burst with brief restrained flame crackle, tight controlled low end, immediate attack, close clean recording, short decay, fantasy game SFX",
+        "Solo crystal shard magic impact sound effect, isolated single hit, focused brittle glass-like crack with a short fine shard tinkle, immediate attack, close clean recording, short decay, fantasy game SFX",
+        "Solo blizzard magic impact sound effect, isolated single hit, compact swirling cold gust with fine snow-and-ice spray, immediate onset, close clean recording, controlled bass, complete short decay, fantasy game SFX",
+        "Solo rewrite magic impact sound effect, isolated single hit, precise parchment stamp, brief papery tear and soft descending arcane pulse, immediate attack, close clean recording, short decay, fantasy game SFX"
+      ],
+      "archiveSHA256": "c78999bde99324b23d9f9e9d8eecfcb3b7a2e36e02ce5977041f579e9cbb645d"
+    },
+    {
+      "id": "pack06",
+      "kind": "kit",
+      "count": 8,
+      "requestedSeconds": 2,
+      "roles": [
+        {
+          "id": "s_creature_bird",
+          "hook": "creature:bird",
+          "brief": "One short alert call from a small wild bird: a clear natural chirp pair, close and dry, no flock, music or surrounding outdoor ambience."
+        },
+        {
+          "id": "s_creature_small",
+          "hook": "creature:small",
+          "brief": "One short alert squeak and tiny snuffle from a small fantasy woodland creature, restrained and natural, no human voice or prolonged chattering."
+        },
+        {
+          "id": "s_creature_beast",
+          "hook": "creature:beast",
+          "brief": "One compact warning growl from a medium-sized fantasy beast, low textured throat sound with a short breath tail. No long roar, speech or cinematic bass."
+        },
+        {
+          "id": "s_creature_dragon",
+          "hook": "creature:dragon",
+          "brief": "One short controlled dragon warning roar: a deep rough animal throat growl with a small breath exhale, audible on small speakers, no earthquake rumble or flame explosion."
+        },
+        {
+          "id": "s_creature_spirit",
+          "hook": "creature:spirit",
+          "brief": "One brief ghostly creature presence: a soft hollow airy nonverbal breath-like waver and complete short decay. No words, scream, singing or choir."
+        },
+        {
+          "id": "s_creature_stone",
+          "hook": "creature:stone",
+          "brief": "One short stone-creature motion: a compact grinding rock scrape and heavy small stone knock with a dry settling tail. No landslide or sustained rumble."
+        },
+        {
+          "id": "s_creature_insect",
+          "hook": "creature:insect",
+          "brief": "One brief large-insect movement: a short chitin click and dry wing rasp, clear and compact, no continuous buzzing swarm or background ambience."
+        },
+        {
+          "id": "s_creature_wet",
+          "hook": "creature:wet",
+          "brief": "One brief wet marsh-creature motion: a compact thick gurgle, soft suction pop and small damp squelch. No human voice or long water recording."
+        }
+      ],
+      "prompt": "Eight separate isolated creature sound effects for Brasswake, a fantasy role-playing video game. One different creature cue per pad in this exact order: 1 Bird: one clear natural alert chirp pair, no surrounding outdoor recording. 2 Small creature: one short woodland-animal squeak and tiny snuffle. 3 Beast: one compact low textured warning growl with a short breath tail. 4 Dragon: one controlled deep rough animal throat growl with a small breath exhale, no huge cinematic rumble. 5 Spirit: one soft hollow airy nonverbal waver, no words, singing or scream. 6 Stone creature: one compact grinding rock scrape and heavy small stone knock with a dry settling tail. 7 Insect: one chitin click and brief dry wing rasp, no buzzing swarm. 8 Wet creature: one compact thick gurgle, soft suction pop and small damp squelch. Close clean recording, immediate readable onset, restrained natural short decays within two seconds and controlled bass. One event per file, no music, beats, human speech, lead-in silence, continuous ambience or repeated attack sequences.",
+      "sourcePrompts": [
+        "Solo bird creature call one-shot, isolated single event, one clear natural alert chirp pair, bright clean close recording, immediate onset, dry short decay, fantasy game sound effect",
+        "Solo small woodland creature one-shot, isolated single event, one short squeak followed by a tiny snuffle, close dry recording, soft immediate onset, quick decay, fantasy game sound effect",
+        "Solo beast warning growl one-shot, isolated single event, compact low textured growl with a short breath tail, close clean recording, immediate onset, controlled bass, fantasy game sound effect",
+        "Solo dragon throat growl one-shot, isolated single event, controlled deep rough animal growl with a small breath exhale, close dry recording, tight low end, fantasy game sound effect",
+        "Solo spirit creature one-shot, isolated single event, soft hollow airy nonverbal waver, ghostly breathy tone, gentle onset, short fading tail, fantasy game sound effect",
+        "Solo stone creature one-shot, isolated single event, compact grinding rock scrape into a heavy small stone knock, dry settling tail, close clean recording, controlled bass, fantasy game sound effect",
+        "Solo insect creature one-shot, isolated single event, sharp chitin click and a brief dry wing rasp, close clean recording, immediate onset, short dry decay, fantasy game sound effect",
+        "Solo wet creature one-shot, isolated single event, compact thick gurgle, soft suction pop and small damp squelch, close clean recording, immediate onset, short decay, fantasy game sound effect"
+      ],
+      "archiveSHA256": "613d7f105b517920bb1dc5e6a4b22c2a0668710755d8cb389e83bcd9b45ff285"
+    },
+    {
+      "id": "pack07",
+      "kind": "kit",
+      "count": 8,
+      "requestedSeconds": 4,
+      "roles": [
+        {
+          "id": "s_ambient_harbour",
+          "hook": "ambient:harbour",
+          "brief": "A short subdued harbour water cue: gentle close water lapping against a timber quay with one small rope or wood movement. Sparse natural detail, no ship horn, music, speech or waves crashing."
+        },
+        {
+          "id": "s_ambient_market",
+          "hook": "ambient:market",
+          "brief": "A short subdued medieval market activity cue: distant indistinct human bustle, a soft basket movement and small quiet foot movements. No intelligible words, calls, music or prominent repeated footsteps."
+        },
+        {
+          "id": "s_ambient_hearth",
+          "hook": "ambient:hearth",
+          "brief": "A short quiet hearth-fire cue: a few delicate dry wood crackles and one soft ember pop, intimate and restrained, no large bonfire roar, music or voices."
+        },
+        {
+          "id": "s_ambient_cave",
+          "hook": "ambient:cave",
+          "brief": "A short very subdued cave air cue: low gentle hollow air texture with a tiny distant stone movement. Sparse and quiet, no creature, musical drone or dramatic rumble."
+        },
+        {
+          "id": "s_ambient_drip",
+          "hook": "ambient:drip",
+          "brief": "One small cave-water drip landing in a shallow pool: a clear delicate plink and tiny short echo, one event only, no dripping sequence or continuous water ambience."
+        },
+        {
+          "id": "s_ambient_draft",
+          "hook": "ambient:draft",
+          "brief": "A short subdued breeze passing through a stone passage: soft airy moving texture with restrained room resonance, no howl, whistle melody, voices or musical drone."
+        },
+        {
+          "id": "s_alchemy",
+          "hook": "alchemy",
+          "brief": "One brief alchemy mixing action: a few small liquid bubbles in a glass flask and a delicate glass contact, a compact action with a clean tail. No magical melody or background room sound."
+        },
+        {
+          "id": "s_fish_cast",
+          "hook": "fishCast",
+          "brief": "One fishing cast: a quick rod-line swish followed shortly by one small float splash in water. A single compact action, no reeling, voices or continuous water bed."
+        }
+      ],
+      "prompt": "Eight separate realistic sound effects for Brasswake, a fantasy role-playing video game. Make one different cue per pad in this exact order: 1 Harbour: subdued gentle water lapping against a timber quay with one small rope movement, no horn or crashing waves. 2 Market: quiet distant indistinct medieval bustle and soft basket movement, no intelligible words or calls. 3 Hearth: a few delicate dry wood crackles and one soft ember pop, no bonfire roar. 4 Cave: very subdued hollow cave air with one tiny distant stone movement, no creature or musical drone. 5 Drip: one small cave-water drop landing in a shallow pool, a delicate plink and tiny echo, no dripping sequence. 6 Draft: a short soft breeze passing through a stone passage, no howl or whistled melody. 7 Alchemy: one compact action of small bubbles in a glass flask and delicate glass contact. 8 Fishing cast: one quick rod-and-line swish followed by a small float splash, no reeling or reward. Each complete cue fits within four seconds with a clean natural decay. The first six are quiet sparse environmental hints; the last two are isolated foreground actions. Close clean recording and restrained room reflection, clear onset, controlled bass. No lead-in silence, music, beats, intelligible speech or long continuous noise beds.",
+      "sourcePrompts": [
+        "Solo harbour ambience sound effect, gentle subdued water lapping against a timber quay with one small rope creak and movement, close clean recording, sparse, soft natural decay, clear onset, controlled bass",
+        "Solo medieval market ambience sound effect, quiet distant indistinct crowd murmur with soft wicker basket movement, sparse and subdued, restrained room reflection, clean natural decay, controlled bass",
+        "Solo hearth fire sound effect, a few delicate dry wood crackles and one soft ember pop, close clean recording, quiet and sparse, clear onset, clean natural decay, controlled bass",
+        "Solo cave ambience sound effect, very subdued hollow cave air with one tiny distant stone shift, soft stony reverb, sparse and quiet, clean natural decay, controlled bass",
+        null,
+        "Solo stone passage draft sound effect, a short soft breeze passing through a narrow stone corridor, gentle airy movement, restrained room reflection, clean natural decay, controlled bass",
+        "Solo alchemy sound effect, one compact action of small bubbles rising in a glass flask with delicate glass contact tick, close clean recording, clear onset, clean natural decay",
+        "Solo fishing cast sound effect, one quick rod and line swish followed by a small float splash on water, close clean recording, clear onset, isolated foreground action, clean natural decay"
+      ],
+      "archiveSHA256": "6eaa07d24dcf13205f5b2bc9e56b06847fd205e2925bc4c892cf85470023aa2c",
+      "rejectedPad": 5,
+      "replacement": "s_ambient_drip: separately generated source; duplicate exported pad rejected"
+    },
+    {
+      "id": "pack08",
+      "kind": "kit",
+      "count": 8,
+      "requestedSeconds": 2,
+      "roles": [
+        {
+          "id": "s_fish_catch",
+          "hook": "fishCatch",
+          "brief": "One small fish being landed: a compact water splash and two brief wet flutters close to the listener. No reward melody or large animal sound."
+        },
+        {
+          "id": "s_fish_empty",
+          "hook": "fishEmpty",
+          "brief": "One empty fishing line lifting from water: a tiny soft water plip and light line flick, restrained and short, no successful-catch splash."
+        },
+        {
+          "id": "s_heal",
+          "hook": "heal",
+          "brief": "One brief gentle magical healing feedback cue: a soft warm clear rising shimmer with a complete short decay, reassuring and restrained. A sound effect rather than a melody, no voice or choir."
+        },
+        {
+          "id": "s_grade_correct",
+          "hook": "correct",
+          "brief": "One very brief positive game-interface answer cue: two soft clear ascending taps, pleasant and understated, with a clean short decay. No fanfare, music or voice."
+        },
+        {
+          "id": "s_grade_close",
+          "hook": "close",
+          "brief": "One very brief encouraging game-interface near-correct cue: two gentle closely spaced bright taps with a slight upward feel, subtler than a success cue. No fanfare, music or voice."
+        },
+        {
+          "id": "s_grade_partial",
+          "hook": "partial",
+          "brief": "One very brief neutral game-interface partial-answer cue: two soft rounded taps at nearly the same pitch with a tiny downward inflection. Calm and informative, no error alarm, music or voice."
+        },
+        {
+          "id": "s_grade_wrong",
+          "hook": "wrong",
+          "brief": "One very brief gentle game-interface try-again cue: a low soft rounded wooden knock with a slight downward bend, unobtrusive and non-punishing. No buzzer, alarm, music or voice."
+        },
+        {
+          "id": "s_reward",
+          "hook": "reward",
+          "brief": "One brief small game reward feedback cue: a delicate bright coin-like sparkle and soft rounded upward ping, modest and satisfying with a short clean tail. No victory fanfare, music or voice."
+        }
+      ],
+      "prompt": "Eight separate isolated game feedback sound effects for Brasswake, a fantasy role-playing video game. One different named action per pad in this exact order: 1 Fish catch: a compact small water splash and two brief wet fish flutters, no reward melody. 2 Empty fishing line: a tiny water plip and light line flick, no catch splash. 3 Heal: a soft warm rising airy shimmer with a short clean tail, a sound effect and not a melody. 4 Correct answer: two soft clear ascending wooden-glass taps, pleasant and understated. 5 Nearly correct: two gentle closely spaced bright taps with a slight upward inflection, subtler than success. 6 Partial answer: two soft rounded taps at nearly the same pitch with a tiny downward inflection, calm and neutral. 7 Try again: one low soft wooden knock with a slight downward bend, never a buzzer or alarm. 8 Reward: a delicate coin-like sparkle and soft rounded upward ping, modest and satisfying, no fanfare. Each complete one-shot event fits within two seconds with an immediate clear attack and complete short natural decay. Close clean recording and restrained reflection, gentle on small speakers. No lead-in silence, music, beats, voices, dramatic alarms, continuous ambience or repeated actions.",
+      "sourcePrompts": [
+        "Solo fish catch sound effect, isolated: compact small water splash followed by two brief wet fish flutters, close clean recording, immediate attack, short natural decay, restrained reflection, fantasy game feedback",
+        "Solo empty fishing line sound effect, isolated: tiny water plip with a light line flick, small and dry, close clean recording, immediate attack, short natural decay, fantasy game feedback",
+        "Solo heal sound effect, isolated: soft warm rising airy shimmer, smooth texture with a short clean tail, atmospheric effect with no pitched melody, close clean recording, fantasy game feedback",
+        "Solo correct answer sound effect, isolated: two soft clear ascending wooden-glass taps, pleasant and understated, bright woody resonance, immediate attack, short natural decay, fantasy game feedback",
+        "Solo nearly correct sound effect, isolated: two gentle closely spaced bright taps with a slight upward pitch inflection, subtle and light, immediate attack, short natural decay, fantasy game feedback",
+        "Solo partial answer sound effect, isolated: two soft rounded taps at nearly the same pitch with a tiny downward inflection, calm and neutral, immediate attack, short natural decay, fantasy game feedback",
+        "Solo try again sound effect, isolated: one low soft wooden knock with a slight downward pitch bend, warm and mellow, immediate attack, short natural decay, fantasy game feedback",
+        "Solo reward sound effect, isolated: delicate coin-like sparkle followed by a soft rounded upward ping, modest and satisfying, immediate attack, short natural decay, fantasy game feedback"
+      ],
+      "archiveSHA256": "d7666a9847eb6b45d9671a6a0a780d3816ab81cd6545189bd4b33f39479c15c9"
+    }
+  ]
+}

@@ -27,6 +27,12 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def choose_loop_candidate(candidates):
+    """Rank only passages that already satisfy both musical join bounds."""
+    return max((row for row in candidates if row['phraseSimilarity']>=.80 and row['energyLogMismatch']<=.5),
+               key=lambda row:row['score'],default=None)
+
+
 def select_loop(ffmpeg, path, requested_bpm, beats_per_bar=4):
     """Compare complete 8/16-bar passages on an inferred beat grid.
 
@@ -57,7 +63,7 @@ def select_loop(ffmpeg, path, requested_bpm, beats_per_bar=4):
     energy = np.sqrt(np.mean(mag**2,axis=0))
     onset_peaks = signal.find_peaks(flux, distance=max(1,round(beat*.7/dt)))[0]
     starts = [float(times[i]) for i in onset_peaks if 1.2 < times[i] < 20]
-    best = None
+    candidates = []
     win = round(1.5/dt)
     for beat_seconds in periods:
         for bars in (8,16):
@@ -75,12 +81,13 @@ def select_loop(ffmpeg, path, requested_bpm, beats_per_bar=4):
                 quiet = max(0,.55-energy[ia:ia+win].mean()/(np.median(energy)+1e-9))
                 onset_error = abs(flux[ia:ia+win].sum()-flux[ib:ib+win].sum())/(flux[ia:ia+win].sum()+flux[ib:ib+win].sum()+1e-9)
                 score = similarity-.15*mismatch-.2*quiet-.04*onset_error+.012*(bars==16)
-                if best is None or score > best['score']:
-                    best = dict(startSeconds=start,endSeconds=end,periodBars=bars,meter=f'{beats_per_bar}/4',
+                candidates.append(dict(startSeconds=start,endSeconds=end,periodBars=bars,meter=f'{beats_per_bar}/4',
                                 estimatedBPM=60/beat_seconds,requestedBPM=requested_bpm,
-                                phraseSimilarity=similarity,energyLogMismatch=mismatch,score=float(score))
-    if best is None or best['phraseSimilarity'] < .80 or best['energyLogMismatch'] > .5:
-        raise ValueError(f'No sufficiently recurring passage: {path.name}: {best}')
+                                phraseSimilarity=similarity,energyLogMismatch=mismatch,score=float(score)))
+    best=choose_loop_candidate(candidates)
+    if best is None:
+        rejected=max(candidates,key=lambda row:row['score'],default=None)
+        raise ValueError(f'No sufficiently recurring passage: {path.name}: {rejected}')
     return best
 
 
@@ -127,10 +134,10 @@ def effect_level(ident):
 
 
 def prepare(args):
-    work = ROOT/'work/audio/stable-preparation-2026-11-24'
-    work.mkdir(parents=True,exist_ok=True)
     music_root = Path(args.music_sources)
     music_session = json.loads((music_root/'generation-session.json').read_text())
+    work = ROOT/'work/audio'/('stable-preparation-'+music_session.get('date','2026-11-24'))
+    work.mkdir(parents=True,exist_ok=True)
     only_track = getattr(args,'only_track',None)
     sources = music_session['tracks']
     if only_track:
@@ -145,7 +152,7 @@ def prepare(args):
         fx_root = Path(args.effect_sources)
         fx_session = json.loads((fx_root/'sfx-session.json').read_text())
     if not only_track:
-        catalog = new_catalog(args)
+        catalog = new_catalog(args,music_session.get('date','2026-11-24'))
     for source in sources:
         ident, loop = source['id'],source['loop']
         path = music_root/source['sourceFiles'][0]
@@ -198,8 +205,8 @@ def prepare(args):
     prepare_effects(args,fx_root,fx_session,catalog,work)
 
 
-def new_catalog(args):
-    catalog = dict(schemaVersion=2,date='2026-11-24',provider='Stable Audio',
+def new_catalog(args,source_date='2026-11-24'):
+    catalog = dict(schemaVersion=2,date=source_date,provider='Stable Audio',
                    description='Complete replacement: 26 loops and two musical cues; no historical tracks retained in playback.',
                    retained=[],toolchain=dict(python='3.12',numpy=np.__version__,scipy=__import__('scipy').__version__,
                    ffmpeg=audio.run(args.ffmpeg,'-version').stdout.decode().splitlines()[0],
@@ -209,21 +216,40 @@ def new_catalog(args):
     return catalog
 
 
-def prepare_effects(args,fx_root,fx_session,catalog,work):
-    effects = dict(schemaVersion=1,date='2026-11-24',provider='Stable Audio',sampleRate=FX_SR,channels=1,
-                   description='64 prepared mono PCM16 effects, short onset/tail fades and per-role peak/energy bounds.',
-                   subjectiveListening='Unavailable; technical inspection and browser verification only',effects={})
+def effect_sources(fx_root,fx_session):
+    """Retain the exact source and pack request for each named effect role."""
     sources = []
     for entry in fx_session['effects']:
-        sources.append((entry['id'],fx_root/entry['file'],entry['hook'],dict(kind='stable-audio',model=entry['model'],
-            sourceSHA256=entry['sha256'],prompt=entry['prompt'],requestedSeconds=entry['seconds'],take=1)))
-    for pack in fx_session['packs']:
+        kind=entry.get('kind','stable-audio')
+        if kind not in ('stable-audio','stable-audio-sampler'):
+            raise ValueError('Unknown effect source kind: '+kind)
+        origin=dict(kind=kind,model=entry['model'],sourceDate=entry.get('sourceDate',fx_session.get('date','2026-11-24')),
+            sourceSHA256=entry['sha256'],prompt=entry['prompt'],requestedSeconds=entry['seconds'],take=1)
+        if kind=='stable-audio-sampler':
+            if not re.fullmatch(r'[a-f0-9]{64}',entry.get('packArchiveSHA256','')) or not entry.get('packPrompt'):
+                raise ValueError('Sampler sources require an archive hash and the exact pack prompt')
+            if type(entry.get('pad')) is not int or not 1<=entry['pad']<=8:
+                raise ValueError('Sampler sources require a pad number from 1 to 8')
+            origin.update(packArchiveSHA256=entry['packArchiveSHA256'],packPrompt=entry['packPrompt'],pad=entry['pad'])
+        sources.append((entry['id'],fx_root/entry['file'],entry['hook'],origin))
+    for pack in fx_session.get('packs',[]):
         material = pack['id'].removeprefix('footsteps_')
         for i, relative in enumerate(pack['files'],1):
             path=fx_root/relative
             sources.append((f's_step_{material}_{i}',path,'step:'+material,dict(kind='stable-audio-sampler',
                 sourceSHA256=digest(path),packArchiveSHA256=pack['archiveSHA256'],variation=i,
                 promptRetention='Exact pack prompt not retained; isolated fantasy-game footfall on '+material)))
+    ids=[row[0] for row in sources]
+    if len(ids)!=len(set(ids)):
+        raise ValueError('Effect source roles must be unique')
+    return sources
+
+
+def prepare_effects(args,fx_root,fx_session,catalog,work):
+    effects = dict(schemaVersion=1,date=fx_session.get('date','2026-11-24'),provider='Stable Audio',sampleRate=FX_SR,channels=1,
+                   description='64 prepared mono PCM16 effects, short onset/tail fades and per-role peak/energy bounds.',
+                   subjectiveListening='Unavailable; technical inspection and browser verification only',effects={})
+    sources=effect_sources(fx_root,fx_session)
     for ident,path,hook,origin in sources:
         assert digest(path)==origin['sourceSHA256'],ident
         y = audio.decode(args.ffmpeg,path,FX_SR).mean(axis=1)

@@ -228,6 +228,8 @@ The grounded-cadence release adds `human_mesh_data.js`, `human_motion_data.js` a
 
 ## Decision log
 
+- 2026-11-25: Expand the unpublished Tallyport audio trial to the full music/effect inventory at Casey's request. Keep all destination IDs, routing, caches, preferences and saves; update only prepared assets/provenance and the metadata they require. Capture exact sampler role prompts before accepting packs. The classical-audio batch plan owns integration, verification and publication after the designated scenery release.
+
 - 2026-11-25: Tallyport-only classical music trial: extend existing downloaded-source preparation with an explicit single-track mode and 3/4 phrase lengths. Retain the same audio ID/path, playback priority, volume settings and bounded caches. Archive the replaced entry, preserve all other assets and use focused music/sound plus smoke coverage; release evidence remains pending publication.
 
 - 2026-11-25: Complete the living-landscape human-use details with managed fruit rows near suitable temperate farms/beekeepers. Reuse aligned existing blocked tree cells, keep their physical positions and clear only decorative undergrowth around the rows. No map, save or gameplay RNG change.

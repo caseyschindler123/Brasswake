@@ -25,7 +25,53 @@ prep_spec=importlib.util.spec_from_file_location('stable_preparation',HERE/'prep
 preparation=importlib.util.module_from_spec(prep_spec); prep_spec.loader.exec_module(preparation)
 
 
+class SamplerSourceTests(unittest.TestCase):
+    def source(self):
+        return dict(id='s_door_open',file='pack02/raw/CONTENT_05.mp3',hook='door:open',
+                    kind='stable-audio-sampler',model='Stable Audio 3',sha256='a'*64,
+                    prompt='Solo wooden door opening, short hinge creak and latch release',seconds=2,
+                    packArchiveSHA256='b'*64,packPrompt='Isolated foley for a fantasy role-playing video game',pad=5)
+
+    def test_named_sampler_roles_preserve_exact_source_and_pack_provenance(self):
+        source=self.source()
+        rows=preparation.effect_sources(Path('sources'),dict(date='2026-11-25',effects=[source],packs=[]))
+        self.assertEqual(len(rows),1)
+        ident,path,hook,origin=rows[0]
+        self.assertEqual((ident,path,hook),('s_door_open',Path('sources/pack02/raw/CONTENT_05.mp3'),'door:open'))
+        self.assertEqual(origin['prompt'],source['prompt'])
+        self.assertEqual(origin['packPrompt'],source['packPrompt'])
+        self.assertEqual(origin['packArchiveSHA256'],source['packArchiveSHA256'])
+        self.assertEqual(origin['sourceSHA256'],source['sha256'])
+        self.assertEqual((origin['pad'],origin['sourceDate']),(5,'2026-11-25'))
+        self.assertEqual(origin['kind'],'stable-audio-sampler')
+
+    def test_incomplete_sampler_provenance_is_rejected(self):
+        for key,value in [('packArchiveSHA256',''),('packPrompt',''),('pad',0),('pad',9),('pad',1.5)]:
+            with self.subTest(field=key,value=value):
+                source={**self.source(),key:value}
+                with self.assertRaisesRegex(ValueError,'Sampler sources require'):
+                    preparation.effect_sources(Path('sources'),dict(effects=[source]))
+
+    def test_duplicate_effect_roles_are_rejected(self):
+        source=self.source()
+        with self.assertRaisesRegex(ValueError,'roles must be unique'):
+            preparation.effect_sources(Path('sources'),dict(effects=[source,source]))
+
+
 class CompositionTests(unittest.TestCase):
+    def test_invalid_top_score_cannot_hide_a_qualifying_phrase(self):
+        # Slagdeep's first source has a valid phrase whose blended ranking is
+        # slightly below an interval that fails the unchanged recurrence bound.
+        invalid=dict(phraseSimilarity=.7914687149617096,energyLogMismatch=.18433082002951867,score=.7697703242301941)
+        valid=dict(phraseSimilarity=.8304840616742543,energyLogMismatch=.3889861254686435,score=.7619056)
+        self.assertIs(preparation.choose_loop_candidate([invalid,valid]),valid)
+        self.assertIs(preparation.choose_loop_candidate([valid,invalid]),valid)
+
+    def test_loop_candidate_ranking_never_waives_either_join_bound(self):
+        candidates=[dict(phraseSimilarity=.799,energyLogMismatch=.1,score=.99),
+                    dict(phraseSimilarity=.99,energyLogMismatch=.501,score=.99)]
+        self.assertIsNone(preparation.choose_loop_candidate(candidates))
+
     def test_triple_metre_loop_preserves_complete_sixteen_bar_phrases(self):
         sr=11025
         t=np.arange(sr*60,dtype=np.float64)/sr
@@ -155,12 +201,17 @@ class AssetTests(unittest.TestCase):
         for entry in old_midis:
             self.assertEqual(hashlib.sha256((music.ROOT/entry['midi']).read_bytes()).hexdigest(),entry['origin']['midiSHA256'])
 
-    def test_tallyport_classical_trial_keeps_its_approved_instrumentation_and_metre(self):
-        origin=self.catalog['tracks']['m_tallyport']['origin']
-        for phrase in ['classical chamber music','violins and cellos','flute, oboe and bassoon','Percussion-free: no drums','game loop']:
-            self.assertIn(phrase,origin['prompt'])
-        self.assertEqual(origin['selection']['meter'],'3/4')
-        self.assertEqual(origin['selection']['requestedBPM'],76)
+    def test_loop_metadata_preserves_complete_phrases_in_the_requested_metre(self):
+        for ident,entry in self.catalog['tracks'].items():
+            if not entry['loop']: continue
+            with self.subTest(track=ident):
+                selection=entry['origin']['selection']
+                self.assertIn(selection['meter'],('3/4','4/4'))
+                beats_per_bar=int(selection['meter'].split('/')[0])
+                expected=selection['periodBars']*beats_per_bar*60/selection['estimatedBPM']
+                self.assertAlmostEqual(entry['b'],expected,places=4)
+        tallyport=self.catalog['tracks']['m_tallyport']['origin']['selection']
+        self.assertEqual((tallyport['meter'],tallyport['requestedBPM']),('3/4',76))
 
     def test_actual_audio_levels_lengths_and_loop_tails(self):
         if not FFMPEG: self.skipTest('Pass --ffmpeg for actual audio decode and level checks')
@@ -190,6 +241,8 @@ class EffectAssetTests(unittest.TestCase):
         self.assertEqual(len(effects),64)
         self.assertEqual({(music.ROOT/e['path']).name for e in effects.values()}, {p.name for p in (music.ROOT/'game/art/fx').iterdir() if p.is_file()})
         self.assertEqual(len({e['sha256'] for e in effects.values()}),64)
+        self.assertEqual(len({e['origin']['sourceSHA256'] for e in effects.values()}),64)
+        sampler_pads=set()
         for ident,entry in effects.items():
             with self.subTest(effect=ident):
                 path=music.ROOT/entry['path']
@@ -211,12 +264,19 @@ class EffectAssetTests(unittest.TestCase):
                 activity=np.flatnonzero(np.abs(y)>peak*.01)
                 self.assertLess(activity[0]/sr,.15 if ident.startswith('s_ambient_') else .06)
                 self.assertEqual(len(entry['origin']['sourceSHA256']),64)
-                if ident.startswith('s_step_'):
-                    self.assertEqual(entry['origin']['kind'],'stable-audio-sampler')
-                    self.assertEqual(len(entry['origin']['packArchiveSHA256']),64)
+                origin=entry['origin']
+                self.assertIn(origin['kind'],('stable-audio','stable-audio-sampler'))
+                self.assertTrue(origin['prompt'])
+                if origin['kind']=='stable-audio-sampler':
+                    self.assertEqual(len(origin['packArchiveSHA256']),64)
+                    self.assertEqual(origin['model'],'Stable Audio 3')
+                    self.assertIn(origin['pad'],range(1,9))
+                    pad=(origin['packArchiveSHA256'],origin['pad'])
+                    self.assertNotIn(pad,sampler_pads)
+                    sampler_pads.add(pad)
+                    self.assertIn('fantasy role-playing video game',origin['packPrompt'])
                 else:
-                    self.assertEqual(entry['origin']['kind'],'stable-audio')
-                    self.assertIn('video game',entry['origin']['prompt'])
+                    self.assertIn('video game',origin['prompt'])
         self.assertEqual(sum(e['bytes'] for e in effects.values()) < 5*1024*1024,True)
 
 
