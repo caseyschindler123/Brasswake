@@ -39,6 +39,15 @@ async function closeSheet(frame) {
 }
 
 async function reloadCharacter(page, slot = 0) {
+  // Pause world events through the real menu before tearing down the document.
+  // The old page's networkidle event may already have fired before a new ambient
+  // fetch starts; waiting for that event again does not drain current effects.
+  const active = page.frames().find(frame => frame.url().includes('visual_test=1'));
+  await openTab(active, 'hero');
+  await expect.poll(() => active.evaluate(() => {
+    const effects = Sound.status().effects;
+    return effects.loading.length + effects.queued.length;
+  })).toBe(0);
   await page.waitForLoadState('networkidle');
   await page.goto('/index.html?visual_test=1');
   await expect(page.locator('#artload')).toBeHidden({ timeout: 45000 });
