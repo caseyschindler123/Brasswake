@@ -43,6 +43,8 @@ jobs:
       live: ${{ steps.select.outputs.live }}
       coverage_base: ${{ steps.select.outputs.coverage_base }}
       suites: ${{ steps.select.outputs.suites }}
+      scenes: ${{ steps.select.outputs.scenes }}
+      scene_profiles: ${{ steps.select.outputs.scene_profiles }}
       plan: ${{ steps.select.outputs.plan }}
     env:
       BW_DIFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
@@ -81,7 +83,7 @@ jobs:
       - name: Verify affected release tooling
         if: steps.select.outputs.core != 'true'
         working-directory: game
-        run: node --test test/workflow.test.js test/protocol.test.js
+        run: node --test test/workflow.test.js test/protocol.test.js test/scope.test.js
       - name: Build only for selected browser-tooling checks
         if: steps.select.outputs.core != 'true' && steps.select.outputs.ui == 'true'
         working-directory: game
@@ -107,6 +109,8 @@ jobs:
   browser:
     env:
       BW_UI_SUITES: ${{ needs.core.outputs.suites }}
+      BW_SCENES: ${{ needs.core.outputs.scenes }}
+      BW_SCENE_PROFILES: ${{ needs.core.outputs.scene_profiles }}
     if: needs.core.outputs.ui == 'true'
     needs: core
     runs-on: ubuntu-latest

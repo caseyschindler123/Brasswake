@@ -17,7 +17,16 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': 'text/plain' });
       return res.end('Brasswake browser tests');
     }
-    if (url.pathname === '/__visual') file = path.join(__dirname, 'visual_art.html');
+    if (url.pathname === '/__dev') file = path.join(__dirname, 'dev.html');
+    else if (url.pathname === '/__dev/storage.js') file = path.join(__dirname, 'dev-storage.js');
+    else if (url.pathname === '/__dev/commands.js') file = path.join(__dirname, 'dev-mode.js');
+    else if (url.pathname === '/__dev/game') {
+      const raw=await fs.readFile(path.join(dist,'index.html'),'utf8');
+      const body=raw.replace('<head>','<head><base href="/"><script src="/__dev/storage.js"></script>')
+        .replace('</body>','<script src="/__dev/commands.js"></script></body>');
+      res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});return res.end(body);
+    }
+    else if (url.pathname === '/__visual') file = path.join(__dirname, 'visual_art.html');
     else if (url.pathname === '/__sql.js') file = path.join(game, 'node_modules/sql.js/dist/sql-asm.js');
     else {
       file = path.resolve(dist, '.' + decodeURIComponent(pathname === '/' ? '/index.html' : pathname));

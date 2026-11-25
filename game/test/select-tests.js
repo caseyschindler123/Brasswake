@@ -50,7 +50,7 @@ function collectChanges(base, coverageBase, runGit = git) {
   files.push(...runGit('ls-files','--others','--exclude-standard','-z').split('\0').filter(Boolean));
   return [...new Set(files)];
 }
-function chooseUI({ files = [], runtimeChanged = false, packagingChanged = false, baselineAvailable = true,
+function chooseLegacyUI({ files = [], runtimeChanged = false, packagingChanged = false, baselineAvailable = true,
   releaseChanged, alreadyPublished = false, scope = 'auto', event = 'local', publish = false, ref = 'refs/heads/main' } = {}) {
   if (!['auto', 'smoke', 'full'].includes(scope)) throw Error('Unknown verification scope: ' + scope);
   if (publish && (event !== 'workflow_dispatch' || scope !== 'full' || ref !== 'refs/heads/main'))
@@ -91,6 +91,14 @@ function chooseUI({ files = [], runtimeChanged = false, packagingChanged = false
   }
   return { tier: 'none', ui: false, core, release: false, live: false, suites: [], reason: 'No game/UI impact; validate affected automation without publication.' };
 }
+function chooseUI(options={}) {
+ const {scopePlan}=require('./scope-policy');
+ const files=options.files||[];
+ const {tooling}=require('./scope-policy');
+ const legacy=chooseLegacyUI({...options,files:files.filter(f=>!tooling(f))});
+ if(options.event==='schedule'||options.scope==='full'||options.baselineAvailable===false||options.runtimeChanged||options.packagingChanged)return scopePlan(legacy,files,{equivalent:()=>false});
+ return scopePlan(legacy,files);
+}
 function selection({ forceFull = false, env = process.env, runGit = git, assertOrder = assertDeploymentOrder } = {}) {
   const event = env.GITHUB_EVENT_NAME || 'local';
   const scope = forceFull ? 'full' : env.BW_VERIFY_SCOPE || 'auto';
@@ -114,7 +122,13 @@ function selection({ forceFull = false, env = process.env, runGit = git, assertO
   let files = [], runtimeChanged = false, packagingChanged = false, releaseChanged;
   try {
     if (!base && !coverageBase) throw Error('No comparison');
-    files = collectChanges(base, coverageBase, runGit);
+    files = collectChanges(base, undefined, runGit);
+    if(coverageBase){
+      const {FIXTURE_BASE}=require('./scope-policy');
+      const historical=collectChanges(coverageBase,undefined,runGit).filter(isGame);
+      const fixtureDelta=collectChanges(FIXTURE_BASE,undefined,runGit).filter(f=>!isGame(f));
+      files=[...new Set([...files,...historical,...fixtureDelta])];
+    }
     if (coverageBase) releaseChanged = collectChanges(coverageBase, undefined, runGit).some(isGame);
     const readAt = (at,file) => JSON.parse(runGit('show', at + ':' + file));
     const read = file => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
@@ -139,7 +153,7 @@ function saveSelection(selected) {
   fs.writeFileSync(path.join(root, 'work/test-selection.json'), JSON.stringify(selected, null, 2) + '\n');
   if (process.env.GITHUB_OUTPUT) {
     const outputs = { ui: selected.ui, core: selected.core, release: selected.release, live: selected.live, coverage_base: selected.coverageBase || '',
-      suites: JSON.stringify(selected.suites), plan: JSON.stringify(selected) };
+      suites: JSON.stringify(selected.suites), scenes: JSON.stringify(selected.scenes), scene_profiles: JSON.stringify(selected.sceneProfiles), plan: JSON.stringify(selected) };
     fs.appendFileSync(process.env.GITHUB_OUTPUT, Object.entries(outputs).map(([k,v]) => k + '=' + v).join('\n') + '\n');
   }
 }

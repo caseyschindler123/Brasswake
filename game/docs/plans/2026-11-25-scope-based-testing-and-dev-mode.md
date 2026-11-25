@@ -1,12 +1,12 @@
 # Scope-based testing and development scenarios
 
-Status: planning/documentation deliverable complete; executable implementation is not started. This documentation task is simple. Future changes to selection/publication contracts require their own concrete risk assessment; the requested full plan does not make every milestone complex.
+Status: implemented in one integrated pass; local checks passed, exact-commit CI pending. This implementation is complex because it changes release selection and proof reuse.
 
 ## Objective and boundaries
 
 Give each change the smallest set of checks that can establish its intended behavior and relevant integration safety. Make visual iteration and prepared battles/gear/buildings quick to reach. Codex runs automation and opens relevant captures; Casey is not responsible for routine QA. Keep exact-commit release evidence, unknown-risk fallback and mandatory relevant failures.
 
-This change updates documentation and saves the implementation plan. It does not add Dev mode, implement new tiers, relax current gates, run executable tests, or deploy. The target criteria are in [05_CODING_WORKFLOW.md](../05_CODING_WORKFLOW.md#planned-scope-based-criteria-not-built). Existing commands/gates remain authoritative until their replacements pass staged validation.
+Casey authorized the complete implementation. Current gates remain authoritative until their replacements pass validation; no game publication is needed if production output remains unchanged. The target criteria are in [05_CODING_WORKFLOW.md](../05_CODING_WORKFLOW.md#scope-based-criteria). The executable scope selector and canonical workflow now own the active criteria.
 
 ## Evidence and current gaps
 
@@ -139,3 +139,14 @@ Planning validation (2026-11-25 America/Los_Angeles): reviewed all tracked activ
 ## References
 
 Design guidance: [Google: smallest effective tests](https://abseil.io/resources/swe-book/html/ch11.html), [Playwright: isolation and user-visible behavior](https://playwright.dev/docs/best-practices), [Epic: distinct smoke/feature/stress tests](https://dev.epicgames.com/documentation/en-us/unreal-engine/automation-test-framework-in-unreal-engine). The target criteria are Brasswake-specific recommendations informed by those sources; measured results determine whether each change earns its maintenance cost.
+
+## Implementation evidence — 2026-11-25
+
+- M1 complete: side-effect-free dungeon/first-day helpers and separate journeys registration. Exact text proof compares every original callback/helper against verified full source f7988d8; appended behavior, altered helpers, missing history and unknown/mixed changes fail the short-path proof. Existing full scenario inventory is retained, with new canary/Dev coverage added. Historical full run 45703705378 is reused only for those unchanged bodies, not reported as rerun.
+- M2/M5 complete: /__dev and test-only Dev command API for catalog monsters, generated/equipped gear/variants, capped skills/attributes/resources, reset/seed, valid surface/interior/dungeon transitions and real building layers with furniture and roof control. In-memory storage preserves normal player storage; default muted audio prevents fixture teardown downloads. Commands never enter the production build.
+- M3/M4 complete: selected core groups execute before UI; cosmetic atlas captures target affected scenes and phone/desktop profiles while a short SQL/save canary runs in all supported profiles. CI carries validated scenes/profile metadata. Full/unknown/shared cases retain complete core/suite/profile/scene inventories and zero retries. Changed assets retain the existing complete hosted offline check; the proposed smaller same-path offline substitute is intentionally not activated without equivalent evidence.
+- M6 local evidence: all 52 protocol/workflow/scope tests and the server boundary test passed. The final 12 direct Dev/canary browser cases passed across phone Chromium, phone WebKit 390×720 and desktop Chromium 1280×800 in 1.1 minutes. Actual normal SQL grading, equip state, resource reset, normal storage preservation, region/dungeon travel, invalid inputs, roof toggle and panel controls were exercised. Opened phone/desktop arena and assembled building captures; this is agent inspection, not physical-device or human-design approval.
+- Earlier direct checks exposed and repaired test-only URL base resolution, spawned-monster lifecycle and preview geometry; a cleanup download was eliminated through isolated muted defaults. No assertion weakening, retries, deadline changes, runtime edits or art baseline updates.
+- Production game source/assets/build inputs are unchanged, so this rollout must validate without publishing a game update. Exact-commit CI result and closure follow below.
+
+Limitations: same-path asset releases retain full hosted offline validation; monolithic/global CSS, shared game/save/movement and unknown source edits remain full until a reviewed safe boundary exists. Building preview uses the real compiler/render layers; physical entrance/path behavior remains covered by ordinary building/venue suites rather than proved by the preview. The Dev panel is a local tool; it is not a published player feature.

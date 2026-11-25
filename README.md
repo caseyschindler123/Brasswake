@@ -16,13 +16,13 @@ work. Planning and checks follow actual risk. Game output deploys after required
 checks; documentation and tooling-only changes do not publish unchanged output.
 Discussion, planning-only work and deployment holds take precedence. The main
 agent uses bounded delegation only when useful. Detailed current commands and
-planned scope criteria live in [`05_CODING_WORKFLOW.md`](game/docs/05_CODING_WORKFLOW.md).
+scope criteria live in [`05_CODING_WORKFLOW.md`](game/docs/05_CODING_WORKFLOW.md).
 
 Current commands, from `game/`:
 
 - Documentation/instructions: review wording/links and run `git diff --check`; no game build/tests/screenshots.
 - Tooling: run affected automation checks; `npm run test:protocol` checks selection, real discovery and release guards. Runner changes can also need short browser execution.
-- Game development: `npm run verify -- --defer-ui` runs core/build checks; `npm run test:ui -- --suites=<names>` runs smoke plus affected suites. Exact-commit CI owns the current release gate, including all three profiles and full fallback for risky/unknown changes.
+- Game development: `npm run verify -- --defer-ui` runs selected core/build groups; `npm run test:ui -- --suites=<names>` runs a short canary plus affected suites. Exact-commit CI owns the current release gate, including all three profiles and full fallback for risky/unknown changes.
 - `npm run verify` includes selected local UI; `npm run verify -- --ui` explicitly requests full coverage. `--defer-ui` does not skip core checks. `--suites=journeys` selects all four profession days; nightly/full and relevant risky selections retain them.
 
 Install locked dependencies with `npm ci` only when needed. On a new machine use
@@ -30,11 +30,11 @@ Install locked dependencies with `npm ci` only when needed. On a new machine use
 phone/desktop captures; Casey is not assigned routine QA. Browser emulation is
 not a real-iPhone test.
 
-**Planned, not built:** narrower cosmetic/rules/feature/registration criteria and
-resettable Dev scenarios for battles, gear, buildings and travel. The
-[implementation plan](game/docs/plans/2026-11-25-scope-based-testing-and-dev-mode.md)
-defines milestones, safeguards and measured rollout. Current executable gates
-remain in force until replacements pass validation; no new Dev command is available yet.
+**Implemented:** scope-based core/scenario selection, affected capture commands,
+and a disposable developer playground for battles, gear, buildings and travel.
+From game/, run npm run build then npm run dev and open
+[the local playground](http://localhost:8781/__dev). Automation calls the same
+Dev commands directly. See the [implementation plan](game/docs/plans/2026-11-25-scope-based-testing-and-dev-mode.md) and canonical workflow for safeguards and evidence.
 
 Rebuild the packed art from a read-only raw folder:
 

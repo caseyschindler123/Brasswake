@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brasswake developer playground</title><style>
+body{margin:0;background:#211d17;color:#f5e6bf;font:15px system-ui}header{padding:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}button,input,select{font:inherit;padding:6px}iframe{border:0;width:100%;height:calc(100vh - 160px);background:#16130e}#status{padding:8px}label{display:flex;gap:4px;align-items:center}
+</style><header><strong>Developer playground · disposable saves</strong>
+<button data-command="reset">Reset</button><label>Monster <select id="monster"></select></label><button data-command="spawn">Summon</button><button data-command="battle">Fight summoned monster</button>
+<label>Weapon <select id="weapon"></select></label><button data-command="grant">Equip weapon</button><button data-command="armor">Equip armor</button>
+<label>Skill <select id="skill"></select><input id="level" type="number" min="0" max="100" value="60" size="3"></label><button data-command="skills">Set skill</button>
+<label>Region <input id="region" type="number" min="1" max="8" value="1"></label><button data-command="teleport">Teleport to town</button>
+<label>Building <select id="shape"><option>rect</option><option>L</option><option>courtyard</option></select></label><button data-command="building">Preview building</button>
+</header><div id="status" role="status">Preparing disposable developer character…</div><iframe title="Developer game" src="/__dev/game?visual_test=1"></iframe>
+<script>
+const frame=document.querySelector('iframe'),status=document.querySelector('#status');let spawned;
+const ready=setInterval(()=>{const dev=frame.contentWindow.Dev;if(!dev)return;clearInterval(ready);const c=dev.catalog();
+for(const[id,items]of [['monster',c.monsters],['weapon',c.weapons],['skill',c.skills]])for(const item of items){const o=document.createElement('option');o.value=typeof item==='string'?item:item.id;o.textContent=typeof item==='string'?item:item.name;document.getElementById(id).append(o);}status.textContent='Ready. Automation uses the same Dev commands.';},100);
+document.querySelector('header').addEventListener('click',async event=>{const cmd=event.target.dataset.command;if(!cmd)return;try{const dev=frame.contentWindow.Dev;if(!dev)throw Error('Not ready');let result;
+if(cmd==='spawn'){result=dev.spawn({monster:document.querySelector('#monster').value});spawned=result[0];}
+else if(cmd==='battle')result=dev.battle(spawned);
+else if(cmd==='grant')result=dev.grant({weapon:document.querySelector('#weapon').value});
+else if(cmd==='armor')result=dev.grant({slot:'armor'});
+else if(cmd==='skills')result=dev.skills({[document.querySelector('#skill').value]:Number(document.querySelector('#level').value)});
+else if(cmd==='teleport')result=dev.teleport({region:Number(document.querySelector('#region').value)});
+else if(cmd==='building')result=await dev.building({region:Number(document.querySelector('#region').value),shape:document.querySelector('#shape').value});
+else result=await dev.reset();status.textContent=cmd+' completed';}catch(e){status.textContent=String(e);}});
+</script></html>

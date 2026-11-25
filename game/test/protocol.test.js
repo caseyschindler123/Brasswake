@@ -8,7 +8,7 @@ const { ALL_SUITES, MODULES, normalizeSuites, suitesFromEnvironment, validSelect
 const { releaseGate } = require('./release-gate');
 const { LIVE_SUITES, liveSuites, suitesFromLiveEnvironment } = require('./live-suites');
 
-for (const file of ['AGENTS.md', 'game/docs/05_CODING_WORKFLOW.md', '.github/workflows/pages.yml', 'game/package-lock.json']) {
+for (const file of ['AGENTS.md', 'game/docs/05_CODING_WORKFLOW.md']) {
   test('tooling/docs do not publish or run game UI: ' + file, () => {
     const plan=chooseUI({files:[file]});assert.equal(plan.ui,false);assert.equal(plan.release,false);assert.equal(plan.core,false);
   });
@@ -47,7 +47,8 @@ test('reviewed landscape presentation selects its consumers while physical/runti
   for(const file of ['game/src/landscape.js','game/src/scene_landscape.js','game/src/artlandscape.js','game/art/landscape/region-1.webp']){
     const plan=chooseUI({files:[file]});
     assert.equal(plan.tier,'focused');assert.equal(plan.release,true);
-    for(const suite of ['smoke','scenes','npc-appearance','living-world','world-buildings','cartography'])assert.ok(plan.suites.includes(suite));
+    if(/artlandscape|\/art\//.test(file))assert.deepEqual(plan.suites,['canary','scenes']);
+    else for(const suite of ['smoke','scenes','npc-appearance','living-world','world-buildings','cartography'])assert.ok(plan.suites.includes(suite));
     assert.equal(plan.suites.includes('journeys'),false);
     for(const risky of ['game/src/scene_b.js','game/src/buildings.js','game/src/movement.js','game/src/world_progress.js',
       'game/src/offline.js','game/src/style.css','game/src/engine.js','game/build.js','game/src/new_system.js']){
@@ -59,7 +60,7 @@ test('reviewed landscape presentation selects its consumers while physical/runti
 test('journey scope retains targeted first-day checks and edits to its owning fixture retain long cases',()=>{
   assert.deepEqual(normalizeSuites(['smoke','journeys']),['smoke','first-day','journeys']);
   const fixture=chooseUI({files:['game/test/browser/first-day.js']});
-  assert.deepEqual(fixture.suites,['smoke','first-day','journeys']);assert.equal(fixture.release,false);
+  assert.deepEqual(fixture.suites,['canary','dev-mode']);assert.equal(fixture.release,false);
   const incomplete=chooseUI({files:['game/src/game.js']});
   incomplete.suites=incomplete.suites.filter(name=>name!=='journeys');
   assert.equal(validSelection(incomplete),false,'full cannot omit long cases');
@@ -68,11 +69,11 @@ test('journey scope retains targeted first-day checks and edits to its owning fi
 test('reviewed atlas changes select their render consumers, with physical and save code still full',()=>{
   for(const file of ['game/src/artarchitecture.js','game/art/architecture/region-1.webp']){
     const plan=chooseUI({files:[file]});assert.equal(plan.tier,'focused');
-    for(const suite of ['smoke','scenes','world-buildings','venues','dungeons','living-world'])assert.ok(plan.suites.includes(suite));
+    assert.deepEqual(plan.suites,['canary','scenes']);assert.deepEqual(plan.scenes,['tallyport','interior','dungeon']);
     assert.equal(plan.suites.includes('journeys'),false);
   }
   for(const file of ['game/src/artcartography.js','game/art/cartography/props.webp'])
-    assert.deepEqual(chooseUI({files:[file]}).suites,['smoke','scenes','world-buildings','cartography']);
+    assert.deepEqual(chooseUI({files:[file]}).suites,['canary','scenes']);
   for(const file of ['game/src/buildings.js','game/src/scene_dungeon.js','game/src/dungeon_progress.js',
     'game/src/cartography.js','game/src/cartography_screen.js','game/src/scene_cartography.js'])
     assert.equal(chooseUI({files:[file,'game/src/artarchitecture.js']}).tier,'full');
@@ -98,10 +99,10 @@ test('hosted selection always retains smoke, affected behavior and all risky/ful
 test('suite repairs keep their tests; shared fixture repairs require full coverage',()=>{
   for(const name of MODULES){
     const plan=chooseUI({files:['game/test/browser/'+name+'.js']});
-    assert.ok(plan.suites.includes(name));assert.ok(plan.suites.includes('smoke'));assert.equal(plan.release,false);
+    if(['first-day','dungeons','journeys'].includes(name))assert.deepEqual(plan.suites,['canary','dev-mode']);else assert.ok(plan.suites.includes(name));assert.ok(plan.suites.includes('smoke')||plan.suites.includes('canary'));assert.equal(plan.release,false);
   }
   for(const file of ['game/test/live-suites.js','game/test/live.js','game/test/browser/live.spec.js']){
-    const plan=chooseUI({files:[file]});assert.ok(plan.suites.includes('smoke'));assert.equal(plan.release,false);
+    const plan=chooseUI({files:[file]});assert.ok(plan.suites.includes('smoke')||plan.suites.includes('canary'));assert.equal(plan.release,false);
   }
   for(const name of ['movement','flow','intro-helper','offline-flow','unregistered'])
     assert.equal(chooseUI({files:['game/test/browser/'+name+'.js']}).tier,'full');
@@ -109,7 +110,7 @@ test('suite repairs keep their tests; shared fixture repairs require full covera
 });
 test('runner wiring executes smoke/scenes without publishing unchanged assets',()=>{
   const plan=chooseUI({files:['game/test/select-tests.js','game/test/browser/ui.spec.js']});
-  assert.deepEqual(plan.suites,['smoke','scenes']);assert.equal(plan.core,false);assert.equal(plan.release,false);
+  assert.deepEqual(plan.suites,['canary','dev-mode']);assert.equal(plan.core,false);assert.equal(plan.release,false);
 });
 test('pure test changes still run their core assertions',()=>{
   const plan=chooseUI({files:['game/test/progression.test.js']});assert.equal(plan.core,true);assert.equal(plan.ui,false);assert.equal(plan.release,false);

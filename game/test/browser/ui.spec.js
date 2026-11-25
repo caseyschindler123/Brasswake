@@ -4,6 +4,18 @@ const { MODULES, suitesFromEnvironment } = require('../ui-suites');
 const selected = new Set(suitesFromEnvironment());
 for (const name of MODULES) if (selected.has(name)) require('./' + name);
 
+if(selected.has('canary'))test('release canary: boot, real SQL and device persistence',async({page})=>{
+  const errors=observeErrors(page);await page.goto('/index.html?visual_test=1');expect(await page.evaluate(()=>typeof window.Dev)).toBe('undefined');
+  await expect(page.locator('#artload')).toBeHidden({timeout:45000});
+  await page.locator('[data-a=newslot]').first().click();await page.locator('[data-a=pick][data-look="0"]').click();await page.locator('[data-a=begin]').click();
+  await require('./intro-helper').skipArrival(page,'Canary');
+  await page.locator('#nav [data-t=ledger]').click();const coach=page.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
+  await page.locator('[data-a=lsub][data-s=sandbox]').click();await page.locator('#con-sql').fill('SELECT 42 AS canary');await page.locator('[data-a=conrun]').click();
+  await expect(page.locator('#con-out td').first()).toHaveText('42');
+  await page.locator('#nav [data-t=hero]').click();if(await coach.isVisible())await coach.click();
+  await page.locator('[data-a=savenow]').click();await page.reload();await expect(page.locator('[data-a=playslot]').first()).toContainText('Canary');expect(errors).toEqual([]);
+});
+
 // Local tests use the installed SQL engine and local game fonts. The live test
 // deliberately uses the real hosted dependencies without these substitutions.
 test.beforeEach(async ({ page }) => {
@@ -18,7 +30,9 @@ if (selected.has('smoke')) test('a player can create, query, navigate, export, i
   expect(errors).toEqual([]);
 });
 
-const scenes = selected.has('scenes') ? ['title', 'tallyport', 'fight', 'bag', 'paperdoll', 'dungeon', 'dojo', 'interior'] : selected.has('smoke') ? ['title', 'tallyport'] : [];
+const scenes = selected.has('scenes') ? process.env.BW_SCENES?JSON.parse(process.env.BW_SCENES):['title', 'tallyport', 'fight', 'bag', 'paperdoll', 'dungeon', 'dojo', 'interior'] : selected.has('smoke') ? ['title', 'tallyport'] : [];
+if(!Array.isArray(scenes)||scenes.some(s=>!require('../scope-policy').SCENES.includes(s)))throw Error('Invalid scene selection');
+if(selected.has('scenes')&&!scenes.length)throw Error('Selected scenes cannot be empty');
 for (const scene of scenes) {
   test('visual scene: ' + scene, async ({ page }, info) => {
     const errors = observeErrors(page);

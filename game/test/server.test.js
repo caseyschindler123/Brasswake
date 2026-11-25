@@ -23,6 +23,10 @@ test('localhost tooling serves the built game and isolated fixtures safely', { t
   assert.equal(fixture, production, 'Fixtures use the same bundled SQL engine as production');
   assert.doesNotMatch(fixture, /src="https:\/\/cdnjs\.cloudflare\.com/);
   assert.match(await (await fetch(base + '/__visual')).text(), /Preparing visual test/);
+  assert.doesNotMatch(production,/\/__dev\/|window\.Dev\b/);
+  assert.match(await (await fetch(base+'/__dev')).text(),/Developer playground/);
+  const dev=await (await fetch(base+'/__dev/game?visual_test=1')).text();
+  assert.match(dev,/<base href="\/">/);assert.match(dev,/\/__dev\/storage.js/);assert.match(dev,/\/__dev\/commands.js/);
   assert.equal((await fetch(base + '/__sql.js')).status, 200);
   assert.equal((await fetch(base + '/vendor/sql-asm.js')).status, 200);
   assert.equal((await fetch(base + '/service-worker.js')).status, 200);

@@ -12,7 +12,9 @@ function run(label, args) {
   if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
-for (const [label, args] of [
+const selected = selection({ forceFull: process.argv.includes('--ui') });
+const groups=new Set(selected.coreGroups);
+const entries=[
   ['Packed art', ['../arttools/check_packed_art.js']],
   ['Engine and content', ['test/test.js']],
   ['Character skills, attributes and professional actions', ['--test', 'test/progression.test.js', 'test/battle-rules.test.js', 'test/skill-actions.test.js', 'test/backstab.test.js', 'test/npc-appearance.test.js']],
@@ -26,17 +28,19 @@ for (const [label, args] of [
   ['Music routing, assets and playback lifecycle', ['--test', 'test/music.test.js']],
   ['World ownership, continuous motion and presentation', ['--test', 'test/worlds_test.js', 'test/movement.test.js', 'test/actor-rig.test.js', 'test/human-locomotion.test.js', 'test/human-costume.test.js', 'test/human-sprites.test.js', 'test/living-places.test.js', 'test/landscape.test.js', 'test/respawn.test.js']],
   ['Build', ['build.js']],
-  ['Workflow tooling and offline storage', ['--test', 'test/workflow.test.js', 'test/protocol.test.js', 'test/server.test.js', 'test/offline.test.js']],
-]) {
-  run(label, args);
-}
-const selected = selection({ forceFull: process.argv.includes('--ui') });
+  ['Workflow tooling', ['--test', 'test/workflow.test.js', 'test/protocol.test.js', 'test/scope.test.js']],
+  ['Offline storage and server', ['--test','test/server.test.js','test/offline.test.js']],
+];
+const names=['assets','engine','actors','world','engine','world','cards','cards','effects','world','audio','actors','build','protocol','packaging'];
+for(let i=0;i<entries.length;i++)if(groups.has('all')||groups.has(names[i]))run(...entries[i]);
+if(selected.ui&&!deferUI&&!groups.has('all')&&!groups.has('build'))run('Build for selected local browser checks',['build.js']);
 console.log('\nVerification tier: ' + selected.tier + '. ' + selected.reason);
 saveSelection(selected);
 if (selected.ui && deferUI) {
   console.log('Selected browser suites are deferred to the authoritative CI release gate.');
 } else if (selected.ui) {
   process.env.BW_UI_SUITES = JSON.stringify(selected.suites);
+  process.env.BW_SCENES=JSON.stringify(selected.scenes);process.env.BW_SCENE_PROFILES=JSON.stringify(selected.sceneProfiles);
   if (process.env.CI) run('Install required browsers', ['test/install-browsers.js']);
   run('Selected browser interactions', ['test/run-ui.js']);
 }
