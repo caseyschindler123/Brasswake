@@ -24,7 +24,7 @@ for (const [label, args] of [
   ['Sound and magic', ['--test', 'test/effects.test.js']],
   ['Dungeon layouts and progression', ['--test', 'test/dungeons.test.js', 'test/dungeon-progress.test.js', 'test/dungeon-play.test.js', 'test/architecture-dungeon.test.js', 'test/architecture-art.test.js']],
   ['Music routing, assets and playback lifecycle', ['--test', 'test/music.test.js']],
-  ['World ownership, continuous motion and presentation', ['--test', 'test/worlds_test.js', 'test/movement.test.js', 'test/actor-rig.test.js', 'test/human-locomotion.test.js', 'test/human-costume.test.js', 'test/human-sprites.test.js', 'test/living-places.test.js', 'test/respawn.test.js']],
+  ['World ownership, continuous motion and presentation', ['--test', 'test/worlds_test.js', 'test/movement.test.js', 'test/actor-rig.test.js', 'test/human-locomotion.test.js', 'test/human-costume.test.js', 'test/human-sprites.test.js', 'test/living-places.test.js', 'test/landscape.test.js', 'test/respawn.test.js']],
   ['Build', ['build.js']],
   ['Workflow tooling and offline storage', ['--test', 'test/workflow.test.js', 'test/protocol.test.js', 'test/server.test.js', 'test/offline.test.js']],
 ]) {

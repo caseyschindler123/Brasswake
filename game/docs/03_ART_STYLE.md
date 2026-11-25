@@ -94,6 +94,10 @@ NPCs compose visible frames lazily, sharing mirrored source directions through a
 
 ## Generating art
 
+### Planned whole-world vegetation kit
+
+The [living-landscape plan](plans/2026-11-25-living-landscape.md) is in development, not released. Eight new transparent regional sheets supply eight tree silhouettes (two species, four ages) and eight undergrowth/debris pieces each. New-only prompts live in `arttools/landscape_prompts.json`; `arttools/landscape_art.py` records source hashes/crops, removes transparent matte fringe and packs independent `art/landscape/region-*.webp` atlases plus generated `src/artlandscape.js`. Existing packed artwork, master prompts and generation settings remain unchanged. Built-in image generation is used; no paid API run. Raw filenames remain intact in the local source archive.
+
 ### Cartography (2026-11-23)
 
 Three new Sunburst/high transparent sheets keep their original CA01–03 names. CA01 contains sixteen map-shop fittings and blank direction-sign parts; CA02 contains the Grand Atlas table, case, closed table and portable furnishing icon; CA03 contains eight distinct regional wall charts and eight regional accessories. Root reviewed the raw contacts. Decorative chart artwork has no labels; the interactive map renders actual game geography and text.
@@ -256,6 +260,8 @@ node arttools/human_sprites.js --check --python=<Pillow-12-python-executable>
 The motion sample uses actual game-composed frames on moving ground at enlarged and game scale. Planted support is locked to the world, and free running soles clear the ground during flight. Assertions inspect physical support and actual visible sole pixels; a global lowest-pixel comparison across different projected foot lanes is not a valid height measurement. Publication and real-device/subjective review remain pending in the grounded-cadence plan.
 
 ## Decision log
+
+- 2026-11-25: Casey authorized the entire living-landscape pass across all eight regions: diverse species/ages, undergrowth and ground integration, natural patches, signs of use, restrained movement and readable actors. Develop in an isolated worktree and wait for concurrent publishers; the living-landscape plan owns implementation and release evidence.
 
 - 2026-11-25: Casey rejected the freestanding dungeon ascent and authorized supported wall recesses, matching masonry and relocated interaction/arrival points. Every stair must show its support, direction and connection to another level. Inspect this spatial logic at real phone/desktop size; successful scale/alpha assertions do not approve it. The stair-support plan tracks implementation and release.
 

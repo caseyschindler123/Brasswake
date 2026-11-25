@@ -5,6 +5,65 @@ async function scene(page,name='tallyport'){
   await page.goto('/__visual?scene='+name);await expect(page.locator('body')).toHaveAttribute('data-ready',name,{timeout:45000});
   const f=page.frames().find(f=>f.url().includes('visual_test=1'));const coach=f.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();return f;
 }
+
+for(let region=1;region<=8;region++)test('living landscape · regional woodland '+region+' keeps routes and reveals foreground actors',async({page},info)=>{
+  const errors=observeErrors(page),f=await scene(page);
+  const facts=await f.evaluate(r=>{
+    const {world:m,landscape}=Scene.debug();
+    for(const e of m.ents){e.wander=0;e.tx=null;e.fx=e.x;e.fy=e.y;}
+    const [cx,cy]=Scene.towns()[r];
+    const candidates=[...m.landscape.trees.values()].filter(t=>t.r===r&&m.reg[t.y*m.w+t.x]===r&&t.stage===2&&t.species===0
+      &&!m.blds.some(b=>t.x>b.x-9&&t.x<b.x+b.w+9&&t.y>b.y-9&&t.y<b.y+b.h+9))
+      .sort((a,b)=>Math.abs(Math.hypot(a.x-cx,a.y-cy)-65)-Math.abs(Math.hypot(b.x-cx,b.y-cy)-65));
+    const found=candidates.find(t=>{const x=t.x,y=t.y-1,i=y*m.w+x;return m.seen[i]&&!m.solid[i]&&!m.occ.has(i)&&!m.keep[i];});
+    if(!found)throw Error('No reachable woodland tree in region '+r);
+    Scene.hop(found.x,found.y-1);
+    const actors=landscape.actors(),entry=landscape.entry(found,found.y*16+15,actors,1000);
+    const keys=Object.keys(LandscapeArt.at[r]);
+    const details=Landscape.visible(m.landscape,found.x-9,found.y-9,found.x+9,found.y+9);
+    return {r,keys,stageKeys:[...new Set([...m.landscape.trees.values()].filter(t=>t.r===r).map(t=>t.key))],
+      alpha:entry&&entry[7],pieces:keys.map(k=>!!landscape.piece(r,k)),details:details.length,
+      physical:m.solid[(found.y-1)*m.w+found.x],family:Landscape.families[r]};
+  },region);
+  expect(facts.keys).toHaveLength(16);expect(facts.stageKeys).toHaveLength(8);expect(facts.pieces.every(Boolean)).toBe(true);
+  expect(facts.alpha).toBe(.16);expect(facts.physical).toBe(0);expect(facts.details).toBeGreaterThan(2);
+  await f.waitForTimeout(3400);await f.evaluate(()=>{Scene.pause();Scene.debug().draw();});
+  await screenshot(page,info,'landscape-region-'+region);expect(errors).toEqual([]);
+});
+
+test('living landscape · repeatable decoration leaves navigation, settlements and save positions intact',async({page})=>{
+  const errors=observeErrors(page),f=await scene(page);
+  const result=await f.evaluate(()=>{
+    const m=Scene.debug().world;
+    const digest=a=>{let h=2166136261;for(const v of a)h=Math.imul(h^v,16777619);return h>>>0;};
+    const physical=()=>[m.t,m.solid,m.keep,m.o,m.reg].map(digest);
+    const before=physical(),original=m.landscape,rebuilt=Landscape.build(m);
+    const safe=[...rebuilt.chunks.values()].every(chunk=>chunk.length<=Landscape.MAX_CHUNK&&chunk.every(o=>m.t[o.anchor]<2&&!m.solid[o.anchor]&&(o.tended||!m.keep[o.anchor])));
+    return {before,after:physical(),same:JSON.stringify(rebuilt.stats)===JSON.stringify(original.stats),safe,
+      trees:rebuilt.stats.trees,details:rebuilt.stats.details,regions:rebuilt.stats.regions,
+      cache:Scene.debug().landscape.images.size,budget:8*16};
+  });
+  expect(result.after).toEqual(result.before);expect(result.same).toBe(true);expect(result.safe).toBe(true);
+  expect(result.trees).toBeGreaterThan(1000);expect(result.details).toBeGreaterThan(1000);
+  expect(result.regions.slice(1).every(n=>n>100)).toBe(true);expect(result.cache).toBeLessThanOrEqual(result.budget);
+  expect(errors).toEqual([]);
+});
+
+test('living landscape · tended planting stays on public garden soil beside clear paths',async({page},info)=>{
+  const errors=observeErrors(page),f=await scene(page);
+  const facts=await f.evaluate(()=>{
+    const m=Scene.debug().world,trees=m.props.filter(p=>p.kind==='tree0'&&p.r===8),t=trees[0];
+    if(!t)throw Error('Missing authored capital planting');
+    const beds=[...m.landscape.chunks.values()].flat().filter(o=>o.tended&&o.r===8&&trees.some(t=>Math.abs(o.x-t.x)===1&&o.y===t.y-1));
+    Scene.hop(...Scene.safePosition([t.x+1,t.y+2],8));
+    return {beds:beds.length,soil:beds.every(o=>m.t[o.anchor]<2&&!m.solid[o.anchor]),
+      path:trees.every(t=>m.t[(t.y+1)*m.w+t.x-1]===3&&!m.solid[(t.y+1)*m.w+t.x-1]),
+      trails:m.landscape.trails.length};
+  });
+  expect(facts.beds).toBe(12);expect(facts.soil).toBe(true);expect(facts.path).toBe(true);expect(facts.trails).toBeGreaterThan(0);
+  await f.waitForTimeout(3400);await f.evaluate(()=>{Scene.pause();Scene.debug().draw();});
+  await screenshot(page,info,'landscape-tended-capital-garden');expect(errors).toEqual([]);
+});
 test('living world · cancellation freezes the actual between-tile position without rollback',async({page})=>{
   const errors=observeErrors(page),f=await scene(page);
   await f.evaluate(()=>{for(const e of Scene.ents()){e.wander=0;e.tx=null;e.fx=e.x;e.fy=e.y;}

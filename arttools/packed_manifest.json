@@ -5076,5 +5076,77 @@
       2048,
       1041
     ]
+  },
+  {
+    "path": "art/landscape/region-1.webp",
+    "size": 509178,
+    "sha256": "039aa2d97729b9fc8438ef5ea4780cee4df1d2b97099ecdedc0c7be9c6bace73",
+    "dimensions": [
+      1024,
+      560
+    ]
+  },
+  {
+    "path": "art/landscape/region-2.webp",
+    "size": 560304,
+    "sha256": "bea4bb7eb5563bafb292506300b0191684e7238376727c7e84d5e1297908eb65",
+    "dimensions": [
+      1024,
+      552
+    ]
+  },
+  {
+    "path": "art/landscape/region-3.webp",
+    "size": 381278,
+    "sha256": "fe1df1f4e97b547dd2c5945c5f97064ce6c3dfe61e56c0764c55cb0c82da7fbe",
+    "dimensions": [
+      1024,
+      560
+    ]
+  },
+  {
+    "path": "art/landscape/region-4.webp",
+    "size": 522332,
+    "sha256": "c3fc8c7311447975bf0d26730d322e4bb1f630570e48b20bdf0d9a195873f439",
+    "dimensions": [
+      1024,
+      609
+    ]
+  },
+  {
+    "path": "art/landscape/region-5.webp",
+    "size": 433640,
+    "sha256": "40d590f7918be6b6d56d5528deb0acaf18c1ec8f9a8e5df788d6645a7ba53199",
+    "dimensions": [
+      1024,
+      560
+    ]
+  },
+  {
+    "path": "art/landscape/region-6.webp",
+    "size": 348886,
+    "sha256": "14e6b819167de1a067305ce1586d209d61d2f197073f086594af389f15ace58f",
+    "dimensions": [
+      1024,
+      518
+    ]
+  },
+  {
+    "path": "art/landscape/region-7.webp",
+    "size": 439614,
+    "sha256": "8f0d295e4ae84fd924ea23a540186b1108640331a30a135b2430ec2a0d21a74e",
+    "dimensions": [
+      1024,
+      560
+    ]
+  },
+  {
+    "path": "art/landscape/region-8.webp",
+    "size": 556766,
+    "sha256": "0a743651a83b8466b77025752917de74f322eb16c72e7fdf9bda1a84f916edde",
+    "dimensions": [
+      1024,
+      560
+    ]
   }
 ]

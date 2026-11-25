@@ -334,6 +334,8 @@ Workbench Carpentry crafts storage chests (6 regional materials, difficulty 25),
 
 ## 13. Planned, not built
 
+- **Whole-world living landscape:** two species per region with four authored growth stages, individual proportions, bushes/ferns/reeds/grasses, fallen leaves/needles, roots, old timber/stumps, tended garden patches and worn homestead approaches. Subtle wind and branch wildlife, foreground actor reveal, unchanged physical navigation and saves. In development; [living-landscape plan](plans/2026-11-25-living-landscape.md).
+
 - Mounts and boats: discussed, skipped for now.
 - Cloaks, gloves and boots don't show on the body yet.
 - Dialogue portraits still use the old eight hero portraits.
@@ -348,6 +350,8 @@ Workbench Carpentry crafts storage chests (6 regional materials, difficulty 25),
 A new main character chooses appearance and former profession, then is hauled aboard the Marigold in the playable scene. Tamsin introduces herself, asks their name and homeland, recognizes their profession-specific reputation from merchant crews, and questions a journey that ordinary sailing cannot explain. Sunspire, Sylvanreach and Dwarrowdeep are existing distant trade realms, not new playable regions. The player walks on deck, meets Tamsin, can inspect cargo, rests during the three-day crossing, and walks off the gangplank at Tallyport. Tamsin first explains SQL as the language that gives skilled actions their power, then explains Corin and the Trials ashore. Odalys explicitly uses the manifest as safe query practice before a weapon/spell demonstration. She defines SQL and the Ledger before tables, rows, columns, queries and results; the source cargo, read-only teaching copy, full company records and safe ability practice have explicit handoffs. The entrance-cellar guardian, guided utility work and all guided Tallyport fishing casts use the SELECT/FROM forms taught that day. Existing guide indices, supplies, gold awards, equipment/paper-doll arming and the later story remain in place. The verified release is recorded in `RELEASE_HISTORY.md` and the completed boat-intro plan.
 
 ## Decision log
+
+- 2026-11-25: Casey authorized the entire living-landscape pass across all eight regions: diverse species/ages, undergrowth and ground integration, natural patches, signs of use, restrained movement and readable actors. Develop in an isolated worktree and wait for concurrent publishers; the living-landscape plan owns implementation and release evidence.
 
 - 2026-11-25: Casey rejected the freestanding dungeon ascent and authorized supported wall recesses, matching masonry and relocated interaction/arrival points. Every stair must show its support, direction and connection to another level. Inspect this spatial logic at real phone/desktop size; successful scale/alpha assertions do not approve it. The stair-support plan tracks implementation and release.
 

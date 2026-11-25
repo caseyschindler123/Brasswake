@@ -1,7 +1,12 @@
 const { test, expect } = require('@playwright/test');
 const { observeErrors, screenshot } = require('./flow');
+const worldRequests=new WeakMap();
 
 async function world(page) {
+  const loads={pending:new Set(),changed:Date.now()};worldRequests.set(page,loads);
+  page.on('request',r=>{loads.pending.add(r);loads.changed=Date.now();});
+  const finished=r=>{loads.pending.delete(r);loads.changed=Date.now();};
+  page.on('requestfinished',finished);page.on('requestfailed',finished);
   await page.goto('/__visual?scene=tallyport');
   await expect(page.locator('body')).toHaveAttribute('data-ready', 'tallyport', { timeout: 45000 });
   return page.frames().find(frame => frame.url().includes('visual_test=1'));
@@ -24,7 +29,10 @@ async function reopenSavedCharacter(page) {
   // Otherwise an NPC can request a new body sheet after networkidle but
   // before the old document unloads, producing an expected ERR_ABORTED.
   await game.evaluate(()=>{Scene.debug().draw();Scene.pause();});
-  await page.waitForLoadState('networkidle');
+  // A prior lifecycle networkidle event can predate this view's new sprite
+  // requests. Observe a fresh quiet window across actual request completion.
+  const loads=worldRequests.get(page);if(!loads)throw Error('Missing world request observer');
+  await expect.poll(()=>loads.pending.size===0&&Date.now()-loads.changed>=550).toBe(true);
   await page.goto('/index.html?visual_test=1');
   await expect(page.locator('#artload')).toBeHidden({ timeout: 45000 });
   await expect(page.locator('#st-load')).toBeHidden({ timeout: 45000 });
