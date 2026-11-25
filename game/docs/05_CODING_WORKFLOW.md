@@ -69,6 +69,8 @@ The main agent owns classification, acceptance criteria, task decomposition, int
 
 ## Decision log
 
+- 2026-11-25: The landscape full gate exposed ambient-dependent NPC cache saturation and long WebKit guided-day fixture traces. Fill both NPC caches explicitly with distinct source frames while retaining exact limits. Observe joystick route progress in-page rather than through thousands of repeated protocol polls; preserve real controls, physical endpoints, interruption/stall guards, existing deadlines, assertions, full coverage and zero retries. Record failed run 45663390526 in the landscape plan and require focused repairs plus a fresh full exact-commit gate.
+
 - 2026-11-25: Casey requested explicit coordination of three concurrent agents after the combined dungeon/locomotion gate failed WebKit. Keep development parallel in isolated worktrees, assign both failures and the first recovery release to the building task, use the locomotion task for bounded compatibility review, and publish landscape after integrating verified recovery and closure. Preserve exact-commit checks and live-baseline guards; no executable workflow changes or new game deployment are needed for these assignments.
 
 - 2026-11-24: The complete WebKit profile in the audio replacement run outgrew the 60-minute browser-job budget after reaching case 136; its four full guided-day cases alone took about 21 minutes on the two-worker runner. Raise the browser-job allowance to 90 minutes while retaining all selected cases, per-test deadlines, zero retries and fail-closed publication. The separate visible-rescue fixture overshoot is repaired with stopped short-key movement; the audio plan records the failed run and required fresh gate.

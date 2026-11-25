@@ -153,7 +153,12 @@ test('directional NPCs walk, differ in appearance, and turn to the player', asyn
         })),
       };
     });
-    for (let i = 0; i < 180; i++) npcFrame({ ...look, key: 'eviction-sample-' + i }, south);
+    // Fill both LRUs deliberately. Different appearance keys at one pose
+    // exercise composed frames but reuse the same anatomical source pixels.
+    // Walk all 64 frames in all five source directions so pixel-cache
+    // saturation does not depend on which NPCs happened to animate beforehand.
+    for (let source = 0; source < 5; source++) for (let frame = 0; frame < 64; frame++)
+      npcFrame({ ...look, key: 'eviction-sample-' + source + '-' + frame }, { row: source, frame, source });
     document.body.append(sheet);
     sheet.id = 'npc-visual-evidence';
     return { directions: frames.map(f => f.direction), painted: new Set(views).size,

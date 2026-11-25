@@ -1,6 +1,6 @@
 # Concurrent work and release ownership
 
-Classification: complex coordination across three active tasks and one published game. Status: combined recovery released and verified at `359f497` on 2026-11-25; landscape integration/publication remains pending. Recovery evidence is in the linked task plans and release history.
+Classification: complex coordination across three active tasks and one published game. Status: combined recovery released and verified at `359f497` on 2026-11-25 and integrated with its closure. The first landscape gate failed three WebKit cases; its owner is verifying repairs before a fresh full gate and publication. Recovery evidence is in the linked task plans and release history.
 
 ## Acceptance criteria
 
@@ -15,7 +15,7 @@ Classification: complex coordination across three active tasks and one published
 |---|---|---|
 | Review Building Tile Art Style | `dungeon-stair-support/Brasswake` / `codex/dungeon-stair-support` | First publisher and recovery owner. Combined dungeon ascents, locomotion and both repairs are released and verified at `359f497`; release/context closure supplies the landscape baseline. |
 | Review Menu, Story, Art, and Run | `grounded-cadence/Brasswake` / `codex/grounded-cadence` | Locomotion owner; implementation is released in `359f497`. Completed bounded read-only interim compatibility review and handed off plan evidence to the first publisher. No competing gate or duplicate repair. |
-| Brainstorm World Liveliness Ideas | `living-landscape/Brasswake` / `codex/living-landscape` | Landscape owner and second publisher. Continue independent work, then integrate verified recovery `359f497` and its documentation closure before post-merge checks and the full landscape gate. Its own plan records the current candidate. |
+| Brainstorm World Liveliness Ideas | `living-landscape/Brasswake` / `codex/living-landscape` | Landscape owner and second publisher. Verified recovery `359f497` and its closure are integrated. Own the NPC-cache and complete guided-day fixture repairs from landscape run 45663390526, their focused checks, a fresh full gate, live checks and closure. Its own plan records the current candidate and evidence. |
 
 Worktrees are under `C:/Users/caseys/.codex/worktrees/`. Displayed task titles identify the existing chats, not new workers. Assignments were sent to all three through the app; acknowledgment and release completion are separate evidence.
 
