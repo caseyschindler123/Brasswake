@@ -211,9 +211,12 @@ test('venues · the joystick opens a real door, reveals the infirmary and trigge
     const b = Scene.debug().world.blds.find(b => b.plan?.id === id);
     return { open: b.doorMotion?.[index].open, amount: b.doorMotion?.[index].amount, inside: !!b.inside, cues: window.__venueDoorCues || 0 };
   }, door);
-  const renderedLeaf = () => frame.evaluate(({id,index}) => {
+  const renderedLeaf = () => frame.evaluate(async ({id,index}) => {
     const { cam, draw, world } = Scene.debug(),building=world.blds.find(b=>b.plan?.id===id),d=building.plan.doors[index];
-    const expected=BuildingView.doorLeaf(Interiors.timber[building.r],d.side,Math.round(building.doorMotion[index].amount*8));
+    const entry=ArchitectureArt.at['architecture_'+building.r+'_door'],im=new Image();im.src='art/'+entry.f;await im.decode();
+    const [x,y,w,h]=entry.r,painted=document.createElement('canvas');painted.width=w;painted.height=h;
+    painted.getContext('2d').drawImage(im,x,y,w,h,0,0,w,h);
+    const expected=BuildingView.doorLeaf(Interiors.timber[building.r],d.side,Math.round(building.doorMotion[index].amount*8),painted);
     const pixels=expected.c.toDataURL(),width=expected.c.width/3,height=expected.c.height/3;
     const left=(building.x+d.x)*16+8-expected.ax,top=(building.y+d.y)*16+16-expected.ay;
     const g = document.querySelector('#stage canvas.game').getContext('2d'), original = g.drawImage;

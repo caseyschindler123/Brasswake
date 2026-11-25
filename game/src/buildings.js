@@ -196,7 +196,17 @@ const Buildings = (() => {
     return { id, x, y, w, h, shape, tiles, doors, ...surfaces(tiles, w, h) };
   }
 
-  return { compile, contains, walkable, VOID, WALL, FLOOR, DOOR, COURT };
+  // Owned houses keep their existing solid footprint and interaction panel.
+  // Their sealed visual shell may be smaller than a walk-in building.
+  function facade({id,w,h,shape='rect'}) {
+    if(typeof id!=='string'||!id.trim()||!Number.isInteger(w)||!Number.isInteger(h)||w<1||h<1||w>MAX_SIDE||h>MAX_SIDE)
+      throw new TypeError('Invalid sealed facade');
+    if(!['rect','L'].includes(shape))throw new TypeError('Invalid sealed facade shape');
+    const tiles=tilesFor(footprint(w,h,shape),w,h,false);
+    return {id,x:0,y:0,w,h,shape,visualOnly:true,tiles,doors:[],...surfaces(tiles,w,h)};
+  }
+
+  return { compile, facade, contains, walkable, VOID, WALL, FLOOR, DOOR, COURT };
 })();
 
 if (typeof module !== 'undefined') module.exports = Buildings;

@@ -6,6 +6,14 @@ const canvas = (width = 10, height = 10) => ({ width, height });
 const empty = () => ({ floor: canvas(), roof: canvas(), walls: [], furniture: [] });
 const fail = () => assert.fail('Expected a cached view');
 
+test('upper-storey layers count against the same budget and retire with the building',()=>{
+  const cache=create(1600),a={},b={},upper=canvas(20,20);
+  cache.beginFrame();cache.get(a,1,()=>({...empty(),upperWalls:[{image:upper}]}));cache.endFrame();
+  assert.equal(cache.stats().bytes,2400);
+  cache.beginFrame();cache.get(b,1,empty);cache.endFrame();
+  assert.equal(a.view,null);assert.equal(upper.width,0);assert.equal(cache.stats().bytes,800);
+});
+
 test('a whole city traversal keeps the backing estimate bounded with least-recent-first eviction', () => {
   const budget = 32 * 1024 * 1024, cache = create(budget);
   const owners = Array.from({ length: 70 }, () => ({}));

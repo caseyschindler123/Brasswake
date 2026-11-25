@@ -1,8 +1,53 @@
   /* Surface architecture and harbours. Geometry is shared by movement, roofs and room art. */
   const WORLD_SURFACE = ['', 'quay', 'pier', 'plaza', 'black_sand', 'shingle', 'tidal'];
   const WORLD_BUILDING_CACHE = BuildingCache.create(32 * 1024 * 1024);
+  function architecturePiece(r,name) { return worldPiece('architecture_'+r+'_'+name); }
+  function architectureHome(o) {
+    const home=o.home,r=clamp((home.mat||0)+1,1,8);
+    if(!architecturePiece(r,'wall_plain')||!architecturePiece(r,'door')||!architecturePiece(r,'roof_surface'))return null;
+    const floors=home.shape===5?3:[2,6,8,9].includes(home.shape)?2:1,extra=(floors-1)*38,head=40+extra;
+    const tinted=new Map(),piece=key=>{
+      if(tinted.has(key))return tinted.get(key);
+      const source=worldPiece(key);if(!source)return null;
+      const roof=/_(roof_surface|ridge_run|ridge_joint|ridge_end|eave_front|eave_left|eave_right|eave_corner_left|eave_corner_right)$/.test(key);
+      const wall=/_(wall_plain|wall_window|wall_worn|post_front|post_inner|side_wall|side_upper|upper_plain|upper_window|foundation)$/.test(key);
+      if(home.natural||!roof&&!wall)return source;
+      const c=mk(source.width,source.height),g=c.getContext('2d');c.hr=1;g.drawImage(source,0,0);
+      const pixels=g.getImageData(0,0,c.width,c.height),a=pixels.data,colour=hexRgb(roof?(home.roof||'#95533a'):(home.wall||'#e0c9ab'));
+      for(let i=0;i<a.length;i+=4){
+        if(a[i+3]<8)continue;
+        const max=Math.max(a[i],a[i+1],a[i+2]),min=Math.min(a[i],a[i+1],a[i+2]),sat=max?(max-min)/max:0,L=(max+min)/510;
+        if(roof?L>.85&&sat<.15:sat>.45||L<.35)continue;
+        const light=L/(roof?.5:.8);for(let channel=0;channel<3;channel++)a[i+channel]=Math.min(255,colour[channel]*light);
+      }
+      g.putImageData(pixels,0,0);tinted.set(key,c);return c;
+    };
+    const plan=Buildings.facade({id:'owned-'+home.id,w:o.w,h:o.h,shape:home.shape===3?'L':'rect'});
+    const view=BuildingView.create(plan,{piece,r,painted:true,storeyLift:floors>1?38:0});
+    const c=mk((o.w*T+8)*K,(o.h*T+head+4)*K),g=c.getContext('2d');c.hr=1;g.scale(K,K);
+    if(home.shape===5){g.beginPath();g.roundRect(4,0,o.w*T,o.h*T+head,[o.w*T/2,o.w*T/2,6,6]);g.clip();}
+    for(const wall of view.walls.concat(view.upperWalls).sort((a,b)=>a.sortY-b.sortY))
+      g.drawImage(wall.image,4+wall.x,head+wall.y,lw(wall.image),lh(wall.image));
+    if(floors===3)for(const wall of view.upperWalls)g.drawImage(wall.image,4+wall.x,head+wall.y-38,lw(wall.image),lh(wall.image));
+    g.drawImage(view.roof,4,0,o.w*T,o.h*T);
+    const center=4+(o.w>>1)*T+T/2,foot=head+o.h*T,frame=architecturePiece(r,'wall_door'),door=architecturePiece(r,'door');
+    if(frame)g.drawImage(frame,center-11,foot-40,22,40);
+    if(door)g.drawImage(door,center-8,foot-33,16,33);
+    // These temporary layers have been flattened into the cached house sprite.
+    for(const layer of [view.floor,view.roof,...view.walls.map(w=>w.image),...view.upperWalls.map(w=>w.image)])layer.width=layer.height=0;
+    return {c,k:1,ax:4,ay:head+o.h*T,architecture:true,architectureRegion:r};
+  }
+  function architectureScenery(o) {
+    if(!architecturePiece(o.r,'wall_plain')||!architecturePiece(o.r,'roof_surface'))return null;
+    const shape=o.slot==='tower'?5:o.slot==='manor'?9:0;
+    const view=WORLD_BUILDING_CACHE.get(o,artVer,()=>{
+      const facade=architectureHome({...o,home:{id:'scenery-'+o.x+'-'+o.y,mat:o.r-1,shape,natural:true}});
+      return {floor:facade.c,roof:facade.c,walls:[],furniture:[],facade};
+    });
+    return view.facade;
+  }
   function worldPiece(key) {
-    const a = (typeof WorldArt !== 'undefined' && WorldArt.at[key]) || (typeof CartographyArt !== 'undefined' && CartographyArt.at[key]);
+    const a = (typeof ArchitectureArt !== 'undefined' && ArchitectureArt.at[key]) || (typeof WorldArt !== 'undefined' && WorldArt.at[key]) || (typeof CartographyArt !== 'undefined' && CartographyArt.at[key]);
     if (!a) return null;
     if (!IMG[a.f]) img(a.f);
     return have(a.f) ? cut(a.f, ...a.r) : null;
@@ -57,7 +102,7 @@
   function worldView(o) {
     return WORLD_BUILDING_CACHE.get(o, artVer, () => BuildingView.create(o.plan, { piece: key => key.startsWith('venue_') ? venueProp(key,o.r).c : worldPiece(key), r: o.r,
         roofFamily: o.roofFamily || (o.r === 2 || o.r === 4 ? 3 : o.r === 5 || o.r === 8 ? 4 : o.r === 6 || o.r === 7 ? 2 : 1),
-        furniture: o.furniture }));
+        furniture: o.furniture, painted: true, storeyLift: o.storeyLift || 0 }));
   }
   function worldBuildingFloor(o, g, ox0, oy0, dt) {
     if (o.enter) roomFade(o, dt);
@@ -70,11 +115,7 @@
       list.push([by + a.sortY, a.image, bx + a.x, by + a.y, false, 1, 0,
         inside && a.front ? .16 : 1]);
     }
-    const art = o.landmark && worldPiece(o.landmark);
-    if (art) {
-      const scale = o.w * T / lw(art);
-      list.push([o.by + 1, art, bx, o.by - lh(art) * scale, false, scale, 0, o.fa]);
-    } else if (o.fa > 0) list.push([o.by + 1, v.roof, bx, by - v.wallHeight - (o.storeyLift || 0), false, 1, 0, o.fa]);
+    if (o.fa > 0) list.push([o.by + 1, v.roof, bx, by - v.wallHeight - (o.storeyLift || 0), false, 1, 0, o.fa]);
     venueDoors(o,list);
   }
   function worldHeroSort(by) {

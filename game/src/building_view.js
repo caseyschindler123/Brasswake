@@ -137,7 +137,7 @@ const BuildingView = (() => {
 
   function roofMesh(plan, lift) {
     const planes = new Map(), meshEdges = new Map(), vertices = new Map();
-    const caps = new Path2D(), valleys = new Path2D();
+    const caps = new Path2D(), valleys = new Path2D(), capSegments=[], valleySegments=[];
     // Edge endpoints lie on the tile grid. Equal-pitch planes can therefore
     // meet on grid lines, diagonals and midlines. These eight triangles per
     // tile include each of those lines and share the same raised vertices.
@@ -163,6 +163,7 @@ const BuildingView = (() => {
       const { x, y, z } = opposite;
       const priorHeight = previous.dx * x + previous.dy * y + previous.offset;
       project(priorHeight > z ? caps : valleys, a, b);
+      (priorHeight>z?capSegments:valleySegments).push([[a.x,a.y-a.z],[b.x,b.y-b.z]]);
     }
 
     for (let y = 0; y < plan.h; y++) {
@@ -191,7 +192,76 @@ const BuildingView = (() => {
         }
       }
     }
-    return { planes, caps, valleys };
+    return { planes, caps, valleys, capSegments, valleySegments };
+  }
+
+  function capRuns(segments){
+    const lines=new Map();
+    for(let [a,b]of segments){
+      if(a[0]>b[0]||(a[0]===b[0]&&a[1]>b[1]))[a,b]=[b,a];
+      const length=Math.hypot(b[0]-a[0],b[1]-a[1]);if(length<.01)continue;
+      const ux=(b[0]-a[0])/length,uy=(b[1]-a[1])/length,offset=a[1]*ux-a[0]*uy;
+      // Normalize signed zero before formatting. Otherwise roundoff puts one
+      // straight hip into both "0.000" and "-0.000" line buckets.
+      const rounded=(n,places)=>(Math.round(n*10**places)/10**places).toFixed(places);
+      const key=[rounded(ux,5),rounded(uy,5),rounded(offset,3)].join('/');
+      if(!lines.has(key))lines.set(key,{ux,uy,offset,spans:[]});
+      lines.get(key).spans.push([a[0]*ux+a[1]*uy,b[0]*ux+b[1]*uy]);
+    }
+    const result=[];
+    for(const line of lines.values()){
+      let pending;
+      for(const [start,end]of line.spans.sort((a,b)=>a[0]-b[0])){
+        if(pending&&start<=pending.end+.01)pending.end=Math.max(pending.end,end);
+        else{pending={...line,start,end};result.push(pending);}
+      }
+    }
+    return result;
+  }
+
+  function paintedCaps(g,kit,segments){
+    const lines=capRuns(segments),nodes=new Map();
+    for(const {ux,uy,offset,start,end}of lines){
+      const art=kit.paintedPiece('ridge_run');if(!art)continue;
+      const x=ux*start-uy*offset,y=uy*start+ux*offset,length=end-start;
+      const height=4.6,width=height*art.width/art.height;
+      g.save();g.translate(x,y);g.rotate(Math.atan2(uy,ux));
+      for(let at=0;at<length-.01;at+=width){
+        const span=Math.min(width,length-at);
+        g.drawImage(art,0,0,art.width*span/width,art.height,at,-height/2,span,height);
+      }
+      g.restore();
+      for(const [at,sign]of [[start,1],[end,-1]]){
+        const px=ux*at-uy*offset,py=uy*at+ux*offset,key=px.toFixed(2)+'/'+py.toFixed(2);
+        if(!nodes.has(key))nodes.set(key,{x:px,y:py,branches:[]});
+        nodes.get(key).branches.push([ux*sign,uy*sign]);
+      }
+    }
+    for(const {x,y,branches}of nodes.values()){
+      const terminal=branches.length===1;
+      const art=kit.paintedPiece(terminal?'ridge_end':'ridge_joint');if(!art)continue;
+      const axis=branches.find(([dx,dy])=>Math.abs(dy)<.02)||branches[0];
+      const angle=Math.atan2(axis[1],axis[0])+(terminal?Math.PI:0);
+      g.save();g.translate(x,y);g.rotate(angle);
+      if(terminal)draw(g,art,-2.65,-2.3,5.3,4.6);
+      // Use the formed saddle's dome over the actual converging runs. Its
+      // authored neck angles cannot be stretched onto arbitrary roof angles.
+      else draw(g,art,-3,-3,6,6);
+      g.restore();
+    }
+  }
+
+  function paintedValleys(g,kit,segments){
+    const art=kit.paintedPiece('valley_run');if(!art)return;
+    const height=2.4,width=height*art.width/art.height;
+    for(const {ux,uy,offset,start,end}of capRuns(segments)){
+      g.save();g.translate(ux*start-uy*offset,uy*start+ux*offset);g.rotate(Math.atan2(uy,ux));
+      for(let at=0;at<end-start;at+=width){
+        const length=Math.min(width,end-start-at);
+        g.drawImage(art,0,0,art.width*length/width,art.height,at,-height/2,length,height);
+      }
+      g.restore();
+    }
   }
 
   function renderRoof(plan, kit, edges, lift) {
@@ -201,17 +271,21 @@ const BuildingView = (() => {
     // The projected north and south slopes have different apparent depths.
     // Their shared eaves stay fixed and the projection preserves each hole.
     repeat(g, kit.roof(0), w, h, '#9c4c2c');
-    const { planes, caps, valleys } = roofMesh(plan, lift);
+    const { planes, caps, valleys, capSegments, valleySegments } = roofMesh(plan, lift);
     for (const { dx, dy, offset, path } of planes.values()) {
       g.save();
       g.clip(path);
       g.save();
-      g.transform(1, -dx, 0, 1 - dy, 0, -offset);
-      if (dx) {
+      if (kit.painted) {
+        // These hand-painted tile lips already encode the raised camera. Their
+        // screen-facing profile stays upright; crease shading supplies the planes.
+        repeat(g,kit.roof(0),w,h,'#9c4c2c');
+      } else if (dx) {
+        g.transform(1, -dx, 0, 1 - dy, 0, -offset);
         g.translate(w, 0);
         g.rotate(Math.PI / 2);
         repeat(g, kit.roof(0), h, w, '#9c4c2c');
-      } else repeat(g, kit.roof(0), w, h, '#9c4c2c');
+      } else {g.transform(1, -dx, 0, 1 - dy, 0, -offset);repeat(g, kit.roof(0), w, h, '#9c4c2c');}
       g.restore();
       g.fillStyle = dy > 0 ? '#211c2371' : dy < 0 ? '#f7d4a52e' : dx > 0 ? '#d8bb991b' : '#27222c3d';
       g.fillRect(0, 0, w, h);
@@ -222,10 +296,26 @@ const BuildingView = (() => {
     // patches brought their own roof planes and could read as extra dormers.
     g.lineJoin = 'round';
     g.lineCap = 'round';
-    g.strokeStyle = '#241d1b64'; g.lineWidth = 2; g.stroke(valleys);
-    g.strokeStyle = '#3a291eae'; g.lineWidth = 2.8; g.stroke(caps);
-    g.strokeStyle = '#e4c3a38e'; g.lineWidth = 1.05; g.stroke(caps);
+    if(kit.painted){paintedValleys(g,kit,valleySegments);paintedCaps(g,kit,capSegments);}
+    else{
+      g.strokeStyle = '#241d1b64'; g.lineWidth = 2; g.stroke(valleys);
+      g.strokeStyle = '#3a291eae'; g.lineWidth = 2.8; g.stroke(caps);
+      g.strokeStyle = '#e4c3a38e'; g.lineWidth = 1.05; g.stroke(caps);
+    }
     for (const { first, last, side, vertical, line } of edges) {
+      if(kit.painted){
+        const art=kit.paintedPiece(vertical?(side==='west'?'eave_left':'eave_right'):'eave_front');
+        const thickness=vertical?4:7,origin=line*T-(side==='south'||side==='east'?thickness:0);
+        // Side rims have authored vertical profiles. Keep the repeating unit
+        // length fixed; crop the last unit rather than distorting it.
+        const unit=vertical?32:48;
+        for(let at=first*T;at<last*T;at+=unit){
+          const length=Math.min(unit,last*T-at),fraction=length/unit;
+          if(art)g.drawImage(art,0,0,art.width*(vertical?1:fraction),art.height*(vertical?fraction:1),
+            vertical?origin:at,vertical?at:origin,vertical?thickness:length,vertical?length:thickness);
+        }
+        continue;
+      }
       const thickness = side === 'south' ? 3.5 : 2.5;
       const origin = line * T - (side === 'south' || side === 'east' ? thickness : 0);
       span(first * T, last * T, 44, (start, length) => {
@@ -235,7 +325,88 @@ const BuildingView = (() => {
           vertical ? thickness : length, vertical ? length : thickness);
       });
     }
+    if(kit.painted)for(const c of paintedCorners(plan)){
+      if(c.kind!=='outer'||!c.sides.has('south'))continue;
+      const east=c.sides.has('east'),art=kit.paintedPiece(east?'eave_corner_left':'eave_corner_right');
+      if(art)draw(g,art,c.x*T+(east?-6:0),c.y*T-8,6,8);
+    }
     return image;
+  }
+
+  function paintedCorners(plan){
+    const corners=new Map();
+    for(const edge of plan.edges)for(const [x,y]of [[edge.x0,edge.y0],[edge.x1,edge.y1]]){
+      const key=x+':'+y;if(!corners.has(key))corners.set(key,{x,y,sides:new Set()});
+      corners.get(key).sides.add(edge.side);
+    }
+    return [...corners.values()].filter(c=>c.sides.size===2).map(c=>{
+      const occupied=[[-1,-1],[0,-1],[-1,0],[0,0]].filter(([dx,dy])=>Buildings.contains(plan,c.x+dx,c.y+dy,true)).length;
+      return {...c,kind:occupied===3?'inner':'outer'};
+    });
+  }
+
+  function renderPaintedWalls(plan,kit,height=WALL_HEIGHT,upper=false){
+    const walls=[],position=(image,x,y,sortY,front,role)=>walls.push({image,x,y,sortY,front,role});
+    for(const {first,last,side,vertical,line,kind}of runs(plan.edges,e=>plan.tiles[e.y*plan.w+e.x])){
+      const front=side!=='north',bottom=line*T;
+      if(!vertical){
+        if(kind===Buildings.DOOR&&!upper){
+          for(let x=first;x<last;x++){
+            const {image,g}=canvas(T+6,height);doorway(g,kit.face(4),T+6);
+            position(image,x*T-3,bottom-height,bottom,front,'door');
+          }
+        }else span(first,last,2,(start,length)=>{
+          const width=length*T,{image,g}=canvas(width,height+.5);
+          const window=length===2&&(start+line)%3!==0;
+          const art=upper?kit.paintedPiece(window?'upper_window':'upper_plain'):kit.face(window?1:0);
+          // Paint to both anchors: the slight upper overlap seals antialiased
+          // tile lips to the wall plate without changing the physical plan.
+          draw(g,art,0,0,width,height+.5);
+          position(image,start*T,bottom-height-.5,bottom,front,upper?'upper-bay':'bay');
+        });
+      }else{
+        const width=5,art=kit.paintedPiece(upper?'side_upper':'side_wall');
+        const gaps=upper?[]:plan.doors.filter(d=>d.side===side&&d.x+(d.facing.x>0?1:0)===line).map(d=>d.y);
+        for(let y=first;y<last;y++){
+          if(kind===Buildings.DOOR&&!upper){
+            const {image,g}=canvas(10,DOOR_HEIGHT+T+3),post=kit.paintedPiece('post_front');
+            for(const foot of [DOOR_HEIGHT,DOOR_HEIGHT+T])
+              if(post)g.drawImage(post,0,0,post.width,post.height*.8,3,foot-DOOR_HEIGHT,3,DOOR_HEIGHT);
+            const lintel=kit.paintedPiece('cornice');
+            if(lintel){g.save();g.translate(6,0);g.rotate(Math.PI/2);draw(g,lintel,0,0,T+2,3);g.restore();}
+            position(image,line*T-4,y*T-DOOR_HEIGHT,(y+1)*T+.4,front,'side-door');
+            continue;
+          }
+          const {image,g}=canvas(width,height+T+.5);
+          const top=y*T-height-.5;
+          // Keep every overlapping side bay out of the actual door aperture.
+          g.beginPath();let from=0;
+          for(const gap of gaps){
+            const start=gap*T-top,end=start+T;
+            if(end<=from||start>=height+T+.5)continue;
+            if(start>from)g.rect(0,from,width,start-from);from=end;
+          }
+          if(from<height+T+.5)g.rect(0,from,width,height+T+.5-from);g.clip();
+          draw(g,art,0,0,width,height+T+.5);
+          position(image,line*T-width/2,y*T-height-.5,(y+1)*T-.25,front,upper?'upper-side':'side');
+        }
+      }
+    }
+    for(const c of paintedCorners(plan)){
+      const width=c.kind==='inner'?4:5,{image,g}=canvas(width,height+.5);
+      const art=kit.paintedPiece(c.kind==='inner'?'post_inner':'post_front');
+      if(art)g.drawImage(art,0,0,art.width,upper?art.height*.80:art.height,0,0,width,height+.5);
+      position(image,c.x*T-width/2,c.y*T-height-.5,c.y*T+.25,!c.sides.has('north'),c.kind+'-corner');
+    }
+    if(!upper){
+      const exterior=new Set(plan.edges.map(e=>e.y*plan.w+e.x));
+      for(const {x,y}of plan.walls){
+        if(exterior.has(y*plan.w+x))continue;
+        const {image,g}=canvas(T,16);draw(g,kit.face(0),0,0,T,16);
+        draw(g,kit.cap(0),0,0,T,6);position(image,x*T,y*T,(y+1)*T,true,'partition');
+      }
+    }
+    return walls;
   }
 
 
@@ -288,7 +459,7 @@ const BuildingView = (() => {
     g.fillRect(width - jamb - .8, lintel, .8, WALL_HEIGHT - lintel);
   }
 
-  function doorLeaf(timber, side, frame) {
+  function doorLeaf(timber, side, frame, painted = null) {
     const ax = 17, ay = DOOR_HEIGHT, { image, g } = canvas(ax * 2, ay + T);
     const vertical = VERTICAL.has(side), inward = side === 'west' || side === 'north' ? 1 : -1;
     const swing = frame * Math.PI / 16, close = Math.cos(swing), open = Math.sin(swing);
@@ -302,6 +473,8 @@ const BuildingView = (() => {
     else g.rect(ax - T / 2, 0, T, ay);
     g.clip();
     g.transform(dx / T, dy / T, 0, 1, hinge, 0);
+
+    if(painted){g.drawImage(painted,0,0,T,ay);return {c:image,ax,ay};}
 
     g.fillStyle = timber;
     g.fillRect(0, 0, T, ay);
@@ -345,6 +518,7 @@ const BuildingView = (() => {
   }
 
   function renderWalls(plan, kit) {
+    if(kit.painted)return renderPaintedWalls(plan,kit);
     const walls = [], position = (image, x, y, sortY, front) => walls.push({ image, x, y, sortY, front });
     const exterior = new Set(plan.edges.map(e => e.y * plan.w + e.x));
     const segments = runs(plan.edges, edge => plan.tiles[edge.y * plan.w + edge.x]);
@@ -424,9 +598,9 @@ const BuildingView = (() => {
     }
     for (const { x, y, sides } of corners.values()) {
       if (sides.size !== 2) continue;
-      const { image, g } = canvas(6, WALL_HEIGHT);
-      wallPanel(g, kit.face(13), 0, 6, WALL_HEIGHT);
-      position(image, x * T - 3, y * T - WALL_HEIGHT, y * T + .25, !sides.has('north'));
+      const width=6,{ image, g } = canvas(width, WALL_HEIGHT);
+      wallPanel(g, kit.face(13), 0, width, WALL_HEIGHT);
+      position(image, x * T - width/2, y * T - WALL_HEIGHT, y * T + .25, !sides.has('north'));
     }
 
     for (const { x, y } of plan.walls) {
@@ -439,11 +613,13 @@ const BuildingView = (() => {
     return walls;
   }
 
-  function create(plan, { piece, r = 1, roofFamily = 1, furniture = [] }) {
+  function create(plan, { piece, r = 1, roofFamily = 1, furniture = [], painted = false, storeyLift = 0 }) {
+    const paintedPiece=name=>painted&&piece('architecture_'+r+'_'+name);
     const kit = {
-      face: i => piece(`wf${r}_${i}`) || piece(`wf1_${i}`),
-      cap: i => piece(`wc${r}_${i}`) || piece(`wc1_${i}`),
-      roof: i => piece(`wr${roofFamily}_${i}`) || piece(`wr1_${i}`),
+      painted, paintedPiece,
+      face: i => paintedPiece(i===4?'wall_door':i===13?'post_front':i===14?'side_wall':i>=1&&i<=3?'wall_window':i===0?'wall_plain':'wall_worn') || piece(`wf${r}_${i}`) || piece(`wf1_${i}`),
+      cap: i => paintedPiece(i===1?'cornice':i===15?'foundation':i===12||i===13?'post_front':'foundation') || piece(`wc${r}_${i}`) || piece(`wc1_${i}`),
+      roof: i => paintedPiece(i===0?'roof_surface':'eave_front') || piece(`wr${roofFamily}_${i}`) || piece(`wr1_${i}`),
       floor: piece(`floor${r}`) || piece('floor1'),
       court: piece('plaza'),
     };
@@ -460,12 +636,13 @@ const BuildingView = (() => {
       // The training mats lie on the floor under the sparring students.
       fittings.push({ image, x: x * T - w / 2, y: feet - h, sortY: p === 'venue_training_mat' ? 0 : feet, front: false });
     }
+    const upperWalls=painted&&storeyLift?renderPaintedWalls(plan,kit,storeyLift,true).map(w=>({...w,y:w.y-WALL_HEIGHT})):[];
     const left = Math.min(0, ...walls.map(wall => wall.x), ...fittings.map(item => item.x));
-    const top = Math.min(-WALL_HEIGHT, ...walls.map(wall => wall.y), ...fittings.map(item => item.y));
+    const top = Math.min(-WALL_HEIGHT, ...walls.concat(upperWalls).map(wall => wall.y), ...fittings.map(item => item.y));
     const right = Math.max(plan.w * T, ...walls.map(wall => wall.x + wall.image.width / K), ...fittings.map(item => item.x + item.image.width / K));
     const bottom = Math.max(plan.h * T, ...walls.map(wall => wall.y + wall.image.height / K), ...fittings.map(item => item.y + item.image.height / K));
     const bounds = { x: left, y: top, w: right - left, h: bottom - top };
-    return { floor, roof, roofLift, walls, furniture: fittings, wallHeight: WALL_HEIGHT, bounds };
+    return { floor, roof, roofLift, walls, upperWalls, furniture: fittings, wallHeight: WALL_HEIGHT, bounds };
   }
 
   return { create, doorLeaf };

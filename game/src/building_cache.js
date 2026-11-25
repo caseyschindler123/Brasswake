@@ -39,7 +39,8 @@ const BuildingCache = (() => {
       } else {
         const view = factory();
         const canvases = new Set([view.floor, view.roof,
-          ...view.walls.map(layer => layer.image), ...view.furniture.map(layer => layer.image)]);
+          ...view.walls.map(layer => layer.image), ...(view.upperWalls || []).map(layer => layer.image),
+          ...view.furniture.map(layer => layer.image)]);
         for (const canvas of canvases) {
           let ref = references.get(canvas);
           if (!ref) {

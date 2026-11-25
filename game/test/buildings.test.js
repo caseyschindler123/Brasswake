@@ -1,5 +1,15 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
+
+test('small owned-house facades reuse structural surfaces without relaxing walk-in limits',()=>{
+  for(let w=1;w<=6;w++)for(let h=1;h<=4;h++){
+    const p=Buildings.facade({id:'owned-shell',w,h});
+    assert.equal(p.visualOnly,true);assert.equal(p.doors.length,0);assert.equal(p.roof.length,w*h);
+    assert.ok(p.roof.every(Boolean));assert.equal(p.edges.length,2*(w+h));
+  }
+  assert.throws(()=>Buildings.compile({id:'too-small',w:3,h:2}),/dimensions/);
+  assert.throws(()=>Buildings.facade({id:'bad',w:0,h:2}),/Invalid/);
+});
 const Buildings = require('../src/buildings.js');
 
 const { compile, contains, walkable, VOID, WALL, FLOOR, DOOR, COURT } = Buildings;

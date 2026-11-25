@@ -40,7 +40,7 @@ function fixture() {
   const api = { world, map:world, P:{x:1,y:1,fx:1,fy:1}, Buildings, Interiors, T:16, K:3, mk:canvas, AD:null,document:{createElement:()=>canvas(0,0)},
     BIO:Object.fromEntries(regions.map(r=>[r,{}])), chartSteps:neighbors,
     performance:{ now:()=>time }, clamp:(n,a,b)=>Math.max(a,Math.min(b,n)), emit:s=>sounds.push(s),
-    folkSprite:()=>null, host:{regionName:r=>'Region '+r},
+    folkSprite:()=>null, architecturePiece:()=>null, host:{regionName:r=>'Region '+r},
     chartOpen:(m,x,y)=>x>=0 && y>=0 && x<m.w && y<m.h && !m.solid[y*m.w+x] && !m.occ.has(y*m.w+x),
     addEnt(m,e) { m.ents.push(e); m.occ.set(e.y*m.w+e.x,e); return e; },
     worldBuilding(m,b,opts) {

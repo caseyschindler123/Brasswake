@@ -1,7 +1,18 @@
   const SERVICE_SIGNS=new Map();
+  const SERVICE_SIGN_FLIPS=new WeakMap();
   function serviceSign(type,r){
-    const key=type+':'+r;if(SERVICE_SIGNS.has(key))return SERVICE_SIGNS.get(key);
+    const key=type+':'+r,frame=architecturePiece(r,'upper_plain'),post=architecturePiece(r,'post_front'),beam=architecturePiece(r,'cornice');
+    const fitting={shop:'counter',bank:'strongbox',tavern:'kegs',work:'hearth',healer:'bed',casino:'rtable',guild:'ltable',cartographer:'shelf',dojo:'bench',civic:'shelf'}[type]||'chest';
+    const picture=worldPiece('f'+r+'_'+fitting),cached=SERVICE_SIGNS.get(key);
+    if(cached&&cached.frameSource===frame&&cached.pictureSource===picture)return cached;
+    if(frame&&post&&beam&&picture){
+      const c=mk(56,72),g=c.getContext('2d');c.hr=1;c.frameSource=frame;c.pictureSource=picture;
+      g.drawImage(post,46,0,7,51);g.drawImage(beam,6,6,47,5);g.drawImage(frame,1,18,49,49);
+      const scale=Math.min(35/picture.width,33/picture.height),w=picture.width*scale,h=picture.height*scale;
+      g.drawImage(picture,25.5-w/2,43-h/2,w,h);SERVICE_SIGNS.set(key,c);return c;
+    }
     const c=mk(42,60);c.hr=1;const g=c.getContext('2d');
+    c.frameSource=frame;c.pictureSource=picture;
     g.fillStyle='#392b20';g.fillRect(30,0,5,38);g.fillRect(4,5,30,4);
     g.fillStyle='#261d17';g.fillRect(1,15,37,42);g.fillStyle=r===8?'#ded0a7':'#a17843';g.fillRect(3,17,33,38);
     g.strokeStyle='#e2c181';g.lineWidth=1;g.strokeRect(5,19,29,34);g.strokeStyle='#241d16';ServicePlaces.paint(g,type,8,23,23);
@@ -12,8 +23,16 @@
     for(const p of world.cartography.destinations){
       if(p.kind!=='service')continue;const b=p.building,d=p.door;
       if(Math.abs((b.x+d.x)*T- cam.x-vw/2)>vw/2+60||Math.abs((b.y+d.y)*T-cam.y-vh/2)>vh/2+90)continue;
-      const x=(b.x+d.x)*T+(d.side==='west'?-8:d.side==='east'?17:20),y=(b.y+d.y)*T+13;
-      list.push([Math.max(y+1,b.by+1.8),serviceSign(p.type,p.r),x,y-20]);
+      let sign=serviceSign(p.type,p.r);
+      if(d.side==='east'){
+        if(!SERVICE_SIGN_FLIPS.has(sign)){
+          const mirror=mk(sign.width,sign.height),g=mirror.getContext('2d');mirror.hr=1;
+          g.translate(sign.width,0);g.scale(-1,1);g.drawImage(sign,0,0);SERVICE_SIGN_FLIPS.set(sign,mirror);
+        }
+        sign=SERVICE_SIGN_FLIPS.get(sign);
+      }
+      const x=(b.x+d.x)*T+(d.side==='west'?-lw(sign)-1:d.side==='east'?T+1:20),y=(b.y+d.y)*T+13;
+      list.push([Math.max(y+1,b.by+1.8),sign,x,y-20]);
     }
   }
   function discoverServices(){

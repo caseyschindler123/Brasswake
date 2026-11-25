@@ -70,6 +70,44 @@ async function assertTexture(f) {
   },{message:'Wait for eight rendered dungeon floor samples'}).toBe(8);
   for(const sample of samples)expect(sample.actual).toEqual(sample.expected);
 }
+async function assertPortalArt(f, target, r, direction) {
+  const args={target,r,direction};
+  await f.waitForFunction(({target,r})=>Scene.find(e=>e.r===r&&(e.id===target||e.kind===target))?.obj?.source,args);
+  const facts=await f.evaluate(async({target,r,direction})=>{
+    const {map,TS}=Scene.debug();
+    const e=Scene.find(e=>e.r===r&&(e.id===target||e.kind===target));
+    const {c,ax,ay,source}=e.obj;
+    const {f:file,r:rect}=ArchitectureArt.at['architecture_'+r+'_stairs_'+direction];
+    const im=new Image();
+    im.src='art/'+file;
+    await im.decode();
+    const [, ,width,height]=rect;
+    const expected=document.createElement('canvas');
+    expected.width=width;
+    expected.height=height;
+    const g=expected.getContext('2d');
+    g.drawImage(im,...rect,0,0,width,height);
+    const pixels=g.getImageData(0,0,width,height).data;
+    const actual=source.getContext('2d').getImageData(0,0,source.width,source.height).data;
+    const index=e.y*map.w+e.x;
+    const down=direction==='down';
+    const scale=Math.min((down?50:44)*3/width,(down?34:44)*3/height);
+    return {
+      painted:source.width===width&&source.height===height&&pixels.every((value,i)=>actual[i]===value),
+      size:c.width===Math.round(width*scale)&&c.height===Math.round(height*scale)
+        && c.width>=TS*2 && c.height>=TS*1.5,
+      anchored:ax===c.width/6&&ay===c.height/3,
+      occupiesOriginalTile:e.solid===1&&map.occ.get(index)===e&&!map.solid[index]
+    };
+  },args);
+  expect(facts).toEqual({painted:true,size:true,anchored:true,occupiesOriginalTile:true});
+}
+async function capturePortal(f, page, info, name) {
+  await f.waitForFunction(()=>!Scene.debug().map.pending);
+  // Scene takes 455 ms of animation time to fade in after entering.
+  await f.waitForTimeout(525);
+  await screenshot(page,info,name);
+}
 async function walk(f, goal, stats, adjacent=true, recovering=false) {
   if(stats.fixture&&typeof goal==='string'){
     await f.evaluate(id=>{
@@ -150,13 +188,14 @@ async function walk(f, goal, stats, adjacent=true, recovering=false) {
   },goal);
   throw Error('Too many walking steps: '+JSON.stringify(diagnostic));
 }
-async function interact(f,id,stats,recovering=false){
+async function interact(f,id,stats,recovering=false,beforeClick){
   for(let attempt=0;attempt<20;attempt++){
     const e=await walk(f,id,stats,true,recovering);
     if(await f.locator('#fight').isVisible()){
       if(await f.evaluate(id=>__bw.F?.ent?.id===id,id))return e;
       await win(f,stats);continue;
     }
+    if(beforeClick)await beforeClick();
     await canvasClick(f,e.x,e.y);await f.waitForTimeout(150);
     if(await f.locator('#fight').isVisible()){
       if(await f.evaluate(id=>__bw.F?.ent?.id===id,id))return e;
@@ -323,15 +362,20 @@ for(let r=1;r<=8;r++){
     },r);
     await f.waitForTimeout(250);
     await expect(f.locator('#ctx')).toContainText(await f.evaluate(r=>Dungeons.get(r).name,r));
+    await assertPortalArt(f,'stairs',r,'down');
+    await capturePortal(f,page,info,'dungeon-'+r+'-surface-stairs');
     await f.locator('#ctx').click();
     await f.locator('[data-a=start][data-k=dungeon]').click();
     await f.waitForFunction(()=>Scene.debug().map.dungeonFloor);
     const count=await f.evaluate(r=>Dungeons.get(r).floors.length,r);
     await assertTexture(f);
-    await screenshot(page,info,'dungeon-'+r+'-entrance');
     for(let floor=0;floor<count;floor++){
       expect(await f.evaluate(()=>__bw.DG.f)).toBe(floor);
       const entities=await f.evaluate(()=>Scene.debug().map.ents.map(e=>({id:e.id,kind:e.kind,lieutenant:!!e.lieutenant})));
+      const up=await f.evaluate(()=>Scene.find(e=>e.kind==='dtravel'&&e.to<__bw.DG.f).id);
+      await assertPortalArt(f,up,r,'up');
+      if(floor===0)await capturePortal(f,page,info,'dungeon-'+r+'-entrance');
+      if(floor===1)await capturePortal(f,page,info,'dungeon-'+r+'-stairs-up');
       if(stats.fixture&&floor===0){const gate=entities.find(e=>e.kind==='dgate');await walk(f,gate.id,stats);await screenshot(page,info,'dungeon-'+r+'-barrier');}
       for(const kind of ['dlever','dsecret']){
         const e=entities.find(e=>e.kind===kind);await interact(f,e.id,stats);
@@ -353,7 +397,11 @@ for(let r=1;r<=8;r++){
       console.log('Dungeon '+r+' floor '+(floor+1)+' explored; '+stats.fights+' fights, '+stats.queries+' queries.');
       if(floor<count-1){
         const down=await f.evaluate(()=>Scene.debug().map.ents.find(e=>e.kind==='dtravel'&&e.to>__bw.DG.f).id);
-        await interact(f,down,stats);await f.locator('[data-a=dtravel]').click();
+        await interact(f,down,stats,false,async()=>{
+          await assertPortalArt(f,down,r,'down');
+          if(floor===0)await screenshot(page,info,'dungeon-'+r+'-stairs-down');
+        });
+        await f.locator('[data-a=dtravel]').click();
         await f.waitForFunction(expected=>__bw.DG.f===expected,floor+1);
       }else{
         const keeper=entities.find(e=>e.kind==='keeper');await engage(f,keeper.id,stats);

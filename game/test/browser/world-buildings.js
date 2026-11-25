@@ -11,6 +11,59 @@ async function surface(page) {
 }
 
 const at = frame => frame.evaluate(() => Scene.pos());
+
+test('regional architecture reuses connected painted components without changing structural masks',async({page})=>{
+  const errors=observeErrors(page),frame=await surface(page);
+  const results=await frame.evaluate(async()=>{
+    const sheets=new Map(),cache=new Map();
+    await Promise.all(ArchitectureArt.files.map(async file=>{const im=new Image();im.src='art/'+file;await im.decode();sheets.set(file,im);}));
+    const piece=key=>{
+      if(cache.has(key))return cache.get(key);const entry=ArchitectureArt.at[key];if(!entry)return null;
+      const [x,y,w,h]=entry.r,c=document.createElement('canvas');c.width=w;c.height=h;c.hr=1;
+      c.getContext('2d').drawImage(sheets.get(entry.f),x,y,w,h,0,0,w,h);cache.set(key,c);return c;
+    };
+    const results=[];
+    for(let r=1;r<=8;r++)for(const [i,spec]of [{w:12,h:8},{w:10,h:8,shape:'L'},{w:11,h:11,shape:'courtyard'}].entries()){
+      const plan=Buildings.compile({id:'region-'+r+'-fixture-'+i,...spec,doors:['south','east']}),before=JSON.stringify(plan);
+      const view=BuildingView.create(plan,{piece,r,painted:true,storeyLift:38}),pixels=view.roof.getContext('2d').getImageData(0,0,view.roof.width,view.roof.height).data;
+      let holes=0;for(let p=0;p<pixels.length/4;p++){
+        const tile=Math.floor(p/view.roof.width/48)*plan.w+Math.floor(p%view.roof.width/48);
+        if(pixels[p*4+3]!==plan.roof[tile]*255)holes++;
+      }
+      const corners=view.walls.filter(w=>w.role?.endsWith('-corner'));
+      results.push({r,shape:plan.shape,holes,unchanged:before===JSON.stringify(plan),
+        unjoined:corners.filter(w=>!view.upperWalls.some(u=>u.role===w.role&&u.x===w.x&&Math.abs(w.y-u.y-38)<.01)).length,
+        insideCorners:corners.filter(w=>w.role==='inner-corner').length});
+      for(const c of [view.floor,view.roof,...view.walls.map(w=>w.image),...view.upperWalls.map(w=>w.image)])c.width=c.height=0;
+    }
+    return results;
+  });
+  expect(results).toHaveLength(24);
+  for(const result of results){expect(result.holes).toBe(0);expect(result.unjoined).toBe(0);expect(result.unchanged).toBe(true);if(result.shape==='L')expect(result.insideCorners).toBe(1);}
+  expect(errors).toEqual([]);
+});
+
+test('world and owned-house architecture retain regional materials, paint choices and physical ownership',async({page})=>{
+  const errors=observeErrors(page),frame=await surface(page);
+  const result=await frame.evaluate(()=>{
+    const {world,bldSpr}=Scene.debug(),before=world.solid.slice(),scenery=world.blds.filter(b=>!b.modular&&!b.home),missing=[];
+    for(const b of scenery){const image=bldSpr(b);if(!image.architecture||image.architectureRegion!==b.r||!image.c.width)missing.push(b.slot);}
+    const homes=[];
+    for(let shape=0;shape<Content.HOUSES.length;shape++){
+      const [,w,h]=Content.HOUSES[shape],home={id:'visual-'+shape,shape,mat:shape%8,wall:'#e0c9ab',roof:'#95533a'},o={w,h,r:1,home},saved=JSON.stringify(home);
+      const a=Scene.homeSpr(o),first=a.c.toDataURL();home.wall='#7da6bd';home.roof='#4a687c';const b=Scene.homeSpr(o);
+      homes.push({shape,painted:!!a.architecture&&!!b.architecture,recoloured:first!==b.c.toDataURL(),dimensions:a.c.width===b.c.width&&a.c.height===b.c.height,
+        unchanged:JSON.stringify({...home,wall:'#e0c9ab',roof:'#95533a'})===saved});
+    }
+    const portalPads=world.ents.filter(e=>e.kind==='stairs').map(e=>({r:e.r,clear:[-2,2].every(dx=>!world.solid[(e.y-1)*world.w+e.x+dx])}));
+    Scene.debug().draw();
+    return {scenery:scenery.length,missing,homes,collision:world.solid.every((v,i)=>v===before[i]),portalPads};
+  });
+  expect(result.scenery).toBeGreaterThan(50);expect(result.missing).toEqual([]);expect(result.collision).toBe(true);
+  for(const home of result.homes)expect(home).toMatchObject({painted:true,recoloured:true,dimensions:true,unchanged:true});
+  expect(result.portalPads).toHaveLength(8);expect(result.portalPads.every(p=>p.clear)).toBe(true);expect(errors).toEqual([]);
+});
+
 const arrow = ([dx, dy]) => dx > 0 ? 'ArrowRight' : dx < 0 ? 'ArrowLeft' : dy > 0 ? 'ArrowDown' : 'ArrowUp';
 
 async function press(frame, delta, target) {
@@ -324,19 +377,21 @@ test('building canvases stay within 32 MiB after visiting every modular building
     }
     const canvases = new Set();
     let retained = 0;
-    for (const b of buildings) if (b.view) {
+    for (const b of world.blds) if (b.view) {
       retained++;
-      for (const c of [b.view.floor, b.view.roof, ...b.view.walls.map(w => w.image), ...b.view.furniture.map(f => f.image)]) canvases.add(c);
+      for (const c of [b.view.floor, b.view.roof, ...b.view.walls.map(w => w.image),
+        ...(b.view.upperWalls||[]).map(w=>w.image), ...b.view.furniture.map(f => f.image)]) canvases.add(c);
     }
     const observedBytes = Array.from(canvases, c => c.width * c.height * 4).reduce((total, bytes) => total + bytes, 0);
-    return { peakBytes, missing, visited: buildings.length, retained, cache: buildingCache(), observedBytes, canvasCount: canvases.size };
+    return { peakBytes, missing, visited: buildings.length, retained, retainedVisited:buildings.filter(b=>b.view).length,
+      cache: buildingCache(), observedBytes, canvasCount: canvases.size };
   });
   expect(facts.visited).toBeGreaterThan(130);
   expect(facts.missing).toEqual([]);
   expect(facts.cache.budgetBytes).toBe(32 * 1024 * 1024);
   expect(facts.peakBytes).toBeLessThanOrEqual(facts.cache.budgetBytes);
   expect(facts.cache).toMatchObject({ bytes: facts.observedBytes, views: facts.retained, canvases: facts.canvasCount });
-  expect(facts.retained).toBeLessThan(facts.visited);
+  expect(facts.retainedVisited).toBeLessThan(facts.visited);
   expect(errors).toEqual([]);
 });
 

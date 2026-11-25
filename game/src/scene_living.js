@@ -15,95 +15,9 @@
     g.fillStyle=c;g.beginPath();g.moveTo(...pts[0]);
     for(const p of pts.slice(1))g.lineTo(...p);g.closePath();g.fill();
   }
-  function venueEntrance(b,d,list,wx,wy) {
-    if(b.fa<=.01)return;
-    const civic=['bank','guild','civic','palace','temple','casino'].includes(b.slot);
-    const cloth=['shop','tavern','cartographer'].includes(b.slot);
-    const workshop=b.slot==='work'||b.slot==='warehouse'||b.slot==='dojo';
-    const side=d.side==='east'||d.side==='west';
-    const key=['entrance',b.r,b.slot,side,d.side].join('/');
-    const c=livingCanvas(key,76,68,g=>{
-      const timber=Interiors.timber[b.r], trim=Interiors.trim[b.r];
-      const pale=['#c6b08a','#a6b098','#d8c398','#c6b18a','#a49283','#b1b0c5','#d2dfe5','#e0cca5'][b.r-1];
-      if(side){
-        const x=d.side==='east'?39:32;
-        livingRect(g,x,15,6,20,timber);livingRect(g,x,15,1.5,20,pale);
-        livingPoly(g,[[x-3,15],[x+7,15],[x+7,30],[x-3,27]],cloth?trim:pale);
-        livingRect(g,x-3,27,10,2,'#574a3a');return;
-      }
-      // Posts flank the complete walkable tile and meet the floor at y=60.
-      if(civic){
-        for(const x of [20,51]){
-          livingRect(g,x-2,25,8,35,'#625447');livingRect(g,x,25,4,35,pale);
-          livingRect(g,x-3,26,10,3,'#e1cfab');livingRect(g,x-3,57,10,3,pale);
-        }
-        livingPoly(g,[[13,26],[38,12],[65,26]],'#5b4939');
-        livingPoly(g,[[16,24],[38,14],[62,24]],pale);
-        livingPoly(g,[[27,23],[38,18],[50,23]],trim);
-        livingRect(g,14,26,49,4,pale);livingRect(g,16,29,45,1,'#79664d');
-      } else if(cloth){
-        for(const x of [15,59]){livingRect(g,x,24,2.5,36,timber);livingRect(g,x,24,.7,36,pale);}
-        for(let i=0;i<10;i++){
-          const x=12+i*5;
-          livingPoly(g,[[x+4,16],[x+9,16],[x+5,30],[x,30]],i%2?pale:trim);
-          const shade=g.createLinearGradient(0,16,0,31);shade.addColorStop(0,'rgba(255,245,210,.22)');shade.addColorStop(.55,'rgba(255,245,210,.03)');shade.addColorStop(1,'rgba(34,27,20,.23)');
-          livingPoly(g,[[x+4,16],[x+9,16],[x+5,30],[x,30]],shade);
-          livingPoly(g,[[x,30],[x+5,30],[x+5,33],[x+2.5,35],[x,33]],i%2?'#b8a484':trim);
-        }
-        livingRect(g,12,29,50,1,'#735b43');
-      } else if(workshop){
-        for(const x of [16,58]){
-          livingRect(g,x,19,3,41,timber);livingRect(g,x,19,.8,41,pale);
-          livingPoly(g,[[x,34],[x+11*(x<30?1:-1),24],[x+11*(x<30?1:-1),21],[x,29]],timber);
-        }
-        livingRect(g,13,18,51,4,timber);livingRect(g,13,18,51,1,pale);
-        livingPoly(g,[[12,17],[17,11],[65,11],[65,17]],'#665d4d');
-        livingRect(g,12,17,53,2,'#a49471');
-        if(b.slot==='work'){
-          livingRect(g,50,20,1,13,'#504a40');
-          g.strokeStyle='#b39c71';g.lineWidth=1;g.beginPath();g.arc(51,34,3,0,Math.PI);g.stroke();
-        }
-      } else {
-        livingRect(g,23,23,31,3,timber);livingRect(g,23,23,31,1,pale);
-        livingPoly(g,[[20,23],[26,17],[57,17],[57,23]],b.r===7?'#e0e9e9':trim);
-        if(b.slot==='healer')for(const x of [21,55]){
-          livingRect(g,x,26,1.6,34,timber);
-          for(let y=28;y<59;y+=6){livingRect(g,x-2,y,5,2,'#71925c');livingRect(g,x+1,y-2,3,2,'#a0b57a');}
-        }
-      }
-    });
-    // For side entrances the narrow canopy follows the projected door itself.
-    const sort=side?wy+T+.8:wy+.9;
-    list.push([sort,c,wx-38,wy-60,false,1,0,b.fa]);
-    if(!side&&d.side==='south'){
-      // Goods sit against a solid frontage panel, away from the threshold.
-      const offset=[2,-2].find(dx=>b.plan.tiles[d.y*b.w+d.x+dx]===Buildings.WALL);
-      if(offset===undefined)return;
-      const stock=livingCanvas('stock/'+b.slot+'/'+b.r,30,25,g=>{
-        const timber=Interiors.timber[b.r],trim=Interiors.trim[b.r];
-        if(['shop','warehouse','work','tavern'].includes(b.slot)){
-          livingRect(g,2,13,26,3,timber);livingRect(g,4,16,2,8,timber);livingRect(g,24,16,2,8,timber);
-          if(b.slot==='tavern')for(const x of [7,18]){
-            livingPoly(g,[[x-3,4],[x+3,4],[x+5,12],[x-4,12]],'#9b7650');
-            livingRect(g,x-3,6,7,1,'#50483c');livingRect(g,x-3,10,7,1,'#50483c');
-          }else if(b.slot==='work'){
-            livingRect(g,7,8,13,4,'#92918b');livingRect(g,18,4,3,10,'#6b5a41');
-            livingRect(g,15,3,9,3,'#a5a79e');
-          }else for(let i=0;i<4;i++){
-            const x=4+i*6;livingPoly(g,[[x,12],[x+1,5+i%2],[x+4,4],[x+5,12]],i%2?'#b9a77b':trim);
-            livingRect(g,x+1,5,3,1,'#dac69a');
-          }
-        }else{
-          livingRect(g,3,18,24,6,'#8a6c52');livingRect(g,2,17,26,2,'#baa082');
-          for(let i=0;i<8;i++){
-            const x=5+i*2.7,y=11-i%3*2;livingRect(g,x,y,1,7,'#677d43');
-            livingRect(g,x-1,y-1,3,2,b.slot==='healer'?'#aebda0':i%2?'#d3a777':trim);
-          }
-        }
-      });
-      list.push([wy-.3,stock,wx+offset*T-15,wy-25,false,1,0,b.fa]);
-    }
-  }
+  // Fitted jambs and lintels belong to BuildingView's real aperture.
+  // Entrance decoration never puts a canopy in front of the moving leaf.
+  function venueEntrance() {}
 
   function livingVisible(b,margin=64) {
     return b.x*T+b.w*T>=cam.x-margin&&b.x*T<=cam.x+vw+margin
@@ -113,22 +27,7 @@
     if(!map||map.ship)return;
     if(map.dungeonFloor){dungeonLiving(g,ox0,oy0,now);return;}
     if(map.dungeon||map.venue)return;
-    g.save();g.translate(-ox0,-oy0);
-    for(const b of map.blds){
-      if(!b.modular||b.indoor||!livingVisible(b))continue;
-      for(const d of b.plan.doors){
-        const x=(b.x+d.x)*T, y=(b.y+d.y)*T;
-        const side=!!d.facing.x, outward=d.facing.x||d.facing.y;
-        const across=side?x+(outward>0?T:0):y+(outward>0?T:0);
-        const pale=b.r===7?'#c1cdd2':b.r===5?'#8b8073':'#b8a98a';
-        const x0=side?across+(outward<0?-8:0):x-4;
-        const y0=side?y-2:across+(outward<0?-7:0);
-        // These shallow steps are paving; they do not introduce solid cells.
-        livingRect(g,x0,y0,side?8:24,side?20:7,'#514b3e');
-        for(let i=0;i<3;i++)livingRect(g,x0+(side?i*2.5:0),y0+(side?0:i*2.2),side?2:24,side?20:1.5,pale);
-      }
-    }
-    g.restore();
+    // Surface thresholds meet grade; stair artwork is reserved for actual travel.
   }
 
   function livingLayers(list,now) {
@@ -139,6 +38,29 @@
     });
     for(const b of map.blds){
       if(!b.modular||b.indoor||!livingVisible(b)||b.fa<.01||!['house','cottage','tavern','work','healer','warehouse'].includes(b.slot))continue;
+      const painted=architecturePiece(b.r,'chimney');
+      if(painted){
+        const view=worldView(b),candidates=[];
+        for(let y=1;y<b.h-1;y++)for(let x=1;x<b.w-1;x++){
+          if(!b.plan.roof[y*b.w+x])continue;
+          const lx=(x+.5)*T,ly=(y+.5)*T;
+          if(Math.min(...[-8,8].flatMap(dx=>[-3,3].map(dy=>view.roofLift(lx+dx,ly+dy))))<3)continue;
+          candidates.push({lx,ly,d:Math.hypot(x-b.w*.55,y-b.h*.62)});
+        }
+        const anchor=candidates.sort((a,b)=>a.d-b.d)[0];
+        if(anchor){
+          const {lx,ly}=anchor,lift=view.roofLift(lx,ly);
+          const chimney=livingCanvas('painted-chimney/'+artVer+'/'+b.plan.id,36,50,g=>{
+            const h=14*painted.height/painted.width;g.drawImage(painted,11,40-h,14,h);
+            const point=dx=>[18+dx,39-(view.roofLift(lx+dx,ly-1)-lift)];
+            const a=point(-8),z=point(8);g.save();g.beginPath();g.moveTo(...a);g.lineTo(...z);
+            g.lineTo(z[0],z[1]+3);g.lineTo(a[0],a[1]+3);g.closePath();g.clip();
+            g.drawImage(view.roof,(lx-18)*K,(ly-lift-40)*K,36*K,50*K,0,0,36,50);g.restore();
+          });
+          list.push([b.by+1.4,chimney,b.x*T+lx-18,b.y*T+ly-view.wallHeight-(b.storeyLift||0)-lift-40,false,1,0,b.fa]);
+        }
+        continue;
+      }
       const chimney=livingCanvas('chimney/'+b.r,13,25,g=>{
         const stone=b.r===7?'#a8b7c2':b.r===5?'#84736c':'#998c77';
         livingRect(g,3,4,7,21,'#4b443b');livingRect(g,3,4,4,21,stone);

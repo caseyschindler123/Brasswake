@@ -22,7 +22,7 @@ for (const [label, args] of [
   ['Poker', ['test/pk_test.js']],
   ['Casino', ['test/house_test.js']],
   ['Sound and magic', ['--test', 'test/effects.test.js']],
-  ['Dungeon layouts and progression', ['--test', 'test/dungeons.test.js', 'test/dungeon-progress.test.js', 'test/dungeon-play.test.js']],
+  ['Dungeon layouts and progression', ['--test', 'test/dungeons.test.js', 'test/dungeon-progress.test.js', 'test/dungeon-play.test.js', 'test/architecture-dungeon.test.js', 'test/architecture-art.test.js']],
   ['Music routing, assets and playback lifecycle', ['--test', 'test/music.test.js']],
   ['World ownership, continuous motion and presentation', ['--test', 'test/worlds_test.js', 'test/movement.test.js', 'test/actor-rig.test.js', 'test/living-places.test.js', 'test/respawn.test.js']],
   ['Build', ['build.js']],

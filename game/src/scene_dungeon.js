@@ -14,6 +14,40 @@
     const c = cut(name, q[0], q[1], q[2], q[3]);
     return { f:[c],b:[c],s:[c],art:1,left:1,bob:1,msc:Dungeons.species[k].scale || 1 };
   }
+  const DUNGEON_STAIRS = new Map();
+  function dungeonTravelArt(e) {
+    const down = e.kind === 'stairs' || e.to > e.floor;
+    const name = down ? 'stairs_down' : 'stairs_up';
+    const source = architecturePiece(e.r, name);
+    if (!source) return null;
+    const key = e.r + '/' + name;
+    const cached = DUNGEON_STAIRS.get(key);
+    if (cached?.source === source) return cached;
+
+    const maxWidth = (down ? 50 : 44) * K;
+    const maxHeight = (down ? 34 : 44) * K;
+    const scale = Math.min(maxWidth / source.width, maxHeight / source.height);
+    const c = mk(Math.round(source.width * scale), Math.round(source.height * scale));
+    c.hr = 1;
+    const g = c.getContext('2d');
+    g.imageSmoothingQuality = 'high';
+    // A soft contact shadow sits behind the rim, clipped to the sprite.
+    g.save();
+    const radius=c.width*.49, flatten=.18, rim=(c.height-c.width*.065)/flatten;
+    g.scale(1,flatten);
+    const shadow=g.createRadialGradient(c.width/2,rim,0,c.width/2,rim,radius);
+    shadow.addColorStop(0,'#100e0d56');
+    shadow.addColorStop(.66,'#100e0d36');
+    shadow.addColorStop(1,'#100e0d00');
+    g.fillStyle=shadow;
+    g.fillRect(0,rim-radius,c.width,radius*2);
+    g.restore();
+    g.drawImage(source, 0, 0, c.width, c.height);
+    // Object feet are y*T+15 and gain one pixel in Scene's object layer.
+    const sprite = { c, ax: lw(c) / 2, ay: lh(c), source };
+    DUNGEON_STAIRS.set(key, sprite);
+    return sprite;
+  }
   function dungeonGate(e,r) {
     const cells=e.cells||[[e.x,e.y]],xs=cells.map(c=>c[0]),ys=cells.map(c=>c[1]),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys),side=maxY>minY;
     const original=dungeonArt(side?'gate-side':'gate',r);if(!original)return null;
@@ -93,9 +127,16 @@
     for(const e of m.ents)if(m.discovered[e.y*m.w+e.x]&&['dtravel','chest','dcache','keeper','dlever','dsecret'].includes(e.kind)){g.fillStyle=e.kind==='dtravel'?'#88d3ed':e.kind==='keeper'?'#f38d75':'#e3b656';g.fillRect(e.x,e.y,2,2);}
   }
   function dungeonRespawn(m) {
-    if(!m.dungeonFloor||!host.dungeonState)return;
+    if(!m.dungeonFloor)return;
+    const materialReady = typeof DungeonArt !== 'undefined' && have(DungeonArt.image);
+    const architecture = dungeonWallArt(m.r);
+    if(m.artReady !== materialReady || m.wallArt?.face !== architecture?.face || m.wallArt?.coping !== architecture?.coping){
+      m.artReady=materialReady;
+      m.wallArt=architecture;
+      m.chunks.clear();
+    }
+    if(!host.dungeonState)return;
     const p=host.dungeonState(),time=Date.now();if(!p)return;
-    if(!m.artReady&&typeof DungeonArt!=='undefined'&&have(DungeonArt.image)){m.artReady=true;m.chunks.clear();}
     for(const e of m.spawnDefs){
       if(e.tutorial&&p.claimed.tutorialKey)continue;
       if(m.ents.some(x=>x.id===e.id&&!x.dead&&!x.dying)||!DungeonProgress.alive(p,e,time))continue;
@@ -192,7 +233,7 @@
         const x=Math.round(R.x+R.w*fraction), y=R.y-1;
         if(layout.tiles[y*layout.w+x]!==0||layout.tiles[(y+1)*layout.w+x]!==1)continue;
         if(layout.entities.some(e=>Math.abs(e.x-x)<2&&Math.abs(e.y-y)<3))continue;
-        result.push({x,y,kind:'dn_fixture_'+kind,r,sc:.9});
+        result.push({x,y,kind:'dn_fixture_'+kind,r,sc:.285,hang:1,wallDisplay:1});
       }
       // The north displays can be above a phone's first arrival view. Carve a
       // second visual recess into the near wall's existing solid mass. At .75
@@ -302,8 +343,149 @@
     }
     g.restore();return true;
   }
+  function dungeonWallArt(r) {
+    if(typeof architecturePiece !== 'function')return null;
+    const face=architecturePiece(r,'dungeon_face'),coping=architecturePiece(r,'dungeon_coping');
+    return face&&coping?{face,coping}:null;
+  }
+  function dungeonWallStrip(g, art, x, y, width, height, u = 0, fraction = 1) {
+    g.drawImage(art, art.width * u, 0, art.width * fraction, art.height, x, y, width, height);
+  }
+  function dungeonSideCoping(g, coping, x, y, width, height, east) {
+    g.save();
+    g.translate(x + (east ? width : 0), y + (east ? 0 : height));
+    g.rotate((east ? 1 : -1) * Math.PI / 2);
+    g.drawImage(coping, 0, 0, height, width);
+    g.restore();
+  }
+  function dungeonPaintWall(g, art, x, y, south, north, west, east, r) {
+    const X = x * TS, Y = y * TS, {face,coping} = art;
+    const shade = (xx,yy,w,h,colour) => {g.fillStyle=colour;g.fillRect(xx,yy,w,h);};
+    g.save();
+    g.beginPath();
+    g.rect(X,Y,TS,TS);
+    g.clip();
+
+    if(south){
+      dungeonWallStrip(g,face,X,Y+9,TS,TS-9);
+      dungeonWallStrip(g,coping,X,Y+4,TS,7);
+      shade(X,Y+TS-6,TS,6,'#10131791');
+      shade(X,Y+TS-6,TS,1,'#c3ae8b42');
+    }
+    if(north){
+      dungeonWallStrip(g,face,X,Y+4,TS,27,0,.78);
+      dungeonWallStrip(g,coping,X,Y,TS,6);
+      shade(X,Y+29,TS,6,'#090e15ac');
+      if((x+r)%5===0){
+        shade(X+10,Y+4,28,34,'#080b108c');
+        dungeonWallStrip(g,face,X+13,Y+5,21,28,.29,.4);
+        dungeonWallStrip(g,coping,X+10,Y+2,27,6);
+        dungeonWallStrip(g,coping,X+10,Y+31,27,6);
+        shade(X+30,Y+8,4,23,'#10151c7d');
+      }
+    }
+    for(const right of [false,true]){
+      if(!(right ? east : west))continue;
+      const xx=X+(right?TS-22:0);
+      const top=Y+(north?6:0),height=TS-(north?6:0)-(south?6:0);
+      dungeonWallStrip(g,face,xx,top,22,height,right ? .3 : .12,.48);
+      shade(xx,top,22,height,'#14192454');
+      shade(xx+(right?0:19),top,3,height,'#0d121a88');
+      dungeonSideCoping(g,coping,xx+(right?16:0),top,6,height,right);
+      if((y+r)%5===0&&!north&&!south){
+        dungeonWallStrip(g,face,xx+(right?0:4),Y+12,18,22,.2,.4);
+        dungeonWallStrip(g,coping,xx+(right?0:4),Y+11,18,5);
+        shade(xx+(right?0:4),Y+32,18,4,'#080d1599');
+      }
+    }
+    g.restore();
+  }
+  function dungeonPaintWallFallback(g, th, texture, x, y, south, north, west, east, r) {
+    if(south){
+      // A bright coping, textured masonry face, and dark plinth distinguish
+      // the raised wall from the floor below it in all eight palettes.
+      g.fillStyle=texture('wall')||th.wall;g.fillRect(x*TS,y*TS+8,TS,TS-8);
+      g.fillStyle=th.accent+'46';g.fillRect(x*TS,y*TS+8,TS,3);
+      g.fillStyle='#090b1055';g.fillRect(x*TS,y*TS+29,TS,2);
+      g.fillRect(x*TS+((x+y)%2?14:32),y*TS+10,1.5,19);
+      g.fillRect(x*TS+((x+y)%2?31:13),y*TS+31,1.5,13);
+      g.fillStyle='#080d1099';g.fillRect(x*TS,(y+1)*TS-5,TS,5);
+      g.fillStyle=th.accent+'24';g.fillRect(x*TS,(y+1)*TS-6,TS,1);
+    }
+    if(north){
+      const X=x*TS,Y=y*TS;
+      g.fillStyle=texture('wall')||th.alternate;g.fillRect(X,Y+5,TS,25);
+      g.fillStyle=th.accent+'36';g.fillRect(X,Y+5,TS,25);
+      g.fillStyle='#0a101351';g.fillRect(X,Y+17,TS,1.5);
+      g.fillRect(X+((x+y)%2?13:33),Y+6,1.5,11);g.fillRect(X+((x+y)%2?32:12),Y+19,1.5,10);
+      g.fillStyle=th.accent+'94';g.fillRect(X,Y,TS,4);
+      g.fillStyle='#dce3c74d';g.fillRect(X,Y,TS,1);
+      g.fillStyle='#070c14bb';g.fillRect(X,Y+30,TS,5);
+      if((x+r)%5===0){
+        g.fillStyle='#0a0e16b3';g.fillRect(X+14,Y+3,23,34);
+        g.fillStyle=texture('wall')||th.alternate;g.fillRect(X+13,Y+4,16,29);
+        g.fillStyle=th.accent+'66';g.fillRect(X+13,Y+4,3,29);
+        g.fillStyle=th.accent+'8f';g.fillRect(X+11,Y+1,20,4);
+        g.fillStyle='#080c15aa';g.fillRect(X+12,Y+33,19,4);
+      }
+    }
+    for(const dx of [-1,1]){
+      if(dx<0?!west:!east)continue;
+      const xx=x*TS+(dx>0?TS-22:0),yy=y*TS;
+      g.fillStyle=texture('wall')||th.alternate;g.fillRect(xx,yy,22,TS);
+      g.fillStyle='#090f185e';g.fillRect(xx,yy,22,TS);
+      g.fillStyle=th.accent+'80';g.fillRect(xx+(dx>0?17:0),yy,5,TS);
+      g.fillStyle='#e0e2ca3b';g.fillRect(xx+(dx>0?20:0),yy,2,TS);
+      g.fillStyle='#060b159c';g.fillRect(xx+(dx>0?0:19),yy,3,TS);
+      g.fillStyle='#080d155e';g.fillRect(xx,yy+18,22,1.5);g.fillRect(xx,yy+36,22,1.5);
+      if((y+r)%5===0){
+        g.fillStyle=texture('wall')||th.alternate;g.fillRect(xx+(dx>0?0:5),yy+13,17,20);
+        g.fillStyle=th.accent+'68';g.fillRect(xx+(dx>0?0:5),yy+13,17,3);
+        g.fillStyle='#080c15aa';g.fillRect(xx+(dx>0?0:5),yy+30,17,3);
+      }
+    }
+  }
+  function dungeonPaintWallDisplay(g, art, X, Y, th) {
+    g.fillStyle='#0a0f15d9';
+    g.fillRect(X+4,Y+8,40,35);
+    if(art){
+      dungeonWallStrip(g,art.face,X+1,Y+6,4,37,.18,.14);
+      dungeonWallStrip(g,art.face,X+43,Y+6,4,37,.63,.14);
+      dungeonWallStrip(g,art.coping,X+1,Y+4,46,6);
+      dungeonWallStrip(g,art.coping,X+1,Y+41,46,5);
+    }else{
+      g.fillStyle=th.alternate;
+      g.fillRect(X+1,Y+41,46,5);
+      g.fillStyle=th.accent+'6a';
+      g.fillRect(X+1,Y+41,46,1);
+    }
+  }
+  function dungeonPaintRecess(g, art, X, Y) {
+    const {face,coping}=art;
+    // The jambs continue into masonry shoulders inside the three solid cells.
+    for(const [x,u] of [[X-15,.15],[X+114,.64]]){
+      dungeonWallStrip(g,face,x,Y,15,87,u,.22);
+      dungeonWallStrip(g,coping,x,Y,15,7);
+      dungeonWallStrip(g,coping,x,Y+82,15,6);
+      g.fillStyle='#0a111a8a';
+      g.fillRect(x,Y+88,15,2);
+    }
+    dungeonWallStrip(g,face,X,Y,114,87);
+    g.fillStyle='#0c1015d9';
+    g.fillRect(X+8,Y+7,98,74);
+    g.fillStyle='#080b11a6';
+    g.fillRect(X+8,Y+7,98,11);
+    g.fillRect(X+8,Y+17,5,62);
+    g.fillRect(X+101,Y+17,5,62);
+    dungeonSideCoping(g,coping,X+1,Y+6,6,77,false);
+    dungeonSideCoping(g,coping,X+107,Y+6,6,77,true);
+    dungeonWallStrip(g,coping,X-2,Y,118,7);
+    dungeonWallStrip(g,coping,X-2,Y+82,118,6);
+    g.fillStyle='#0a111a8a';
+    g.fillRect(X-2,Y+88,118,2);
+  }
   function dungeonPaint(m,g,X0,Y0){
-    const th=m.layout.theme,art=typeof DungeonArt!=='undefined'&&DungeonArt.themes[m.r];
+    const th=m.layout.theme,art=typeof DungeonArt!=='undefined'&&DungeonArt.themes[m.r],wallArt=dungeonWallArt(m.r);
     const texture=key=>{if(!art)return null;const rc=art[key];if(!rc||!have(DungeonArt.image))return null;const k=m.r+key;if(!DUNPAT[k])DUNPAT[k]=g.createPattern(cut(DungeonArt.image,...rc),'repeat');return DUNPAT[k];};
     for(let y=Y0;y<Math.min(m.h,Y0+CS);y++)for(let x=X0;x<Math.min(m.w,X0+CS);x++){
       const i=y*m.w+x,t=m.dt[i],room=m.layout.rooms.find(R=>x>=R.x&&y>=R.y&&x<R.x+R.w&&y<R.y+R.h),alt=room&&(room.cx+room.cy+m.f)%4===0,key=t===0?'wall':t===2||t===3?'hazard':t===4?'alternate':alt?'alternate':'floor';
@@ -316,62 +498,34 @@
         // on its exposed cutaway faces, with relief inside solid cells only.
         g.fillStyle=th.wall;g.fillRect(x*TS,y*TS,TS,TS);
         g.fillStyle='#070c1266';g.fillRect(x*TS,y*TS,TS,TS);
-        if(south){
-          // A bright coping, textured masonry face, and dark plinth distinguish
-          // the raised wall from the floor below it in all eight palettes.
-          g.fillStyle=texture('wall')||th.wall;g.fillRect(x*TS,y*TS+8,TS,TS-8);
-          g.fillStyle=th.accent+'46';g.fillRect(x*TS,y*TS+8,TS,3);
-          g.fillStyle='#090b1055';g.fillRect(x*TS,y*TS+29,TS,2);
-          g.fillRect(x*TS+((x+y)%2?14:32),y*TS+10,1.5,19);
-          g.fillRect(x*TS+((x+y)%2?31:13),y*TS+31,1.5,13);
-          g.fillStyle='#080d1099';g.fillRect(x*TS,(y+1)*TS-5,TS,5);
-          g.fillStyle=th.accent+'24';g.fillRect(x*TS,(y+1)*TS-6,TS,1);
-        }
-        if(north){
-          const X=x*TS,Y=y*TS;
-          g.fillStyle=texture('wall')||th.alternate;g.fillRect(X,Y+5,TS,25);
-          g.fillStyle=th.accent+'36';g.fillRect(X,Y+5,TS,25);
-          g.fillStyle='#0a101351';g.fillRect(X,Y+17,TS,1.5);
-          g.fillRect(X+((x+y)%2?13:33),Y+6,1.5,11);g.fillRect(X+((x+y)%2?32:12),Y+19,1.5,10);
-          g.fillStyle=th.accent+'94';g.fillRect(X,Y,TS,4);
-          g.fillStyle='#dce3c74d';g.fillRect(X,Y,TS,1);
-          g.fillStyle='#070c14bb';g.fillRect(X,Y+30,TS,5);
-          if((x+m.r)%5===0){
-            g.fillStyle='#0a0e16b3';g.fillRect(X+14,Y+3,23,34);
-            g.fillStyle=texture('wall')||th.alternate;g.fillRect(X+13,Y+4,16,29);
-            g.fillStyle=th.accent+'66';g.fillRect(X+13,Y+4,3,29);
-            g.fillStyle=th.accent+'8f';g.fillRect(X+11,Y+1,20,4);
-            g.fillStyle='#080c15aa';g.fillRect(X+12,Y+33,19,4);
-          }
-        }
-        for(const [dx,dy]of [[-1,0],[1,0]]){
-          if(x+dx<0||x+dx>=m.w||!floor(m.dt[i+dx]))continue;
-          const xx=x*TS+(dx>0?TS-22:0),yy=y*TS;
-          g.fillStyle=texture('wall')||th.alternate;g.fillRect(xx,yy,22,TS);
-          g.fillStyle='#090f185e';g.fillRect(xx,yy,22,TS);
-          g.fillStyle=th.accent+'80';g.fillRect(xx+(dx>0?17:0),yy,5,TS);
-          g.fillStyle='#e0e2ca3b';g.fillRect(xx+(dx>0?20:0),yy,2,TS);
-          g.fillStyle='#060b159c';g.fillRect(xx+(dx>0?0:19),yy,3,TS);
-          g.fillStyle='#080d155e';g.fillRect(xx,yy+18,22,1.5);g.fillRect(xx,yy+36,22,1.5);
-          if((y+m.r)%5===0){
-            g.fillStyle=texture('wall')||th.alternate;g.fillRect(xx+(dx>0?0:5),yy+13,17,20);
-            g.fillStyle=th.accent+'68';g.fillRect(xx+(dx>0?0:5),yy+13,17,3);
-            g.fillStyle='#080c15aa';g.fillRect(xx+(dx>0?0:5),yy+30,17,3);
-          }
+        const west=x>0&&floor(m.dt[i-1]),east=x+1<m.w&&floor(m.dt[i+1]);
+        if(wallArt){
+          if(south||north||west||east)dungeonPaintWall(g,wallArt,x,y,south,north,west,east,m.r);
+        }else{
+          dungeonPaintWallFallback(g,th,texture,x,y,south,north,west,east,m.r);
         }
         for(const prop of m.props||[]){
-          const recess=prop.recess;if(!recess||recess.side!=='south'||Math.abs(x-recess.x)>2||y<recess.y||y>recess.y+1)continue;
+          if(prop.wallDisplay&&prop.x===x&&prop.y===y){
+            g.save();g.beginPath();g.rect(x*TS,y*TS,TS,TS);g.clip();
+            dungeonPaintWallDisplay(g,wallArt,x*TS,y*TS,th);
+            g.restore();
+            continue;
+          }
+          const recess=prop.recess;if(!recess||recess.side!=='south'||Math.abs(x-recess.x)>1||y<recess.y||y>recess.y+1)continue;
           g.save();g.beginPath();g.rect(x*TS,y*TS,TS,TS);g.clip();
           const X=prop.x*TS-33,Y=recess.y*TS+3;
-          g.fillStyle='#080c1278';g.fillRect(X,Y,114,87);
-          g.fillStyle='#080d16aa';g.fillRect(X+2,Y+3,110,7);g.fillRect(X+1,Y+6,4,76);
-          g.fillStyle=texture('wall')||th.alternate;g.fillRect(X-2,Y+82,118,5);
-          g.fillStyle='#a8ada738';g.fillRect(X-2,Y+82,118,1.2);
-          g.fillStyle='#0a111a8a';g.fillRect(X-2,Y+87,118,3);
-          // Broken masonry courses and shadow replace a picture-frame outline.
-          for(let n=0;n<6;n++){
-            g.fillStyle='#9da69e28';g.fillRect(X+n*19,Y,17,2.2);
-            g.fillStyle='#0b111a70';g.fillRect(X+n*19+17,Y,2,4);
+          if(wallArt)dungeonPaintRecess(g,wallArt,X,Y);
+          else{
+            g.fillStyle='#080c1278';g.fillRect(X,Y,114,87);
+            g.fillStyle='#080d16aa';g.fillRect(X+2,Y+3,110,7);g.fillRect(X+1,Y+6,4,76);
+            g.fillStyle=texture('wall')||th.alternate;g.fillRect(X-2,Y+82,118,5);
+            g.fillStyle='#a8ada738';g.fillRect(X-2,Y+82,118,1.2);
+            g.fillStyle='#0a111a8a';g.fillRect(X-2,Y+87,118,3);
+            // Broken masonry courses and shadow replace a picture-frame outline.
+            for(let n=0;n<6;n++){
+              g.fillStyle='#9da69e28';g.fillRect(X+n*19,Y,17,2.2);
+              g.fillStyle='#0b111a70';g.fillRect(X+n*19+17,Y,2,4);
+            }
           }
           g.restore();
         }

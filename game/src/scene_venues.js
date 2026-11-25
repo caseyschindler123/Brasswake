@@ -88,7 +88,7 @@
     const id = b.plan.id;
     const e = addEnt(m, { kind: 'venueup', x: at[0], y: at[1], r: b.r, venueId: id,
       name, sub: 'Go upstairs', ok: 'venue_stairs_up' });
-    if (!b.landmark) b.storeyLift = type === 'civic' ? 24 : type === 'tavern' ? 18 : 12;
+    b.storeyLift = 38;
     m.venues.set(id, { id, type, r: b.r, name, building: b, stair: e });
   }
 
@@ -369,8 +369,8 @@
   function venueProp(kind, r) {
     const key = kind + '/' + r;
     if (venueArt.has(key)) return venueArt.get(key);
-    const w = kind === 'venue_training_mat' ? 38 : kind === 'venue_awning' ? 32 : 24;
-    const h = kind === 'venue_training_mat' ? 23 : kind === 'venue_awning' ? 15 : kind === 'venue_medicine' ? 16 : 29;
+    const w = kind === 'venue_training_mat' ? 38 : 24;
+    const h = kind === 'venue_training_mat' ? 23 : kind === 'venue_medicine' ? 16 : 29;
     const c = mk(w * K, h * K), g = c.getContext('2d'); c.hr = 1; g.scale(K, K);
     const rect = (x, y, width, height, color) => { g.fillStyle=color; g.fillRect(x,y,width,height); };
     const poly = (pts, color) => {
@@ -405,24 +405,18 @@
         for(let x=4 + (Math.round(y)%2);x<w-2;x+=4)rect(x,y,1.6,.45,'#d4c6a0');
       }
       rect(1.2,1.2,1.5,h-2.5,trim);rect(w-2.6,1.2,1.5,h-2.5,trim);
-    } else if (kind === 'venue_awning') {
-      for(let i=0;i<8;i++){
-        const x=i*4;
-        poly([[x+2,1],[x+5.6,1],[x+4,9],[x,9]], i%2 ? '#d4c6a0' : trim);
-        poly([[x,9],[x+4,9],[x+4,11.7],[x+2,13.1],[x,11.7]], i%2 ? '#af9878' : trim);
-      }
-      rect(2,0,30,1,wood); rect(0,9,32,.7,'#796754');
     }
     const art = { c, ax:w/2, ay:h-1 }; venueArt.set(key,art); return art;
   }
 
   const venueDoorArt = new Map();
   function venueDoorImage(r, side, frame) {
-    const key = 'door/' + r + '/' + side + '/' + frame;
+    const painted=architecturePiece(r,'door');
+    const key = 'door/' + r + '/' + side + '/' + frame+(painted?'/painted/'+artVer:'');
     if (venueDoorArt.has(key)) {
       const art=venueDoorArt.get(key);venueDoorArt.delete(key);venueDoorArt.set(key,art);return art;
     }
-    const value = BuildingView.doorLeaf(Interiors.timber[r], side, frame);
+    const value = BuildingView.doorLeaf(Interiors.timber[r], side, frame, painted);
     venueDoorArt.set(key, value);
     // Under 6 MiB, independent of the number of settlements visited.
     if(venueDoorArt.size>96)venueDoorArt.delete(venueDoorArt.keys().next().value);
@@ -484,27 +478,6 @@
   }
 
   function venueUpperWalls(b, list) {
-    const lift = b.storeyLift;
-    for (const edge of b.plan.edges) {
-      const side = edge.side, across = side === 'north' || side === 'south';
-      if (side === 'north') continue;
-      const panel = across && (edge.x + edge.y) % 3 === 1 ? 2 : 0;
-      const key = ['gallery', b.r, lift, side, panel].join('/');
-      const face = worldPiece('wf'+b.r+'_'+panel);
-      let cached = venueArt.get(key);
-      if (!cached || cached.face !== face) {
-        const w = across ? T : 5, h = across ? lift : lift + T;
-        const image = mk(w*K,h*K); image.hr=1;
-        const g = image.getContext('2d');
-        g.scale(K,K);
-        g.fillStyle = across ? Interiors.timber[b.r] : '#625548'; g.fillRect(0,0,w,h);
-        if (face) g.drawImage(face,0,0,w,h);
-        g.fillStyle = across ? '#c8b18c' : '#807562'; g.fillRect(0,0,w,1.25);
-        g.fillStyle = '#665647'; g.fillRect(0,h-2,w,2);
-        cached = { image, face }; venueArt.set(key,cached);
-      }
-      const bx = (b.x+edge.x+(side==='east'?1:0))*T;
-      const by = (b.y+edge.y+(side==='south'?1:0))*T;
-      list.push([b.by+.45, cached.image, bx-(side==='east'?3:0), by-40-lift, false, 1, 0, b.fa]);
-    }
+    for(const wall of worldView(b).upperWalls)
+      list.push([b.by+.45,wall.image,b.x*T+wall.x,b.y*T+wall.y,false,1,0,b.fa]);
   }

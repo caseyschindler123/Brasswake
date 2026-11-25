@@ -19,7 +19,7 @@ function harness(){
     Interiors:{timber:Array(9).fill('#796047'),trim:Array(9).fill('#826f62')},
     performance:{now:()=>1000},cam:{x:0,y:0},vw:200,vh:220,map:null,world:null,P:{x:0,y:0,fx:0,fy:0},
     have:()=>false,artRect:()=>null,img:()=>{},clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),
-    worldView:()=>({wallHeight:40,roofLift:()=>0}),
+    worldView:()=>({wallHeight:40,roofLift:()=>0}),architecturePiece:()=>null,
     emit:()=>{},chartSteps:[[1,0],[-1,0],[0,1],[0,-1]],lw:c=>c.width/3,lh:c=>c.height/3};
   context.dirOf=(dx,dy)=>dx>0?'s':dx<0?'l':dy>0?'f':'b';
   context.npcStepClear=(e,dx,dy)=>{
@@ -174,6 +174,7 @@ test('frontage decoration and roof smoke leave collision and occupied ground unt
   const map={w:32,h:32,blds:[b],solid:new Uint8Array(1024),ents:[],occ:new Map()};h.context.map=map;
   const before=JSON.stringify(map),list=[],levelRoof=[],raisedRoof=[];
   for(const d of plan.doors)h.venueEntrance(b,d,list,0,0);
+  assert.equal(list.length,0,'entrance decoration cannot obscure the moving leaf');
   h.livingDraw(h.canvas(300,300).getContext('2d'),0,0,1234);
   h.livingLayers(levelRoof,1234);
   h.context.worldView=()=>({wallHeight:40,roofLift:(x,y)=>{
@@ -183,7 +184,7 @@ test('frontage decoration and roof smoke leave collision and occupied ground unt
   h.livingLayers(raisedRoof,1234);
   assert.deepEqual(raisedRoof.map(a=>a[3]),levelRoof.map(a=>a[3]-11),'chimney and smoke follow projected roof height');
   list.push(...raisedRoof);
-  assert.ok(list.length>=7,'two entrances, wall-side stock, chimney and bounded smoke');
+  assert.equal(list.length,4,'chimney and bounded smoke; no canopy in the doorway');
   assert.equal(JSON.stringify(map),before);
 });
 
@@ -194,7 +195,7 @@ test('animated door frames and settlement decoration retain bounded caches acros
   const plan=Buildings.compile({id:'fronts',w:7,h:7,doors:['south','east']});
   for(let r=1;r<=8;r++)for(const slot of ['shop','tavern','work','bank','guild','civic','temple','healer','house','warehouse','casino'])
     for(const d of plan.doors)h.venueEntrance({r,slot,w:7,h:7,fa:1,plan},d,[],0,0);
-  assert.equal(h.LIVING_ART.size,96);
+  assert.equal(h.LIVING_ART.size,0,'entrances allocate no overlapping decorative canvases');
 });
 
 function routineFixture(){
