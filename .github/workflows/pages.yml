@@ -223,6 +223,7 @@ jobs:
           BW_BASE_URL: ${{ steps.deployment.outputs.page_url || 'https://caseyschindler123.github.io/Brasswake/' }}
           BW_EXPECT_COMMIT: ${{ github.sha }}
           BW_LIVE_UI: ${{ needs.core.outputs.ui }}
+          BW_SELECTION: ${{ needs.core.outputs.plan }}
         run: node test/live.js
       - name: Retain live verification evidence
         if: always()

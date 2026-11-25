@@ -139,6 +139,7 @@ async function finishGuidedDay(f,info,stats,fish=false){
   expect(await f.evaluate(()=>({tut:__bw.S.tut,practice:!!__bw.S.seen['intro.practice'],bank:__bw.S.bank.gold>0}))).toEqual({tut:3,practice:true,bank:true});
 }
 
+if (require('../ui-suites').suitesFromEnvironment().includes('journeys'))
 for (const [path,look] of [['warrior',0],['thief',2],['mage',4],['crafter',6]]) test('a new player meets Tamsin, learns SQL and completes the guided day without skipping · '+path,async({page},info)=>{
   test.setTimeout(750000);const errors=observeErrors(page),stats={fixture:false,steps:0,queries:0,solveVisibleFight:beginnerFight};
   await page.waitForLoadState('networkidle');

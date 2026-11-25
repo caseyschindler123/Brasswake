@@ -6,6 +6,7 @@ const { chooseUI, collectChanges, packagingScripts, selection } = require('./sel
 const { publishedSource, assertDeploymentOrder, publicationDecision } = require('./deployment-baseline');
 const { ALL_SUITES, MODULES, normalizeSuites, suitesFromEnvironment, validSelection } = require('./ui-suites');
 const { releaseGate } = require('./release-gate');
+const { LIVE_SUITES, liveSuites, suitesFromLiveEnvironment } = require('./live-suites');
 
 for (const file of ['AGENTS.md', 'game/docs/05_CODING_WORKFLOW.md', '.github/workflows/pages.yml', 'game/package-lock.json']) {
   test('tooling/docs do not publish or run game UI: ' + file, () => {
@@ -41,10 +42,66 @@ test('mixed changes retain the union; one unknown source promotes the whole rele
   for(const suite of ['smoke','scenes','npc-appearance','worlds','arming','sound','music'])assert.ok(plan.suites.includes(suite));
   assert.equal(chooseUI({files:[...files,'game/src/new_system.js']}).tier,'full');
 });
+
+test('reviewed landscape presentation selects its consumers while physical/runtime changes retain journeys',()=>{
+  for(const file of ['game/src/landscape.js','game/src/scene_landscape.js','game/src/artlandscape.js','game/art/landscape/region-1.webp']){
+    const plan=chooseUI({files:[file]});
+    assert.equal(plan.tier,'focused');assert.equal(plan.release,true);
+    for(const suite of ['smoke','scenes','npc-appearance','living-world','world-buildings','cartography'])assert.ok(plan.suites.includes(suite));
+    assert.equal(plan.suites.includes('journeys'),false);
+    for(const risky of ['game/src/scene_b.js','game/src/buildings.js','game/src/movement.js','game/src/world_progress.js',
+      'game/src/offline.js','game/src/style.css','game/src/engine.js','game/build.js','game/src/new_system.js']){
+      const full=chooseUI({files:[file,risky]});assert.equal(full.tier,'full');assert.ok(full.suites.includes('journeys'));
+    }
+  }
+});
+
+test('journey scope retains targeted first-day checks and edits to its owning fixture retain long cases',()=>{
+  assert.deepEqual(normalizeSuites(['smoke','journeys']),['smoke','first-day','journeys']);
+  const fixture=chooseUI({files:['game/test/browser/first-day.js']});
+  assert.deepEqual(fixture.suites,['smoke','first-day','journeys']);assert.equal(fixture.release,false);
+  const incomplete=chooseUI({files:['game/src/game.js']});
+  incomplete.suites=incomplete.suites.filter(name=>name!=='journeys');
+  assert.equal(validSelection(incomplete),false,'full cannot omit long cases');
+});
+
+test('reviewed atlas changes select their render consumers, with physical and save code still full',()=>{
+  for(const file of ['game/src/artarchitecture.js','game/art/architecture/region-1.webp']){
+    const plan=chooseUI({files:[file]});assert.equal(plan.tier,'focused');
+    for(const suite of ['smoke','scenes','world-buildings','venues','dungeons','living-world'])assert.ok(plan.suites.includes(suite));
+    assert.equal(plan.suites.includes('journeys'),false);
+  }
+  for(const file of ['game/src/artcartography.js','game/art/cartography/props.webp'])
+    assert.deepEqual(chooseUI({files:[file]}).suites,['smoke','scenes','world-buildings','cartography']);
+  for(const file of ['game/src/buildings.js','game/src/scene_dungeon.js','game/src/dungeon_progress.js',
+    'game/src/cartography.js','game/src/cartography_screen.js','game/src/scene_cartography.js'])
+    assert.equal(chooseUI({files:[file,'game/src/artarchitecture.js']}).tier,'full');
+});
+
+test('hosted selection always retains smoke, affected behavior and all risky/full flows',()=>{
+  const plan=files=>({...chooseUI({files}),files});
+  assert.deepEqual(liveSuites(plan(['game/src/scene_landscape.js'])),['smoke']);
+  assert.deepEqual(liveSuites(plan(['game/art/landscape/region-1.webp'])),['smoke','offline']);
+  assert.deepEqual(liveSuites(plan(['game/src/audio.js'])),['smoke','audio']);
+  assert.deepEqual(liveSuites(plan(['game/art/fx/door.wav'])),['smoke','audio','offline']);
+  assert.deepEqual(liveSuites(plan(['game/src/query_feedback.js'])),['smoke','battle']);
+  assert.deepEqual(liveSuites(plan(['game/src/actor_rig.js'])),['smoke','arrival']);
+  for(const file of ['game/src/game.js','game/src/offline.js','game/build.js','game/src/movement.js','game/src/unknown.js'])
+    assert.deepEqual(liveSuites(plan([file])),LIVE_SUITES);
+  assert.deepEqual(liveSuites(chooseUI({event:'schedule'})),LIVE_SUITES);
+  assert.deepEqual(liveSuites(chooseUI({files:['game/src/audio.js']})),LIVE_SUITES,'missing changed-file evidence cannot omit offline checks');
+  assert.deepEqual(suitesFromLiveEnvironment(undefined),LIVE_SUITES);
+  for(const value of ['', '[]', 'null','{}','["smoke","unknown"]','["audio"]','["smoke","smoke"]'])
+    assert.throws(()=>suitesFromLiveEnvironment(value));
+  assert.throws(()=>liveSuites({tier:'full',suites:['smoke']}),/valid verification plan/);
+});
 test('suite repairs keep their tests; shared fixture repairs require full coverage',()=>{
   for(const name of MODULES){
     const plan=chooseUI({files:['game/test/browser/'+name+'.js']});
     assert.ok(plan.suites.includes(name));assert.ok(plan.suites.includes('smoke'));assert.equal(plan.release,false);
+  }
+  for(const file of ['game/test/live-suites.js','game/test/live.js','game/test/browser/live.spec.js']){
+    const plan=chooseUI({files:[file]});assert.ok(plan.suites.includes('smoke'));assert.equal(plan.release,false);
   }
   for(const name of ['movement','flow','intro-helper','offline-flow','unregistered'])
     assert.equal(chooseUI({files:['game/test/browser/'+name+'.js']}).tier,'full');
@@ -222,9 +279,11 @@ test('workflow YAML rejects duplicate keys and preserves baseline/publication wi
   assert.equal(deploy.if,"steps.order.outputs.publish == 'true'");
   assert.equal(jobs.core.outputs.coverage_base,'${{ steps.select.outputs.coverage_base }}');
   assert.equal(jobs.core.steps.find(s=>s.id==='select').run,'node test/select-tests.js');
+  assert.equal(jobs.deploy.steps.find(s=>s.run==='node test/live.js').env.BW_SELECTION,'${{ needs.core.outputs.plan }}');
 });
-function listSuites(suites){
-  const env={...process.env,BW_UI_SUITES:JSON.stringify(suites)};delete env.BW_LIVE;
+function listSuites(suites,{live=false}={}){
+  const env={...process.env,[live?'BW_LIVE_SUITES':'BW_UI_SUITES']:JSON.stringify(suites)};
+  if(live)env.BW_LIVE='1';else delete env.BW_LIVE;
   const result=spawnSync(process.execPath,[require.resolve('@playwright/test/cli'),'test','--list','--reporter=json'],{
     cwd:path.resolve(__dirname,'..'),encoding:'utf8',env,maxBuffer:16*1024*1024});
   assert.equal(result.status,0,result.stderr);const report=JSON.parse(result.stdout);assert.deepEqual(report.errors,[]);
@@ -238,4 +297,26 @@ test('actual discovery retains full long flows and all projects; smoke stays bou
   for(const name of MODULES)assert.ok(full.some(t=>t.file.replace(/\\/g,'/').endsWith(name+'.js')),name+' is registered');
   assert.ok(music.length>smoke.length);assert.ok(music.every(t=>smoke.some(s=>s.title===t.title)||t.file.replace(/\\/g,'/').endsWith('music.js')));
   assert.ok(full.length>music.length);assert.ok(full.every(t=>full.filter(c=>c.project===t.project).length===full.length/3));
+});
+
+test('real discovery separates the four profession days without losing targeted first-day regressions',()=>{
+  const focused=listSuites(['smoke','first-day']);
+  const journeys=listSuites(normalizeSuites(['smoke','journeys']));
+  assert.equal(focused.some(t=>t.title.includes('guided day without skipping')),false);
+  assert.equal(journeys.filter(t=>t.title.includes('guided day without skipping')).length,12);
+  for(const path of ['warrior','thief','mage','crafter'])
+    assert.equal(journeys.filter(t=>t.title.endsWith('· '+path)).length,3);
+  for(const title of ['road farewell completes','unfinished safe practice survives','guided fishing keeps'])
+    assert.equal(focused.filter(t=>t.title.includes(title)).length,3);
+  assert.ok(focused.every(t=>journeys.some(j=>j.title===t.title&&j.project===t.project)));
+});
+
+test('hosted real discovery retains one smoke, affected checks and all six full cases',()=>{
+  const smoke=listSuites(['smoke'],{live:true}),all=listSuites(LIVE_SUITES,{live:true});
+  assert.equal(smoke.length,1);assert.match(smoke[0].title,/exact deployed commit/);
+  assert.equal(all.length,6);
+  for(const [suite,count] of [['audio',2],['offline',2],['battle',2],['arrival',3]]){
+    const cases=listSuites(['smoke',suite],{live:true});assert.equal(cases.length,count);
+    assert.ok(cases.every(t=>all.some(c=>c.title===t.title)));
+  }
 });

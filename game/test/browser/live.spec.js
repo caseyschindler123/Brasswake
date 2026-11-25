@@ -2,26 +2,27 @@ const { test, expect } = require('@playwright/test');
 const { observeErrors, playerFlow } = require('./flow');
 const {fullArrival}=require('./intro-helper');
 const {screenshot}=require('./flow');
+const selected = new Set(require('../live-suites').suitesFromLiveEnvironment());
 
-test('the published generated soundtrack and effects obey independent persistent controls', async ({ page }, info) => {
+if (selected.has('audio')) test('the published generated soundtrack and effects obey independent persistent controls', async ({ page }, info) => {
   const errors = observeErrors(page);
   await require('./audio-release').audioRelease(page, info, './?commit=' + process.env.BW_EXPECT_COMMIT);
   expect(errors).toEqual([]);
 });
 
-test('the published game downloads, cold reopens offline, and restores a save file',async({page,context},info)=>{
+if (selected.has('offline')) test('the published game downloads, cold reopens offline, and restores a save file',async({page,context},info)=>{
   test.setTimeout(300000);
   await require('./offline-flow').offlineFlow(page,context,info,{url:'./',live:true});
 });
 
-test('the published battle grades SQL and compares the wrong query', async ({ page }, info) => {
+if (selected.has('battle')) test('the published battle grades SQL and compares the wrong query', async ({ page }, info) => {
   const errors = observeErrors(page);
   await page.goto('./?commit=' + process.env.BW_EXPECT_COMMIT);
   await require('./battle-release').battleRelease(page, info);
   expect(errors).toEqual([]);
 });
 
-test('the published rescue uses visible controls and reaches Tallyport',async({page},info)=>{
+if (selected.has('arrival')) test('the published rescue uses visible controls and reaches Tallyport',async({page},info)=>{
   const expected=process.env.BW_EXPECT_COMMIT;expect(expected).toMatch(/^[a-f0-9]{40}$/);const errors=observeErrors(page);
   await page.goto('./?commit='+expected);await expect(page.locator('#artload')).toBeHidden({timeout:45000});
   await page.locator('[data-a=newslot]').first().click();await page.locator('[data-a=pick][data-look="3"]').click();await page.locator('[data-a=begin]').click();
@@ -29,7 +30,7 @@ test('the published rescue uses visible controls and reaches Tallyport',async({p
   expect(await page.evaluate(()=>typeof window.__bw)).toBe('undefined');expect(errors).toEqual([]);
 });
 
-test('the published intro keeps character selection in its portrait menu and resumes a name draft',async({page},info)=>{
+if (selected.has('arrival')) test('the published intro keeps character selection in its portrait menu and resumes a name draft',async({page},info)=>{
   const expected=process.env.BW_EXPECT_COMMIT;expect(expected).toMatch(/^[a-f0-9]{40}$/);const errors=observeErrors(page);
   await page.goto('./?commit='+expected);await expect(page.locator('#artload')).toBeHidden({timeout:45000});
   await page.locator('[data-a=newslot]').first().click();await page.locator('[data-a=pick][data-look="0"]').click();await page.locator('[data-a=begin]').click();

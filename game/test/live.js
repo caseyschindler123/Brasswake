@@ -2,6 +2,7 @@ const { spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const { verifyRelease } = require('./verify-release');
+const { liveSuites } = require('./live-suites');
 const baseURL = process.env.BW_BASE_URL;
 const commit = process.env.BW_EXPECT_COMMIT;
 if (!baseURL || !/^https?:\/\//.test(baseURL) || !/^[a-f0-9]{40}$/.test(commit || '')) {
@@ -10,6 +11,10 @@ if (!baseURL || !/^https?:\/\//.test(baseURL) || !/^[a-f0-9]{40}$/.test(commit |
 }
 async function main() {
   process.chdir(path.resolve(__dirname, '..'));
+  // CI passes its validated exact-commit plan. Standalone checks default to all
+  // hosted flows, so an absent plan can never silently narrow verification.
+  const suites = process.env.BW_SELECTION === undefined ? undefined
+    : liveSuites(JSON.parse(process.env.BW_SELECTION));
   const receipt = await verifyRelease({ baseURL, expectedCommit: commit });
   fs.mkdirSync('../work', { recursive: true });
   fs.writeFileSync('../work/live-release.json', JSON.stringify(receipt, null, 2) + '\n');
@@ -19,7 +24,8 @@ async function main() {
     return;
   }
   const result = spawnSync(process.execPath, [require.resolve('@playwright/test/cli'), 'test'], {
-    stdio: 'inherit', env: { ...process.env, BW_LIVE: '1', BW_BASE_URL: baseURL.replace(/\/?$/, '/') },
+    stdio: 'inherit', env: { ...process.env, BW_LIVE: '1', BW_BASE_URL: baseURL.replace(/\/?$/, '/'),
+      ...(suites ? { BW_LIVE_SUITES: JSON.stringify(suites) } : {}) },
   });
   if (result.error) throw result.error;
   process.exitCode = result.status ?? 1;

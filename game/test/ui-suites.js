@@ -3,11 +3,14 @@ const MODULES = ['playability', 'query-feedback', 'battle-risk', 'battle-boundar
   'skill-system', 'backstab', 'npc-appearance', 'sound', 'dungeons', 'music', 'arming',
   'first-day', 'prologue', 'world-travel', 'world-buildings', 'cartography', 'joystick',
   'venues', 'worlds', 'living-world', 'offline', 'offline-restart'];
-const ALL_SUITES = ['smoke', 'scenes', ...MODULES];
+// Focused first-day runs omit long profession days; every full gate retains them.
+const ALL_SUITES = ['smoke', 'scenes', ...MODULES, 'journeys'];
 function normalizeSuites(suites) {
   if (!Array.isArray(suites) || !suites.length || suites.some(s => !ALL_SUITES.includes(s)))
     throw Error('Expected a nonempty array of known browser suites.');
-  return ALL_SUITES.filter(s => suites.includes(s));
+  const requested = new Set(suites);
+  if (requested.has('journeys')) requested.add('first-day');
+  return ALL_SUITES.filter(s => requested.has(s));
 }
 function suitesFromEnvironment(value = process.env.BW_UI_SUITES) {
   return value === undefined ? ALL_SUITES.slice() : normalizeSuites(JSON.parse(value));

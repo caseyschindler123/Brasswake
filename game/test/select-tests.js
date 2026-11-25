@@ -7,10 +7,10 @@ const root = path.resolve(__dirname, '../..');
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 const protocol = new Set(['game/test/select-tests.js', 'game/test/ui-suites.js',
   'game/test/verify.js', 'game/test/run-ui.js', 'game/test/release-gate.js',
-  'game/test/deployment-baseline.js', 'game/test/workflow.test.js', 'game/test/protocol.test.js', 'game/playwright.config.js', 'game/test/browser/ui.spec.js',
+  'game/test/deployment-baseline.js', 'game/test/live.js', 'game/test/live-suites.js', 'game/test/workflow.test.js', 'game/test/protocol.test.js', 'game/playwright.config.js', 'game/test/browser/ui.spec.js', 'game/test/browser/live.spec.js',
   'game/package.json', 'game/package-lock.json']);
 const runner = new Set(['game/test/select-tests.js', 'game/test/ui-suites.js',
-  'game/test/verify.js', 'game/test/run-ui.js', 'game/playwright.config.js', 'game/test/browser/ui.spec.js']);
+  'game/test/verify.js', 'game/test/run-ui.js', 'game/test/live.js', 'game/test/live-suites.js', 'game/playwright.config.js', 'game/test/browser/ui.spec.js', 'game/test/browser/live.spec.js']);
 const sourceGroups = [
   [/^game\/src\/(audio|music)\.js$|^game\/art\/(mu|fx)\//, ['music', 'sound', 'scenes']],
   [/^game\/src\/(actor_rig|npc_appearance)\.js$/, ['npc-appearance', 'worlds', 'arming', 'prologue', 'scenes']],
@@ -19,6 +19,16 @@ const sourceGroups = [
   [/^game\/src\/(query_feedback|sqled)\.js$/, ['query-feedback', 'playability', 'battle-risk', 'battle-boundaries', 'scenes']],
   [/^game\/src\/effects\.js$/, ['sound', 'battle-risk', 'scenes']],
   [/^game\/src\/(poker|casino)\.js$/, ['playability', 'venues', 'scenes']],
+  // Presentation ecology never mutates collision, world state or gameplay RNG.
+  // Physical generation (scene_b/world), movement and saves still fall back to full.
+  [/^game\/src\/(landscape|scene_landscape|artlandscape)\.js$|^game\/art\/landscape\//,
+    ['npc-appearance', 'living-world', 'world-buildings', 'cartography', 'scenes']],
+  // Atlas rectangles/images affect presentation; physical blueprints, travel,
+  // progression and the save bridge deliberately remain outside these mappings.
+  [/^game\/src\/artarchitecture\.js$|^game\/art\/architecture\//,
+    ['living-world', 'world-buildings', 'venues', 'dungeons', 'scenes']],
+  [/^game\/src\/artcartography\.js$|^game\/art\/cartography\//,
+    ['cartography', 'world-buildings', 'scenes']],
 ];
 const sharedFixtures = new Set(['flow', 'movement', 'intro-helper', 'offline-flow', 'dungeons', 'battle-release']);
 const isGame = f => /^game\/(src|art|vendor)\//.test(f) || f === 'game/build.js';
@@ -69,6 +79,8 @@ function chooseUI({ files = [], runtimeChanged = false, packagingChanged = false
       const name = path.posix.basename(file, '.js');
       if (sharedFixtures.has(name) || !MODULES.includes(name)) return full('Shared or unclassified browser fixture changed: ' + file);
       selected.add(name);
+      // Editing the file that owns the long cases must exercise those cases too.
+      if (name === 'first-day') selected.add('journeys');
       if (name === 'battle-risk') selected.add('battle-boundaries');
     }
   }

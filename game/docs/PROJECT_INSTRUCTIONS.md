@@ -9,7 +9,7 @@ You are helping build Brasswake, a mobile SQL-learning RPG in the spirit of Ulti
 ## Read before you work
 
 - Before changing code, read 01_ARCHITECTURE.md.
-- For implementation tasks, follow 05_CODING_WORKFLOW.md automatically. Complexity determines planning; affected behavior determines testing. Documentation and Codex rule changes use review and a diff check, with no game tests or deployment. Tooling uses focused checks. Game changes use focused local checks and the authoritative tiered CI release gate (smoke plus affected suites, full for shared/high-risk/unknown changes), with automatic deployment for either class. Honor local-only/no-deploy requests by leaving edits uncommitted and not pushing. Include available task costs in completion messages and mark unknown amounts unavailable. Use subagents economically.
+- Follow [05_CODING_WORKFLOW.md](05_CODING_WORKFLOW.md) automatically; it owns detailed process and verification rules. Default to simple and name a concrete consequential risk or unresolved design decision before choosing complex. Planning and testing are independent. Routine releases use short three-profile smoke plus affected checks; nightly/manual full and risky/unknown changes retain complete journeys. Documentation needs review/diff checks; tooling uses affected automation checks and does not deploy unchanged game output. Reuse successful CI hosted evidence. Honor local-only requests, report available costs honestly and use subagents economically.
 - Before changing rules, numbers, content or story, read 02_GAMEPLAY.md.
 - Before writing any image prompt or packing art, read 03_ART_STYLE.md.
 - Before writing any text a player will see, read 04_WRITING_STYLE.md.
@@ -17,9 +17,9 @@ You are helping build Brasswake, a mobile SQL-learning RPG in the spirit of Ulti
 
 ## Keep the context documents current
 
-The documents are the project's memory. A new agent should be able to pick up the work from them alone. That only holds if they change whenever the game does.
+The documents are the project's memory. Keep their current-state descriptions accurate when behavior or lasting decisions change. A routine fix restoring documented behavior does not require a master-doc edit, decision entry or saved plan.
 
-1. **When a decision is made**, record it in the document that owns the topic. Do this in the same turn, before you move on. Decisions include:
+1. **When a lasting decision is made**, record it once in the document that owns the topic, in the same change. Decisions include:
    - a rule or number changing
    - Casey choosing between options
    - a feature added or removed
@@ -36,8 +36,8 @@ The documents are the project's memory. A new agent should be able to pick up th
 4. **How to apply the update:**
    - If the documents are in a folder you can write to (for example `docs/` in the game repo), edit the files directly and say which files and sections changed.
    - If you can't write to them (for example, they are only uploaded project knowledge), end your reply with a section titled **Context updates**. For each changed document, give the full replacement text of each changed section, clearly labelled, so Casey can paste it in. If more than a third of a document changed, give the whole document.
-5. **Before publishing a build**, reconcile affected current-state and planned sections with the implementation. Add a dated decision entry identifying the release/task; avoid duplicating volatile counts when a manifest or source constant owns them.
-6. **After a verified release**, close its plan and append a concise entry to `RELEASE_HISTORY.md`: full released commit, exact Actions link, verification date (with timezone), available HTML hash, checks actually passed and remaining limitations. Distinguish reused historical evidence from checks run now. Missing evidence stays explicitly unavailable. Keep detailed logs/screenshots in ignored folders as supplementary evidence. Release status must be understandable from a fresh clone. A later release supersedes the hosted version without undoing an earlier verified release.
+5. **Before publishing a build**, reconcile affected current-state/planned descriptions. Add a dated entry only for a changed lasting decision; avoid repeating release narratives or volatile counts owned by source/manifest data.
+6. **After a verified game release**, append concise commit/run/date/hash/check/limitation evidence to `RELEASE_HISTORY.md`; close and link a plan only when one exists. Distinguish reused evidence from checks run now. Tooling-only work records checks and non-publication in its plan or completion report. Missing evidence stays unavailable; ignored logs/screenshots supplement the tracked record. A later release supersedes the hosted version without undoing an earlier verified release.
 7. **Before finishing any task**, review affected current/planned descriptions, decision logs and plan status for contradictions. State local-only or uncommitted status when applicable. Documentation-only release closure needs no new game build/test/deployment; honor any hold on committing/pushing. These are review responsibilities, not claims that CI semantically validates prose.
 8. Keep each document under about 25 pages. When one grows past that, condense old detail and keep the numbers and rules.
 
@@ -59,6 +59,8 @@ The documents are the project's memory. A new agent should be able to pick up th
 
 
 ## Decision log
+
+- 2026-11-25: Casey requested simple by default, proportional test selection and less routine bookkeeping. Detailed commands/policy remain in 05_CODING_WORKFLOW.md; update owning context only for changed behavior or lasting decisions and retain concise release evidence without repeated narratives. The proportionate-framework plan records tooling validation and non-publication.
 
 - 2026-11-23: Casey requested correction of the context audit findings. Keep concise release closure in tracked RELEASE_HISTORY.md and plan statuses; local receipts/logs supplement that record. Reconcile stale planned/current sections and derive volatile asset counts from the manifest. This cleanup was initially held locally; Casey later explicitly authorized including all outstanding infrastructure/context work in the cartography release, now verified at 17441a1.
 
