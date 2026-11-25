@@ -270,7 +270,7 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
 ## 10. Houses
 
 - **Buying:** deeds from any banker in 10 shapes × 3 materials (stone ×1.5, timber ×1.25, log ×1). You place one anywhere open outside town.
-- **Restoration (audio release candidate):** a safe saved plot stays fixed. An invalid plot searches all four sides of expanding bounded rings in its saved region, retaining collision, clearance, protected-ground, reachability and occupant restrictions; house identity and stored contents persist.
+- **Restoration:** a safe saved plot stays fixed. An invalid plot searches all four sides of expanding bounded rings in its saved region, retaining collision, clearance, protected-ground, reachability and occupant restrictions; house identity and stored contents persist.
 - **What every house has:**
   - a chest (10–40 slots, +10 per extra chest) whose contents survive death and are shared by all your characters
   - a bed for full health
@@ -316,7 +316,7 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
   - **Learned:** the first correct query (exercise, fight, duel or cast) that uses any command from a lesson marks it learned: toast "Learned ORDER BY! +1 Hint Key" and one Hint Key, once per lesson per account.
   - Hero tab → "Commands learned · n of 39" lists them; untaught ones show "?".
   - Supporting characters share the account's list. Existing characters were filled in from lessons already seen or done.
-- **Sound** (`src/audio.js`): contextual fantasy-game music and generated effects; the Stable Audio replacement is a release candidate tracked in the [audio plan](plans/2026-11-24-stable-audio-replacement.md).
+- **Sound** (`src/audio.js`): contextual fantasy-game music and generated effects; the Stable Audio replacement is a verified release tracked in the [audio plan](plans/2026-11-24-stable-audio-replacement.md).
   - Music: 28 replacement tracks/cues cover eight towns, eight dungeons, four wilderness region pairs, regular/Examiner combat, title, tavern, dojo, card room, victory and death. Combat/dungeon/title keep priority; dedicated venue themes return to the correct location when the venue closes. Outdoor theme candidates settle for five continuous seconds; returning cancels them. Title music starts after a user gesture.
   - Tracks crossfade over 1.6 seconds; combat/cues enter with a shorter handoff. Location/venue music resumes at its saved position after combat or a cue; combat restarts. Victory/death play once before resuming the location. Music and effect mute stay independent. With music muted, generated victory/death cues can play through effects; cold/failed samples retain immediate synthesis feedback. Hidden tabs stop playback and cancel effect loads. Two decoded music tracks are cached and music loads serialize.
   - Effects: 64 prepared generated samples cover varied sword/fencing/bow attacks, hit/hurt/miss, eight creature voice families, healing, transactions, rare rewards, query grades and quiet clicks. Crafting distinguishes smithing/alchemy/failure; fishing distinguishes casting/catch/empty line. Footsteps have four variants each for soil, wood and stone. Doors distinguish opening and closing. Failed purchases and quiet passive recovery retain their current behavior.
@@ -337,7 +337,7 @@ Workbench Carpentry crafts storage chests (6 regional materials, difficulty 25),
 - Duel opponent speed needs playtest tuning.
 - Further professions: mining, lumberjacking, cooking, scouting, poisoning, mace fighting, wrestling, bard disciplines and animal companions remain deferred.
 - Rumors are per character. Their unique can only be found once per world household.
-- **Further sound effects:** continuous regional ambience, occasional idle creature calls and separate creature death voices remain planned. Town/dungeon/wilderness, combat/title and victory/death music plus occasional contextual ambience are built as described above; dedicated venue tracks are integrated in the audio replacement candidate.
+- **Further sound effects:** continuous regional ambience, occasional idle creature calls and separate creature death voices remain planned. Town/dungeon/wilderness, combat/title and victory/death music plus occasional contextual ambience are built as described above; dedicated venue themes now play.
 - Not yet checked on Casey's iPhone: that audio plays in the Claude app, and what the silent switch does.
 
 ## Boat intro
@@ -348,9 +348,11 @@ A new main character chooses appearance and former profession, then is hauled ab
 
 - 2026-11-24: Casey found the repeated intro exit misleading and the records-only SQL explanation inconsistent with skilled-action magic. Put character selection behind the portrait menu, preserve drafts/checkpoints and automatic saving, and establish the fantasy purpose before using records for practice. The presentation corrections also retain movement speeds, collision, natural-shore depths and saved progress. Candidate verification is tracked in the animation/world-polish plan.
 
-- 2026-11-24: Correct saved-house recovery to search every side of its bounded relocation rings; the former search could miss a safe plot north/south of town and reject restoration. Safe existing houses stay fixed, and relocation retains region, clearance, protected terrain, reachability and occupant restrictions. IDs and stored contents are preserved. This verification repair ships with the audio replacement after its complete gate passes.
+- 2026-11-24: Published the verified Stable Audio replacement at `eb8f960`. All music/effect contexts, dedicated venue tracks, independent mute/fallbacks, cache revalidation and bounded sample playback are shipped, with the surface-respawn and complete-ring house-recovery repairs. The plan and release history preserve exact-commit CI, hosted hash/flow evidence and subjective-listening/physical-device limits.
 
-- 2026-11-24: Audio-release verification exposed an intermittent surface respawn timeout. Preserve failed creature/resource placement requests and retry after one second rather than discarding the slot. Normal spawn delays, placement protection and rewards remain unchanged; pure and actual-world theft regressions cover unavailable placement and later recovery. Also stop old ambience across same-region town/wilderness transitions. This is an audio-release verification repair, pending the fresh gate and deployment.
+- 2026-11-24: Correct saved-house recovery to search every side of its bounded relocation rings; the former search could miss a safe plot north/south of town and reject restoration. Safe existing houses stay fixed, and relocation retains region, clearance, protected terrain, reachability and occupant restrictions. IDs and stored contents are preserved. This verification repair shipped with the audio replacement; the plan and release history record the complete gate.
+
+- 2026-11-24: Audio-release verification exposed an intermittent surface respawn timeout. Preserve failed creature/resource placement requests and retry after one second rather than discarding the slot. Normal spawn delays, placement protection and rewards remain unchanged; pure and actual-world theft regressions cover unavailable placement and later recovery. Also stop old ambience across same-region town/wilderness transitions. This audio-release verification repair is shipped; exact checks and limitations are recorded in the replacement plan and release history.
 
 - 2026-11-24: Casey authorized implementing and deploying the complete captured soundtrack/effect replacement. Dedicated tavern/dojo/cards music and generated per-role effects preserve independent mute, immediate fallback, responsive spell timing and bounded memory/loading. Doors distinguish opening/closing; no save, combat balance or progression change. Release verification is tracked in the audio plan.
 

@@ -159,7 +159,7 @@ Every required sheet is present. Recursive discovery prefers current `kit/out` o
 
 ## Music and sound effects
 
-The Stable Audio replacement is implemented as a release candidate; the [replacement plan](plans/2026-11-24-stable-audio-replacement.md) tracks verification and deployment. Casey authorized implementation and thorough deployment after the source capture pass.
+The Stable Audio replacement is released. The [replacement plan](plans/2026-11-24-stable-audio-replacement.md) and [release history](RELEASE_HISTORY.md) record the verified source, Actions run, hosted checks and limitations. Casey authorized implementation and thorough deployment after the source capture pass.
 
 - **Source:** all 28 music contexts use Stable Audio 3 browser-generated sources with a shared acoustic fantasy-game production brief. The 64 effects include 12 footstep variations across stone, wood and soil; separate opening/closing doors; combat; eight spell cast/impact pairs; activities; creatures; environmental cues; and support/UI feedback. Raw downloads, C2PA originals and private account/credit evidence stay under ignored `work/`. Exact single-effect/music prompts and source/output hashes are tracked in the catalogs. Exact Sampler pack prompt text was not retained; archive hashes and material identity remain available.
 - **Sound:** restrained 1990s PC fantasy RPG ensembles: woodwinds, plucked lute/harp, warm strings, modest brass and acoustic percussion. Instrumental music leaves space for reading; isolated effects have responsive attacks and short natural decays. These are technical preparation goals, not a claim that the agent heard or aesthetically approved the output.
@@ -226,6 +226,8 @@ The existing eight-pose walk/run sources are retained. The packer had pinned the
 ## Decision log
 
 - 2026-11-24: Casey requested believable UO-inspired motion and natural transitions rather than another overlay-only size adjustment. Visually review one original character sample before broader coverage. Reuse original painted sources, calibrate their real head/foot pixels, restore flight, use connected roof volumes and blend material textures. No paid image generation, source art edits, prompt changes, generated-coordinate edits or art-baseline refresh. Candidate plan records actual checks and release status.
+
+- 2026-11-24: Published the verified Stable Audio replacement at `eb8f960`. All music/effect contexts, dedicated venue tracks, independent mute/fallbacks, cache revalidation and bounded sample playback are shipped, with the surface-respawn and complete-ring house-recovery repairs. The plan and release history preserve exact-commit CI, hosted hash/flow evidence and subjective-listening/physical-device limits.
 
 - 2026-11-24: Casey lifted the audio implementation hold and requested thorough deployment. Replace every music entry with the captured Stable Audio sources and add all 64 prepared effect samples. Keep source originals/history, explicit prompt/hash provenance, conservative levels, contextual venue routing and immediate synthesis fallback. Technical preparation and browser checks do not establish subjective listening or real-device sound quality; release evidence is tracked in the replacement plan/history.
 

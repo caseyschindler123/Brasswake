@@ -1,6 +1,6 @@
 # Character motion, intro and world presentation
 
-Status: implemented and locally verified; awaiting the preceding audio deployment before main publication. Not released. Class: complex (connected character/terrain/building rendering and intro navigation/continuity).
+Status: implemented and locally verified; preceding audio release and its closure reconciled. Awaiting the full exact-commit release gate. Not released. Class: complex (connected character/terrain/building rendering and intro navigation/continuity).
 
 ## Scope and acceptance
 
@@ -36,3 +36,4 @@ Use `npm run verify -- --defer-ui` and focused `npm run test:ui -- --suites=prol
 - Three-browser targeted pass: 21/21 intro rescue/checkpoints/error recovery, door/courtyard, motion and actual material-blend/seam cases. Final follow-up covered creation, continuous roof geometry and material boundaries; a Chromium secondary-tab preview rAF suspension was repaired by exercising the actual foreground page, retaining playback/pause assertions. Final motion plus complete smoke/title/town slice passed 12/12 across phone Chromium/WebKit and desktop Chromium. Worker also passed focused roof/door/courtyard/cache coverage in all three profiles.
 - Opened actual phone/desktop intro/menu, roof/door, animated sample captures and real path/rock/shore locations. Terrain assertions compare feathered versus hard material output and overlapping chunk pixels; collision, shore-depth classification, structural holes and the building-cache byte budget remain covered.
 - One worker owned the building renderer/door integration and bounded tests. Root reviewed/integrated the result; no recursive delegation, paid image generation, art-coordinate edits or baseline changes. Task-specific AI/CI billing remains unavailable; no paid-tool usage.
+- The preceding audio release `eb8f960` passed Actions 45526104577 and independent hosted verification. Waited for its agent to finish and push closure `98fe90f`, then merged those documentation-only changes, preserving both tasks' decisions and its release evidence. No preceding source changes needed reverification. The new hosted-menu test also passed against built game HTML at 127.0.0.1 with debug exports absent; that local dry run does not establish a hosted commit/hash.
