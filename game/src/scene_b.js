@@ -1007,8 +1007,9 @@
     WORLD_BUILDING_CACHE.beginFrame();
     try {
     const g = cx, vv = Math.max(60, vh - inset / zoom), now = performance.now();
-    cam.x = map.w * T < vw ? (map.w * T - vw) / 2 : clamp(P.fx * T + 8 - vw / 2, 0, map.w * T - vw); cam.y = map.h * T < vv ? (map.h * T - vv) / 2 : clamp(P.fy * T + 8 - vv / 2, 0, map.h * T - vv);
-    const ox0 = Math.round(cam.x * K) / K, oy0 = Math.round(cam.y * K) / K; g.setTransform(K, 0, 0, K, 0, 0); g.imageSmoothingEnabled = false; g.fillStyle = map.dungeon ? '#15151b' : '#20303a'; g.fillRect(0, 0, vw, vh);
+    cam.x = map.w * T < vw ? (map.w * T - vw) / 2 : clamp(P.fx * T + 8 - vw / 2, 0, map.w * T - vw); cam.y = map.h * T < vv ? (map.h * T - vv) / 2 : clamp(P.fy * T + 8 - vv / 2, map.dungeonFloor ? -4*T : 0, map.h * T - vv);
+    const ox0 = Math.round(cam.x * K) / K, oy0 = Math.round(cam.y * K) / K; g.setTransform(K, 0, 0, K, 0, 0); g.imageSmoothingEnabled = false; g.fillStyle = map.dungeonFloor ? map.layout.theme.wall : map.dungeon ? '#15151b' : '#20303a'; g.fillRect(0, 0, vw, vh);
+    if(map.dungeonFloor){g.fillStyle='#070c1266';g.fillRect(0,0,vw,vh);}
     const x0 = Math.max(0, ox0 / T | 0), y0 = Math.max(0, oy0 / T | 0), x1 = Math.min(map.w - 1, (ox0 + vw) / T | 0), y1 = Math.min(map.h - 1, (oy0 + vh) / T | 0);
     let budget = fade >= 1 ? 99 : 1;
     if (map.ship) { shipBackdrop(g, ox0, oy0, now); budget = -1e9; }

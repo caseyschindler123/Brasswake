@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const Dungeons = require('../src/dungeons.js');
+const DungeonProgress = require('../src/dungeon_progress.js');
 const Content = require('../src/quests.js');
 
 test('surface entrances use the authored dungeon identities',()=>{
@@ -60,7 +61,13 @@ test('all 28 floors have complete and distinct authored layouts', () => {
     for (const e of m.entities) {
       const cell = entityId(m, e);
       assert.ok(Number.isInteger(e.x) && Number.isInteger(e.y) && e.x > 0 && e.y > 0 && e.x < m.w - 1 && e.y < m.h - 1, e.id);
-      assert.equal(m.tiles[cell], Dungeons.FLOOR, e.id);
+      if(e.kind==='dtravel'&&e.to<f){
+        assert.deepEqual(e.support,{x:e.x-1,y:e.y-2,w:3,h:3},e.id);
+        assert.equal(e.side,'north',e.id);
+        for(let y=e.support.y;y<e.support.y+3;y++)for(let x=e.support.x;x<e.support.x+3;x++)
+          assert.equal(m.tiles[id(m,x,y)],Dungeons.WALL,e.id+' has continuous solid support');
+        for(const dy of [1,2])for(const dx of [-1,0,1])assert.equal(m.tiles[id(m,e.x+dx,e.y+dy)],Dungeons.FLOOR,e.id+' has a dry full-width landing');
+      }else assert.equal(m.tiles[cell], Dungeons.FLOOR, e.id);
       assert.ok(!occupied.has(cell) && !allIds.has(e.id), e.id);
       occupied.add(cell);
       allIds.add(e.id);
@@ -149,6 +156,18 @@ test('stairs are reciprocal, with clear arrivals beside the corresponding stairs
       assert.ok(!destination.entities.some(e => e.x === x && e.y === y), stairs.id);
       if (stairs.to > f) assert.deepEqual(stairs.arrival, destination.entry, stairs.id);
     }
+  }
+});
+
+test('supported ascents retain room-centre save positions and only square off the one narrow Highwatch landing',()=>{
+  for(const {r,f} of floors){
+    const m=Dungeons.build(r,f),room=m.rooms[0],up=m.entities.find(e=>e.kind==='dtravel'&&e.to<f);
+    assert.equal(m.tiles[id(m,room.cx,room.cy)],Dungeons.FLOOR,'old ascent position stays open');
+    assert.ok(!m.entities.some(e=>e.x===room.cx&&e.y===room.cy),'old occupied centre is released');
+    assert.equal(DungeonProgress.validPosition(m,[room.cx,room.cy]),true,'old saved room-centre position restores safely');
+    assert.deepEqual(m.entry,[up.x,up.y+2]);
+    assert.ok(Number.isFinite(approach(m,distances(m),up)),up.id+' remains reachable from entry');
+    assert.deepEqual(m.landingAdded,r===7&&f===1?[[56,88]]:[]);
   }
 });
 

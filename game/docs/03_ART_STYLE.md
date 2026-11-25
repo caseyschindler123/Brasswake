@@ -14,6 +14,7 @@ Every prompt starts with the global style line kept in `art_prompts.json`:
 
 - **One finish standard for every visible game element:** shape, texture, lighting, perspective, scale and connection to its surroundings must meet the approved painted style. This applies to generated assets and code-drawn details alike. Jambs, lintels, corners, flashing, coping, signs, stair housings and roof junctions need the same care as characters, props, terrain and interface ornament. Inspect actual game-size and native-resolution images before accepting them; compare world objects with an adult and their supporting construction.
 - **Keep entrances visible:** buildings have fitted regional door surrounds with no entrance awnings or canopies. Framing sits outside the real aperture and moving leaf. Grade-level thresholds meet the land; stairs belong to actual changes of level.
+- **Every staircase shows support, direction and connection to another level.** Dungeon ascents belong in supported perimeter-wall recesses with continuous masonry/coping; a freestanding arch in a room centre fails the visual review. Descents belong in floor openings with thickness, a protective rim and steps visibly below grade. Match the surrounding material, wear, light and perspective, and compare with an adult at actual phone/desktop size. Check this spatial logic as well as alpha, joins, dimensions and visibility beneath fixed HUD labels. Move collision, interaction and reciprocal landings with relocated stairs.
 
 - **No text** anywhere: no letters, numbers or signs with writing. A shop sign is a picture, such as crossed staves or a tankard.
 - **Transparent sheets have nothing behind the subject.** Every transparent-background sheet must carry both lines below. If a prompt is missing them, ask Casey before changing the prompt master:
@@ -255,6 +256,8 @@ node arttools/human_sprites.js --check --python=<Pillow-12-python-executable>
 The motion sample uses actual game-composed frames on moving ground at enlarged and game scale. Planted support is locked to the world, and free running soles clear the ground during flight. Assertions inspect physical support and actual visible sole pixels; a global lowest-pixel comparison across different projected foot lanes is not a valid height measurement. Publication and real-device/subjective review remain pending in the grounded-cadence plan.
 
 ## Decision log
+
+- 2026-11-25: Casey rejected the freestanding dungeon ascent and authorized supported wall recesses, matching masonry and relocated interaction/arrival points. Every stair must show its support, direction and connection to another level. Inspect this spatial logic at real phone/desktop size; successful scale/alpha assertions do not approve it. The stair-support plan tracks implementation and release.
 
 - 2026-11-25: Built the unreleased full human rig/wardrobe and captured walk/run candidate. Keep old art immutable, add a reproducible offline bake and derive travel from the new stride at 132/180 steps/min. Physical flight and visible contact replace the timing-only head/flight patch as the operating solution.
 

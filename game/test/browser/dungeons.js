@@ -74,9 +74,9 @@ async function assertPortalArt(f, target, r, direction) {
   const args={target,r,direction};
   await f.waitForFunction(({target,r})=>Scene.find(e=>e.r===r&&(e.id===target||e.kind===target))?.obj?.source,args);
   const facts=await f.evaluate(async({target,r,direction})=>{
-    const {map,TS}=Scene.debug();
+    const {map,TS,cam,zoom}=Scene.debug();
     const e=Scene.find(e=>e.r===r&&(e.id===target||e.kind===target));
-    const {c,ax,ay,source}=e.obj;
+    const {c,ax,ay,source,supported,faceSource,copingSource}=e.obj;
     const {f:file,r:rect}=ArchitectureArt.at['architecture_'+r+'_stairs_'+direction];
     const im=new Image();
     im.src='art/'+file;
@@ -92,15 +92,24 @@ async function assertPortalArt(f, target, r, direction) {
     const index=e.y*map.w+e.x;
     const down=direction==='down';
     const scale=Math.min((down?50:44)*3/width,(down?34:44)*3/height);
+    const masonry=down||[['dungeon_face',faceSource],['dungeon_coping',copingSource]].every(([name,actual])=>{
+      if(!actual)return false;const entry=ArchitectureArt.at['architecture_'+r+'_'+name],a=document.createElement('canvas');
+      a.width=entry.r[2];a.height=entry.r[3];a.getContext('2d').drawImage(im,...entry.r,0,0,a.width,a.height);
+      return a.toDataURL()===actual.toDataURL();
+    });
     return {
+      masonry,
+      hudClear:down||(e.y*16+16-ay-cam.y)*zoom>=108,
       painted:source.width===width&&source.height===height&&pixels.every((value,i)=>actual[i]===value),
-      size:c.width===Math.round(width*scale)&&c.height===Math.round(height*scale)
+      size:(down?c.width===Math.round(width*scale)&&c.height===Math.round(height*scale):c.width===144&&c.height===144&&supported===true&&!!faceSource&&!!copingSource)
         && c.width>=TS*2 && c.height>=TS*1.5,
       anchored:ax===c.width/6&&ay===c.height/3,
-      occupiesOriginalTile:e.solid===1&&map.occ.get(index)===e&&!map.solid[index]
+      occupiesStructuralTile:e.solid===1&&map.occ.get(index)===e&&(down?!map.solid[index]:!!map.solid[index]
+        &&e.side==='north'&&[-2,-1,0].every(dy=>[-1,0,1].every(dx=>map.solid[(e.y+dy)*map.w+e.x+dx]))
+        &&[1,2].every(dy=>[-1,0,1].every(dx=>!map.solid[(e.y+dy)*map.w+e.x+dx])))
     };
   },args);
-  expect(facts).toEqual({painted:true,size:true,anchored:true,occupiesOriginalTile:true});
+  expect(facts).toEqual({masonry:true,hudClear:true,painted:true,size:true,anchored:true,occupiesStructuralTile:true});
 }
 async function capturePortal(f, page, info, name) {
   await f.waitForFunction(()=>!Scene.debug().map.pending);

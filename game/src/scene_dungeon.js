@@ -20,9 +20,26 @@
     const name = down ? 'stairs_down' : 'stairs_up';
     const source = architecturePiece(e.r, name);
     if (!source) return null;
-    const key = e.r + '/' + name;
+    const wall=!down&&e.support?dungeonWallArt(e.r):null;
+    if(!down&&e.support&&!wall)return null;
+    const key = e.r + '/' + name+(wall?'/supported':'');
     const cached = DUNGEON_STAIRS.get(key);
-    if (cached?.source === source) return cached;
+    if (cached?.source === source&&cached.faceSource===wall?.face) return cached;
+
+    if(wall){
+      // The complete housing lives inside the authored solid support volume.
+      // Reuse the adjacent wall's actual courses and coping at their normal
+      // repeat scale; the painted stairs rise away from the floor into it.
+      const size=48*K,c=mk(size,size),g=c.getContext('2d');c.hr=1;
+      g.imageSmoothingQuality='high';g.fillStyle=Dungeons.themes[e.r].wall;g.fillRect(0,0,size,size);
+      for(let y=0;y<size;y+=39)for(let x=0;x<size;x+=48)g.drawImage(wall.face,x,y,48,39);
+      for(let x=0;x<size;x+=TS)g.drawImage(wall.coping,x,4,TS,7);
+      g.fillStyle='#10131791';g.fillRect(0,size-6,size,6);
+      const scale=Math.min(44*K/source.width,44*K/source.height),w=Math.round(source.width*scale),h=Math.round(source.height*scale);
+      g.drawImage(source,(size-w)/2,size-h,w,h);
+      const sprite={c,ax:24,ay:48,source,faceSource:wall.face,copingSource:wall.coping,supported:true};
+      DUNGEON_STAIRS.set(key,sprite);return sprite;
+    }
 
     const maxWidth = (down ? 50 : 44) * K;
     const maxHeight = (down ? 34 : 44) * K;
@@ -89,12 +106,23 @@
       }
     }
     for(const R of layout.rooms){
-      for(const x of [R.x+1,R.x+R.w-2]){m.props.push({x,y:R.y-1,kind:'torch',r,hang:1});m.lights.push({x:x+.5,y:R.y-.2,r:42,c:r===6?3:2,fl:1});}
+      for(const {x,y} of dungeonTorchSites(layout,R)){
+        m.props.push({x,y,kind:'torch',r,hang:1});m.lights.push({x:x+.5,y:y+.8,r:42,c:r===6?3:2,fl:1});
+      }
       m.props.push({x:R.x+R.w-2,y:R.y+1,kind:'dn_decoration',r});
       if((R.cx+R.cy)%3===0)m.props.push({x:R.x+1,y:R.y+1,kind:'dn_landmark',r});
     }
     m.props.push(...dungeonDress(layout,r));
     dungeonApply(m,p);return m;
+  }
+  function dungeonTorchSites(layout,room){
+    const sites=[];
+    for(const x of [room.x+1,room.x+room.w-2])for(let y=room.y-1;y<room.cy;y++){
+      if(layout.tiles[y*layout.w+x]!==Dungeons.WALL||layout.tiles[(y+1)*layout.w+x]!==Dungeons.FLOOR)continue;
+      if(layout.entities.some(e=>e.support&&x>=e.support.x&&x<e.support.x+e.support.w&&y>=e.support.y&&y<e.support.y+e.support.h))break;
+      sites.push({x,y});break;
+    }
+    return sites;
   }
   function dungeonSpawn(m,source,tutorial) {
     const sp=Dungeons.species[source.species]||{},art=sp.art||source.species||'k'+m.r,keeper=source.kind==='keeper';
@@ -484,6 +512,19 @@
     g.fillStyle='#0a111a8a';
     g.fillRect(X-2,Y+88,118,2);
   }
+  function dungeonPaintStairWall(m,g,art,x,y){
+    const stair=m.layout.entities?.find(e=>e.support),room=m.layout.rooms[0];
+    if(!stair||!room||x<room.x||x>=room.x+room.w||y<stair.y-2||y>stair.y)return;
+    if(m.dt[(stair.y+1)*m.w+x]!==Dungeons.FLOOR||![-2,-1,0].every(dy=>m.dt[(stair.y+dy)*m.w+x]===Dungeons.WALL))return;
+    // A full-height far wall continues on both sides of the recess. Each
+    // destination cell clips its own section, including at chunk boundaries.
+    const X=x*TS,top=(stair.y-2)*TS,bottom=(stair.y+1)*TS;
+    g.save();g.beginPath();g.rect(X,y*TS,TS,TS);g.clip();
+    for(let yy=top;yy<bottom;yy+=39)g.drawImage(art.face,X,yy,TS,39);
+    g.drawImage(art.coping,X,top+4,TS,7);
+    g.fillStyle='#10131791';g.fillRect(X,bottom-6,TS,6);
+    g.restore();
+  }
   function dungeonPaint(m,g,X0,Y0){
     const th=m.layout.theme,art=typeof DungeonArt!=='undefined'&&DungeonArt.themes[m.r],wallArt=dungeonWallArt(m.r);
     const texture=key=>{if(!art)return null;const rc=art[key];if(!rc||!have(DungeonArt.image))return null;const k=m.r+key;if(!DUNPAT[k])DUNPAT[k]=g.createPattern(cut(DungeonArt.image,...rc),'repeat');return DUNPAT[k];};
@@ -504,6 +545,7 @@
         }else{
           dungeonPaintWallFallback(g,th,texture,x,y,south,north,west,east,m.r);
         }
+        if(wallArt)dungeonPaintStairWall(m,g,wallArt,x,y);
         for(const prop of m.props||[]){
           if(prop.wallDisplay&&prop.x===x&&prop.y===y){
             g.save();g.beginPath();g.rect(x*TS,y*TS,TS,TS);g.clip();

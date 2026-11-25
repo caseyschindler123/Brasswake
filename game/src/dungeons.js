@@ -236,21 +236,15 @@ const Dungeons = (() => {
   };
   const routeOf = spec => [...spec.diagram.join('')].filter(code => /[A-Z]/.test(code)).sort();
   const arrivalAt = (spec, code) => {
+    if(code==='A'){const {up}=geometry(spec);return [up.x,up.y+2];}
     const [x, y] = center(spec, code);
     return [x + 1, y + 2];
   };
   const position = (room, dx = 0, dy = 0) => [room.cx + dx, room.cy + dy];
 
-  function build(r, f = 0) {
-    const dungeon = get(r), spec = floor(r, f);
-    if (!spec) return undefined;
-    const { theme } = dungeon, { w, h } = spec, style = styles[r];
-    const tiles = new Uint8Array(w * h), entities = [];
+  function geometry(spec) {
+    const {r,f,w,h}=spec,style=styles[r],tiles=new Uint8Array(w*h);
     const paint = (x, y, tile = FLOOR) => { tiles[y * w + x] = tile; };
-    const anchor = (key, kind, [x, y], name, data = {}) => {
-      entities.push({ id: `r${r}f${f}-${key}`, kind, x, y, r, f, name, ...data });
-      return entities[entities.length - 1];
-    };
     const route = routeOf(spec);
     const codes = route.concat([...'wxyzv'].filter(code => spec.diagram.some(line => line.includes(code))));
     const rooms = codes.map((id, i) => {
@@ -286,12 +280,37 @@ const Dungeons = (() => {
       return { from, to, width, spine, cells, optional: i >= routeLinks.length, terrain: type || FLOOR };
     });
 
+    // A stairwell occupies existing wall mass, clear of corridor mouths and
+    // rounded corners. Its floor landing stays in the connected first room.
+    const first=byId.A,y=first.y-1;
+    const candidates=Array.from({length:first.w-4},(_,i)=>first.x+2+i).sort((a,b)=>Math.abs(a-first.cx)-Math.abs(b-first.cx)||a-b);
+    const supported=x=>[-2,-1,0].every(dy=>[-1,0,1].every(dx=>tiles[(y+dy)*w+x+dx]===WALL));
+    const landing=x=>[1,2].flatMap(dy=>[-1,0,1].map(dx=>(y+dy)*w+x+dx));
+    let x=candidates.find(x=>supported(x)&&landing(x).every(i=>tiles[i]===FLOOR));
+    const landingAdded=[];
+    if(x===undefined){
+      // A narrow rounded room with a north corridor can lack a three-cell
+      // landing. Square off only its dry corner; never close an existing path.
+      x=candidates.filter(supported).filter(x=>landing(x).every(i=>tiles[i]===WALL||tiles[i]===FLOOR))
+        .sort((a,b)=>landing(a).filter(i=>tiles[i]===WALL).length-landing(b).filter(i=>tiles[i]===WALL).length)[0];
+      if(x===undefined)throw Error(`No supported ascent in ${r}/${f}`);
+      for(const i of landing(x))if(tiles[i]===WALL){tiles[i]=FLOOR;landingAdded.push([i%w,Math.floor(i/w)]);}
+    }
+    const up={x,y,side:'north',support:{x:x-1,y:y-2,w:3,h:3}};
+    return {tiles,rooms,byId,route,routeLinks,links,up,landingAdded};
+  }
+
+  function build(r, f = 0) {
+    const dungeon=get(r),spec=floor(r,f);if(!spec)return undefined;
+    const {theme}=dungeon,{w,h}=spec,{tiles,rooms,byId,route,routeLinks,links,up,landingAdded}=geometry(spec),entities=[];
+    const codes=route.concat([...'wxyzv'].filter(code=>byId[code]));
+    const anchor=(key,kind,[x,y],name,data={})=>{entities.push({id:`r${r}f${f}-${key}`,kind,x,y,r,f,name,...data});return entities[entities.length-1];};
     const first = byId.A, end = byId[route[route.length - 1]];
     const previous = floor(r, f - 1), next = floor(r, f + 1);
-    const entry = arrivalAt(spec, first.id);
+    const entry = [up.x,up.y+2];
     const previousRoute = previous && routeOf(previous);
-    anchor('up', 'dtravel', position(first), previous ? `Stairs to ${previous.name}` : 'Exit to the surface', {
-      to: f - 1, arrival: previous ? arrivalAt(previous, previousRoute[previousRoute.length - 1]) : null, room: first.id
+    anchor('up', 'dtravel', [up.x,up.y], previous ? `Stairs to ${previous.name}` : 'Exit to the surface', {
+      to: f - 1, arrival: previous ? arrivalAt(previous, previousRoute[previousRoute.length - 1]) : null, room: first.id, support:up.support, side:up.side
     });
     if (next) {
       anchor('down', 'dtravel', position(end), `Stairs to ${next.name}`, { to: f + 1, arrival: arrivalAt(next, 'A'), room: end.id });
@@ -337,7 +356,7 @@ const Dungeons = (() => {
       anchor('tutorial-chest', 'dcache', position(first, -3, -3), 'Starter chest', { room: first.id, tutorial: true });
     }
 
-    return { w, h, tiles, rooms, entry, entities, links, theme, name: spec.name, dungeon: dungeon.name, route, r, f };
+    return { w, h, tiles, rooms, entry, entities, links, theme, name: spec.name, dungeon: dungeon.name, route, r, f, landingAdded };
   }
 
   return { get, floor, build, species, themes, WALL, FLOOR, WATER, HAZARD, BRIDGE };
