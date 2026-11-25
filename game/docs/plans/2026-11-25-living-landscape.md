@@ -1,6 +1,6 @@
 # Living landscape across the whole world
 
-Classification: complex. Status: implemented and locally verified; waiting for the concurrent publisher before exact-commit release verification. Not published. Casey authorized the whole-world vegetation/liveliness pass and asked that concurrent work and deployments remain undisturbed.
+Classification: complex. Status: implemented and locally verified; verified recovery and its closure are integrated, ready for the full exact-commit release gate. Not published. Casey authorized the whole-world vegetation/liveliness pass and asked that concurrent work and deployments remain undisturbed.
 
 ## Scope and acceptance criteria
 
@@ -63,3 +63,7 @@ Complete the original human-use scope with visible fruit rows near suitable temp
 ### Preliminary recovery integration
 
 Merged the current recovery candidate `359f497` into this isolated branch for local compatibility checks while its CI runs. Recovery is not yet verified/published; the landscape gate and publication remain held until final verified main and documentation closure are integrated. The only merge conflicts were adjacent Decision-log additions in architecture/gameplay; both tasks' entries were retained. Incoming audio, intro/prologue and music-test changes, cartography repair, locomotion assets/rig and dungeon source are preserved byte-for-byte. Packed manifest comparison retains every incoming asset record and adds only the eight landscape files. Post-merge `npm run verify -- --defer-ui` passed, including all 13 landscape regressions and the incoming music checks. All 12 focused smoke/travel/reload browser cases passed across the three profiles (1.5 minutes); integrated phone WebKit and desktop town captures were opened. No incoming executable or asset file was changed during conflict resolution. The authoritative gate still waits for verified recovery publication and final documentation closure.
+
+### Final recovery handoff
+
+Recovery `359f497d628765790bb77199f4b7c6a9d63a7f4a` passed [Actions 45651035378](https://github.com/caseyschindler123/Brasswake/actions/runs/45651035378), deployment and live verification. Integrated its documentation closure `adaaaeb` after the assigned publisher handed off. Only adjacent master-document additions conflicted; retained landscape scope and the predecessor's released descriptions, decisions and evidence. No executable changes since the passing preliminary post-merge checks, so that local evidence is reused. Both browser-fixture repairs, incoming audio/intro, dungeon and locomotion assets, Scene/build registrations and all 609 incoming packed records are preserved. The landscape full exact-commit gate and live checks are next; publication remains incomplete until they pass.
