@@ -35,18 +35,49 @@ async function shipApproach(page,property){
 async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunspire',rescue=true,visibleOnly=false}={}){
   const pulse=async(keys,hold=80)=>{
     keys=Array.isArray(keys)?keys:[keys];
-    try{for(const key of keys)await page.keyboard.down(key);await page.waitForTimeout(hold);}
+    try{
+      for(const key of keys)await page.keyboard.down(key);
+      // Scene caps each animation tick at 50 ms. A wall-clock pulse can
+      // contain no moving frame on a busy runner; count rendered time instead.
+      await page.evaluate(({hold,keys})=>new Promise(resolve=>{
+        let last,elapsed=0;
+        const tick=now=>{
+          if(last!==undefined)elapsed+=Math.min(50,Math.max(0,now-last));
+          last=now;if(elapsed>=hold){for(const key of keys)window.dispatchEvent(new KeyboardEvent('keyup',{key}));resolve();}else requestAnimationFrame(tick);
+        };requestAnimationFrame(tick);
+      }),{hold,keys});
+    }
     finally{for(const key of keys.slice().reverse())await page.keyboard.up(key);}
   };
-  const walkUntil=async(keys,label,leave=false)=>{
-    // Read the visible control while stopped. Holding a key during assertion
-    // polling can carry the player past a briefly reachable interaction.
-    const deadline=Date.now()+8000;
-      while(Date.now()<deadline){
-        const matches=await page.locator('#ctx').evaluate((n,label)=>!n.hidden&&n.getClientRects().length>0&&n.textContent===label,label);
-        if(matches!==leave)return;
-        await pulse(keys);
-      }
+  const walkUntil=async(keys,label,leave=false,running=false)=>{
+    // Observe the public control every rendered frame and release immediately.
+    // Browser-protocol polling adds wall time and can miss an interaction lane.
+    keys=Array.isArray(keys)?keys:[keys];let reached=false;
+    const mouse=page.mouse;
+    try{
+      if(running){
+        const stick=page.locator('.movement-joystick'),box=await stick.boundingBox();
+        if(!box)throw Error('Movement joystick is not visible');
+        await expect(stick).toHaveAttribute('aria-disabled','false');
+        await stick.evaluate(n=>n.addEventListener('pointerdown',e=>n.dataset.arrivalPointer=String(e.pointerId),{once:true}));
+        const x=box.x+box.width/2,y=box.y+box.height/2;
+        await mouse.move(x,y);await mouse.down();await mouse.move(x+box.width*.42,y);
+        await expect(stick).toHaveAttribute('data-mode','run');
+      }else for(const key of keys)await page.keyboard.down(key);
+      reached=await page.evaluate(({keys,label,leave,running})=>new Promise(resolve=>{
+        const deadline=performance.now()+8000;
+        const tick=now=>{
+          const n=document.querySelector('#ctx'),matches=!n.hidden&&n.getClientRects().length>0&&n.textContent===label;
+          if(matches!==leave||now>=deadline){
+            for(const key of keys)window.dispatchEvent(new KeyboardEvent('keyup',{key}));
+            if(running){const stick=document.querySelector('.movement-joystick');stick.dispatchEvent(new PointerEvent('pointercancel',{pointerId:+stick.dataset.arrivalPointer}));}
+            resolve(matches!==leave);return;
+          }
+          requestAnimationFrame(tick);
+        };requestAnimationFrame(tick);
+      }),{keys,label,leave,running});
+    }finally{if(running)await mouse.up();else for(const key of keys.slice().reverse())await page.keyboard.up(key);}
+    if(reached)return;
       // Zero means an unlimited assertion wait, masking a blocked route until
       // the whole test expires. Preserve the bounded visible-control probe.
       const diagnostic=await page.evaluate(()=>{
@@ -71,12 +102,14 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
   await page.locator('[data-a=boatnext]').click();
   await expect(page.locator('.movement-joystick')).toHaveAttribute('aria-disabled','false');
   await page.waitForTimeout(4000); // Let Tamsin walk clear of the rescued player.
-  // The stationary deckhand is a visible landmark for the lane below the mast.
-  // Calibrate that lane through public controls instead of a timed whole tile.
+  // The deckhand's visible interaction boundary anchors a detour above the
+  // mast. Cross the full blocked row before turning toward Tamsin.
   if(visibleOnly){
     await walkUntil('ArrowDown','Talk: Deckhand');await walkUntil('ArrowUp','Talk: Deckhand',true);
-    for(let i=0;i<3;i++)await pulse('ArrowUp');
-    await walkUntil('ArrowRight','Talk: Tamsin');
+    await pulse('ArrowUp',1400);
+    // Run this long clear leg through the visible joystick. Even at very low
+    // frame throughput it must reach the same adjacent Talk control in 8 s.
+    await walkUntil('ArrowRight','Talk: Tamsin',false,true);
   }else await shipApproach(page,'shipPerson');await expect(page.locator('#ctx')).toHaveText('Talk: Tamsin');if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();
   await expect(page.locator('#onboard')).toContainText('teaches SQL');
   if(screenshot)await screenshot(page,info,'meet-tamsin-on-deck');
@@ -85,8 +118,8 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
   if(visibleOnly){
     // Reacquire Tamsin from her right to align with the one-tile gangplank.
     await expect(page.locator('#ctx')).toBeVisible();await expect(page.locator('#ctx')).toHaveText('Talk: Tamsin');
-    await walkUntil('ArrowRight','Talk: Tamsin',true);for(let i=0;i<3;i++)await pulse('ArrowRight');
-    await walkUntil('ArrowUp','Talk: Tamsin');for(let i=0;i<3;i++)await pulse('ArrowUp');
+    await walkUntil('ArrowRight','Talk: Tamsin',true);await pulse('ArrowRight',250);
+    await walkUntil('ArrowDown','Talk: Tamsin');await pulse('ArrowDown',250);
     await walkUntil('ArrowRight','Step ashore');
   }else await shipApproach(page,'shipExit');
   if(screenshot)await screenshot(page,info,'gangplank-arrival');

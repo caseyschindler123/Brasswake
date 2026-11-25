@@ -188,6 +188,9 @@ test('first-day · road farewell completes across actual-distance phases before 
     await roadFarewell(f,{fixture:false,steps:0,queries:0});
     await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(15);
     await expect(f.locator('#say')).toBeVisible();
+    // Reveal the line using the same tap offered to players. Waiting for its
+    // typewriter five times consumed the movement test's unchanged deadline.
+    await f.locator('#say-text').click();
     await expect(f.locator('#say-text')).toContainText('New Reader.');
     await expect(f.locator('#say-text')).toContainText('Marigold');
     const state=await f.evaluate(()=>{
