@@ -33,20 +33,30 @@ async function shipApproach(page,property){
   }throw Error('Could not approach ship target');
 }
 async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunspire',rescue=true,visibleOnly=false}={}){
-  const steps=async(key,n)=>{for(let i=0;i<n;i++){await page.keyboard.press(key,{delay:455});await page.waitForTimeout(200);}};
-  const walkUntil=async(key,label)=>{
+  const pulse=async(keys,hold=80)=>{
+    keys=Array.isArray(keys)?keys:[keys];
+    try{for(const key of keys)await page.keyboard.down(key);await page.waitForTimeout(hold);}
+    finally{for(const key of keys.slice().reverse())await page.keyboard.up(key);}
+  };
+  const walkUntil=async(keys,label,leave=false)=>{
     // Read the visible control while stopped. Holding a key during assertion
     // polling can carry the player past a briefly reachable interaction.
     const deadline=Date.now()+8000;
-    try{
       while(Date.now()<deadline){
-        if(await page.locator('#ctx').evaluate((n,label)=>!n.hidden&&n.getClientRects().length>0&&n.textContent===label,label))return;
-        await page.keyboard.press(key,{delay:80});
-        await page.waitForTimeout(80);
+        const matches=await page.locator('#ctx').evaluate((n,label)=>!n.hidden&&n.getClientRects().length>0&&n.textContent===label,label);
+        if(matches!==leave)return;
+        await pulse(keys);
       }
-      await expect(page.locator('#ctx')).toBeVisible({timeout:0});
-      await expect(page.locator('#ctx')).toHaveText(label,{timeout:0});
-    }finally{await page.keyboard.up(key);}
+      // Zero means an unlimited assertion wait, masking a blocked route until
+      // the whole test expires. Preserve the bounded visible-control probe.
+      const diagnostic=await page.evaluate(()=>{
+        if(location.hostname!=='localhost')return null;const {P,map}=Scene.debug();
+        return {player:[P.x,P.y,P.fx,P.fy],people:map.ents.filter(e=>e.shipPerson).map(e=>({name:e.name,at:[e.x,e.y,e.fx,e.fy]})),control:document.querySelector('#ctx').textContent};
+      });
+      if(diagnostic)console.log('Visible ship probe: '+JSON.stringify({keys,label,leave,...diagnostic}));
+      await expect(page.locator('#ctx')).toBeVisible({timeout:1});
+      if(leave)await expect(page.locator('#ctx')).not.toHaveText(label,{timeout:1});
+      else await expect(page.locator('#ctx')).toHaveText(label,{timeout:1});
   };
   await expect(page.locator('#onboard')).toContainText('Hold on');
   if(screenshot)await screenshot(page,info,'rescue-in-the-sea');
@@ -61,12 +71,24 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
   await page.locator('[data-a=boatnext]').click();
   await expect(page.locator('.movement-joystick')).toHaveAttribute('aria-disabled','false');
   await page.waitForTimeout(4000); // Let Tamsin walk clear of the rescued player.
-  if(visibleOnly){await steps('ArrowDown',1);await walkUntil('ArrowRight','Talk: Tamsin');}else await shipApproach(page,'shipPerson');await expect(page.locator('#ctx')).toHaveText('Talk: Tamsin');if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();
+  // The stationary deckhand is a visible landmark for the lane below the mast.
+  // Calibrate that lane through public controls instead of a timed whole tile.
+  if(visibleOnly){
+    await walkUntil('ArrowDown','Talk: Deckhand');await walkUntil('ArrowUp','Talk: Deckhand',true);
+    for(let i=0;i<3;i++)await pulse('ArrowUp');
+    await walkUntil('ArrowRight','Talk: Tamsin');
+  }else await shipApproach(page,'shipPerson');await expect(page.locator('#ctx')).toHaveText('Talk: Tamsin');if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();
   await expect(page.locator('#onboard')).toContainText('teaches SQL');
   if(screenshot)await screenshot(page,info,'meet-tamsin-on-deck');
   await page.locator('[data-a=boatnext]').click();
   await expect(page.locator('#onboard')).toContainText('three days later');
-  if(visibleOnly){await steps('ArrowRight',2);await steps('ArrowUp',1);await walkUntil('ArrowRight','Step ashore');}else await shipApproach(page,'shipExit');
+  if(visibleOnly){
+    // Reacquire Tamsin from her right to align with the one-tile gangplank.
+    await expect(page.locator('#ctx')).toBeVisible();await expect(page.locator('#ctx')).toHaveText('Talk: Tamsin');
+    await walkUntil('ArrowRight','Talk: Tamsin',true);for(let i=0;i<3;i++)await pulse('ArrowRight');
+    await walkUntil('ArrowUp','Talk: Tamsin');for(let i=0;i<3;i++)await pulse('ArrowUp');
+    await walkUntil('ArrowRight','Step ashore');
+  }else await shipApproach(page,'shipExit');
   if(screenshot)await screenshot(page,info,'gangplank-arrival');
   await expect(page.locator('#ctx')).toHaveText('Step ashore');if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();
   await expect(page.locator('#onboard')).toBeHidden();await expect(page.locator('#hud')).toContainText(name);

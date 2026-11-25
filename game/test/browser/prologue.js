@@ -10,6 +10,14 @@ test('visible controls carry the rescued character all the way ashore',async({pa
   const errors=observeErrors(page);await page.goto('/index.html?visual_test=1');await visibleRescue(page,info);expect(errors).toEqual([]);
 });
 
+test('visible rescue clears the mast at reduced frame throughput',async({page},info)=>{
+  await page.addInitScript(()=>{
+    const native=window.requestAnimationFrame.bind(window);
+    window.requestAnimationFrame=callback=>native(()=>setTimeout(()=>callback(performance.now()),64));
+  });
+  const errors=observeErrors(page);await page.goto('/index.html?visual_test=1');await visibleRescue(page,info);expect(errors).toEqual([]);
+});
+
 test('a failed SQL download explains the problem and leaves a saved way back',async({page})=>{
   await page.route('**/__sql.js',route=>route.abort('failed'));
   await page.route('**/sql-asm.js',route=>route.abort('failed'));
