@@ -1,6 +1,6 @@
 # Concurrent work and release ownership
 
-Classification: complex coordination across three active tasks and one published game. Status: combined recovery released and verified at `359f497` on 2026-11-25; landscape integration/publication remains pending. Recovery evidence is in the linked task plans and release history.
+Classification: complex coordination across three concurrent tasks and one shared published game. Status: complete. Recovery `359f497` and landscape `3c80162` are released, verified and closed in order; task plans and release history retain exact evidence and limits.
 
 ## Acceptance criteria
 
@@ -15,7 +15,7 @@ Classification: complex coordination across three active tasks and one published
 |---|---|---|
 | Review Building Tile Art Style | `dungeon-stair-support/Brasswake` / `codex/dungeon-stair-support` | First publisher and recovery owner. Combined dungeon ascents, locomotion and both repairs are released and verified at `359f497`; release/context closure supplies the landscape baseline. |
 | Review Menu, Story, Art, and Run | `grounded-cadence/Brasswake` / `codex/grounded-cadence` | Locomotion owner; implementation is released in `359f497`. Completed bounded read-only interim compatibility review and handed off plan evidence to the first publisher. No competing gate or duplicate repair. |
-| Brainstorm World Liveliness Ideas | `living-landscape/Brasswake` / `codex/living-landscape` | Landscape owner and second publisher. Continue independent work, then integrate verified recovery `359f497` and its documentation closure before post-merge checks and the full landscape gate. Its own plan records the current candidate. |
+| Brainstorm World Liveliness Ideas | `living-landscape/Brasswake` / `codex/living-landscape` | Second publisher complete at `3c80162` after integrating recovery and closure. Full 495-case gate, Pages identity/hash and hosted flows verified; owned fixture repairs and CDN rechecks are recorded in the landscape plan and release history. |
 
 Worktrees are under `C:/Users/caseys/.codex/worktrees/`. Displayed task titles identify the existing chats, not new workers. Assignments were sent to all three through the app; acknowledgment and release completion are separate evidence.
 
@@ -26,7 +26,7 @@ Worktrees are under `C:/Users/caseys/.codex/worktrees/`. Displayed task titles i
 3. [x] Record the release order and review this documentation with `git diff --check`. Documentation only: no dependency installation, game tests, build, screenshots or deployment for this coordination change.
 4. [x] First publisher completes both repairs, relevant local verification and full exact-commit CI; verifies live commit/HTML/player flows and closes dungeon/locomotion context.
 5. [x] Second publisher integrates final main and resolves actual overlapping edits, preserving prior repairs/assets. Integrated verified `359f497` and closure `adaaaeb`; retained both browser-fixture repairs, Scene/build registrations, incoming assets/manifest records and released master descriptions. Preliminary post-merge core and 12 three-profile smoke/travel/reload checks passed; final closure changed documentation only.
-6. [ ] Second publisher completes its full exact-commit CI, live checks and landscape closure.
+6. [x] Second publisher completes its full exact-commit CI, live checks and landscape closure.
 
 Only the designated publisher advances main or starts publication during its turn. Do not cancel another owner's runs. Fetch before integration/push, preserve remote commits, never force-push, and rerun all jobs if the verified live baseline changes. GitHub's existing concurrency grouping and baseline guard remain unchanged; they do not merge changes or assign ownership. Avoid duplicate CI polling and repeat suites only for changed code, failures or unresolved evidence.
 
@@ -36,4 +36,4 @@ Run 45632434712 tested `a7387974c508de1e61bd6e851dfddcf8ae382995`: core and both
 
 This coordination task does not change game behavior or weaken gates. Main AI, existing-task AI/review and CI dollar billing are unavailable. No new delegated agents, paid generation or CI/deployment runs were initiated by this coordination task. Existing landscape image usage and earlier CI belong to their respective tasks.
 
-Recovery milestone 4 closed: source `359f497d628765790bb77199f4b7c6a9d63a7f4a`, [Actions 45651035378](https://github.com/caseyschindler123/Brasswake/actions/runs/45651035378), core/462 browser cases/deployment/six CI hosted flows passed; independent SHA/HTML and public flows verified by 2026-11-25 17:15:24 UTC. Local one-shot offline probes hit CDN 503s; a separate public offline/save probe retaining the original assertions then passed with zero Retry clicks. See [release history](../RELEASE_HISTORY.md#supported-dungeon-ascents-and-grounded-human-locomotion) for the exact hash, evidence and limits. Milestone 5 is complete; milestone 6 remains pending for the landscape owner.
+Recovery milestone 4 closed: source `359f497d628765790bb77199f4b7c6a9d63a7f4a`, [Actions 45651035378](https://github.com/caseyschindler123/Brasswake/actions/runs/45651035378), core/462 browser cases/deployment/six CI hosted flows passed; independent SHA/HTML and public flows verified by 2026-11-25 17:15:24 UTC. Local one-shot offline probes hit CDN 503s; a separate public offline/save probe retaining the original assertions then passed with zero Retry clicks. See [release history](../RELEASE_HISTORY.md#supported-dungeon-ascents-and-grounded-human-locomotion) for the exact hash, evidence and limits. Milestones 5–6 are complete. Landscape source `3c8016268a0d839ad61864813ed524c6d596dbb9`, [Actions 45681038767](https://github.com/caseyschindler123/Brasswake/actions/runs/45681038767/attempts/3): core/495 browser cases and all six CI hosted flows passed. Final independent source/HTML matched at `2026-11-25T20:18:17.768Z`; public offline/save assertions passed separately with zero Retry clicks after two independent CDN 503 failures. See [release history](../RELEASE_HISTORY.md#whole-world-living-landscape) for the hash, recheck history, actual visual evidence and limits. No other task checkout or workflow was cancelled or overwritten.

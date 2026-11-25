@@ -17,30 +17,32 @@ async function drivePath(frame, path, run = true) {
     await mouse.move(x, y);
     await mouse.down();
     try {
-      // Stop in the rendering frame that crosses the requested coordinate.
-      await frame.evaluate(({target,dx,dy,precision})=>{
+      // Observe progress in the rendering page. Polling it across the browser
+      // protocol every 40 ms generated thousands of trace actions on a full
+      // guided day, competing with WebKit rendering and delaying teardown.
+      // Input, the collision authority and the actual crossing remain intact.
+      await frame.evaluate(({target,dx,dy,precision,from,tiles,running})=>{
         const n=document.querySelector('.movement-joystick');n.dataset.driverReached='';
-        function stopAtCentre(){
-          const p=Scene.debug().P;
-          if(!n.hasPointerCapture(+n.dataset.driverPointer))return;
-          if((dx?(p.fx-target[0])*dx>=0:Math.abs(p.fx-target[0])<=precision)&&(dy?(p.fy-target[1])*dy>=0:Math.abs(p.fy-target[1])<=precision)){
-            n.dataset.driverReached='true';n.dispatchEvent(new PointerEvent('pointercancel',{pointerId:+n.dataset.driverPointer}));
-          }else requestAnimationFrame(stopAtCentre);
-        }requestAnimationFrame(stopAtCentre);
-      },{target,dx,dy,precision});
+        const started=performance.now(),deadline=started+(tiles+1)*(running?600:900)+1200;
+        let last=from.join(','),progressed=started;
+        window.__bwDriverLeg=new Promise(resolve=>{
+          function stopAtCentre(){
+            const p=Scene.debug().P,now=performance.now();
+            if(!n.hasPointerCapture(+n.dataset.driverPointer)){resolve(false);return;}
+            if((dx?(p.fx-target[0])*dx>=0:Math.abs(p.fx-target[0])<=precision)&&(dy?(p.fy-target[1])*dy>=0:Math.abs(p.fy-target[1])<=precision)){
+              n.dataset.driverReached='true';n.dispatchEvent(new PointerEvent('pointercancel',{pointerId:+n.dataset.driverPointer}));resolve(true);return;
+            }
+            if(__bw.F||__bw.SB||__bw.Q||now>=deadline){resolve(false);return;}
+            const current=[p.fx,p.fy].join(',');
+            if(current!==last){last=current;progressed=now;}
+            else if(now-progressed>1000){resolve(false);return;}
+            requestAnimationFrame(stopAtCentre);
+          }
+          requestAnimationFrame(stopAtCentre);
+        });
+      },{target,dx,dy,precision,from,tiles,running});
       await mouse.move(x + dx * distance, y + dy * distance);
-      const deadline = Date.now() + (tiles + 1) * (running ? 600 : 900) + 1200;
-      let last = from.join(','), progressed = Date.now();
-      while (Date.now() < deadline) {
-        await frame.waitForTimeout(40);
-        const status = await frame.evaluate(() => ({ at: [Scene.debug().P.fx,Scene.debug().P.fy], reached:document.querySelector('.movement-joystick').dataset.driverReached==='true', interrupted: !!(__bw.F || __bw.SB || __bw.Q) }));
-        if (status.reached) return true;
-        if (status.interrupted) return false;
-        const current = status.at.join(',');
-        if (current !== last) { last = current; progressed = Date.now(); }
-        else if (Date.now() - progressed > 1000) return false;
-      }
-      return false;
+      return await frame.evaluate(()=>window.__bwDriverLeg);
     } finally { await mouse.up(); }
   }
   async function align(axis,coordinate) {
