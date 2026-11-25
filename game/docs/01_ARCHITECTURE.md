@@ -216,6 +216,8 @@ GitHub Pages uses the Actions publishing source. The publication payload is buil
 
 ## Decision log
 
+- 2026-11-24: Audio release CI exposed a visible-rescue fixture overshoot: held-key assertion polling moved beyond a reachable talk control. Use short native key presses and inspect the visible DOM while stopped, without changing gameplay or rescue assertions. The full WebKit profile also exceeded its 60-minute job allowance; browser jobs now allow 90 minutes with unchanged test deadlines, selected coverage and zero retries. The audio plan retains failure evidence and requires a fresh complete release gate.
+
 - 2026-11-24: Tiered verification protocol: mapped module changes require smoke plus affected named suites in all three browsers; shared/unknown/save/movement/offline/build/runtime changes retain full coverage. Nightly full runs do not publish or block release queueing. Tooling/test-only validation is distinct from game publication, whose commit/hash/offline/live-flow checks remain required. Inventory/schema/CLI/gate tests protect the new automation; see 05_CODING_WORKFLOW.md and the tiered-verification plan.
 
 - 2026-11-24: Audio-release verification exposed an intermittent surface respawn timeout. Preserve failed creature/resource placement requests and retry after one second rather than discarding the slot. Normal spawn delays, placement protection and rewards remain unchanged; pure and actual-world theft regressions cover unavailable placement and later recovery. Also stop old ambience across same-region town/wilderness transitions. This is an audio-release verification repair, pending the fresh gate and deployment.

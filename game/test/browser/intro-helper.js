@@ -27,7 +27,20 @@ async function shipApproach(page,property){
 }
 async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunspire',rescue=true,visibleOnly=false}={}){
   const steps=async(key,n)=>{for(let i=0;i<n;i++){await page.keyboard.press(key,{delay:455});await page.waitForTimeout(200);}};
-  const walkUntil=async(key,label)=>{await page.keyboard.down(key);try{await expect(page.locator('#ctx')).toBeVisible({timeout:8000});await expect(page.locator('#ctx')).toHaveText(label,{timeout:8000});}finally{await page.keyboard.up(key);}};
+  const walkUntil=async(key,label)=>{
+    // Read the visible control while stopped. Holding a key during assertion
+    // polling can carry the player past a briefly reachable interaction.
+    const deadline=Date.now()+8000;
+    try{
+      while(Date.now()<deadline){
+        if(await page.locator('#ctx').evaluate((n,label)=>!n.hidden&&n.getClientRects().length>0&&n.textContent===label,label))return;
+        await page.keyboard.press(key,{delay:80});
+        await page.waitForTimeout(80);
+      }
+      await expect(page.locator('#ctx')).toBeVisible({timeout:0});
+      await expect(page.locator('#ctx')).toHaveText(label,{timeout:0});
+    }finally{await page.keyboard.up(key);}
+  };
   await expect(page.locator('#onboard')).toContainText('Hold on');
   if(screenshot)await screenshot(page,info,'rescue-in-the-sea');
   if(rescue)await expect(page.locator('#boat-name')).toBeVisible({timeout:15000});
