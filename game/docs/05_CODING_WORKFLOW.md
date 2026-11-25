@@ -1,6 +1,6 @@
 # Automatic coding and release workflow
 
-Last updated: 2026-11-24.
+Last updated: 2026-11-25.
 
 Casey describes the outcome. Codex classifies the work, plans proportionally, makes the requested change and performs checks suited to its impact. Both simple and complex game changes have standing authorization to deploy after required checks pass. Documentation and Codex instruction changes require no game deployment. No skill name or routine approval is required. Questions and discussion do not initiate releases; explicit requests to leave edits local, hold deployment or stop override these defaults.
 
@@ -39,6 +39,8 @@ A simple gameplay fix can need browser testing. A complex documentation change c
 
 ## Commit and deploy automatically
 
+- Concurrent tasks develop in isolated worktrees with separate local ports and outputs. Assign one publisher at a time for the shared live game; other tasks continue implementation or bounded review. Before the next release gate, integrate the preceding publisher's verified source and documentation closure, resolve shared-file changes deliberately, and preserve all earlier fixes. The existing concurrency group and live-baseline guard do not coordinate Git merges or task ownership. Avoid duplicate repair owners, competing publications, cancelling another task's runs and repeated status polling. The [2026-11-25 coordination plan](plans/2026-11-25-parallel-release-coordination.md) records the current three-task assignments and release order.
+
 - Stage only the task's intended files. Keep raw art, build output, browser binaries, reports, credentials, and temporary files out of git. Never commit another task's edits accidentally.
 - If Casey requests local-only work or says not to deploy, leave edits uncommitted and do not push or dispatch a workflow. A push can trigger deployment even when no manual deploy command is used.
 - Otherwise commit with a concrete description. Push the checked commit to `main` with `git push origin main`. Markdown-only changes do not trigger Pages and need no live verification. For game releases, if working on another branch, integrate normally and reverify the resulting main; do not force-push or overwrite remote work. If the remote advanced, fetch, integrate safely, and rerun applicable checks on the result.
@@ -66,6 +68,8 @@ Prefer one task per chat. For multiple releases in one chat, use task-specific u
 The main agent owns classification, acceptance criteria, task decomposition, integration, and release. Use the delegation rules in root `AGENTS.md`: default to one agent, delegate only bounded independent work with a clear expected benefit, select the least expensive suitable available model and reasoning effort, and escalate capability when the evidence warrants it. Avoid duplicate reading, overlapping edits, recursive delegation, unnecessary screenshots, and repeated unchanged test runs. Prefer narrow worker context and concise deliverables. Exact costs depend on the available product/model; do not invent a price or promised savings.
 
 ## Decision log
+
+- 2026-11-25: Casey requested explicit coordination of three concurrent agents after the combined dungeon/locomotion gate failed WebKit. Keep development parallel in isolated worktrees, assign both failures and the first recovery release to the building task, use the locomotion task for bounded compatibility review, and publish landscape after integrating verified recovery and closure. Preserve exact-commit checks and live-baseline guards; no executable workflow changes or new game deployment are needed for these assignments.
 
 - 2026-11-24: The complete WebKit profile in the audio replacement run outgrew the 60-minute browser-job budget after reaching case 136; its four full guided-day cases alone took about 21 minutes on the two-worker runner. Raise the browser-job allowance to 90 minutes while retaining all selected cases, per-test deadlines, zero retries and fail-closed publication. The separate visible-rescue fixture overshoot is repaired with stopped short-key movement; the audio plan records the failed run and required fresh gate.
 
