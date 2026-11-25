@@ -23,6 +23,19 @@ test('music-only changes select related coverage and smoke without full guided d
   assert.deepEqual(plan.suites,['smoke','scenes','sound','music']);assert.equal(plan.release,true);assert.equal(plan.core,true);
   assert.equal(plan.suites.includes('first-day'),false);assert.equal(validSelection(plan),true);
 });
+test('prepared effect assets use complete audio coverage; shared and packaging changes still require full checks',()=>{
+  const effects=Object.values(JSON.parse(fs.readFileSync(path.join(__dirname,'../../arttools/music/effects.json'),'utf8')).effects);
+  assert.equal(effects.length,64);
+  for(const {path:file} of effects){
+    const plan=chooseUI({files:[file]});
+    assert.deepEqual(plan.suites,['smoke','scenes','sound','music']);
+    assert.equal(plan.tier,'focused');assert.equal(plan.core,true);assert.equal(plan.release,true);
+    for(const shared of ['game/src/game.js','game/src/offline.js','game/build.js','game/test/browser/movement.js'])
+      assert.equal(chooseUI({files:[file,shared]}).tier,'full');
+    assert.equal(chooseUI({files:[file],packagingChanged:true}).tier,'full');
+    assert.equal(chooseUI({files:[file],baselineAvailable:false}).tier,'full');
+  }
+});
 test('mixed changes retain the union; one unknown source promotes the whole release',()=>{
   const files=['game/src/npc_appearance.js','game/src/audio.js'];const plan=chooseUI({files});
   for(const suite of ['smoke','scenes','npc-appearance','worlds','arming','sound','music'])assert.ok(plan.suites.includes(suite));
