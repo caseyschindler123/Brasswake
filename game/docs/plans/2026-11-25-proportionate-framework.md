@@ -1,6 +1,6 @@
 # Proportionate planning and release verification
 
-Classification: complex because suite registration, selection and fail-closed release validation must agree. Status: locally verified; exact-commit CI pending. This changes developer tooling, not the published game.
+Classification: complex because suite registration, selection and fail-closed release validation must agree. Status: local checks and exact-commit CI core passed; selected browser CI pending. This changes developer tooling, not the published game.
 
 ## Acceptance criteria
 
@@ -24,5 +24,9 @@ Classification: complex because suite registration, selection and fail-closed re
 Run `npm run test:protocol`, build only for short runner coverage, and execute selected smoke/scenes in all three profiles. Discovery must retain the exact four profession journeys in full coverage and exclude them from first-day focused coverage while keeping its targeted regressions. Validate malformed/missing scope rejection and full fallbacks. Current unrelated scheduled guided-day/arrival failures remain owned by the separate repair task; this task does not claim to repair them or establish a passing nightly. No physical-device or gameplay change is intended.
 
 Local evidence (2026-11-25 America/Los_Angeles): all 50 protocol/workflow checks passed, including actual local/hosted browser discovery, missing-journey gate rejection, asset/offline hosted selection and risky/unknown unions. `node build.js` prepared the unchanged game for runner coverage; all 27 smoke/scenes cases passed across 390×720 phone Chromium/WebKit and 1280×800 desktop Chromium in 3.6 minutes, with zero retries. `git diff --check` passed. No game source, assets, runtime dependencies or packaging changed. Initial dependency discovery lacked installed worktree packages; locked `npm ci` resolved it. A sandbox-restricted browser attempt was stopped and rerun with authorized localhost/process access. Neither attempt changed assertions or coverage.
+
+Initial implementation `c3c8fec7324fba4b15ea35cae2242bd1a6724fdb` was pushed to main. [Actions 45701638721](https://github.com/caseyschindler123/Brasswake/actions/runs/45701638721) passed core/build and 57 combined protocol/workflow/offline/server checks at 2026-11-25 13:13 PST. Its validated plan selected smoke, first-day and journeys because their owning registration changed, with `release=false` and `live=false`; Pages configuration/upload were skipped. Final review found the inherited ActorRig appearance mapping unsafe because it now supplies physical walking/running speeds. Restore its full fallback and cover it with selector/hosted regressions. The initial browser run is superseded, not counted as a pass; stop only that task-owned run to avoid duplicate work. The separate task's dirty main checkout was preserved; this task pushed its isolated, fast-forward descendant directly to remote main.
+
+After the ActorRig safety correction, all 51 local protocol/workflow checks passed with zero failures or skips. Registration and browser assertions were unchanged, so the passing 27-case local runner evidence remains applicable; the corrected commit requires fresh CI.
 
 Costs: task-specific AI/CI billing unavailable; no delegated worker or paid generation used at initialization. No game deployment is intended.

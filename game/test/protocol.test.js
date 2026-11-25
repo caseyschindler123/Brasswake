@@ -14,7 +14,7 @@ for (const file of ['AGENTS.md', 'game/docs/05_CODING_WORKFLOW.md', '.github/wor
   });
 }
 for (const file of ['game/src/game.js','game/src/style.css','game/src/engine.js','game/src/character_worlds.js',
-  'game/src/movement.js','game/src/offline.js','game/src/service-worker.js','game/art/i/bag.webp','game/vendor/new.js']) {
+  'game/src/movement.js','game/src/actor_rig.js','game/src/offline.js','game/src/service-worker.js','game/art/i/bag.webp','game/vendor/new.js']) {
   test('shared or unknown game changes require full release checks: ' + file, () => {
     const plan=chooseUI({files:[file]});assert.equal(plan.tier,'full');assert.equal(plan.release,true);assert.deepEqual(plan.suites,ALL_SUITES);
   });
@@ -85,8 +85,8 @@ test('hosted selection always retains smoke, affected behavior and all risky/ful
   assert.deepEqual(liveSuites(plan(['game/src/audio.js'])),['smoke','audio']);
   assert.deepEqual(liveSuites(plan(['game/art/fx/door.wav'])),['smoke','audio','offline']);
   assert.deepEqual(liveSuites(plan(['game/src/query_feedback.js'])),['smoke','battle']);
-  assert.deepEqual(liveSuites(plan(['game/src/actor_rig.js'])),['smoke','arrival']);
-  for(const file of ['game/src/game.js','game/src/offline.js','game/build.js','game/src/movement.js','game/src/unknown.js'])
+  assert.deepEqual(liveSuites(plan(['game/src/npc_appearance.js'])),['smoke','arrival']);
+  for(const file of ['game/src/game.js','game/src/offline.js','game/build.js','game/src/movement.js','game/src/actor_rig.js','game/src/unknown.js'])
     assert.deepEqual(liveSuites(plan([file])),LIVE_SUITES);
   assert.deepEqual(liveSuites(chooseUI({event:'schedule'})),LIVE_SUITES);
   assert.deepEqual(liveSuites(chooseUI({files:['game/src/audio.js']})),LIVE_SUITES,'missing changed-file evidence cannot omit offline checks');

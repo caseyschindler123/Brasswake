@@ -13,7 +13,8 @@ const runner = new Set(['game/test/select-tests.js', 'game/test/ui-suites.js',
   'game/test/verify.js', 'game/test/run-ui.js', 'game/test/live.js', 'game/test/live-suites.js', 'game/playwright.config.js', 'game/test/browser/ui.spec.js', 'game/test/browser/live.spec.js']);
 const sourceGroups = [
   [/^game\/src\/(audio|music)\.js$|^game\/art\/(mu|fx)\//, ['music', 'sound', 'scenes']],
-  [/^game\/src\/(actor_rig|npc_appearance)\.js$/, ['npc-appearance', 'worlds', 'arming', 'prologue', 'scenes']],
+  // ActorRig also supplies physical walking/running speeds: it stays full.
+  [/^game\/src\/npc_appearance\.js$/, ['npc-appearance', 'worlds', 'arming', 'prologue', 'scenes']],
   [/^game\/src\/(building_view|building_cache|terrain_edges|service_places|scene_living)\.js$/,
     ['living-world', 'world-buildings', 'venues', 'cartography', 'scenes']],
   [/^game\/src\/(query_feedback|sqled)\.js$/, ['query-feedback', 'playability', 'battle-risk', 'battle-boundaries', 'scenes']],
