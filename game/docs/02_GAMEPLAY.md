@@ -270,6 +270,7 @@ Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counti
 ## 10. Houses
 
 - **Buying:** deeds from any banker in 10 shapes × 3 materials (stone ×1.5, timber ×1.25, log ×1). You place one anywhere open outside town.
+- **Restoration (audio release candidate):** a safe saved plot stays fixed. An invalid plot searches all four sides of expanding bounded rings in its saved region, retaining collision, clearance, protected-ground, reachability and occupant restrictions; house identity and stored contents persist.
 - **What every house has:**
   - a chest (10–40 slots, +10 per extra chest) whose contents survive death and are shared by all your characters
   - a bed for full health
@@ -344,6 +345,8 @@ Workbench Carpentry crafts storage chests (6 regional materials, difficulty 25),
 A new main character chooses appearance and former profession, then is hauled aboard the Marigold in the playable scene. Tamsin introduces herself, asks their name and homeland, recognizes their profession-specific reputation from merchant crews, and questions a journey that ordinary sailing cannot explain. Sunspire, Sylvanreach and Dwarrowdeep are existing distant trade realms, not new playable regions. The player walks on deck, meets Tamsin, can inspect cargo, rests during the three-day crossing, and walks off the gangplank at Tallyport. Tamsin explains Corin and the Trials ashore before Odalys's lesson. Odalys defines SQL and the Ledger before tables, rows, columns, queries and results; the source cargo, read-only teaching copy, full company records and safe ability practice have explicit handoffs. The entrance-cellar guardian, guided utility work and all guided Tallyport fishing casts use the SELECT/FROM forms taught that day. Existing guide indices, supplies, gold awards, equipment/paper-doll arming and the later story remain in place. The verified release is recorded in `RELEASE_HISTORY.md` and the completed boat-intro plan.
 
 ## Decision log
+
+- 2026-11-24: Correct saved-house recovery to search every side of its bounded relocation rings; the former search could miss a safe plot north/south of town and reject restoration. Safe existing houses stay fixed, and relocation retains region, clearance, protected terrain, reachability and occupant restrictions. IDs and stored contents are preserved. This verification repair ships with the audio replacement after its complete gate passes.
 
 - 2026-11-24: Audio-release verification exposed an intermittent surface respawn timeout. Preserve failed creature/resource placement requests and retry after one second rather than discarding the slot. Normal spawn delays, placement protection and rewards remain unchanged; pure and actual-world theft regressions cover unavailable placement and later recovery. Also stop old ambience across same-region town/wilderness transitions. This is an audio-release verification repair, pending the fresh gate and deployment.
 

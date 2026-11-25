@@ -1108,9 +1108,14 @@
         let at = null;
         for (const c of [origin, t]) {
           if (at) break;
-          for (let d = 0; d < 300 && !at; d++) for (let dy = -d; dy <= d && !at; dy++) for (const dx of d ? [-d, d] : [0]) {
-            const x = c[0] + dx, y = c[1] + dy;
-            if (Geography.region(x, y) === r && valid(x, y, true)) { at = [x, y]; break; }
+          for (let d = 0; d < 300 && !at; d++) for (let dy = -d; dy <= d && !at; dy++) {
+            // Top/bottom rows span the whole edge; interior rows need only
+            // their endpoints. Visit the complete ring without its interior.
+            const step = Math.abs(dy) === d ? 1 : 2 * d;
+            for (let dx = -d; dx <= d; dx += step) {
+              const x = c[0] + dx, y = c[1] + dy;
+              if (Geography.region(x, y) === r && valid(x, y, true)) { at = [x, y]; break; }
+            }
           }
         }
         if (!at) throw new Error('No safe house placement in region ' + r);
