@@ -21,10 +21,32 @@ async function press(frame, delta, target) {
   await keyboard.down(key);
   try {
     if (before.every((value, i) => value === target[i])) {
-      // Continuous motion can approach a wall within the current cell. Give
-      // that approach time to finish, then require collision to stop it.
-      await frame.waitForTimeout(280);
-      expect(await frame.evaluate(() => Scene.traveling())).toBe(false);
+      // A centre-to-wall approach needs several simulation frames. Observe
+      // actual travel and collision while the native key remains held.
+      const contact = await frame.evaluate(({ target, delta }) => new Promise((resolve, reject) => {
+        let previous, first, stable = 0, done = false;
+        const timeout = setTimeout(() => { done = true; reject(Error('Held movement did not settle against the wall')); }, 3500);
+        function sample() {
+          if (done) return;
+          const p = Scene.debug().P, feet = [p.fx, p.fy], cell = Scene.pos(), moving = Scene.traveling();
+          if (cell.some((value, i) => value !== target[i])) {
+            done = true; clearTimeout(timeout); reject(Error('Held movement crossed the blocked cell')); return;
+          }
+          const approached = (feet[0]-target[0])*delta[0]+(feet[1]-target[1])*delta[1] > .1;
+          if (approached && !moving && previous && feet.every((value, i) => value === previous[i])) {
+            if (!stable) first = previous;
+            stable++;
+          } else stable = 0;
+          if (stable === 3) {
+            done = true; clearTimeout(timeout); resolve({ first, feet, cell, moving }); return;
+          }
+          previous = feet; requestAnimationFrame(sample);
+        }
+        requestAnimationFrame(sample);
+      }), { target, delta });
+      expect(contact.feet).toEqual(contact.first);
+      expect(contact.cell).toEqual(target);
+      expect(contact.moving).toBe(false);
     } else {
       await frame.waitForFunction(at=>Scene.pos().every((n,i)=>n===at[i]),target,{timeout:3500});
     }

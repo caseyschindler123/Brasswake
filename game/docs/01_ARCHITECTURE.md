@@ -216,6 +216,8 @@ GitHub Pages uses the Actions publishing source. The publication payload is buil
 
 ## Decision log
 
+- 2026-11-24: Side-entrance collision verification observes actual approach and stopped motion under held native input, then exact stable fractional feet across three consecutive stopped frames. A fixed 280ms wall-clock sleep failed on slow WebKit frames because simulation dt is capped; production movement/collision and the original cell/cutaway assertions stay unchanged. The animation/world-polish plan retains the 449/450 result and requires a fresh full release gate.
+
 - 2026-11-24: The animation sample must tolerate rAF timestamps preceding initialization within the same frame. Clamp its elapsed time and clock, exercise the earlier-timestamp case and retain live playback/pause checks. Candidate b06d786 passed all desktop cases but its mobile preview crashed; the plan preserves screenshot/trace evidence and the failed run. This is a test-artifact repair; release verification remains required.
 
 - 2026-11-24: Visual-polish CI exposed the existing infirmary probe identifying a live door by retired canvas padding/dimensions. Identify the exact current leaf pixels painted at its structural threshold and intended scale, preserving the native movement, cutaway and opening/closing cue assertions. This is a browser-fixture correction; runtime art/geometry remain as implemented. The animation/world-polish plan retains the failed run and requires a fresh full release gate.
