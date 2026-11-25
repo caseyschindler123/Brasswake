@@ -148,7 +148,7 @@ Creation offers free body, five skin tones, hairstyle, hair colour and facial-ha
 
 ## 5. Combat and covert work
 
-**Battle-risk candidate, not yet published:** the changes below are implemented on the isolated battle branch and await combined verification/publication with worlds/living-places. Death penalties and unlimited SQL thinking time are unchanged.
+**Battle-risk actions (released `8602fa5`):** the changes below shipped with worlds/living-places; see the [verified release record](RELEASE_HISTORY.md#worlds-movement-living-places-and-battle-risk). Death penalties and unlimited SQL thinking time are unchanged.
 
 Query power and battle comparisons shipped as `9853ea2`, independently verified on 2026-11-24 UTC. The closed [SQL battle feedback plan](plans/2026-11-24-sql-battle-feedback.md) and [release history](RELEASE_HISTORY.md#sql-answer-power-and-battle-comparisons) preserve verification and UX observations.
 

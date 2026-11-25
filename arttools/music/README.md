@@ -19,6 +19,8 @@ Music uses 44.1 kHz stereo 192 kb/s gapless MP3 loops and PCM16 WAV cues. An 8/1
 
 Technical recurrence, waveform and browser checks do not establish subjective musical/foley quality. No subjective listening or physical iPhone listening is claimed. Headroom in prepared files does not prove that full-scale raw generated sources have no audible distortion. Originals/C2PA data are retained locally; prepared derivatives intentionally remove vendor metadata.
 
+Use the normal sound/music and hosted audio fixtures for playback evidence. The local Dev playground defaults to muted audio for repeatable setup, so a passing Dev battle does not validate audio routing or samples. See the [environment-use guide](../../game/docs/05_CODING_WORKFLOW.md#choose-the-development-environment) for scope and stop conditions.
+
 After preparation, run actual-output Python checks and the packed verifier. Image-packing tests apply when their pipeline is affected. Follow [05_CODING_WORKFLOW.md](../../game/docs/05_CODING_WORKFLOW.md) for current core/build and selected sound/music browser gates; a preparation-only tooling edit uses its affected automation checks and does not publish unchanged audio. Browser coverage decodes music/effect assets and checks routing, playback, persistent mute, fallback and bounded resources. See the [scope-based implementation](../../game/docs/plans/2026-11-25-scope-based-testing-and-dev-mode.md) for selected checks and direct Dev scenarios. Technical measurements remain distinct from subjective/physical-device evidence.
 
 The runtime revalidates the ordinary HTTP cache when loading a buffer so same-name replacement files refresh after deployment. Its decoded LRU and coherent offline snapshots still provide cached playback.

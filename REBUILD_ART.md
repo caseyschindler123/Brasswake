@@ -93,4 +93,4 @@ Open `http://localhost:8779/__visual?scene=title`. Test scenes are `title`, `tal
 - Keep `work/`, `node_modules/` and `game/dist/` ignored.
 - New image requests use the existing image script directly. Start with a small test kit; obtain Casey's go-ahead before a paid full run. Ask before changing `art_prompts.json`, the script's model or quality settings.
 - Do not start an image run to settle a packing mismatch. Never put API keys in files or chat.
-- Commit after validation and doc updates. Push `main` to https://github.com/caseyschindler123/Brasswake to deploy automatically through `.github/workflows/pages.yml`; CI verifies the committed art and never rebuilds from raw art.
+- Commit intended files after affected validation and context updates. Main pushes use `.github/workflows/pages.yml`: Markdown-only changes skip it, tooling-only changes do not republish unchanged output, and changed game assets publish only after selected checks and publication guards pass. CI verifies committed art and never rebuilds it from raw inputs. See the [canonical workflow](game/docs/05_CODING_WORKFLOW.md#commit-ci-and-publication).

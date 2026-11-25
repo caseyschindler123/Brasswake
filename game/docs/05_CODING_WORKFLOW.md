@@ -24,6 +24,8 @@ Mixed changes union their risks; labels cannot override unknown/high-risk eviden
 
 ## Commands and selection
 
+The matrix describes how to develop efficiently; the selector determines the executable release gate. Current fast automatic paths are limited: tooling/equivalent fixture extraction select `canary,dev-mode`; reviewed landscape/architecture/cartography atlas changes select `canary,scenes`; other mapped feature families retain legacy `smoke` plus affected suites. Their selected core groups are still reduced. Global CSS, monolithic/shared game code and unknown files remain conservative. A Dev scenario passing does not authorize substituting it for a different selected suite.
+
 From game/, install locked dependencies with npm ci only when needed.
 
 - npm run verify -- --defer-ui selects and executes the relevant core groups/build. It defers browser work to exact-commit CI; it does not pretend selected UI passed.
@@ -34,11 +36,32 @@ From game/, install locked dependencies with npm ci only when needed.
 - npm run test:ui -- --full runs the complete inventory. Existing test:paths/test:dungeons remain separate earned/compressed campaign tools with their own evidence limits.
 - npm run dev serves the existing built game and /__dev on the loopback test server. Run npm run build first when needed. The panel and command scripts are never copied into dist.
 
+These commands select different things: an explicit `test:ui -- --suites=...` adds the short canary; `verify` uses the automatic suite list, which can contain legacy smoke instead. `--scenes` chooses only named visual scenes, and `--capture-profiles` filters only those visual cases. It does not narrow feature tests or canaries. All three browser-profile jobs remain required when current CI selects UI. Local `--project=<name>` is useful during diagnosis; it does not establish the other required release-profile results. Running `test:ui` without suites/environment selection defaults to the full inventory, so choose a focused command deliberately during iteration.
+
 select-tests.js records selected suites, core groups, scenes and capture profiles. ui-suites.js validates scope metadata and complete full inventory; the aggregate rejects malformed plans and failed/cancelled/skipped selected browser jobs. Current canary covers public character setup, actual SQL and device save/reload in all three profiles. Legacy smoke and every existing scenario remain in full coverage.
 
 Core groups are selected before execution: assets/build/protocol plus affected engine/audio/actors/world/cards/effects groups; full runs all groups, including offline/server checks. Do not repeat passing unchanged full local and CI runs or hosted flows without a concrete unresolved concern.
 
 Coverage retains game/dependency/packaging changes since verified publication, including failed rollouts. Test-fixture history is compared with verified full source f7988d8 (Actions 45703705378); exact extraction proof checks unchanged scenario/helper text before allowing the short migration gate. Missing history, changed helper behavior, unknown fixtures or unverifiable equivalence retain full. This is bounded provenance reuse, not a blanket exemption for test changes.
+
+The equivalence proof is specific to the recorded dungeon/first-day extraction; it does not certify every future registration edit. Changed first-day fixture code can still select journeys through the conservative existing mapping. Helpers must be imported from side-effect-free helper modules, never from a file that registers scenarios. A new smaller mapping requires reviewed consumers, regressions and an updated selector/gate contract; changing prose or using a `Dev` label cannot create it.
+
+## Choose the development environment
+
+Use this guide before starting a browser or a long flow. Codex owns automation and visual review. Prefer existing commands/scenarios and finish when the necessary checks pass; do not build a new panel, test framework or duplicate scenario merely to validate a small edit.
+
+| Work being changed | Default development method | Evidence still needed |
+|---|---|---|
+| Context, plans or instructions | Wording/link review and `git diff --check`; no game environment | Accurate current/planned wording; Markdown-only publication behavior |
+| Damage, skill, item or other isolated calculation | Existing small tests of the actual runtime rule/boundaries | A prepared integration scenario only when a changed connection needs it; shared rules still use the broader selected gate |
+| Decorative texture, color, icon or equipment appearance | Load the affected visual fixture or Dev equipment preset directly and capture phone/desktop | Actually open relevant captures and check integrity; global CSS, physical anchors and unknown impact stay conservative |
+| Battle mechanics or gear interaction | Direct Dev reset/skills/resources/grant/spawn setup, then ordinary battle/equip/SQL controls | Actual resulting state, costs and outcomes; avoid walking a profession day merely to obtain the starting gear/enemy |
+| Building appearance/layout | `Dev.building` for real compiler/render layers, furniture and roof preview; existing scene fixtures for the in-world view | Real entry/exit/collision/ownership checks when physical geometry, placement, doors or anchors change; preview alone does not exercise those contracts |
+| Creation, learning/progression, earning rewards, navigation or saves | The relevant ordinary player flow, native movement, import/export/reload or earned campaign | Exercise the behavior being claimed. Dev may prepare an initial boundary state, but teleporting/granting progress cannot prove that same travel/earning/save path |
+| Music, sound, offline cache or publication | Existing real audio/offline/live suites and asset/manifest checks | Dev starts muted and bypasses normal persistence; use the actual browser/playback/cache/hosted path for these contracts |
+| Test registration, Dev tools or CI | Protocol/configuration checks, real discovery, short runner/Dev checks as selected | Prove full inventory/guards remain; run affected real flows when assertions or shared helper behavior changes |
+
+Prepare state directly, wait for actual readiness, exercise the behavior, inspect assertions/captures, and reset between independent scenarios. Do not automate clicks through the Dev panel to perform setup; use the command interface. Reuse an already-proven scenario rather than creating a fresh complete playthrough for every fix. Keep randomness/probability studies in appropriate pure/balance tests; the isolated seeded Dev stream does not make ambient browser-frame timing a physical-device or balance study.
 
 ## Local Dev scenarios
 
@@ -49,10 +72,12 @@ Coverage retains game/dependency/packaging changes since verified publication, i
 - grant({slot,weapon,rarity,tier,equip,variant}) uses the actual item factory/equip action.
 - spawn({monster,count}), battle(id) prepare bounded catalog monsters and enter real combat. Tests then use ordinary combat/SQL controls.
 - teleport({region,x,y,dungeon,interior}) uses valid scene/dungeon transitions. It does not prove normal travel or earning access.
-- building({region,shape,width,height,doors}) previews the actual building compiler/render layers; ordinary entrance/collision tests remain relevant when physical layouts change.
+- building({region,shape,width,height,doors,furniture}) previews the actual building compiler/render layers; ordinary entrance/collision tests remain relevant when physical layouts change.
 - catalog() and snapshot() expose setup options and observable state for repeatable checks.
 
 Dev storage is in-memory and replaces neither player localStorage nor player saves. Audio defaults muted for repeatable scenarios; normal audio suites continue testing actual playback independently. No new commands are inserted into the production build. Dev setup does not establish progression/balance/learning, natural travel, human taste or physical-device behavior.
+
+Call setup commands while no fight/query is active; use `reset(seed)` before preparing another scenario. Current catalogs/bounds are intentional: skills and attributes respect normal individual/total caps; resource setters expose health/mana/stamina/gold; grant creates supported generated equipment (including valid weapon variants/rarity); spawn accepts supported bounty-monster IDs with 1–12 creatures per call. Teleport supports valid region/surface coordinates, zero-based dungeon floors and existing interior IDs/slots. The panel exposes a convenient subset of the command API. It is not an unrestricted editor for every game object, boss, quest flag or consumable. Use normal or existing specialized fixtures when the API does not represent the state being tested.
 
 ## Commit, CI and publication
 
@@ -69,6 +94,8 @@ For releases, monitor the exact commit through deployment/live verification; a g
 Report classification, outcome, actual checks, commit/local status, applicable deployment status and material limitations. No routine cost attribution. Discuss costs only when requested or needed for paid-action approval; existing paid-image/settings approval boundaries remain unchanged. Never expose credentials, overwrite unrelated work, force-push or bypass sandbox controls. Delegate only bounded independent work when the benefit warrants it; prefer one agent for coupled/simple work.
 
 ## Decision log
+
+- 2026-11-25: Reconcile active context with the implemented selector/CI and add a default environment-use guide. Distinguish direct rule tests, visual captures, Dev setup and ordinary player-flow evidence; document legacy-smoke/three-profile limits and the specific extraction proof. Completed plans retain their original proposal as historical design, with current behavior owned here. This reconciliation changes Markdown only and runs no game checks or deployment.
 
 - 2026-11-25: Implement scope metadata/core groups, direct disposable Dev commands, selected captures, side-effect-free fixture helpers and byte-equivalent registration extraction. Reuse verified full fixture source only when equivalence is established; unknown/shared behavior remains full. No production source change or game publication is required for test-only tooling.
 

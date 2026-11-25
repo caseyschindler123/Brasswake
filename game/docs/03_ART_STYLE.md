@@ -4,6 +4,8 @@ Last updated: 2026-11-25. Painted modular world/dungeon architecture is verified
 
 Verification scope is owned by [05_CODING_WORKFLOW.md](05_CODING_WORKFLOW.md), including its current gates and cosmetic/layout criteria. The [scope-based implementation](plans/2026-11-25-scope-based-testing-and-dev-mode.md) provides direct affected-scene checks and disposable Dev setup. Physical anchors, doorways, shared renderers and packing/cache contracts retain their relevant checks. Codex runs checks and opens captures; paid image/settings approvals remain unchanged.
 
+Use direct affected-scene captures or Dev gear/building presets for appearance work; use normal in-world interaction when checking physical entrances, ground anchors or placement. The [environment-use guide](05_CODING_WORKFLOW.md#choose-the-development-environment) distinguishes these checks. Dev starts muted and cannot establish audio quality/playback or a complete player journey. Only reviewed atlas families currently receive automatic cosmetic selection; a visual-looking edit in global CSS/shared code can still require full coverage.
+
 ## The look in one paragraph
 
 Bright, colourful medieval fantasy in clear daylight. Realistic proportions, nothing cartoonish, nothing grim. The world is seen top-down from a raised camera, from above and slightly in front, so roofs and front walls both show. It is not a diagonal isometric view. Characters, creatures and props are a detailed hand-painted pixel look. Portraits, story scenes and the paper-doll figure are hand-painted illustration. The reference point Casey keeps returning to is Ultima Online: humans who look like real people, gear you can see on the body, a world that feels lived in.

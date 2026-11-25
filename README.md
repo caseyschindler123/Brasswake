@@ -25,6 +25,8 @@ Current commands, from `game/`:
 - Game development: `npm run verify -- --defer-ui` runs selected core/build groups; `npm run test:ui -- --suites=<names>` runs a short canary plus affected suites. Exact-commit CI owns the current release gate, including all three profiles and full fallback for risky/unknown changes.
 - `npm run verify` includes selected local UI; `npm run verify -- --ui` explicitly requests full coverage. `--defer-ui` does not skip core checks. `--suites=journeys` selects all four profession days; nightly/full and relevant risky selections retain them.
 
+Choose the environment using the [workflow guide](game/docs/05_CODING_WORKFLOW.md#choose-the-development-environment): pure tests for calculations, direct captures for appearance, Dev commands for isolated battle/gear/building setup, and ordinary flows for earning/progression/travel/save/audio/offline behavior. Automatic feature selections may retain legacy smoke; the short canary is used by explicit focused CLI commands and the current tooling/cosmetic fast paths. Capture-profile flags affect screenshots only; all three CI profile jobs remain required when UI is selected.
+
 Install locked dependencies with `npm ci` only when needed. On a new machine use
 `npm run test:install` when browser checks are required. Codex opens relevant
 phone/desktop captures; Casey is not assigned routine QA. Browser emulation is
@@ -32,7 +34,7 @@ not a real-iPhone test.
 
 **Implemented:** scope-based core/scenario selection, affected capture commands,
 and a disposable developer playground for battles, gear, buildings and travel.
-From game/, run npm run build then npm run dev and open
+From `game/`, build if needed with `npm run build`, then run `npm run dev` and open
 [the local playground](http://localhost:8781/__dev). Automation calls the same
 Dev commands directly. See the [implementation plan](game/docs/plans/2026-11-25-scope-based-testing-and-dev-mode.md) and canonical workflow for safeguards and evidence.
 

@@ -1,5 +1,7 @@
 # Living world pass (user request 20 Nov 13:16) — plan and status
 
+Historical pass notes from the earlier artifact workflow. Statements such as "not yet made" and the original `/home/claude` paths below describe that checkpoint; they do not establish current implementation or release status. Use [the architecture](docs/01_ARCHITECTURE.md), [release history](docs/RELEASE_HISTORY.md) and [the coding workflow](docs/05_CODING_WORKFLOW.md#choose-the-development-environment) for current systems, Dev-environment use and test/deployment requirements.
+
 User asked for: big real mountains (not code-painted), natural trails/beaches/grass/water, a world that feels alive (more animals, monsters,
 people, wanderers), private homes and farms, things to find, random side quests, special gear/food from random people, and FISHING as a skill
 where SQL answers decide the catch and higher skill unlocks better treasure. Order he set: art zip first (sent: kit pass 7, 53 images,

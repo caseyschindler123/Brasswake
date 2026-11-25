@@ -1,5 +1,7 @@
 # When the new images arrive (kit pass 5: 107 images)
 
+Historical artifact-era checklist. The `/home/claude` paths, direct `dist/art` pipeline and publication steps below describe that earlier pass and are not current operating instructions. Use [REBUILD_ART.md](../REBUILD_ART.md) for the current read-only art pipeline and [05_CODING_WORKFLOW.md](../game/docs/05_CODING_WORKFLOW.md) for scope-based testing, Dev use and guarded Pages deployment. Preserve the old checklist as provenance; do not execute it as a new task recipe.
+
 1. Unzip the upload into its own new empty directory (untrusted archive; run Python on it with -I):
    `mkdir /home/claude/artin/zip2 && cd /home/claude/artin/zip2 && unzip <upload>`
    Ignore files in out/ whose names start with `_ref_`.

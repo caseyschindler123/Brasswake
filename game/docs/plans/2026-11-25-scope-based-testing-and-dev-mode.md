@@ -2,13 +2,15 @@
 
 Status: complete; implemented in one integrated pass and verified in exact-commit CI. This implementation is complex because it changes release selection and proof reuse.
 
+Current operating instructions and environment choices are in [05_CODING_WORKFLOW.md](../05_CODING_WORKFLOW.md#choose-the-development-environment). The findings, acceptance criteria and delivery sequence below preserve the approved pre-implementation design, including its original documentation-only milestone. They are historical requirements, not a statement that those old gaps remain or that every proposed optimization is active. Actual delivery, reuse evidence and remaining limits are recorded under Implementation evidence at the end.
+
 ## Objective and boundaries
 
 Give each change the smallest set of checks that can establish its intended behavior and relevant integration safety. Make visual iteration and prepared battles/gear/buildings quick to reach. Codex runs automation and opens relevant captures; Casey is not responsible for routine QA. Keep exact-commit release evidence, unknown-risk fallback and mandatory relevant failures.
 
 Casey authorized the complete implementation. Current gates remain authoritative until their replacements pass validation; no game publication is needed if production output remains unchanged. The target criteria are in [05_CODING_WORKFLOW.md](../05_CODING_WORKFLOW.md#scope-based-criteria). The executable scope selector and canonical workflow now own the active criteria.
 
-## Evidence and current gaps
+## Pre-implementation findings (historical)
 
 - `test/verify.js` runs every core group sequentially before selecting UI; `--defer-ui` defers UI only. Even an asset or narrow tooling change can inherit unnecessary core work.
 - `test/select-tests.js` maps files to broad suites, requires smoke in all three profiles for focused releases, and falls back to full for unknown/shared impact. It does not understand cosmetic-only or registration-only behavior. A user-supplied scope label must never override evidence.
@@ -30,7 +32,7 @@ Casey authorized the complete implementation. Current gates remain authoritative
 8. Preserve all existing scenarios/assertions. Rehome expensive journeys to their correct gates; do not delete them to improve runtime. Full nightly/manual validation still discovers and executes the complete inventory. Extended opt-in campaigns retain their distinct purpose.
 9. Measure before/after latency, selected work and failures for representative tasks before making speed claims. Reuse unchanged passing evidence only when the selector can prove its provenance and compatibility.
 
-## Delivery sequence
+## Approved delivery sequence (historical)
 
 Milestones are local implementation checkpoints, not instructions to push and rerun a full CI suite after every edit. Develop coherent bounded slices in an isolated checkout, run focused local checks as behavior changes, review the intended selection before pushing, and reuse compatible passing results. The documentation milestone runs no game checks. The final rollout validates retained full coverage once when required; a new correctness risk or incompatible change can justify additional checks.
 
@@ -132,7 +134,7 @@ Owned areas: `select-tests.js`, `ui-suites.js`, `verify.js`, `run-ui.js`, `relea
 | Closed `game/docs/plans/`, `RELEASE_HISTORY.md`, dated decision logs | Preserve facts/counts/failures of actual past runs. New policy is linked from current entry points; do not rewrite history into claims of cheaper past verification |
 | Scripts/workflow/command help | M1–M6 implementation must reconcile their actual behavior with the matrix. This docs task changes none of them |
 
-Review wording/link consistency and `git diff --check` for this task only. No executable tests, build, screenshots, dependency installation or deployment are needed for the documentation changes.
+The original planning/documentation milestone required wording/link review and `git diff --check` only. Its validation below is historical; later executable implementation and checks are recorded separately at the end.
 
 Planning validation (2026-11-25 America/Los_Angeles): reviewed all tracked active Markdown testing entry points and relevant topic references; changed ten active guides plus this plan. Checked relative file links in all eleven changed/new Markdown files with code examples excluded; no missing local targets. `git diff --check` passed. Historical release receipts, closed plans, unrelated gameplay/writing rules and all executable files remain unchanged. No game tests, dependency installation, build, screenshots, CI or deployment were started for this documentation task.
 

@@ -1,6 +1,6 @@
 # Brasswake writing rules
 
-Last updated 2026-11-24. Keep `game/STYLE.md` byte-for-byte identical to this file. The [story bible](STORY_BIBLE.md) owns continuity, character briefs, and what each scene can assume. The [coverage register](STORY_COVERAGE.md) records the content families reviewed in the current pass.
+Last updated 2026-11-25. Keep `game/STYLE.md` byte-for-byte identical to this file. The [story bible](/game/docs/STORY_BIBLE.md) owns continuity, character briefs, and what each scene can assume. The [coverage register](/game/docs/STORY_COVERAGE.md) records the content families reviewed in the current pass. Repository-root links work from both copies.
 
 ## Write a connected thought
 
@@ -53,6 +53,8 @@ Useful game terms still need a first-use explanation. A **page** is an ability y
 ## Review in context
 
 Read the scene as a player who reached it normally and as someone who arrived early or came back after it. Check the identity and relationship the first line establishes, what the speaker actually knows, what the player must decide or do, and what follows as a result. Follow a pronoun back to its subject. Compare the task to its reference query, check the numbers against a real result, and verify that combat, item, or travel claims match what the game does. A clean line in isolation can still fail when repeated in a different state.
+
+Choose executable checks using the environment-use guide in `game/docs/05_CODING_WORKFLOW.md`. Contextual reading can use source and directly prepared scenes; it does not require replaying an entire profession day for every wording edit. Use affected phone/desktop captures for presentation and the relevant normal flow when teaching branches, prerequisites, checkpoints or progression change. Dev setup can reach a scene quickly, but does not prove that the ordinary route reaches the same state. Codex performs routine review; Casey is not assigned manual QA.
 
 During the prose pass, restore omitted grammar wherever brevity has made a line sound clipped. Read it aloud again in the full exchange, checking contractions, connections between thoughts and variation in rhythm. Keep a fragment when the scene gives it a natural purpose. Recheck meaning and voice after any shortening; do not treat a scan for fragments as a substitute for editorial review.
 
