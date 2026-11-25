@@ -12,6 +12,9 @@ Every prompt starts with the global style line kept in `art_prompts.json`:
 
 ## Rules for every image
 
+- **One finish standard for every visible game element:** shape, texture, lighting, perspective, scale and connection to its surroundings must meet the approved painted style. This applies to generated assets and code-drawn details alike. Jambs, lintels, corners, flashing, coping, signs, stair housings and roof junctions need the same care as characters, props, terrain and interface ornament. Inspect actual game-size and native-resolution images before accepting them; compare world objects with an adult and their supporting construction.
+- **Keep entrances visible:** buildings have fitted regional door surrounds with no entrance awnings or canopies. Framing sits outside the real aperture and moving leaf. Grade-level thresholds meet the land; stairs belong to actual changes of level.
+
 - **No text** anywhere: no letters, numbers or signs with writing. A shop sign is a picture, such as crossed staves or a tankard.
 - **Transparent sheets have nothing behind the subject.** Every transparent-background sheet must carry both lines below. If a prompt is missing them, ask Casey before changing the prompt master:
   - No ground, no shadow, no grass, nothing behind the character or object.
@@ -71,7 +74,7 @@ NPCs compose visible frames lazily, sharing mirrored source directions through a
   - Kell: cave stone with blue crystal lanterns
   - Highwatch: grey stone under snow
   - Aldermoot: white marble, columns and bronze domes
-- **Player homes (Y):** walls painted pale off-white and roofs mid grey, because players repaint them.
+- **Legacy player homes (Y):** walls are pale off-white and roofs mid grey for repainting. New modular owned facades apply material-specific surface tinting to regional components, retaining grain, relief and separate door/window detail.
 - **Mountain ranges (U):** a whole massif filling a wide image. Its foot thins out to nothing so it can sit on any ground. No sky, no ground.
 - **Ground textures (V):** seamless and tileable, seen from directly above, no single large feature, even light. The left edge matches the right and the top matches the bottom.
 - **Interiors (DI and the like):** the floor fills the picture and the back wall is a band across the top fifth, with a doorway in the middle of the bottom edge. They're empty, because the game places people and props.
@@ -171,6 +174,20 @@ The Stable Audio replacement is released. The [replacement plan](plans/2026-11-2
 
 ## Modular buildings, regional interiors and working harbours
 
+### World architecture rollout (implemented, release pending)
+
+The approved modular finish now covers all eight regional families: Tallyport plaster/oak/clay, Brackwater weathered timber/reed, Haverly warm carved sandstone, Four Fords brick/oak/thatch, Cinderwick basalt/copper, Kell cave masonry/slate, Highwatch stone/timber/snow-edged slate and Aldermoot pale carved masonry/bronze. Shared geometry constructs walls, convex/recessed corners, directional eaves, roofs, fitted caps/terminals/valleys and matching upper storeys. Entrances use regional carved surrounds; no canopy covers their leaf. Picture signs combine painted regional framing with existing painted stock/furnishing images. Chimneys sample the roof height and overlap its painted lip.
+
+Indoor storey stairs reuse the regional painted ascent/descent pieces, fitted proportionally within 32×32 and 34×24 logical bounds and anchored at their existing interaction points. Late source readiness replaces the fallback; travel, landing occupancy and saves remain unchanged.
+
+Town/civic/dojo and landmark footprints use the shared layered renderer. Small countryside structures and owned homes flatten the same component renderer into cached facades; they do not substitute a whole-building illustration. Country facades participate in the existing 32 MiB building budget. Owned homes preserve material choice, recolouring, the L-shaped option and rounded tower silhouette; their existing logical footprint and legacy clearance policy remain authoritative. Authored civic plans and roles remain; their old fixed building illustrations are replaced by the shared regional roof construction.
+
+All eight dungeon themes and 28 floors use painted wall faces, coping, returns, piers, joined display recesses and direction-specific stair artwork. Ascent sprites fit 44×44 logical pixels; descents/surface hatches fit 50×34 proportionally, with at least 24 pixels of visible height in the accepted kit. The sprite is anchored to the unchanged travel entity. Paving, gameplay topology, floor atlas pixels, gates and expedition rules remain authored. Decorative surface-pad rock blocks were removed so the new entrance has a clear, honest apron. Wall props remain inside their supporting solid cells; near-wall recess shoulders fill their existing three-by-two-cell solid buffer.
+
+Eight new built-in transparent component sheets supply sixteen authored pieces per region. Reproducible crops/derivatives produce the 224-piece kit in eight independent `art/architecture/region-*.webp` atlases and generated `src/artarchitecture.js`. The new-only prompts are `arttools/architecture_prompts.json`; source hashes, crop rectangles, aperture recipe and alpha cleanup are `arttools/architecture_inputs.json`. Existing master prompts, generation script/settings, raw art and older atlas coordinates are unchanged. A weathered valley strip reuses the approved pilot's preserved PNG. Original filenames and exact prompts are archived under `C:/Users/caseys/source/SQL Game/architecture_2026_11_25/`; replay with `python -I arttools/architecture_art.py --raw-dir <archive>/out` in the pinned art environment. Rebuilds validate inputs before replacing each output and never call image generation.
+
+The accepted candidate replay matched all eight atlases/generated metadata/manifest. All 590 older packed entries stayed unchanged. Exports have two-pixel transparent padding; alpha review uses light, dark, pink and green backgrounds. Phone/desktop captures cover every region and dungeon theme, plus owned house shapes and native-resolution joins. See the [rollout plan](plans/2026-11-25-world-architecture.md) for actual checks and release status. Browser emulation does not establish physical-iPhone validation.
+
 Settlement buildings now assemble reusable structural pieces; distinctive palace/temple/gate/lighthouse silhouettes keep authored landmark art. Doors are actual openings and roofs are separate clipped layers. Existing small countryside landmarks, dojo halls and recolourable player houses retain painted assets.
 
 `arttools/world_art.py` packs 551 pieces from 56 source sheets into eight `game/art/world/*.webp` atlases (4,018,958 bytes) and generates `src/artworld.js`. Inputs: 20 new WF/WC/WR sheets plus 36 existing harbour, capital, market, coast, floor and furniture sheets. New WF01–08 are regional fronts; WC01–08 are coping, posts, corners, side-door frames and foundations; WR01–04 are clay, slate, thatch and copper roof fields, edges, ridges, hips and valleys. Each new sheet is a transparent 1024² 4×4 grid. Connected components are assigned by their nominal cell centre so shifted roof tips remain whole. Structural joins and placements come from code, independently of sprite alpha bounds.
@@ -244,6 +261,8 @@ The motion sample uses actual game-composed frames on moving ground at enlarged 
 - 2026-11-25: Casey expanded the grounded-cadence job to a full human locomotion rebuild: proportions, posture, arm/leg action, weight transfer and ground contact. Rebuilt pose motion determines stride and travel speed at target 132 walking / 180 running steps/min. The earlier timing-only prototype is locally verified but not the final visual solution. Prove one character on moving ground before broad outfit/direction integration; keep deployment isolated from the active town/dungeon rollout. See the expanded grounded-cadence plan.
 
 - 2026-11-25: Casey wants footfalls equivalent to travel speed and permits slower movement. The preliminary cadence prototype retained painted stride lengths; Casey subsequently expanded the job to replace the entire operating gait. Original art, prompts, settings and earlier coordinates/assets remain unchanged; the full candidate adds new generated art and calibration. Release status is in the grounded-cadence plan.
+
+- 2026-11-25: Casey approved the working modular pilot, removed entrance awnings because they block doors, and authorized the full-world/dungeon implementation through testing and deployment. Apply the same painted construction/scale standard to every regional part, use fitted visible door surrounds, and retain gameplay/save ownership. New regional components are isolated from existing raw art and generation settings; the full exact-commit release gate is required.
 
 - 2026-11-24: Published character motion, intro/menu continuity and world presentation at `d3850c3`. Core, all 450 browser cases, deployment and six CI hosted flows passed; independent source/hash and all six public flows were verified. The closed polish plan and release history preserve the input-paced audio recheck, failed candidates and physical-device/subjective limits.
 

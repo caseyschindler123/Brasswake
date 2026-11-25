@@ -1,5 +1,77 @@
 [
   {
+    "path": "art/architecture/region-1.webp",
+    "size": 1159014,
+    "sha256": "f7bd3127f8320d94c1142e5bbfe08c326cd2c6dd2b39910803aa3a43bc9f4f87",
+    "dimensions": [
+      1024,
+      1468
+    ]
+  },
+  {
+    "path": "art/architecture/region-2.webp",
+    "size": 1234216,
+    "sha256": "5ce6988a3b8d4a15920b6aafb9cbeea9f4913faf8b25f9129f9b8aacaf2a4fd9",
+    "dimensions": [
+      1024,
+      1493
+    ]
+  },
+  {
+    "path": "art/architecture/region-3.webp",
+    "size": 1312102,
+    "sha256": "03e14ab6ac8fc66318058a589bd2f9b776cbaf8e842f421d69ffad9018e9d51b",
+    "dimensions": [
+      1024,
+      1407
+    ]
+  },
+  {
+    "path": "art/architecture/region-4.webp",
+    "size": 1310562,
+    "sha256": "0b8e6c8f7291aafa0adf7f27a4af3be42327799c4f03e3829652dec33ace2b8b",
+    "dimensions": [
+      1024,
+      1412
+    ]
+  },
+  {
+    "path": "art/architecture/region-5.webp",
+    "size": 1241020,
+    "sha256": "1fd50bb444a83fdf1e14de0b4f40abd7e304f587c308be0990b3ba5f5e7d497d",
+    "dimensions": [
+      1024,
+      1329
+    ]
+  },
+  {
+    "path": "art/architecture/region-6.webp",
+    "size": 1272174,
+    "sha256": "8c59cf3d62974d01057d86253d2b1c504e5508138acb1a2dae3dc80272ab3c83",
+    "dimensions": [
+      1024,
+      1412
+    ]
+  },
+  {
+    "path": "art/architecture/region-7.webp",
+    "size": 1318130,
+    "sha256": "391f00e7ee760b7007631bb88e02b6c339badd75df761d8c6e0dfd4048916173",
+    "dimensions": [
+      1024,
+      1412
+    ]
+  },
+  {
+    "path": "art/architecture/region-8.webp",
+    "size": 1232176,
+    "sha256": "33515e7aedfa065e5a5b36f7b416656e9b1a632913234ff2af844ad79bfb1db0",
+    "dimensions": [
+      1024,
+      1335
+    ]
+  },
+  {
     "path": "art/atk.webp",
     "size": 311534,
     "sha256": "5d2b4d083c2200cfe596a2a06aed18a5be669d125a8fbdcda1f21f9be120ea5f",

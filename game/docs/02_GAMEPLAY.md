@@ -75,7 +75,7 @@ Shipped and independently verified on 2026-11-23; the [release history](RELEASE_
 - A bottom-right eight-direction joystick owns touch movement. Inner displacement walks, outer displacement runs, and release/cancel stops. Empty ground taps do nothing; nearby object taps interact and distant ones ask the player to move closer. Keyboard arrows and house-plot selection remain available.
 - Across all eight regions, service premises receive actual purposes, staff, specialized regional interiors, varied plans/frontages and usable civic spaces. Doors visibly open and close with sound. Dojos share modular construction; public building stairs connect useful upper rooms with persistent positions and safe return. Rectangles remain common without making every building identical.
 - Business picture signs use the same symbol catalogue as persistent discovered service markers. Entering a business records its symbol per character; minimap and larger map retain it. Symbols identify the business, with existing public waypoint/travel rules. The Town map zooms to local streets so recorded businesses remain distinguishable; Region and World views retain compact symbols.
-- Doors use shaded timber, restrained iron fittings and fill structural frames throughout their inward swing. Connected pitched roof planes share ridges, hips and valleys with the footprint; chimneys sit on those slopes. Entrances use regional/use-specific steps, awnings, posts, civic pediments or workshop shelters; window caps, frontage stock and chimneys add depth. Structural collision remains authoritative.
+- Doors use shaded timber, restrained iron fittings and fill structural frames throughout their inward swing. Connected pitched roof planes share ridges, hips and valleys with the footprint; chimneys sit on those slopes. The world-architecture candidate replaces entrance awnings and artificial approach steps with fitted regional door surrounds, preserving clear ground-level apertures. Regional window caps, frontage stock and chimneys add depth. Structural collision remains authoritative; the release-pending entry below tracks publication.
 - Natural material edges feather the actual textures across irregular boundaries, including paths/grass, rock/grass and shallow/deep water. Paving retains sparse, partly buried edging stones; dirt shoulders blend into surrounding ground. Generic town residents follow short bounded public routes and pause facing activity. Named services and quest actors preserve their positions and identities.
 - A persistent location label distinguishes town from Wilderness; boundary announcements update independently of the music buffer.
 - Piers, stone quays and paved edges do not create shallow water. Pale shallows border natural shorelines; working harbour basins retain deep-water textures.
@@ -332,6 +332,8 @@ Workbench Carpentry crafts storage chests (6 regional materials, difficulty 25),
 
 ## 13. Planned, not built
 
+- **World architecture release pending:** all eight regional building and dungeon families now have the approved painted modular construction in the candidate. Door surrounds replace entrance awnings, house recolouring remains, and dungeon stairs keep existing travel anchors. The decorative rock posts beside outdoor dungeon entrances are removed. Gameplay, authored dungeon floors, rewards and save versions are unchanged; see the [rollout plan](plans/2026-11-25-world-architecture.md) for verified release status.
+
 - Mounts and boats: discussed, skipped for now.
 - Cloaks, gloves and boots don't show on the body yet.
 - Dialogue portraits still use the old eight hero portraits.
@@ -350,6 +352,8 @@ A new main character chooses appearance and former profession, then is hauled ab
 - 2026-11-25: Casey expanded the grounded-cadence job to a full human locomotion rebuild: proportions, posture, arm/leg action, weight transfer and ground contact. Rebuilt pose motion determines stride and travel speed at target 132 walking / 180 running steps/min. The earlier timing-only prototype is locally verified but not the final visual solution. Prove one character on moving ground before broad outfit/direction integration; keep deployment isolated from the active town/dungeon rollout. See the expanded grounded-cadence plan.
 
 - 2026-11-25: Casey accepts slower travel so visible footfalls match movement. Target 132 walking and 180 running steps/min, preserve stride distances, derive travel speed and emit sounds at contacts. Retain distance-based costs and relative pursuit pace. Implementation/release status is tracked in the grounded-cadence plan.
+
+- 2026-11-25: Casey approved applying the modular painted finish to the whole world and all dungeons, with visible door framing instead of awnings. Preserve gameplay/layout ownership and improve stair readability; remove obsolete decorative surface-pad obstructions. Publication is authorized after full verification.
 
 - 2026-11-24: Published character motion, intro/menu continuity and world presentation at `d3850c3`. Core, all 450 browser cases, deployment and six CI hosted flows passed; independent source/hash and all six public flows were verified. The closed polish plan and release history preserve the input-paced audio recheck, failed candidates and physical-device/subjective limits.
 

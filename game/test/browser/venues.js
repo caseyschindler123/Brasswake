@@ -211,9 +211,12 @@ test('venues · the joystick opens a real door, reveals the infirmary and trigge
     const b = Scene.debug().world.blds.find(b => b.plan?.id === id);
     return { open: b.doorMotion?.[index].open, amount: b.doorMotion?.[index].amount, inside: !!b.inside, cues: window.__venueDoorCues || 0 };
   }, door);
-  const renderedLeaf = () => frame.evaluate(({id,index}) => {
+  const renderedLeaf = () => frame.evaluate(async ({id,index}) => {
     const { cam, draw, world } = Scene.debug(),building=world.blds.find(b=>b.plan?.id===id),d=building.plan.doors[index];
-    const expected=BuildingView.doorLeaf(Interiors.timber[building.r],d.side,Math.round(building.doorMotion[index].amount*8));
+    const entry=ArchitectureArt.at['architecture_'+building.r+'_door'],im=new Image();im.src='art/'+entry.f;await im.decode();
+    const [x,y,w,h]=entry.r,painted=document.createElement('canvas');painted.width=w;painted.height=h;
+    painted.getContext('2d').drawImage(im,x,y,w,h,0,0,w,h);
+    const expected=BuildingView.doorLeaf(Interiors.timber[building.r],d.side,Math.round(building.doorMotion[index].amount*8),painted);
     const pixels=expected.c.toDataURL(),width=expected.c.width/3,height=expected.c.height/3;
     const left=(building.x+d.x)*16+8-expected.ax,top=(building.y+d.y)*16+16-expected.ay;
     const g = document.querySelector('#stage canvas.game').getContext('2d'), original = g.drawImage;
@@ -291,8 +294,27 @@ test('venues · the first dojo uses modular construction and Odalys still teache
 
 test('venues · a real staircase restores the same upper room and returns safely downstairs', async ({ page }, info) => {
   const errors = observeErrors(page), frame = await surface(page);
+  const paintedStair=async kind=>{
+    await frame.waitForFunction(kind=>Scene.find(e=>e.kind===kind)?.obj?.source,kind);
+    const fact=await frame.evaluate(async kind=>{
+      const e=Scene.find(e=>e.kind===kind),s=e.obj,up=kind==='venueup';
+      const entry=ArchitectureArt.at['architecture_'+e.r+'_'+(up?'stairs_up':'stairs_down')];
+      const im=new Image();im.src='art/'+entry.f;await im.decode();
+      const [x,y,w,h]=entry.r,c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(im,x,y,w,h,0,0,w,h);
+      const g=document.querySelector('#stage canvas.game').getContext('2d'),original=g.drawImage;let drawn=false;
+      g.drawImage=function(image,...args){if(image===s.c)drawn=true;return original.call(this,image,...args);};
+      try{Scene.debug().draw();}finally{g.drawImage=original;}
+      return {drawn,regional:s.source.toDataURL()===c.toDataURL(),width:s.c.width/3,height:s.c.height/3,
+        ratioError:Math.abs(s.c.width/s.c.height-w/h)};
+    },kind);
+    expect(fact).toMatchObject({drawn:true,regional:true});
+    expect(fact.width).toBeGreaterThanOrEqual(30);expect(fact.height).toBeGreaterThanOrEqual(17);
+    expect(fact.ratioError).toBeLessThan(.03);
+  };
   const id = await frame.evaluate(() => Scene.venues().find(v => v.r === 1 && v.type === 'healer').id);
   const stairs = await approach(frame, 'venueup', { venueId: id });
+  await paintedStair('venueup');
   const from = await frame.evaluate(({ at: [x, y], xy }) => {
     const { world } = Scene.debug();
     return [[x, y + 1], [x + 1, y], [x - 1, y], [x, y - 1]].find(([xx, yy]) => {
@@ -323,6 +345,7 @@ test('venues · a real staircase restores the same upper room and returns safely
   expect(upstairs.floors[0]).toEqual(upstairs.floors[1]);
   expect(upstairs.furnishings).toEqual(expect.arrayContaining(['f1_bed', 'venue_medicine']));
   expect(upstairs.walk).toBeTruthy();
+  await paintedStair('venuedown');
   await drive(frame, [upstairs.walk]);
   await screenshot(page, info, 'venue-upstairs-recovery-ward');
   const expected = { ...upstairs.state, x: upstairs.walk[0], y: upstairs.walk[1] };
