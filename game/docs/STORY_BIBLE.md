@@ -1,6 +1,6 @@
 # Brasswake story bible
 
-Continuity for the boat-intro/writing release verified on 2026-11-24 UTC. The runtime rules and release evidence live in `02_GAMEPLAY.md` and the implementation plan. The writing standard lives in `04_WRITING_STYLE.md`.
+Continuity for the boat-intro/writing release verified on 2026-11-24 UTC. The targeted skilled-action introduction and portrait-menu correction shipped at `d3850c3`, verified on 2026-11-25 UTC; see the closed [polish plan](plans/2026-11-24-animation-and-world-polish.md). The runtime rules and release evidence live in `02_GAMEPLAY.md` and the implementation plan. The writing standard lives in `04_WRITING_STYLE.md`.
 
 ## Synopsis
 

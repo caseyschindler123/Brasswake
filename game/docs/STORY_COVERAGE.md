@@ -4,7 +4,7 @@ Source reviews recorded 2026-11-22 and 2026-11-23; the boat-intro/writing releas
 
 ## Current intro correction
 
-The animation/world-polish candidate revises Tamsin’s deck conversation and Odalys’s first explanation to establish SQL’s skilled-action purpose before manifest practice. Character selection moves from repeated dialogue controls to the portrait menu, preserving arrival checkpoints and name drafts. Source review and targeted browser verification are recorded in [the plan](plans/2026-11-24-animation-and-world-polish.md); this entry does not certify release or human review.
+The animation/world-polish release `d3850c3`, verified on 2026-11-25 UTC, revises Tamsin’s deck conversation and Odalys’s first explanation to establish SQL’s skilled-action purpose before manifest practice. Character selection moves from repeated dialogue controls to the portrait menu, preserving arrival checkpoints and name drafts. Source review and targeted browser verification are recorded in [the plan](plans/2026-11-24-animation-and-world-polish.md); exact release identity and hosted evidence are in [release history](RELEASE_HISTORY.md#character-motion-intro-and-world-presentation). This targeted correction does not certify a new whole-script source review or human editorial approval.
 
 ## Contracts and lessons
 

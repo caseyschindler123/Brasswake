@@ -1,6 +1,6 @@
 # Character motion, intro and world presentation
 
-Status: implemented and locally verified; preceding audio release and its closure reconciled. Awaiting the full exact-commit release gate. Not released. Class: complex (connected character/terrain/building rendering and intro navigation/continuity).
+Status: complete; released and independently verified on 2026-11-25 UTC at `d3850c317fa120d813c71fc7ea418f23055ea258`. Class: complex (connected character/terrain/building rendering and intro navigation/continuity). Evidence: [release history](../RELEASE_HISTORY.md#character-motion-intro-and-world-presentation).
 
 ## Scope and acceptance
 
@@ -21,8 +21,8 @@ Work only in `C:/Users/caseys/.codex/worktrees/world-polish/Brasswake`, branch `
 - [x] Implement intro/menu/story and successful motion/world presentation changes with meaningful regressions.
 - [x] Reconcile master docs and dated decisions; review acceptance and diff.
 - [x] Run local core verification and focused browser suites; inspect relevant phone (390×720) and desktop screenshots/loops.
-- [ ] Reconcile finished other release; commit intended files and push main without force. Full exact-commit CI is required because shared scene/game rendering changes are involved.
-- [ ] Verify deployed SHA, HTML hash and hosted player flow. Record exact evidence in RELEASE_HISTORY and close this plan in a documentation-only commit.
+- [x] Reconcile finished other release; commit intended files and push main without force. Full exact-commit CI is required because shared scene/game rendering changes are involved.
+- [x] Verify deployed SHA, HTML hash and hosted player flow. Record exact evidence in RELEASE_HISTORY and close this plan in a documentation-only commit.
 
 ## Verification and limits
 
@@ -46,3 +46,11 @@ Use `npm run verify -- --defer-ui` and focused `npm run test:ui -- --suites=prol
 
 - The first local collision repair passed 15/18 repeats but all three WebKit side-entrance cases caught valid fractional settling after the first stopped frame (for example x=301.3234 to 301.3388, still inside the same cell). Refine the held-input observation to require three consecutive stopped frames with exact identical feet and reject any crossed tile, retaining all original cutaway/entrance assertions. No version with that first repair was pushed.
 - Final held-collision/side-entrance and ferry slice passed 18/18: both affected flows repeated three times in each browser profile. Opened fresh 390x720 WebKit and 1280x800 desktop capital-inn cutaway captures. The held-input check now requires three consecutive stopped frames with identical fractional feet and fails immediately if the character crosses into another cell. Original entrance, cutaway, courtyard, ferry, gold and landing assertions remain.
+
+## Verified release
+
+- Released source: `d3850c317fa120d813c71fc7ea418f23055ea258`. [Actions 45554307537](https://github.com/caseyschindler123/Brasswake/actions/runs/45554307537) passed core/build/protocol, all 450 browser cases (150 each in phone Chromium/WebKit 390x720 and desktop Chromium 1280x800), the required aggregate, Pages deployment and all six hosted flows. No retries or skipped required cases. Deployment/live verification completed 2026-11-25 06:37:18 UTC.
+- Independent source/HTML receipt: 2026-11-25T06:37:33.164Z. HTML SHA-256: `3fd4c4d6148333e0c0310ef3dd03c98b6a55d57979db65e5b031f219bdad333b`.
+- Independent verification completed by 06:40 UTC: all six original public-control flows passed using the real hosted game, dependencies and absent debug handles. The first independent run passed five flows but its early audio click-serial assertion did not increment. Opened its screenshot and inspected the trace; this is consistent with the existing 25ms audio-clock repeat-click throttle. Rechecked all six unchanged tests with Playwright `slowMo: 100` in an ignored config: 6/6 passed. No assertions, test deadlines, game code, audio preferences or dependencies were altered. This does not certify the original rapid-input assertion as deterministic.
+- Opened hosted portrait-menu, Tamsin skilled-action explanation, world and audio-controls captures, in addition to the local phone/desktop motion, terrain, door and roof review above. These are browser captures; a physical iPhone and Casey's subjective approval of UO-like motion/art remain external. Original art and limb poses are retained; no exact UO asset/animation reproduction is claimed.
+- The predecessor audio agent completed before main integration. Its source and closure are preserved. Only this task's obsolete runs were cancelled. Final closure changes are documentation-only and do not republish the game.

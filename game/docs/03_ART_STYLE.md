@@ -1,6 +1,6 @@
 # Brasswake: art style and art pipeline
 
-Last updated: 2026-11-24. This covers image style, asset preparation, music sources and how they get into the game. Verified release identities and limitations are in [release history](RELEASE_HISTORY.md).
+Last updated: 2026-11-24. Character motion, intro/menu continuity and world presentation are verified at `d3850c3`; see the closed [polish plan](plans/2026-11-24-animation-and-world-polish.md) and release history. This covers image style, asset preparation, music sources and how they get into the game. Verified release identities and limitations are in [release history](RELEASE_HISTORY.md).
 
 ## The look in one paragraph
 
@@ -225,7 +225,9 @@ The existing eight-pose walk/run sources are retained. The packer had pinned the
 
 ## Decision log
 
-- 2026-11-24: Casey requested believable UO-inspired motion and natural transitions rather than another overlay-only size adjustment. Visually review one original character sample before broader coverage. Reuse original painted sources, calibrate their real head/foot pixels, restore flight, use connected roof volumes and blend material textures. No paid image generation, source art edits, prompt changes, generated-coordinate edits or art-baseline refresh. Candidate plan records actual checks and release status.
+- 2026-11-24: Published character motion, intro/menu continuity and world presentation at `d3850c3`. Core, all 450 browser cases, deployment and six CI hosted flows passed; independent source/hash and all six public flows were verified. The closed polish plan and release history preserve the input-paced audio recheck, failed candidates and physical-device/subjective limits.
+
+- 2026-11-24: Casey requested believable UO-inspired motion and natural transitions rather than another overlay-only size adjustment. Visually review one original character sample before broader coverage. Reuse original painted sources, calibrate their real head/foot pixels, restore flight, use connected roof volumes and blend material textures. No paid image generation, source art edits, prompt changes, generated-coordinate edits or art-baseline refresh. The completed polish plan records actual checks and verified release status.
 
 - 2026-11-24: Published the verified Stable Audio replacement at `eb8f960`. All music/effect contexts, dedicated venue tracks, independent mute/fallbacks, cache revalidation and bounded sample playback are shipped, with the surface-respawn and complete-ring house-recovery repairs. The plan and release history preserve exact-commit CI, hosted hash/flow evidence and subjective-listening/physical-device limits.
 
