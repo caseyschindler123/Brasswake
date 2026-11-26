@@ -465,7 +465,7 @@
   function resetWorld(){
     pause();clearSceneControls();
     for(const m of new Set([world,map]))if(m&&m.chunks){for(const c of m.chunks.values())c.width=c.height=0;m.chunks.clear();}
-    world=null;map=null;P=null;lastPlace='';near=null;GUIDE=null;GHOST=null;
+    world=null;map=null;P=null;lastPlace='';near=null;labelTargets=[];GUIDE=null;GHOST=null;
     parts=[];flies=[];anims=[];floats=[];slashes=[];shots=[];bars=[];
   }
   function heroArt() { const ap = host.app && host.app(); if (ap && AD && AD.body) { const d = dollSprite(ap); if (d) return d; } const s = heroSprite(), C = AD && AD.chars; if (s && s.art && C && C.atk) { if (!IMG['atk.webp']) img('atk.webp'); if (have('atk.webp')) { const lk = host.look(), aw = C.aw || C.cw, row = i => [0, 1, 2, 3].map(f => cut('atk.webp', (i * 4 + f) * aw, lk * C.ch, aw, C.ch)); s.af = row(0); s.al = row(1); s.as = row(2); s.ab = row(3); } }
@@ -892,11 +892,31 @@
   }
   function trim() { if (map.chunks.size < 70) return; const pcx = P.x / CS | 0, pcy = P.y / CS | 0; for (const [k, c] of map.chunks) { const x = k % 1000, y = k / 1000 | 0; if (Math.abs(x - pcx) > 5 || Math.abs(y - pcy) > 6) { c.width = c.height = 0; map.chunks.delete(k); } } }
 
-  /* ---------- movement ---------- */
+  /* ---------- movement and interaction ---------- */
   const blocked = (x, y, ignore) => { if (x < 0 || y < 0 || x >= map.w || y >= map.h) return true; const i = y * map.w + x; if (map.solid[i]) return true; const e = map.occ.get(i); return !!e && e !== ignore; };
-  const nextTo = e => { const d = Math.abs(e.x - P.x) + Math.abs(e.y - P.y); return d === 1 || (d === 0 && !e.solid); };
+  let labelTargets = [];
+  const visibleTarget = e => !e.hidden && e.dying == null && !venueHiddenEntity(e);
+  const interactionAvailable = () => inputAvailable() && fade <= .3;
+
+  function interactionDistance(e) {
+    if (!visibleTarget(e) || e.empty) return Infinity;
+    return InteractionRules.distance(P, e, map);
+  }
+
+  function contextTarget() {
+    if (!interactionAvailable()) return null;
+    let target = null, closest = Infinity;
+    for (const e of map.ents) {
+      const range = InteractionRules.reach + (e.support || e.kind === 'dgate' ? 2 : 0);
+      if (Math.abs(e.fx - P.fx) > range || Math.abs(e.fy - P.fy) > range) continue;
+      const distance = interactionDistance(e);
+      if (distance < closest) { target = e; closest = distance; }
+    }
+    return target;
+  }
+
   function tapAt(px, py) {
-    if (!inputAvailable() || fade > .3) return;
+    if (!interactionAvailable()) return;
     const wx = (cam.x + px / zoom) / T, wy = (cam.y + py / zoom) / T;
     if (GHOST) {
       GHOST.x = Math.floor(wx - GHOST.w / 2);
@@ -905,22 +925,32 @@
       if (host.ghostMoved) host.ghostMoved(GHOST);
       return;
     }
+    for (let i = labelTargets.length - 1; i >= 0; i--) {
+      const { e, x, y, width } = labelTargets[i];
+      if (Math.abs(px - x) <= width / 2 && py >= y - 12 && py <= y + 3 && visibleTarget(e)) {
+        interactNear(e);
+        return;
+      }
+    }
     if(inspectServiceSign(px,py))return;
     let best = null, closest = 1.1;
     for (const e of map.ents) {
-      if (e.hidden || Math.abs(e.fx - wx) > 3 || Math.abs(e.fy - wy) > 4) continue;
-      const d = Math.hypot(e.fx + .5 - wx, e.fy + (e.big ? -.2 : .2) - wy);
+      if (!visibleTarget(e) || Math.abs(e.fx - wx) > 4 || Math.abs(e.fy - wy) > 4) continue;
+      let d = Math.hypot(e.fx + .5 - wx, e.fy + (e.big ? -.2 : .2) - wy);
+      for (const [x, y] of InteractionRules.faces(e) || []) d = Math.min(d, Math.hypot(x + .5 - wx, y + .5 - wy));
       if (d < closest) { closest = d; best = e; }
     }
     if (best) interactNear(best);
   }
   function interactNear(e) {
-    if (!nextTo(e)) { if (host.moveCloser) host.moveCloser(); return; }
+    if (!interactionAvailable() || !map.ents.includes(e) || !visibleTarget(e) || e.empty) return;
+    if (interactionDistance(e) === Infinity) { if (host.moveCloser) host.moveCloser(); return; }
     if(host.beforeInteract)host.beforeInteract(e);
     clearSceneControls();
     P.dg = null;
-    P.dir = e.x > P.x ? 's' : e.x < P.x ? 'l' : e.y > P.y ? 'f' : 'b';
-    P.d8 = D8(Math.sign(e.x - P.x), Math.sign(e.y - P.y));
+    const dx = e.fx - P.fx, dy = e.fy - P.fy;
+    P.dir = Math.abs(dx) >= Math.abs(dy) ? dirOf(dx, 0) : dirOf(0, dy);
+    P.d8 = D8(dx, dy);
     if (e.kind === 'mon' || e.kind === 'rival') e.unseen = !e.alert;
     if (e.npcLook && e.tx == null && !(host.visibility&&host.visibility().hidden)) e.npcFacing = NpcAppearance.direction(P.fx - e.fx, P.fy - e.fy, e.npcFacing);
     host.interact(e);
@@ -983,11 +1013,14 @@
       }
     } else P.walk = 0;
     guideStep(dt);
-    near = null; let nd = 1.6;
-    for (const e of map.ents) { if(e.hidden)continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy); if (d < nd && !e.empty && nextTo(e)) { nd = d; near = e; } if (e.dead && e.dying == null && (e.decay -= dt) <= 0) e.dying = 1; if (e.dying) { e.dying -= dt * 2.4; continue; } if(e.chase>0&&!locked&&host.chasing()&&d>26){e.chase=Math.max(0,e.chase-dt);if(!e.chase)endChase(e);} if ((!e.wander && !(e.chase>0) && !e.returning && !['boss','guard','keeper'].includes(e.kind)) || e.busy || (d > 26 && !e.returning)) continue; e.t -= dt; if (e.tired > 0) e.tired -= dt; else if (d < 4.4 && e.kind === 'mon' && PREY[e.inst.tpl]) e.t = 0;   // prey reacts at once
+    for (const e of map.ents) { if(e.hidden)continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy); if (e.dead && e.dying == null && (e.decay -= dt) <= 0) e.dying = 1; if (e.dying != null) { e.dying -= dt * 2.4; continue; } if(e.chase>0&&!locked&&host.chasing()&&d>26){e.chase=Math.max(0,e.chase-dt);if(!e.chase)endChase(e);} if ((!e.wander && !(e.chase>0) && !e.returning && !['boss','guard','keeper'].includes(e.kind)) || e.busy || (d > 26 && !e.returning)) continue; e.t -= dt; if (e.tired > 0) e.tired -= dt; else if (d < 4.4 && e.kind === 'mon' && PREY[e.inst.tpl]) e.t = 0;   // prey reacts at once
       const safeGround=hostile(e)&&host.safeGround&&host.safeGround(e);if(safeGround&&(e.chase>0||e.engaged))endChase(e);
       if (hostile(e) && !locked && !safeGround && (host.chasing()||host.aggro())) { const v = DIRV[e.dir] || [0, 1], facing = (P.fx - e.fx) * v[0] + (P.fy - e.fy) * v[1] > 0; if (clearSight(e.fx,e.fy,P.fx,P.fy) && (host.detects ? host.detects(d,facing,e.agg) : (d < 3.2 && facing) || (e.agg && d < 6.5))) {e.alert = 4;if(host.noticed)host.noticed();} else if(host.visibility && host.visibility().hidden) {endChase(e);} else if (e.alert > 0) e.alert = Math.max(0, e.alert - dt); if (e.calm > 0) e.calm -= dt;
-        if(e.pursuitAnchor && ['boss','guard','keeper'].includes(e.kind) && Math.hypot(e.x-e.pursuitAnchor[0],e.y-e.pursuitAnchor[1])>=CHASE_LEASH)endChase(e);if(e.chase>0){if(sight(e)&&d<16)e.lastSeen=[P.x,P.y];else e.chase=Math.max(0,e.chase-dt);if(!e.chase)endChase(e);} if (e.wait > 0) e.wait -= dt; e.hunt = !(e.wait > 0) && (e.chase > 0 && d < 16 && !locked && host.chasing()) || (e.agg && e.alert > 0 && !(e.calm > 0) && d < 8 && sight(e) && !locked && host.aggro()); if (e.hunt && e.tx == null) { if (Math.abs(e.x - P.x) + Math.abs(e.y - P.y) === 1 && sight(e)) { e.hunt = 0; e.engaged=true; e.calm = 0; host.ambush(e); break; } const target=e.chase>0&&e.lastSeen?e.lastSeen:[P.x,P.y];if(e.chase>0&&!sight(e)&&e.x===target[0]&&e.y===target[1]){endChase(e);continue;}const ddx = target[0] - e.x, ddy = target[1] - e.y, st = Math.abs(ddx) >= Math.abs(ddy) ? [[Math.sign(ddx), 0], [0, Math.sign(ddy)]] : [[0, Math.sign(ddy)], [Math.sign(ddx), 0]]; for (const [sx, sy] of st) { if ((!sx && !sy) || blocked(e.x + sx, e.y + sy) || heroOverlaps(e.x+sx,e.y+sy)) continue; e.dir = dirOf(sx, sy); sit(map, e, e.x + sx, e.y + sy); e.tx = e.x; e.ty = e.y; break; } e.t = 1; continue; } }
+        if(e.pursuitAnchor && ['boss','guard','keeper'].includes(e.kind) && Math.hypot(e.x-e.pursuitAnchor[0],e.y-e.pursuitAnchor[1])>=CHASE_LEASH)endChase(e);if(e.chase>0){if(sight(e)&&d<16)e.lastSeen=[P.x,P.y];else e.chase=Math.max(0,e.chase-dt);if(!e.chase)endChase(e);} if (e.wait > 0) e.wait -= dt; e.hunt = !(e.wait > 0) && (e.chase > 0 && d < 16 && !locked && host.chasing()) || (e.agg && e.alert > 0 && !(e.calm > 0) && d < 8 && sight(e) && !locked && host.aggro());
+        if (e.hunt && interactionAvailable() && d <= InteractionRules.reach && interactionDistance(e) < Infinity) {
+          e.hunt = 0; e.engaged = true; e.calm = 0; host.ambush(e); break;
+        }
+        if (e.hunt && e.tx == null) { const target=e.chase>0&&e.lastSeen?e.lastSeen:[P.x,P.y];if(e.chase>0&&!sight(e)&&e.x===target[0]&&e.y===target[1]){endChase(e);continue;}const ddx = target[0] - e.x, ddy = target[1] - e.y, st = Math.abs(ddx) >= Math.abs(ddy) ? [[Math.sign(ddx), 0], [0, Math.sign(ddy)]] : [[0, Math.sign(ddy)], [Math.sign(ddx), 0]]; for (const [sx, sy] of st) { if ((!sx && !sy) || blocked(e.x + sx, e.y + sy) || heroOverlaps(e.x+sx,e.y+sy)) continue; e.dir = dirOf(sx, sy); sit(map, e, e.x + sx, e.y + sy); e.tx = e.x; e.ty = e.y; break; } e.t = 1; continue; } }
       if(e.returning&&e.tx==null&&!locked&&e.t<=0){const [ax,ay]=e.pursuitAnchor;if(e.x===ax&&e.y===ay)e.returning=false;else{const next=Backstab.returnStep([e.x,e.y],[ax,ay],(x,y)=>!blocked(x,y)&&!heroOverlaps(x,y));e.t=next ? .15 : 1;if(next){e.dir=dirOf(next[0]-e.x,next[1]-e.y);sit(map,e,...next);e.tx=e.x;e.ty=e.y;}}}
       if (e.tx != null) { const dx = e.tx - e.fx, dy = e.ty - e.fy, dd = Math.hypot(dx, dy), npcRun = !(e.wander >= 2) && !!(e.hunt&&e.chase>0||!e.hunt&&e.run), sp = (e.wander >= 2 ? 1.4 : e.hunt && e.chase > 0 ? (FLY[e.inst && e.inst.tpl] ? 4.0 : SLOW[e.inst && e.inst.tpl] ? 1.9 : 3.6) : e.hunt ? 2.0 : e.run ? 2.4 : e.kind === 'mon' ? (FLY[e.inst.tpl] ? 1.6 : SLOW[e.inst.tpl] ? .5 : .9) : 1.1) * (npcRun?RUN_SCALE:WALK_SCALE) * dt; advanceGait(e,Math.min(sp,dd),npcRun); e.walk = (e.walk || 0) + dt * 7 * (npcRun?RUN_SCALE:WALK_SCALE); if (dd <= sp) { e.fx = e.tx; e.fy = e.ty; e.tx = null; } else { e.fx += dx / dd * sp; e.fy += dy / dd * sp; } }
       else if (e.wander && !e.returning && e.t <= 0 && d > 1.6) { if(livingNpcStep(e,dt))continue;
@@ -1002,6 +1035,7 @@
             if (!went) rest(); } }
         else { e.t = 1.2 + Math.random() * 3.5; const choices=e.npcLook?HUMAN_STEPS:D4, [dx, dy] = choices[Math.random() * choices.length | 0], nx = e.x + dx, ny = e.y + dy; e.dir = dirOf(dx, dy); if (npcStepClear(e,dx,dy) && !heroOverlaps(nx,ny) && Math.hypot(nx - e.home[0], ny - e.home[1]) <= e.range && (e.kind === 'rival' || !map.keep[ny * map.w + nx])) { sit(map, e, nx, ny); e.tx = nx; e.ty = ny; } } } }
     if (map.ents.some(e => e.dying != null && e.dying <= 0)) map.ents = map.ents.filter(e => !(e.dying != null && e.dying <= 0));
+    near = contextTarget();
     if(map.dungeonFloor && (map.respawnCheck=(map.respawnCheck||0)-dt)<=0){map.respawnCheck=1;dungeonRespawn(map);}
     advanceRespawns(dt);
     const pi = P.y * map.w + P.x, r = map.dungeon ? map.r : (map.reg[pi] || curReg), nb = map.dungeon ? map.r : (map.b[pi] || curB); if (nb !== curB) { if (map.pal[nb].fx !== map.pal[curB].fx) parts = []; curB = nb; need(map.pal[nb].ar || r); }
@@ -1127,22 +1161,34 @@
       g.imageSmoothingEnabled = true; g.drawImage(L, 0, 0); g.imageSmoothingEnabled = false; g.globalCompositeOperation = 'lighter'; for (const l of ls) { const x = l.x * T - ox0, y = l.y * T - oy0, gr = g.createRadialGradient(x, y, 0, x, y, l.r * .7); gr.addColorStop(0, l.c === 2 ? `rgba(255,120,40,${amb * .34})` : l.c === 3 ? `rgba(150,110,220,${amb * .28})` : `rgba(255,190,90,${amb * .3})`); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(x - l.r, y - l.r, l.r * 2, l.r * 2); } g.globalCompositeOperation = 'source-over'; }
     if (fade > 0) { g.fillStyle = `rgba(5,7,9,${fade})`; g.fillRect(0, 0, vw, vh); }
     // crisp overlay: names, markers, health bars, damage numbers, corner map
-    const o = ox, z = zoom * dpr; o.clearRect(0, 0, ov.width, ov.height); o.textAlign = 'center'; o.font = `600 ${12 * dpr}px 'Alegreya Sans', sans-serif`;
+    const o = ox, z = zoom * dpr; labelTargets = []; o.clearRect(0, 0, ov.width, ov.height); o.textAlign = 'center'; o.font = `600 ${12 * dpr}px 'Alegreya Sans', sans-serif`;
     const top = e => e.rendered?(e.rendered.topY-oy0)*z:(e.fy * T - (e.spr && e.spr.art ? Math.max(6, lh(e.spr.f[0]) * (e.spr.msc || 1) - 13 * Math.min(1, e.spr.msc || 1)) : e.obj?.c?.hr ? lh(e.obj.c)*(e.objectScale||1) - 12 : e.big ? 34 : e.obj ? 8 : 12) - oy0) * z;
     for (const e of map.ents) { if (e.hidden || e.dying != null || venueHiddenEntity(e)) continue; const sx = ((e.rendered?e.rendered.headX:e.fx*T+8)-ox0)*z, sy = top(e); if (sx < -50 || sy < -30 || sx > ov.width + 50 || sy > ov.height) continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy), mark = e.kind === 'folk' ? null : host.mark(e);
       if (mark) { o.font = `700 ${15 * dpr}px Georgia, serif`; o.fillStyle = '#0a0c0e'; o.fillText(mark[0], sx + dpr, sy - 2 * dpr + Math.sin(now / 300) * 2 * dpr + dpr); o.fillStyle = mark[1]; o.fillText(mark[0], sx, sy - 2 * dpr + Math.sin(now / 300) * 2 * dpr); o.font = `600 ${12 * dpr}px 'Alegreya Sans', sans-serif`; }
-      if (d < (e.kind === 'mon' ? 3.4 : e.kind === 'folk' ? 2.2 : 4.6) && !bars.some(b => b.e === e)) { const y = sy - (mark ? 16 : 3) * dpr, txt = (e.agg&&!e.dead?'⚠ ':'')+(e.inst && e.inst.elite ? 'Gilded ' : '') + e.name; o.lineWidth = 3 * dpr; o.strokeStyle = 'rgba(8,10,12,.85)'; o.strokeText(txt, sx, y); o.fillStyle = e.kind === 'mon' || e.kind === 'guard' ? (e.inst && e.inst.elite ? '#f3a53f' : '#e8b0a0') : e.kind === 'boss' ? '#e06a50' : '#ece5d0'; o.fillText(txt, sx, y); if ((e.kind === 'mon' || e.kind === 'rival') && e.alert > 0 && host.thief() && !locked) { o.fillStyle = '#e06a50'; o.fillText('sees you', sx, y - 12 * dpr); } } }
+      if (d < (e.kind === 'mon' ? 3.4 : e.kind === 'folk' ? 2.2 : 4.6) && !bars.some(b => b.e === e)) { const y = sy - (mark ? 16 : 3) * dpr, txt = (e.agg&&!e.dead?'⚠ ':'')+(e.inst && e.inst.elite ? 'Gilded ' : '') + e.name; o.lineWidth = 3 * dpr; o.strokeStyle = 'rgba(8,10,12,.85)'; o.strokeText(txt, sx, y); o.fillStyle = e.kind === 'mon' || e.kind === 'guard' ? (e.inst && e.inst.elite ? '#f3a53f' : '#e8b0a0') : e.kind === 'boss' ? '#e06a50' : '#ece5d0'; o.fillText(txt, sx, y);
+        if (!locked) labelTargets.push({ e, x: sx / dpr, y: y / dpr, width: o.measureText(txt).width / dpr + 6 });
+        if ((e.kind === 'mon' || e.kind === 'rival') && e.alert > 0 && host.thief() && !locked) { o.fillStyle = '#e06a50'; o.fillText('sees you', sx, y - 12 * dpr); } } }
     for (const b of bars) { const e = b.e === 'me' ? P : b.e, sx = ((e.rendered?e.rendered.headX:e.fx*T+8)-ox0)*z, sy = (b.e === 'me' ? (P.fy * T - 14 - oy0) * z : top(e)) - 6 * dpr, w = 44 * dpr, h = 6 * dpr; o.fillStyle = 'rgba(8,10,12,.85)'; o.fillRect(sx - w / 2 - dpr, sy - dpr, w + 2 * dpr, h + 2 * dpr); o.fillStyle = '#3a1c18'; o.fillRect(sx - w / 2, sy, w, h); o.fillStyle = b.e === 'me' ? '#6fbf5a' : '#e0563e'; o.fillRect(sx - w / 2, sy, w * clamp(b.pct, 0, 1), h); if (b.name) { o.lineWidth = 3 * dpr; o.strokeStyle = 'rgba(8,10,12,.85)'; o.strokeText(b.name, sx, sy - 4 * dpr); o.fillStyle = '#ece5d0'; o.fillText(b.name, sx, sy - 4 * dpr); } }
     // the guided start: a bouncing arrow over the next thing to do, or at the screen edge pointing toward it
     { const gt = !locked && host.guide && host.guide(); if (gt) { const gx = (gt[0] * T + 8 - ox0) * z, gy = (gt[1] * T - 30 - oy0) * z + Math.sin(now / 220) * 5 * dpr, m = 26 * dpr, W2 = ov.width, H2 = ov.height, inside = gx > m && gx < W2 - m && gy > m && gy < H2 - m;
       o.save(); if (inside) { o.translate(gx, gy); o.rotate(Math.PI / 2); } else { const cx = W2 / 2, cy = H2 / 2, a = Math.atan2(gy - cy, gx - cx), k = Math.min((W2 / 2 - m) / Math.abs(Math.cos(a) || 1e-6), (H2 / 2 - m) / Math.abs(Math.sin(a) || 1e-6)); o.translate(cx + Math.cos(a) * k, cy + Math.sin(a) * k); o.rotate(a); }
       const L = 22 * dpr; o.beginPath(); o.moveTo(L * .55, 0); o.lineTo(-L * .45, -L * .42); o.lineTo(-L * .2, 0); o.lineTo(-L * .45, L * .42); o.closePath(); o.lineWidth = 3 * dpr; o.strokeStyle = 'rgba(20,12,4,.9)'; o.stroke(); o.fillStyle = '#f2c94c'; o.fill(); o.restore(); } }
     cartographyDrawGuide(o, ox0, oy0, z, now);
-    o.font = `700 ${17 * dpr}px 'Alegreya Sans', sans-serif`; for (const f of floats) { const e = f.e === 'me' ? P : f.e, sx = (e.fx * T + 8 - ox0) * z + f.dx * dpr, sy = (e.fy * T - 18 - oy0) * z - f.t * 34 * dpr; o.globalAlpha = Math.min(1, (1 - f.t) * 2.2); o.lineWidth = 4 * dpr; o.strokeStyle = 'rgba(8,10,12,.9)'; o.strokeText(f.txt, sx, sy); o.fillStyle = f.col; o.fillText(f.txt, sx, sy); } o.globalAlpha = 1; o.font = `600 ${12 * dpr}px 'Alegreya Sans', sans-serif`;
+    floats = floats.filter(f => now - f.born < 1000);
+    o.font = `700 ${17 * dpr}px 'Alegreya Sans', sans-serif`;
+    for (const f of floats) {
+      const e = f.e === 'me' ? P : f.e, age = Math.max(f.t, (now - f.born) / 1000);
+      const sx = (e.fx * T + 8 - ox0) * z + f.dx * dpr, sy = (e.fy * T - 18 - oy0) * z - age * 34 * dpr;
+      o.globalAlpha = Math.min(1, (1 - age) * 2.2); o.lineWidth = 4 * dpr; o.strokeStyle = 'rgba(8,10,12,.9)';
+      o.strokeText(f.txt, sx, sy); o.fillStyle = f.col; o.fillText(f.txt, sx, sy);
+    }
+    o.globalAlpha = 1; o.font = `600 ${12 * dpr}px 'Alegreya Sans', sans-serif`;
     if (!locked && !map.ship) { const MS = 44, ms = 1.5 * dpr, sz = MS * ms, mx = ov.width - sz - 8 * dpr, my = 8 * dpr, sx0 = clamp(P.x - MS / 2, 0, Math.max(0, map.w - MS)), sy0 = clamp(P.y - MS / 2, 0, Math.max(0, map.h - MS)), mw = Math.min(MS, map.w), mh = Math.min(MS, map.h); o.globalAlpha = .9; o.imageSmoothingEnabled = false; o.fillStyle = '#0a0c0e'; o.fillRect(mx - 2 * dpr, my - 2 * dpr, mw * ms + 4 * dpr, mh * ms + 4 * dpr); const cd = map === world && host.cartography ? host.cartography() : null; const chart = cd ? cartographyMap(cd.mask, cd.maps, 0, cd.revision) : map.mini; o.drawImage(chart, sx0, sy0, mw, mh, mx, my, mw * ms, mh * ms); o.globalAlpha = 1;
       for (const e of map.ents) { if (cd && !Cartography.exploredAt(cd.mask,e.x,e.y) && !cd.maps[e.r]) continue; if (e.x < sx0 || e.y < sy0 || e.x >= sx0 + mw || e.y >= sy0 + mh) continue; const c = e.kind === 'mon' || e.kind === 'guard' ? '#e06a50' : e.kind === 'npc' ? (host.mark(e) ? '#f3c95a' : '#d8d0c0') : e.kind === 'boss' ? '#ff5a3a' : e.kind === 'stairs' || e.kind === 'chest' ? '#a98be6' : e.kind === 'page' || e.kind === 'corpse' ? '#f3c95a' : e.kind === 'cache' && e.ok === 'chest' ? '#a98be6' : e.kind === 'camp' ? '#ff9a4a' : e.kind === 'node' ? host.hue(e.r) : null; if (!c) continue; o.fillStyle = c; o.fillRect(mx + (e.fx - sx0) * ms, my + (e.fy - sy0) * ms, 2 * dpr, 2 * dpr); }
       serviceMini(o,mx,my,sx0,sy0,ms,mw,mh);
-      o.fillStyle = '#fff'; o.fillRect(mx + (P.fx - sx0) * ms - dpr, my + (P.fy - sy0) * ms - dpr, 3 * dpr, 3 * dpr); }
+      const marker = 3 * dpr;
+      o.fillStyle = '#fff'; o.fillRect(clamp(mx + (P.fx - sx0) * ms - dpr, mx, mx + mw * ms - marker),
+        clamp(my + (P.fy - sy0) * ms - dpr, my, my + mh * ms - marker), marker, marker); }
     drawLocation(o);
     if (banner) {
       const a = Math.min(1, banner.t, (3.2 - banner.t) * 2), by = Math.max(142*dpr,ov.height*.24);
@@ -1175,7 +1221,7 @@
     });
     window.addEventListener('resize', size);
   }
-  function place(x, y) { if (map && map.solid[y * map.w + x]) { let best = null; for (let rr = 1; rr < 16 && !best; rr++) for (let dy = -rr; dy <= rr && !best; dy++) for (let dx = -rr; dx <= rr; dx++) { const i = (y + dy) * map.w + x + dx; if (x + dx > 0 && y + dy > 0 && x + dx < map.w && y + dy < map.h && !map.solid[i] && !map.occ.has(i) && (!map.seen || map.seen[i])) { best = [x + dx, y + dy]; break; } } if (best) { x = best[0]; y = best[1]; } }   // the world can gain a building where a saved game left the hero
+  function place(x, y) { near = null; labelTargets = []; if (map && map.solid[y * map.w + x]) { let best = null; for (let rr = 1; rr < 16 && !best; rr++) for (let dy = -rr; dy <= rr && !best; dy++) for (let dx = -rr; dx <= rr; dx++) { const i = (y + dy) * map.w + x + dx; if (x + dx > 0 && y + dy > 0 && x + dx < map.w && y + dy < map.h && !map.solid[i] && !map.occ.has(i) && (!map.seen || map.seen[i])) { best = [x + dx, y + dy]; break; } } if (best) { x = best[0]; y = best[1]; } }   // the world can gain a building where a saved game left the hero
     P = { x, y, fx: x, fy: y, dir: 'f', path: [], walk: 0, wd: 0, spr: heroArt() }; }
   let flies = [], flyT = 0, SHOWB = false;
   function go(m, x, y) { if(host.relocated)host.relocated(); clearSceneControls(); map = m; place(x, y); discoverServices(); if(!m.dungeon && !m.venue && host.revealSurface)host.revealSurface(P.x,P.y); fade = 1; parts = []; flies = []; anims = []; floats = []; slashes = []; shots = []; bars = []; locked = false; curReg = m.dungeon ? m.r : (m.reg[y * m.w + x] || 1); curB = m.dungeon ? m.r : (m.b[y * m.w + x] || curReg); curT = null; ambNow = m.pal[curB].amb; need(curReg); if (!m.ship) host.entered(curReg); if (AD && !packs(curReg).every(have)) { m.pending = true; const t = setTimeout(() => { m.pending = false; }, 5000); Promise.all(packs(curReg).map(n => img(n).p)).then(() => { clearTimeout(t); m.pending = false; if (P) P.spr = heroArt(); }); } banner = m.ship ? null : { a: m.venue ? m.venue.name : m.hall ? 'The dojo' : m.dungeon ? host.dungeonName(m.r) : (locationFacts()||{name:host.regionName(curReg)}).name, b: m.venue ? host.regionName(m.r) + ' · Upper floor' : m.hall ? host.regionName(m.r) : m.dungeonFloor ? 'Floor ' + (m.f+1) + ' · ' + m.layout.name : m.dungeon ? 'walk in, walk out' : locationFacts()?.town?host.regionSub(curReg):'Countryside near '+host.regionName(curReg), t: 3.2 }; }
@@ -1310,7 +1356,7 @@
   function refresh() { if (!map) return; if(map.dungeonFloor && host.dungeonState)dungeonApply(map,host.dungeonState()); if (P) P.spr = heroArt(); for (const e of map.ents) if (e.kind === 'cache' && e.ok === 'chest' && host.cacheOpen(e.cid)) { e.ok = 'chestopen'; e.obj = null; e.sv = -1; } const c = map.ents.find(e => e.kind === 'chest'); if (c && host.chestOpen()) { c.ok = 'chestopen'; c.obj = spr('chestopen', c.r); c.sub = 'Open'; } }
   function resume() { size(); if (!map || running) { if (map) draw(); return; } running = true; last = performance.now(); if (!raf) raf = requestAnimationFrame(loop); }
   function pause() { running = false; clearSceneControls(); }
-  function act() { if (near && inputAvailable()) interactNear(near); }
+  function act() { if (near) interactNear(near); }
   function portrait(e) { if (AD && e.pt) return 'art/p/' + e.pt + '.webp'; if (e.spr && e.spr.big) return 'art/f/' + e.spr.big + '.webp'; if (e.ok && !e.obj) e.obj = spr(e.ok, e.r); const s = (e.npcLook && npcFrame(e.npcLook, { row: 0, frame: 2, source: 0 })) || e.obj?.c || (e.spr?.f || e.spr)?.[0], k = 4; if (!s) return ''; if (s.hr) { try { return s.toDataURL(); } catch (x) { return ''; } } const c = mk(s.width * k, s.height * k), g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(s, 0, 0, c.width, c.height); return c.toDataURL(); }
   const backdrop = (r, dun) => AD ? 'art/bg/I' + String(dun ? 8 + r : r).padStart(2, '0') + '.jpg' : '';
   // fights are played on the map: the host asks for lunges, hits and health bars
@@ -1336,7 +1382,7 @@
       B.flash = .16; if (!style) slashes.push(b === 'me' ? { x: B.fx, y: B.fy, t: 0, row: 3, f: 2, d: .3 } : { x: B.fx, y: B.fy, t: 0, row: 1 });
       anims.push({ t: 0, d: .16, f: u => { B.ax = Math.sin(u * Math.PI * 3) * .07; }, end: () => { B.ax = 0; } });
     }
-    floats.push({ e: b, txt: text, col: col || '#fff', t: 0, dx: (Math.random() - .5) * 26 });
+    floats.push({ e: b, txt: text, col: col || '#fff', born: performance.now(), t: 0, dx: (Math.random() - .5) * 26 });
   }
   const FX = {
     heal() { if (map && P) { emit('heal'); slashes.push({ x: P.fx, y: P.fy - .5, t: 0, row: 3, f: 0, d: .9, rise: .8 }); } }, treasure(x, y) { if (map) { emit('coins'); slashes.push({ x, y: y - .4, t: 0, row: 3, f: 3, d: .8, rise: .6 }); } },
@@ -1374,6 +1420,6 @@
     enterVenue, exitVenue, venueState, restoreVenue, inInterior: () => !!(map && map.venue), outdoors:()=>!!(P&&map===world&&!world.blds.some(b=>b.enter&&buildingContains(b,P.x,P.y))), venues: () => world && world.venues ? Array.from(world.venues.values()) : [],
     traveling: () => !!(P && (P.moving||P.path.length)),
     cartographyCatalogue, cartographyBounds, cartographyRoute, cartographyGuide, cartographyMap, cartographyAtlas, cartographyInsideHome, cartographySign,
-    pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon && !map.ship), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ landscape: {piece:landscapePiece,entry:landscapeEntry,actors:landscapeActors,images:LANDSCAPE_IMAGES}, buildingCache: WORLD_BUILDING_CACHE.stats, map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, groundKinds, paintGround, humanSprite:dollSprite, bldSpr, effects: { shots, slashes, floats }, advanceEffects, draw, npcPose, npcFrame, npcCache: () => ({ frames: NPC_FRAMES.size, limit: NPC_FRAME_LIMIT, materials:HUMAN_PIXELS.size, materialLimit:HUMAN_PIXEL_LIMIT }) }),
+    pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon && !map.ship), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ landscape: {piece:landscapePiece,entry:landscapeEntry,actors:landscapeActors,images:LANDSCAPE_IMAGES}, buildingCache: WORLD_BUILDING_CACHE.stats, map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, groundKinds, paintGround, humanSprite:dollSprite, bldSpr, effects: { shots, slashes, floats }, interactionDistance, interactionTarget: near, labels: labelTargets, advanceEffects, draw, npcPose, npcFrame, npcCache: () => ({ frames: NPC_FRAMES.size, limit: NPC_FRAME_LIMIT, materials:HUMAN_PIXELS.size, materialLimit:HUMAN_PIXEL_LIMIT }) }),
     warp(x, y) { load([x, y]); }, hop(x, y) { go(map, x, y); }, guidePut, guideOff, guideEnt: () => GUIDE, drawDoll,equipmentIcon, dollKey: () => artVer, enterHall, inHall: () => map && map.hall ? map.r : 0, hallAdd: o => map ? addEnt(map, Object.assign({ r: map.r }, o)) : null, hallMove: (e, x, y) => { if (!map || !e) return; const k = e.y * map.w + e.x; if (map.occ.get(k) === e) map.occ.delete(k); e.x = e.fx = x; e.y = e.fy = y; e.tx = null; map.occ.set(y * map.w + x, e); }, ents: () => map ? map.ents : [], fsReady: () => !!(AD && AD.dojo && (IMG['dj/fs.webp'] || img('dj/fs.webp')) && have('dj/fs.webp')) };
 })();

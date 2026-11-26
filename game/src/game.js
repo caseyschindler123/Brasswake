@@ -32,7 +32,7 @@
   function purgeOld() { try { for (let i = localStorage.length - 1; i >= 0; i--) { const k = localStorage.key(i); if (k && k.indexOf('brasswake.save') === 0) localStorage.removeItem(k); } } catch (e) { } }
   function loadA() { try { const t = localStorage.getItem(AKEY) || localStorage.getItem('brasswake.acct.v8') || localStorage.getItem('brasswake.acct.v7') || localStorage.getItem('brasswake.acct.v6'); return t ? CharacterWorlds.normalize(JSON.parse(t)) : null; } catch (e) { return null; } }
   function loadCur() { resetTactics();for(const w of A.worlds){WorldProgress.migrateAccount(w);equipmentTree(w.homes);w.slots=w.slots.map(c=>c?migrate(c):null);} S = linkS(Progression.normalize(A.cur >= 0 && A.slots[A.cur] ? migrate(A.slots[A.cur]) : fresh())); Sneaking.reveal(CONCEAL); if(S.deathPending){S.region=S.deathPending.r;S.pos=S.deathPending.at;S.dungeon=null;S.interior=null;S.hp=maxHp();S.deathPending=null;} if (!(S.hp > 0)) S.hp = maxHp(); if(sceneUp){clearInterval(GSAY);Scene.guideOff();} }
-  function syncA() { const draft=boatActive()&&S.prologue.phase==='name'&&$('#boat-name');if(draft&&Prologue.cleanName(draft.value))S.name=Prologue.cleanName(draft.value); if(sceneUp && sceneOwner===S && boatActive() && Scene.inShip())S.prologue=Prologue.moved(S.prologue,Scene.pos()); clearTimeout(interiorSaveTimer);interiorSaveTimer=0; if(sceneUp && sceneOwner === S)S.interior=Scene.venueState(); if(sceneUp&&sceneOwner===S&&!Scene.inDungeon()&&!Scene.inHall()&&!Scene.inInterior()&&!Scene.inShip())S.pos=Scene.pos(); CMap.snapshot(); if (A && A.cur >= 0 && S && S.path) A.slots[A.cur] = slotOut(S); if(A)for(const w of A.worlds)for(const s of w.slots)if(s){if(s.openLocks)s.openLocks=Object.fromEntries(Object.entries(s.openLocks).filter(([,v])=>v===dayKey()));DungeonProgress.compact(s,now());if(s.cartography)s.cartography=Cartography.normalize(s.cartography);s.interior=Interiors.normalizeProgress(s.interior);} }
+  function syncA() { const draft=boatActive()&&S.prologue.phase==='name'&&$('#boat-name');if(draft&&Prologue.cleanName(draft.value))S.name=Prologue.cleanName(draft.value); if(sceneUp && sceneOwner===S && boatActive() && Scene.inShip())S.prologue=Prologue.moved(S.prologue,Scene.pos()); clearTimeout(interiorSaveTimer);interiorSaveTimer=0; if(sceneUp && sceneOwner === S)S.interior=Scene.venueState(); if(sceneUp&&sceneOwner===S&&!Scene.inDungeon()&&!Scene.inHall()&&!Scene.inInterior()&&!Scene.inShip())S.pos=Scene.pos(); CMap.snapshot(); if (A && A.cur >= 0 && S && S.path) A.slots[A.cur] = slotOut(S); if(A)for(const w of A.worlds)for(const s of w.slots)if(s){if(w.learning)s.learningSnapshot=Learning.normalize(w.learning);if(s.openLocks)s.openLocks=Object.fromEntries(Object.entries(s.openLocks).filter(([,v])=>v===dayKey()));DungeonProgress.compact(s,now());if(s.cartography)s.cartography=Cartography.normalize(s.cartography);s.interior=Interiors.normalizeProgress(s.interior);} }
   function save() { if(S?.horse&&sceneUp&&sceneOwner===S)S.horse=Mounts.enforceContext(S.horse,mountContext());if (sceneUp && DG && Scene.inDungeon()) DP.snapshot(); if (!A) A = freshA(); if (A.cur >= 0 && S && S.path) { S.rev++; S.at = now(); } syncA(); A.rev++; A.at = now(); try { localStorage.setItem(AKEY, JSON.stringify(A)); deviceSave.ok=true;deviceSave.at=A.at; } catch (e) { deviceSave.ok=false; } drawSaveStatus(); if (Cloud.ref) { Cloud.dirty = true; clearTimeout(Cloud.timer); Cloud.timer = setTimeout(flush, 2500); } return deviceSave.ok; }
   function saveCode(){save();return btoa(unescape(encodeURIComponent(JSON.stringify(A))));}
   function backupSheet(){sheet(`<h2>Back up your save</h2><p class="cap2">Progress saves automatically on this device. Keep a separate file to restore all three worlds on this or another device.</p><div class="save-backup-actions"><button class="btn solid" data-a="savefile">Save file</button><button class="btn quiet" data-a="export">Copy a save code</button></div><p class="cap2" id="backup-status" role="status">On iPhone, choose Save to Files in the share menu.</p>`);}
@@ -66,7 +66,7 @@
         if(remote&&[6,7,8,9].includes(remote.v)&&deletionEpoch!==deletionAtRead){A.rev=Math.max(A.rev,remote.rev||0);save();}
         else if (remote && [6,7,8,9].includes(remote.v) && (remote.rev || 0) > (A.rev || 0)) {
           closeSheet(); CE = null;
-          discardEncounter(); A = CharacterWorlds.normalize(remote); if(sceneUp&&Scene.resetWorld)Scene.resetWorld(); loadCur(); cmdBackfill();
+          discardEncounter(); A = CharacterWorlds.normalize(remote); if(sceneUp&&Scene.resetWorld)Scene.resetWorld(); loadCur(); cmdBackfill();learningBackfill();
           Q = null; F = null; DG = null;
           $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false;
           if (sceneUp) restoreAccountScene(true);
@@ -188,7 +188,7 @@
   const IFB = { trune: 'sigil', deed: 'scroll', fish: 'bread', bigfish: 'bread', cheese: 'bread', pie: 'bread', honey: 'draught', cider: 'draught', loaf: 'bread', eggs: 'bread', apple: 'bread', chicken: 'bread', rod: 'picks', meat: 'bread', ration: 'bread', pelt: 'hide', stew: 'bread', salve: 'bandage', hintkey: 'key', chips_gold: 'coin', wheel: 'gem', shoe: 'scroll', scroll_arms: 'scroll', scroll_spell: 'scroll', scroll_shadow: 'scroll', scroll_craft: 'scroll' };
   const ico = (name, n) => { if (ART && /^(dz|hq)\d/.test(name || '')) return `<i class="ico dz" style="background:url(art/i/${name}.webp) center/contain no-repeat">${n != null ? `<b>${n}</b>` : ''}</i>`; const I = ART && ArtData.icons, a = I && (I.at[name] || I.at[IFB[name]]); return `<i class="ico${a ? '' : ' none'}"${a ? ` style="background-position:${-a[0] * 44}px ${-a[1] * 44}px"` : ''}>${n != null ? `<b>${n}</b>` : ''}</i>`; };
   const itemIcon=it=>{const url=sceneUp&&Scene.equipmentIcon(it);return url?'<i class="ico material-icon" style="background-image:url('+url+');background-size:contain;background-position:center"></i>':ico(it.ic);};
-  const lootHTML = it => `<div class="loot rar-${it.rarity}">${itemIcon(it)}<div><small>${it.rarity} ${it.slot}${it.unique ? ' · named rare' : ''}${it.unique || it.bless ? ' · blessed' : it.ins ? ' · insured' : ''}</small><b>${esc(it.name)}</b><span class="stats">${statLine(it)}</span>${it.lore ? `<span class="lore">${esc(it.lore)}</span>` : ''}${it.sold ? `<small>Bag full: sold for ${it.sold} gold.</small>` : ''}</div></div>`;
+  const lootHTML = it => `<div class="loot rar-${it.rarity}">${itemIcon(it)}<div><small>${it.rarity} ${it.slot}${it.unique ? ' · named rare' : ''}${S.eq[it.slot]===it.id?' · equipped':''}${it.unique || it.bless ? ' · blessed' : it.ins ? ' · insured' : ''}</small><b>${esc(it.name)}</b><span class="stats">${statLine(it)}</span>${it.lore ? `<span class="lore">${esc(it.lore)}</span>` : ''}${it.sold ? `<small>Bag full: sold for ${it.sold} gold.</small>` : ''}</div></div>`;
 
   /* ---------- repeatable tasks ---------- */
   const tplOf = id => BOUNTIES.find(b => b.id === id), tplSk = {};
@@ -291,7 +291,7 @@
     const bar = `<div class="kbar"><button type="button" class="k kb-b${KB.list === 'cmd' ? ' on' : ''}" data-fn="lcmd">Commands</button><button type="button" class="k kb-b${KB.list === 'fld' ? ' on' : ''}" data-fn="lfld">Fields</button><button type="button" class="k kb-b" data-fn="fmt">Format</button></div>`;
     if (KB.list) { const li = (v, cls, lab) => `<button type="button" class="li ${cls || ''}" data-ins="${esc(v)}">${lab || esc(v)}</button>`;
       const TOP = [',', '*', "'"], symAll = (SqlEd.LISTS.find(([g]) => g === 'Symbols') || ['', []])[1].filter(x => !TOP.includes(x));
-      const learned = SqlEd.LISTS.filter(([g]) => g !== 'Symbols').map(([g, xs]) => [g, xs.filter(cmdHas)]).filter(([g, xs]) => xs.length);
+      const learned = SqlEd.LISTS.filter(([g]) => g !== 'Symbols').map(([g, xs]) => [g, xs.filter(cmdHas)]).filter(([g, xs]) => xs.length);const listed=new Set(SqlEd.LISTS.flatMap(([,xs])=>xs).map(t=>t.toUpperCase())),extra=[...new Set(Learning.CONCEPTS.filter(c=>learningState().introduced[c.id]).flatMap(c=>c.commands))].filter(t=>!listed.has(t.toUpperCase()));if(extra.length)learned.push(['More from your lessons',extra]);
       const groups = KB.list === 'cmd' ? `<div class="lgrid ltop">${TOP.map(x => li(x, 'sy')).join('')}<button type="button" class="li lsym${KB.lsym ? ' on' : ''}" data-fn="lsym">Symbols ${KB.lsym ? '▴' : '▾'}</button></div>` + (KB.lsym ? `<div class="lgrid lsyms">${symAll.map(x => li(x, 'sy')).join('')}</div>` : '') + (learned.length ? learned.map(([g, xs]) => `<p class="lg">${g}</p><div class="lgrid">${xs.map(x => li(x, 'kw')).join('')}</div>`).join('') : '<p class="cap2 lnone">Commands appear here as lessons teach them. You can always type any command.</p>')
         : (() => { const mine = KB.tables, rest = World.ORDER.filter(t => !mine.includes(t)), tb = t => `<p class="lg">${li(t, 'tb', esc(t))}</p><div class="lgrid">${(COLS[t] || []).map(c => li(c, 'cl')).join('')}</div>`; return mine.map(tb).join('') + (rest.length && !TR ? `<p class="lg lg2">Other tables</p>` + rest.map(tb).join('') : ''); })();
       el.className = 'kb listing'; el.innerHTML = bar + `<div class="klist" id="klist">${groups}</div><div class="row last"><button type="button" class="k fn" data-fn="ldone">Done</button><button type="button" class="k sy ksy" data-ins="," aria-label="Comma">,</button><button type="button" class="k sy ksy" data-ins="*" aria-label="Star">*</button><button type="button" class="k fn ret" data-fn="ret" aria-label="New line">Return ↵</button><button type="button" class="k fn" data-fn="del" aria-label="Delete">⌫</button><button type="button" class="k go" data-fn="run"${ready ? '' : ' disabled'}>${esc(ready ? KB.run : 'Opening…')}</button></div>`; return; }
@@ -339,8 +339,8 @@
     const word = b.classList.contains('kw') || b.classList.contains('cl'); if (/^[ ,()]$/.test(d.k)) upWord(ta, d.k === '('); insert(d.k, word); if (KB.shift && !word) { KB.shift = false; kbDraw(); } kbGrow();
   }
   // a touch that redraws the screen is followed by a click on whatever now sits under the finger: ignore that click
-  let kbRep = 0, tapT = 0; const ghost = e => !FAST() && tapT > 0 && performance.now() - tapT < 450 && e.target.tagName !== 'CANVAS' && !e.target.closest('#kb');
-  document.addEventListener('pointerdown', e => { if (e.target && e.target.tagName === 'CANVAS') tapT = performance.now(); }, true);
+  let kbRep = 0, tapT = 0; const ghost = e => e.detail!==0 && !FAST() && tapT > 0 && performance.now() - tapT < 450 && e.target.tagName !== 'CANVAS' && !e.target.closest('#kb');
+  document.addEventListener('pointerdown', e => {if(e.target?.tagName==='CANVAS')tapT=performance.now();else if(!e.target.closest?.('#kb'))tapT=0;}, true);
   /* Which key a touch means. On the letters, a touch goes to the nearest key, gaps included, the way the phone's own keyboard behaves. The command, table and column
      buttons above need a touch well inside them, and right after a letter only their upper part counts, so a thumb landing a little high on the top letter row types a letter, not a command. */
   let kbLetterT = 0; const KLOG = [];
@@ -375,14 +375,94 @@
   const cmdTitle = k => k === 'intro' ? 'SELECT and FROM' : ((CONTRACTS.find(c => c.id === k) || {}).lesson || {}).title || k;
   const cmdSet = () => A.cmds || (A.cmds = {});
   function cmdTeach(k) { if (!CMDS[k] || cmdSet()[k]) return; A.cmds[k] = 1; if (!CMDS.intro.every(x => CMDS[k].includes(x))) toast('New in Commands: ' + cmdTitle(k)); }
-  const cmdHas = label => Object.keys(cmdSet()).some(k => CMDS[k] && CMDS[k].includes(label));
+  const cmdHas = label => Object.keys(cmdSet()).some(k => CMDS[k] && CMDS[k].includes(label)) || Learning.CONCEPTS.some(c=>learningState().introduced[c.id]&&c.commands.some(t=>t.toUpperCase()===label.toUpperCase()));
   function cmdUsed(label, tk) { const core = []; for (const t of SqlEd.tokens(label)) { if (t[0] === 'w') core.push(t[1].toUpperCase()); else if (t[0] !== 'ws') break; }
     if (!core.length) return tk.some(x => x[1] === label); const br = label.includes('(');
     for (let i = 0; i + core.length <= tk.length; i++) if (core.every((w, j) => tk[i + j][0] === 'w' && tk[i + j][1].toUpperCase() === w) && (!br || (tk[i + core.length] && tk[i + core.length][1] === '('))) return true; return false; }
   function cmdLearn(sql) { if (!sql || !A) return; const tk = SqlEd.tokens(sql).filter(t => t[0] !== 'ws' && t[0] !== 'cm'); let n = 0;
-    for (const k of Object.keys(CMDS)) { if (cmdSet()[k] === 2 || !CMDS[k].some(l => cmdUsed(l, tk))) continue; A.cmds[k] = 2; S.hints = (S.hints || 0) + 1; setTimeout(() => toast('Learned ' + cmdTitle(k) + '! +1 Hint Key'), 700 + 1500 * n++); } }
+    for (const k of Object.keys(CMDS)) { if (cmdSet()[k] === 2 || !CMDS[k].some(l => cmdUsed(l, tk))) continue; A.cmds[k] = 2; S.hints = (S.hints || 0) + 1; const owner=S,world=A.world;setTimeout(() => {if(S===owner&&A.world===world)toast('Learned ' + cmdTitle(k) + '! +1 Hint Key');}, 700 + 1500 * n++); } }
   function cmdBackfill() { if (!A) return; cmdSet(); for (const sl of A.slots) { if (!sl) continue; if (sl.stats && sl.stats.ok > 0 && !A.cmds.intro) A.cmds.intro = 2; for (const k of Object.keys(CMDS)) { if (k === 'intro' || A.cmds[k] === 2) continue; if (sl.done && sl.done[k]) A.cmds[k] = 2; else if (sl.seen && sl.seen[k] && !A.cmds[k]) A.cmds[k] = 1; } } }
-  function trainSql(used, tier, sql) { cmdLearn(sql); if (!S.odp && used.includes('cte') && used.includes('window') && (used.includes('join') || used.includes('outer'))) { S.odp = 1; setTimeout(() => toast('Odalys Brine will want to hear about that query.'), 900); } const cap = Math.min(100, 30 + tier * 10); for (const id of used) { const s = sk(id), r = rusty(id); if (s.v < cap) s.v = Math.min(cap, Math.round((s.v + Math.max(.1, 4.5 * (1 - s.v / cap)) * (r ? 2 : 1)) * 10) / 10); s.t = now(); s.n++; } }
+  function trainSql(used, tier, sql, options={}) { introduceConcepts(Learning.conceptsFor(sql));cmdLearn(sql); if (!options.practice && !S.odp && used.includes('cte') && used.includes('window') && (used.includes('join') || used.includes('outer'))) { S.odp = 1; setTimeout(() => toast('Odalys Brine will want to hear about that query.'), 900); } const cap = Math.min(100, 30 + tier * 10); for (const id of used) { const s = sk(id), r = rusty(id); if (s.v < cap) s.v = Math.min(cap, Math.round((s.v + Math.max(.1, 4.5 * (1 - s.v / cap)) * (r ? 2 : 1)) * 10) / 10); s.t = now(); s.n++; } }
+  /* SQL learning is shared by a household; teaching never spends RPG resources. */
+  const learningState = () => A.learning || (A.learning=Learning.fresh());
+  const concept = id => Learning.CONCEPTS.find(c=>c.id===id);
+  function prerequisiteIds(id,seen=new Set()){for(const prior of concept(id)?.prerequisites||[]){if(seen.has(prior))continue;seen.add(prior);prerequisiteIds(prior,seen);}return [...seen];}
+  function introduceConcepts(ids) {
+    Learning.introduce(learningState(),ids);
+    const tokens=new Set(ids.flatMap(id=>concept(id)?.commands||[]));
+    for(const id of Object.keys(CMDS))if(CMDS[id].length&&CMDS[id].every(t=>tokens.has(t)))cmdTeach(id);
+  }
+  function conceptHTML(id, open=false) {
+    const c=concept(id);if(!c)return '';
+    let sample=null;if(ready&&/^\s*(SELECT|WITH)\b/i.test(c.code||'')){sample=Engine.runRead(c.code);if(sample.err)sample=null;}
+    return `<details class="lesson sql-concept"${open?' open':''}><summary>${esc(c.title)}</summary><div class="lb"><p>${esc(c.body)}</p><pre class="code">${codeHL(c.code||'')}</pre>${c.example?`<p>${esc(c.example)}</p>`:''}${sample?tableHTML(sample,4):''}<button class="btn sm quiet" data-a="learnconcept" data-id="${id}">Practise this technique safely</button></div></details>`;
+  }
+  function prepareLearning(task) {
+    if(!task||!task.sql||task.learningPrepared)return task;
+    const t=Learning.annotate(task),required=[...new Set(t.concepts.flatMap(id=>[...prerequisiteIds(id),id]))],missing=Learning.missing(learningState(),required);
+    introduceConcepts(required);t.learningPrepared=true;t.newTeaching=missing.length>0;
+    t.teaching=missing.length?`<section class="first-technique"><h3>A new technique</h3><p>Read the example before committing an action. You can leave this question and practise safely with a dojo specialist.</p>${missing.map(id=>conceptHTML(id,true)).join('')}</section>`:'';
+    if(missing.length)save();return t;
+  }
+  function recordLearning(task, options) {
+    if(!task?.sql)return;
+    const ids=Learning.record(learningState(),Learning.annotate(task),{...options,assisted:options.assisted||!!task.newTeaching})||[];
+    if(ids.length)toast('Ready to practise in the world: '+ids.map(id=>concept(id)?.title||id).join(', '));
+  }
+  function learningSummary(r) {
+    const ids=Learning.regionConcepts(r),known=ids.filter(id=>Learning.ready(learningState(),id));
+    return `<p class="learning-summary">${known.length} of ${ids.length} regional techniques ready. Readiness reflects varied answers without help. Your weapon, magic and defensive skills still determine how well you fight.</p>`;
+  }
+  function learningHub(r=here()) {
+    sheet(`<p class="eyebrow">${esc(tName(r))} dojo</p><h2>Learn and practise SQL</h2><p>Teaching bouts are free and untimed. Losing costs no gear, health, supplies or gold. The tournament is a separate competition.</p>${learningSummary(r)}${Learning.specialists(r).map((sp,i)=>`<section class="sec"><h3>${esc(Dojo.STUDENTS(r)[i].name)} · ${esc(sp.title)}</h3><p>${sp.concepts.map(id=>esc(concept(id)?.title||id)).join(' · ')}</p><button class="btn sm" data-a="learnspecialist" data-id="${sp.id}" data-r="${r}">Meet this specialist</button></section>`).join('')}${Learning.regionConcepts(r).filter(id=>!Learning.specialists(r).some(sp=>sp.concepts.includes(id))).map(id=>`<section class="sec"><h3>${esc(Dojo.MASTERS[r-1].name)} · ${esc(concept(id).title)}</h3><button class="btn sm" data-a="learnconcept" data-id="${id}" data-r="${r}">Explain and try it</button></section>`).join('')}<button class="btn" data-a="learnpractice" data-r="${r}">Mixed practice bout</button><p>When these techniques feel familiar, try the nearby wilderness or dungeon. You can explore earlier too; a correct query gives full power even while your character is still building combat skill.</p>`);
+  }
+  function specialistMenu(r,id) {
+    const sp=Learning.specialists(r).find(s=>s.id===id);if(!sp)return;
+    const index=Learning.specialists(r).findIndex(s=>s.id===sp.id),name=Dojo.STUDENTS(r)[index].name;
+    sheet(`<p class="eyebrow">${esc(tName(r))} dojo · ${esc(name)}</p><h2>${esc(sp.title)}</h2><p>“${esc(Dojo.SPECIALIST_LINES[r-1][index])}”</p>${sp.concepts.map(id=>`<section class="sec"><h3>${esc(concept(id)?.title||id)}${Learning.ready(learningState(),id)?' · ready':''}</h3><button class="btn sm quiet" data-a="learnconcept" data-id="${id}" data-r="${r}" data-spec="${sp.id}">Explain and try it</button></section>`).join('')}<button class="btn solid" data-a="learnpractice" data-r="${r}" data-spec="${sp.id}">Practise ${esc(sp.title)}</button><button class="btn quiet" data-a="learninghub" data-r="${r}">All specialists</button>${Scene.inHall()&&Scene.ents().filter(e=>e.spar).length===2?'<button class="btn quiet" data-a="djwatch">Watch a competitive bout</button>':''}`);
+  }
+  function learningPractice(d={}) {
+    if(F||DU||Q&&Q.kind!=='learning')return toast('Finish or leave the current activity before starting dojo practice.');
+    const old=d.continue&&Q?.kind==='learning'?Q:null,r=+d.r||old?.r||here(),sp=d.spec||old?.specialist||null;
+    if(!Scene.inHall()||Scene.region()!==r)return toast('Visit this town’s dojo to practise with its specialists. You can review explanations in Ledger → Lessons.');
+    const selection=old?.practiceSelection||{circle:r,specialist:sp},task=Learning.next(learningState(),{...selection,seed:rid()});if(!task)return toast('No practice question is available for that technique.');
+    openQ({kind:'learning',owner:S,world:A.world,r,specialist:sp,practiceSelection:selection,task:prepareLearning(task),title:sp?Learning.specialists(r).find(s=>s.id===sp)?.title:'Mixed dojo practice',step:'turn',practiceScore:old?.practiceScore||[0,0],assisted:false,first:true});
+  }
+  function learnConcept(d) {
+    if(F||DU||Q&&Q.kind!=='learning')return toast('Leave the current activity first. Your lesson will remain in Ledger → Lessons.');
+    const c=concept(d.id);if(!c)return;
+    const ids=[...prerequisiteIds(c.id),c.id],prerequisites=Learning.missing(learningState(),ids.filter(id=>id!==c.id));introduceConcepts(ids);save();
+    const nativeRegion=+d.r||Math.max(1,c.circle);
+    if(!Scene.inHall()||Scene.region()!==nativeRegion)return sheet(`<h2>${esc(c.title)}</h2>${prerequisites.map(id=>conceptHTML(id,true)).join('')}<p>${esc(c.body)}</p><pre class="code">${codeHL(c.code)}</pre><p>${esc(c.example||'')}</p><p>Visit ${esc(tName(nativeRegion))}’s dojo to practise this technique with its specialists. These notes stay in Ledger → Lessons.</p>`);
+    const r=+d.r||Math.max(1,c.circle),sp=d.spec||Learning.specialists(r).find(s=>s.concepts.includes(c.id))?.id||null;
+    const selection={circle:c.circle===0?0:r,specialist:c.circle===0?'intro':sp,concept:c.id},task=Learning.next(learningState(),{...selection,seed:rid()});
+    if(!task)return;
+    openQ({kind:'learning',owner:S,world:A.world,r,specialist:sp,practiceSelection:selection,task:prepareLearning(task),title:c.title,step:'learn',lesson:{...c,skill:c.id},prerequisites,first:true,assisted:false,practiceScore:[0,0]});
+  }
+  function learningHelp(show=false) {
+    if(!Q||Q.kind!=='learning')return;
+    const draft=$('#sql');if(draft)Q.draft=draft.value;Q.assisted=true;recordLearning(Q.task,{ok:false,assisted:true,first:false});save();
+    sheet(`<h2>${show?'One answer to study':'Free practice help'}</h2><p>Help costs nothing here. This attempt will count as assisted practice; a new question lets you try independently.</p>${show?`<pre class="code">${codeHL(Q.task.sql)}</pre>`:(Q.task.concepts||[]).map(id=>conceptHTML(id,true)).join('')}<button class="btn sm" data-a="learnshow">Show this answer</button><button class="btn sm quiet" data-a="closesheet">Back to my query</button>`);
+  }
+  function runLearning(sql) {
+    if(!Q||Q.kind!=='learning'||Q.owner!==S||Q.world!==A.world)return;
+    const res=Engine.grade(Q.task,sql),o=$('#q-out');Q.draft=sql;
+    if(res.err){Q.first=false;o.innerHTML=`<div class="verdict err"><h3>That query did not run</h3><p>${esc(res.err)}</p><p>Fix it and try again. Practice costs no resources.</p></div>`;return showOut();}
+    const assisted=!!Q.assisted,first=Q.first;recordLearning(Q.task,{ok:res.ok,assisted,first,sql});
+    if(res.ok&&!assisted)trainSql(res.used||[],Q.r,sql,{practice:true});
+    if(!assisted&&first){Q.practiceScore[res.ok?0:1]++;}
+    Q.first=false;
+    const done=Q.practiceScore.some(n=>n>=3),message=assisted?'You worked through that with help. Try a fresh question independently.':res.ok?'Your query gives the requested result.':`The specialist takes this exchange. ${res.msg||'Compare what was requested with your result.'}`;
+    Q.result=`<h2>${res.ok?'That worked':'Keep practising'}</h2><p>${esc(message)}</p>${res.got?tableHTML(res.got,6):''}${!res.ok?`<details class="lesson"><summary>Study one correct solution</summary><div class="lb"><pre class="code">${codeHL(Q.task.sql)}</pre></div></details>`:''}<p>You ${Q.practiceScore[0]} · specialist ${Q.practiceScore[1]}. ${done?'The bout is finished. You can start another whenever you like.':'First to three scored exchanges; there is no time limit.'}</p><p>No health, supplies, gold or equipment were spent. RPG skills were unchanged.</p>${learningSummary(Q.r)}<button class="btn solid" data-a="learnnext">${done?'Start another bout':'Next question'}</button>`;
+    Q.boutDone=done;Q.step='result';save();drawQ();
+  }
+
+  function learningBackfill() {
+    if(!A)return;const ids=new Set();
+    for(const sl of A.slots){if(!sl)continue;if(sl.stats?.ok>0)ids.add('select');for(const c of CONTRACTS)if(c.lesson&&(sl.seen?.[c.id]||sl.done?.[c.id]))for(const id of Learning.conceptsFor(c.lesson.code))ids.add(id);}
+    for(const c of Learning.CONCEPTS)if(c.commands?.length&&c.commands.every(token=>Object.keys(cmdSet()).some(k=>CMDS[k]?.includes(token))))ids.add(c.id);
+    Learning.introduce(learningState(),[...ids]);
+  }
   function grant(o) {
     const gold = Math.round((o.gold || 0) * (o.raw ? 1 : 1 + bonus('gold') / 100)); S.gold += gold;   /* o.raw: your own gold back from your body is not a find */ for (const k in (o.mats || {})) S.mats[k] = have(k) + o.mats[k]; if (o.sigils) S.mats.sigil = have('sigil') + o.sigils; if (o.meat) S.meat = (S.meat || 0) + o.meat; for (const k in (o.food || {})) addFood(k, o.food[k]); if (o.hide) S.mats.hide = have('hide') + o.hide; if (o.runes) S.runes = (S.runes || 0) + o.runes; if (o.bless) S.blessd = (S.blessd || 0) + o.bless; if (o.gscr) S.gscr = (S.gscr || 0) + o.gscr; (o.pscr || []).forEach(x => (S.pscr = S.pscr || []).push(x));
     const scr = (o.scrolls || []).filter(id => !owned(id) && !S.scr[id]); scr.forEach(addScroll);
@@ -390,7 +470,7 @@
     return { gold, mats: o.mats || {}, sigils: o.sigils || 0, meat: o.meat || 0, hide: o.hide || 0, runes: o.runes || 0, bless: o.bless || 0, gscr: o.gscr || 0, pscr: o.pscr || [], food: o.food || {}, items: (o.items || []).map(give).filter(Boolean), scrolls: scr.map(pageById) };
   }
   const capText = x => x.before>=skCap(x.id)?'Individual skill cap reached':x.before>=Progression.target(S,x.id)?'Stopping target reached':`${CAP} total cap. Set a skill to Lower.`;
-  const gainEntries = g => (g||[]).flatMap(x=>[x,...(x.losses||[]).map(y=>({...y,loss:true}))]);
+  const gainEntries = g => {const grouped=new Map();for(const x of (g||[]).flatMap(x=>[x,...(x.losses||[]).map(y=>({...y,loss:true}))])){const k=x.id+':'+!!x.loss+':'+!!x.capped,old=grouped.get(k);if(old){old.before=x.loss?Math.max(old.before,x.before):Math.min(old.before,x.before);old.after=x.loss?Math.min(old.after,x.after):Math.max(old.after,x.after);}else grouped.set(k,{...x});}return [...grouped.values()];};
   const gainLine = g => gainEntries(g).length ? `<p class="gline">${gainEntries(g).map(x=>`${rpgName(x.id)} ${x.capped?capText(x):(x.loss?'−':'+')+Math.abs(x.after-x.before).toFixed(1)}`).join(' · ')}</p>` : '';
   const gainsHTML = g => gainEntries(g).length ? `<div class="gain">${gainEntries(g).map(x=>`<span>${rpgName(x.id)}</span><span class="${x.capped?'cap':''}">${x.capped?capText(x):x.before.toFixed(1)+' → '+x.after.toFixed(1)}</span>`).join('')}</div>` : '';
 
@@ -398,12 +478,13 @@
   function spoilsHTML(g) { const bits = bitsOf(Object.assign({}, g, {gold:0})); return `${g.gold ? `<p class="reward-gold">${ico('goldstack')}<strong>+${g.gold} gold</strong></p>` : ''}${bits.length ? `<p class="spoils">${bits.map(esc).join(' · ')}</p>` : ''}${g.items.map(lootHTML).join('')}${(g.scrolls || []).map(scrollHTML).join('')}`; }
   const codeHL = q => { try { return SqlEd.hl(SqlEd.format(String(q)), hlTables()); } catch (e) { return esc(String(q)); } };
   const answerHTML = t => `<details class="lesson" open><summary>What would have worked</summary><div class="lb"><pre class="code">${codeHL((t.sql))}</pre></div></details>`;
-  const lessonHTML = (l, open) => `<details class="lesson"${open ? ' open' : ''}><summary>${esc(l.title)}</summary><div class="lb"><pre class="code">${codeHL(l.code)}</pre><p>${esc(l.body)}</p></div></details>`;
+  const lessonHTML = (l, open) => `<details class="lesson"${open ? ' open' : ''}><summary>${esc(l.title)}</summary><div class="lb"><pre class="code" data-lesson-example>${codeHL(l.code)}</pre><p>${esc(l.body)}</p></div></details>`;
   const needsHTML = t => t.kind === 'dml' ? `<div class="needs"><span>This query changes a practice copy. We’ll check what the copy contains after you run it.</span></div>` : `<div class="needs"><span>The result needs the columns below in this order.</span>${t.ret.split(',').map(x => `<code>${esc(x.trim())}</code>`).join('')}<span>${t.order ? 'sorted as asked' : 'rows in any order'}</span></div>`;
 
   /* ---------- help: tables, expected result and hint behind one button ---------- */
   const ctx = () => Q || F || DU;
   function helpSheet() {
+    if(Q&&Q.kind==='learning')return learningHelp();
     const c = ctx(), t = c && c.task; if (!t) return; if (Q && Q.kind === 'intro') return sheet(`<h2>Your first query</h2><p>SELECT chooses columns. FROM identifies the table. A comma separates column names; a star means every column.</p>${t.practice ? manifestHTML() : `<p>You are now reading the town Ledger. Open Fields to see its columns.</p>`}<p>${esc(t.tip)}</p><details class="lesson"><summary>Show a worked answer</summary><div class="lb"><pre class="code">${codeHL(t.sql)}</pre></div></details>`); const tabs = tablesIn(t.sql + ' ' + (t.check || '')), full = !!Q && !Q.roll; let w = null; try { w = Engine.target(t); } catch (e) { }
     const maxH = c.noHint ? 0 : Q && Q.kind === 'contract' ? 3 : 1, lv = c.hint + 1, cost = hintCost(lv, c.r), key = S.hints > 0 && cost > 0;
     sheet(`<h2>Help</h2><section class="sec"><h2>Tables</h2>${tabs.map(n => `<details class="lesson"><summary>${n}</summary><div class="lb"><div class="ret">${(COLS[n] || []).map(x => `<code>${x}</code>`).join('')}</div>${tableHTML(Engine.peek(n), 4)}</div></details>`).join('')}<div class="row"><button class="btn sm quiet" data-a="atlas">All tables</button></div></section>
@@ -414,6 +495,7 @@
   function takeHint() {
     const c = ctx(); if (!c || c.noHint) return; const maxH = Q && Q.kind === 'contract' ? 3 : 1; if (c.hint >= maxH) return; const lv = c.hint + 1, cost = hintCost(lv, c.r), key = S.hints > 0 && cost > 0;
     if (!key && S.gold < cost) return toast(`That hint costs ${cost} gold`); if (key) S.hints--; else S.gold -= cost; c.hint = lv; const t = c.task, txt = lv === 1 ? (t.hint || clauseHint(t.sql)) : lv === 2 ? skeleton(t.sql) : pretty(t.sql);
+    if(Q&&lv===3)recordLearning(Q.task,{ok:false,assisted:true,first:false});
     c.hints.push(`<div class="hintbox"><b>${['', 'Nudge', 'Shape · pay −25%', 'Answer · pay −75%'][lv]}</b>${lv === 1 ? `<span>${esc(txt)}</span>` : `<pre class="code">${codeHL(txt)}</pre>`}</div>`); renderHud(); save(); helpSheet();
   }
 
@@ -423,8 +505,8 @@
   let practiceDb = null;
   const manifestDb = () => practiceDb || (practiceDb = Engine.scratch(FirstDay.script));
   const practiceGrade = (task, sql) => task.practice ? FirstDay.grade(manifestDb(), task, sql, Engine) : Engine.grade(task, sql);
-  function tutTask() { const p = pick([['vendors', 'name'], ['items', 'name'], ['customers', 'city'], ['employees', 'name'], ['customers', 'name, city'], ['vendors', 'name, realm'], ['items', '*'], ['employees', '*']]); return { kind: 'read', title: 'First forms', ask: p[1] === '*' ? `Show everything in the ${p[0]} table.` : `Show the ${p[1].replace(', ', ' and the ')} of every ${p[0].slice(0, -1)}.`, ret: p[1] === '*' ? 'every column' : p[1], sql: `SELECT ${p[1]} FROM ${p[0]}`, kw: ['SELECT', 'FROM'], tables: [p[0]], tip: 'Use SELECT to choose the columns, then FROM to name the table.' }; }
-  function openQ(cfg) { closeSay(); closeSheet(); Q = Object.assign({ tries: 0, hint: 0, hints: [], i: 0 }, cfg); if (!Q.step) Q.step = Q.lesson && Q.first ? 'learn' : 'turn'; Scene.pause(); $('#enc').hidden = false; $('#nav').hidden = true; drawQ(); }
+  function tutTask() {return prepareLearning(Learning.next(learningState(),{circle:0,specialist:'intro',seed:rid()})||{kind:'read',ask:'Show the name of every item in items.',ret:'name',sql:'SELECT name FROM items',tables:['items'],kw:['SELECT','FROM']});}
+  function openQ(cfg) { closeSay(); closeSheet(); Q = Object.assign({ tries: 0, hint: 0, hints: [], i: 0 }, cfg);if(Q.task)Q.task=prepareLearning(Q.task);if(Q.lesson)introduceConcepts(Learning.conceptsFor(Q.lesson.code)); if (!Q.step) Q.step = Q.lesson && Q.first ? 'learn' : 'turn'; Scene.pause(); $('#enc').hidden = false; $('#nav').hidden = true; drawQ(); }
   function closeQ() { const then = Q && Q.then; Q = null; $('#enc').hidden = true; $('#enc').innerHTML = ''; $('#nav').hidden = false; closeSheet(); Scene.refresh(); render(); if (then) then(); }
   function fitQ() { const d = $('#q-dock'), b = $('#q-body'); if (d && b) b.style.paddingBottom = d.offsetHeight + 14 + 'px'; }
   const showOut = () => { fitQ(); const o = $('#q-out'); if (o && o.scrollIntoView) o.scrollIntoView({ block: 'start', behavior: FAST() ? 'auto' : 'smooth' }); };
@@ -440,6 +522,7 @@
     return `<p class="cap2">Your chance of success is ${chance('correct')}% if the query is correct, ${chance('close')}% if it’s close, and ${chance('wrong')}% if it’s wrong.${Q.work==='hide'&&heavyArmor()?' Heavy armor lowers concealment by 20 percentage points.':''}</p>`;
   }
   function drawQ() {
+    if(Q.task)Q.task=prepareLearning(Q.task);
     const el = $('#enc'), t = Q.task, hasL = !!Q.lesson || Q.kind === 'intro', names = hasL ? ['Learn', 'Your turn', 'Result'] : ['Your turn', 'Result'];
     const head = cur => `<header class="q-head"><button class="q-x" data-a="qleave">‹ Leave</button><div class="q-steps">${names.map(s => `<span class="${s === cur ? 'on' : ''}">${s}</span>`).join('<i>›</i>')}</div></header>`;
     el.className = 'q';
@@ -447,12 +530,12 @@
     if (Q.step === 'practice-result') { el.innerHTML = head('Result') + `<div class="q-body">${Q.result}</div><footer class="q-foot"><button class="btn solid big" data-a="introcontinue">Continue</button></footer>`; return; }
     if (Q.step === 'learn') {
       const l = Q.lesson, parts = l.body.split(/(?<=[.!?])\s+(?=[A-Z])/), lead = parts.slice(0, 2).join(' '), rest = parts.slice(2).join(' '); let ex = null; if (ready && /^\s*(SELECT|WITH)\b/i.test(l.code)) { ex = Engine.runRead(l.code); if (ex.err) ex = null; }
-      el.innerHTML = head('Learn') + `<div class="q-body"><p class="eyebrow">${CIRCLE[Q.r]} Circle</p><h2>${esc(l.title)}</h2><p>${esc(lead)}</p><p class="lab">Example</p><pre class="code">${codeHL(l.code)}</pre>${ex ? `<p class="lab">What it returns</p>${tableHTML(ex, 5)}` : ''}${rest ? `<details class="lesson"><summary>More</summary><div class="lb"><p>${esc(rest)}</p></div></details>` : ''}</div><footer class="q-foot"><button class="btn solid big" data-a="qturn">Try it</button></footer>`; return;
+      el.innerHTML = head('Learn') + `<div class="q-body">${Q.prerequisites?.length?`<section class="sec"><h3>This builds on earlier techniques</h3><p>Read these examples first, or choose one to practise it before continuing.</p>${Q.prerequisites.map(id=>conceptHTML(id,true)).join('' )}</section>`:''}<p class="eyebrow">${CIRCLE[Q.r]} Circle</p><h2>${esc(l.title)}</h2><p>${esc(lead)}</p><p class="lab">Example</p><pre class="code" data-lesson-example>${codeHL(l.code)}</pre>${ex ? `<p class="lab">What it returns</p>${tableHTML(ex, 5)}` : ''}${rest ? `<details class="lesson"><summary>More</summary><div class="lb"><p>${esc(rest)}</p></div></details>` : ''}</div><footer class="q-foot"><button class="btn solid big" data-a="qturn">Try it</button></footer>`; return;
     }
     if (Q.step === 'turn') {
-      el.innerHTML = head('Your turn') + `<div class="q-body" id="q-body"><p class="eyebrow">${Q.tasks ? `${Q.i + 1} of ${Q.tasks.length}` : esc(Q.title || '')}</p>${t.tip ? `<p class="tip">${esc(t.tip)}</p>` : ''}${Q.kind === 'intro' ? introTaskLesson() : Q.kind === 'firstpractice' ? `<p>A page is an ability recorded in one of your books. Choose the one you want to practise, then write its query.</p><div class="row">${fightPages().map(p=>`<button class="btn" data-a="practicepage" data-id="${p.id}" aria-pressed="${Q.practicePage===p.id}">${esc(p.name)}${Q.practicePage===p.id?' · chosen':''}</button>`).join('')}</div>` : ''}<p class="ask">${esc(t.ask)}</p>${needsHTML(t)}${queryOddsHTML()}<div id="q-out"></div></div>
+      el.innerHTML = head('Your turn') + `<div class="q-body" id="q-body"><p class="eyebrow">${Q.tasks ? `${Q.i + 1} of ${Q.tasks.length}` : esc(Q.title || '')}</p>${Q.kind==='learning'?'<p class="practice-safety">Free, untimed dojo practice · no lasting resource loss or RPG rewards</p>':''}${t.teaching||''}${t.tip ? `<p class="tip">${esc(t.tip)}</p>` : ''}${Q.kind === 'intro' ? introTaskLesson() : Q.kind === 'firstpractice' ? `<p>A page is an ability recorded in one of your books. Choose the one you want to practise, then write its query.</p><div class="row">${fightPages().map(p=>`<button class="btn" data-a="practicepage" data-id="${p.id}" aria-pressed="${Q.practicePage===p.id}">${esc(p.name)}${Q.practicePage===p.id?' · chosen':''}</button>`).join('')}</div>` : ''}<p class="ask">${esc(t.ask)}</p>${needsHTML(t)}${queryOddsHTML()}<div id="q-out"></div></div>
         <div class="dock" id="q-dock"><div class="q-tools"><button class="btn sm quiet" data-a="help">Help</button><button class="btn sm quiet" data-a="clear">Clear</button></div>${kbHTML(t, Q.r, Q.work ? ({hide:'Hide',recover:'Recover',lock:'Pick lock',force:'Force lock',craft:'Craft'}[Q.work]||'Run') : Q.roll ? 'Craft' : 'Run')}</div>`;
-      kbDraw(); kbFocus(); fitQ(); return;
+      kbDraw();if(Q.draft!=null){$('#sql').value=Q.draft;kbGrow();} kbFocus(); fitQ(); return;
     }
     el.innerHTML = head('Result') + `<div class="q-body">${Q.result}</div><footer class="q-foot">${Q.nextId ? `<button class="btn big" data-a="qnext">Next exercise</button>` : ''}<button class="btn solid big" data-a="qleave">Continue</button></footer>`;
   }
@@ -489,9 +572,11 @@
   }
   function runQ() {
     if (!ready || !Q || Q.step !== 'turn') return; if(Q.kind==='firstpractice'&&!Q.practicePage)return toast('Choose an ability page before writing its practice query.'); const sql = $('#sql').value; if (!sql.trim()) return toast('Write a query first');
+    if(Q.kind==='learning')return runLearning(sql);
     const res = practiceGrade(Q.task, sql), o = $('#q-out'); S.stats.q++;
-    if (res.err) { o.innerHTML = `<div class="verdict err"><h3>That query didn’t run</h3><p>${esc(res.err)}</p><p class="cap2">Errors cost nothing. Fix it and run it again.</p></div>`; return showOut(); }
-    if (res.ok) { S.stats.ok++; if (Q.tries === 0 && Q.kind!=='intro' && Q.kind!=='firstpractice') { S.streak++; S.best = Math.max(S.best, S.streak); } trainSql(res.used || [], Q.r, sql); } else { Q.tries++; if(Q.kind!=='intro'&&Q.kind!=='firstpractice')S.streak = 0; }
+    if (res.err) { Q.syntaxError=true;o.innerHTML = `<div class="verdict err"><h3>That query didn’t run</h3><p>${esc(res.err)}</p><p class="cap2">Errors cost nothing. Fix it and run it again.</p></div>`; return showOut(); }
+    recordLearning(Q.task,{ok:res.ok,assisted:Q.hint>0||!!Q.syntaxError||Q.kind==='intro'||Q.kind==='firstpractice',first:Q.tries===0,sql});
+    if (res.ok) { S.stats.ok++; if (Q.tries === 0 && Q.kind!=='intro' && Q.kind!=='firstpractice') { S.streak++; S.best = Math.max(S.best, S.streak); } if(Q.hint<3){if(Q.kind==='intro'||Q.kind==='firstpractice')cmdLearn(sql);else trainSql(res.used || [], Q.r, sql);} } else { Q.tries++; if(Q.kind!=='intro'&&Q.kind!=='firstpractice')S.streak = 0; }
     if (Q.roll) return craftRoll(res);
     if (!res.ok) { const d = res.diff ? tableHTML({ cols: ['', ...res.want.cols], rows: [['yours', ...res.diff.yours], ['wanted', ...res.diff.target]] }) : ''; o.innerHTML = `<div class="verdict bad"><h3>Not yet</h3><p>${esc(res.msg)}</p>${d}</div>${res.got ? '<p class="lab">What your query returned</p>' + tableHTML(res.got, 6) : ''}`; save(); return showOut(); }
     if (Q.kind === 'intro' && Q.tasks && Q.i < Q.tasks.length - 1) { S.seen['intro.rep.' + Q.i] = 1; Q.result = `<h2>That query worked</h2><p>${Q.task.practice ? 'These are the requested facts from the practice manifest.' : 'These facts came from the town’s full records. The same query pattern works on a larger table.'}</p>${tableHTML(res.got, 8)}<p>Read the column headings and one row before continuing.</p>`; Q.step = 'practice-result'; save(); return drawQ(); }
@@ -501,7 +586,7 @@
   function introAfter() {
     const o = Scene.find(e=>e.kind==='odalys') || Scene.find(e=>e.kind==='npc'&&e.r===1&&e.i===0);
     if (!o) return;
-    CE=o; dlg(o, ['"You’ve got the first pattern. Take a look at the result each time you run it, so you can see whether it answered your question."','"Here in Brasswake, we use queries for more than looking up deliveries. The Ledger helps us work a spell or handle a weapon. You choose an ability from a book, then answer its question. A correct query gives your ability full power. A useful partial answer makes it weaker."','"Let’s try it on the dummy. You can practise here as often as you need to, since it can’t fight back."'], [{t:'Practise on the dummy',a:'intropractice'},{t:'Review the first lesson',a:'start',d:{k:'intro'}}]);
+    CE=o; dlg(o, ['"You’ve got the first pattern. Take a look at the result each time you run it, so you can see whether it answered your question."','"Here in Brasswake, we use queries for more than looking up deliveries. The Ledger helps us work a spell or handle a weapon. You choose an ability from a book, then answer its question. A correct query gives your ability full power. A useful partial answer makes it weaker."','"Let’s try it on the dummy. You can practise here as often as you need to, since it can’t fight back."'], [{t:'Practise on the dummy',a:'intropractice'},{t:'Review the first lesson',a:'start',d:{k:'intro'}},{t:'Meet the SQL specialists',a:'learninghub',d:{r:1}}]);
   }
   function finishQ(res) {
     const t = Q.r, lk = luck(), k = Q.kind, o = { gold: 0, mats: {}, items: [], scrolls: [] }; let head = 'Correct', note = '', mult = 1;
@@ -535,6 +620,7 @@
   function craftMaterialHTML(){const materials=EquipmentRules.eligibleMaterials(craftTemplate(),here());if(!materials.length)return '';if(!materials.some(m=>m.id===benchMaterial))benchMaterial=materials[materials.length-1].id;return `${benchSlot==='armor'?'<h3>Armour construction</h3><div class="chips">'+Object.entries(craftShapes).map(([id,name])=>'<button class="chip'+(id===benchArchetype?' on':'')+'" data-a="craftshape" data-id="'+id+'">'+name+'</button>').join('')+'</div>':''}<h3>Material</h3><div class="chips">${materials.map(m=>`<button class="chip${m.id===benchMaterial?' on':''}" data-a="craftmaterial" data-id="${m.id}"><i class="material-swatch" style="--material:${m.palette.mid}"></i>${esc(m.name)}</button>`).join('')}</div><p class="cap2">Your material sets the surface and base improvement. Skill and query quality determine Standard, Fine, Exceptional or Masterwork craftsmanship. Magic is added separately at the enchanting station.</p>`;}
   const queryQuality = res => ({correct:1,close:.6,partial:.4,wrong:0})[res.grade] || 0;
   function beginSkillWork(work,options={}) {
+    if(work==='recover'&&S.mana>=Progression.maxMana(S)&&S.stamina>=maxStamina())return toast('Mana and stamina are full. Visit a dojo for safe SQL practice.');
     if(work==='recover'&&activePursuit())return toast('Lose your pursuer before recovering outside combat.');
     if(!ready||Q||F)return;
     if(work==='hide'&&mounted())return toast('Dismount before hiding.');
@@ -542,15 +628,15 @@
     const t=Math.max(1,Math.min(8,options.r||here())),tpl=pick(BOUNTIES.filter(b=>b.r===t && !/^b80[123]/.test(b.id)));
     if(!tpl)return;
     const recipe=SkillCrafting.find(options.recipe),sid=recipe?recipe.skill:work==='hide'?'hiding':work==='recover'?'meditation':work==='force'?'tactics':'lockpicking';
-    openQ({kind:'skillwork',roll:true,work,owner:S,options,csk:sid,r:t,diff:options.diff==null?recipe?Math.min(95,recipe.diff+(t-1)*5):diffOf(t):options.diff,task:gOn()&&t===1?tutTask():makeTask({tpl:tpl.id,seed:seeded(tpl.id)}),title:recipe?recipe.name:work==='hide'?'Find cover':work==='recover'?'Recover mana and stamina':work==='force'?'Force the optional lock':'Pick and disarm the lock'});
+    openQ({kind:'skillwork',roll:true,work,owner:S,options,csk:sid,r:t,diff:options.diff==null?recipe?Math.min(95,recipe.diff+(t-1)*5):diffOf(t):options.diff,task:gOn()&&t===1?tutTask():prepareLearning(Learning.next(learningState(),{circle:t,seed:rid(),family:Learning.annotate(makeTask({tpl:tpl.id,seed:seeded(tpl.id)})).family})||makeTask({tpl:tpl.id,seed:seeded(tpl.id)})),title:recipe?recipe.name:work==='hide'?'Find cover':work==='recover'?'Recover mana and stamina':work==='force'?'Force the optional lock':'Pick and disarm the lock'});
   }
   function finishSkillWork(res) {
-    if(!Q||Q.owner!==S)return;const q=queryQuality(res),sid=Q.csk,practiced=rv(sid),g=q?gain(sid,Q.diff,q):null,gl=g?[g]:[],o=Q.options;let ok=false,note='';
+    if(!Q||Q.owner!==S)return;const q=queryQuality(res),sid=Q.csk,practiced=rv(sid),g=q&&(Q.work!=='recover'||S.mana<Progression.maxMana(S)||S.stamina<maxStamina())?gain(sid,Q.diff,q):null,gl=g?[g]:[],o=Q.options;let ok=false,note='';
     if(Q.work==='hide') {
       const pos=Scene.pos(),heavy=heavyArmor();
       ok=Sneaking.conceal(CONCEAL,{hiding:practiced,bonus:bonus('quieting'),stealth:rv('stealth'),diff:Q.diff,quality:q,heavy,x:pos[0],y:pos[1],random:rnd});
       note=ok?`You are concealed. Walk up to ${CONCEAL.steps} steps. Running or an offensive action reveals you. Observers can still detect you nearby.`:'You cannot find enough cover. Move away from watching enemies and try again.';
-    } else if(Q.work==='recover') {ok=q>0;if(ok){const n=Progression.recover(S);note=`Recovered ${n} mana and stamina.`;}else note='The query gives no useful result.';
+    } else if(Q.work==='recover') {ok=q>0;if(ok){const mana=S.mana,stamina=S.stamina;Progression.recover(S);note=`Recovered ${S.mana-mana} mana and ${S.stamina-stamina} stamina.`;}else note='The query gives no useful result.';
     } else if(Q.work==='craft') {
       const recipe=SkillCrafting.find(o.recipe);if(!recipe||!SkillCrafting.can(S,o.recipe,Q.r)){note='The materials are no longer available.';}
       else {ok=q>0&&rnd()*100<odds(practiced,Q.diff,res.grade,res.share).p;SkillCrafting.finish(S,o.recipe,Q.r,ok);note=ok?recipe.name+' crafted. '+recipe.note:'The work is spoiled. Half the materials are lost.';}
@@ -639,7 +725,7 @@
   function discardEncounter() {
     resetTactics();
     // Account replacement and world changes must retire every old interaction.
-    FI=null;PK=null;WH=null;BJ=null;TR=null;LB=null;STY=null;PL=null;Scene.ghost(null);const placement=$('#placebar');if(placement)placement.remove();
+    pendingSale=null;$('#toast').replaceChildren();FI=null;PK=null;WH=null;BJ=null;TR=null;LB=null;STY=null;PL=null;Scene.ghost(null);const placement=$('#placebar');if(placement)placement.remove();
     if(DDB){DDB.close();DDB=null;}DDK='';felt(0);
     const old=F;F=null;Q=null;LOCK=null;if(DU){clearInterval(DU.timer);DU=null;}
     if(old&&old.ent)Scene.FX.free(old.ent);Sneaking.reveal(CONCEAL);
@@ -654,7 +740,7 @@
   }
   function taskFor(page) {
     if (F.tasks) return F.tasks(F.round); if ((S.tut < 2 || gOn()) && F.kind === 'monster' || F.ent&&F.ent.tutorial&&gOn()) return tutTask();
-    const c = page.c, tpl = c === F.r && F.sig ? F.sig : pick(BOUNTIES.filter(b => b.r === c)).id; return makeTask({ tpl, seed: seeded(tpl) });
+    const c = page.c, tpl = c === F.r && F.sig ? F.sig : pick(BOUNTIES.filter(b => b.r === c)).id,base=makeTask({tpl,seed:seeded(tpl)}),family=Learning.annotate(base).family;return prepareLearning(Learning.next(learningState(),{circle:c,family,seed:rid()})||base);
   }
   function nextEnemyIntent() {
     return BattleRules.intent({role:F.drole||(magicFoe()?'caster':'fighter'),boss:!!F.boss,magic:magicFoe(),circle:F.r},F.round);
@@ -663,15 +749,17 @@
     if(F.act!=='fight'||!F.foe)return '';
     const hp=Math.max(0,S.hp),enemy=Math.max(0,F.foe.hp),intent=F.busy&&F.intent?F.intent:nextEnemyIntent();
     const health=(name,value,max,cls)=>`<div class="battle-health ${cls}"><span>${esc(name)} <b>${value} / ${max}</b></span><div role="meter" aria-label="${esc(name)} health" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="${max}"><i style="width:${Math.round(100*value/max)}%"></i></div></div>`;
-    return `<div class="battle-status${hp<=maxHp()*.3?' danger':''}">${health('You',hp,maxHp(),'hero-health')}${health(F.title,enemy,F.foe.max,'foe-health')}<p class="combat-resources">Mana ${Math.round(S.mana)}/${Progression.maxMana(S)} · Stamina ${Math.round(S.stamina)}/${maxStamina()} · Bandages ${S.bandages||0}${F.defense&&F.defense.left>0?' · '+F.defense.label+' active':''}${F.focus?' · Focus ready':''}</p>${F.over?'':`<p class="battle-intent"><b>${F.busy?'Responding':'Next'}: ${esc(intent.label)}</b> <span>${esc(intent.detail)}</span></p>`}</div>`;
+    return `<div class="battle-status${hp<=maxHp()*.3?' danger':''}">${health('You',hp,maxHp(),'hero-health')}${health(F.title,enemy,F.foe.max,'foe-health')}<p class="combat-resources">Mana ${Math.round(S.mana)}/${Progression.maxMana(S)} · Stamina ${Math.round(S.stamina)}/${maxStamina()} · Bandages ${S.bandages||0}${F.defense&&F.defense.left>0?' · '+F.defense.label+' active':''}${F.focus?' · Focus: your next attack gains accuracy, damage and armor penetration':''}</p>${F.over?'':`<p class="battle-intent"><b>${F.busy?'Responding':'Next'}: ${esc(intent.label)}</b> <span>${esc(intent.detail)}</span></p>`}</div>`;
   }
   function attackChoices(p) {
-    const skill=pageSkill(p),hit=attackChance(odds(rv(skill),F.diff,'correct').p,skill),w=resist(p.c,F.r);
-    const primary=`<button class="pg${p.rare?' rare':''}" data-a="fpage" data-id="${p.id}"><b>${esc(p.name)}</b><em>${hit}% to hit${w<1?' · '+Math.round(w*100)+'% damage':''}</em></button>`;
+    const skill=pageSkill(p),hit=attackChance(odds(rv(skill),F.diff,'correct').p+(F.focus||0),skill),w=resist(p.c,F.r);
+    const primary=`<button class="pg${p.rare?' rare':''}" data-a="fpage" data-id="${p.id}"><b>${esc(p.name)}</b><em>${Math.round(hit)}% to hit${w<1?' · '+Math.round(w*100)+'% damage':''}</em></button>`;
     if(p.book==='spell')return primary;
     return `<div class="attack-choice">${primary}<div class="maneuver-choices">${['feint','cleave'].map(k=>{const m=BattleRules.maneuver(k,rv('tactics'));return `<button class="btn sm quiet" data-a="fmaneuver" data-id="${p.id}" data-stance="${k}"${S.stamina<m.stamina?' disabled':''}>${k==='feint'?'Feint':'Cleave'} · ${m.stamina} stamina</button>`;}).join('')}</div><small class="maneuver-note">Feint improves accuracy and evasion. Cleave hits harder and exposes you.</small></div>`;
   }
+  function stashFightDraft() {const input=$('#fight #sql');if(F?.task&&input){F.drafts=F.drafts||{};F.drafts[F.task.sql]=input.value;}}
   function drawF() {
+    if(F.st==='prompt'&&F.task)F.task=prepareLearning(F.task);
     const el = $('#fight'), f = F.foe, t = F.r; let h;
     if (F.st === 'choose') {
       const pgs = fightPages(), sh = bestPage('shadow'), canSteal = F.kind === 'monster' && !F.engaged && !F.round && !F.animal;
@@ -682,7 +770,7 @@
     } else if (F.st === 'escape') {
       h='<div class="f-head"><b>Disengaging</b></div><p>The foe can respond while you pull away.</p>';
     } else if (F.st === 'prompt') {
-      h = `<div class="f-head"><div><b>${esc(F.verb)}</b><small id="f-odds">${fOdds()}</small></div><div class="f-btns">${qm('fprompt')}<button class="btn sm quiet${S.tut === 1 ? ' pulse' : ''}" data-a="ftables">Tables</button>${F.act === 'fight' ? fHintBtn() : ''}${F.act==='fight'?'<button class="btn sm quiet" data-a="fchoose">Actions</button>':''}</div></div><div class="battle-question"><p class="ask">${esc(F.task.ask)} ${needLine(F.task)}${F.task.tip&&!F.noHint ? ` <button class="qm sm" data-a="ftip" aria-label="A tip">?</button>` : ''}</p><div id="f-hint">${F.hints.join('')}</div><div id="f-out"></div></div>${kbHTML(F.task, F.kc, F.verb)}`;
+      h = `<div class="f-head"><div><b>${esc(F.verb)}</b><small id="f-odds">${fOdds()}</small></div><div class="f-btns">${qm('fprompt')}<button class="btn sm quiet${S.tut === 1 ? ' pulse' : ''}" data-a="ftables">Tables</button>${F.act === 'fight' ? fHintBtn() : ''}${F.act==='fight'?'<button class="btn sm quiet" data-a="fchoose">Actions</button>':''}</div></div><div class="battle-question">${F.task.teaching||''}<p class="ask">${esc(F.task.ask)} ${needLine(F.task)}${F.task.tip&&!F.noHint ? ` <button class="qm sm" data-a="ftip" aria-label="A tip">?</button>` : ''}</p><div id="f-hint">${F.hints.join('')}</div><div id="f-out"></div></div>${kbHTML(F.task, F.kc, F.verb)}`;
     } else {
       const controls=F.after.match(/<div class="row end">[\s\S]*<\/div>$/),body=controls?F.after.slice(0,controls.index):F.after;
       h = `<div class="f-head"><div><b class="g-${F.res.grade}">${F.instant?'Action resolved':GRADE_N[F.res.grade]}</b><small>${F.pline}</small></div>${F.act === 'fight' && !F.over ? `<button class="btn sm quiet" data-a="flee"${F.busy ? ' disabled' : ''}>Flee</button>` : ''}</div><div class="f-result">${F.instant?'':QueryFeedback.html(F.comparison, {power:F.queryPower,open:F.compareOpen,hidePower:F.act!=='fight',note:F.shown?'Shown answer · no practice':F.hint>=2?'Shape hint':F.utility&&F.hint?'Hint used':''})}<div class="swings" id="e-sw">${F.chips}</div><div id="f-after">${body}</div></div><div class="f-actions">${controls?controls[0]:''}</div>`;
@@ -692,31 +780,32 @@
       h+=combatTools();
     } if(F.act==='steal'&&F.st==='prompt')h=`<div class="row"><button class="btn sm quiet" data-a="fprize" data-id="purse">Purse · easier</button><button class="btn sm quiet" data-a="fprize" data-id="prize">${esc(F.prizeItem?F.prizeItem.name:F.kind==='rival'?rival(F.r).item.name:'Selected prize')} · −15 effective skill</button><span>${F.prize==='prize'?'Selected prize':'Purse'}</span></div>`+h;
     if (F.st !== 'choose') unCoach('fight', 'stealth'); if (F.st !== 'prompt') unCoach('fprompt');
-    el.innerHTML = combatStatus()+h; el.className = 'st-' + F.st; if (F.st === 'prompt') { kbDraw(); kbFocus(); } fitPanel();
+    el.innerHTML = combatStatus()+h; el.className = 'st-' + F.st; if (F.st === 'prompt') { kbDraw();if(F.drafts?.[F.task.sql]!=null){$('#sql').value=F.drafts[F.task.sql];kbGrow();} kbFocus(); } fitPanel();
   }
   // the columns the answer needs, in a few words, after the question
   const needLine = t => t.kind === 'dml' ? '<span class="need">→ changes the Ledger; judged by what it holds afterwards</span>' : `<span class="need">→ ${esc(t.ret)}${t.order ? ' · sorted' : ''}</span>`;
   const ROUNDS = () => 1; let HPEN = 15;
-  const fPct = grade => {if(F.act!=='fight')return odds(rv(F.act==='steal'?'stealing':bestWeapon())+(F.bonus||0),F.diff,grade).p;const sid=pageSkill(F.page),move=BattleRules.maneuver(F.stance,rv('tactics'));return attackChance(odds(rv(sid),F.diff,'correct').p-(F.hint===1?HPEN:0)+(F.focus||0)+(F.page.book==='spell'?0:move.accuracy),sid);};
-  const fOdds = () => F.utility ? 'Query quality · 1 response round' : F.act === 'fight' ? `${fPct('correct')}% to hit · query sets power · ${ROUNDS() === 1 ? '1 round' : ROUNDS() + ' rounds'}` : `${fPct('correct')}% if right · one try`;
+  const fPct = grade => {if(F.act!=='fight')return odds(rv(F.act==='steal'?'stealing':bestWeapon())+(F.bonus||0),F.diff,grade).p;const sid=pageSkill(F.page),move=BattleRules.maneuver(F.stance,rv('tactics'));return attackChance(odds(rv(sid),F.diff,grade).p-(F.hint===1?HPEN:0)+(F.focus||0)+(F.page.book==='spell'?0:move.accuracy),sid);};
+  const fOdds = () => F.utility ? 'Query quality · 1 response round' : F.act === 'fight' ? `${Math.round(fPct('correct'))}% to hit · query sets power · ${ROUNDS() === 1 ? '1 round' : ROUNDS() + ' rounds'}` : `${fPct('correct')}% if right · one try`;
   const fHintBtn = () => { const max = F.noHint ? 0 : 2; if (F.noHint) return ''; if (F.shown) return ''; return (F.hint >= max ? '' : `<button class="btn sm quiet" data-a="fhint">${F.hint ? 'Shape' : F.utility ? 'Hint · reduced power' : `Hint −${HPEN}%`}</button>`) + '<button class="btn sm quiet" data-a="fshow">Show me</button>'; };
   function fHint() {
     if (!F || F.st !== 'prompt' || F.act !== 'fight' || F.noHint) return; const max = 2; if (F.hint >= max) return; F.hint++; const t = F.task;
     F.hints = F.hints.filter(h => h.includes('class="fh tip"')).concat([F.hint === 1 ? `<p class="fh"><b>${F.utility ? 'Hint, reduced power and practice:' : `Hint, −${HPEN}% to hit:`}</b> ${esc(t.hint || clauseHint(t.sql))}</p>` : `<p class="fh"><b>Shape, at most 60% power:</b> <code>${esc(skeleton(t.sql).replace(/\s+/g, ' '))}</code></p>`]);
-    $('#f-hint').innerHTML = F.hints.join(''); $('#f-odds').textContent = fOdds(); const b = $('#fight [data-a=fhint]'); if (b) b.outerHTML = fHintBtn(); fitPanel();
+    $('#f-hint').innerHTML = F.hints.join(''); $('#f-odds').textContent = fOdds(); const row=$('#fight .f-btns');row.querySelectorAll('[data-a=fhint],[data-a=fshow]').forEach(b=>b.remove());row.insertAdjacentHTML('beforeend',fHintBtn()); fitPanel();
   }
-  function fShow() { if (!F || F.st !== 'prompt' || F.act !== 'fight' || F.shown || F.noHint) return; F.shown = 1; F.hints = [`<p class="fh"><b>${F.utility?'Type it in. It gives no useful effect and teaches no skill:':'Type it in. It has only 5% power and teaches no skill:'}</b> <code>${esc(F.task.sql)}</code></p>`];
+  function fShow() {if(!F||F.st!=='prompt'||F.shown||F.noHint)return;stashFightDraft();sheet(`<h2>Show this answer?</h2><p>${F.utility?'This demonstration gives no useful support effect.':'This attack will have only 5% power.'} It grants no skill or attribute practice. The penalty lasts for this exchange, including if you change actions.</p><button class="btn solid" data-a="fshowconfirm">Show answer</button><button class="btn quiet" data-a="closesheet">Keep trying</button>`);}
+  function fShowConfirmed() { if (!F || F.st !== 'prompt' || F.act !== 'fight' || F.shown || F.noHint) return; F.shown = 1;recordLearning(F.task,{ok:false,assisted:true,first:false});save(); F.hints = [`<p class="fh"><b>${F.utility?'Type it in. It gives no useful effect and teaches no skill:':'Type it in. It has only 5% power and teaches no skill:'}</b> <code>${esc(F.task.sql)}</code></p>`];
     $('#f-hint').innerHTML = F.hints.join(''); $('#f-odds').textContent = fOdds(); $('#fight .f-btns').querySelectorAll('[data-a=fhint],[data-a=fshow]').forEach(b => b.remove()); fitPanel(); }
   function tablesSheet() {
     const c = ctx(), t = c && c.task; if (!t) return; const tabs = t.tables || tablesIn(t.sql + ' ' + (t.check || ''));
     sheet(`<h2>Tables</h2>${tabs.map(n => `<section class="sec"><h2>${n}</h2><div class="ret">${(COLS[n] || []).map(x => `<code>${x}</code>`).join('')}</div>${tableHTML(Engine.peek(n, 12), 12)}</section>`).join('')}<div class="row"><button class="btn sm quiet" data-a="atlas">All tables</button><button class="btn sm quiet" data-a="klog">${S.klog ? 'Hide' : 'Show'} the key log</button></div><p class="cap2">The key log shows, under your query, the last keys the game read. Use it if the keyboard types something you did not press.</p>`);
   }
   function pickPage(id, stance = 'strike') {
-    if (!F || F.busy || F.over || F.act !== 'fight') return; const p = pageById(id); if (!p || !owned(id)) return; const sk2 = pageSkill(p); const move=BattleRules.maneuver(stance,rv('tactics'));if(p.book!=='spell'&&S.stamina<move.stamina)return toast('Not enough stamina for that maneuver.');F.stance=p.book==='spell'?'strike':stance;
-    F.backstab=false;F.utility=null;F.instant=false; F.page = p; S.page = id; F.verb = p.book==='spell'?'Cast':stance==='feint'?'Feint':stance==='cleave'?'Cleave':WEAP[sk2].verb; F.kc = F.tasks ? F.r : p.c; F.task = taskFor(p); F.tries=0;const sameRound=F.prepRound===F.round;F.fixed=sameRound?F.fixed:0;F.hint=sameRound?F.hint:0;F.shown=sameRound?F.shown:0;F.prepRound=F.round;F.hints=F.shown?[`<p class="fh">An answer was shown this exchange. It grants no practice. <code>${esc(F.task.sql)}</code></p>`]:F.hint?['<p class="fh">The hint penalty carries across changing actions.</p>']:[]; F.oddsLine = `${odds(rv(sk2), F.diff, 'correct').p}% a swing if correct · ${odds(rv(sk2), F.diff, 'wrong').p}% if wrong`; F.st = 'prompt'; drawF(); coach('fprompt');
+    if (!F || F.busy || F.over || F.act !== 'fight') return; stashFightDraft(); const p = pageById(id); if (!p || !owned(id)) return; const sk2 = pageSkill(p); const move=BattleRules.maneuver(stance,rv('tactics'));if(p.book!=='spell'&&S.stamina<move.stamina)return toast('Not enough stamina for that maneuver.');F.stance=p.book==='spell'?'strike':stance;
+    F.backstab=false;F.utility=null;F.instant=false; F.page = p; S.page = id; F.verb = p.book==='spell'?'Cast':stance==='feint'?'Feint':stance==='cleave'?'Cleave':WEAP[sk2].verb; F.kc = F.tasks ? F.r : p.c; if(F.taskRound!==F.round){F.preparedTasks={};F.drafts={};F.taskRound=F.round;F.readinessHelp=false;}const taskKey=id+':'+stance;F.task = F.preparedTasks[taskKey]||(F.preparedTasks[taskKey]=taskFor(p)); F.tries=0;const sameRound=F.prepRound===F.round;F.fixed=sameRound?F.fixed:0;F.hint=sameRound?F.hint:0;F.shown=sameRound?F.shown:0;F.prepRound=F.round;F.hints=F.shown?[`<p class="fh">An answer was shown this exchange. It grants no practice. <code>${esc(F.task.sql)}</code></p>`]:F.hint?['<p class="fh">The hint penalty carries across changing actions.</p>']:[]; F.oddsLine = `${odds(rv(sk2), F.diff, 'correct').p}% a swing if correct · ${odds(rv(sk2), F.diff, 'wrong').p}% if wrong`; F.st = 'prompt'; drawF(); coach('fprompt');
   }
   function pickSteal() {
-    if (!F || F.kind !== 'monster' || F.round || F.busy || F.animal) return; const e = F.ent, sh = bestPage('shadow'); if (!sh || e.pocketsEmpty) return;
+    if (!F || F.kind !== 'monster' || F.round || F.busy || F.animal) return;if(F.shown||F.hint)return toast('Finish this hinted exchange before switching to theft. The disclosed penalty stays with the exchange.'); const e = F.ent, sh = bestPage('shadow'); if (!sh || e.pocketsEmpty) return;
     if (!e.unseen && !CONCEAL.hidden) {toast('Back away and Hide before approaching, or come from behind.');return;}
     Sneaking.reveal(CONCEAL); renderHud(); const c = Math.min(sh.c, F.r), tpl = c === F.r ? F.sig : pick(BOUNTIES.filter(b => b.r === c)).id; F.act = 'steal'; F.foe = null; F.page = sh; F.verb = 'Steal'; F.kc = c; F.bonus = 10 + (sh.rare ? 15 : 0) - 12 * Math.max(0, F.r - sh.c) + bonus('deft');
     F.prize=F.prize||'purse'; F.prizeItem=F.prizeItem||makeItem(rollRarity(luck()),F.r); F.task = S.tut < 2 ? tutTask() : makeTask({ tpl, seed: seeded(tpl) }); F.fixed = 0; F.hint = 0; F.hints = []; F.oddsLine = `${odds(rv('stealing') + F.bonus, F.diff, 'correct').p}% if correct · one try`; F.st = 'prompt'; barsF(); drawF();
@@ -728,12 +817,13 @@
     if(F.act==='fight'&&!F.utility&&!F.backstab&&F.page.book!=='spell'&&S.stamina<BattleRules.maneuver(F.stance,rv('tactics')).stamina){toast('Not enough stamina for that maneuver.');return;}
     if(F.utility==='bandage'&&!(S.bandages>0))return toast('You need a bandage. The healer sells them.');
     let res = Engine.grade(F.task, sql); S.stats.q++; F.compareOpen=false; F.comparison=res.ok?null:QueryFeedback.prepare(F.task,sql,res,Engine);
-    if (res.err) { if (!F.fixed) { F.fixed = 1; $('#f-out').innerHTML = QueryFeedback.html(F.comparison,{free:true}); return fitPanel(); }
+    if (res.err) { F.syntaxError=true;if (!F.fixed) { F.fixed = 1; $('#f-out').innerHTML = QueryFeedback.html(F.comparison,{free:true}); return fitPanel(); }
       res = { ok: false, grade: 'wrong', share: 0, msg: 'It did not run: ' + res.err, used: [] }; }
+    recordLearning(F.task,{ok:res.ok,assisted:!!F.hint||!!F.shown||!!F.syntaxError||!!F.readinessHelp,first:true,sql});F.syntaxError=false;
     if (res.ok) { S.stats.ok++; S.streak++; S.best = Math.max(S.best, S.streak); if(!F.shown)trainSql(res.used || [], F.kc, sql); } else S.streak = 0;
     F.queryPower=F.utility?(F.shown?0:QueryFeedback.power(res,{hint:F.hint})*(F.hint===1?.6:1)):QueryFeedback.power(res,{shown:F.shown,hint:F.hint}); F.res = res; F.chips = ''; F.after = '';if(F.act==='fight'){F.intent=nextEnemyIntent();F.engaged=true;if(F.ent)F.ent.engaged=true;} F.round++; resolveF(res);
   }
-  const chip = (cls, txt) => { const h = `<span class="sw ${cls}">${txt}</span>`; F.chips += h; const sw = $('#e-sw'); if (sw) sw.insertAdjacentHTML('beforeend', h); };
+  const chip = (cls, txt, actor) => { const who=actor||(cls==='ouch'?F.title:'You');const h = `<span class="sw ${cls}">${esc(who)}: ${esc(txt)}</span>`; F.chips += h; const sw = $('#e-sw'); if (sw) sw.insertAdjacentHTML('beforeend', h); };
   function play(steps,done) {const encounter=F,owner=S,current=()=>F===encounter&&S===owner;if(FAST()){for(const step of steps){if(!current())return;step();}if(current())done();return;}let i=0;const next=()=>{if(!current())return;while(i<steps.length)if(steps[i++]()!==false)return setTimeout(next,330);if(current())done();};setTimeout(next,250);}
 
   function magicFoe() {return F.drole==='caster'||/Imp|Wisp|Witch|Lich|Wraith|Sphinx|Council|Mage|Acolyte/i.test(F.title);}
@@ -768,7 +858,7 @@
       Scene.FX.swing(e,'me',magic?'spell':'hit');
       const opening=context.opening?-15:0;
       const chance=Math.max(10,Math.min(95,BattleRules.enemyHit(rv(context.skill||bestWeapon()),f.diff,intent.accuracy)+(F.maneuverIncoming||0)+opening));
-      if(rnd()*100>=chance){chip('miss','miss');return;}
+      if(rnd()*100>=chance){chip('miss','miss',F.title);return;}
       if(!magic&&shield&&rnd()<Progression.parryChance(S)){chip('hit','blocked');Scene.FX.hit('me','block','#9be0da');return;}
       const defended=F.defense&&F.defense.left>0?(magic?F.defense.magic:F.defense.physical):0;
     const protection=(1-EquipmentRules.mitigation(bonus('def'),bonus('warding'),magic)/100)*(magic?Progression.resistFactor(S):1)*(1-defended);
@@ -777,7 +867,7 @@
       if(intent.manaDrain&&!drained){drained=true;const drain=Math.min(S.mana,intent.manaDrain);S.mana-=drain;chip('ouch','−'+drain+' mana');}
       barsF();renderHud();refreshCombatStatus();
     });
-    if(!swings)steps.push(()=>{if(f.hp>0&&S.hp>0)chip('lab',intent.label);});
+    if(!swings)steps.push(()=>{if(f.hp>0&&S.hp>0)chip('lab',intent.label,F.title);});
   }
   function refreshCombatStatus() {const el=$('#fight .battle-status');if(F&&el)el.outerHTML=combatStatus();}
   function finishCombatQuery(res,gl,note='') {
@@ -788,7 +878,7 @@
   function resolveF(res) {
     const q=F.act==='fight'?(res.quality??queryQuality(res)):queryQuality(res),gl=[]; F.defenseTrained=false;
     if(F.act==='steal'){Sneaking.reveal(CONCEAL);renderHud();}
-    if(F.act!=='fight') {const sid=F.act==='steal'?'stealing':bestWeapon(),o=odds(rv(sid)+(F.bonus||0),F.diff,res.grade,res.share),g=gain(sid,F.diff,q);if(g)gl.push(g);F.pline=`${o.p}% chance`;F.st='after';F.busy=true;drawF();const encounter=F,owner=S,win=rnd()*100<o.p,end=()=>{if(F!==encounter||S!==owner)return;F.busy=false;chip(win?'hit':'ouch',win?'success':'failed');win?winF(res,gl):loseF(res,gl);};return FAST()?end():setTimeout(end,500);}
+    if(F.act!=='fight') {const sid=F.act==='steal'?'stealing':bestWeapon(),o=odds(rv(sid)+(F.bonus||0),F.diff,res.grade,res.share),g=gain(sid,F.diff,q);if(g)gl.push(g);F.pline=`${o.p}% chance`;F.st='after';F.busy=true;drawF();const encounter=F,owner=S,win=rnd()*100<o.p,end=()=>{if(F!==encounter||S!==owner)return;F.busy=false;chip(win?'hit':'ouch',win?'success':'failed','You');win?winF(res,gl):loseF(res,gl);};return FAST()?end():setTimeout(end,500);}
     const p=F.page,sid=pageSkill(p),spell=p.book==='spell',utility=F.utility,steps=[],f=F.foe,e=F.ent;
     if((spell&&!['guard','recover','bandage','study','draught'].includes(utility))&&!spendCasting()){F.round--;F.st='choose';toast('Not enough mana. Meditate, use a prepared scroll, or choose another ability.');return drawF();}
     const quality=F.shown?0:q*(F.hint?.6:1);Sneaking.reveal(CONCEAL);F.ambush=null;
@@ -912,7 +1002,7 @@
   // the bottom bar: framed slots with painted icons, the hero's own portrait in the middle
   const NAV = [['world', 'Adventure', 'sword', '⚔'], ['map', 'Map', 'map', '✥'], ['hero', 'Hero', null, '☺'], ['bag', 'Bag', 'bag', '◈'], ['ledger', 'Ledger', 'tome', '❖']];
   function renderNav() {
-    const face = S.path ? LOOKS[S.path][(S.look != null ? S.look : 0) % 2] : 'G09_4', tabsOn = gOn() ? gTabs() : null, key = face + ART + S.gn + (tabsOn ? tabsOn.join() : ''), n = $('#nav'); if (n.dataset.k === key) return; n.dataset.k = key;
+    const face = S.path ? LOOKS[S.path][(S.look != null ? S.look : 0) % 2] : 'G09_4', tabsOn = null, key = face + ART + S.gn, n = $('#nav'); if (n.dataset.k === key) return; n.dataset.k = key;
     n.innerHTML = NAV.filter(x => !tabsOn || tabsOn.includes(x[0])).map(x => `<button data-a="tab" data-t="${x[0]}" class="${x[0] === 'hero' ? 'hero' : ''}${S.gn === x[0] ? ' pulse' : ''}"><span class="slot">${ART ? `<img alt="" src="art/${x[2] ? 'i/' + x[2] : 'p/' + face}.webp">` : `<i>${x[3]}</i>`}</span><span class="lab">${x[1]}</span></button>`).join('');
   }
   function render() {
@@ -924,7 +1014,7 @@
     Scene.pause(); const v = $('#view'), keep = v.dataset.tab === tab + lsub ? v.scrollTop : 0;
     v.innerHTML = '<button class="pclose" data-a="tab" data-t="world" aria-label="Close">✕</button>' + ({ map: vMap, ledger: vLedger, hero: vHero, bag: vBag }[tab])(); v.dataset.tab = tab + lsub; v.scrollTop = keep;
     if (tab === 'ledger' && lsub === 'sandbox') { const ta = $('#con-sql'); if (ta) ta.value = con.sql; }
-    if(tab==='map'&&DG)unCoach();else coach({ map: 'map', ledger: 'ledger', hero: 'hero', bag: 'bag' }[tab]); if (S.gn && S.gn === tab) { S.gn = 0; save(); renderNav(); }
+    if(boatActive()){const beat=Prologue.beat({...S.prologue,phase:({map:'chart',bag:'kit',hero:'hero',ledger:'ledger'})[tab]||S.prologue.phase},S.name,S.path);v.insertAdjacentHTML('afterbegin',`<aside class="boat-tool-note"><b>Tamsin · ${esc(beat.title)}</b><p>${esc(({map:'The white boat marks our approach to Tallyport. Your explored map will fill in as you walk ashore.',bag:'Tap a supply to see what it does. Equipment and scrolls you find will be kept here too.',hero:'These are your character’s equipment and starting skills. Skills improve through use; SQL knowledge is learned separately.',ledger:'Tables hold practice records. The sandbox is safe to experiment in, and Lessons keeps explanations you have met. Odalys will teach your first query ashore.'})[tab]||beat.text)}</p><button class="btn sm" data-a="tab" data-t="world">Back to Tamsin</button></aside>`);unCoach();}else if(tab==='map'&&DG)unCoach();else coach({ map: 'map', ledger: 'ledger', hero: 'hero', bag: 'bag' }[tab]); if (S.gn && S.gn === tab) { S.gn = 0; save(); renderNav(); }
   }
   function restoreAccountScene(restoreHomes) {
     sceneOwner = null;
@@ -969,7 +1059,7 @@
   function selectWorld(index){
     DELETE=null;
     if(index===A.world || !Number.isInteger(index) || index<0 || index>=CharacterWorlds.count)return;
-    save(); discardEncounter(); closeSheet(); closeSay(); CharacterWorlds.select(A,index); if(sceneUp&&Scene.resetWorld)Scene.resetWorld(); loadCur(); cmdBackfill();
+    save(); discardEncounter(); closeSheet(); closeSay(); CharacterWorlds.select(A,index); if(sceneUp&&Scene.resetWorld)Scene.resetWorld(); loadCur(); cmdBackfill();learningBackfill();
     Q=null; F=null; DG=null; CE=null; tab='world'; sel=S.region;
     $('#enc').hidden=true; $('#fight').hidden=true; $('#nav').hidden=false;
     if(sceneUp)restoreAccountScene(true);
@@ -1025,18 +1115,19 @@
   function boatRender(error) {
     if(!boatActive() || !$('#title').hidden)return;
     const panel=$('#onboard'),p=S.prologue,free=['walk','arrival'].includes(p.phase);
-    $('#app').classList.add('prologue');panel.hidden=false;$('#nav').hidden=true;
+    $('#app').classList.add('prologue');panel.hidden=false;$('#nav').hidden=!Prologue.toolsAvailable(p);
     if(!sceneUp){panel.innerHTML='<p>'+esc(engineErr||'The Marigold is coming into view…')+'</p><button class="btn" data-a="reset">Return to characters</button>';return;}
     Scene.enterShip(S,p.phase,p.pos);sceneOwner=S;Scene.FX.lock(!free);Scene.resume();
     const beat=Prologue.beat(p,S.name,S.path);panel.classList.toggle('boat-hint',free);panel.dataset.phase=p.phase;
     let controls='';
     if(p.phase==='rescue')controls='<button class="btn quiet" data-a="boatskiprescue">Continue after the rescue</button>';
     if(p.phase==='name')controls=`<label class="boat-name">Your name<input id="boat-name" maxlength="16" autocomplete="off" autocapitalize="words" value="${esc(S.name)}"></label>${error?'<p role="alert">'+esc(error)+'</p>':''}<button class="btn solid" data-a="boatname">Tell Tamsin</button>`;
-    if(p.phase==='home')controls=Prologue.origins.map(o=>`<button class="btn boat-origin" data-a="boathome" data-id="${o.id}"><b>${o.name}</b><small>${o.detail}</small></button>`).join('');
+    if(p.phase==='home')controls=`<button class="btn solid" data-a="boathome">“${esc(Prologue.home(p))}.”</button>`;
     if(p.phase==='recognition')controls='<button class="btn solid" data-a="boatnext" data-step="continue">“Yes, that’s me.”</button>';
     if(p.phase==='question')controls=`<button class="btn solid" data-a="boatnext" data-step="remember">“I was in ${esc(Prologue.home(p))} yesterday.”</button>`;
     if(p.phase==='where')controls='<button class="btn solid" data-a="boatnext" data-step="continue">Get to your feet</button>';
-    if(p.phase==='decktalk')controls='<button class="btn solid" data-a="boatnext" data-step="rest">Rest until landfall</button>';
+    if(p.phase==='decktalk')controls='<button class="btn solid" data-a="boatnext" data-step="rest">Let Tamsin show you around</button>';
+    if(Prologue.toolFor[p.phase]){const tool=Prologue.toolFor[p.phase],label=NAV.find(t=>t[0]===tool)[1];controls=`<button class="btn solid" data-a="tab" data-t="${tool}">Open ${label}</button><button class="btn quiet" data-a="boatnext" data-step="continue"${p.tools.includes(tool)?'':' disabled'}>${p.phase==='ledger'?'Rest until landfall':'Continue'}</button>`;}
     panel.innerHTML=`<div class="boat-content"><p class="eyebrow">${esc(beat.title)}</p>${beat.text.split('\n\n').map(t=>'<p class="boat-paragraph">'+esc(t)+'</p>').join('')}<div class="boat-actions">${controls}</div></div><footer class="boat-menu">${!free&&p.phase!=='rescue'?'<button data-a="skipguide">I know how to play: skip the intro and guided start</button>':''}</footer>`;
     const name=$('#boat-name');if(name)name.addEventListener('keydown',e=>{if(e.key==='Enter')boatName();});
     requestAnimationFrame(()=>{if(boatActive())Scene.FX.inset(free?0:panel.offsetHeight+18);});
@@ -1088,7 +1179,13 @@
     const homes = (S.homes || []).length ? `<div class="card"><h2>Your homes</h2><ul class="goods">${S.homes.map(h => `<li class="good">${ico('deed')}<div><b>${esc(h.name)}</b><small>${esc(region(h.r).name)}</small></div>${h.pad ? `<button class="btn sm" data-a="tphome" data-h="${h.id}">Teleport</button>` : '<small>no pad</small>'}</li>`).join('')}</ul></div>` : '';
     const errands = Object.values(S.er.a || {});
     const jobs = errands.length ? `<div class="card"><h2>Errands</h2><ul class="tale plain">${errands.map(a => `<li>${esc(a.what)} <small>${esc(a.from)} · ${errandProg(a)} · ${a.gold} gold</small><button class="btn sm quiet" data-a="erdrop" data-id="${a.id}">Drop</button></li>`).join('')}</ul></div>` : '';
-    return CMap.map() + jobs + homes;
+    if(boatActive())return `<section class="place"><p class="eyebrow">Tamsin's sketch</p><h1>Your map</h1></section>${boatChart()}<p>The Marigold is approaching Tallyport. This is a rough coastal sketch, not your explored land map. Once ashore, walking records nearby terrain and discovered places. Surveys add detail; travel rights are earned separately.</p><p class="cap2">Legend: brass dot · Tallyport; white boat · the Marigold; dashed line · our approach. The unmarked coast is yours to explore.</p>`;
+    return `<button class="btn sm quiet" data-a="sketch">Tamsin's sketch</button>` + CMap.map() + '<p class="cap2">Legend: white dot · you; brass marks · discoveries; dark ground · not yet charted. Tap a destination in the list to set a waypoint.</p>' + jobs + homes;
+  }
+  let sketchCache = '';
+  function boatChart() {
+    if(!sketchCache){const paths=[];for(let y=720;y<=1120;y+=4){let start=-1;for(let x=120;x<=744;x+=4){const land=x<744&&Geography.land(x,y);if(land&&start<0)start=x;if(!land&&start>=0){paths.push(`M${start},${y}h${x-start}v4H${start}z`);start=-1;}}}sketchCache=paths.join('');}
+    return `<figure class="boat-chart"><svg viewBox="120 720 620 400" role="img" aria-label="A rough sketch of the southern coast, the Marigold offshore, and Tallyport"><rect x="120" y="720" width="620" height="400" fill="#d9cfaa"/><path d="${sketchCache}" fill="#b4a275"/><path d="M205 1000 Q230 950 320 930" fill="none" stroke="#5c7580" stroke-width="3" stroke-dasharray="8 7"/><path d="M196 1005l9-24 9 24z" fill="#fff9df" stroke="#4b5d66" stroke-width="2"/><circle cx="320" cy="930" r="6" fill="#8f5b13"/><text x="332" y="920" fill="#352e20" font-size="20">Tallyport</text><text x="150" y="1040" fill="#354e5c" font-size="18">Marigold</text><text x="400" y="810" fill="#645c43" font-size="18">Uncharted inland</text><text x="155" y="755" fill="#4b5d66" font-size="16">N ↑</text></svg><figcaption>Tamsin's incomplete coastal chart</figcaption></figure>`;
   }
 
   /* ---------- speech box: along the bottom of the world, one line at a time, choices at the end ---------- */
@@ -1181,8 +1278,8 @@
     { id: 'bank', ob: 'Talk to the banker and deposit your gold', at: () => off(entAt(x => x.kind === 'banker' && x.r === 1), -1, 0), arrow: () => entAt(x => x.kind === 'banker' && x.r === 1), say: '"See the banker before we go any farther. You can leave your gold in the bank while we look around the vaults."' },
     { id: 'tower', ob: 'Climb the harbor tower by the pier', at: () => off(SP('tower'), 1, 1), arrow: () => SP('tower'), say: '"Come up the harbor tower with me. From there I can show you where the road goes when it leaves town."' },
     { id: 'fish', ob: 'Cast a line off the end of the pier, or tap Tamsin to skip', tabs: ['map'], at: () => off(SP('pierfish'), 2, 0), arrow: () => SP('pierfish'), say: '"Everyone in Tallyport fishes. Cast a line off the end of the pier if you like, or tap me and we’ll skip it."' },
-    { id: 'vault', ob: 'Go down into the Bilge Vaults', at: () => off(SP('dun1'), 1, 0), arrow: () => entAt(x => x.kind === 'stairs' && x.r === 1), say: '"Corin died far below us in the Bilge Vaults. We’re only going as far as the entrance today. There’s a little cellar down the stairs with one creature guarding a chest. I’ll wait here so you have someone to come back to."' },
-    { id: 'chest', ob: 'Beat one guardian, then open the vault chest', arrow: () => nearest(e => e.tutorial && !e.dead && !e.dying) },
+    { id: 'vault', ob: 'Find the Bilge Vaults entrance · dojo practice is available first', at: () => off(SP('dun1'), 1, 0), arrow: () => entAt(x => x.kind === 'stairs' && x.r === 1), say: '"Corin died far below us in the Bilge Vaults. We’re starting near the entrance today. Defeat the entrance guardian and open the starter chest beside it. There are other creatures farther inside. If their queries feel unfamiliar, the dojo students can teach you sorting, limits and removing duplicates before you explore. I’ll wait here so you have someone to come back to."' },
+    { id: 'chest', ob: 'Defeat the entrance guardian, then open the starter chest', arrow: () => nearest(e => e.tutorial && !e.dead && !e.dying) },
     { id: 'road', ob: 'Walk with Tamsin to the examiner’s ring on the road out', at: () => off(SP('boss1'), 0, 3), arrow: () => SP('boss1'), say: '"That’s enough of the cellar for now. Come back up and I’ll walk with you to the road. You can see the examiner’s ring before I head back to the ship."' }];
   const gOn = () => S.gd >= 0 && S.gd < GD.length, gid = () => gOn() ? GD[S.gd].id : null, gix = id => GD.findIndex(g => g.id === id);
   const gTabs = () => { const t = ['world']; for (let i = 0; i <= Math.min(S.gd, GD.length - 1); i++) (GD[i].tabs || []).forEach(x => t.push(x)); return t; };
@@ -1190,7 +1287,7 @@
   let GSAY = 0;
   function gSay(line, opts) { clearInterval(GSAY); if (!line) return; let n = 0; const character=S, step=S.gd; GSAY = setInterval(() => { if (++n > 600 || !gOn() || S!==character || S.gd!==step) return clearInterval(GSAY); if (!S || Q || F || SB || !$('#sheet').hidden || !$('#enc').hidden || !$('#coach').hidden || tab !== 'world' || !$('#title').hidden || !sceneUp || Scene.inHall() || Scene.inDungeon() || Scene.traveling()) return; const p=Scene.pos(),e=Scene.guideEnt(); if (!e || Math.hypot(e.fx-p[0],e.fy-p[1])>4) return; clearInterval(GSAY); CE = tamsin(); dlg(CE, line, opts || [bye]); }, FAST() ? 30 : 350); }
   function gPlace() { if (!sceneUp || Scene.inShip()) return; if (!gOn() || S.region !== 1) return Scene.guideOff(); if (Scene.guideEnt()) return; const p = Scene.inHall() || Scene.inDungeon() ? S.pos || SP('dock') : Scene.pos(); if (p) Scene.guidePut(p[0] + 1, p[1]); }
-  function gEnter(quiet, boot) { clearInterval(GSAY); if (!gOn()) return; const g = GD[S.gd]; gPlace(); if (g.tabs && !boot) S.gn = g.tabs[0]; renderNav(); if (g.id === 'bag') gGift(); if (!quiet) gSay(g.say, g.id === 'fish' ? [{ t: 'Skip it', a: 'gnext' }, { t: 'I’ll cast', a: 'closesheet' }] : null); HOST._k = null; }
+  function gEnter(quiet, boot) { clearInterval(GSAY); if (!gOn()) return; const g = GD[S.gd]; gPlace(); if (g.tabs && !boot) S.gn = g.tabs[0]; renderNav(); if (g.id === 'bag') gGift();if(g.id==='vault'&&!S.knownEntrances?.[1]){S.knownEntrances=S.knownEntrances||{};S.knownEntrances[1]=true;save();} if (!quiet) gSay(g.say, g.id === 'fish' ? [{ t: 'Skip it', a: 'gnext' }, { t: 'I’ll cast', a: 'closesheet' }] : null); HOST._k = null; }
   function gDone(id) { if (gid() !== id) return; S.gd++; save(); if (S.gd >= GD.length) return gEnd(); gEnter(); }
   function gGift() { if (S.gk && itemById(S.gk)) return; const it = makeItem('uncommon', 1, 'weapon', S.path === 'mage' ? 'magery' : armsSkill()); S.inv.push(it); S.gk = it.id; addFood('loaf', 2); save(); }
   function gEnd() { S.gd = GD.length; S.tut = 3; S.hints++; S.gn = 0; save(); renderNav(); CE = tamsin(); dlg(CE, `"That’s Varrick’s ring. If you want more practice before you talk to him, Odalys has work for you back in town. I’m due aboard the Marigold, so this is where I leave you. Thanks for keeping me company today, ${S.name || 'friend'}."`, [bye]);  toast('Tamsin returns to the Marigold. You received a Hint Key.'); }
@@ -1356,6 +1453,7 @@
 
   function objective() {
     if (!S.path) return 'Choose your path';
+    if(gid()==='chest'&&DP.current()?.claimed.tutorialKey)return 'Guardian defeated · open the starter chest';
     if (gOn()) return S.met['1.0'] && !S.seen['intro.practice'] && gid()==='odalys' ? 'Practise your first ability with Odalys in the dojo' : GD[S.gd].ob;
     if(DG){const p=DP.current(),missing=DungeonProgress.missing(p,Dungeons.get(DG.r).floors.length);return 'Floor '+(DG.f+1)+' · '+(p.claimed.vault?'Vault collected · explore or leave':missing.length?missing.length+' floor seals to recover':!p.keeper?'Find and defeat the keeper':'Open the vault chest');}
     const t = S.region, left = totalIn(t) - doneIn(t);
@@ -1441,6 +1539,7 @@
   /* ---------- the house games: the Crooked Wheel and the Count ---------- */
   /* ---------- the living world: country people and their goods, errands, places to find, fishing ---------- */
   let FI = null;
+  const variedTask = task => prepareLearning(Learning.next(learningState(),{circle:task.r||1,family:Learning.annotate(task).family,seed:rid()})||task);
   const hsh = s => { let h = 7; for (let i = 0; i < s.length; i++) h = (Math.imul(h, 31) + s.charCodeAt(i)) >>> 0; return h; };
   const rngOf = seed => { let x = (seed >>> 0) || 1; return () => { x = (Math.imul(x, 1664525) + 1013904223) >>> 0; return x / 4294967296; }; };
   const foodN = k => k === 'meat' ? (S.meat || 0) : (S.food[k] || 0);
@@ -1497,10 +1596,11 @@
   const fishLeft = fid => { const d = S.fishd[fid]; return d && d.day === dayKey() ? Math.max(0, 4 - d.n) : 4; };
   function fishOpen(e, i) {
     if (!fishLeft(e.fid)) return toast('The fish here have gone quiet until tomorrow'); const r = e.r, c = gOn()&&r===1?1:Math.max(1, Math.min(8, i === 0 ? r - 2 : i === 1 ? r : r + 1)), tpl = pick(BOUNTIES.filter(b => b.r === c)).id;
-    Sound.sfx('fishCast'); closeSay(); closeSheet(); FI = { e, r, i, c, task: gOn()&&r===1?tutTask():makeTask({ tpl, seed: seeded(tpl) }), res: null, out: null, err: '', draft: '' }; Scene.pause(); $('#enc').hidden = false; $('#nav').hidden = true; fiDraw();
+    Sound.sfx('fishCast'); closeSay(); closeSheet(); FI = { e, r, i, c, task: gOn()&&r===1?tutTask():variedTask(makeTask({ tpl, seed: seeded(tpl) })), res: null, out: null, err: '', draft: '' }; Scene.pause(); $('#enc').hidden = false; $('#nav').hidden = true; fiDraw();
   }
   function fiRun() {
-    const sql = $('#sql').value; if (!sql.trim() || FI.res) return; FI.draft = sql; const res = Engine.grade(FI.task, sql); if (res.err) { FI.err = res.err; return fiDraw(); }
+    const sql = $('#sql').value; if (!sql.trim() || FI.res) return; FI.draft = sql; const res = Engine.grade(FI.task, sql); if (res.err) { FI.err = res.err;FI.syntaxError=true; return fiDraw(); }
+    recordLearning(FI.task,{ok:res.ok,assisted:!!FI.syntaxError,first:true,sql});
     S.stats.q++; if (res.ok) { S.stats.ok++; trainSql(res.used || [], FI.c, sql); } const fid = FI.e.fid, d = S.fishd[fid] && S.fishd[fid].day === dayKey() ? S.fishd[fid] : (S.fishd[fid] = { day: dayKey(), n: 0 }); d.n++;
     const fs = rv('fishing'), r = FI.r, deep = FI.i, diff = FI.c * 10 + deep * 6, o = odds(fs + 25, diff, res.grade, res.share), F4 = FISH[r - 1], u = rnd(), G = { gold: 0, items: [], scrolls: [], food: {} }; let t, sp = '', ic = '';
     if (rnd() * 100 >= o.p) { const junk = !res.ok && rnd() < .35 ? pick(JUNK) : ''; t = res.ok ? 'Right answer, but nothing’s biting. Try another cast.' : junk ? `You pull up ${junk}.` : 'Nothing bites.'; if (junk) ic = /boot/.test(junk) ? 'boot' : /weed|reed/.test(junk) ? 'weed' : /key/.test(junk) ? 'rustkey' : ''; }
@@ -1515,9 +1615,9 @@
   }
   function fiClose() { FI = null; $('#enc').hidden = true; $('#enc').innerHTML = ''; $('#nav').hidden = false; Scene.refresh(); render(); }
   function fiDraw() {
-    const el = $('#enc'), t = FI.task, res = FI.res, left = fishLeft(FI.e.fid); el.className = 'q pk fi'; felt(0);
+    const el = $('#enc'), t = FI.task=prepareLearning(FI.task), res = FI.res, left = fishLeft(FI.e.fid); el.className = 'q pk fi'; felt(0);
     const verdict = res ? `<p class="pk-q ${res.ok ? 'me' : ''}"><b>${res.ok ? 'A clean cast' : res.grade === 'close' ? 'Close' : res.grade === 'partial' ? 'Part of the way' : 'Not the answer'}</b>${res.ok ? '' : `<span>${esc(res.why || res.msg || '')}</span>`}</p><p class="pk-res">${FI.out.ic && ART && ArtData.icons.at[FI.out.ic] ? ico(FI.out.ic) + ' ' : ''}${esc(FI.out.t)}</p>${spoilsHTML(FI.out.got)}${gainsHTML(FI.out.gn ? [FI.out.gn] : [])}` : '';
-    const body = `<div class="pk-body"><p class="pk-log">${esc(CASTS[FI.i].n)}</p><div class="fi-ask"><p>${t.ask}</p>${t.tip ? `<p class="cap2">${t.tip}</p>` : ''}</div>${FI.err && !res ? `<p class="pk-q"><span>${esc(FI.err)}</span></p>` : ''}${verdict}</div>`;
+    const body = `<div class="pk-body"><p class="pk-log">${esc(CASTS[FI.i].n)}</p><div class="fi-ask">${t.teaching||''}<p>${esc(t.ask)}</p>${t.tip ? `<p class="cap2">${t.tip}</p>` : ''}</div>${FI.err && !res ? `<p class="pk-q"><span>${esc(FI.err)}</span></p>` : ''}${verdict}</div>`;
     let dock, after = null;
     if (res) dock = `<div class="row"><button class="btn quiet big" data-a="fileave">Leave the water</button>${left ? `<button class="btn solid big" data-a="fiagain">Cast again (${left} left)</button>` : ''}</div>`;
     else { dock = `<div class="pk-rd"><button class="btn sm quiet" data-a="fileave">‹ Leave</button><span>Fishing ${rv('fishing').toFixed(1)} · ${CIRCLE[FI.c]} Circle question</span></div>` + kbHTML(t, FI.c, 'Cast'); after = () => { kbDraw(); const ta = $('#sql'); if (FI.draft) ta.value = FI.draft; kbFocus(); }; }
@@ -1569,13 +1669,13 @@
     el.innerHTML = `<header class="q-head"><button class="q-x" data-a="houseleave">‹ Leave</button><div class="q-steps"><span class="on">The Count</span><i>·</i><span>${BJ.sh.cards.length} cards left</span><i>·</i><span>${BJ.net >= 0 ? '+' : ''}${BJ.net}</span></div></header>${body}<div class="dock pk-dock">${dock}</div>`; if (kb) kb.after();
   }
 
-  const goodHTML = g => `<li class="good">${ico(g.ic)}<div><b class="${g.cls || ''}">${esc(g.name)}</b><small>${g.meta || ''}</small></div>${g.pill ? `<span class="pill ok">${g.pill}</span>` : `<button class="btn sm" data-a="${g.a}"${Object.keys(g.d || {}).map(k => ` data-${k}="${esc(g.d[k])}"`).join('')}${g.off ? ' disabled' : ''}>${g.price}</button>`}</li>`;
+  const goodHTML = g => `<li class="good">${g.item ? itemIcon(g.item) : ico(g.ic)}<div><b class="${g.cls || ''}">${esc(g.name)}</b><small>${g.meta || ''}</small></div>${g.pill ? `<span class="pill ok">${g.pill}</span>` : `<button class="btn sm" data-a="${g.a}"${Object.keys(g.d || {}).map(k => ` data-${k}="${esc(g.d[k])}"`).join('')}${g.off ? ' disabled' : ''}>${g.price}</button>`}</li>`;
   const pageGoods = r => PAGES.filter(p => p.c === r && !p.rare).map(p => {
     const book = BOOKS[p.book], base = { ic: 'scroll_' + p.book, name: p.name };
     return owned(p.id) ? { ...base, meta: book.name, pill: 'in your book' } :
       { ...base, meta: book.name + ' · ' + book.what, price: p.price + ' gold', a: 'buypage', d: { id: p.id }, off: S.gold < p.price };
   });
-  function shopSheet(e, line, goods, extra) { setTimeout(() => e.kind==='stablekeep'?null:coach(goods && goods.some(g => g.a === 'buyfood' || g.a === 'buymat') ? 'trade' : 'shop'), 0); CE = e; const pt = e.spr || e.pt ? Scene.portrait(e) : ''; sheet(`<div class="shop-head">${pt ? `<img alt="" src="${pt}">` : ''}<div><p class="eyebrow">${esc(e.sub || '')}</p><h2>${esc(e.name)}</h2></div></div><p class="story">${esc(line)}</p><ul class="goods">${goods.map(goodHTML).join('')}</ul><div class="row end">${extra || ''}<button class="btn sm quiet" data-a="chat">Chat</button></div>`); }
+  function shopSheet(e, line, goods, extra) { setTimeout(() => e.kind==='stablekeep'?null:coach(goods&&goods.some(g=>/page/i.test(g.a||''))?'shop':'trade'), 0); CE = e; const pt = e.spr || e.pt ? Scene.portrait(e) : ''; sheet(`<div class="shop-head">${pt ? `<img alt="" src="${pt}">` : ''}<div><p class="eyebrow">${esc(e.sub || '')}</p><h2>${esc(e.name)}</h2></div></div><p class="story">${esc(line)}</p><ul class="goods">${goods.map(goodHTML).join('')}</ul><div class="row end">${extra || ''}<button class="btn sm quiet" data-a="chat">Chat</button></div>`); }
   /* ---------- the bank: one account shared by every town's banker. Gold and up to 60 things kept there are safe when you die. ---------- */
   const BANK_SLOTS = 60;
   function bankSheet(e) { if (e) CE = e; S.bank = S.bank || { gold: 0, items: [] }; coach('bank'); const B = S.bank, worn = new Set(Object.values(S.eq || {})), free = S.inv.filter(it => !worn.has(it.id)), pt = CE && (CE.spr || CE.pt) ? Scene.portrait(CE) : '';
@@ -1755,9 +1855,9 @@
         if (G) { Scene.FX.treasure(e.x, e.y); extra += spoilsHTML(G); } }
       save(); renderHud(); Scene.refresh(); sheet(`<p class="eyebrow">${esc(region(r).name)} · out in the country</p><h2>${esc(P0[0])}</h2><p class="story">${esc(P0[2])}</p>${extra}<div class="row end"><button class="btn solid" data-a="closesheet">Move on</button></div>`);
     },
-    fish(e) { coach('fish'); const left = fishLeft(e.fid), fs = rv('fishing'); CE = e; sheet(`<p class="eyebrow">${esc(region(e.r).name)} · the water</p><h2>Fishing ${qm('fish')}</h2><p class="cap2">Fishing ${fs.toFixed(1)} · ${left ? `${left} cast${left === 1 ? '' : 's'} left today` : 'quiet until tomorrow'} · good fish ${FISHNEED.good}, rare ${FISHNEED.rare}, sunken ${FISHNEED.treasure}</p><ul class="goods">${CASTS.map((c, i) => goodHTML({ ic: 'rod', name: c.n, meta: gOn()&&e.r===1?['Practise the query you know with a cast near the bank.','Use the same query pattern for a more challenging cast.','Use the same query pattern farther out. Rare fish and sunken finds need more Fishing skill.'][i]:c.tip, price: 'Cast', a: 'cast', d: { i }, off: !left })).join('')}</ul>`); },
+    fish(e) { coach('fish'); const left = fishLeft(e.fid), fs = rv('fishing'); CE = e; sheet(`<p class="eyebrow">${esc(region(e.r).name)} · the water</p><h2>Fishing ${qm('fish')}</h2><p class="cap2">Fishing ${fs.toFixed(1)} · ${left ? `${left} cast${left === 1 ? '' : 's'} left here today` : 'quiet until tomorrow'} · good fish ${FISHNEED.good}, rare ${FISHNEED.rare}, sunken ${FISHNEED.treasure}</p><ul class="goods">${CASTS.map((c, i) => goodHTML({ ic: 'rod', name: c.n, meta: gOn()&&e.r===1?['Practise the query you know with a cast near the bank.','Use the same query pattern for a more challenging cast.','Use the same query pattern farther out. Rare fish and sunken finds need more Fishing skill.'][i]:c.tip, price: 'Cast', a: 'cast', d: { i }, off: !left })).join('')}</ul>`); },
     shopkeep(e) { SH.stallkeep(e); },
-    stallkeep(e) { const st = stall(); shopSheet(e, TALK.stall[e.r % 3], st.stock.map((it, i) => ({ ic: it.ic, name: it.name, cls: 'rar-' + it.rarity, meta: `${it.slot} · ${statLine(it)}`, price: price(it) + ' gold', a: 'buy', d: { i }, off: S.gold < price(it) })), `<span class="cap2 grow">${st.stock.length ? '' : 'Sold out. '}New stock in ${Math.max(0, 6 - st.n)} tasks.</span><button class="btn sm quiet" data-a="sellcommon">Sell common gear and hides</button>`); },
+    stallkeep(e) { const st = stall(); shopSheet(e, TALK.stall[e.r % 3], st.stock.map((it, i) => ({ item: it, name: it.name, cls: 'rar-' + it.rarity, meta: `${it.slot} · ${statLine(it)}`, price: price(it) + ' gold', a: 'buy', d: { i }, off: S.gold < price(it) })), `<span class="cap2 grow">${st.stock.length ? '' : 'Sold out. '}New stock in ${Math.max(0, 6 - st.n)} tasks.</span><button class="btn sm quiet" data-a="sellcommon">Sell common gear and hides</button>`); },
     registrar(e) {
       const n = Object.keys(S.boss).length;
       const line = !isMain() ? `"${mainName()} is the one on the Trials roll. Seven regional Examiners award the first seven marks, and the council at Aldermoot awards the eighth at the Grand Audit."` :
@@ -1780,9 +1880,9 @@
       d.met = 1; save();
       const line = first && prize ? Dojo.SAY[r - 1].hi : d.master ? '"Come back for another round whenever you like."' :
         d.champ ? '"If you’re ready to spar, I can take you now."' : '"You can enter the tournament at the board. I’m here if you want a lesson first."';
-      dlg(e, line, [{ t: 'The tournament', n: 'bracket and fee', a: 'djboard' }, { t: 'Lessons', n: `any skill up to ${TRAIN_CAP}, for a fee`, a: 'djtrain' }, d.champ && { t: d.master ? 'Spar again' : prize ? 'Spar for the prize' : 'Spar with the master', n: prize ? Dojo.PRIZES[r - 1].name : 'first to two rounds', a: 'djmaster' }, d.master && isMain() && { t: 'Ask about Ilva Thorne', a: 'djilva' }, bye]);
+      dlg(e, line, [{t:'Learn and practise SQL',n:'free, untimed specialist lessons',a:'learninghub',d:{r}}, { t: 'The tournament', n: 'bracket and fee', a: 'djboard' }, { t: 'Train character skills', n: `any skill up to ${TRAIN_CAP}, for a fee`, a: 'djtrain' }, d.champ && { t: d.master ? 'Spar again' : prize ? 'Spar for the prize' : 'Spar with the master', n: prize ? Dojo.PRIZES[r - 1].name : 'first to two rounds', a: 'djmaster' }, d.master && isMain() && { t: 'Ask about Ilva Thorne', a: 'djilva' }, bye]);
     },
-    student(e) { if (gid() === 'odalys') return dlg(e, '"Odalys is waiting for you by the training dummy."', [bye]); const ring = Scene.ents().filter(x => x.spar).length === 2 && e.spar; dlg(e, STUL[(e.r + e.i) % STUL.length], [ring && { t: 'Watch a bout', n: 'see how they write their queries', a: 'djwatch' }, bye]); },
+    student(e) {specialistMenu(e.r,Learning.specialists(e.r)[e.i%3].id);},
     traveler(e) { dlg(e, TRVL[e.i] || '"See you in the bracket."', [bye]); },
     sorrel(e) { if (!isMain()) return dlg(e, '"I’m Sorrel Ashby. If you’ve put your name down for the tournament, I hope I’ll see you in the final."', [bye]); const line=Dojo.sorrelLine({met:!!S.djs,wonHere:!!DJ(e.r).sorrel,lostHere:!!DJ(e.r).sorrelLost,wonFinal:!!DJ(8).sorrel,wins:Object.values(S.dj||{}).filter(d=>d.sorrel).length}); S.djs=(S.djs||0)+1;save();dlg(e,line,[bye]); },
     foe(e) { dlg(e, '"Good bout."', [bye]); },
@@ -1798,11 +1898,11 @@
     page(e) { if (!isMain()) return toast(`A page of Ilva Thorne’s journal. ${mainName()} is the one following her trail.`); const t = e.r, first = !S.jr[t]; S.jr[t] = 1; if (first) save(); sheet(`<p class="eyebrow">Ilva Thorne’s journal · page ${t} of 8</p><h2>${esc(region(t).name)}</h2><p class="story">${esc(JOURNAL[t - 1])}</p>${(() => { const T = Deep.TRUTHS.find(x => x.from === 'page' + t); return T && S.letter ? `<p class="cap2">In the margin, a Great Truth: <b>${esc(T.title)}</b>. It is in your Ledger.</p>` : ''; })()}<p class="cap2">${Object.keys(S.jr).length} of 8 pages found. They are kept in your Journal.</p><div class="row end"><button class="btn solid" data-a="closesheet">Keep it</button></div>`); },
     journal() {
       const t = S.region, r = region(t), all = CONTRACTS.filter(c => c.r === t), fk = FOLK[t - 1], pages = [1, 2, 3, 4, 5, 6, 7, 8].filter(k => S.jr[k]), marks = [1, 2, 3, 4, 5, 6, 7, 8].filter(k => S.boss[k]);
-      sheet(`<p class="eyebrow">Journal</p><h2>${esc(objective())}</h2>
+      sheet(`<p class="eyebrow">Journal</p><h2>${esc(objective())}</h2><section class="sec"><h2>Prepare at the dojo</h2>${learningSummary(t)}<p>The students explain this town’s SQL techniques and offer free practice. The master also offers mixed questions. Your character’s combat skills grow separately.</p><button class="btn sm" data-a="learninghub" data-r="${t}">Find the specialists</button></section>
         <section class="sec"><h2>The Trials <small>${marks.length} / 8 marks</small></h2><ul class="tale"><li>${isMain() ? marks.length?'You represent Tallyport in the Trials. Its last champion, Corin Hale, died in the Bilge Vaults.':'Tallyport needs a new champion after Corin Hale’s death in the Bilge Vaults. Odalys can prepare you for the Trials.' : `${esc(mainName())} is Tallyport’s candidate for the Trials.`}</li><li>The first seven marks come from Examiners at stone rings outside their towns. The council awards the eighth at the Grand Audit.</li>${marks.length ? `<li>Marks held: ${marks.map(k => CIRCLE[k]).join(', ')}.</li>` : ''}${S.won ? '<li>The council has entered your name on the roll of masters.</li>' : '<li>The council at Aldermoot holds the Audit for anyone with the other seven marks.</li>'}</ul></section>
         ${S.archive && S.boss[8] ? `<section class="sec"><h2>The reopened archive</h2><p>Petra presented Ilva’s removal log and the restored records at a public council session. Maren required the admission to be entered in the minutes. The archive is now open to inspection, and Tallyport has its seat again.</p></section>` : ''}<section class="sec"><h2>Ilva’s journal <small>${pages.length} / 8 pages</small></h2>${pages.length ? `<ul class="tale">${pages.map(k => `<li>${esc(JOURNAL[k - 1])}</li>`).join('')}</ul>` : '<p class="note">Ilva left journal pages beside old signposts away from the main paths. Look for a gold mark on the corner map as you explore.</p>'}</section>
         <section class="sec"><h2>${esc(r.name)} <small>${doneIn(t)} / ${all.length} exercises</small></h2><ul class="tale plain">${all.map(c => `<li class="${S.done[c.id] ? 'ok' : ''}">${esc(c.title)} <small>${esc(fk[giverOf(c)][0])}</small></li>`).join('')}</ul></section>
-        <details class="lesson"><summary>How to play</summary><div class="lb"><ul class="tale plain"><li>Use the joystick at the bottom right to move. Push gently to walk or farther to run, and release to stop. Tap a nearby person or object to interact.</li><li>! over a master is an exercise. Exercises teach the SQL, one form at a time.</li><li>Everything you do is a page in one of your books. Using a page asks one question. Your answer sets the odds.</li><li>A page of a higher circle asks a harder question and does more. Low pages are weak against northern creatures.</li><li>Masters sell the plain pages of their circle. Rare pages are found, won or stolen.</li><li>Typing errors cost nothing.</li><li>The road is open the whole way north.</li></ul></div></details>`);
+        <details class="lesson"><summary>How to play</summary><div class="lb"><ul class="tale plain"><li>Use the joystick at the bottom right to move. Push gently to walk or farther to run, and release to stop. Tap a nearby person or object to interact.</li><li>! over a master is an exercise. Exercises teach the SQL, one form at a time.</li><li>Everything you do is a page in one of your books. Using a page asks one question. Your answer sets the odds.</li><li>A page of a higher circle asks a harder question and does more. Low pages are weak against northern creatures.</li><li>Masters sell the plain pages of their circle. Rare pages are found, won or stolen.</li><li>In combat, your first query that cannot run gets one free repair. Another execution error spends the turn. A query that runs but gives the wrong result can spend resources and gives reduced or zero power.</li><li>The road is open the whole way north.</li></ul></div></details>`);
     }
   };
   const BRASS = '#f3c95a';
@@ -1826,7 +1926,7 @@
       e.engaged=true;e.forced=true;
       if(e.kind==='boss')START.boss();else if(e.inst&&e.inst.dungeon)DP.fight(e);else START.monster(e, ''); }, spawn: tpl => ({ tpl, elite: tpl[0] === 'b' && rnd() < 0.09 }), monName: inst => inst.nm || MONSTERS[inst.tpl][0], lairs: () => LAIRS, lairName: k => LAIRMON[k], townsfolk: r => FOLKN.slice(r % 5).concat(FOLKN.slice(0, r % 5)), folkIdx: n => Math.max(0, FOLKN.indexOf(n)), chestOpen: () => !!(DG && DG.done),
     guideActive: () => gOn() && tab === 'world' && !Q && !F && !SB && $('#sheet').hidden && $('#title').hidden,
-    guide() { if (!S.path || Q || F || DU || !gOn()) return null; const g = GD[S.gd]; if (Scene.inHall()) return g.hall ? g.hall() : null; if (Scene.inDungeon() !== (g.id === 'chest')) return null; if(g.id==='chest') return nearest(e=>e.tutorial&&!e.dead&&!e.dying) || nearest(e=>e.kind==='dcache'&&e.tutorial); return g.arrow ? g.arrow() : null; },
+    guide() { if (!S.path || Q || F || DU || !gOn()) return null; const g = GD[S.gd]; if (Scene.inHall()) return g.hall ? g.hall() : null; if (Scene.inDungeon() !== (g.id === 'chest')) return null; if(g.id==='chest') return nearest(e=>e.tutorial&&!e.dead&&!e.dying) || nearest(e=>e.kind==='dcache'&&e.tutorial); if(g.id==='vault'){const entrance=Scene.cartographyCatalogue().find(e=>e.kind==='stairs'&&e.r===1),leg=entrance&&Scene.cartographyGuide(entrance.id);if(leg)return leg.at;}return g.arrow ? g.arrow() : null; },
     mark(e) {
       const t = e.r; if (e.kind === 'home') { const a = S.er.a[e.hid]; if (Object.values(S.er.a).some(x => x.type === 'deliver' && x.to === e.hid) || (a && errandReady(a))) return ['!', BRASS]; return !a && S.er.d[e.hid] !== dayKey() ? ['?', '#ffffff'] : null; }
       if (e.kind === 'poi') { const kd = PLACES[e.pk][3]; if (Object.values(S.er.a).some(x => x.type === 'find' && x.at === e.pid && !x.found)) return ['!', BRASS]; return kd === 'tale' || (kd === 'heal' ? S.poi[e.pid] === dayKey() : S.poi[e.pid]) ? null : ['✦', '#ffffff']; } if (e.kind === 'npc') { if (t === 1 && e.i === 0 && (gid() === 'page' || (!gOn() && S.tut === 0))) return ['!', BRASS]; return jobsOf(e).some(x => !S.done[x.id]) ? ['!', '#ffffff'] : null; }
@@ -1863,7 +1963,10 @@
     if (lsub === 'sandbox') h += `<div class="editor"><label for="con-sql" class="vh">Sandbox SQL</label><textarea id="con-sql" rows="5" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="SELECT * FROM bestiary"></textarea><div class="keys tabs"><span class="lab">try</span>${['SELECT * FROM my_skills ORDER BY value DESC', 'SELECT * FROM bestiary', 'SELECT * FROM my_bag', 'SELECT * FROM my_materials', 'SELECT * FROM recipes'].map(q => `<button data-a="conq" data-q="${esc(q)}">${q.split(' ')[3]}</button>`).join('')}</div><div class="runrow"><button class="btn quiet sm" data-a="conreset">Reset copy</button><button class="run" data-a="conrun"${ready ? '' : ' disabled'}>Run</button></div></div><div id="con-out" style="display:flex;flex-direction:column;gap:10px">${con.res ? conHTML(con.res) : '<p class="cap2">Besides the nine tables of the Ledger, the sandbox holds your own data as tables: my_skills, my_bag, my_materials, bestiary and recipes. Plan your farming with a query.</p>'}</div>`;
     else if (lsub === 'atlas') h += atlasHTML();
     else if (lsub === 'lost') h += lostHTML();
-    else { h += '<section class="sec"><h2>Start with the basics</h2><p>Revisit the Marigold’s practice manifest: tables, rows, columns, and your first query.</p><button class="btn" data-a="reviewintro">First SQL lesson</button></section>'; const seen = CONTRACTS.filter(c => c.lesson && (S.seen[c.id] || S.done[c.id])); h += seen.length ? SKILLS.map(s => { const ls = seen.filter(c => c.lesson.skill === s.id); return ls.length ? `<section class="sec"><h2>${s.name} <small>${ls.length}</small></h2>${ls.map(c => lessonHTML(c.lesson, false)).join('')}</section>` : ''; }).join('') : '<p class="cap2">Every lesson you meet in an exercise is copied here, grouped by form. Nothing yet.</p>'; }
+    else {const known=Learning.CONCEPTS.filter(c=>learningState().introduced[c.id]);
+      h+='<section class="sec"><h2>Start with the basics</h2><p>Revisit the Marigold’s practice manifest: tables, rows, columns, and your first query.</p><button class="btn" data-a="reviewintro">First SQL lesson</button></section>';
+      h+=`<section class="sec"><h2>Your technique notes</h2><p>Lessons you meet in the dojo, town exercises and the world are kept here. Help remains available when you return.</p>${learningSummary(here())}${known.length?known.map(c=>conceptHTML(c.id)).join(''):'<p>No techniques introduced yet. Odalys will help you get started in Tallyport.</p>'}<button class="btn" data-a="learninghub" data-r="${here()}">This town’s specialists</button></section>`;
+    }
     return h;
   }
   const conHTML = r => r.err ? `<div class="verdict err"><p>${esc(r.err)}</p></div>` : (r.note ? `<div class="verdict good"><p>${esc(r.note)}</p></div>` : tableHTML(r, 60));
@@ -1899,7 +2002,7 @@
   const dollHTML = () => ART && ArtData.body ? `<section class="sec dollsec"><canvas id="doll" width="300" height="450" aria-label="Your character"></canvas><div class="row end"><button class="btn sm quiet" data-a="looks">Appearance</button></div></section>` : '';
   const paintDoll = () => setTimeout(() => ['#doll', '#doll2'].forEach(q => { const cv = $(q); if (cv && sceneUp) Scene.drawDoll(cv, app()); }), 0);
   // the barber, tailor and dyer charge once your first day is done
-  const LOOKC = { body: 250, skin: 0, hair: 30, hc: 20, beard: 20, hat: 15, wear: 10, dye: 25, wglow: 0 }, lookCost = k => gOn() ? 0 : LOOKC[k] || 0, lc$ = k => lookCost(k) ? ` <small>${lookCost(k)} gold</small>` : '';
+  const LOOKC = { body: 250, skin: 0, hair: 30, hc: 20, beard: 20, hat: 15, wear: 10, dye: 25, wglow: 0 }, lookCost = k => boatActive()||gOn() ? 0 : LOOKC[k] || 0, lc$ = k => lookCost(k) ? ` <small>${lookCost(k)} gold</small>` : '';
   function looksSheet() {
     const L = myLook(), opt = (k, v, t, on) => `<button class="chip${on ? ' on' : ''}" data-a="lookset" data-k="${k}" data-v="${v}">${esc(t)}</button>`;
     sheet(`<p class="eyebrow">The barber, the tailor and the dyer</p><h2>Appearance</h2><canvas id="doll2" class="dollbig" width="300" height="450"></canvas>
@@ -1920,6 +2023,7 @@
   function progressRow(id,name,note,stat=false) {const v=stat?S.attr[id]:rv(id),cp=stat?100:skCap(id),m=Progression.mode(S,id,stat),target=(stat?S.attrTargets:S.skillTargets)[id];return `<li><span class="nm"><b>${name}</b><small>${esc(note)}</small></span><span class="val">${v.toFixed(1)}<small>${stat?'':skTitle(v)+' · cap '+cp}</small></span><div class="progress-controls"><button class="btn sm quiet" data-a="progressmode" data-id="${id}" data-stat="${stat?1:0}" aria-label="${name}: ${modeName(m)}">${modeName(m)}</button><label>Stop at <input type="number" min="${stat?10:0}" max="${cp}" step="0.1" value="${target==null?'':target}" placeholder="${cp}" aria-label="${name} stop target" data-target="${id}" data-stat="${stat?1:0}"></label><button class="btn sm quiet" data-a="progresstarget" data-id="${id}" data-stat="${stat?1:0}">Set</button></div><span class="bar"><i style="width:${Math.min(100,v/cp*100)}%"></i></span></li>`;}
   function progressPanel() {return `<section class="sec"><h2>Attributes <small>${Progression.statTotal(S).toFixed(1)} / 225</small></h2><p class="note">Strength sets health and physical power. Dexterity supplies stamina for maneuvers. Intelligence supplies mana for magic. Practice trains related attributes, including when a skill reaches its cap.</p><ul class="skills">${[['str','Strength','Health and physical power.'],['dex','Dexterity','Stamina and shield efficiency.'],['int','Intelligence','Mana and spell power.']].map(x=>progressRow(...x,true)).join('')}</ul><p>Mana ${Math.round(S.mana)} / ${Progression.maxMana(S)} · Stamina ${Math.round(S.stamina)} / ${maxStamina()}</p></section><section class="sec"><h2>Skills <small>${total().toFixed(1)} / ${CAP}</small></h2><p class="note">Raise learns through use. Lower releases points only when another skill needs room at the shared cap, starting with the highest skill set to Lower. Locked preserves its value. All three settings allow you to use the skill. Set a stopping target to lock automatically; leave it blank to clear the target. No skills decay while you are away.</p><ul class="skills">${RPG.map(x=>progressRow(...x)).join('')}</ul><p class="note">Skills improve fastest near their difficulty. The last ten points to Grandmaster take the longest. SQL techniques below have their own learning record.</p>${scrollsHTML()}</section>`;}
   function vHero() {
+    if(boatActive()){paintDoll();return `<section class="place"><p class="eyebrow">${esc(PATHS.find(p=>p.id===S.path)?.name||'New arrival')} · health ${S.hp} / ${maxHp()}</p><h1>${esc(S.name)}</h1></section>${dollHTML()}<section class="sec"><h2>Your starting skills</h2><ul class="tale plain">${RPG.filter(([id])=>rv(id)>0).map(([id,name])=>`<li>${esc(name)} · ${rv(id).toFixed(1)}</li>`).join('')}</ul><p>Mana ${Math.round(S.mana)} / ${Progression.maxMana(S)} · Stamina ${Math.round(S.stamina)} / ${maxStamina()}. Skills improve through use. Detailed skill controls and your records will remain here ashore.</p></section>`;}
     const p = PATHS.find(x => x.id === S.path), acc = S.stats.q ? Math.round(100 * S.stats.ok / S.stats.q) : 0, w = armsSkill();
     paintDoll(); return `${savePanel()}${Offline.html()}<div class="character-return"><p class="eyebrow">World ${A.world+1} · ${isMain()?'Main character':'Supporting character'}</p><button class="btn solid" data-a="reset">Return to characters</button></div><section class="place"><p class="eyebrow">${p ? p.name : 'No path chosen'} · health ${S.hp} / ${maxHp()}</p><h1>${rankName()}</h1></section>${dollHTML()}
       <section class="sec"><h2>Horse</h2><p>${S.horse?.owned?'Your bay riding horse travels 70% faster than running. Mount outdoors when you are clear of danger.':'Stablekeepers sell riding horses for '+Mounts.PRICE+' gold.'}</p>${S.horse?.owned?'<button class="btn solid" data-a="mounttoggle">'+(mounted()?'Dismount':'Mount horse')+'</button>':''}</section><section class="sec"><h2>Books ${qm('hero')}</h2>${bookHTML()}</section>
@@ -1935,7 +2039,7 @@
     const order = it => -RAR.indexOf(it.rarity) * 100 - Object.values(it.stats).reduce((a, b) => a + b, 0), inv = S.inv.slice().sort((a, b) => order(a) - order(b)), sc = Object.keys(S.scr);
     return `<section class="place"><p class="eyebrow">${S.inv.length} / 60 items</p><h1>Bag ${qm('bag')}</h1></section>
       ${sc.length ? `<section class="sec"><h2>Scrolls</h2>` : ''}${sc.length ? `<div class="grid">${sc.map(id => { const p = pageById(id); return `<button class="cell rar-${p.rare ? 'epic' : 'uncommon'}" data-a="scroll" data-id="${id}" aria-label="${esc(p.name)}">${ico('scroll', S.scr[id] > 1 ? S.scr[id] : null)}</button>`; }).join('')}</div>` : ''}${sc.length ? '</section>' : ''}
-      <section class="sec"><h2>Supplies</h2><p>You have ${S.bandages||0} bandages for combat. Food restores health while resting; a draught costs one response during combat.</p><div class="supplies">${[{k:'tonic',n:S.tonics,name:'Healing Draught',hp:30,ic:'draught'}, ...Object.keys(FOOD).filter(k => foodN(k)>0).map(k=>({k,n:foodN(k),name:FOOD[k][0],hp:FOOD[k][1],ic:FOOD[k][2]}))].map(x=>`<button class="supply" data-a="supply" data-k="${x.k}">${ico(x.ic)}<span><b>${esc(x.name)} ×${x.n}</b><small>Restores ${x.hp} health${S.hp>=maxHp()?' · Health is full':''}</small></span></button>`).join('')}</div><div class="grid">${have('hide') ? `<span class="cell" title="Hide">${ico('pelt', have('hide'))}</span>` : ''}<span class="cell">${ico('hintkey', S.hints)}</span><span class="cell">${ico('sigil', have('sigil'))}</span>${[1,2,3,4,5,6,7,8].filter(k=>have(k)).map(k=>`<span class="cell" title="${MATS[k]}">${ico('mat'+k,have(k))}</span>`).join('')}</div></section>
+      <section class="sec"><h2>Supplies</h2><p>You have ${S.bandages||0} bandages for combat. Food restores health while resting; a draught costs one response during combat.</p><div class="supplies">${[{k:'tonic',n:S.tonics,name:'Healing Draught',hp:30,ic:'draught'}, ...Object.keys(FOOD).filter(k => foodN(k)>0).map(k=>({k,n:foodN(k),name:FOOD[k][0],hp:FOOD[k][1],ic:FOOD[k][2]}))].map(x=>`<button class="supply" data-a="supply" data-k="${x.k}">${ico(x.ic)}<span><b>${esc(x.name)} ×${x.n}</b><small>Restores ${x.hp} health${S.hp>=maxHp()?' · Health is full':''}</small></span></button>`).join('')}</div><div class="grid">${have('hide') ? `<span class="cell" title="Hide">${ico('pelt', have('hide'))}</span>` : ''}<button class="cell supply-counter" data-a="supplyinfo" data-k="keys">${ico('hintkey', S.hints)}<span class="supply-count-name">Hint Keys</span></button><button class="cell supply-counter" data-a="supplyinfo" data-k="sigils">${ico('sigil', have('sigil'))}<span class="supply-count-name">Brass Sigils</span></button>${[1,2,3,4,5,6,7,8].filter(k=>have(k)).map(k=>`<button class="cell supply-counter" data-a="supplyinfo" data-k="${k}">${ico('mat'+k,have(k))}<span class="supply-count-name">${esc(MATS[k])}</span></button>`).join('')}</div></section>
       ${(S.deeds || []).length ? `<section class="sec"><h2>Deeds</h2><ul class="goods">${S.deeds.map((d, k) => `<li class="good">${ico('deed')}<div><b>${esc(HMAT[d.mat][0])} ${esc(lc(HOUSES[d.shape][0]))}</b><small>${HOUSES[d.shape][1]} × ${HOUSES[d.shape][2]}</small></div><button class="btn sm" data-a="placedeed" data-k="${k}">Set it down</button></li>`).join('')}</ul></section>` : ''}
       <section class="sec"><h2>Gear <small>tap a piece</small></h2>${inv.length ? `<div class="grid">${inv.map(it => `<button class="cell rar-${it.rarity}${S.eq[it.slot] === it.id ? ' worn' : ''}" data-a="item" data-id="${it.id}" aria-label="${esc(it.name)}">${itemIcon(it)}</button>`).join('')}</div><div class="row end" style="margin-top:10px"><button class="btn sm quiet" data-a="sellcommon">Sell all unworn common gear</button></div>` : '<p class="note">Nothing yet. Creatures, dungeons and the workbench are where gear comes from.</p>'}</section>
       <section class="sec"><h2>Named rares <small>${Object.keys(S.codex).length} / ${UNIQUES.length}</small></h2><div class="grid">${UNIQUES.map((u, i) => S.codex[u.id] ? `<span class="cell rar-${u.rarity}" title="${esc(u.name)}">${ico('u' + (i + 1))}</span>` : `<span class="cell unk" title="${esc(u.src)}">?</span>`).join('')}</div></section>`;
@@ -1964,11 +2068,28 @@
     document.addEventListener('click', e => { if (e.target.closest && e.target.closest('.btn')) Sound.sfx('click'); }, true);
   }
 
+
+  let pendingSale=null;
+  function previewCommonSale(){
+    const items=S.inv.filter(it=>it.rarity==='common'&&S.eq[it.slot]!==it.id),hides=have('hide'),gold=items.reduce((n,it)=>n+worth(it),0)+hides*3;
+    if(!items.length&&!hides)return toast('Nothing to sell. Worn gear is kept.');
+    pendingSale={owner:S,world:A.world,ids:items.map(it=>it.id),hides,gold};
+    sheet(`<h2>Review this sale</h2><p>These unworn common items and hides will be sold. Your worn gear stays with you.</p><ul class="tale plain">${items.map(it=>`<li>${esc(it.name)} · ${worth(it)} gold</li>`).join('')}${hides?`<li>Hides ×${hides} · ${hides*3} gold</li>`:''}</ul><p>Total: ${gold} gold.</p><button class="btn solid" data-a="sellconfirm">Sell for ${gold} gold</button><button class="btn quiet" data-a="closesheet">Keep my items</button>`);
+  }
+  function confirmCommonSale(){
+    const sale=pendingSale;pendingSale=null;if(!sale||sale.owner!==S||sale.world!==A.world)return;
+    const items=S.inv.filter(it=>sale.ids.includes(it.id)&&it.rarity==='common'&&S.eq[it.slot]!==it.id);
+    if(items.length!==sale.ids.length||have('hide')<sale.hides)return previewCommonSale();
+    S.inv=S.inv.filter(it=>!sale.ids.includes(it.id));S.mats.hide=have('hide')-sale.hides;S.gold+=sale.gold;save();renderHud();closeSheet();render();toast(`Sold for ${sale.gold} gold`);if(gid()==='sell')gDone('sell');
+  }
+
   /* ---------- actions ---------- */
   const ACT = {
     ...CMap.actions,
     snd: d => { const p = Sound.pref(); if (d.k === 'mu') Sound.setMu(!p.mu); else Sound.setFx(!p.fx); render(); },
-    tab: d => { if (F) return; tab = d.t; if (tab === 'map') sel = S.region; closeSheet(); render(); $('#view').scrollTop = 0; },
+    tab: d => { if (F || Q || DU || !NAV.some(t=>t[0]===d.t)) return; if(tab==='ledger'&&$('#con-sql'))con.sql=$('#con-sql').value;if(boatActive()){S.prologue=Prologue.viewed(S.prologue,d.t);save();}tab = d.t;if(boatActive()&&tab==='ledger')lsub='grimoire'; if (tab === 'map') sel = S.region; closeSheet(); render(); $('#view').scrollTop = 0; },
+    sketch: () => sheet(`<h2>Tamsin's sketch</h2>${boatChart()}<p>This rough chart helped you find Tallyport. Your Map records the ground and landmarks you actually discover. It does not grant a survey or fast travel.</p>`),
+    learninghub: d => learningHub(+d.r||here()), learnspecialist:d=>specialistMenu(+d.r,d.id), learnconcept:d=>learnConcept(d), learnpractice:d=>learningPractice(d), learnshow:()=>learningHelp(true), learnnext:()=>{if(Q?.kind==='learning'){if(Q.boutDone)Q.practiceScore=[0,0];learningPractice({r:Q.r,spec:Q.specialist,continue:true});}},
     sub: d => { sub = d.s; render(); }, lsub: d => { lsub = d.s; render(); }, sel: d => { sel = +d.r; render(); },
     ferryboard: boardFerry,
     travel: d => CMap.actions.cmaptravel({ id: 'town' + (+d.r) }),
@@ -1990,7 +2111,7 @@
       if (!CR || CR.look == null) return; const p = PATHS.find(x => x.id === CR.path), nm = (($('#cr-name')||{}).value || CR.name || '').trim().slice(0, 16) || NAMES[CR.look], rev = S.rev;
       const slot = CR.slot != null && !A.slots[CR.slot] ? CR.slot : A.slots.findIndex(c => !c); if (slot < 0) return toast('All five slots are taken'); syncA();
       const main = A.main < 0 || !A.slots[A.main]; A.cur = slot; if (main) A.main = slot;
-      resetTactics();S = linkS(fresh()); S.rev = rev; S.name = nm; S.path = p.id; S.look = CR.look; S.app=Object.assign({},CR.app,{wear:p.id==='mage'?1:0}); S.sk = Object.assign({}, p.sk); Progression.normalize(S); S.hp = maxHp(); give(makeItem('common', 1, 'weapon', WSTART[p.id],{source:'starter'})); for (const id of { warrior: ['a1'], thief: ['a1', 'h1'], mage: ['s1'], crafter: ['a1', 'c1'] }[p.id]) S.pages[id] = 1; S.intro = 1; S.pos = null; S.prologue=main?Prologue.fresh():null;
+      resetTactics();S = linkS(fresh()); S.rev = rev; S.name = main ? '' : nm; S.path = p.id; S.look = CR.look; S.app=Object.assign({},CR.app,{wear:p.id==='mage'?1:0}); S.sk = Object.assign({}, p.sk); Progression.normalize(S); S.hp = maxHp(); give(makeItem('common', 1, 'weapon', WSTART[p.id],{source:'starter'})); for (const id of { warrior: ['a1'], thief: ['a1', 'h1'], mage: ['s1'], crafter: ['a1', 'c1'] }[p.id]) S.pages[id] = 1; S.intro = 1; S.pos = null; S.prologue=main?Prologue.fresh():null;
       CR = null; DG = null; Q = null; F = null; if(sceneUp){clearInterval(GSAY);Scene.guideOff();} $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; tab = 'world'; save(); if (sceneUp && !main) { Scene.load(null, 'dock'); sceneOwner=S; } hideTitle(); render();
       if (main) coldOpen(); else { hideTitle(); gSkip(); toast(`${nm} arrives in Tallyport`); }
     },
@@ -2034,7 +2155,7 @@
     pksize: d => { if (!PK || PK.busy || PK.h.over || PK.h.to !== 0) return; const L = Poker.legal(PK.h); PK.size = d.f ? pkPreset(L, +d.f) : Math.max(L.minTo, Math.min(L.maxTo, PK.size + (+d.d) * PK.bb)); pkDraw(); },
     clear: () => { const ta = $('#sql'); if (ta) { ta.value = ''; kbGrow(); kbFocus(); } },
     showblocked: () => { S.showb = !S.showb; save(); Scene.showBlocked(S.showb); toast(S.showb ? 'Blocked ground shows red' : 'Blocked ground tint off'); render(); },
-    ftip: () => { if (F && !F.noHint && F.task && F.task.tip && !F.hints.some(h => h.includes('class="fh tip"'))) { F.hints.unshift(`<p class="fh tip">${esc(F.task.tip)}</p>`); $('#f-hint').innerHTML = F.hints.join(''); fitPanel(); } },
+    ftip: () => { if (F && !F.noHint && F.task && F.task.tip && !F.hints.some(h => h.includes('class="fh tip"'))) { F.readinessHelp=true;F.hints.unshift(`<p class="fh tip">${esc(F.task.tip)}</p>`); $('#f-hint').innerHTML = F.hints.join(''); fitPanel(); } },
     lootone: d => { lootTake(+d.i); lootDone(); }, lootall: () => { const all = { gold: 0, mats: {}, items: [], scrolls: [], food: {}, sigils: 0, meat: 0, hide: 0 }; LB.L.forEach((p, i) => { const g = lootTake(i, true); if (!g) return; all.gold += g.gold; for (const k in g.mats) all.mats[k] = (all.mats[k] || 0) + g.mats[k]; for (const k in g.food) all.food[k] = (all.food[k] || 0) + g.food[k]; all.sigils += g.sigils; all.meat += g.meat; all.hide += g.hide; all.runes = (all.runes || 0) + (g.runes || 0); all.items.push(...g.items); all.scrolls.push(...g.scrolls); }); toast(bitsOf(all).concat(all.items.map(x => x.name), all.scrolls.map(x => 'Scroll: ' + x.name)).join(' · ')); lootDone(); }, lootclose: () => { LB = null; closeSheet(); },
     coachok: () => { $('#coach').hidden = true; }, why: d => { const el = $('#coach'); el.innerHTML = `<p>${esc(HELP[d.id] || '')}</p><button class="btn sm solid" data-a="coachok">Got it</button>`; el.hidden = false; },
     sbeat: () => storyNext(), letter: () => ilvaLetter(), truth: d => trOpen(d.id), trclose: () => { const end = TR && TR.T.id === 't12' && S.tw.t12; trClose(); if (end) theDoor(); },
@@ -2054,20 +2175,20 @@
     hput: d => { const h = homeById(d.h); if (!h || h.chest.length >= hCap(h)) return toast('The chest is full'); const i = S.inv.findIndex(it => it.id === d.id); if (i < 0) return; h.chest.push(S.inv.splice(i, 1)[0]); save(); homeSheet(h); },
     htake: d => { const h = homeById(d.h); if (!h) return; if (S.inv.length >= 60) return toast('Your bag is full'); const i = h.chest.findIndex(it => it.id === d.id); if (i < 0) return; S.inv.push(h.chest.splice(i, 1)[0]); save(); homeSheet(h); },
     tphome: d => { const h = homeById(d.h); if (!h || !h.pad) return; if (F || Q) return toast('Not in a fight.'); if (sceneUp && Scene.find(e => e.chase > 0)) return toast('Not while something is chasing you.'); const p = Scene.homeDoor(h.id); DG = null; S.dungeon = null; S.interior=null; tab = 'world'; Scene.load(p || [h.x, h.y + h.h + 1], h.r); S.pos = Scene.pos(); S.region = sel = Scene.region(); save(); render(); toast('You step off the pad at ' + h.name + '.'); },
-    bdep: () => { if (gid() === 'bank') setTimeout(() => { closeSheet(); gDone('bank'); }, 700); S.bank.gold += S.gold; toast(`Deposited ${S.gold} gold`); S.gold = 0; save(); renderHud(); bankSheet(); },
+    bdep: () => { if (gid() === 'bank') gDone('bank'); S.bank.gold += S.gold; toast(`Deposited ${S.gold} gold`); S.gold = 0; save(); renderHud(); bankSheet(); },
     bwd: d => { const n = d.n === 'all' ? S.bank.gold : Math.min(+d.n, S.bank.gold); S.bank.gold -= n; S.gold += n; save(); renderHud(); bankSheet(); },
     bstore: d => { if (S.bank.items.length >= BANK_SLOTS) return toast('The bank box is full'); const i = S.inv.findIndex(it => it.id === d.id); if (i < 0 || Object.values(S.eq).includes(d.id)) return; S.bank.items.push(S.inv.splice(i, 1)[0]); save(); bankSheet(); },
     btake: d => { if (S.inv.length >= 60) return toast('Your bag is full'); const i = S.bank.items.findIndex(it => it.id === d.id); if (i < 0) return; S.inv.push(S.bank.items.splice(i, 1)[0]); save(); bankSheet(); },
-    help: () => helpSheet(), hint: () => takeHint(), fhint: () => fHint(), fshow: () => fShow(), ftables: () => tablesSheet(), klog: () => { S.klog = !S.klog; save(); toast(S.klog ? 'Key log on: it shows under the query box' : 'Key log off'); const ta = $('#sql'), q = ta && ta.parentNode; if (q) { const old = $('#klog'); if (S.klog && !old) ta.insertAdjacentHTML('afterend', '<p id="klog" class="klog">Key log: tap keys and it fills in here</p>'); if (!S.klog && old) old.remove(); } closeSheet(); },
+    help: () => helpSheet(), hint: () => takeHint(), fhint: () => fHint(), fshow: () => fShow(), fshowconfirm:()=>{closeSheet();fShowConfirmed();}, ftables: () => tablesSheet(), klog: () => { S.klog = !S.klog; save(); toast(S.klog ? 'Key log on: it shows under the query box' : 'Key log off'); const ta = $('#sql'), q = ta && ta.parentNode; if (q) { const old = $('#klog'); if (S.klog && !old) ta.insertAdjacentHTML('afterend', '<p id="klog" class="klog">Key log: tap keys and it fills in here</p>'); if (!S.klog && old) old.remove(); } closeSheet(); },
     qleave: () => closeQ(), qturn: () => { if (Q) { Q.step = 'turn'; drawQ(); } }, qnext: () => { const id = Q && Q.nextId; if (!id) return; Q = null; START.contract({ id }); },
-    practicepage: d => { if(Q&&Q.kind==='firstpractice'&&fightPages().some(p=>p.id===d.id)){Q.practicePage=d.id;drawQ();} },
-    reviewintro: () => { START.intro();Q.step='i1';Q.tasks=null;Q.blank=null;Q.bok=false;Q.bout='';drawQ(); },
+    practicepage: d => { if(Q&&Q.kind==='firstpractice'&&fightPages().some(p=>p.id===d.id)){Q.draft=$('#sql')?.value||Q.draft||'';Q.practicePage=d.id;drawQ();} },
+    reviewintro: () => {if(boatActive())return toast('Odalys will teach your first query when you reach Tallyport.'); START.intro();Q.step='i1';Q.tasks=null;Q.blank=null;Q.bok=false;Q.bout='';drawQ(); },
     intropractice: () => { closeSay(); openQ({kind:'firstpractice',r:1,step:'turn',title:'A safe first ability',task:{kind:'read',ask:'Use the pattern you practised: show the name of every item in items.',ret:'name',sql:'SELECT name FROM items',tables:['items'],kw:['SELECT','FROM'],tip:'Choose an ability by practising its query here. The dummy cannot hurt you, and mistakes cost nothing.'}}); },
     introcheck: d => introCheck(d), introcontinue: () => { if (!Q || Q.step !== 'practice-result') return; Q.i++; Q.task = REPS[Q.i]; Q.tries = 0; Q.step = 'turn'; drawQ(); },
     qstep: d => { if (!Q) return; Q.bout = ''; if (d.s === 'reps') { Q.step = 'turn'; Q.tasks = REPS; Q.i = 0; Q.task = REPS[0]; } else Q.step = d.s; drawQ(); $('#enc .q-body').scrollTop = 0; },
     blank: d => { if (!Q || !Q.blank || Q.bok) return; const i = Q.blank.indexOf(null); if (i < 0) return; Q.blank[i] = d.w; Q.bout = ''; drawQ(); }, unblank: d => { if (!Q || !Q.blank || Q.bok) return; Q.blank[+d.i] = null; Q.bout = ''; drawQ(); }, blankrun: () => blankRun(),
     fbackstab: () => pickBackstab(),
-    fprize: d => {if(F&&F.act==='steal'&&!F.busy){const old=F.prize==='prize'?15:0;F.prize=d.id==='prize'?'prize':'purse';F.bonus=(F.bonus||0)+old-(F.prize==='prize'?15:0);drawF();}}, fstance: d => {if(F&&!F.busy){const p=bestPage('arms');if(p)pickPage(p.id,d.id);}}, futility: d => combatUtility(d.id), fscroll: () => {if(F&&!F.busy){F.scroll=!F.scroll;drawF();}}, fmaneuver:d=>pickPage(d.id,d.stance), fpage: d => pickPage(d.id,d.stance||'strike'), fsteal: () => pickSteal(), fcompare: () => {if(F){F.compareOpen=!F.compareOpen;if(F.st==='prompt'){$('#f-out').innerHTML=QueryFeedback.html(F.comparison,{free:true,open:F.compareOpen});fitPanel();}else drawF();}}, fchoose: () => { if (F && !F.busy && !F.over) { F.st = 'choose'; drawF(); } }, fdone: () => closeF(), floot: () => { const b = F && F.body; closeF(); if (b) lootOpen(b); }, flee: () => flee(),
+    fprize: d => {if(F&&F.act==='steal'&&!F.busy){const old=F.prize==='prize'?15:0;F.prize=d.id==='prize'?'prize':'purse';F.bonus=(F.bonus||0)+old-(F.prize==='prize'?15:0);drawF();}}, fstance: d => {if(F&&!F.busy){const p=bestPage('arms');if(p)pickPage(p.id,d.id);}}, futility: d => combatUtility(d.id), fscroll: () => {if(F&&!F.busy){F.scroll=!F.scroll;drawF();}}, fmaneuver:d=>pickPage(d.id,d.stance), fpage: d => pickPage(d.id,d.stance||'strike'), fsteal: () => pickSteal(), fcompare: () => {if(F){F.compareOpen=!F.compareOpen;if(F.st==='prompt'){$('#f-out').innerHTML=QueryFeedback.html(F.comparison,{free:true,open:F.compareOpen});fitPanel();}else drawF();}}, fchoose: () => { if (F && !F.busy && !F.over) { stashFightDraft();F.st = 'choose'; drawF(); } }, fdone: () => closeF(), floot: () => { const b = F && F.body; closeF(); if (b) lootOpen(b); }, flee: () => flee(),
     cardno: () => { closeCard(); render(); },
     atlas: () => sheet('<h2>Tables of the Great Ledger</h2>' + atlasHTML()),
     peek: d => { const r = Engine.peek(d.t); sheet(`<h2>${d.t}</h2><p class="cap2">First four rows.</p>${tableHTML(r)}<div class="row end"><button class="btn sm quiet" data-a="atlas">All tables</button></div>`); },
@@ -2098,7 +2219,8 @@
     bless: d => { const it = itemById(d.id); if (!it || it.bless || it.unique || !S.blessd) return; S.blessd--; it.bless = 1; delete it.ins; save(); toast(`${it.name} is blessed`); d.from === 'bank' ? bankSheet() : ACT.item({ id: it.id }); },
     insure: d => { const it = itemById(d.id); if (!it || it.bless || it.unique) return; it.ins = it.ins ? 0 : 1; save(); d.from === 'bank' ? bankSheet() : ACT.item({ id: it.id }); },
     sell: d => { const it = itemById(d.id); if (!it || it.unique) return; S.gold += worth(it); S.inv = S.inv.filter(i => i !== it); if (S.eq[it.slot] === it.id) delete S.eq[it.slot]; save(); closeSheet(); render(); },
-    sellcommon: () => { let g = 0; S.inv = S.inv.filter(it => { if (it.rarity === 'common' && S.eq[it.slot] !== it.id) { g += worth(it); return false; } return true; }); const hd = have('hide'); if (hd) { g += hd * 3; S.mats.hide = 0; } S.gold += g; save(); render(); closeSheet(); toast(g ? `Sold for ${g} gold` : 'Nothing to sell'); if (gid() === 'sell') setTimeout(() => gDone('sell'), 600); },
+    sellcommon: () => previewCommonSale(), sellconfirm:()=>confirmCommonSale(),
+    supplyinfo:d=>{const name=d.k==='keys'?'Hint Keys':d.k==='sigils'?'Brass Sigils':MATS[+d.k],text=d.k==='keys'?'A Hint Key pays for a priced exercise hint. Dojo explanations and teaching help are free.':d.k==='sigils'?'Brass Sigils are earned from regional challenges and spent on special purchases. They are separate from gold and map surveys.':'These crafting materials are used at workbenches and other professional stations. Recipes tell you what they require.';sheet(`<h2>${esc(name)}</h2><p>${esc(text)}</p>`);},
     conrun: () => { con.sql = $('#con-sql').value; heroTables(); con.res = Engine.runSandbox(con.sql); $('#con-out').innerHTML = conHTML(con.res); },
     conq: d => { $('#con-sql').value = d.q; ACT.conrun(); },
     conreset: () => { Engine.resetSandbox(); con.res = null; render(); toast('Sandbox restored to the original ledger'); },
@@ -2110,7 +2232,7 @@
         const o = JSON.parse(decodeURIComponent(escape(atob($('#savebox').value.trim()))));
         if (!o || ![6,7,8,9].includes(o.v)) throw 0;
         discardEncounter(); const revision=Math.max(A.rev,o.rev||0); A = CharacterWorlds.normalize(o); A.rev=revision; if(sceneUp&&Scene.resetWorld)Scene.resetWorld();
-        loadCur(); cmdBackfill(); DG = null; Q = null; F = null; CE = null; closeSheet();
+        loadCur(); cmdBackfill();learningBackfill(); DG = null; Q = null; F = null; CE = null; closeSheet();
         if (A.cur < 0) { if (sceneUp) homesUp(); save(); return title(); }
         hideTitle(); if (sceneUp) restoreAccountScene(true);
         save(); render(); toast('Game loaded');
@@ -2125,7 +2247,7 @@
   document.addEventListener('change',e=>{const key=e.target.dataset&&e.target.dataset.create;if(!CR||!['body','skin','headStyle','hc'].includes(key))return;CR.app[key]=key==='headStyle'?e.target.value:+e.target.value;if(key==='body'){delete CR.app.headStyle;if(CR.path)CR.look=LOOK0[CR.path]+CR.app.body;}normalizeHeadStyle(CR.app);HeadPortraits.preload(CR.app.body,CR.app.headStyle);if(key==='body'){const name=$('#cr-name');if(name)CR.name=name.value;create();}});
   document.addEventListener('change',async e=>{if(e.target.id!=='save-file')return;const file=e.target.files[0],box=$('#savebox'),status=$('#save-file-status');if(!file||!box||!status)return;try{if(file.size>8*1024*1024)throw 0;const code=(await file.text()).trim();const o=JSON.parse(decodeURIComponent(escape(atob(code))));if(!o||![6,7,8,9].includes(o.v))throw 0;box.value=code;status.textContent='Save file ready. Choose Load to replace your current worlds.';}catch(_){box.value='';status.textContent='That file is not a valid Brasswake save. Choose another file or paste a code.';}});
   document.addEventListener('click', e => { const el = e.target.closest('[data-a]'); if (!el || el.disabled || ghost(e)) return; const f = ACT[el.dataset.a]; if (f) f(el.dataset, el, e); });
-  document.addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { if (Q || F) ACT.run(); else if ($('#con-sql')) ACT.conrun(); } if (e.key === 'Escape' && (!$('#sheet').hidden || SB)) closeSheet(); });
+  document.addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && $('#sheet').hidden) { if (Q || F) ACT.run(); else if ($('#con-sql')) ACT.conrun(); } if (e.key === 'Escape' && (!$('#sheet').hidden || SB)) closeSheet(); });
   document.addEventListener('click', e => { if (SB && !ghost(e) && e.target.closest('#say') && !e.target.closest('[data-a]')) sayTap(); });
 
   /* ---------- boot ---------- */
@@ -2141,7 +2263,7 @@
   }
   window.addEventListener('pagehide',()=>{if(A){if(S?.path)save();void flush();}});
   document.addEventListener('visibilitychange',()=>{if(document.hidden&&A){if(S?.path)save();void flush();}});
-  function start(hot) { purgeOld(); const device=loadA(),snapshot=hot?.acct&&CharacterWorlds.normalize(hot.acct);A=!snapshot?device||freshA():!device?snapshot:device.rev>snapshot.rev||device.rev===snapshot.rev&&device.at>snapshot.at?device:snapshot; loadCur(); cmdBackfill(); deviceSave.at=A.at||0; title(); if(!new URLSearchParams(location.search).has('visual_test'))Offline.init(); artLoad(); if (A===snapshot&&hot&&hot.tab) tab=hot.tab; sel = S.region; render(); setTimeout(bootEngine, 30); cloudInit(); }
+  function start(hot) { purgeOld(); const device=loadA(),snapshot=hot?.acct&&CharacterWorlds.normalize(hot.acct);A=!snapshot?device||freshA():!device?snapshot:device.rev>snapshot.rev||device.rev===snapshot.rev&&device.at>snapshot.at?device:snapshot; loadCur(); cmdBackfill();learningBackfill(); deviceSave.at=A.at||0; title(); if(!new URLSearchParams(location.search).has('visual_test'))Offline.init(); artLoad(); if (A===snapshot&&hot&&hot.tab) tab=hot.tab; sel = S.region; render(); setTimeout(bootEngine, 30); cloudInit(); }
   GearScreen=EquipmentScreen.create({state:()=>S,item:itemById,bonus,page:bestPage,defs:WEAP,skill:rv,physicalFactor:()=>Progression.physicalFactor(S),spellFactor:()=>Progression.spellFactor(S),circle:here,difficulty:()=>diffOf(here()),sheet,escape:esc,icon:ico,itemIcon,stats:statLine,save,render,toast,service:()=>({entity:CE,valid:liveService('bench')||liveService('enchanter')}),materialName:key=>MATS[key]||key,showItem:id=>ACT.item({id}),skillName:rpgName,accuracy:(skill,diff)=>odds(skill,diff,'correct').p,sync:()=>{Progression.normalize(S);if(sceneUp)Scene.refresh();}});
   if (location.protocol === 'file:' || location.hostname === 'localhost') window.__bw = { CMap, CONCEAL, beginSkillWork, combatUtility, maxHp, get A() { return A; }, makeItem, gain, odds, dropBody, insFee, trainCost, makePscr, maybeDye, homeSheet, get DU() { return DU; }, get FI() { return FI; }, errandFor, get PK() { return PK; }, get WH() { return WH; }, get BJ() { return BJ; }, get Q() { return Q; }, get F() { return F; }, KB, get S() { return S; }, get DG() { return DG; }, DP, get SB() { return SB; }, get TR() { return TR; }, setCE: e => { CE = e; }, HOST, SH, START, ACT, render, save, odds, gain, diffOf };
   // speech and story use curly quotes; SQL, code and table data keep straight ones

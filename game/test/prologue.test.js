@@ -7,16 +7,19 @@ test('legacy saves opt out, checkpoints normalize, and malformed imports cannot 
   assert.equal(P.normalize({v:1,phase:'arrival',named:true,origin:'sunspire',pos:[99,99]}).pos.join(','),'5,18');
   assert.equal(P.cleanName('  New\u0000 Reader  '),'New Reader');
 });
-test('identity choices and actual movement gate the complete rescue-to-land route',()=>{
+test('fixed new homeland, legacy origins and actual movement gate the rescue-to-land route',()=>{
+  assert.equal(P.home(P.fresh()),'Sunspire');
   for(const origin of P.origins){
-    let p=P.fresh();assert.equal(P.advance(p,'land').phase,'rescue');
+    let p=P.normalize({...P.fresh(),origin:origin.id});assert.equal(P.advance(p,'land').phase,'rescue');
     p=P.advance(p,'rescued');assert.equal(P.advance(p,'named',' ').phase,'name');
     p=P.advance(p,'named','Reader');assert.equal(P.advance(p,'home','invalid').phase,'home');
     p=P.advance(p,'home',origin.id);p=P.advance(p,'continue');p=P.advance(p,'remember');p=P.advance(p,'continue');
     assert.equal(p.phase,'walk');assert.equal(P.advance(p,'spoke').phase,'walk');
     for(const pos of [[5,19],[5,20],[5,21]])p=P.moved(p,pos);
     assert.equal(p.steps,3);assert.deepEqual(P.moved(p,[0,0]),p);
-    p=P.advance(p,'spoke');p=P.advance(p,'rest');p=P.moved(p,[16,18]);p=P.advance(p,'land');
+    p=P.advance(p,'spoke');p=P.advance(p,'rest');
+    for(const phase of ['chart','kit','hero','ledger']){assert.equal(p.phase,phase);assert.equal(P.toolsAvailable(p),true);assert.equal(P.advance(p,'continue').phase,phase);p=P.viewed(p,P.toolFor[phase]);p=P.normalize(p);p=P.advance(p,'continue');}
+    p=P.moved(p,[16,18]);p=P.advance(p,'land');
     assert.equal(P.active(p),false);assert.equal(P.home(p),origin.name);assert.equal(P.normalize(p).phase,'done');
   }
 });

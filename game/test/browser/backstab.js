@@ -34,6 +34,11 @@ async function dismiss(frame) {
   if (await coach.isVisible()) await coach.click();
 }
 
+async function showAnswer(frame) {
+  await action(frame, 'fshow').click();
+  await action(frame, 'fshowconfirm').click();
+}
+
 async function fixture(page, { kind = 'mon', region = 1, elite = true, fencing = 40 } = {}) {
   await page.goto('/__visual?scene=tallyport');
   await expect(page.locator('body')).toHaveAttribute('data-ready', 'tallyport', { timeout: 45000 });
@@ -233,7 +238,7 @@ for (const method of ['wrong', 'shown', 'low stamina']) {
     await engage(frame);
     await action(frame, 'fbackstab').click();
     await dismiss(frame);
-    if (method === 'shown') await action(frame, 'fshow').click();
+    if (method === 'shown') await showAnswer(frame);
     else {
       await expect(action(frame, 'fshow')).toHaveCount(0);
       await expect(action(frame, 'fhint')).toHaveCount(0);
@@ -283,7 +288,7 @@ for (const method of ['wrong', 'shown']) {
     });
     await action(frame, 'fbackstab').click();
     await dismiss(frame);
-    if (method === 'shown') await action(frame, 'fshow').click();
+    if (method === 'shown') await showAnswer(frame);
     const before = await combatState(frame);
     await submit(frame, 'F', action(frame, method === 'wrong' ? 'fchoose' : 'floot'), method === 'wrong' ? wrongAnswer : undefined);
     const result = await combatState(frame);

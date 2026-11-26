@@ -1,4 +1,6 @@
 const {test,expect}=require('@playwright/test');
+require('./learning');
+require('./learning-boundaries');
 const {screenshot,observeErrors}=require('./flow');
 const {speech,clickWorld,learnMovement,person,query,visit,beginnerFight,roadFarewell,finishGuidedDay,beginnerAnswer}=require('./first-day-helper');
 test('first-day · road farewell completes across actual-distance phases before its inner waypoint',async({page},info)=>{

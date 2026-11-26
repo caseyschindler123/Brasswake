@@ -79,6 +79,9 @@ async function visit(f,kind,stats,extra={}){
 }
 function beginnerAnswer(ask){
   const all=ask.match(/Show everything in the (\w+) table/);if(all)return 'SELECT * FROM '+all[1];
+  if(/Show every row and column of the employees table/.test(ask))return 'SELECT * FROM employees';
+  const forms=[[/stock quantity for every item/,'stock_qty','items'],[/each customer’s name followed by their city/,'name, city','customers'],[/hire date followed by the name for every employee/,'hire_date, name','employees'],[/order number, date and status for every order/,'order_id, order_date, status','orders'],[/realm, rating and name of every vendor/,'realm, rating, name','vendors'],[/each item’s category, name, stock quantity and price/,'category, name, stock_qty, unit_price','items']];
+  for(const [pattern,columns,table]of forms)if(pattern.test(ask))return 'SELECT '+columns+' FROM '+table;
   const pick=ask.match(/Show the (.+?) of every (\w+)\./);if(!pick)throw Error('Unexpected untaught first-day query: '+ask);
   return 'SELECT '+pick[1].replace(/ and the /g,', ')+' FROM '+({vendor:'vendors',item:'items',customer:'customers',employee:'employees'}[pick[2]]);
 }
@@ -107,16 +110,39 @@ async function roadFarewell(f,stats){
   try{await walk(f,[ring[0],ring[1]+4],stats,false);}
   finally{delete stats.stopWhenGuideEnds;}
 }
-async function finishGuidedDay(f,info,stats,fish=false){
-  await f.locator('[data-a=qleave]').last().click();await speech(f);await visit(f,'hallexit',stats);await speech(f);
+async function earnedDojoReadiness(f,info,stats){
+  const practise=async id=>{
+    await f.locator(`#sheet [data-a=learnconcept][data-id="${id}"]`).click();
+    await expect(f.locator('#enc [data-lesson-example]')).toBeVisible();
+    await f.locator('[data-a=qturn]').click();
+    for(let attempt=0;attempt<8;attempt++){
+      // Known correct fixture SQL is submitted through the ordinary editor;
+      // no learning, reward or readiness flags are injected into the journey.
+      await query(f,await f.evaluate(()=>__bw.Q.task.sql));stats.queries++;
+      if(await f.evaluate(id=>Learning.ready(__bw.A.learning,id),id))break;
+      await f.locator('[data-a=learnnext]').click();
+    }
+    expect(await f.evaluate(id=>Learning.ready(__bw.A.learning,id),id)).toBe(true);
+    await f.locator('#enc .q-head [data-a=qleave]').click();
+    await expect(f.locator('#enc')).toBeHidden();
+  };
+  for(const [i,id]of [[0,'sort'],[1,'limit'],[2,'distinct']]){await visit(f,'student',stats,{i});await practise(id);}
+  for(const id of ['arithmetic','alias']){await visit(f,'master',stats);await speech(f,'#say [data-a=learninghub]');await practise(id);}
+  expect(await f.evaluate(()=>Learning.regionConcepts(1).every(id=>Learning.ready(__bw.A.learning,id)))).toBe(true);
+  await f.locator('#nav [data-t=ledger]').click();const coach=f.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
+  await f.locator('[data-a=lsub][data-s=grimoire]').click();await expect(f.locator('#view')).toContainText('5 of 5 regional techniques ready');
+  await screenshot(f,info,'earned-dojo-readiness-and-review');await f.locator('#nav [data-t=world]').click();
+}
+async function finishGuidedDay(f,info,stats,fish=false,study=false){
+  await f.locator('[data-a=qleave]').last().click();await speech(f);if(study)await earnedDojoReadiness(f,info,stats);await visit(f,'hallexit',stats);await speech(f);
   await visit(f,'mon',stats,{r:1});await beginnerFight(f,stats);await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(6);
   await speech(f);await f.locator('#nav [data-t=bag]').click();
   const coach=f.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
   const gift=await f.evaluate(()=>__bw.S.gk);await f.locator(`[data-a=item][data-id="${gift}"]`).click();await f.locator('[data-a=equip]').click();await speech(f);
   await f.locator('#nav [data-t=hero]').click();if(await coach.isVisible())await coach.click();await expect(f.locator('#doll')).toBeVisible();await expect(f.getByRole('heading',{name:'New arrival',exact:true})).toBeVisible();await screenshot(f,info,'equipped-weapon-after-first-fight');await f.locator('#nav [data-t=world]').click();
-  await visit(f,'stallkeep',stats,{r:1});await f.locator('#sheet [data-a=sellcommon]').click();await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(8);await speech(f);
+  await visit(f,'stallkeep',stats,{r:1});await f.locator('#sheet [data-a=sellcommon]').click();await expect(f.locator('#sheet')).toContainText('Review this sale');await f.locator('#sheet [data-a=sellconfirm]').click();await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(8);await speech(f);
   await visit(f,'npc',stats,{r:1,i:0});await speech(f,'#say [data-a=pages]');if(await coach.isVisible())await coach.click();await f.locator('[data-a=buypage]:not([disabled])').first().click();await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(9);await f.locator('.sheet-x').click();await speech(f);
-  await visit(f,'banker',stats,{r:1});await speech(f,'[data-a=bankopen]');await f.locator('[data-a=bdep]').click();await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(10);await speech(f);
+  await visit(f,'banker',stats,{r:1});await speech(f,'[data-a=bankopen]');{const bankCoach=f.locator('[data-a=coachok]');if(await bankCoach.isVisible())await bankCoach.click();}await f.locator('[data-a=bdep]').click();await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(10);await expect(f.locator('#sheet')).toBeVisible();await f.locator('.sheet-x').click();await speech(f);
   await visit(f,'lookout',stats);await speech(f);await screenshot(f,info,'harbour-tower-and-road');
   if(fish){
     const pier=await f.evaluate(()=>Scene.spots().pierfish);await walk(f,pier,stats,true);await speech(f);
@@ -132,7 +158,7 @@ async function finishGuidedDay(f,info,stats,fish=false){
   }
   await visit(f,'stairs',stats,{r:1});await speech(f,'[data-a=start][data-k=dungeon]');await expect.poll(()=>f.evaluate(()=>!!Scene.inDungeon())).toBe(true);await speech(f);
   await visit(f,'guard',stats,{tutorial:true});await beginnerFight(f,stats);
-  await visit(f,'chest',stats,{tutorial:true});await expect(f.locator('#sheet')).toContainText('vault chest');await screenshot(f,info,'first-cellar-chest');await f.locator('#sheet button[data-a=closesheet]').last().click();await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(14);
+  await visit(f,'chest',stats,{tutorial:true});await expect(f.locator('#sheet').getByRole('heading',{name:'Starter chest',exact:true})).toBeVisible();await screenshot(f,info,'first-cellar-chest');await f.locator('#sheet button[data-a=closesheet]').last().click();await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(14);
   await visit(f,'dtravel',stats,{to:-1});await speech(f,'[data-a=dtravel]');await speech(f);
   await roadFarewell(f,stats);await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(15);
   await expect(f.locator('#say')).toBeVisible();await expect(f.locator('#say-text')).toContainText('New Reader.');await expect(f.locator('#say-text')).toContainText('Marigold');await screenshot(f,info,'tamsin-farewell-at-the-road');await speech(f);

@@ -94,7 +94,9 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
   if(rescue)await expect(page.locator('#boat-name')).toBeVisible({timeout:15000});
   await nameAboard(page,name);
   if(screenshot)await screenshot(page,info,'where-are-you-from');
-  await page.locator(`[data-a=boathome][data-id=${origin}]`).click();
+  await expect(page.locator('[data-a=boathome]')).toHaveCount(1);
+  await expect(page.locator('[data-a=boathome]')).toContainText('Sunspire');
+  await page.locator('[data-a=boathome]').click();
   await expect(page.locator('#onboard')).toContainText(name);
   await page.locator('[data-a=boatnext]').click();await expect(page.locator('#onboard')).toContainText('weeks away');
   await page.locator('[data-a=boatnext]').click();await expect(page.locator('#onboard')).toContainText('another three days');
@@ -114,6 +116,7 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
   await expect(page.locator('#onboard')).toContainText('teaches SQL');
   if(screenshot)await screenshot(page,info,'meet-tamsin-on-deck');
   await page.locator('[data-a=boatnext]').click();
+  await orientAboard(page,info,screenshot);
   await expect(page.locator('#onboard')).toContainText('three days later');
   if(visibleOnly){
     // Reacquire Tamsin from her right to align with the one-tile gangplank.
@@ -126,4 +129,18 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
   await expect(page.locator('#ctx')).toHaveText('Step ashore');if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();
   await expect(page.locator('#onboard')).toBeHidden();await expect(page.locator('#hud')).toContainText(name);
 }
-module.exports={nameAboard,skipArrival,shipApproach,fullArrival,returnToCharacters};
+async function orientAboard(page,info,screenshot,reopen){
+  for(const [phase,tab]of [['chart','map'],['kit','bag'],['hero','hero'],['ledger','ledger']]){
+    await expect(page.locator('#onboard')).toHaveAttribute('data-phase',phase);
+    await expect(page.locator('#nav [data-a=tab]')).toHaveCount(5);
+    await page.locator(`#nav [data-t=${tab}]`).click();
+    await expect(page.locator('#view')).toBeVisible();
+    await expect(page.locator('.boat-tool-note')).toContainText('Tamsin');
+    if(tab==='map'){await expect(page.locator('.boat-chart svg')).toBeVisible();await expect(page.locator('#view')).toContainText('not your explored land map');}
+    if(screenshot)await screenshot(page,info,'boat-'+tab);
+    await page.locator('#nav [data-t=world]').click();
+    if(reopen)await reopen(phase);
+    await page.locator('#onboard [data-a=boatnext]').click();
+  }
+}
+module.exports={nameAboard,skipArrival,shipApproach,fullArrival,returnToCharacters,orientAboard};

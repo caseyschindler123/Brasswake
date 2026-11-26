@@ -2,7 +2,8 @@
 // The active-world facade is deliberately absent from serialized saves.
 const CharacterWorlds = (() => {
   const version = 9, count = 3, slots = 5;
-  const shared = ['cur', 'main', 'slots', 'homes', 'codex', 'paid', 'djp', 'cmds', 'atlas', 'wv'];
+  const shared = ['cur', 'main', 'slots', 'homes', 'codex', 'paid', 'djp', 'cmds', 'learning', 'atlas', 'wv'];
+  const learning = typeof Learning !== 'undefined' ? Learning : typeof require === 'function' ? require('./learning') : null;
   const record = value => value && typeof value === 'object' && !Array.isArray(value);
   const clone = value => JSON.parse(JSON.stringify(value));
   const freshWorld = () => ({cur:-1, main:-1, slots:Array(slots).fill(null), homes:[], codex:{}, paid:{}, djp:{}, cmds:{}});
@@ -10,6 +11,11 @@ const CharacterWorlds = (() => {
     const source = record(value) ? value : {}, world = freshWorld();
     world.slots = Array.from({length:slots}, (_, index) => record(source.slots?.[index]) ? clone(source.slots[index]) : null);
     for (const key of ['codex','paid','djp','cmds']) if (record(source[key])) world[key] = clone(source[key]);
+    // Older account readers retain additive character fields but drop new
+    // world keys. Recover the newest bounded learning mirror without losing
+    // any ordinary character/world state or changing the account envelope.
+    const records = [source.learning,...world.slots.map(s=>s&&s.learningSnapshot)].filter(record);
+    if(records.length){records.sort((a,b)=>(b.rev||0)-(a.rev||0));world.learning=learning?learning.normalize(records[0]):clone(records[0]);}
     if (Array.isArray(source.homes)) world.homes = clone(source.homes);
     if (record(source.atlas)) world.atlas = clone(source.atlas);
     if (Number.isInteger(source.wv)) world.wv = source.wv;

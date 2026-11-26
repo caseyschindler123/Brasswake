@@ -1,9 +1,14 @@
   /* Manual controls shared by the surface, indoor rooms and dungeon floors. */
-  const ARROW_KEYS = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
+  const MOVE_KEYS = {
+    ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0],
+    w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0]
+  };
   const JOYSTICK_DIRECTIONS = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]];
   let joy = null, key = null;
 
   const inputAvailable = () => running && map && P && !locked && !(host.inputBlocked && host.inputBlocked());
+  const movementKey = e => e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  const editsText = el => !!(el && (el.isContentEditable || el.closest?.('input, textarea, select')));
 
   function stopManualStep() {
     if (!P) return;
@@ -78,14 +83,27 @@
     }
     window.addEventListener('blur', clearSceneControls);
     document.addEventListener('visibilitychange', () => { if (document.hidden) clearSceneControls(); });
-    window.addEventListener('keydown', e => {
-      if (!inputAvailable() || /TEXTAREA|INPUT|SELECT/.test(document.activeElement.tagName)) return;
-      if (Object.prototype.hasOwnProperty.call(ARROW_KEYS, e.key)) {
-        e.preventDefault();
-        if (joy.pointer === null) key = e.key;
-      } else if ((e.key === ' ' || e.key === 'Enter') && near && document.activeElement.tagName !== 'BUTTON') act();
+    document.addEventListener('focusin', e => {
+      if (editsText(e.composedPath()[0])) clearSceneControls();
     });
-    window.addEventListener('keyup', e => { if (e.key === key) key = null; });
+    window.addEventListener('keydown', e => {
+      if (!inputAvailable() || editsText(document.activeElement) || editsText(e.composedPath()[0])) return;
+      if (e.defaultPrevented || e.isComposing || e.ctrlKey || e.metaKey || e.altKey) return;
+      const pressed = movementKey(e);
+      if (Object.hasOwn(MOVE_KEYS, pressed)) {
+        e.preventDefault();
+        if (!e.repeat && joy.pointer === null) key = pressed;
+      } else if (!e.repeat && (pressed === ' ' || pressed === 'Enter') && near &&
+          !e.composedPath()[0]?.closest?.('button, a[href], summary')) {
+        e.preventDefault();
+        act();
+      }
+    });
+    window.addEventListener('keyup', e => {
+      if (movementKey(e) !== key) return;
+      key = null;
+      if (P?.manual) stopManualStep();
+    });
   }
 
   function manualMovement() {
@@ -96,7 +114,7 @@
     }
     if (!available) { if (key || joy && joy.pointer !== null || P.path.length) clearSceneControls(); return; }
     const joystick = joy && joy.pointer !== null;
-    const direction = joystick ? joy.direction : ARROW_KEYS[key];
+    const direction = joystick ? joy.direction : MOVE_KEYS[key];
     if (!direction) { if(P.manual)stopManualStep(); return null; }
     const [dx, dy] = direction;
     P.run = !!(joystick && joy.run);

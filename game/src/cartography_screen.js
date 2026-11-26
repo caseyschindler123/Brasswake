@@ -101,7 +101,7 @@ const CartographyScreen = (() => {
       if(site.kind==='service')return !!(state().services&&state().services[site.id])&&(!preview||site.r===preview);
       if (preview) return site.r === preview;
       const s = state();
-      return C.ownsMap(cart, site.r) || C.exploredAt(mask, site.x, site.y) ||
+      return (site.kind==='stairs'&&!!s.knownEntrances?.[site.r]) || C.ownsMap(cart, site.r) || C.exploredAt(mask, site.x, site.y) ||
         (site.kind === 'poi' && !!(s.poi && s.poi[site.id] || s.known && s.known[site.r])) ||
         (site.kind === 'fish' && !!(s.fishd && s.fishd[site.id] || s.known && s.known[site.r]));
     }
@@ -158,7 +158,7 @@ const CartographyScreen = (() => {
         return `<i class="cmap-dot ${p.kind}${waypoint}" style="${style}" title="${label}" aria-hidden="true"></i>`;
       });
       const pos = surface() && scene.pos();
-      const here = pos && within(pos[0], pos[1]) ? `<i class="me" style="${at(pos[0], pos[1])}" title="You are here"></i>` : '';
+      const here = pos && within(pos[0], pos[1]) ? `<i class="me" style="${`left:${Math.max(2,Math.min(98,100*(pos[0]-x)/w))}%;top:${Math.max(2,Math.min(98,100*(pos[1]-y)/h))}%`}" title="You are here"></i>` : '';
       const ferries = sites.filter(p => p.kind === 'ferry');
       const routes = !r && !preview ? scene.ferries().filter(leg => leg.path && leg.path.length > 1 &&
         ['from', 'to'].every(side => ferries.some(p => p.id === `ferry:${leg.id}:${side}`))) : [];

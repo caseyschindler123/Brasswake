@@ -633,7 +633,7 @@ const Content = (() => {
   const RARE = { arms: 'One more swing each round.', spell: 'The creature makes one fewer attack each round.', shadow: 'You get +15 on the stealing roll.', craft: 'Exceptional work comes more often.' };
   const PAGES = [];
   for (const b of Object.keys(BOOKS)) for (let c2 = 1; c2 <= 8; c2++) for (const rare of [0, 1]) PAGES.push({ id: BOOKS[b].k + c2 + (rare ? 'r' : ''), book: b, c: c2, rare, name: PN[b][rare][c2 - 1], price: c2 === 1 ? 10 : 40 * c2 - 20, note: rare ? RARE[b] : '',
-    src: !rare ? 'Sold by ' + FOLK[c2 - 1][0][0] + ' in ' + REGIONS[c2 - 1].name : b === 'arms' ? 'Carried by gilded creatures around ' + REGIONS[c2 - 1].name : b === 'spell' ? 'In the chest at the bottom of ' + DUNGEONS[c2 - 1].name : b === 'shadow' ? 'Stolen from ' + RIVALS[c2 - 1].name + ', a rival duelist in ' + REGIONS[c2 - 1].name : 'Reward for investigating a rumor at ' + TAVERNS[c2 - 1] });
+    src: !rare ? 'Sold by ' + FOLK[c2 - 1][0][0] + ' in ' + REGIONS[c2 - 1].name : b === 'arms' ? 'Carried by gilded creatures around ' + REGIONS[c2 - 1].name : b === 'spell' ? (c2===1?'In the starter chest or the deeper vault chest of ':'In the vault chest at the bottom of ') + DUNGEONS[c2 - 1].name : b === 'shadow' ? 'Stolen from ' + RIVALS[c2 - 1].name + ', a rival duelist in ' + REGIONS[c2 - 1].name : 'Reward for investigating a rumor at ' + TAVERNS[c2 - 1] });
   const FOLKN = ['Fisher', 'Porter', 'Baker', 'Weaver', 'Farmer', 'Cooper', 'Mason', 'Herder', 'Tinker', 'Miller', 'Carter', 'Chandler'];
 
   // where each creature lives, and which ones come for you

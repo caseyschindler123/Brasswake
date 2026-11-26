@@ -24,6 +24,6 @@ for (const [path,look] of [['warrior',0],['thief',2],['mage',4],['crafter',6]]) 
   await expect(page.locator('#enc .reward-gold')).toContainText('+25 gold');expect(await page.evaluate(before=>__bw.S.gold-before,gold)).toBe(25);await screenshot(page,info,'first-lesson-gold-pile');
   await page.locator('[data-a=qleave]').last().click();await speech(page,'[data-a=intropractice]');await page.locator('[data-a=practicepage]').first().click();await query(page,'SELECT name FROM items');
   await expect(page.locator('#enc')).toContainText('Your first ability');expect(await page.evaluate(()=>!!__bw.S.seen['intro.practice'])).toBe(true);await screenshot(page,info,'safe-first-ability');
-  await finishGuidedDay(page,info,stats,path==='mage');
+  await finishGuidedDay(page,info,stats,path==='mage',path==='thief');
   expect(stats.steps).toBeGreaterThan(10);expect(errors).toEqual([]);
 });

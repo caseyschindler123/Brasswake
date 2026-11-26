@@ -38,11 +38,12 @@ const Engine = (() => {
   }
   function friendly(e) {
     const m = String(e && e.message || e);
-    if (m === 'ROWCAP') return `Over ${ROWCAP.toLocaleString()} rows. Stopped. A join is missing its ON condition.`;
+    if (m === 'ROWCAP') return `The query stopped after returning more than ${ROWCAP.toLocaleString()} rows. Check how many rows the task asks for.`;
     let tip = '';
-    if (/no such column/i.test(m)) tip = ' Check spelling in the Atlas. Text needs single quotes.';
-    else if (/no such table/i.test(m)) tip = ' See the Atlas.';
-    else if (/syntax error/i.test(m)) tip = ' Look just before that word: a comma, or clause order (SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT).';
+    if (/^no such column:/i.test(m)) tip = ' Check the spelling and column names in Tables.';
+    else if (/^no such table:/i.test(m)) tip = ' Check the table name in Tables.';
+    else if (/^near .+: syntax error$/i.test(m)) tip = ' Check the spelling there and look just before it for a missing comma or keyword.';
+    else if (/^incomplete input$/i.test(m)) tip = ' Check the end of the query for an unfinished clause or a missing closing mark.';
     else if (/ambiguous column/i.test(m)) tip = ' Two tables share that name. Prefix it: o.customer_id.';
     else if (/misuse of aggregate/i.test(m)) tip = ' Aggregates go in HAVING, not WHERE.';
     else if (/misuse of window/i.test(m)) tip = ' Compute the window in a CTE, then filter outside it.';
@@ -87,10 +88,8 @@ const Engine = (() => {
     const info = { gotRows: got.rows.length, wantRows: want.rows.length, gotCols: got.cols.length, wantCols: want.cols.length };
     if (got.cols.length !== want.cols.length)
       return { ok: false, why: 'colcount', info, msg: `Target: ${want.cols.length} column${want.cols.length === 1 ? '' : 's'} (${want.cols.join(', ')}). Yours: ${got.cols.length}.` };
-    if (got.rows.length !== want.rows.length) {
-      const more = got.rows.length > want.rows.length;
-      return { ok: false, why: 'rowcount', info, msg: `Target: ${want.rows.length} row${want.rows.length === 1 ? '' : 's'}. Yours: ${got.rows.length}. ` + (more ? 'Missing a filter, or a join is multiplying rows.' : 'Filter too strict, or a join is dropping rows.') };
-    }
+    if (got.rows.length !== want.rows.length)
+      return { ok: false, why: 'rowcount', info, msg: `The task needs ${want.rows.length} row${want.rows.length === 1 ? '' : 's'}. Your query returned ${got.rows.length}.` };
     const g = got.rows.slice().sort((a, b) => key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0), w = want.rows.slice().sort((a, b) => key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0);
     for (let i = 0; i < w.length; i++) if (!rowEq(g[i], w[i])) {
       // right values in the wrong column order?

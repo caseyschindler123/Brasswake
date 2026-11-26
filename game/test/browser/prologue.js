@@ -47,7 +47,7 @@ test('boat checkpoints resume and character switching keeps ship coordinates out
   await page.goto('/index.html?visual_test=1');await expect(page.locator('#artload')).toBeHidden({timeout:45000});
   await page.locator('[data-a=newslot]').first().click();await page.locator('[data-a=pick][data-look="3"]').click();await page.locator('[data-a=begin]').click();
   await page.locator('[data-a=boatskiprescue]').click();await page.locator('#boat-name').fill('Mara');await require('./intro-helper').returnToCharacters(page);await page.locator('[data-a=playslot][data-i="0"]').click();await expect(page.locator('#boat-name')).toHaveValue('Mara');await nameAboard(page,'Mara');
-  await page.locator('[data-a=boathome][data-id=sylvanreach]').click();
+  await page.locator('[data-a=boathome]').click();
   async function reopen(phase){
     await require('./intro-helper').returnToCharacters(page);await expect(page.locator('#title')).toBeVisible();
     // Let the title's actual music fetch settle before deliberately unloading it.
@@ -62,8 +62,8 @@ test('boat checkpoints resume and character switching keeps ship coordinates out
   await require('./intro-helper').returnToCharacters(page);await page.locator('[data-a=newslot]').first().click();await page.locator('[data-a=pick][data-look="6"]').click();await page.locator('#cr-name').fill('Supporting');await page.locator('[data-a=begin]').click();
   expect(await page.evaluate(()=>Scene.inShip())).toBe(false);expect(await page.evaluate(()=>__bw.S.pos===null||__bw.S.pos[0]>18)).toBe(true);
   await page.locator('#nav [data-t=hero]').click();const coach=page.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();await page.locator('[data-a=reset]').click();await page.locator('[data-a=playslot][data-i="0"]').click();
-  await expect(page.locator('#onboard')).toHaveAttribute('data-phase','walk');expect(await page.evaluate(()=>Scene.pos())).toEqual(deck);expect(await page.evaluate(()=>__bw.S.pos)).toBe(null);
-  if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();await page.locator('[data-a=boatnext]').click();await reopen('arrival');await shipApproach(page,'shipExit');await expect(page.locator('#ctx')).toHaveText('Step ashore');
+  await expect(page.locator('#onboard')).toHaveAttribute('data-phase','walk');expect(await page.evaluate(()=>Scene.pos())).toEqual(deck);expect(await page.evaluate(()=>__bw.S.pos)).toBe(null);await expect(page.locator('#toast')).toBeEmpty();
+  if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();await page.locator('[data-a=boatnext]').click();await require('./intro-helper').orientAboard(page,info,screenshot,reopen);await reopen('arrival');await shipApproach(page,'shipExit');await expect(page.locator('#ctx')).toHaveText('Step ashore');
   if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();
   await expect(page.locator('#onboard')).toBeHidden();await expect.poll(()=>page.evaluate(()=>({done:__bw.S.prologue.phase,gd:__bw.S.gd,ship:Scene.inShip()}))).toEqual({done:'done',gd:1,ship:false});await screenshot(page,info,'resumed-arrival-ashore');expect(errors).toEqual([]);
 });

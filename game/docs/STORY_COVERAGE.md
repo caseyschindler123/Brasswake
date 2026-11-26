@@ -8,6 +8,12 @@ Use [05_CODING_WORKFLOW.md](05_CODING_WORKFLOW.md) for current gates and scope-b
 
 The animation/world-polish release `d3850c3`, verified on 2026-11-25 UTC, revises Tamsin’s deck conversation and Odalys’s first explanation to establish SQL’s skilled-action purpose before manifest practice. Character selection moves from repeated dialogue controls to the portrait menu, preserving arrival checkpoints and name drafts. Source review and targeted browser verification are recorded in [the plan](plans/2026-11-24-animation-and-world-polish.md); exact release identity and hosted evidence are in [release history](RELEASE_HISTORY.md#character-motion-intro-and-world-presentation). This targeted correction does not certify a new whole-script source review or human editorial approval.
 
+## New-player teaching candidate
+
+The [new-player implementation plan](plans/2026-11-25-new-player-onboarding-and-dojo-learning.md) adds fixed Sunspire dialogue for new characters, legacy-origin retention, four boat orientation checkpoints and all 24 dojo specialist introductions. Source review covers this changed dialogue, prerequisites, worked examples and the distinction between safe SQL practice and character strength. The impossible-passage evidence and endings are unchanged; this is not a new whole-script editorial review.
+
+Actual SQLite checks execute every authored learning exercise and the deterministic family matrix. Targeted phone browser checks exercise all specialists, isolated write practice, assistance/readiness boundaries, resumed boat checkpoints and character/world teardown. The earned Thief journey additionally practices all five First Circle techniques using ordinary movement and submissions. Final full-profile and hosted evidence remains pending; record completion in the plan and release history rather than inferring publication from these local checks. Real beginner comprehension remains unverified.
+
 ## Contracts and lessons
 
 The tables below cover the authored contracts and their lessons by stable ID. Each contract now gets its own reason for being offered, followed by the actual request. The context works when a contract is taken without the others in its region. The UI supplies the list, reference tables, result, next action, and reward. Each attached lesson has a concrete explanation, an example or named query shape, and a related task. The reference SQL, technique requirements, reward formulas, and IDs are retained. Wording now distinguishes the original source, its copy, and any proposed draft to send onward.

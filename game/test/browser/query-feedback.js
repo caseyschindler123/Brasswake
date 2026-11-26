@@ -2,25 +2,67 @@ const { test, expect } = require('@playwright/test');
 const { observeErrors, screenshot } = require('./flow');
 
 async function dismiss(f) { const b = f.locator('[data-a=coachok]'); if (await b.isVisible()) await b.click(); }
-async function fixture(page, tpl = 'b102', fast = false) {
+async function choosePage(f, { needsMultiRowLimit = false } = {}) {
+  if (needsMultiRowLimit) await f.evaluate(() => {
+    // Select the real creature's question through its normal seeded generator.
+    // LIMIT 1 cannot produce the useful partial result this fixture exercises.
+    const seed = Array.from({ length: 64 }, (_, i) => i + 1).find(seed => {
+      const task = Learning.next(__bw.A.learning, { circle: 1, family: 'limit', seed });
+      return Number(/\bLIMIT\s+(\d+)$/i.exec(task?.sql || '')?.[1]) >= 3;
+    });
+    if (!seed) throw Error('No multi-row LIMIT question in the seeded fixture');
+    window.__feedbackFixtureRandom = Math.random;
+    Math.random = () => (seed - .5) / 2147483647;
+  });
+  try { await f.locator('[data-a=fpage][data-id=a1]').click(); }
+  finally {
+    if (needsMultiRowLimit) await f.evaluate(() => {
+      Math.random = window.__feedbackFixtureRandom;
+      delete window.__feedbackFixtureRandom;
+    });
+  }
+  await dismiss(f);
+}
+async function game(page) {
   await page.goto('/__visual?scene=tallyport');
   await expect(page.locator('body')).toHaveAttribute('data-ready', 'tallyport', { timeout: 45000 });
-  const f = page.frames().find(f => f.url().includes('visual_test=1'));
-  await f.evaluate(({ tpl, fast }) => {
+  return page.frames().find(f => f.url().includes('visual_test=1'));
+}
+async function fixture(page, tpl = 'b102', fast = false, options = {}) {
+  const f = await game(page);
+  await f.evaluate(({ tpl, fast, theft, withTip }) => {
     Sound.setMu(false); window.__bwFast = fast;
     const s = __bw.S; s.tut = 2; s.gd = 99; s.pages = { a1: 1 }; s.hp = __bw.maxHp();
     const e = Scene.find(e => e.kind === 'mon' && e.r === 1 && e.inst.tpl === tpl && !e.inst.elite);
+    if (theft) {
+      s.pages.h1 = 1;
+      Object.assign(e, { unseen: true, engaged: false, forced: false, chase: 0, agg: 0, pocketsEmpty: false });
+    }
     Scene.warp(e.x + 1, e.y); __bw.HOST.interact(e);
-  }, { tpl, fast });
-  await dismiss(f); await f.locator('[data-a=fpage][data-id=a1]').click(); await dismiss(f);
+    if (withTip) {
+      // Use Odalys's actual Ledger prompt in a disposable encounter.
+      __bw.F.tasks = () => FirstDay.tasks.find(t => t.tip && !t.practice);
+      Learning.introduce(__bw.A.learning ||= Learning.fresh(), ['select']);
+    }
+  }, { tpl, fast, theft: options.theft, withTip: options.withTip });
+  await dismiss(f); await choosePage(f, options);
   return f;
 }
 async function submit(f, sql) {
-  await f.locator('#sql').fill(sql); await f.locator('#kb [data-fn=run]').click();
+  if (sql !== undefined) await f.locator('#sql').fill(sql);
+  await f.locator('#kb [data-fn=run]').click();
   await f.waitForTimeout(450);
 }
 async function settled(f) { await f.waitForFunction(() => __bw.F && !__bw.F.busy, null, { timeout: 25000 }); }
-async function next(f) { await f.locator('[data-a=fchoose]').click(); await f.locator('[data-a=fpage][data-id=a1]').click(); await dismiss(f); }
+async function next(f, question) { await f.locator('[data-a=fchoose]').click(); await choosePage(f, question); }
+const resources = f => f.evaluate(() => {
+  const s = __bw.S, fight = __bw.F;
+  return {
+    round: fight.round, foe: fight.foe.hp, shown: fight.shown, hint: fight.hint,
+    hp: s.hp, mana: s.mana, stamina: s.stamina, bandages: s.bandages, prepared: s.prepared, tonics: s.tonics,
+    streak: s.streak, correct: s.stats.ok, sk: s.sk, attr: s.attr, skills: s.skills
+  };
+});
 async function finish(f) {
   // Complete the prepared comparison encounter with reproducible combat rolls.
   // Both sides still respond normally; the grading and feedback assertions
@@ -43,19 +85,32 @@ async function finish(f) {
 
 for (const scenario of ['sorting', 'partial', 'extra', 'syntax']) test(`query feedback · played battle with ${scenario} correction`, async ({ page }, info) => {
   test.setTimeout(180000);
-  const errors = observeErrors(page), f = await fixture(page, scenario === 'sorting' ? 'b101' : 'b102');
+  const errors = observeErrors(page), f = await fixture(page, scenario === 'sorting' ? 'b101' : 'b102', false, {
+    needsMultiRowLimit: scenario === 'partial' || scenario === 'extra'
+  });
   const correct = await f.evaluate(() => __bw.F.task.sql);
-  const wrong = scenario === 'sorting' ? correct.replace(/\b(ASC|DESC)\b/, d => d === 'ASC' ? 'DESC' : 'ASC') : scenario === 'partial' || scenario === 'extra' ? correct.replace(/LIMIT (\d+)/, (_, n) => 'LIMIT ' + (Number(n) + (scenario === 'extra' ? 1 : -1))) : correct.replace(/^SELECT/, 'SELEC');
+  let wrong;
+  if (scenario === 'sorting') {
+    wrong = correct.replace(/(\bORDER BY\s+\w+)(?:\s+(ASC|DESC)\b)?/i, (_, first, dir) =>
+      first + (dir?.toUpperCase() === 'DESC' ? ' ASC' : ' DESC'));
+    expect(await f.evaluate(sql => Engine.grade(__bw.F.task, sql).why, wrong)).toBe('order');
+  } else if (scenario === 'partial' || scenario === 'extra') {
+    wrong = correct.replace(/\bLIMIT\s+(\d+)$/i, (_, n) => 'LIMIT ' + (Number(n) + (scenario === 'extra' ? 1 : -1)));
+    expect(await f.evaluate(sql => Engine.grade(__bw.F.task, sql).why, wrong)).toBe('rowcount');
+  } else wrong = correct.replace(/^SELECT/, 'SELEC');
+  const before = scenario === 'syntax' && await resources(f);
   await submit(f, wrong);
   await expect(f.locator('.query-pair')).toBeVisible();
   expect(await f.evaluate(() => __bw.F.comparison.yours)).toBe(wrong);
   await expect(f.locator('.query-yours')).toContainText(scenario === 'syntax' ? 'SELEC' : wrong);
-  await expect(f.locator('.query-solution b')).toHaveText('Corrected query');
   await expect(f.locator('.query-pair mark')).not.toHaveCount(0);
-  const comparison = await f.evaluate(() => ({ solution: __bw.F.comparison.solution, ok: Engine.check(__bw.F.task, __bw.F.comparison.solution).ok }));
-  expect(comparison.ok).toBe(true);
   if (scenario === 'syntax') {
-    expect(await f.evaluate(() => __bw.F.round)).toBe(0);
+    expect(before.round).toBe(0);
+    expect(await resources(f)).toEqual(before);
+    expect(await f.evaluate(() => __bw.F.comparison.solution)).toBeUndefined();
+    await expect(f.locator('.query-solution')).toHaveCount(0);
+    await expect(f.locator('.query-error')).toContainText(/SELEC.*syntax error/);
+    await expect(f.locator('#sql')).toHaveValue(wrong);
     await expect(f.locator('.query-feedback')).toContainText('One free fix');
     const box = await f.locator('#kb [data-fn=run]').boundingBox();
     expect(box.y + box.height).toBeLessThanOrEqual(page.viewportSize().height);
@@ -65,6 +120,8 @@ for (const scenario of ['sorting', 'partial', 'extra', 'syntax']) test(`query fe
     await submit(f, correct); await settled(f);
     await expect(f.locator('.query-power')).toContainText('100% power');
   } else {
+    await expect(f.locator('.query-solution b')).toHaveText('Corrected query');
+    expect(await f.evaluate(() => Engine.check(__bw.F.task, __bw.F.comparison.solution).ok)).toBe(true);
     // Feedback is present during the ordinary-speed animation, without an acknowledgement.
     await screenshot(page, info, 'query-' + scenario + '-animating');
     await settled(f);
@@ -107,7 +164,7 @@ test('query feedback · damage scales with result progress and wrong attacks can
   });
   const damage = [];
   for (const kind of ['full', 'half', 'wrong']) {
-    if (kind !== 'full') await next(f);
+    if (kind !== 'full') await next(f, { needsMultiRowLimit: kind === 'half' });
     const sql = await f.evaluate(kind => kind === 'wrong' ? 'SELECT -987654321' : kind === 'half' ? __bw.F.task.sql.replace(/LIMIT (\d+)/, (_, n) => 'LIMIT ' + Math.ceil(Number(n) / 2)) : __bw.F.task.sql, kind);
     const before = await f.evaluate(() => { window.__feedbackRandom = Math.random; Math.random = () => .01; return __bw.F.foe.hp; });
     await submit(f, sql); await settled(f);
@@ -125,20 +182,31 @@ test('query feedback · damage scales with result progress and wrong attacks can
 
 test('query feedback · long queries expand safely and the second syntax failure spends a turn', async ({ page }, info) => {
   const errors = observeErrors(page), f = await fixture(page, 'b102', true);
+  await f.evaluate(() => { __bw.S.streak = 3; });
   const bad = '/* ' + 'a long harmless note '.repeat(16) + ' */\n' + (await f.evaluate(() => __bw.F.task.sql)).replace(/^SELECT/, 'SELEC');
+  const before = await resources(f);
   await submit(f, bad);
+  expect(await resources(f)).toEqual(before);
+  await expect(f.locator('#sql')).toHaveValue(bad);
+  await expect(f.locator('.query-solution')).toHaveCount(0);
   await expect(f.locator('[data-a=fcompare]')).toHaveAttribute('aria-expanded', 'false');
   await f.locator('[data-a=fcompare]').click();
   await expect(f.locator('.query-yours pre')).toHaveText(bad);
+  await expect(f.locator('.query-solution')).toHaveCount(0);
+  await expect(f.locator('#sql')).toHaveValue(bad);
   await expect(f.locator('[data-a=fcompare]')).toHaveAttribute('aria-expanded', 'true');
   await screenshot(page, info, 'query-expanded');
   await f.locator('[data-a=fcompare]').click();
   await submit(f, bad); await settled(f);
-  expect(await f.evaluate(() => __bw.F.round)).toBe(1);
+  const after = await resources(f);
+  expect(after.round).toBe(before.round + 1);
+  expect(after.streak).toBe(0);
   expect(await f.evaluate(() => __bw.F.queryPower)).toBe(0);
+  await expect(f.locator('.query-solution')).toHaveCount(0);
   await expect(f.locator('.query-pair')).toBeVisible();
   await f.locator('[data-a=fcompare]').click();
   await expect(f.locator('.query-yours pre')).toHaveText(bad);
+  await expect(f.locator('.query-solution')).toHaveCount(0);
   const nextBox = await f.locator('[data-a=fchoose]').boundingBox();
   expect(nextBox.y + nextBox.height).toBeLessThanOrEqual(page.viewportSize().height);
   await screenshot(page, info, 'query-expanded-result-with-controls');
@@ -148,20 +216,128 @@ test('query feedback · long queries expand safely and the second syntax failure
 test('query feedback · equivalent SQL gets full power and shape/shown answers retain protections', async ({ page }) => {
   const errors = observeErrors(page), f = await fixture(page, 'b102', true);
   await f.evaluate(() => { __bw.F.foe.hp = __bw.F.foe.max = 10000; __bw.F.foe.swings = 0; });
-  await submit(f, 'SELECT * FROM (' + await f.evaluate(() => __bw.F.task.sql) + ') AS chosen_items');
+  const reference = await f.evaluate(() => __bw.F.task.sql);
+  const equivalent = 'SELECT * FROM (' + reference + ') AS chosen_items';
+  await f.locator('#sql').fill(equivalent);
+  const unassisted = await resources(f);
+  const confirm = f.locator('[data-a=fshowconfirm]');
+  await expect(f.locator('[data-a=fshow]')).toHaveCount(1);
+  await f.locator('[data-a=fshow]').click();
+  await expect(confirm).toBeVisible();
+  await expect(f.locator('#sheet-body')).toContainText('only 5% power');
+  await expect(f.locator('#sheet-body')).toContainText('no skill or attribute practice');
+  await expect(f.locator('#sheet-body')).not.toContainText(reference);
+  await page.keyboard.press('Control+Enter');
+  await expect(confirm).toBeVisible();
+  expect(await resources(f)).toEqual(unassisted);
+  await expect(f.locator('#f-hint code')).toHaveCount(0);
+  await f.locator('#sheet-body [data-a=closesheet]').click();
+  await expect(confirm).toBeHidden();
+  await expect(f.locator('#sql')).toHaveValue(equivalent);
+  expect(await resources(f)).toEqual(unassisted);
+  await submit(f);
   await settled(f);
   expect(await f.evaluate(() => __bw.F.queryPower)).toBe(1);
   await expect(f.locator('.query-pair')).toHaveCount(0);
   await next(f);
-  await f.locator('[data-a=fhint]').click(); await f.waitForTimeout(500);
-  await f.locator('[data-a=fhint]').click(); await f.waitForTimeout(500);
+  await f.locator('[data-a=fhint]').click();
+  await expect(f.locator('[data-a=fshow]')).toHaveCount(1);
+  await f.locator('[data-a=fhint]').click();
+  await expect(f.locator('[data-a=fshow]')).toHaveCount(1);
   await submit(f, await f.evaluate(() => __bw.F.task.sql)); await settled(f);
   expect(await f.evaluate(() => __bw.F.queryPower)).toBe(.6);
-  await next(f); await f.locator('[data-a=fshow]').click(); await f.waitForTimeout(500);
+  await next(f);
+  await f.locator('[data-a=fshow]').click();
+  await confirm.click();
+  await expect(confirm).toBeHidden();
+  await expect(f.locator('#f-hint code')).toHaveText(await f.evaluate(() => __bw.F.task.sql));
   const before = await f.evaluate(() => JSON.stringify([__bw.S.sk, __bw.S.attr, __bw.S.skills]));
   await submit(f, await f.evaluate(() => __bw.F.task.sql)); await settled(f);
   expect(await f.evaluate(() => __bw.F.queryPower)).toBe(.05);
   expect(await f.evaluate(() => JSON.stringify([__bw.S.sk, __bw.S.attr, __bw.S.skills]))).toBe(before);
+  expect(errors).toEqual([]);
+});
+
+test('query feedback · a shown attack cannot switch into theft before committing the exchange', async ({ page }) => {
+  const errors = observeErrors(page), f = await fixture(page, 'b102', true, { theft: true });
+  const actions = f.locator('[data-a=fchoose]'), steal = f.locator('[data-a=fsteal]');
+  await actions.click();
+  await dismiss(f);
+  await expect(steal).toBeVisible();
+  expect(await f.evaluate(() => __bw.F.engaged)).toBe(false);
+  await choosePage(f);
+  await f.locator('[data-a=fshow]').click();
+  await f.locator('[data-a=fshowconfirm]').click();
+  const before = await resources(f);
+  expect(before.shown).toBe(1);
+  await actions.click();
+  await dismiss(f);
+  await steal.click();
+  await expect(f.locator('#toast')).toContainText('before switching to theft');
+  expect(await f.evaluate(() => ({ act: __bw.F.act, stage: __bw.F.st, pocketsEmpty: __bw.F.ent.pocketsEmpty })))
+    .toEqual({ act: 'fight', stage: 'choose', pocketsEmpty: false });
+  expect(await resources(f)).toEqual(before);
+  expect(errors).toEqual([]);
+});
+
+test('query feedback · a contextual tip preserves full power and excludes readiness evidence', async ({ page }) => {
+  const errors = observeErrors(page), f = await fixture(page, 'b102', true, { withTip: true });
+  const task = await f.evaluate(() => {
+    const { sql, fingerprint, newTeaching } = __bw.F.task;
+    __bw.F.foe.hp = __bw.F.foe.max = 10000;
+    __bw.F.foe.swings = 0;
+    return { sql, fingerprint, newTeaching };
+  });
+  expect(task.newTeaching).toBe(false);
+  const tip = f.getByRole('button', { name: 'A tip' });
+  await tip.click();
+  await expect(f.locator('#f-hint .tip')).toBeVisible();
+  await submit(f, task.sql);
+  await settled(f);
+  expect(await f.evaluate(key => {
+    const learning = __bw.A.learning;
+    return { power: __bw.F.queryPower, recorded: learning.recent.some(entry => entry.key === key),
+      scored: !!learning.evidence.select?.attempts.some(entry => entry.key === key) };
+  }, task.fingerprint)).toEqual({ power: 1, recorded: true, scored: false });
+  expect(errors).toEqual([]);
+});
+
+test('query feedback · a requested contract answer gives reduced pay without SQL practice or keys', async ({ page }) => {
+  const errors = observeErrors(page), f = await game(page);
+  await f.evaluate(() => {
+    const { A: account, S: character } = __bw;
+    character.gold = 100;
+    character.hints = 0;
+    character.eq = {};
+    delete character.done.c103;
+    delete character.seen.c103;
+    delete account.paid.c103;
+    delete account.cmds.c103;
+    __bw.START.contract({ id: 'c103' });
+  });
+  await f.locator('[data-a=qturn]').click();
+  await f.locator('#enc [data-a=help]').click();
+  const hint = f.locator('#sheet-body [data-a=hint]');
+  for (const label of ['A nudge · free', 'The shape of the answer · 14 gold', 'The answer · 30 gold']) {
+    await expect(hint).toHaveText(label);
+    await hint.click();
+  }
+  await expect(f.locator('#sheet-body .hintbox').last()).toContainText('ORDER BY unit_price DESC');
+  await f.locator('#sheet .sheet-x').click();
+  const sqlPractice = () => f.evaluate(() => ({
+    gold: __bw.S.gold, hints: __bw.S.hints, skills: __bw.S.skills, commands: __bw.A.cmds, completed: __bw.S.done.c103
+  }));
+  const before = await sqlPractice();
+  expect(before.gold).toBe(56);
+  expect(before.commands.c103).toBe(1);
+  await submit(f, await f.evaluate(() => __bw.Q.task.sql));
+  await expect(f.locator('#enc')).toContainText('Exercise done');
+  const after = await sqlPractice();
+  expect(after.gold - before.gold).toBe(6);
+  expect(after.completed.hint).toBe(3);
+  expect(after.skills).toEqual(before.skills);
+  expect(after.commands).toEqual(before.commands);
+  expect(after.hints).toBe(before.hints);
   expect(errors).toEqual([]);
 });
 

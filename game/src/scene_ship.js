@@ -14,8 +14,8 @@
     m.pal[1] = Object.assign({}, BIO[1], { amb: 0, fx: null, liquid: 'water' });
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (Prologue.deck(x, y, phase === 'arrival')) { m.solid[y * w + x] = 0; m.t[y * w + x] = 6; }
     for(const y of [10,18,25])m.t[y*w+9]=6;
-    const settled = ['walk', 'decktalk', 'arrival'].includes(phase);
-    addEnt(m, { kind: 'folk', shipPerson: 'tamsin', name: 'Tamsin', sub: 'Deckhand, the Marigold', x: settled ? (pos&&pos[0]===10&&pos[1]===18?11:10) : 6, y: 18, r, pt: AD && AD.faces.fisher });
+    const settled = ['walk', 'decktalk', 'chart', 'kit', 'hero', 'ledger', 'arrival'].includes(phase);
+    addEnt(m, { kind: 'folk', shipPerson: 'tamsin', solid: 0, name: 'Tamsin', sub: 'Deckhand, the Marigold', x: settled ? (pos&&pos[0]===10&&pos[1]===18?11:10) : 6, y: 18, r, pt: AD && AD.faces.fisher });
     addEnt(m, { kind: 'folk', shipPerson: 'captain', name: 'Bram Tull', sub: 'Captain of the Marigold', x: 10, y: 28, r, pt: AD && AD.story.captain });
     addEnt(m, { kind: 'folk', shipPerson: 'crew', name: 'Deckhand', sub: 'Crew of the Marigold', x: 6, y: 20, r });
     for (const [x,y,item] of [[6,14,'Bread'],[12,22,'Healing Draught'],[6,25,'Rope']]) addEnt(m, { kind: 'shipcargo', name: item, sub: 'Cargo', cargo: item, x, y, r, ok: 'pi_crates', objectScale: .7 });
@@ -33,7 +33,7 @@
     if (!map || !map.ship) return;
     const s = map.ship, before = s.phase; s.phase = phase;
     if (phase === 'rescue') { if (initial) { P.x = 2; P.y = 18; P.fx = 2; P.fy = 18; P.dir = 's'; } }
-    else if (before === 'rescue' || initial && !['walk','decktalk','arrival'].includes(phase)) { P.x = P.fx = 5; P.y = P.fy = 18; P.dir = 's'; }
+    else if (before === 'rescue' || initial && !['walk','decktalk','chart','kit','hero','ledger','arrival'].includes(phase)) { P.x = P.fx = 5; P.y = P.fy = 18; P.dir = 's'; }
     const t = map.ents.find(e => e.shipPerson === 'tamsin');
     for (const e of map.ents) if (e.npcLook) e.ff = 0;
     if (phase === 'walk' && before !== 'walk' && t) s.route = [[7,18],[8,18],[8,17],[9,17],[10,17],[10,18]];

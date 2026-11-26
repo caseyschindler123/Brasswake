@@ -63,7 +63,7 @@ const DungeonPlay = (() => {
     function victory(e) {
       const d = dg(), p = current(); if (!d || !e) return;
       DungeonProgress.defeat(p, Object.assign({}, e, { floor:d.f }), a.now());
-      if (e.tutorial) p.claimed.tutorialKey = true;
+      if (e.tutorial&&!p.claimed.tutorialKey){p.claimed.tutorialKey = true;a.toast('Entrance guardian defeated. The starter chest is unlocked.');}
       d.keeper = p.keeper; d.left = d.tutorial ? (p.claimed.tutorialKey ? 0 : 1) : DungeonProgress.missing(p,Dungeons.get(d.r).floors.length).length;
       if (e.kind === 'keeper') s().vault[d.r] = 1;
       if (e.lieutenant) a.toast('Floor seal recovered. ' + d.left + ' left.');
@@ -86,7 +86,7 @@ const DungeonPlay = (() => {
       if (vault || starter) { s().stats.dungeons++; d.done = true; }
       if (starter && a.guideId()==='chest') a.guideChest();
       const g=a.grant(o); a.scene.FX.treasure(e.x,e.y); a.save(); a.hud(); a.scene.refresh();
-      a.sheet('<p class="eyebrow">'+a.escape(Dungeons.get(t).name)+'</p><h2>'+(vault || starter?'The vault chest':'A hidden cache')+'</h2>'+(note?'<p class="story">'+note+'</p>':'')+a.spoils(g)+'<p class="cap2">Collected for today.</p><div class="row end"><button class="btn solid" data-a="closesheet">Take it</button></div>');
+      a.sheet('<p class="eyebrow">'+a.escape(Dungeons.get(t).name)+'</p><h2>'+(starter?'Starter chest':vault?'The vault chest':'A hidden cache')+'</h2>'+(note?'<p class="story">'+note+'</p>':'')+a.spoils(g)+'<p class="cap2">Collected for today.</p><div class="row end"><button class="btn solid" data-a="closesheet">Take it</button></div>');
     }
     function interact(e) {
       const d=dg(),p=current(); if(!d||!e) return;
@@ -97,7 +97,7 @@ const DungeonPlay = (() => {
       if(e.kind==='dlever'||e.kind==='dsecret') return a.dialog(e,p.gates[e.target||e.gate||e.id]?'The passage is open.':(e.text||'This control opens a shortcut. You can return through it later.'),[{t:p.gates[e.target||e.gate||e.id]?'Leave':'Open passage',a:p.gates[e.target||e.gate||e.id]?'closesheet':'dopen',d:{id:e.id}},{t:'Stay',a:'closesheet'}]);
     }
     function travel(id) {const e=a.scene.find(e=>e.id===id&&e.kind==='dtravel');if(!e)return; if(e.to<0)exit();else floor(e.to,e.arrival);}
-    function open(id) {const e=a.scene.find(e=>e.id===id);if(!e)return;const p=current();p.gates[e.target||e.gate||e.id]=true;a.scene.dungeonRefresh(p);a.close();a.save();a.toast('Passage opened.');}
+    function open(id) {const e=a.scene.find(e=>e.id===id);if(!e)return;const p=current();p.gates[e.target||e.gate||e.id]=true;a.scene.dungeonRefresh(p);a.close();a.save();a.toast('Passage opened. Check the dungeon map for the newly open route.');}
     function table(e) {const p=current();if(!a.main())return a.toast('This lost table belongs to your main character’s story.');if(a.haveTable(dg().r))return a.toast('The pedestal is empty.');if(!p.keeper)return a.dialog(e,'The keeper guards this scroll.',[{t:'Leave',a:'closesheet'}]);a.takeTable(dg().r);a.save();a.scene.refresh();}
     return { enter,restore,floor,exit,moved,fight,victory,reward,interact,travel,open,table,progress,current,snapshot };
   }

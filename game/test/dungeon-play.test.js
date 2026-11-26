@@ -83,7 +83,7 @@ test('the Bilge starter chest survives re-entry while the guide starts and pays 
   h.game.interact(h.by(e => e.id === starter.id));
   assert.equal(h.calls.guideChest, 1);
   assert.equal(h.calls.grants.length, 1);
-  assert.match(h.calls.sheets.at(-1), /vault chest/i);
+  assert.match(h.calls.sheets.at(-1), /<h2>Starter chest<\/h2>/);
 });
 
 test('entering another dungeon leaves the Bilge guide at its existing stage', () => {

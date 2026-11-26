@@ -35,6 +35,7 @@ function runtime(storage, revision) {
   let timerId = 0, itemId = 99;
   const quiet = () => {};
   const context = vm.createContext({
+    ...(!revision?{Learning:require('../src/learning')}:{}),
     localStorage: {
       getItem: name => storage.get(name) ?? null,
       setItem: (name, value) => storage.set(name, value),
@@ -93,6 +94,7 @@ function currentSave() {
       eq: { weapon: sword }, done: { storyMilestone: true }, boss: { 1: 1 },
     });
     world.codex['world-keepsake-' + worldIndex] = 1;
+    world.learning={v:1,rev:7+worldIndex,introduced:{select:true,sort:true},evidence:{},ready:{},recent:[]};
   }
   game.writeFixture(account);
   const stored = JSON.parse(storage.get(key));
@@ -137,6 +139,11 @@ for (const release of releases) {
     assert.equal(storedAgain.v, 9);
     assert.equal(storedAgain.world, 1);
     assert.deepEqual(persistentData(storedAgain), persistentData(written));
+    for(let index=0;index<2;index++)assert.deepEqual(storedAgain.worlds[index].slots[storedAgain.worlds[index].cur].learningSnapshot,written.worlds[index].learning,'The real older writer preserves the character mirror');
+    const current=runtime(storage);current.loadDevice();current.save();
+    const restored=JSON.parse(storage.get(key));
+    for(let index=0;index<2;index++)assert.deepEqual(restored.worlds[index].learning,written.worlds[index].learning,'Current reader restores canonical world learning');
+    assert.deepEqual(persistentData(restored),persistentData(written));
   });
 }
 
