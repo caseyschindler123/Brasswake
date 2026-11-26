@@ -355,6 +355,8 @@ Workbench Carpentry crafts storage chests (6 regional materials, difficulty 25),
 
 ## 13. Planned, not built
 
+- **New-player onboarding and dojo teaching (development held):** Casey requested all five bottom-tray tabs introduced aboard the boat, Tamsin's incomplete exploration map, specialized safe SQL practice in every town's dojo, broader question variety within introduced concepts, and a single homeland for new characters while preserving the impossible journey. No player-character label will be added. The [implementation plan](plans/2026-11-25-new-player-onboarding-and-dojo-learning.md) defines proposed readiness, practice, compatibility and playtest-fix details. This is planned only; Casey must say go before development starts. Existing shipped descriptions below remain current until implementation and release.
+
 - Boats beyond the existing ferries remain deferred. Horses are included in the coordinated release candidate under Riding horses.
 - Cloaks, gloves and boots don't show on the body yet.
 - Dialogue portraits still use the old eight hero portraits.
@@ -369,6 +371,8 @@ Workbench Carpentry crafts storage chests (6 regional materials, difficulty 25),
 A new main character chooses appearance and former profession, then is hauled aboard the Marigold in the playable scene. Tamsin introduces herself, asks their name and homeland, recognizes their profession-specific reputation from merchant crews, and questions a journey that ordinary sailing cannot explain. Sunspire, Sylvanreach and Dwarrowdeep are existing distant trade realms, not new playable regions. The player walks on deck, meets Tamsin, can inspect cargo, rests during the three-day crossing, and walks off the gangplank at Tallyport. Tamsin first explains SQL as the language that gives skilled actions their power, then explains Corin and the Trials ashore. Odalys explicitly uses the manifest as safe query practice before a weapon/spell demonstration. She defines SQL and the Ledger before tables, rows, columns, queries and results; the source cargo, read-only teaching copy, full company records and safe ability practice have explicit handoffs. The entrance-cellar guardian, guided utility work and all guided Tallyport fishing casts use the SELECT/FROM forms taught that day. Existing guide indices, supplies, gold awards, equipment/paper-doll arming and the later story remain in place. The verified release is recorded in `RELEASE_HISTORY.md` and the completed boat-intro plan.
 
 ## Decision log
+
+- 2026-11-25: Casey requested a full plan before development for boat-wide navigation orientation, an incomplete map, dojo SQL specialists with safe repeatable practice, question diversity at the current learning level and removal of the homeland picker. Preserve the journey's story significance and omit a player label. The new-player onboarding plan records proposed implementation defaults and the explicit go hold; planning authorizes no executable changes or game deployment.
 
 - 2026-11-25: Released the complete classical music/effect batch at `e6075e4`: all 28 music entries and 64 effects, with prior landscape/recovery preserved. Core, 63 selected CI browser cases, Pages and six hosted flows passed. Independent source/HTML and all 92 served audio hashes matched. The closed batch plan and release history retain exact evidence, prompts and subjective-listening/physical-device limits.
 
