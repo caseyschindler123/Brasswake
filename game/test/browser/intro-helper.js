@@ -134,6 +134,14 @@ async function orientAboard(page,info,screenshot,reopen){
   for(const [phase,tab]of [['chart','map'],['kit','bag'],['hero','hero'],['ledger','ledger']]){
     await expect(page.locator('#onboard')).toHaveAttribute('data-phase',phase);
     await expect(page.locator('#nav [data-a=tab]')).toHaveCount(5);
+    await expect(page.locator('#onboard [data-a=boatnext]')).toBeInViewport({ratio:1});
+    await expect(page.locator('#onboard [data-a=tab]')).toBeInViewport({ratio:1});
+    if(screenshot)await screenshot(page,info,'boat-'+phase+'-controls');
+    if(phase==='chart'){
+      await page.locator('#onboard .boat-content').evaluate(el=>{el.scrollTop=el.scrollHeight;});
+      await expect(page.locator('#onboard [data-a=boatnext]')).toBeInViewport({ratio:1});
+      await expect(page.locator('#onboard [data-a=tab]')).toBeInViewport({ratio:1});
+    }
     await page.locator(`#nav [data-t=${tab}]`).click();
     await expect(page.locator('#view')).toBeVisible();
     await expect(page.locator('.boat-tool-note')).toContainText('Tamsin');
@@ -141,6 +149,7 @@ async function orientAboard(page,info,screenshot,reopen){
     if(screenshot)await screenshot(page,info,'boat-'+tab);
     await page.locator('#nav [data-t=world]').click();
     if(reopen)await reopen(phase);
+    await expect(page.locator('#onboard [data-a=boatnext]')).toBeInViewport({ratio:1});
     await page.locator('#onboard [data-a=boatnext]').click();
   }
 }

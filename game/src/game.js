@@ -1134,7 +1134,7 @@
     if(p.phase==='where')controls='<button class="btn solid" data-a="boatnext" data-step="continue">Get to your feet</button>';
     if(p.phase==='decktalk')controls='<button class="btn solid" data-a="boatnext" data-step="rest">Let Tamsin show you around</button>';
     if(Prologue.toolFor[p.phase]){const tool=Prologue.toolFor[p.phase],label=NAV.find(t=>t[0]===tool)[1];controls=`<button class="btn solid" data-a="tab" data-t="${tool}">Open ${label}</button><button class="btn quiet" data-a="boatnext" data-step="continue"${p.tools.includes(tool)?'':' disabled'}>${p.phase==='ledger'?'Rest until landfall':'Continue'}</button>`;}
-    panel.innerHTML=`<div class="boat-content"><p class="eyebrow">${esc(beat.title)}</p>${beat.text.split('\n\n').map(t=>'<p class="boat-paragraph">'+esc(t)+'</p>').join('')}<div class="boat-actions">${controls}</div></div><footer class="boat-menu">${!free&&p.phase!=='rescue'?'<button data-a="skipguide">I know how to play: skip the intro and guided start</button>':''}</footer>`;
+    panel.innerHTML=`<div class="boat-content"><p class="eyebrow">${esc(beat.title)}</p>${beat.text.split('\n\n').map(t=>'<p class="boat-paragraph">'+esc(t)+'</p>').join('')}</div><div class="boat-actions">${controls}</div><footer class="boat-menu">${!free&&p.phase!=='rescue'?'<button data-a="skipguide">I know how to play: skip the intro and guided start</button>':''}</footer>`;
     const name=$('#boat-name');if(name)name.addEventListener('keydown',e=>{if(e.key==='Enter')boatName();});
     requestAnimationFrame(()=>{if(boatActive())Scene.FX.inset(free?0:panel.offsetHeight+18);});
   }

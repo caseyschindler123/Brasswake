@@ -34,7 +34,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; text-wrap: balance; 
 #onboard .boat-paragraph { margin-bottom: 10px; line-height: 1.42; }
 #onboard .boat-name { display: block; margin: 10px 0; font-weight: 700; }
 #onboard input { display: block; width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #957d52; background: #fff9e9; color: #382919; font: inherit; }
-#onboard .boat-actions { display: flex; flex-direction: column; gap: 9px; margin-top: 10px; }
+#onboard .boat-actions { flex: none; display: flex; flex-direction: column; gap: 9px; margin-top: 10px; }
 #onboard .boat-actions .btn { white-space: normal; min-height: 44px; }
 #onboard .boat-origin { display: block; color: #382919; text-shadow: none; text-transform: none; letter-spacing: normal; font: 400 17px/1.3 var(--body); border-image: none; text-align: left; border: 1px solid #a88d59; background: #e9d9ae; border-radius: 4px; padding: 9px 11px; min-height: 56px; }
 #onboard .boat-origin b, #onboard .boat-origin small { display: block; }
