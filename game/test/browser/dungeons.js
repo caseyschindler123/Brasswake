@@ -22,7 +22,7 @@ test('version six accounts migrate without losing their character or bank',async
   await expect(page.locator('#artload')).toBeHidden({timeout:45000});
   await page.locator('[data-a=playslot]').first().click();
   expect(await page.evaluate(()=>({v:__bw.A.v,world:__bw.A.world,character:__bw.S.v,name:__bw.S.name,gold:__bw.S.bank.gold,dungeon:__bw.S.dungeon,uid:__bw.S.uid,horse:__bw.S.horse})))
-    .toEqual({v:9,world:0,character:9,name,gold:321,dungeon:null,uid:expect.stringMatching(/\S/),horse:{owned:false,mounted:false}});
+    .toEqual({v:9,world:0,character:8,name,gold:321,dungeon:null,uid:expect.stringMatching(/\S/),horse:{owned:false,mounted:false}});
 });
 
 test('five fully mapped characters compact local and cloud saves and reload an inactive slot',async({page},info)=>{

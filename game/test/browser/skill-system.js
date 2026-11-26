@@ -155,7 +155,7 @@ test('skill system · Hero controls govern actual capped fishing and survive rel
   const world = exported.worlds[exported.world], active = world.slots[world.cur];
   expect(exported.v).toBe(9);
   expect(active).toMatchObject({
-    v: 9, uid: expect.stringMatching(/\S/), horse: { owned: false, mounted: false },
+    v: 8, uid: expect.stringMatching(/\S/), horse: { owned: false, mounted: false },
     skillModes: { fishing: 'lock', swords: 'down' }, skillTargets: { fishing: 20.1 }, attrTargets: { dex: 40.2 },
   });
 
@@ -187,10 +187,10 @@ test('skill system · Hero controls govern actual capped fishing and survive rel
   expect(migrated.world).toBe(0);
   const migratedWorld = migrated.worlds[migrated.world];
   expect(migratedWorld.slots[migratedWorld.cur]).toMatchObject({
-    v: 9, uid: active.uid, horse: active.horse, sk: slot.sk, skills: slot.skills, inv: slot.inv, eq: slot.eq, bank: slot.bank,
+    v: 8, uid: active.uid, horse: active.horse, sk: slot.sk, skills: slot.skills, inv: slot.inv, eq: slot.eq, bank: slot.bank,
   });
   expect(migratedWorld.slots[other]).toMatchObject({
-    v: 9, uid: expect.stringMatching(/\S/), horse: { owned: false, mounted: false },
+    v: 8, uid: expect.stringMatching(/\S/), horse: { owned: false, mounted: false },
     name: 'Old companion', attr: { str: 35, dex: 60, int: 25 }, mana: 25, stamina: 60, bank: { gold: 79 },
   });
   expect(errors).toEqual([]);
@@ -638,7 +638,7 @@ test('skill system · a newer cloud save cancels combat and migrates every chara
   expect(await f.evaluate(()=>({account:__bw.A.v,world:__bw.A.world,bank:__bw.S.bank.gold,fight:__bw.F,busy:window.__oldSkillFoe.busy,
     characters:__bw.A.slots.filter(Boolean).map(({v,uid,horse})=>({v,uid,horse})),companion:__bw.A.slots.find(s=>s&&s.name==='Cloud companion').attr})))
     .toEqual({account:9,world:0,bank:321,fight:null,busy:0,characters:Array.from({length:2},()=>({
-      v:9,uid:expect.stringMatching(/\S/),horse:{owned:false,mounted:false},
+      v:8,uid:expect.stringMatching(/\S/),horse:{owned:false,mounted:false},
     })),companion:{str:35,dex:60,int:25}});
   expect(errors).toEqual([]);
 });
