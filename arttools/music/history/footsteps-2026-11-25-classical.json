@@ -1,0 +1,364 @@
+{
+  "effects": {
+    "s_step_stone_1": {
+      "path": "game/art/fx/s_step_stone_1.wav",
+      "hook": "step:stone",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "model": "Stable Audio 3",
+        "sourceDate": "2026-11-25",
+        "sourceSHA256": "bb000ff3847fe80a31c13653e3e94f96ec006d18ed648520b0871b257ce530ec",
+        "prompt": "Solo foley one-shot, single leather boot footfall on dry stone paving, firm heel contact with slight sole scuff, immediate clear attack, short natural decay, close dry recording, restrained room reflection, isolated single step",
+        "requestedSeconds": 1,
+        "take": 1,
+        "packArchiveSHA256": "f416b722e9e2f9084615b7673a9efcca1f9106efdc73e6db6b5c02ff065c08f2",
+        "packPrompt": "A pack of exactly eight isolated sound effects for Brasswake, a fantasy role-playing video game. This is a realistic foley collection, not a musical drum kit. Give each pad a different specific role and label: Stone step 1, Stone step 2, Stone step 3, Stone step 4, Timber step 1, Timber step 2, Timber step 3, Timber step 4. The first four are single leather-boot footfalls on dry stone paving, with small natural variations in heel contact and sole scuff. The last four are single leather-boot footfalls on solid wooden floorboards, with small natural variations in weight and creak. One footfall per file, never a walking sequence. Immediate clear attack and a complete short natural decay, close dry recording with restrained room reflection. Quiet, grounded and comfortable at game-footstep volume. Each sound must fit within one second. No music, tuned notes, percussion instruments, voices, background ambience or leading silence.",
+        "pad": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.3305668934240363,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.585593158878552,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.355556,
+      "bytes": 15724,
+      "sha256": "46c86a693899086d00eb11bf2b4715da0caecb3f30dabbd35b9a9673bb952cde",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -33.679
+    },
+    "s_step_stone_2": {
+      "path": "game/art/fx/s_step_stone_2.wav",
+      "hook": "step:stone",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "model": "Stable Audio 3",
+        "sourceDate": "2026-11-25",
+        "sourceSHA256": "273aa10efd70116ee0c4f99c7cc91bc718806188c7e669cbaa695d2dfe382b38",
+        "prompt": "Solo foley one-shot, single leather boot footstep on dry stone paving, softer heel strike with gentle grit scrape from the sole, clear attack, brief natural decay, close dry recording, isolated single step",
+        "requestedSeconds": 1,
+        "take": 1,
+        "packArchiveSHA256": "f416b722e9e2f9084615b7673a9efcca1f9106efdc73e6db6b5c02ff065c08f2",
+        "packPrompt": "A pack of exactly eight isolated sound effects for Brasswake, a fantasy role-playing video game. This is a realistic foley collection, not a musical drum kit. Give each pad a different specific role and label: Stone step 1, Stone step 2, Stone step 3, Stone step 4, Timber step 1, Timber step 2, Timber step 3, Timber step 4. The first four are single leather-boot footfalls on dry stone paving, with small natural variations in heel contact and sole scuff. The last four are single leather-boot footfalls on solid wooden floorboards, with small natural variations in weight and creak. One footfall per file, never a walking sequence. Immediate clear attack and a complete short natural decay, close dry recording with restrained room reflection. Quiet, grounded and comfortable at game-footstep volume. Each sound must fit within one second. No music, tuned notes, percussion instruments, voices, background ambience or leading silence.",
+        "pad": 2
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.683265306122449,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.608876696726833,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.708254,
+      "bytes": 31278,
+      "sha256": "e59bb0c397e441fc3c967a263d2b77fa64d7bec0f67a2c2cd737e977f9cd2a4c",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -37.437
+    },
+    "s_step_stone_3": {
+      "path": "game/art/fx/s_step_stone_3.wav",
+      "hook": "step:stone",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "model": "Stable Audio 3",
+        "sourceDate": "2026-11-25",
+        "sourceSHA256": "9e6ba4f3026155dc5eab07690f142cd3314400f887c62df17a1ff132bf777d82",
+        "prompt": "Solo foley one-shot, single leather boot footfall on dry stone paving, flatter whole-sole landing with a crisp tap and tiny pebble grit, immediate attack, short decay, close dry mic, isolated single step",
+        "requestedSeconds": 1,
+        "take": 1,
+        "packArchiveSHA256": "f416b722e9e2f9084615b7673a9efcca1f9106efdc73e6db6b5c02ff065c08f2",
+        "packPrompt": "A pack of exactly eight isolated sound effects for Brasswake, a fantasy role-playing video game. This is a realistic foley collection, not a musical drum kit. Give each pad a different specific role and label: Stone step 1, Stone step 2, Stone step 3, Stone step 4, Timber step 1, Timber step 2, Timber step 3, Timber step 4. The first four are single leather-boot footfalls on dry stone paving, with small natural variations in heel contact and sole scuff. The last four are single leather-boot footfalls on solid wooden floorboards, with small natural variations in weight and creak. One footfall per file, never a walking sequence. Immediate clear attack and a complete short natural decay, close dry recording with restrained room reflection. Quiet, grounded and comfortable at game-footstep volume. Each sound must fit within one second. No music, tuned notes, percussion instruments, voices, background ambience or leading silence.",
+        "pad": 3
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.6124716553287982,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -13.5832170853011,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.63746,
+      "bytes": 28156,
+      "sha256": "7a6035556ffdda372bb255bf3714c6a476d49a4f1fed2dbf4c6c14c14af29c98",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -40.075
+    },
+    "s_step_stone_4": {
+      "path": "game/art/fx/s_step_stone_4.wav",
+      "hook": "step:stone",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "model": "Stable Audio 3",
+        "sourceDate": "2026-11-25",
+        "sourceSHA256": "8c8d8dd8e73439297a4cee0840ac84b0b55fc1248fb13b94678c8d0946c9b89c",
+        "prompt": "Solo foley one-shot, single leather boot footfall on dry stone paving, heavier heel-first impact with a short sole drag at the end, clear attack, complete short natural decay, dry close recording, isolated single step",
+        "requestedSeconds": 1,
+        "take": 1,
+        "packArchiveSHA256": "f416b722e9e2f9084615b7673a9efcca1f9106efdc73e6db6b5c02ff065c08f2",
+        "packPrompt": "A pack of exactly eight isolated sound effects for Brasswake, a fantasy role-playing video game. This is a realistic foley collection, not a musical drum kit. Give each pad a different specific role and label: Stone step 1, Stone step 2, Stone step 3, Stone step 4, Timber step 1, Timber step 2, Timber step 3, Timber step 4. The first four are single leather-boot footfalls on dry stone paving, with small natural variations in heel contact and sole scuff. The last four are single leather-boot footfalls on solid wooden floorboards, with small natural variations in weight and creak. One footfall per file, never a walking sequence. Immediate clear attack and a complete short natural decay, close dry recording with restrained room reflection. Quiet, grounded and comfortable at game-footstep volume. Each sound must fit within one second. No music, tuned notes, percussion instruments, voices, background ambience or leading silence.",
+        "pad": 4
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.3712925170068027,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.61981209648723,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.396281,
+      "bytes": 17520,
+      "sha256": "7dfa92192d5878be1069ee723dde166549739e90d8cdbb45ac66ed48ed9230fa",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -35.076
+    },
+    "s_step_wood_1": {
+      "path": "game/art/fx/s_step_wood_1.wav",
+      "hook": "step:wood",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "model": "Stable Audio 3",
+        "sourceDate": "2026-11-25",
+        "sourceSHA256": "7d2434902be839a9aadedd82a4c913575aff9a68e9f48c6dc4c7b366b5fe8ffd",
+        "prompt": "Solo foley one-shot, single leather boot footfall on solid wooden floorboards, medium weight heel contact with a faint low creak, immediate clear attack, short natural decay, close dry recording, isolated single step",
+        "requestedSeconds": 1,
+        "take": 1,
+        "packArchiveSHA256": "f416b722e9e2f9084615b7673a9efcca1f9106efdc73e6db6b5c02ff065c08f2",
+        "packPrompt": "A pack of exactly eight isolated sound effects for Brasswake, a fantasy role-playing video game. This is a realistic foley collection, not a musical drum kit. Give each pad a different specific role and label: Stone step 1, Stone step 2, Stone step 3, Stone step 4, Timber step 1, Timber step 2, Timber step 3, Timber step 4. The first four are single leather-boot footfalls on dry stone paving, with small natural variations in heel contact and sole scuff. The last four are single leather-boot footfalls on solid wooden floorboards, with small natural variations in weight and creak. One footfall per file, never a walking sequence. Immediate clear attack and a complete short natural decay, close dry recording with restrained room reflection. Quiet, grounded and comfortable at game-footstep volume. Each sound must fit within one second. No music, tuned notes, percussion instruments, voices, background ambience or leading silence.",
+        "pad": 5
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.4889795918367347,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.519835546114852,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.513968,
+      "bytes": 22710,
+      "sha256": "de3703d985aa76ba2b83a0780710277e763598124dac5860080e4c951a47571e",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -39.623
+    },
+    "s_step_wood_2": {
+      "path": "game/art/fx/s_step_wood_2.wav",
+      "hook": "step:wood",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "model": "Stable Audio 3",
+        "sourceDate": "2026-11-25",
+        "sourceSHA256": "bfc9f6e7af444b9cb4d4c27133532ee11da5f08fdf94c586a7aa69a18902c2f0",
+        "prompt": "Solo foley one-shot, single leather boot footstep on solid wooden floorboards, lighter weight toe-and-heel landing with a subtle board flex creak, clear attack, brief decay, close dry mic, isolated single step",
+        "requestedSeconds": 1,
+        "take": 1,
+        "packArchiveSHA256": "f416b722e9e2f9084615b7673a9efcca1f9106efdc73e6db6b5c02ff065c08f2",
+        "packPrompt": "A pack of exactly eight isolated sound effects for Brasswake, a fantasy role-playing video game. This is a realistic foley collection, not a musical drum kit. Give each pad a different specific role and label: Stone step 1, Stone step 2, Stone step 3, Stone step 4, Timber step 1, Timber step 2, Timber step 3, Timber step 4. The first four are single leather-boot footfalls on dry stone paving, with small natural variations in heel contact and sole scuff. The last four are single leather-boot footfalls on solid wooden floorboards, with small natural variations in weight and creak. One footfall per file, never a walking sequence. Immediate clear attack and a complete short natural decay, close dry recording with restrained room reflection. Quiet, grounded and comfortable at game-footstep volume. Each sound must fit within one second. No music, tuned notes, percussion instruments, voices, background ambience or leading silence.",
+        "pad": 6
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.9526530612244898,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.681280923305973,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.977642,
+      "bytes": 43158,
+      "sha256": "0c58a2e7dc8b71dbb13ec8d2b9074671600625698fe99f6c40510e6afb272bb4",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -41.217
+    },
+    "s_step_wood_3": {
+      "path": "game/art/fx/s_step_wood_3.wav",
+      "hook": "step:wood",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "model": "Stable Audio 3",
+        "sourceDate": "2026-11-25",
+        "sourceSHA256": "115bcbf7f52e9ff2bedbab1390a2e31ebc08c573f080f19634144223844f39a0",
+        "prompt": "Solo foley one-shot, single leather boot footfall on solid wooden floorboards, heavy planted step with a deep hollow thud and a short groan of timber, clear attack, natural short decay, dry close recording, isolated single step",
+        "requestedSeconds": 1,
+        "take": 1,
+        "packArchiveSHA256": "f416b722e9e2f9084615b7673a9efcca1f9106efdc73e6db6b5c02ff065c08f2",
+        "packPrompt": "A pack of exactly eight isolated sound effects for Brasswake, a fantasy role-playing video game. This is a realistic foley collection, not a musical drum kit. Give each pad a different specific role and label: Stone step 1, Stone step 2, Stone step 3, Stone step 4, Timber step 1, Timber step 2, Timber step 3, Timber step 4. The first four are single leather-boot footfalls on dry stone paving, with small natural variations in heel contact and sole scuff. The last four are single leather-boot footfalls on solid wooden floorboards, with small natural variations in weight and creak. One footfall per file, never a walking sequence. Immediate clear attack and a complete short natural decay, close dry recording with restrained room reflection. Quiet, grounded and comfortable at game-footstep volume. Each sound must fit within one second. No music, tuned notes, percussion instruments, voices, background ambience or leading silence.",
+        "pad": 7
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.416281179138322,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.64946949785019,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.44127,
+      "bytes": 19504,
+      "sha256": "4846c4e153a39e85732fb5777dbe66af950a9195138ab17301920ac775f13a0d",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -33.9
+    },
+    "s_step_wood_4": {
+      "path": "game/art/fx/s_step_wood_4.wav",
+      "hook": "step:wood",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "model": "Stable Audio 3",
+        "sourceDate": "2026-11-25",
+        "sourceSHA256": "74a1307e3cb1e460c2801316d113f9dc393633f73b030eebe33bb58d6c73b584",
+        "prompt": "Solo foley one-shot, single leather boot footfall on solid wooden floorboards, quick tight step with a dry knock and a small high creak at the end, immediate attack, short natural decay, close dry recording, isolated single step",
+        "requestedSeconds": 1,
+        "take": 1,
+        "packArchiveSHA256": "f416b722e9e2f9084615b7673a9efcca1f9106efdc73e6db6b5c02ff065c08f2",
+        "packPrompt": "A pack of exactly eight isolated sound effects for Brasswake, a fantasy role-playing video game. This is a realistic foley collection, not a musical drum kit. Give each pad a different specific role and label: Stone step 1, Stone step 2, Stone step 3, Stone step 4, Timber step 1, Timber step 2, Timber step 3, Timber step 4. The first four are single leather-boot footfalls on dry stone paving, with small natural variations in heel contact and sole scuff. The last four are single leather-boot footfalls on solid wooden floorboards, with small natural variations in weight and creak. One footfall per file, never a walking sequence. Immediate clear attack and a complete short natural decay, close dry recording with restrained room reflection. Quiet, grounded and comfortable at game-footstep volume. Each sound must fit within one second. No music, tuned notes, percussion instruments, voices, background ambience or leading silence.",
+        "pad": 8
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.3823582766439909,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -11.578998763964641,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.407347,
+      "bytes": 18008,
+      "sha256": "c3cb58c958b72f9d2e4055a09795c22e138fd7d4e2956fd216153ef5a9498256",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -36.384
+    },
+    "s_step_soil_1": {
+      "path": "game/art/fx/s_step_soil_1.wav",
+      "hook": "step:soil",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "model": "Stable Audio 3",
+        "sourceDate": "2026-11-25",
+        "sourceSHA256": "f0497559e8a59554384011e0d7baf92cdebd7c0cee679403e45ca08e55e32265",
+        "prompt": "Solo foley one-shot, isolated single leather boot landing on packed dry earth, tiny grit crunch, clear immediate attack, close dry recording, restrained room reflection, natural short decay",
+        "requestedSeconds": 2,
+        "take": 1,
+        "packArchiveSHA256": "711435eedbb209f06a9ebcbc0e8f5d35811b9ae092942770d8ef580ce57db709",
+        "packPrompt": "Exactly eight isolated realistic sound effects for Brasswake, a fantasy role-playing video game. Make eight separately labelled one-shot files, one named action per pad, in this exact order: 1 Soil step 1: one leather boot landing on packed dry earth with a tiny grit crunch. 2 Soil step 2: one softer leather boot footfall on a dirt path with a brief sole scuff. 3 Soil step 3: one firm boot footfall on dry soil with fine gravel under the heel. 4 Soil step 4: one quick boot step on packed earth with a very short sandy scrape. 5 Door open: one old solid wooden door opening, a brief wood-and-iron hinge creak and light latch release, no slam. 6 Door close: the same wooden door closing with one compact wooden thunk and latch click, no opening creak. 7 Coins: a few small metal coins dropping into a leather pouch, a restrained close jingle and short tail. 8 Click: one tiny soft dry tactile interface tick, unobtrusive and extremely short. Realistic close dry foley with restrained room reflection, clear immediate attacks, complete natural short decays and quiet game-ready balance. Fit each event within two seconds. No musical instruments, beats, tuned notes, voices, lead-in silence, continuous ambience or repeated sequences. This is a game foley pack, not a musical drum kit.",
+        "pad": 1
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.7154648526077098,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -12.910191116092458,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.740454,
+      "bytes": 32698,
+      "sha256": "a608be86227fb90e3e523a5aa3d43820557b061621ab83abaf8d51ce0b0a3e27",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -38.419
+    },
+    "s_step_soil_2": {
+      "path": "game/art/fx/s_step_soil_2.wav",
+      "hook": "step:soil",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "model": "Stable Audio 3",
+        "sourceDate": "2026-11-25",
+        "sourceSHA256": "a900c9877ebf4a397b4161a9a86b7611129b9b89d3525e318685ca29e14e3196",
+        "prompt": "Solo foley one-shot, isolated single softer leather boot footfall on a dirt path, brief sole scuff, gentle attack, close dry recording, restrained room reflection, natural short decay",
+        "requestedSeconds": 2,
+        "take": 1,
+        "packArchiveSHA256": "711435eedbb209f06a9ebcbc0e8f5d35811b9ae092942770d8ef580ce57db709",
+        "packPrompt": "Exactly eight isolated realistic sound effects for Brasswake, a fantasy role-playing video game. Make eight separately labelled one-shot files, one named action per pad, in this exact order: 1 Soil step 1: one leather boot landing on packed dry earth with a tiny grit crunch. 2 Soil step 2: one softer leather boot footfall on a dirt path with a brief sole scuff. 3 Soil step 3: one firm boot footfall on dry soil with fine gravel under the heel. 4 Soil step 4: one quick boot step on packed earth with a very short sandy scrape. 5 Door open: one old solid wooden door opening, a brief wood-and-iron hinge creak and light latch release, no slam. 6 Door close: the same wooden door closing with one compact wooden thunk and latch click, no opening creak. 7 Coins: a few small metal coins dropping into a leather pouch, a restrained close jingle and short tail. 8 Click: one tiny soft dry tactile interface tick, unobtrusive and extremely short. Realistic close dry foley with restrained room reflection, clear immediate attacks, complete natural short decays and quiet game-ready balance. Fit each event within two seconds. No musical instruments, beats, tuned notes, voices, lead-in silence, continuous ambience or repeated sequences. This is a game foley pack, not a musical drum kit.",
+        "pad": 2
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 1.2320181405895692,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -13.334114638038887,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 1.257007,
+      "bytes": 55478,
+      "sha256": "93c3909320596c8a1bc07b052d7991770056b6f869a5eb8a621bc08a2c6cc10e",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -40.174
+    },
+    "s_step_soil_3": {
+      "path": "game/art/fx/s_step_soil_3.wav",
+      "hook": "step:soil",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "model": "Stable Audio 3",
+        "sourceDate": "2026-11-25",
+        "sourceSHA256": "578a00e92941c7e31daa7009e54b9c06a7cb68f33d5051989153201e5682aa7d",
+        "prompt": "Solo foley one-shot, isolated single firm leather boot footfall on dry soil, fine gravel shifting under the heel, clear attack, close dry recording, restrained room reflection, short decay",
+        "requestedSeconds": 2,
+        "take": 1,
+        "packArchiveSHA256": "711435eedbb209f06a9ebcbc0e8f5d35811b9ae092942770d8ef580ce57db709",
+        "packPrompt": "Exactly eight isolated realistic sound effects for Brasswake, a fantasy role-playing video game. Make eight separately labelled one-shot files, one named action per pad, in this exact order: 1 Soil step 1: one leather boot landing on packed dry earth with a tiny grit crunch. 2 Soil step 2: one softer leather boot footfall on a dirt path with a brief sole scuff. 3 Soil step 3: one firm boot footfall on dry soil with fine gravel under the heel. 4 Soil step 4: one quick boot step on packed earth with a very short sandy scrape. 5 Door open: one old solid wooden door opening, a brief wood-and-iron hinge creak and light latch release, no slam. 6 Door close: the same wooden door closing with one compact wooden thunk and latch click, no opening creak. 7 Coins: a few small metal coins dropping into a leather pouch, a restrained close jingle and short tail. 8 Click: one tiny soft dry tactile interface tick, unobtrusive and extremely short. Realistic close dry foley with restrained room reflection, clear immediate attacks, complete natural short decays and quiet game-ready balance. Fit each event within two seconds. No musical instruments, beats, tuned notes, voices, lead-in silence, continuous ambience or repeated sequences. This is a game foley pack, not a musical drum kit.",
+        "pad": 3
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.8356916099773243,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -12.356187569463144,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.86068,
+      "bytes": 38000,
+      "sha256": "299024300b4ef255b02f092fee86af58df4bb7fa80e4dda6b2c9e334da31b6e3",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -38.339
+    },
+    "s_step_soil_4": {
+      "path": "game/art/fx/s_step_soil_4.wav",
+      "hook": "step:soil",
+      "origin": {
+        "kind": "stable-audio-sampler",
+        "model": "Stable Audio 3",
+        "sourceDate": "2026-11-25",
+        "sourceSHA256": "ed66ee13d5452a72861220185800a4b7a440a91eb047ab4954c4aa72aa67e87b",
+        "prompt": "Solo foley one-shot, isolated single quick boot step on packed earth, very short sandy scrape, light fast attack, close dry recording, restrained room reflection, short natural decay",
+        "requestedSeconds": 2,
+        "take": 1,
+        "packArchiveSHA256": "711435eedbb209f06a9ebcbc0e8f5d35811b9ae092942770d8ef580ce57db709",
+        "packPrompt": "Exactly eight isolated realistic sound effects for Brasswake, a fantasy role-playing video game. Make eight separately labelled one-shot files, one named action per pad, in this exact order: 1 Soil step 1: one leather boot landing on packed dry earth with a tiny grit crunch. 2 Soil step 2: one softer leather boot footfall on a dirt path with a brief sole scuff. 3 Soil step 3: one firm boot footfall on dry soil with fine gravel under the heel. 4 Soil step 4: one quick boot step on packed earth with a very short sandy scrape. 5 Door open: one old solid wooden door opening, a brief wood-and-iron hinge creak and light latch release, no slam. 6 Door close: the same wooden door closing with one compact wooden thunk and latch click, no opening creak. 7 Coins: a few small metal coins dropping into a leather pouch, a restrained close jingle and short tail. 8 Click: one tiny soft dry tactile interface tick, unobtrusive and extremely short. Realistic close dry foley with restrained room reflection, clear immediate attacks, complete natural short decays and quiet game-ready balance. Fit each event within two seconds. No musical instruments, beats, tuned notes, voices, lead-in silence, continuous ambience or repeated sequences. This is a game foley pack, not a musical drum kit.",
+        "pad": 4
+      },
+      "preparation": {
+        "trimStartSeconds": 0.0,
+        "trimEndSeconds": 0.8077551020408164,
+        "fadeOutSeconds": 0.024988662131519273,
+        "gainDB": -12.023571843930007,
+        "peakCeilingDBFS": -15
+      },
+      "sampleRate": 22050,
+      "channels": 1,
+      "duration": 0.832744,
+      "bytes": 36768,
+      "sha256": "5da57b3f7d227bb2f5e6b479a08a7857eac01d8152018e525ac07e2644d5d3ed",
+      "samplePeakDBFS": -18.01,
+      "rmsDBFS": -39.026
+    }
+  }
+}

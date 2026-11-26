@@ -226,18 +226,26 @@ const Sound = (() => {
     "s_grade_wrong": 0.616961,
     "s_click": 0.777732,
     "s_reward": 1.291338,
-    "s_step_stone_1": 0.355556,
-    "s_step_stone_2": 0.708254,
-    "s_step_stone_3": 0.63746,
-    "s_step_stone_4": 0.396281,
-    "s_step_wood_1": 0.513968,
-    "s_step_wood_2": 0.977642,
-    "s_step_wood_3": 0.44127,
-    "s_step_wood_4": 0.407347,
-    "s_step_soil_1": 0.740454,
-    "s_step_soil_2": 1.257007,
-    "s_step_soil_3": 0.86068,
-    "s_step_soil_4": 0.832744
+    "s_step_stone_1": 0.123039,
+    "s_step_stone_2": 0.124762,
+    "s_step_stone_3": 0.129887,
+    "s_step_stone_4": 0.127619,
+    "s_step_wood_1": 0.093107,
+    "s_step_wood_2": 0.098322,
+    "s_step_wood_3": 0.089705,
+    "s_step_wood_4": 0.095238,
+    "s_step_soil_1": 0.107619,
+    "s_step_soil_2": 0.171882,
+    "s_step_soil_3": 0.104626,
+    "s_step_soil_4": 0.10449,
+    "s_step_snow_1": 0.210567,
+    "s_step_snow_2": 0.211338,
+    "s_step_snow_3": 0.211338,
+    "s_step_snow_4": 0.211066,
+    "s_step_sand_1": 0.289932,
+    "s_step_sand_2": 0.320408,
+    "s_step_sand_3": 0.289932,
+    "s_step_sand_4": 0.308934
   };
   const TOWN_MU = ['m_tallyport', 'm_brackwater', 'm_haverly', 'm_four_fords', 'm_cinderwick', 'm_kell', 'm_highwatch', 'm_aldermoot'];
   const DUN_MU = ['m_bilge', 'm_sunken_sluice', 'm_barrows', 'm_tanglewarren', 'm_slagdeep', 'm_crystal', 'm_ice', 'm_stacks'];
@@ -390,10 +398,12 @@ const Sound = (() => {
   const fxBuffers = new Map(), fxLoads = new Map(), fxQueue = [], fxRetry = {}, fxVoices = new Set(), synthVoices = new Set();
   let fxBytes = 0, fxWarmed = false, effectContext = '', effectSerial = 0, lastSample = null;
   const fxVariants = {};
+  const STEP_GAIN = { grass: .025, earth: .1, soil: .1, sand: .07, snow: .09, wood: .18, stone: .25 };
+  const stepGain = surface => STEP_GAIN[surface] ?? STEP_GAIN.earth;
   function sampleFor(name, detail) {
     if (name === 'win' || name === 'death') return name === 'win' ? 'm_victory' : 'm_death';
     if (name === 'step') {
-      const material = detail === 'wood' || detail === 'stone' ? detail : 'soil';
+      const material = ['wood', 'stone', 'sand', 'snow'].includes(detail) ? detail : 'soil';
       const prior = fxVariants[material] || 0;
       const next = (prior + 1 + (Math.random() * 3 | 0)) % 4;
       fxVariants[material] = next;
@@ -480,6 +490,7 @@ const Sound = (() => {
     const variable = ['step', 'swing', 'thrust', 'bow', 'hit', 'miss', 'creature'].includes(name);
     if (node.playbackRate) node.playbackRate.value = variable ? .98 + Math.random() * .04 : 1;
     gain.gain.value = detail && detail.rare ? 1.1 : variable ? .94 + Math.random() * .12 : 1;
+    if (name === 'step') gain.gain.value *= stepGain(detail);
     node.connect(gain); gain.connect(fxBus);
     const voice = { node, ambient: name === 'ambient', disconnect: () => { node.disconnect(); gain.disconnect(); } };
     fxVoices.add(voice);
@@ -554,7 +565,7 @@ const Sound = (() => {
     fishCatch: () => { const t = ctx.currentTime; [0, .1, .23].forEach(dt => noise(t + dt, .12, .2, 'bandpass', 700 * vary(), 2300, .6)); },
     fishEmpty: () => noise(ctx.currentTime, .15, .09, 'bandpass', 900, 350, .6),
     door: () => { const t = ctx.currentTime; tone('triangle', 170 * vary(), 95, t, .012, .16, .08); noise(t + .13, .05, .12, 'lowpass', 900, 200); },
-    step: surface => { const t = ctx.currentTime, hard = surface === 'stone', wood = surface === 'wood'; noise(t, .045, .07, hard ? 'highpass' : 'lowpass', hard ? 1800 : wood ? 1300 : 650, hard ? 900 : 250); if (hard || wood) tone('sine', wood ? 190 : 120, 65, t, .002, .04, .08); },
+    step: surface => { const t = ctx.currentTime, hard = surface === 'stone', wood = surface === 'wood', level = stepGain(surface); noise(t, .035, .04 * level, hard ? 'highpass' : 'lowpass', hard ? 1800 : wood ? 1300 : 650, hard ? 900 : 250); if (hard || wood) tone('sine', wood ? 190 : 120, 65, t, .002, .03, .04 * level); },
     ambient: place => {
       const t = ctx.currentTime, k = vary();
       switch (place) {

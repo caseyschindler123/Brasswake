@@ -10,7 +10,7 @@ function fixture({ cachedDuration } = {}) {
   let interval, context = { region: 1 }, timerId = 0, clock = 0;
   const param = () => ({ value: 1, setValueAtTime(v) { this.value = v; }, linearRampToValueAtTime(v) { this.value = v; },
     exponentialRampToValueAtTime(v) { this.value = v; }, setTargetAtTime(v) { this.value = v; }, cancelScheduledValues() {} });
-  const node = () => ({ connect() {}, disconnect() {}, gain: param(), frequency: param(), Q: param() });
+  const node = () => ({ connect(target) { this.target = target; }, disconnect() {}, gain: param(), frequency: param(), Q: param() });
   const ctx = { currentTime: 0, sampleRate: 100, state: 'running', destination: {},
     createGain: node, createBuffer: () => ({ getChannelData: () => new Float32Array(100) }),
     createDynamicsCompressor: () => ({ ...node(), threshold: param(), knee: param(), ratio: param(), attack: param(), release: param() }),
@@ -45,6 +45,34 @@ test('UI click cooldown advances even when a running device audio clock is stall
   f.advanceInput(2);f.Sound.sfx('click');assert.equal(f.Sound.status().effects.serial,first+1);
   f.advanceInput(100);f.Sound.sfx('click');assert.equal(f.Sound.status().effects.serial,first+2);
   assert.equal(f.ctx.currentTime,0,'actual device audio time never advanced');
+});
+
+test('loaded footfalls stay subtle with grass below dirt, wood and paving',async()=>{
+  const f=fixture();await f.complete();await f.drainEffects();
+  for(const [surface,level] of [['grass',.025],['sand',.07],['snow',.09],['earth',.1],['wood',.18],['stone',.25]]){
+    f.ctx.currentTime+=1;f.Sound.sfx('step',surface);await f.drainEffects();
+    f.ctx.currentTime+=1;f.Sound.sfx('step',surface);
+    const voice=f.sources.at(-1);
+    assert.ok(voice.started);
+    assert.ok(voice.target.gain.value>=level*.94&&voice.target.gain.value<=level*1.06,surface);
+  }
+});
+
+test('actual scene contacts distinguish grass from paths and retain indoor surface precedence',()=>{
+  const scene=fs.readFileSync(path.join(__dirname,'../src/scene_b.js'),'utf8');
+  const body=scene.match(/  function footfall\(\) \{[\s\S]*?\n  \}/)[0];
+  const contact=new Function('map','P','buildingContains','emit',body+';footfall();');
+  for(const [tile,extra,room,expected] of [
+    [0,{},null,'grass'],[1,{},null,'grass'],[2,{},null,'earth'],[5,{},null,'sand'],
+    [0,{reg:[7]},null,'snow'],[1,{reg:[7]},null,'snow'],[2,{reg:[7]},null,'earth'],[3,{reg:[7]},null,'stone'],
+    [0,{reg:[5]},null,'earth'],[1,{reg:[6]},null,'earth'],[5,{surface:[5]},null,'stone'],
+    [3,{},null,'stone'],[7,{},null,'stone'],[6,{},null,'wood'],
+    [0,{dungeon:true},null,'stone'],[0,{hall:true,reg:undefined},null,'wood'],
+    [0,{},'flag','stone'],[3,{},'floor','wood']]){
+    const heard=[],map={w:1,t:[tile],reg:[1],...extra,blds:room?[{enter:true,room:{fl:room}}]:[]};
+    contact(map,{x:0,y:0},()=>true,(name,surface)=>heard.push([name,surface]));
+    assert.deepEqual(heard,[['step',expected]]);
+  }
 });
 
 test('all regions and contextual priorities select a distinct playable soundtrack entry', () => {
@@ -339,7 +367,7 @@ test('invalid effect decodes back off, retry safely and keep immediate fallback 
 test('effect inventory, load concurrency, LRU memory and rapid voice counts stay bounded', async () => {
   const f = fixture(); await f.complete(); await f.drainEffects();
   const catalog = JSON.parse(fs.readFileSync(path.join(__dirname, '../../arttools/music/effects.json')));
-  assert.equal(Object.keys(f.Sound.SAMPLES).length, 64);
+  assert.equal(Object.keys(f.Sound.SAMPLES).length, 72);
   for (const [id, entry] of Object.entries(catalog.effects)) {
     assert.equal(f.Sound.SAMPLES[id], entry.duration);
     const bytes = fs.readFileSync(path.join(__dirname, '../..', entry.path));

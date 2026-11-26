@@ -238,10 +238,10 @@ class EffectAssetTests(unittest.TestCase):
     def test_complete_effect_inventory_and_actual_pcm(self):
         catalog=json.loads((HERE/'effects.json').read_text())
         effects=catalog['effects']
-        self.assertEqual(len(effects),64)
+        self.assertEqual(len(effects),72)
         self.assertEqual({(music.ROOT/e['path']).name for e in effects.values()}, {p.name for p in (music.ROOT/'game/art/fx').iterdir() if p.is_file()})
-        self.assertEqual(len({e['sha256'] for e in effects.values()}),64)
-        self.assertEqual(len({e['origin']['sourceSHA256'] for e in effects.values()}),64)
+        self.assertEqual(len({e['sha256'] for e in effects.values()}),72)
+        self.assertEqual(len({e['origin']['sourceSHA256'] for e in effects.values()}),72)
         sampler_pads=set()
         for ident,entry in effects.items():
             with self.subTest(effect=ident):
@@ -265,9 +265,23 @@ class EffectAssetTests(unittest.TestCase):
                 self.assertLess(activity[0]/sr,.15 if ident.startswith('s_ambient_') else .06)
                 self.assertEqual(len(entry['origin']['sourceSHA256']),64)
                 origin=entry['origin']
-                self.assertIn(origin['kind'],('stable-audio','stable-audio-sampler'))
-                self.assertTrue(origin['prompt'])
-                if origin['kind']=='stable-audio-sampler':
+                self.assertIn(origin['kind'],('stable-audio','stable-audio-sampler','cc0-foley'))
+                if origin['kind']=='cc0-foley':
+                    self.assertTrue(ident.startswith('s_step_'))
+                    self.assertEqual(origin['license'],'CC0-1.0')
+                    sand=ident.startswith('s_step_sand_')
+                    self.assertEqual(origin['provider'],'Fantozzi' if sand else 'Kenney')
+                    self.assertEqual(origin['sourceURL'],'https://opengameart.org/content/fantozzis-footsteps-grasssand-stone' if sand else 'https://kenney.nl/assets/impact-sounds')
+                    self.assertEqual(origin['packArchiveSHA256'],'415d360e0911c1c1c5355ee94023b772e6f4044f59b9b580610e7dbffd1840fd' if sand else '029d734af1582474edf3a694d1b0cebc97c1c152f2f39fa34d4c2bafc5de77f8')
+                    self.assertTrue(origin['sourceFile'].endswith('.flac' if sand else '.ogg'))
+                    self.assertLess(entry['duration'],60/180 if sand else .24)
+                    self.assertLess(peak,10**(-17.9/20))
+                    # A footfall must finish before the next running contact;
+                    # room noise or a second step cannot stretch the event.
+                    frame=round((.24 if sand else .18 if ident.startswith('s_step_snow_') else .12)*sr)
+                    self.assertGreater(np.sum(y[:frame]**2)/np.sum(y*y),.85)
+                elif origin['kind']=='stable-audio-sampler':
+                    self.assertTrue(origin['prompt'])
                     self.assertEqual(len(origin['packArchiveSHA256']),64)
                     self.assertEqual(origin['model'],'Stable Audio 3')
                     self.assertIn(origin['pad'],range(1,9))
@@ -277,6 +291,7 @@ class EffectAssetTests(unittest.TestCase):
                     self.assertIn('fantasy role-playing video game',origin['packPrompt'])
                 else:
                     self.assertIn('video game',origin['prompt'])
+        self.assertEqual(sum(e['origin']['kind']=='cc0-foley' for e in effects.values()),20)
         self.assertEqual(sum(e['bytes'] for e in effects.values()) < 5*1024*1024,True)
 
 

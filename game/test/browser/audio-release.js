@@ -18,7 +18,7 @@ async function audioRelease(page, info, url) {
   if (available) {
     await page.waitForFunction(() => Sound.playing() === 'm_tallyport', null, { timeout: 20000 });
     await page.waitForFunction(() => Sound.status().effects.cached.includes('s_click'), null, { timeout: 20000 });
-    expect(await page.evaluate(() => Object.keys(Sound.SAMPLES).length)).toBe(64);
+    expect(await page.evaluate(() => Object.keys(Sound.SAMPLES).length)).toBe(72);
     const serial = await page.evaluate(() => Sound.status().effects.serial);
     await page.locator('[data-a=snd][data-k=mu]').click();
     expect(await page.evaluate(() => Sound.playing())).toBe(null);

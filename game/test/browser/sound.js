@@ -58,7 +58,7 @@ test('every effect and all spell variants render audio or safely handle unavaila
   else { expect(result.count).toBeGreaterThan(60); expect(result.maxPeak).toBeLessThan(1); }
 });
 
-test('all 64 generated effects decode with exact timing, headroom and responsive onsets', async ({ page }) => {
+test('all 72 effect samples decode with exact timing, headroom and responsive onsets', async ({ page }) => {
   test.setTimeout(120000);
   const f = await fixture(page);
   const result = await f.evaluate(async () => {
@@ -84,7 +84,7 @@ test('all 64 generated effects decode with exact timing, headroom and responsive
     }
     return { available: true, rows };
   });
-  if (result.available) expect(result.rows).toHaveLength(64);
+  if (result.available) expect(result.rows).toHaveLength(72);
   else expect(await f.evaluate(() => !!(window.OfflineAudioContext || window.webkitOfflineAudioContext))).toBe(false);
 });
 

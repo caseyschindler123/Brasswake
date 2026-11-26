@@ -41,3 +41,13 @@ test('creature families cover animals, constructs, ranged and magical enemies', 
   const { effects } = harness();
   for (const [name, family] of Object.entries({ 'Gull': 'bird', 'Winter Wolf': 'beast', 'Rat': 'small', 'Giant Spider': 'insect', 'Giant Leech': 'wet', 'Red Dragon': 'dragon', 'Lich': 'spirit', 'Slag Golem': 'stone', 'Brass Crossbow Automaton': 'bow', 'Marauder': 'swing' })) assert.equal(effects.creature(name), family);
 });
+
+test('cold footstep fallback is also quiet and follows the same material hierarchy',()=>{
+  const h=harness(),levels=[];
+  for(const surface of ['grass','sand','snow','earth','wood','stone']){
+    h.ctx.currentTime+=1;h.scheduled.length=0;h.sound.sfx('step',surface);
+    levels.push(Math.max(...h.scheduled.filter(row=>row[0]==='gain').map(row=>row[1])));
+  }
+  const ceilings=[.00101,.00281,.00361,.00401,.00721,.01001];
+  levels.forEach((level,i)=>{assert.ok(level<=ceilings[i]);if(i)assert.ok(level>levels[i-1]);});
+});

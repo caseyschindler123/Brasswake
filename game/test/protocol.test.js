@@ -27,7 +27,7 @@ test('music-only changes select related coverage and smoke without full guided d
 });
 test('prepared effect assets use complete audio coverage; shared and packaging changes still require full checks',()=>{
   const effects=Object.values(JSON.parse(fs.readFileSync(path.join(__dirname,'../../arttools/music/effects.json'),'utf8')).effects);
-  assert.equal(effects.length,64);
+  assert.equal(effects.length,72);
   for(const {path:file} of effects){
     const plan=chooseUI({files:[file]});
     assert.deepEqual(plan.suites,['smoke','scenes','sound','music']);

@@ -1064,8 +1064,13 @@
     if(actor===P)for(let n=contacts;n>0;n--)footfall();
   }
   function footfall() {
-    const k = map.t[P.y * map.w + P.x], room = (map.blds || []).find(o => o.enter && buildingContains(o, P.x, P.y));
-    const surface = room ? room.room.fl === 'flag' ? 'stone' : 'wood' : map.hall || k === 6 ? 'wood' : map.dungeon || k === 3 || k === 7 ? 'stone' : 'earth';
+    const i = P.y * map.w + P.x, k = map.t[i], region = map.reg?.[i], room = (map.blds || []).find(o => o.enter && buildingContains(o, P.x, P.y));
+    let surface = 'earth';
+    if (room) surface = room.room.fl === 'flag' ? 'stone' : 'wood';
+    else if (map.hall || k === 6) surface = 'wood';
+    else if (map.dungeon || k === 3 || k === 7) surface = 'stone';
+    else if (k === 5) surface = map.surface?.[i] === 5 ? 'stone' : 'sand';
+    else if (k < 2) surface = region === 7 ? 'snow' : region === 5 || region === 6 ? 'earth' : 'grass';
     emit('step',surface);
   }
   function onTile() {

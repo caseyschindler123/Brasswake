@@ -1569,63 +1569,63 @@
   },
   {
     "path": "art/fx/s_step_soil_1.wav",
-    "size": 32698,
-    "sha256": "a608be86227fb90e3e523a5aa3d43820557b061621ab83abaf8d51ce0b0a3e27"
+    "size": 4790,
+    "sha256": "36b07f9764a3aff6ea9327f20dfe3b6a327ba5ba49ce901e328d8e58cbf6632e"
   },
   {
     "path": "art/fx/s_step_soil_2.wav",
-    "size": 55478,
-    "sha256": "93c3909320596c8a1bc07b052d7991770056b6f869a5eb8a621bc08a2c6cc10e"
+    "size": 7624,
+    "sha256": "f7de4317f956b1ba3f7ffc056eda0d78920feadc2abf7f40027da684c94da103"
   },
   {
     "path": "art/fx/s_step_soil_3.wav",
-    "size": 38000,
-    "sha256": "299024300b4ef255b02f092fee86af58df4bb7fa80e4dda6b2c9e334da31b6e3"
+    "size": 4658,
+    "sha256": "c9208a1c905fda7555e4eccc27a714ef2f9c5e9ecd1ff84b9949d5f5b2d4e4dc"
   },
   {
     "path": "art/fx/s_step_soil_4.wav",
-    "size": 36768,
-    "sha256": "5da57b3f7d227bb2f5e6b479a08a7857eac01d8152018e525ac07e2644d5d3ed"
+    "size": 4652,
+    "sha256": "d0fe98a0c11f4232022958e479610df6a520b28e3ed8d97961767ee5ed0f26c5"
   },
   {
     "path": "art/fx/s_step_stone_1.wav",
-    "size": 15724,
-    "sha256": "46c86a693899086d00eb11bf2b4715da0caecb3f30dabbd35b9a9673bb952cde"
+    "size": 5470,
+    "sha256": "d0a6bad6f399d476127fc9db70c9ca35eb76538e943fddcc82fbdb6067473a9a"
   },
   {
     "path": "art/fx/s_step_stone_2.wav",
-    "size": 31278,
-    "sha256": "e59bb0c397e441fc3c967a263d2b77fa64d7bec0f67a2c2cd737e977f9cd2a4c"
+    "size": 5546,
+    "sha256": "c74a16bf1acdc98c0c662e0ec829898913bb4e6aacb409915238b709b7eda29f"
   },
   {
     "path": "art/fx/s_step_stone_3.wav",
-    "size": 28156,
-    "sha256": "7a6035556ffdda372bb255bf3714c6a476d49a4f1fed2dbf4c6c14c14af29c98"
+    "size": 5772,
+    "sha256": "3bcf2c1cb58c145f24a2640fb2bf1a197199102b4f5960a33a33ea86df5f219e"
   },
   {
     "path": "art/fx/s_step_stone_4.wav",
-    "size": 17520,
-    "sha256": "7dfa92192d5878be1069ee723dde166549739e90d8cdbb45ac66ed48ed9230fa"
+    "size": 5672,
+    "sha256": "785c44d68e031f855f10902a1df4a195d82727ea116fb603f099dd465ac6c980"
   },
   {
     "path": "art/fx/s_step_wood_1.wav",
-    "size": 22710,
-    "sha256": "de3703d985aa76ba2b83a0780710277e763598124dac5860080e4c951a47571e"
+    "size": 4150,
+    "sha256": "c1bfacd08b6b03b3d195a6be4ea134eb59bb0edb069308b2f7a0728708c208c0"
   },
   {
     "path": "art/fx/s_step_wood_2.wav",
-    "size": 43158,
-    "sha256": "0c58a2e7dc8b71dbb13ec8d2b9074671600625698fe99f6c40510e6afb272bb4"
+    "size": 4380,
+    "sha256": "1a25fc3d5812c646f7451bf25ca74fa5a8bc4ad67b1461bc648284604b4e2208"
   },
   {
     "path": "art/fx/s_step_wood_3.wav",
-    "size": 19504,
-    "sha256": "4846c4e153a39e85732fb5777dbe66af950a9195138ab17301920ac775f13a0d"
+    "size": 4000,
+    "sha256": "5833d23420a6063d7cbb6f449618c00928d2ff0f1666ea89234fe1e970f988b0"
   },
   {
     "path": "art/fx/s_step_wood_4.wav",
-    "size": 18008,
-    "sha256": "c3cb58c958b72f9d2e4055a09795c22e138fd7d4e2956fd216153ef5a9498256"
+    "size": 4244,
+    "sha256": "64263378f511e44a02e380a855e279156cc43b6b6e7fc28f22cc62f7a401fc57"
   },
   {
     "path": "art/fx/s_swing.wav",
@@ -5211,5 +5211,45 @@
       1448,
       1263
     ]
+  },
+  {
+    "path": "art/fx/s_step_snow_1.wav",
+    "size": 9330,
+    "sha256": "7aa29b4173847c572859667be05d2b7b028adccc43637cac7ac97cf417fd7655"
+  },
+  {
+    "path": "art/fx/s_step_snow_2.wav",
+    "size": 9364,
+    "sha256": "6ba19ea97b4829870eceb1599ef3c1c9723396c95731659701d1f9d19b9ea7b8"
+  },
+  {
+    "path": "art/fx/s_step_snow_3.wav",
+    "size": 9364,
+    "sha256": "3bc8fd94368a01772471c87c36a35d33b488eda718ecc74785028dce9ddf9284"
+  },
+  {
+    "path": "art/fx/s_step_snow_4.wav",
+    "size": 9352,
+    "sha256": "426ea759cca824666c67d6eb005927e4ec3b7c839cfc4896526242932d23cd7c"
+  },
+  {
+    "path": "art/fx/s_step_sand_1.wav",
+    "size": 12830,
+    "sha256": "57f06c17a090f30a59038abfa337dade5756b71770f94cdbd8a32680b4c77519"
+  },
+  {
+    "path": "art/fx/s_step_sand_2.wav",
+    "size": 14174,
+    "sha256": "ad3739e398e98f8abde0ba70630e249015e741e533feb0da6f76f442848f9ef4"
+  },
+  {
+    "path": "art/fx/s_step_sand_3.wav",
+    "size": 12830,
+    "sha256": "7fcde79df7585420ea65766cff5b0856c129d0446de384d3889ef61f2233883a"
+  },
+  {
+    "path": "art/fx/s_step_sand_4.wav",
+    "size": 13668,
+    "sha256": "3339e13f5537ead6ab17eaa129bc36950fa7ee4505399877486bf50ba1e5498f"
   }
 ]
