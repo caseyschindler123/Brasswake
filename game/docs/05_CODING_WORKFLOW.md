@@ -97,6 +97,8 @@ Report classification, outcome, actual checks, commit/local status, applicable d
 
 ## Decision log
 
+- 2026-11-26: Casey approved expedited publication of the intro-control fix before takeoff, with full checks afterward. The [intro hotfix plan](plans/2026-11-26-intro-controls-hotfix.md) owns a short-lived baseline/path-bound profile: affected core groups, nine exact cases in all three profiles, all known relevant failures, zero retries and all hosted flows. Remove activation after verified publication and run non-publishing full coverage; normal fallback remains unchanged.
+
 - 2026-11-26: The complete fitted-character asset set produced a 271 KB verification record, above the per-environment-entry limit on Actions Linux runners. Preserve the entire record and raw receipt, compress only inter-job transport, bound decoding and retain identical fail-closed aggregate/hosted checks. Regression coverage includes an actual deployment-sized record and malformed/expanding payload rejection.
 
 - 2026-11-25: Reconcile active context with the implemented selector/CI and add a default environment-use guide. Distinguish direct rule tests, visual captures, Dev setup and ordinary player-flow evidence; document legacy-smoke/three-profile limits and the specific extraction proof. Completed plans retain their original proposal as historical design, with current behavior owned here. This reconciliation changes Markdown only and runs no game checks or deployment.

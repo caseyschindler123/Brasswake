@@ -409,6 +409,35 @@ test('facing hotfix session binds the exact baseline, window, changed paths and 
     assert.deepEqual(full.suites,ALL_SUITES);
   }
 });
+test('intro hotfix binds baseline, expiry, paths, all profiles and every relevant failure',()=>{
+  const record=loadSession(),id='intro-controls-hotfix-2026-11-26';
+  if(record?.id!==id){assert.throws(()=>webkitGrep(id),/unavailable/);return;}
+  const candidate='a'.repeat(40),previous='b'.repeat(40),base=record.publishedBase;
+  const sources=['game/src/game.js','game/src/style.css','game/src/scene_b.js'];
+  const files=[SESSION_FILE,...sources,'game/test/browser/intro-helper.js','game/test/browser/learning-boundaries.js','game/test/browser/living-world.js'];
+  const pkg=fs.readFileSync(path.join(__dirname,'../package.json'),'utf8'),lock=fs.readFileSync(path.join(__dirname,'../package-lock.json'),'utf8');
+  const simulate=(delta=files,reference=base,now=Date.parse(record.startsAt)+1000)=>selection({
+    now,assertOrder:(published,head)=>assert.deepEqual([published,head],[reference,candidate]),
+    env:{CI:'true',GITHUB_EVENT_NAME:'push',GITHUB_REF:'refs/heads/main',BW_DIFF_BASE:previous,BW_RELEASE_BASE:reference,BW_RELEASE_VERIFIED:'true'},
+    runGit:(...args)=>{if(args[0]==='rev-parse')return candidate;if(args[0]==='diff')return(args[4]===previous||args[4]===reference?delta:[]).join('\0')+'\0';if(args[0]==='show')return args[1].endsWith('package-lock.json')?lock:pkg;return '';},
+  });
+  const selected=simulate();
+  assert.equal(selected.tier,'session');assert.equal(validSelection(selected),true);
+  assert.deepEqual(selected.coreGroups,['assets','actors','world','build','protocol']);
+  assert.deepEqual(liveSuites(selected),LIVE_SUITES);
+  assert.equal(releaseGate({core:'success',plan:selected,browser:'success',expectedCommit:candidate}),true);
+  for(const browser of ['failure','skipped','cancelled'])assert.equal(releaseGate({core:'success',plan:selected,browser,expectedCommit:candidate}),false);
+  for(const full of [simulate(files,'d'.repeat(40)),simulate(files,base,Date.parse(record.expiresAt)),simulate(files,base,Date.parse(record.startsAt)-1),
+    ...sources.map(file=>simulate(files.filter(f=>f!==file))),
+    ...['game/src/service-worker.js','game/build.js','game/package-lock.json','game/art/new.webp'].map(file=>simulate([...files,file]))]){
+    assert.equal(full.tier,'full');assert.deepEqual(full.suites,ALL_SUITES);
+  }
+  for(const key of ['coreGroups','profiles','sessionProfile']){
+    const altered={...selected,[key]:key==='coreGroups'?['assets']:key==='profiles'?['phone-chromium']:{...selected.sessionProfile,candidate:'c'.repeat(40)}};
+    assert.equal(releaseGate({core:'success',plan:altered,browser:'success',expectedCommit:candidate}),false);
+  }
+});
+
 function listSuites(suites,{live=false,session}={}){
   const env={...process.env,[live?'BW_LIVE_SUITES':'BW_UI_SUITES']:JSON.stringify(suites)};
   if(live)env.BW_LIVE='1';else delete env.BW_LIVE;
@@ -426,6 +455,13 @@ test('session real discovery keeps each exact WebKit critical case and complete 
   }
   const standard=listSuites(session.chromiumSuites), cases=listSuites(session.chromiumSuites,{session:session.id});
   assert.deepEqual(cases.filter(t=>t.project==='phone-webkit').map(t=>t.title).sort(),session.webkitTests.toSorted());
+  if(session.id==='intro-controls-hotfix-2026-11-26'){
+    for(const profile of ['phone-chromium','desktop-chromium'])
+      assert.deepEqual(cases.filter(t=>t.project===profile).map(t=>t.title).sort(),session.webkitTests.toSorted());
+    assert.equal(cases.length,27);
+    assert.ok(standard.length>cases.length);
+    return;
+  }
   for(const profile of ['phone-chromium','desktop-chromium'])
     assert.deepEqual(cases.filter(t=>t.project===profile),standard.filter(t=>t.project===profile));
   assert.ok(cases.some(t=>t.title.includes('painted fit ·')&&t.project==='phone-chromium'));

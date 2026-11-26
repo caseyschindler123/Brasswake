@@ -7,6 +7,7 @@ const phone = { viewport: { width: 390, height: 720 }, deviceScaleFactor: 1,
 const sceneProfiles=process.env.BW_SCENE_PROFILES?JSON.parse(process.env.BW_SCENE_PROFILES):require('./test/scope-policy').PROFILES;
 if(!Array.isArray(sceneProfiles)||!sceneProfiles.length||sceneProfiles.some(p=>!require('./test/scope-policy').PROFILES.includes(p)))throw Error('Invalid capture profiles');
 const webkitSession = live ? undefined : require('./test/release-session').webkitGrep();
+const chromiumSession = live ? undefined : require('./test/release-session').chromiumGrep();
 
 module.exports = defineConfig({
   testDir: './test/browser',
@@ -27,9 +28,9 @@ module.exports = defineConfig({
     screenshot: 'only-on-failure',
   },
   projects: live ? [{ name: 'live-phone-chromium', use: { browserName: 'chromium', ...phone } }] : [
-    { name: 'phone-chromium', grepInvert:sceneProfiles.includes('phone-chromium')?undefined:/visual scene:/, use: { browserName: 'chromium', ...phone } },
+    { name: 'phone-chromium', grep:chromiumSession, grepInvert:sceneProfiles.includes('phone-chromium')?undefined:/visual scene:/, use: { browserName: 'chromium', ...phone } },
     { name: 'phone-webkit', grep:webkitSession, grepInvert:sceneProfiles.includes('phone-webkit')?undefined:/visual scene:/, use: { browserName: 'webkit', ...phone } },
-    { name: 'desktop-chromium', grepInvert:sceneProfiles.includes('desktop-chromium')?undefined:/visual scene:/, use: { browserName: 'chromium', viewport: { width: 1280, height: 800 } } },
+    { name: 'desktop-chromium', grep:chromiumSession, grepInvert:sceneProfiles.includes('desktop-chromium')?undefined:/visual scene:/, use: { browserName: 'chromium', viewport: { width: 1280, height: 800 } } },
   ],
   webServer: live ? undefined : {
     command: 'node test/server.js',
