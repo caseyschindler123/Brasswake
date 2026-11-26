@@ -7,6 +7,9 @@ test('painted release · representative equipment and battle attachments survive
  const errors=observeErrors(page);await open(page);
  const result=await page.evaluate(async()=>{
   await PaintedGear.preload();
+  const actor=Scene.debug().P,target={fx:actor.fx+1,fy:actor.fy};Scene.FX.swing('me',target,'swords');
+  await new Promise(resolve=>setTimeout(resolve,100));
+  if(!(actor.atk>0)||Math.hypot(actor.ax||0,actor.ay||0)>1e-9)throw Error('Captured human attack must keep source foot placement without a second whole-body lunge');
   const base={...__bw.HOST.app(),combo:5,build:1,hat:2,wpn:27,wkind:'crossbow',style:'thrust',shield:-1,gear:null,cloth:'#4d6684'},
    gear=PaintedGear.resolve({wpn:27,hat:2,hands:{name:'Plated Gauntlets'},feet:{name:'Riding Boots'},cloak:{name:'Travelling Cloak'}}),a={...base,gear};a.key=JSON.stringify(a);
   const canvas=Object.assign(document.createElement('canvas'),{width:900,height:620}),g=canvas.getContext('2d');g.fillStyle='#eadbbd';g.fillRect(0,0,900,620);document.body.append(canvas);canvas.style.display='none';

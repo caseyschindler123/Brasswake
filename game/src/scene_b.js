@@ -1475,7 +1475,9 @@
       }
       emit(a !== 'me' ? 'creature' : kind === 'fencing' ? 'thrust' : kind === 'archery' ? 'bow' : 'swing', a !== 'me' ? Effects.creature(A.name) : null);
       if (kind === 'archery') { shots.push({ x: A.fx, y: A.fy, tx: B.fx, ty: B.fy, target: b, t: 0 }); return; }
-      anims.push({ t: 0, d: .2, f: u => { const s = Math.sin(u * Math.PI) * .45; A.ax = dx / d * s; A.ay = dy / d * s; }, end: () => { A.ax = A.ay = 0; } }); slashes.push({ x: B.fx, y: B.fy, t: 0, flip: dx < 0 });
+      // The baked human performance already contains its weight shift and step.
+      if(!AD?.painted||(a!=='me'&&!A.npcLook))anims.push({ t: 0, d: .2, f: u => { const s = Math.sin(u * Math.PI) * .45; A.ax = dx / d * s; A.ay = dy / d * s; }, end: () => { A.ax = A.ay = 0; } });
+      slashes.push({ x: B.fx, y: B.fy, t: 0, flip: dx < 0 });
     },
     hit(b, txt, col) { const s = shots.find(s => s.target === b && !s.impact); if (s && String(txt)[0] !== '+') s.impact = { b, txt, col }; else landHit(b, txt, col); }
   };
