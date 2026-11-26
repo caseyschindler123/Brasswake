@@ -218,7 +218,9 @@ test('Backstab · real concealed rear walk at Stealth 10 unlocks two Fencing thr
   expect(result.sk.tactics).toBeGreaterThan(0);
   expect(result.sk.anatomy).toBeGreaterThan(0);
   expect(result.hp).toBeLessThan(initial.hp);
-  const hits = (await frame.locator('#e-sw .hit').allTextContents()).map(Number);
+  const hitLabels = await frame.locator('#e-sw .hit').allTextContents();
+  expect(hitLabels.every(text => /^You: \d+$/.test(text))).toBe(true);
+  const hits = hitLabels.map(text => Number(text.slice('You: '.length)));
   expect(hits).toHaveLength(2);
   expect(hits.every(hit => hit >= 25)).toBe(true);
   expect(initial.foe - result.foe).toBe(hits[0] + hits[1]);

@@ -165,7 +165,8 @@ test('battle boundaries · Siphon drains once when its first swing misses and it
   expect(swings).toBe(2);
   await expect(f.locator('#e-sw .miss')).toHaveCount(1);
   await expect(f.locator('#e-sw .ouch')).toHaveCount(2);
-  await expect(f.locator('#e-sw .ouch').filter({ hasText: 'mana' })).toHaveText('−4 mana');
+  const attacker = await f.evaluate(() => __bw.F.title);
+  await expect(f.locator('#e-sw .ouch').filter({ hasText: 'mana' })).toHaveText(attacker + ': −4 mana');
   expect(await f.evaluate(() => [__bw.S.mana, __bw.F.round])).toEqual([14, 2]);
   expect(await f.evaluate(() => __bw.S.hp)).toBeLessThan(hp);
   expect(errors).toEqual([]);

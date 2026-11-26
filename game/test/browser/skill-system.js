@@ -255,7 +255,8 @@ test('skill system · a warrior bandages and spends stamina on a damaging maneuv
   const result = await f.evaluate(() => ({ stamina: __bw.S.stamina, foe: __bw.F.foe.hp, tactics: __bw.S.sk.tactics }));
   expect(result.stamina).toBe(bandaged.stamina - 8 + 4);
   expect(result.foe).toBeLessThan(1200);
-  const strikes = (await f.locator('#e-sw .hit').allTextContents()).filter(text => /^\d+$/.test(text)).map(Number);
+  const strikeLabels = (await f.locator('#e-sw .hit').allTextContents()).filter(text => /^You: \d+$/.test(text));
+  const strikes = strikeLabels.map(text => Number(text.slice('You: '.length)));
   expect(strikes).toHaveLength(2);
   expect(1200 - result.foe).toBe(strikes.reduce((total, strike) => total + strike, 0));
   expect(result.tactics).toBeGreaterThan(34);
