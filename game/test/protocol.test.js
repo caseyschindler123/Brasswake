@@ -2,6 +2,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs'), path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { deflateSync } = require('node:zlib');
 const { chooseUI, collectChanges, packagingScripts, selection } = require('./select-tests');
 const { publishedSource, assertDeploymentOrder, publicationDecision } = require('./deployment-baseline');
 const { ALL_SUITES, MODULES, normalizeSuites, suitesFromEnvironment, validSelection } = require('./ui-suites');
@@ -9,6 +10,7 @@ const { releaseGate } = require('./release-gate');
 const { registrationEquivalent } = require('./scope-policy');
 const { LIVE_SUITES, liveSuites, suitesFromLiveEnvironment } = require('./live-suites');
 const { FILE: SESSION_FILE, loadSession, webkitGrep } = require('./release-session');
+const { encodeSelection, decodeSelection, PREFIX, MAX_ENCODED_BYTES, MAX_DECODED_BYTES } = require('./selection-transport');
 
 for (const file of ['AGENTS.md', 'game/docs/05_CODING_WORKFLOW.md']) {
   test('tooling/docs do not publish or run game UI: ' + file, () => {
@@ -239,6 +241,35 @@ test('aggregate CLI reads the validated Actions plan and job results',()=>{
       env:{...process.env,BW_CORE_RESULT:'success',BW_SELECTION:JSON.stringify(plan),BW_BROWSER_RESULT:browser}});
     assert.equal(result.status===0,approved);
   }
+});
+test('deployment-sized verification transports every path under the Actions environment limit',()=>{
+  const files=Array.from({length:2400},(_,i)=>'game/art/painted-release/directional-wardrobe/independent-world-and-frontal-projections/測定-fitted-equipment-bank-'+i+'.webp');
+  const plan={...chooseUI({files:['game/src/game.js']}),files};
+  const legacy=JSON.stringify(plan), encoded=encodeSelection(plan);
+  assert.ok(Buffer.byteLength(legacy)>=271213,'fixture must exceed the observed plan size');
+  assert.ok(Buffer.byteLength(encoded)<=MAX_ENCODED_BYTES);
+  assert.deepEqual(decodeSelection(encoded),plan);
+  assert.deepEqual(decodeSelection(legacy),plan);
+  for(const [payload,browser,approved] of [[encoded,'success',true],[encoded,'skipped',false],[PREFIX+'invalid!','success',false]]){
+    const result=spawnSync(process.execPath,[path.join(__dirname,'release-gate.js')],{encoding:'utf8',
+      env:{...process.env,BW_CORE_RESULT:'success',BW_SELECTION:payload,BW_BROWSER_RESULT:browser}});
+    assert.equal(result.status===0,approved);
+  }
+});
+test('verification transport rejects malformed, oversized and expanding payloads',()=>{
+  const wrap=bytes=>PREFIX+bytes.toString('base64');
+  const json=Buffer.from('{"ui":true}');
+  const compressed=deflateSync(json);
+  const corrupt=Buffer.from(compressed);corrupt[corrupt.length-1]^=1;
+  for(const value of [undefined,PREFIX,PREFIX+'Zg=',PREFIX+'Zg==\n',PREFIX+'Zh==',PREFIX+'Zg__',
+    PREFIX+'A'.repeat(MAX_ENCODED_BYTES),wrap(corrupt),wrap(Buffer.concat([compressed,Buffer.from([0])])),
+    wrap(deflateSync(Buffer.from([34,255,34]))),
+    wrap(deflateSync(Buffer.alloc(MAX_DECODED_BYTES+1,32)))])
+    assert.throws(()=>decodeSelection(value));
+  assert.throws(()=>decodeSelection(' '.repeat(MAX_DECODED_BYTES+1)),/uncompressed size limit/);
+  assert.throws(()=>encodeSelection('x'.repeat(MAX_DECODED_BYTES)),/uncompressed size limit/);
+  const highEntropy=require('node:crypto').randomBytes(MAX_ENCODED_BYTES).toString('hex');
+  assert.throws(()=>encodeSelection(highEntropy),/Actions transport size limit/);
 });
 test('deferred execution cannot suppress explicitly requested full UI',()=>{
   const result=spawnSync(process.execPath,[path.join(__dirname,'verify.js'),'--defer-ui','--ui'],{encoding:'utf8'});

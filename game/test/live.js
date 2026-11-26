@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { verifyRelease } = require('./verify-release');
 const { liveSuites } = require('./live-suites');
+const { decodeSelection } = require('./selection-transport');
 const baseURL = process.env.BW_BASE_URL;
 const commit = process.env.BW_EXPECT_COMMIT;
 if (!baseURL || !/^https?:\/\//.test(baseURL) || !/^[a-f0-9]{40}$/.test(commit || '')) {
@@ -14,7 +15,7 @@ async function main() {
   // CI passes its validated exact-commit plan. Standalone checks default to all
   // hosted flows, so an absent plan can never silently narrow verification.
   const suites = process.env.BW_SELECTION === undefined ? undefined
-    : liveSuites(JSON.parse(process.env.BW_SELECTION));
+    : liveSuites(decodeSelection(process.env.BW_SELECTION));
   const receipt = await verifyRelease({ baseURL, expectedCommit: commit });
   fs.mkdirSync('../work', { recursive: true });
   fs.writeFileSync('../work/live-release.json', JSON.stringify(receipt, null, 2) + '\n');

@@ -15,7 +15,7 @@ const exact = new Set([
   'game/test/actor-rig.test.js', 'game/test/painted-character.test.js',
   'game/test/protocol.test.js', 'game/test/release-gate.js', 'game/test/release-session.js', 'game/test/save-compatibility.test.js',
   'game/test/scope.test.js', 'game/test/select-tests.js', 'game/test/ui-suites.js',
-  'game/test/live-suites.js', 'game/test/run-ui.js', 'game/test/verify.js',
+  'game/test/live.js', 'game/test/live-suites.js', 'game/test/run-ui.js', 'game/test/selection-transport.js', 'game/test/verify.js',
   'game/test/browser/appearance-materials.js', 'game/test/browser/arming.js',
   'game/test/browser/npc-appearance.js', 'game/test/browser/painted-release.js',
   'game/test/browser/worlds.js',

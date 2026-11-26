@@ -40,6 +40,8 @@ These commands select different things: an explicit `test:ui -- --suites=...` ad
 
 select-tests.js records selected suites, core groups, scenes and capture profiles. ui-suites.js validates scope metadata and complete full inventory; the aggregate rejects malformed plans and failed/cancelled/skipped selected browser jobs. Current canary covers public character setup, actual SQL and device save/reload in all three profiles. Legacy smoke and every existing scenario remain in full coverage.
 
+Actions passes the verification plan between jobs using lossless bounded compression from `selection-transport.js`. The raw `work/test-selection.json` receipt retains every selected path and scope field. Aggregate and hosted consumers accept both legacy JSON and the encoded form, reject malformed/oversize payloads, and apply the same scope and exact-commit validation after decoding. Transport size never justifies dropping file coverage.
+
 Core groups are selected before execution: assets/build/protocol plus affected engine/audio/actors/world/cards/effects groups; full runs all groups, including offline/server checks. Do not repeat passing unchanged full local and CI runs or hosted flows without a concrete unresolved concern.
 
 Coverage retains game/dependency/packaging changes since verified publication, including failed rollouts. Test-fixture history is compared with verified full source f7988d8 (Actions 45703705378); exact extraction proof checks unchanged scenario/helper text before allowing the short migration gate. Missing history, changed helper behavior, unknown fixtures or unverifiable equivalence retain full. This is bounded provenance reuse, not a blanket exemption for test changes.
@@ -94,6 +96,8 @@ For releases, monitor the exact commit through deployment/live verification; a g
 Report classification, outcome, actual checks, commit/local status, applicable deployment status and material limitations. No routine cost attribution. Discuss costs only when requested or needed for paid-action approval; existing paid-image/settings approval boundaries remain unchanged. Never expose credentials, overwrite unrelated work, force-push or bypass sandbox controls. Delegate only bounded independent work when the benefit warrants it; prefer one agent for coupled/simple work.
 
 ## Decision log
+
+- 2026-11-26: The complete fitted-character asset set produced a 271 KB verification record, above the per-environment-entry limit on Actions Linux runners. Preserve the entire record and raw receipt, compress only inter-job transport, bound decoding and retain identical fail-closed aggregate/hosted checks. Regression coverage includes an actual deployment-sized record and malformed/expanding payload rejection.
 
 - 2026-11-25: Reconcile active context with the implemented selector/CI and add a default environment-use guide. Distinguish direct rule tests, visual captures, Dev setup and ordinary player-flow evidence; document legacy-smoke/three-profile limits and the specific extraction proof. Completed plans retain their original proposal as historical design, with current behavior owned here. This reconciliation changes Markdown only and runs no game checks or deployment.
 

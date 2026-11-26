@@ -3,13 +3,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { assertDeploymentOrder, isSHA } = require('./deployment-baseline');
 const { ALL_SUITES, MODULES, normalizeSuites, validSelection } = require('./ui-suites');
+const { encodeSelection } = require('./selection-transport');
 const { FILE: SESSION_FILE, CHROMIUM, loadSession, releaseSession } = require('./release-session');
 const root = path.resolve(__dirname, '../..');
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 const protocol = new Set(['game/test/select-tests.js', 'game/test/ui-suites.js',
   'game/test/verify.js', 'game/test/run-ui.js', 'game/test/release-gate.js',
   'game/test/deployment-baseline.js', 'game/test/live.js', 'game/test/live-suites.js', 'game/test/workflow.test.js', 'game/test/protocol.test.js', 'game/playwright.config.js', 'game/test/browser/ui.spec.js', 'game/test/browser/live.spec.js',
-  'game/package.json', 'game/package-lock.json', SESSION_FILE, 'game/test/release-session.js']);
+  'game/package.json', 'game/package-lock.json', SESSION_FILE, 'game/test/release-session.js', 'game/test/selection-transport.js']);
 const runner = new Set(['game/test/select-tests.js', 'game/test/ui-suites.js',
   'game/test/verify.js', 'game/test/run-ui.js', 'game/test/live.js', 'game/test/live-suites.js', 'game/playwright.config.js', 'game/test/browser/ui.spec.js', 'game/test/browser/live.spec.js']);
 const sourceGroups = [
@@ -171,7 +172,7 @@ function saveSelection(selected) {
   if (process.env.GITHUB_OUTPUT) {
     const outputs = { ui: selected.ui, core: selected.core, release: selected.release, live: selected.live, coverage_base: selected.coverageBase || '',
       suites: JSON.stringify(selected.suites), scenes: JSON.stringify(selected.scenes), scene_profiles: JSON.stringify(selected.sceneProfiles),
-      ui_session_profile: selected.sessionProfile?.id || '', plan: JSON.stringify(selected) };
+      ui_session_profile: selected.sessionProfile?.id || '', plan: encodeSelection(selected) };
     fs.appendFileSync(process.env.GITHUB_OUTPUT, Object.entries(outputs).map(([k,v]) => k + '=' + v).join('\n') + '\n');
   }
 }
