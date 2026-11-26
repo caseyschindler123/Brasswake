@@ -253,7 +253,7 @@ test('first-day boundaries · stall gear and Odalys’s pages show loaded item i
   await openDev(page);
   await page.evaluate(() => {
     const s = __bw.S;
-    // Isolate gear with a material preview and gear that uses the atlas.
+    // Armor and jewelry both have material previews in the painted renderer.
     const armor = __bw.makeItem('common', 1, 'armor', 'swords', { source: 'starter' });
     const ring = __bw.makeItem('common', 1, 'ring', 'swords', { source: 'starter' });
     s.stall = { r: 1, n: 0, stock: [armor, ring] };
@@ -261,7 +261,7 @@ test('first-day boundaries · stall gear and Odalys’s pages show loaded item i
     s.seen.trade = s.seen.shop = 1;
   });
   // The material renderer lazily loads the icon atlas. Verify the material
-  // presentation once its art is ready, alongside a regular atlas icon.
+  // presentation once its art is ready. Pages below retain atlas coverage.
   await page.waitForFunction(() => !!Scene.equipmentIcon(__bw.S.stall.stock[0]), null, { timeout: 5000 });
   await openVendor(page, 'stallkeep');
   await expect(sheet(page).locator('[data-a="buy"]')).toHaveCount(2);
@@ -280,7 +280,7 @@ test('first-day boundaries · stall gear and Odalys’s pages show loaded item i
   expect.soft(pageIcons).toEqual(Array.from({ length: pageIcons.length }, () => ({ source: 'atlas', painted: true })));
   expect(stallIcons).toEqual([
     { source: 'material', painted: true },
-    { source: 'atlas', painted: true }
+    { source: 'material', painted: true }
   ]);
   expect(errors).toEqual([]);
 });
