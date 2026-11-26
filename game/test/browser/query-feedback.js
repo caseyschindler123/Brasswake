@@ -99,6 +99,18 @@ for (const scenario of ['sorting', 'partial', 'extra', 'syntax']) test(`query fe
     expect(await f.evaluate(sql => Engine.grade(__bw.F.task, sql).why, wrong)).toBe('rowcount');
   } else wrong = correct.replace(/^SELECT/, 'SELEC');
   const before = scenario === 'syntax' && await resources(f);
+  const question = f.locator('#fight .battle-question');
+  if (scenario === 'syntax') {
+    await expect(question.locator('.first-technique')).toBeVisible();
+    if (info.project.use.browserName === 'webkit' && info.project.use.isMobile) {
+      // Playwright cannot send a mouse wheel in mobile WebKit.
+      await question.locator('.ask').scrollIntoViewIfNeeded();
+    } else {
+      await question.hover();
+      await page.mouse.wheel(0, 1200);
+    }
+    await expect.poll(() => question.evaluate(body => body.scrollTop)).toBeGreaterThan(0);
+  }
   await submit(f, wrong);
   await expect(f.locator('.query-pair')).toBeVisible();
   expect(await f.evaluate(() => __bw.F.comparison.yours)).toBe(wrong);
@@ -111,7 +123,11 @@ for (const scenario of ['sorting', 'partial', 'extra', 'syntax']) test(`query fe
     await expect(f.locator('.query-solution')).toHaveCount(0);
     await expect(f.locator('.query-error')).toContainText(/SELEC.*syntax error/);
     await expect(f.locator('#sql')).toHaveValue(wrong);
-    await expect(f.locator('.query-feedback')).toContainText('One free fix');
+    const repair = f.locator('.query-feedback').getByText('One free fix', { exact: true });
+    await expect(repair).toBeVisible();
+    const headingBox = await repair.boundingBox(), questionBox = await question.boundingBox();
+    expect(headingBox.y).toBeGreaterThanOrEqual(questionBox.y);
+    expect(headingBox.y + headingBox.height).toBeLessThanOrEqual(questionBox.y + questionBox.height);
     const box = await f.locator('#kb [data-fn=run]').boundingBox();
     expect(box.y + box.height).toBeLessThanOrEqual(page.viewportSize().height);
     const pair = await f.locator('.query-pair').boundingBox(), area = await f.locator('#f-out').boundingBox();

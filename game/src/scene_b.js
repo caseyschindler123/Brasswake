@@ -925,14 +925,16 @@
       if (host.ghostMoved) host.ghostMoved(GHOST);
       return;
     }
+    let label = null;
     for (let i = labelTargets.length - 1; i >= 0; i--) {
       const { e, x, y, width } = labelTargets[i];
       if (Math.abs(px - x) <= width / 2 && py >= y - 12 && py <= y + 3 && visibleTarget(e)) {
-        interactNear(e);
-        return;
+        label = e;
+        break;
       }
     }
-    if(inspectServiceSign(px,py))return;
+    if (label && Number.isFinite(interactionDistance(label))) return interactNear(label);
+    if (!label && inspectServiceSign(px, py)) return;
     let best = null, closest = 1.1;
     for (const e of map.ents) {
       if (!visibleTarget(e) || Math.abs(e.fx - wx) > 4 || Math.abs(e.fy - wy) > 4) continue;
@@ -940,7 +942,9 @@
       for (const [x, y] of InteractionRules.faces(e) || []) d = Math.min(d, Math.hypot(x + .5 - wx, y + .5 - wy));
       if (d < closest) { closest = d; best = e; }
     }
-    if (best) interactNear(best);
+    // A distant label can overlap the visible body of a reachable fixture.
+    if (best && (!label || Number.isFinite(interactionDistance(best)))) interactNear(best);
+    else if (label) interactNear(label);
   }
   function interactNear(e) {
     if (!interactionAvailable() || !map.ents.includes(e) || !visibleTarget(e) || e.empty) return;

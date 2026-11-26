@@ -154,7 +154,7 @@ test('fishing, dungeon keys and chest, and dojo practice remain playable', async
   expect(await f.evaluate(() => __bw.DG.left)).toBe(0);
   await f.locator('[data-a=fdone]').click();
   await f.evaluate(() => { __bw.ACT.closesheet(); __bw.HOST.interact(Scene.find(e => e.kind === 'chest')); });
-  await expect(f.locator('#sheet')).toContainText('The vault chest');
+  await expect(f.locator('#sheet').getByRole('heading', { name: 'Starter chest', exact: true })).toBeVisible();
   expect(await f.evaluate(() => __bw.DG.done)).toBe(true);
   expect(await f.evaluate(() => __bw.S.stats.dungeons)).toBe(1);
   await screenshot(page, info, 'earned-vault-chest');

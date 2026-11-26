@@ -470,11 +470,11 @@
   function enterVenue(e) {
     if (!world || map !== world || !P || !e || e.kind !== 'venueup') return false;
     const v = world.venues.get(e.venueId);
-    if (!v || e !== v.stair || !nextTo(e)) return false;
+    if (!v || e !== v.stair || !Number.isFinite(interactionDistance(e))) return false;
     const up = venueUpper(v); up.back = [P.x,P.y]; go(up,...up.entry); return true;
   }
   function exitVenue(e) {
-    if (!map || !map.venue || !P || !e || e.kind !== 'venuedown' || !map.ents.includes(e) || !nextTo(e)) return false;
+    if (!map || !map.venue || !P || !e || e.kind !== 'venuedown' || !map.ents.includes(e) || !Number.isFinite(interactionDistance(e))) return false;
     const at = venueLanding(map.venue, map.back);
     if (!at) return false;
     go(world,...at); return true;

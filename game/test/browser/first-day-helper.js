@@ -149,7 +149,7 @@ async function finishGuidedDay(f,info,stats,fish=false,study=false){
     await expect.poll(()=>f.evaluate(()=>{const e=Scene.guideEnt(),p=Scene.pos();return !!e&&Math.hypot(e.fx-p[0],e.fy-p[1])<4;})).toBe(true);
     await visit(f,'fish',stats,{x:pier[0],y:pier[1]});
     if(await coach.isVisible())await coach.click();await f.locator('[data-a=cast][data-i="0"]').click();
-    await query(f,beginnerAnswer(await f.locator('.fi-ask p').first().innerText()));stats.queries++;
+    await query(f,beginnerAnswer(await f.locator('.fi-ask > p:not(.cap2)').innerText()));stats.queries++;
     await expect(f.locator('#enc')).toContainText('A clean cast');await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(12);await f.waitForTimeout(600);
     await expect(f.locator('#say')).toBeHidden();await screenshot(f,info,'guided-first-cast-result');await f.locator('[data-a=fileave]').last().click();await speech(f);
   }else{

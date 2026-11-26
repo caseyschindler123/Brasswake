@@ -64,7 +64,7 @@ test('guided fishing keeps every cast within taught SQL and leaves results unint
   for(let i=0;i<3;i++){
     await f.evaluate(()=>__bw.HOST.interact(Scene.find(e=>e.kind==='fish'&&e.fid==='f1-pier')));if(await coach.isVisible())await coach.click();
     await expect(f.locator('#sheet')).not.toContainText('Try a harder query');await f.locator(`[data-a=cast][data-i="${i}"]`).click();
-    await expect(f.locator('#enc')).toContainText('First Circle question');const sql=beginnerAnswer(await f.locator('.fi-ask p').first().innerText());
+    await expect(f.locator('#enc')).toContainText('First Circle question');const sql=beginnerAnswer(await f.locator('.fi-ask > p:not(.cap2)').innerText());
     if(i<2){await f.locator('[data-a=fileave]').last().click();continue;}
     await query(f,sql);await expect(f.locator('#enc')).toContainText('A clean cast');await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(12);await f.waitForTimeout(600);
     await expect(f.locator('#say')).toBeHidden();await screenshot(page,info,'guided-deep-cast-results');await f.locator('[data-a=fileave]').last().click();

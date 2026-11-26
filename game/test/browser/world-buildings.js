@@ -68,7 +68,7 @@ test('world and owned-house architecture retain regional materials, paint choice
 
 const arrow = ([dx, dy]) => dx > 0 ? 'ArrowRight' : dx < 0 ? 'ArrowLeft' : dy > 0 ? 'ArrowDown' : 'ArrowUp';
 
-async function press(frame, delta, target) {
+async function press(frame, delta, target, { center = false } = {}) {
   const before = await at(frame), key = arrow(delta);
   const keyboard = frame.page().keyboard;
   // The harness is inside an iframe. Focus it before sending native keyboard input.
@@ -103,7 +103,12 @@ async function press(frame, delta, target) {
       expect(contact.cell).toEqual(target);
       expect(contact.moving).toBe(false);
     } else {
-      await frame.waitForFunction(at=>Scene.pos().every((n,i)=>n===at[i]),target,{timeout:3500});
+      await frame.waitForFunction(({ target, delta, center }) => {
+        if (!Scene.pos().every((n, i) => n === target[i])) return false;
+        if (!center) return true;
+        const { P } = Scene.debug();
+        return (P.fx - target[0]) * delta[0] + (P.fy - target[1]) * delta[1] >= 0;
+      }, { target, delta, center }, { timeout: 3500 });
     }
   } finally {
     await keyboard.up(key);
@@ -498,7 +503,8 @@ test('a player boards the two island ferries from the pier and lands safely with
     const gold = await frame.evaluate(() => __bw.S.gold);
     expect(await frame.evaluate(region => !!__bw.S.been[region], region)).toBe(false);
     await stage(frame, dock.start);
-    await press(frame, dock.direction, dock.adjacent);
+    // Owning the adjacent tile can still leave the feet outside reach.
+    await press(frame, dock.direction, dock.adjacent, { center: true });
     const context = frame.locator('#ctx');
     await expect(context).toContainText('Ferryman');
     await context.click();

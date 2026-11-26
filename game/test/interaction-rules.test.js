@@ -36,6 +36,17 @@ test('an open fractional diagonal works and either blocked side prevents corner 
   assert.ok(inReach(actor(4, 3), npc, map));
 });
 
+test('ferry and cartography prompts honor their direct approach guards with continuous reach', () => {
+  const map = grid();
+  for (const kind of ['ferry', 'cartographer']) {
+    const service = actor(4, 4, { kind });
+    assert.equal(inReach(actor(3.3, 3.3), service, map), false, kind);
+    assert.equal(inReach(actor(2.55, 4), service, map), false, kind);
+    assert.ok(inReach(actor(2.7, 4), service, map), kind);
+    assert.ok(inReach(actor(4, 5.2), service, map), kind);
+  }
+});
+
 test('water can be a fishing endpoint but cannot act as a shortcut to another target', () => {
   const map = grid(), hero = actor(1.45, 2), fish = actor(2, 2, { kind: 'fish' });
   map.solid[2 * map.w + 2] = 1;

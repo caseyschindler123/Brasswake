@@ -5,6 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const Buildings = require('../src/buildings');
 const Interiors = require('../src/interiors');
+const InteractionRules = require('../src/interaction_rules');
 
 const regions = Array.from({length:8}, (_, n) => n + 1);
 const streetRooms = [
@@ -42,14 +43,14 @@ function fixture() {
     performance:{ now:()=>time }, clamp:(n,a,b)=>Math.max(a,Math.min(b,n)), emit:s=>sounds.push(s),
     folkSprite:()=>null, architecturePiece:()=>null, host:{regionName:r=>'Region '+r},
     chartOpen:(m,x,y)=>x>=0 && y>=0 && x<m.w && y<m.h && !m.solid[y*m.w+x] && !m.occ.has(y*m.w+x),
-    addEnt(m,e) { m.ents.push(e); m.occ.set(e.y*m.w+e.x,e); return e; },
+    addEnt(m,e) { Object.assign(e,{fx:e.x,fy:e.y}); m.ents.push(e); m.occ.set(e.y*m.w+e.x,e); return e; },
     worldBuilding(m,b,opts) {
       b.plan=Buildings.compile({id:opts.id||'hall',x:b.x,y:b.y,w:b.w,h:b.h,diagram:opts.diagram,doors:opts.doors});
       b.name=opts.name; b.room={fl:'floor'};
       for(let y=0;y<b.h;y++)for(let x=0;x<b.w;x++)
         m.solid[(b.y+y)*m.w+b.x+x]=b.plan.tiles[y*b.w+x]===Buildings.WALL?1:0;
     },
-    nextTo:e=>Math.abs(e.x-api.P.x)+Math.abs(e.y-api.P.y)===1,
+    interactionDistance:e=>InteractionRules.distance(api.P,e,api.map),
     go(m,x,y) { api.map=m; Object.assign(api.P,{x,y,fx:x,fy:y}); },
   };
   const view=fs.readFileSync(path.join(__dirname,'../src/building_view.js'),'utf8');
@@ -130,6 +131,9 @@ test('stair travel requires a live nearby staircase, restores indoor coordinates
   world.venues.set('building-1',{...venue,id:'building-1',stair});
   assert.equal(methods.enterVenue(stair),false);
   const back=[stair.x-1,stair.y]; api.go(world,...back);
+  api.P.fx -= .42;
+  assert.equal(methods.enterVenue(stair),false,'rounded adjacency alone is beyond continuous reach');
+  api.P.fx = back[0];
   assert.equal(methods.enterVenue({...stair}),false);
   assert.equal(methods.enterVenue(stair),true);
   const upper=api.map, downCell=upper.ents.find(e=>e.kind==='venuedown');

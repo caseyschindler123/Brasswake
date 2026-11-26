@@ -41,6 +41,11 @@ const InteractionRules = (() => {
   // expose several different faces. Only the chosen endpoint is exempt
   // from fixture collision. Terrain and other actors can obstruct the way.
   function distance(player, entity, map) {
+    // Ferry boarding and chart purchases require a direct pier/counter approach.
+    if (entity.kind === 'ferry' || entity.kind === 'cartographer') {
+      const tiles = Math.abs(cell(player.fx) - entity.x) + Math.abs(cell(player.fy) - entity.y);
+      if (tiles > 1 || (entity.kind === 'ferry' && tiles === 0)) return Infinity;
+    }
     let nearest = Infinity;
     const obstructs = (x, y, fixture) => {
       if (x < 0 || y < 0 || x >= map.w || y >= map.h) return true;

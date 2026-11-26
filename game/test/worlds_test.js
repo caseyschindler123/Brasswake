@@ -57,11 +57,15 @@ test('normalization bounds worlds and slots, rejects unsupported versions and ig
   assert.equal(a.world,0);assert.equal(a.worlds.length,3);assert.equal(a.slots.length,5);assert.equal(a.cur,-1);assert.equal(a.main,-1);assert.deepEqual(a.homes,[]);
 });
 
-test('fifteen fully explored characters fit the normal device storage envelope without sharing discoveries',()=>{
+test('fifteen fully explored characters and bounded learning mirrors fit device storage without sharing discoveries',()=>{
   const D=require('../src/dungeons'),P=require('../src/dungeon_progress'),C=require('../src/cartography');
+  const Learning=require('../src/learning'),learning=Learning.fresh();
+  Learning.introduce(learning,Learning.CONCEPTS.map(c=>c.id));
+  for(let circle=0;circle<=8;circle++)for(const task of Learning.pool(circle))Learning.record(learning,task,{ok:false,first:true,sql:task.sql});
   const a=Worlds.fresh(),surface=C.encode(C.createMask().fill(63));
+  for(const world of a.worlds)world.learning=Learning.normalize(learning);
   for(let world=0;world<3;world++)for(let slot=0;slot<5;slot++){
-    const s={v:8,name:`Explorer ${world}-${slot}`,cartography:{v:1,explored:surface,maps:{}},dungeons:{}};
+    const s={v:8,name:`Explorer ${world}-${slot}`,learningSnapshot:Learning.normalize(learning),cartography:{v:1,explored:surface,maps:{}},dungeons:{}};
     for(let r=1;r<=8;r++){const dungeon=D.get(r),p=P.ensure(s,r,'today');for(let f=0;f<dungeon.floors.length;f++)p.seen[f]=P.packSeen(new Uint8Array(124*109).fill(1));}
     a.worlds[world].slots[slot]=s;
   }
@@ -70,5 +74,7 @@ test('fifteen fully explored characters fit the normal device storage envelope w
   const restored=Worlds.normalize(JSON.parse(json));
   restored.worlds[0].slots[0].cartography.explored='';
   assert.equal(restored.worlds[2].slots[4].cartography.explored,surface);
+  assert.deepEqual(restored.worlds[2].learning,learning);
+  assert.deepEqual(restored.worlds[2].slots[4].learningSnapshot,learning);
   assert.ok(P.unpackSeen(restored.worlds[2].slots[4].dungeons[8].seen[3],124*109).every(v=>v===1));
 });
