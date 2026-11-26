@@ -32,27 +32,8 @@ async function shipApproach(page,property){
     await drivePath(page,path,false);await page.waitForTimeout(120);
   }throw Error('Could not approach ship target');
 }
-async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunspire',rescue=true,visibleOnly=false}={}){
-  const pulse=async(keys,hold=80)=>{
-    keys=Array.isArray(keys)?keys:[keys];
-    try{
-      for(const key of keys)await page.keyboard.down(key);
-      // Scene caps each animation tick at 50 ms. A wall-clock pulse can
-      // contain no moving frame on a busy runner; count rendered time instead.
-      await page.evaluate(({hold,keys})=>new Promise(resolve=>{
-        let last,elapsed=0;
-        const tick=now=>{
-          if(last!==undefined)elapsed+=Math.min(50,Math.max(0,now-last));
-          last=now;if(elapsed>=hold){for(const key of keys)window.dispatchEvent(new KeyboardEvent('keyup',{key}));resolve();}else requestAnimationFrame(tick);
-        };requestAnimationFrame(tick);
-      }),{hold,keys});
-    }
-    finally{for(const key of keys.slice().reverse())await page.keyboard.up(key);}
-  };
-  const walkUntil=async(key,label,leave=false,stickMove=null)=>{
-    // Observe the public control every rendered frame and release immediately.
-    // Browser-protocol polling adds wall time and can miss an interaction lane.
-    let reached=false;
+async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunspire',rescue=true,visibleOnly=false,railApproachOffsetMs={}}={}){
+  const holdInput=async({key,stickMove},{duration,label,leave=false})=>{
     const mouse=page.mouse;
     try{
       if(stickMove){
@@ -66,30 +47,41 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
         await mouse.move(x,y);await mouse.down();await mouse.move(x+stickMove.dx*distance,y+stickMove.dy*distance);
         await expect(stick).toHaveAttribute('data-mode',stickMove.run?'run':'walk');
       }else await page.keyboard.down(key);
-      reached=await page.evaluate(({key,label,leave,joystick})=>new Promise(resolve=>{
+      // Duration holds provide broad clearance or run up to a solid rail.
+      // Count rendered time because the game caps movement at 50 ms per frame.
+      // For a target, release on the first frame with its visible control.
+      return await page.evaluate(({key,joystick,duration,label,leave})=>new Promise(resolve=>{
         const deadline=performance.now()+8000;
+        let last,elapsed=0;
         const tick=now=>{
-          const n=document.querySelector('#ctx'),matches=!n.hidden&&n.getClientRects().length>0&&n.textContent===label;
-          if(matches!==leave||now>=deadline){
+          let reached;
+          if(duration!=null){
+            if(last!==undefined)elapsed+=Math.min(50,Math.max(0,now-last));
+            last=now;reached=elapsed>=duration;
+          }else{
+            const n=document.querySelector('#ctx'),matches=!n.hidden&&n.getClientRects().length>0&&n.textContent===label;
+            reached=matches!==leave;
+          }
+          if(reached||(duration==null&&now>=deadline)){
             if(joystick){const stick=document.querySelector('.movement-joystick');stick.dispatchEvent(new PointerEvent('pointercancel',{pointerId:+stick.dataset.arrivalPointer}));}
             else window.dispatchEvent(new KeyboardEvent('keyup',{key}));
-            resolve(matches!==leave);return;
+            resolve(reached);return;
           }
           requestAnimationFrame(tick);
         };requestAnimationFrame(tick);
-      }),{key,label,leave,joystick:!!stickMove});
+      }),{key,joystick:!!stickMove,duration,label,leave});
     }finally{if(stickMove)await mouse.up();else await page.keyboard.up(key);}
-    if(reached)return;
-      // Zero means an unlimited assertion wait, masking a blocked route until
-      // the whole test expires. Preserve the bounded visible-control probe.
-      const diagnostic=await page.evaluate(()=>{
-        if(location.hostname!=='localhost')return null;const {P,map}=Scene.debug();
-        return {player:[P.x,P.y,P.fx,P.fy],people:map.ents.filter(e=>e.shipPerson).map(e=>({name:e.name,at:[e.x,e.y,e.fx,e.fy]})),control:document.querySelector('#ctx').textContent};
-      });
-      if(diagnostic)console.log('Visible ship probe: '+JSON.stringify({key,label,leave,stickMove,...diagnostic}));
-      await expect(page.locator('#ctx')).toBeVisible({timeout:1});
-      if(leave)await expect(page.locator('#ctx')).not.toHaveText(label,{timeout:1});
-      else await expect(page.locator('#ctx')).toHaveText(label,{timeout:1});
+  };
+  const pulse=(key,duration)=>holdInput({key},{duration});
+  const offsetRailApproach=ms=>ms?pulse(ms<0?'ArrowUp':'ArrowDown',Math.abs(ms)):undefined;
+  const runToEastRail=duration=>holdInput({stickMove:{dx:1,dy:0,run:true}},{duration});
+  const walkUntil=async(input,label,leave=false)=>{
+    if(await holdInput(input,{label,leave}))return;
+    const ctx=page.locator('#ctx');
+    // Zero is an unlimited assertion wait. Keep a failed contact bounded.
+    await expect(ctx).toBeVisible({timeout:1});
+    if(leave)await expect(ctx).not.toHaveText(label,{timeout:1});
+    else await expect(ctx).toHaveText(label,{timeout:1});
   };
   await expect(page.locator('#onboard')).toContainText('Hold on');
   if(screenshot)await screenshot(page,info,'rescue-in-the-sea');
@@ -109,11 +101,13 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
   // The deckhand's visible interaction boundary anchors a detour above the
   // mast. Cross the full blocked row before turning toward Tamsin.
   if(visibleOnly){
-    await walkUntil('ArrowDown','Talk: Deckhand');await walkUntil('ArrowUp','Talk: Deckhand',true);
+    await walkUntil({key:'ArrowDown'},'Talk: Deckhand');await walkUntil({key:'ArrowUp'},'Talk: Deckhand',true);
     await pulse('ArrowUp',1400);
-    // Run this long clear leg through the visible joystick. Even at very low
-    // frame throughput it must reach the same adjacent Talk control in 8 s.
-    await walkUntil(null,'Talk: Tamsin',false,{dx:1,dy:0,run:true});
+    await offsetRailApproach(railApproachOffsetMs.tamsin);
+    // Cross above the mast to the closed east rail, then turn southwest
+    // toward Tamsin's visible Talk control from the far side of the mast.
+    await runToEastRail(2400);
+    await walkUntil({stickMove:{dx:-1,dy:1,run:true}},'Talk: Tamsin');
   }else await shipApproach(page,'shipPerson');await expect(page.locator('#ctx')).toHaveText('Talk: Tamsin');if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();
   await expect(page.locator('#onboard')).toContainText('teaches SQL');
   if(screenshot)await screenshot(page,info,'meet-tamsin-on-deck');
@@ -121,14 +115,13 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
   await orientAboard(page,info,screenshot);
   await expect(page.locator('#onboard')).toContainText('three days later');
   if(visibleOnly){
-    // Reacquire Tamsin from her right to align with the one-tile gangplank.
     await expect(page.locator('#ctx')).toBeVisible();await expect(page.locator('#ctx')).toHaveText('Talk: Tamsin');
-    await walkUntil('ArrowRight','Talk: Tamsin',true);await pulse('ArrowRight',250);
-    await walkUntil('ArrowDown','Talk: Tamsin');
-    // Reach the rail from above the plank's midpoint. Diagonal thumb input
-    // then slides south at the rail and east along the sides of the plank.
-    await pulse('ArrowRight',1000);
-    await walkUntil(null,'Step ashore',false,{dx:1,dy:1});
+    // Re-anchor on the rail north of the plank. A southeast thumb hold
+    // slides south at the rail, then east through the open gangplank.
+    await pulse('ArrowUp',850);
+    await offsetRailApproach(railApproachOffsetMs.gangplank);
+    await runToEastRail(650);
+    await walkUntil({stickMove:{dx:1,dy:1,run:true}},'Step ashore');
   }else await shipApproach(page,'shipExit');
   if(screenshot)await screenshot(page,info,'gangplank-arrival');
   await expect(page.locator('#ctx')).toHaveText('Step ashore');if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();

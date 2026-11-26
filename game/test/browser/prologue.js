@@ -2,9 +2,9 @@ const {test,expect}=require('@playwright/test');
 const {observeErrors,screenshot}=require('./flow');
 const {nameAboard,shipApproach}=require('./intro-helper');
 
-async function visibleRescue(page,info){
+async function visibleRescue(page,info,railApproachOffsetMs){
   await expect(page.locator('#artload')).toBeHidden({timeout:45000});await page.locator('[data-a=newslot]').first().click();await page.locator('[data-a=pick][data-look="3"]').click();await page.locator('[data-a=begin]').click();
-  await require('./intro-helper').fullArrival(page,info,screenshot,{name:'Sea Traveller',origin:'dwarrowdeep',visibleOnly:true});
+  await require('./intro-helper').fullArrival(page,info,screenshot,{name:'Sea Traveller',origin:'dwarrowdeep',visibleOnly:true,railApproachOffsetMs});
 }
 test('visible controls carry the rescued character all the way ashore',async({page},info)=>{
   const errors=observeErrors(page);await page.goto('/index.html?visual_test=1');await visibleRescue(page,info);expect(errors).toEqual([]);
@@ -15,7 +15,8 @@ test('visible rescue clears the mast at reduced frame throughput',async({page},i
     const native=window.requestAnimationFrame.bind(window);
     window.requestAnimationFrame=callback=>native(()=>setTimeout(()=>callback(performance.now()),64));
   });
-  const errors=observeErrors(page);await page.goto('/index.html?visual_test=1');await visibleRescue(page,info);expect(errors).toEqual([]);
+  const errors=observeErrors(page);await page.goto('/index.html?visual_test=1');
+  await visibleRescue(page,info,{tamsin:-180,gangplank:180});expect(errors).toEqual([]);
 });
 
 test('visible rescue clears the mast when frames arrive in 120 ms bursts',async({page},info)=>{
@@ -26,7 +27,8 @@ test('visible rescue clears the mast when frames arrive in 120 ms bursts',async(
       setTimeout(()=>callback(performance.now()),['walk','arrival'].includes(phase)?120:0);
     });
   });
-  const errors=observeErrors(page);await page.goto('/index.html?visual_test=1');await visibleRescue(page,info);expect(errors).toEqual([]);
+  const errors=observeErrors(page);await page.goto('/index.html?visual_test=1');
+  await visibleRescue(page,info,{tamsin:200,gangplank:-260});expect(errors).toEqual([]);
 });
 
 test('a failed SQL download explains the problem and leaves a saved way back',async({page})=>{
