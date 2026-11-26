@@ -3,12 +3,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { assertDeploymentOrder, isSHA } = require('./deployment-baseline');
 const { ALL_SUITES, MODULES, normalizeSuites, validSelection } = require('./ui-suites');
+const { FILE: SESSION_FILE, CHROMIUM, loadSession, releaseSession } = require('./release-session');
 const root = path.resolve(__dirname, '../..');
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 const protocol = new Set(['game/test/select-tests.js', 'game/test/ui-suites.js',
   'game/test/verify.js', 'game/test/run-ui.js', 'game/test/release-gate.js',
   'game/test/deployment-baseline.js', 'game/test/live.js', 'game/test/live-suites.js', 'game/test/workflow.test.js', 'game/test/protocol.test.js', 'game/playwright.config.js', 'game/test/browser/ui.spec.js', 'game/test/browser/live.spec.js',
-  'game/package.json', 'game/package-lock.json']);
+  'game/package.json', 'game/package-lock.json', SESSION_FILE, 'game/test/release-session.js']);
 const runner = new Set(['game/test/select-tests.js', 'game/test/ui-suites.js',
   'game/test/verify.js', 'game/test/run-ui.js', 'game/test/live.js', 'game/test/live-suites.js', 'game/playwright.config.js', 'game/test/browser/ui.spec.js', 'game/test/browser/live.spec.js']);
 const sourceGroups = [
@@ -99,7 +100,7 @@ function chooseUI(options={}) {
  if(options.event==='schedule'||options.scope==='full'||options.baselineAvailable===false||options.runtimeChanged||options.packagingChanged)return scopePlan(legacy,files,{equivalent:()=>false});
  return scopePlan(legacy,files);
 }
-function selection({ forceFull = false, env = process.env, runGit = git, assertOrder = assertDeploymentOrder } = {}) {
+function selection({ forceFull = false, env = process.env, runGit = git, assertOrder = assertDeploymentOrder, now = Date.now() } = {}) {
   const event = env.GITHUB_EVENT_NAME || 'local';
   const scope = forceFull ? 'full' : env.BW_VERIFY_SCOPE || 'auto';
   const publishValue = env.BW_PUBLISH || 'false';
@@ -119,17 +120,20 @@ function selection({ forceFull = false, env = process.env, runGit = git, assertO
     if (!isSHA(base) || /^0+$/.test(base)) throw Error('Missing comparison SHA');
     runGit('cat-file', '-e', base + '^{commit}');
   } catch { base = undefined; baselineAvailable = false; }
-  let files = [], runtimeChanged = false, packagingChanged = false, releaseChanged;
+  let files = [], currentFiles = [], runtimeChanged = false, packagingChanged = false, releaseChanged;
   try {
     if (!base && !coverageBase) throw Error('No comparison');
     files = collectChanges(base, undefined, runGit);
+    currentFiles = files;
     if(coverageBase){
       const {FIXTURE_BASE}=require('./scope-policy');
-      const historical=collectChanges(coverageBase,undefined,runGit).filter(isGame);
+      const publishedDelta=collectChanges(coverageBase,undefined,runGit);
+      const historical=publishedDelta.filter(isGame);
+      currentFiles=[...new Set([...currentFiles,...publishedDelta])];
       const fixtureDelta=collectChanges(FIXTURE_BASE,undefined,runGit).filter(f=>!isGame(f));
       files=[...new Set([...files,...historical,...fixtureDelta])];
+      releaseChanged=historical.length>0;
     }
-    if (coverageBase) releaseChanged = collectChanges(coverageBase, undefined, runGit).some(isGame);
     const readAt = (at,file) => JSON.parse(runGit('show', at + ':' + file));
     const read = file => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
     for(const at of new Set([base,coverageBase].filter(Boolean))) {
@@ -145,7 +149,20 @@ function selection({ forceFull = false, env = process.env, runGit = git, assertO
   if (coverageBase && publishingEvent && releaseChanged !== false) assertOrder(coverageBase,candidate);
   const alreadyPublished = publishingEvent && coverageBase === candidate &&
     (files.some(isGame) || runtimeChanged || packagingChanged);
-  return { ...chooseUI({ ...options, files, runtimeChanged, packagingChanged, baselineAvailable, releaseChanged, alreadyPublished }), base, coverageBase, files };
+  const normal = { ...options, files, runtimeChanged, packagingChanged, baselineAvailable, releaseChanged, alreadyPublished };
+  const selected = chooseUI(normal);
+  const session = selected.release ? releaseSession({ ...options, ci:env.CI, coverageBase, candidate,
+    baselineAvailable, runtimeChanged, packagingChanged, files:currentFiles, now }) : undefined;
+  if (session === null)
+    return { ...chooseUI({...normal,scope:'full'}), reason:'Session release profile did not match verified scope; complete verification selected.', base, coverageBase, files };
+  if (session) {
+    const { SCENES } = require('./scope-policy');
+    return { ...selected, tier:'session', core:true, ui:true, coreGroups:['all'],
+      suites:normalizeSuites(loadSession().chromiumSuites), scenes:SCENES.slice(), sceneProfiles:CHROMIUM.slice(),
+      reason:'Approved painted-character session: full core, focused Chromium and critical WebKit, with full hosted verification.',
+      sessionProfile:session, base, coverageBase, files:[...new Set([...files,...currentFiles])] };
+  }
+  return { ...selected, base, coverageBase, files };
 }
 function saveSelection(selected) {
   if (!validSelection(selected)) throw Error('Invalid verification selection.');
@@ -153,7 +170,8 @@ function saveSelection(selected) {
   fs.writeFileSync(path.join(root, 'work/test-selection.json'), JSON.stringify(selected, null, 2) + '\n');
   if (process.env.GITHUB_OUTPUT) {
     const outputs = { ui: selected.ui, core: selected.core, release: selected.release, live: selected.live, coverage_base: selected.coverageBase || '',
-      suites: JSON.stringify(selected.suites), scenes: JSON.stringify(selected.scenes), scene_profiles: JSON.stringify(selected.sceneProfiles), plan: JSON.stringify(selected) };
+      suites: JSON.stringify(selected.suites), scenes: JSON.stringify(selected.scenes), scene_profiles: JSON.stringify(selected.sceneProfiles),
+      ui_session_profile: selected.sessionProfile?.id || '', plan: JSON.stringify(selected) };
     fs.appendFileSync(process.env.GITHUB_OUTPUT, Object.entries(outputs).map(([k,v]) => k + '=' + v).join('\n') + '\n');
   }
 }

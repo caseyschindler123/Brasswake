@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "rawArchive": "C:/Users/caseys/source/SQL Game/painted_characters_2026_11_26/out",
+  "entries": [
+    {
+      "sex": 0,
+      "group": 0,
+      "file": "exec-eae724e4-61c1-4288-ac59-5af29eaf1749.png",
+      "sha256": "6c6db6820ae723c9f7f8ba8b8d359d8aee099e5d7224e6515c5f31d52778f17d"
+    },
+    {
+      "sex": 0,
+      "group": 1,
+      "file": "exec-18913092-7d5c-4304-96c7-74e629e85716.png",
+      "sha256": "8d8d60b925a31575390a6af7f77b81019cd1c8cba081c4579612f78988f51f23"
+    },
+    {
+      "sex": 0,
+      "group": 2,
+      "file": "exec-44d185fe-1e4d-4fd0-bbdf-3bb8b2372c98.png",
+      "sha256": "22c65f7a287afb28ed8862f9e3ea9f40c99aaee729798c370516345e119041f9"
+    },
+    {
+      "sex": 1,
+      "group": 0,
+      "file": "exec-221b5026-b111-4a48-9bf3-74c7ae26987d.png",
+      "sha256": "4bf94c42ec059726b5b66aed72647ba31b7ef71d8f5a0a0c9c667389de1cc689",
+      "promptAppend": " Technical alpha requirement: every background pixel must have alpha exactly ZERO. No white paper or translucent cream/brown matte, no cast shadows. "
+    },
+    {
+      "sex": 1,
+      "group": 1,
+      "file": "exec-42fb3dee-d854-43d4-a9a0-23d03825af59.png",
+      "sha256": "ebe6532b0257cfed624be11e299ce7aa7e5d5a837d5f9e22b747a6f9ba9c8988",
+      "promptAppend": " Technical alpha requirement: every background pixel must have alpha exactly ZERO. No white paper or translucent cream/brown matte, no cast shadows. "
+    },
+    {
+      "sex": 1,
+      "group": 2,
+      "file": "exec-1a01eea9-3933-42af-9f36-30fedf37d795.png",
+      "sha256": "437968e8ca69efe87c05284b4e21b28f166d4adca7f47d407ca78017ac614d8a",
+      "promptAppend": " Technical alpha requirement: every background pixel must have alpha exactly ZERO. No white paper or translucent cream/brown matte, no cast shadows. "
+    }
+  ]
+}

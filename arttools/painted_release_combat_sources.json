@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "source": "https://kaylousberg.itch.io/kaykit-character-animations",
+  "license": "CC0-1.0",
+  "archiveSha256": "65882f31f905ad2e953819648a59287cdeab8f623908d5ef701971d3758be20f",
+  "files": {
+    "CombatMelee": {
+      "file": "Rig_Medium_CombatMelee.glb",
+      "sha256": "c55e6ec1c79e83ae21d46fe1cd921c1b64be8b9a524a24517e51c6ba99231459"
+    },
+    "CombatRanged": {
+      "file": "Rig_Medium_CombatRanged.glb",
+      "sha256": "7fef1fc0e7b0feafd34b8e12d23f514c8c1f9d068047a691b854b56f1774dff5"
+    },
+    "General": {
+      "file": "Rig_Medium_General.glb",
+      "sha256": "5f725c0f745f36078c7238968cd5c04843cbc6260689eb6e7f5e2bbd7ffdd7ad"
+    },
+    "Simulation": {
+      "file": "Rig_Medium_Simulation.glb",
+      "sha256": "ab6ffeed40c8281dd0ce0506534eadf7385151f1c266643a10fa2a0f0a7ba3b1"
+    }
+  },
+  "specs": {
+    "swing": [
+      "CombatMelee",
+      "Melee_1H_Attack_Slice_Horizontal"
+    ],
+    "swingtwo": [
+      "CombatMelee",
+      "Melee_2H_Attack_Slice"
+    ],
+    "thrust": [
+      "CombatMelee",
+      "Melee_1H_Attack_Stab"
+    ],
+    "thrusttwo": [
+      "CombatMelee",
+      "Melee_2H_Attack_Stab"
+    ],
+    "bow": [
+      "CombatRanged",
+      "Ranged_Bow_Draw",
+      "Ranged_Bow_Release"
+    ],
+    "crossbow": [
+      "CombatRanged",
+      "Ranged_2H_Shoot"
+    ],
+    "cast": [
+      "CombatRanged",
+      "Ranged_Magic_Shoot"
+    ],
+    "book": [
+      "CombatRanged",
+      "Ranged_Magic_Spellcasting"
+    ],
+    "block": [
+      "CombatMelee",
+      "Melee_Block_Hit"
+    ],
+    "hit": [
+      "General",
+      "Hit_A"
+    ],
+    "fall": [
+      "General",
+      "Death_A"
+    ],
+    "sit": [
+      "Simulation",
+      "Sit_Chair_Idle"
+    ]
+  }
+}

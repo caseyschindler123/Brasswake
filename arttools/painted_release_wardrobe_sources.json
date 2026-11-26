@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "kind": "generated-material-pigment-sheet",
+      "tool": "built-in image_gen",
+      "file": "exec-f736a98a-2de2-48b1-866b-cab3c4b0caa5.png",
+      "sha256": "da15b68a99f64dfc391a3a586a3a617bbe77d646614ac5d69a2efd8539be1c6f",
+      "size": [
+        1254,
+        1254
+      ],
+      "prompt": "Use case: stylized-concept. Paint one square 1536 x 1536 material texture atlas for Brasswake, an original medieval RPG. Reference image is an approved painted plate figure and is only a finish reference. This is a flat raster pigment atlas. No figures or anatomy. A precise 4 by 4 grid of SIXTEEN flat square swatches, full bleed, no borders, no text, no gutters, perfectly straight cells. Light is soft warm daylight and all colors subdued, painterly, richly layered and historically grounded. Each swatch fills its entire square with its own material, close up with fine weave/brushwork and restrained worn edges. Row 1 left to right: unpatterned ecru rough linen; vertical drape folds on pale linen; charcoal trousers with soft twill; deep umber worn leather. Row 2: warm brown weathered leather with fine cross stitch; dull neutral grey steel chainmail with tight small interlocking links seen face-on, minimal macro highlights; medium grey hammered steel gauntlet panel with narrow vertically repeated etched plates; dark neutral steel sabaton lames with fine horizontal overlapping rows. Row 3: wool cloak with heavy vertical folds and subdued slate-brown hue; travelling cape with warm weathered tan linen and long soft vertical folds; silk cloak with subdued aubergine folds and gentle satin highlights; dark wine royal cloak fabric with low-contrast woven fleur pattern and soft vertical folds, no metal. Row 4: neutral dark arming cloth; thin stitched buff leather for gloves; deep brown polished boot leather; brushed warm tarnished brass and old muted gold. Each material must be recognizable when shrunk to a few pixels. Closely hand-painted in the approved figure's realistic and softly mottled painted treatment. The grid has no gaps and every tile must be a full continuous texture. No objects, sample cards, contours, lettering, busts, no cutouts.",
+      "references": [
+        {
+          "role": "approved plate finish reference",
+          "file": "work/painted-characters/model-pilot/plate-front-painted.png",
+          "sha256": "03a776d8e3d06db508852f6745a821ea6f712638758492e8d7bd259d979bbc7b"
+        }
+      ]
+    }
+  ]
+}

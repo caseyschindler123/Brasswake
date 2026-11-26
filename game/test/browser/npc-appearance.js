@@ -28,7 +28,7 @@ test('directional NPCs walk, differ in appearance, and turn to the player', asyn
         const point=[e.fx,e.fy,e.wd||0];
         if(previous)maxDistanceError=Math.max(maxDistanceError,Math.abs(point[2]-previous[2]-Math.hypot(point[0]-previous[0],point[1]-previous[1])));
         previous=point;
-        if (e.tx != null) samples.push([e.fx, e.fy, npcPose(e).frame, ActorRig.distance(e), ActorRig.gait(!!e.npcRun).stride]);
+        if (e.tx != null) samples.push([e.fx, e.fy, npcPose(e).frame, ActorRig.distance(e), ActorRig.gait(!!e.npcRun,e.gaitProfile).stride * (e.npcLook.height || 1)]);
         if (performance.now() - start > 8500 || new Set(samples.map(s => s[2])).size >= 3) resolve({samples,maxDistanceError});
         else requestAnimationFrame(sample);
       }
@@ -38,7 +38,7 @@ test('directional NPCs walk, differ in appearance, and turn to the player', asyn
       positions: new Set(steps.samples.map(s => s.slice(0, 2).join(','))).size,
       frames: new Set(steps.samples.map(s => s[2])).size,
       maxDistanceError: steps.maxDistanceError,
-      phaseMatches: steps.samples.every(([, , frame, distance, stride]) => frame === Math.floor(distance / stride * 64) % 64),
+      phaseMatches: steps.samples.every(([, , frame, distance, stride]) => frame === Math.floor(distance / stride * ArtData.painted.frames) % ArtData.painted.frames),
     };
   }, town.name);
   expect(motion.positions).toBeGreaterThan(2);
@@ -49,10 +49,11 @@ test('directional NPCs walk, differ in appearance, and turn to the player', asyn
     const { npcFrame } = Scene.debug(), odalys = Scene.find(e => e.kind === 'npc' && e.r === 1 && e.i === 0);
     const guide = Scene.guideEnt() || Scene.guidePut(odalys.x, odalys.y + 2);
     const initial = { row: 0, source: 0, frame: 0 };
-    return !!npcFrame(odalys.npcLook, initial) && !!npcFrame(guide.npcLook, initial);
+    const headings=Array.from({length:8},(_,i)=>i);
+    return [odalys,guide,{npcLook:{...odalys.npcLook,combo:6,key:'cloth-reference'}}].every(e=>headings.every(source=>[0,5].every(row=>npcFrame(e.npcLook,{...initial,source,row})?.gait===(row?'run':'walk'))));
   });
   const sprites = await frame.evaluate(() => {
-    const { npcPose, npcFrame, npcCache } = Scene.debug();
+    const { npcPose, npcFrame, npcCache } = Scene.debug(), count=ArtData.painted.frames;
     const actor = Scene.find(e => e.kind === 'npc' && e.r === 1 && e.i === 0);
     const guide = Scene.guideEnt(), look = actor.npcLook;
     const vectors = [[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0],[1,1]];
@@ -62,48 +63,59 @@ test('directional NPCs walk, differ in appearance, and turn to the player', asyn
     sheet.style.cssText = 'position:fixed;z-index:999;top:48%;left:50%;transform:translate(-50%,-50%);width:min(512px,calc(100vw - 24px));height:auto;background:#485362;border:2px solid #b5ad98;';
     const strip = sheet.getContext('2d'), views = [], frames = [];
     strip.fillStyle = '#f0e8d8'; strip.font = '14px sans-serif'; strip.fillText('Odalys Brine', 12, 21);
-    function aligned(source, flip) {
+    function aligned(source) {
       const display = document.createElement('canvas');
       display.width = display.height = size;
       const ctx = display.getContext('2d');
-      if (flip) { ctx.translate(size, 0); ctx.scale(-1, 1); }
       ctx.drawImage(source, rootX - source.originX, rootY - source.originY);
       return display;
     }
     for (const [dx, dy] of vectors) {
       const pose = npcPose({ ...actor, fx: 0, fy: 0, tx: dx, ty: dy, wd: 0, gaitOffset: 0, npcRun: false });
-      const display = aligned(npcFrame(look, pose), pose.flip);
+      const display = aligned(npcFrame(look, pose));
       views.push(display.toDataURL());
       frames.push(pose);
       strip.drawImage(display, (pose.direction % 4) * size, 24 + (pose.direction >> 2) * size);
     }
-    const south = frames[0], southFrame = npcFrame(look, south), base = aligned(southFrame, south.flip);
-    const pixelDiff = (image, x, y, w, h) => {
-      const a = base.getContext('2d').getImageData(x, y, w, h).data;
+    const south = frames[0], southFrame = npcFrame(look, south), base = aligned(southFrame);
+    const pixelDiff = (image, x, y, w, h, reference=base) => {
+      const a = reference.getContext('2d').getImageData(x, y, w, h).data;
       const b = image.getContext('2d').getImageData(x, y, w, h).data;
       return a.reduce((n, value, i) => n + Math.abs(value - b[i]), 0);
     };
-    const tone = aligned(npcFrame({ ...look, skin: 4, key: 'tone-sample' }, south), south.flip);
-    const cloth = aligned(npcFrame({ ...look, cloth: '#5592ba', key: 'cloth-sample' }, south), south.flip);
-    const walkSources = Array.from({ length: 8 }, (_, sample) => npcFrame(look, { ...south, frame: sample * 8 }));
-    const walkFrames = walkSources.map(image => aligned(image, south.flip).toDataURL());
+    const tone = aligned(npcFrame({ ...look, skin: 4, key: 'tone-sample' }, south));
+    const clothReference=aligned(npcFrame({...look,combo:6,key:'cloth-reference'},south));
+    const cloth = aligned(npcFrame({ ...look,combo:6,cloth: '#5592ba', key: 'cloth-sample' }, south));
+    const walkSources = Array.from({ length: 8 }, (_, sample) => npcFrame(look, { ...south, frame: sample * (count / 8) }));
+    const walkFrames = walkSources.map(image => aligned(image).toDataURL());
     const materialY = 24 + size * 2;
     strip.drawImage(base, 0, materialY); strip.drawImage(tone, size, materialY); strip.drawImage(cloth, size * 2, materialY);
-    strip.drawImage(aligned(npcFrame(guide.npcLook, south), south.flip), size * 3, materialY);
+    strip.drawImage(aligned(npcFrame(guide.npcLook, south)), size * 3, materialY);
     const side = frames[6];
-    const runs = Array.from({ length: 64 }, (_, frame) => npcFrame(look, { ...side, row: side.row + 5, frame }));
+    // Use the same actor's fitted tunic to measure the boot sole. Odalys's
+    // running robe can extend below the boot in this projection.
+    const runLook = { ...look, combo:6, key:'cloth-reference' };
+    const runs = Array.from({ length: count }, (_, frame) => npcFrame(runLook, { ...side, row: 5, frame }));
     const headWidths = runs.map(image => image.anchor[2]);
     // Pair each airborne image with the next landing to compare the same lead foot.
-    const grounded = [32, 0], airborne = [27, 59];
+    const runGait=ActorRig.gait(true,actor.gaitProfile);
+    // Compare physical clearance on the reference gait scale. The two-pixel
+    // visible clearance and solid-contact bounds below stay in world pixels.
+    const scaleToReference=ActorRig.gait(true).stride/runGait.stride;
+    const grounded = runGait.contacts.map(phase=>Math.round(phase*count)%count);
+    const airborne = grounded.map(frame=>{
+      const candidates=Array.from({length:4},(_,i)=>(frame+count-i-1)%count);
+      return candidates.find(k=>runs[k].flight && runs[k].feet.every(foot=>foot[3]*scaleToReference>=.06));
+    });
+    if(airborne.some(frame=>frame==null))throw Error('Missing clear flight immediately before a landing');
     const runPixels = Object.fromEntries([...grounded, ...airborne].map(frame => {
-      const canvas = aligned(runs[frame], side.flip);
+      const canvas = aligned(runs[frame]);
       return [frame, canvas.getContext('2d').getImageData(0, 0, size, size).data];
     }));
     const opaque = (frame, x, y) => x >= 0 && x < size && y >= 0 && y < size &&
       runPixels[frame][(y * size + x) * 4 + 3] > 160;
     const alignedPoint = (image, x, y) => {
-      const left = rootX - image.originX + x;
-      return [side.flip ? size - left : left, rootY - image.originY + y];
+      return [rootX - image.originX + x, rootY - image.originY + y];
     };
     // Side-on projection still places the two feet in different depth lanes.
     // Compare the lowest visible pixel near each projected heel's landing column.
@@ -123,20 +135,21 @@ test('directional NPCs walk, differ in appearance, and turn to the player', asyn
       }
       return false;
     };
-    for (const [i, frame] of [0, 27, 32, 59].entries()) {
-      strip.drawImage(aligned(runs[frame], side.flip), i * size, 24 + size * 3);
+    for (const [i, frame] of [grounded[0],airborne[0],grounded[1],airborne[1]].entries()) {
+      strip.drawImage(aligned(runs[frame]), i * size, 24 + size * 3);
     }
     const headTop = rootY - southFrame.originY + southFrame.anchor[0];
     const skinDelta = pixelDiff(tone, 0, headTop, size, 15);
-    const clothDelta = pixelDiff(cloth, 0, headTop + 17, size, 22);
+    const clothDelta = pixelDiff(cloth, 0, headTop + 17, size, 22,clothReference);
     const bootTop = rootY - 12;
     const bootDelta = pixelDiff(tone, 0, bootTop, size, size - bootTop);
     const bootPixels = base.getContext('2d').getImageData(0, bootTop, size, size - bootTop).data;
     const bootVisible = bootPixels.some((value, index) => index % 4 === 3 && value > 160);
-    const gaitFramesMatch = walkSources.every((image, sample) => image.gait === 'walk' && image.gaitFrame === sample * 8) &&
+    const gaitFramesMatch = walkSources.every((image, sample) => image.gait === 'walk' && image.gaitFrame === sample * (count / 8)) &&
       runs.every((image, frame) => image.gait === 'run' && image.gaitFrame === frame);
     const runFlight = grounded.map((frame, i) => {
       const landing = runs[frame], flight = runs[airborne[i]];
+      if(landing.supports.length!==1)throw Error('Expected one planted foot at run contact '+frame);
       const [columnX, groundY] = alignedPoint(landing, ...landing.supports[0]);
       const landingBottom = runBottom(frame, columnX);
       const flightBottom = runBottom(airborne[i], columnX);
@@ -147,7 +160,7 @@ test('directional NPCs walk, differ in appearance, and turn to the player', asyn
         visible: flightBottom >= 0,
         lift: landingBottom - flightBottom,
         feet: flight.feet.map(([x, y, projectedGroundY, height]) => ({
-          height,
+          referenceHeight:height*scaleToReference,
           lift: projectedGroundY - y,
           visible: soleVisible(airborne[i], ...alignedPoint(flight, x, y)),
         })),
@@ -155,18 +168,18 @@ test('directional NPCs walk, differ in appearance, and turn to the player', asyn
     });
     // Fill both LRUs deliberately. Different appearance keys at one pose
     // exercise composed frames but reuse the same anatomical source pixels.
-    // Walk all 64 frames in all five source directions so pixel-cache
+    // Walk all active frames in eight independently projected headings so pixel-cache
     // saturation does not depend on which NPCs happened to animate beforehand.
-    for (let source = 0; source < 5; source++) for (let frame = 0; frame < 64; frame++)
-      npcFrame({ ...look, key: 'eviction-sample-' + source + '-' + frame }, { row: source, frame, source });
+    for (let source = 0; source < 8; source++) for (let frame = 0; frame < count; frame++)
+      npcFrame({ ...look, key: 'eviction-sample-' + source + '-' + frame }, { row: 0, frame, source });
     document.body.append(sheet);
     sheet.id = 'npc-visual-evidence';
-    return { directions: frames.map(f => f.direction), painted: new Set(views).size,
+    return { directions: frames.map(({direction,row,source,flip})=>[direction,row,source,flip]), painted: new Set(views).size,
       walking: new Set(walkFrames).size, gaitFramesMatch, runHeadRange: Math.max(...headWidths) - Math.min(...headWidths),
       runFlight, skinDelta, clothDelta, bootDelta, bootVisible, cache: npcCache(),
       guideName: guide.name, guideLook: guide.npcLook, odalys: look };
   });
-  expect(sprites.directions).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+  expect(sprites.directions).toEqual(Array.from({length:8},(_,heading)=>[heading,0,heading,0]));
   expect(sprites.painted).toBe(8);
   expect(sprites.walking).toBeGreaterThan(5);
   expect(sprites.gaitFramesMatch).toBe(true);
@@ -179,7 +192,7 @@ test('directional NPCs walk, differ in appearance, and turn to the player', asyn
     expect(step.lift).toBeGreaterThanOrEqual(2);
     expect(step.feet).toHaveLength(2);
     for (const foot of step.feet) {
-      expect(foot.height).toBeGreaterThanOrEqual(.06);
+      expect(foot.referenceHeight).toBeGreaterThanOrEqual(.06);
       expect(foot.lift).toBeGreaterThanOrEqual(2);
       expect(foot.visible).toBe(true);
     }
@@ -188,7 +201,8 @@ test('directional NPCs walk, differ in appearance, and turn to the player', asyn
   expect(sprites.clothDelta).toBeGreaterThan(1000);
   expect(sprites.bootVisible).toBe(true);
   expect(sprites.bootDelta).toBe(0);
-  expect(sprites.cache).toEqual({ frames: 160, limit: 160, materials:256, materialLimit:256 });
+  expect(sprites.cache).toMatchObject({ frames: 160, limit: 160, materials:32, materialLimit:32, assetLimit:48*1024*1024 });
+  expect(sprites.cache.assetBytes).toBeLessThanOrEqual(sprites.cache.assetLimit);
   expect(sprites.guideName).toBe('Tamsin');
   expect(sprites.guideLook).not.toEqual(sprites.odalys);
   await screenshot(page, info, 'npc-directions-and-materials');
@@ -221,27 +235,46 @@ test('dojo fighters reuse their walking outfits while sparring', async ({ page }
   const errors = observeErrors(page), frame = await scene(page, 'dojo');
   await frame.waitForFunction(() => {
     const students = Scene.ents().filter(e => e.kind === 'student' && e.spar), { npcPose, npcFrame, map } = Scene.debug();
-    return students.length === 2 && students.every(e => npcFrame(e.npcLook, npcPose(e))) &&
+    return students.length === 2 && students.every(e => [0,2,3,4,5,6,7].every(ff=>{
+      const pose=npcPose({...e,tx:null,npcFacing:6,ff,ffPose:null});
+      return npcFrame(e.npcLook,pose)?.gait===PaintedCharacterView.state(e.npcLook,pose.row);
+    })) &&
       map.blds.some(b => b.view?.furniture.length === 3);
   });
   const poses = await frame.evaluate(() => {
     const e = Scene.find(e => e.kind === 'student' && e.spar), { npcPose, npcFrame } = Scene.debug();
-    return [0, 2, 3, 4, 5, 6, 7].map(ff => {
-      const pose = npcPose({ ...e, tx: null, npcFacing: 6, ff });
+    const sample = (ff,ffPose=null) => npcPose({...e,tx:null,npcFacing:6,ff,ffPose});
+    const poses=[0, 2, 3, 4, 5, 6, 7].map(ff => {
+      const pose = sample(ff);
       const image = npcFrame(e.npcLook, pose);
-      return { row: pose.row, image: image.toDataURL(), gait: image.gait, headWidth: image.anchor[2],
+      return { row: pose.row, frame: pose.frame, image: image.toDataURL(), gait: image.gait, headWidth: image.anchor[2],
         height: image.height, direction: pose.direction, lean: pose.lean, scale: pose.scale };
     });
+    const attack=sample(2);
+    const full=Array.from({length:ArtData.painted.actions},(_,frame)=>npcFrame(e.npcLook,{...attack,frame}));
+    const timed=[2,5].map(ff=>[.10,.50,.85].map(fraction=>{
+      const hold=280, pose=sample(ff,{frame:ff,at:performance.now()-hold*fraction,hold});
+      const image=npcFrame(e.npcLook,pose);
+      return [pose.frame,image.gaitFrame,image.gait];
+    }));
+    return {poses,timed,actions:full.map(frame=>[frame.gait,frame.gaitFrame]),unique:new Set(full.map(frame=>frame.toDataURL())).size};
   });
-  expect(poses[0].gait).toBe('idle');
-  expect(poses.slice(1, 5).every(p => p.row >= 10 && p.row < 19)).toBeTruthy();
-  expect(new Set(poses.slice(1, 5).map(p => p.image)).size).toBe(4);
-  expect(poses[5].lean).not.toBe(0);
-  const [idle, hit] = [poses[0], poses[6]];
+  expect(poses.poses[0].gait).toBe('idle');
+  expect(poses.poses.slice(1, 5).every(p => p.row >= 10 && p.row < 19)).toBeTruthy();
+  expect(poses.poses.slice(1, 5).map(p=>p.frame)).toEqual([0,3,6,9]);
+  expect(new Set(poses.poses.slice(1, 5).map(p => p.image)).size).toBe(4);
+  expect(poses.actions).toEqual(Array.from({length:12},(_,frame)=>[poses.poses[1].gait,frame]));
+  expect(poses.unique).toBeGreaterThan(4);
+  for (const [i,frames] of [[0,[0,1,2]],[1,[9,10,11]]])
+    expect(poses.timed[i]).toEqual(frames.map(frame=>[frame,frame,poses.poses[1].gait]));
+  expect(poses.poses[5]).toMatchObject({row:22,gait:'block',frame:6});
+  expect(poses.poses[5].lean).not.toBe(0);
+  const [idle, hit] = [poses.poses[0], poses.poses[6]];
   expect(hit.row).toBe(20);
+  expect(hit.frame).toBe(6);
   expect(hit.gait).toBe('hit');
   expect(hit.direction).toBe(idle.direction);
-  expect(hit.scale).toBe(1);
+  expect(hit.scale).toBe(idle.scale);
   expect(hit.image).not.toBe(idle.image);
   expect(Math.abs(hit.headWidth - idle.headWidth)).toBeLessThanOrEqual(2);
   expect(Math.abs(hit.height - idle.height)).toBeLessThanOrEqual(6);
@@ -250,7 +283,13 @@ test('dojo fighters reuse their walking outfits while sparring', async ({ page }
     d.draw();
     const room = d.map.blds.find(b => b.view?.furniture.length === 3);
     const mats = room.view.furniture.map(f => f.image);
-    const fighters = Scene.ents().filter(e => e.spar).map(e => d.npcFrame(e.npcLook, d.npcPose(e)));
+    const fighters = Scene.ents().filter(e => e.spar).flatMap(e => {
+      const pose=d.npcPose(e);
+      if (pose.row<10||pose.row>=19) return [d.npcFrame(e.npcLook,pose)];
+      // The render may advance within this attack quarter between the probe and draw.
+      const first=Math.floor(pose.frame/3)*3;
+      return [first,first+1,first+2].map(frame=>d.npcFrame(e.npcLook,{...pose,frame}));
+    });
     const context = document.querySelector('#stage canvas.game').getContext('2d'), original = context.drawImage;
     const order = [];
     context.drawImage = function (image, ...args) {

@@ -26,7 +26,7 @@ test('paper doll grips preserve the fingers and fit every weapon and offhand on 
     // Replay just the weapon draw on a larger canvas. Its real opaque pixels
     // expose clipping and show which original fingers cover the grip.
     g.drawImage = (im, ...rect) => {
-      if (im.src?.endsWith('/hb/wx.webp')||im.bwEquipment) {
+      if (im.src?.endsWith('/paintedgear/gear.webp')) {
         const transform = g.getTransform();
         q.setTransform(transform.a, transform.b, transform.c, transform.d, transform.e + 32, transform.f + 32);
         q.drawImage(im, ...rect);
@@ -36,33 +36,38 @@ test('paper doll grips preserve the fingers and fit every weapon and offhand on 
     };
     document.body.append(bare);
     bare.style.display = 'none';
-    const look = { ...__bw.HOST.app(), hair: -1, hat: -1, beard: -1, wpn: -1, shield: -1, glow: null, fx: null };
+    const look = { ...__bw.HOST.app(), hair: -1, hat: -1, beard: -1, wpn: -1, shield: -1, glow: null, fx: null,
+      weaponMaterial:null,shieldMaterial:null,gear:PaintedGear.resolve() };
     const items = weapons.map(([wpn, name]) => ({ wpn, name }));
-    for (const [offset, name] of ['Round shield', 'Kite shield', 'Buckler', 'Glass orb', 'Spellbook'].entries()) {
-      items.push({ shield: 20 + offset, name });
+    for (const name of ['Wooden Shield','Iron Shield','Kite Shield','Tower Shield','Glass Orb','Spellbook']) {
+      items.push({ shieldItem: { slot:'shield', name }, name });
     }
     const failures = [], plates = [];
-    for (let combo = 1; combo <= 10; combo++) {
-      const appearance = { ...look, combo };
-      if (!Scene.drawDoll(bare, appearance)) {
-        const deadline = performance.now() + 5000;
-        while (b.getImageData(150, 50, 1, 1).data[3] === 0 && performance.now() < deadline) {
-          await new Promise(requestAnimationFrame);
-        }
+    for (let build = 0; build < 3; build++) for (let combo = 1; combo <= 10; combo++) {
+      const appearance = { ...look, combo, build };
+      const deadline = performance.now() + 5000;
+      let ready=Scene.drawDoll(bare, appearance);
+      while (!ready && performance.now() < deadline) {
+        await new Promise(requestAnimationFrame);
+        ready=Scene.drawDoll(bare, appearance);
       }
-      if (b.getImageData(150, 50, 1, 1).data[3] === 0) {
-        failures.push({ combo, issue: 'base figure never loaded' });
+      if (!ready) {
+        failures.push({ combo, build, issue: 'base figure never loaded' });
         continue;
       }
+      const {sockets}=ArtData.painted.combos[CharacterProfiles.index(appearance)].doll;
       const base = b.getImageData(0, 0, 300, 450).data;
       b.clearRect(0, 0, 300, 450);
-      for (const [index, { name, ...item }] of items.entries()) {
+      for (const [index, { name, wpn=-1, shieldItem }] of items.entries()) {
         q.clearRect(0, 0, 364, 514);
-        const drawn = Scene.drawDoll(figure, { ...appearance, ...item });
+        const gearSelection=PaintedGear.resolve({wpn,shield:shieldItem});
+        const wkind=[25,26].includes(wpn)?'bow':wpn===27?'crossbow':'';
+        const drawn = Scene.drawDoll(figure, { ...appearance, wpn, wkind, gear:gearSelection });
         const gear = q.getImageData(0, 0, 364, 514).data;
         const armed = g.getImageData(0, 0, 300, 450).data;
         let visible = 0, preserved = 0, clipped = 0;
-        const fingerBand = item.wpn != null ? [61, 91] : [207, 240];
+        const [palmX,palmY]=(wpn>=0 && ![25,26].includes(wpn)?sockets.rightPalm:sockets.leftPalm).p;
+        const fingerBand=[palmX-20,palmX+20];
         for (let y = 0; y < 514; y++) for (let x = 0; x < 364; x++) {
           const source = (y * 364 + x) * 4;
           if (gear[source + 3] < 180) continue;
@@ -75,14 +80,14 @@ test('paper doll grips preserve the fingers and fit every weapon and offhand on 
           const same = armed[p] === base[p] && armed[p + 1] === base[p + 1] &&
             armed[p + 2] === base[p + 2] && armed[p + 3] === base[p + 3];
           if (!same) visible++;
-          if (same && base[p + 3] > 240 && fx >= fingerBand[0] && fx <= fingerBand[1] && fy >= 209 && fy <= 245) preserved++;
+          if (same && base[p + 3] > 240 && fx >= fingerBand[0] && fx <= fingerBand[1] && fy >= palmY-12 && fy <= palmY+17) preserved++;
         }
-        const heldByFingers = item.wpn != null || item.shield >= 23;
+        const heldByFingers = wpn>=0 || ['off-orb','off-book'].includes(gearSelection.shield);
         if (!drawn || visible < 100 || (heldByFingers && preserved < 3) || clipped) {
-          failures.push({ combo, name, drawn, visible, preserved, clipped });
+          failures.push({ combo, build, name, drawn, visible, preserved, clipped });
         }
         if (!makeSheets) continue;
-        const plate = Math.floor(index / 2);
+        const plate = build*Math.ceil(items.length/2)+Math.floor(index / 2);
         if (!plates[plate]) {
           const sheet = canvas(750, (index === items.length - 1 ? 2 : 4) * 237), s = sheet.getContext('2d');
           s.fillStyle = '#302824';
@@ -120,7 +125,7 @@ test('paper doll in hero and appearance reflects equip, unequip, legacy gear and
   await waitForDolls(frame);
   const loading = await frame.evaluate(async () => {
     const preview = document.querySelector('#doll2');
-    const warm = __bw.HOST.app(), pending = { ...warm, combo: 10, wpn: 9 };
+    const warm = __bw.HOST.app(), pending = { ...warm, combo: 10, wpn: 9, gear:PaintedGear.resolve({wpn:9}) };
     const deferred = !Scene.drawDoll(preview, pending);
     Scene.drawDoll(preview, warm);
     const current = preview.toDataURL();

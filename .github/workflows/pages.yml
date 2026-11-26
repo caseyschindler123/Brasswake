@@ -45,6 +45,7 @@ jobs:
       suites: ${{ steps.select.outputs.suites }}
       scenes: ${{ steps.select.outputs.scenes }}
       scene_profiles: ${{ steps.select.outputs.scene_profiles }}
+      ui_session_profile: ${{ steps.select.outputs.ui_session_profile }}
       plan: ${{ steps.select.outputs.plan }}
     env:
       BW_DIFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
@@ -111,6 +112,7 @@ jobs:
       BW_UI_SUITES: ${{ needs.core.outputs.suites }}
       BW_SCENES: ${{ needs.core.outputs.scenes }}
       BW_SCENE_PROFILES: ${{ needs.core.outputs.scene_profiles }}
+      BW_UI_SESSION_PROFILE: ${{ needs.core.outputs.ui_session_profile }}
     if: needs.core.outputs.ui == 'true'
     needs: core
     runs-on: ubuntu-latest

@@ -26,7 +26,7 @@ const entries=[
   ['Sound and magic', ['--test', 'test/effects.test.js']],
   ['Dungeon layouts and progression', ['--test', 'test/dungeons.test.js', 'test/dungeon-progress.test.js', 'test/dungeon-play.test.js', 'test/architecture-dungeon.test.js', 'test/architecture-art.test.js']],
   ['Music routing, assets and playback lifecycle', ['--test', 'test/music.test.js']],
-  ['World ownership, continuous motion and presentation', ['--test', 'test/worlds_test.js', 'test/movement.test.js', 'test/interaction-rules.test.js', 'test/actor-rig.test.js', 'test/human-locomotion.test.js', 'test/human-costume.test.js', 'test/human-sprites.test.js', 'test/living-places.test.js', 'test/landscape.test.js', 'test/respawn.test.js','test/attachment-fit.test.js','test/head-portraits.test.js','test/deletion-rules.test.js','test/mounts.test.js','test/save-compatibility.test.js']],
+  ['World ownership, continuous motion and presentation', ['--test', 'test/worlds_test.js', 'test/movement.test.js', 'test/interaction-rules.test.js', 'test/actor-rig.test.js', 'test/painted-character.test.js', 'test/human-locomotion.test.js', 'test/human-costume.test.js', 'test/human-sprites.test.js', 'test/living-places.test.js', 'test/landscape.test.js', 'test/respawn.test.js','test/attachment-fit.test.js','test/head-portraits.test.js','test/deletion-rules.test.js','test/mounts.test.js','test/save-compatibility.test.js']],
   ['Build', ['build.js']],
   ['Workflow tooling', ['--test', 'test/workflow.test.js', 'test/protocol.test.js', 'test/scope.test.js']],
   ['Offline storage and server', ['--test','test/server.test.js','test/offline.test.js']],
@@ -40,6 +40,8 @@ if (selected.ui && deferUI) {
   console.log('Selected browser suites are deferred to the authoritative CI release gate.');
 } else if (selected.ui) {
   process.env.BW_UI_SUITES = JSON.stringify(selected.suites);
+  if (selected.sessionProfile) process.env.BW_UI_SESSION_PROFILE = selected.sessionProfile.id;
+  else delete process.env.BW_UI_SESSION_PROFILE;
   process.env.BW_SCENES=JSON.stringify(selected.scenes);process.env.BW_SCENE_PROFILES=JSON.stringify(selected.sceneProfiles);
   if (process.env.CI) run('Install required browsers', ['test/install-browsers.js']);
   run('Selected browser interactions', ['test/run-ui.js']);

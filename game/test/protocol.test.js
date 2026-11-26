@@ -8,6 +8,7 @@ const { ALL_SUITES, MODULES, normalizeSuites, suitesFromEnvironment, validSelect
 const { releaseGate } = require('./release-gate');
 const { registrationEquivalent } = require('./scope-policy');
 const { LIVE_SUITES, liveSuites, suitesFromLiveEnvironment } = require('./live-suites');
+const { FILE: SESSION_FILE, loadSession, webkitGrep } = require('./release-session');
 
 for (const file of ['AGENTS.md', 'game/docs/05_CODING_WORKFLOW.md']) {
   test('tooling/docs do not publish or run game UI: ' + file, () => {
@@ -284,17 +285,84 @@ test('workflow YAML rejects duplicate keys and preserves baseline/publication wi
   assert.ok(jobs.deploy.steps.indexOf(guard)<jobs.deploy.steps.indexOf(deploy));
   assert.equal(deploy.if,"steps.order.outputs.publish == 'true'");
   assert.equal(jobs.core.outputs.coverage_base,'${{ steps.select.outputs.coverage_base }}');
+  assert.equal(jobs.core.outputs.ui_session_profile,'${{ steps.select.outputs.ui_session_profile }}');
+  assert.equal(jobs.browser.env.BW_UI_SESSION_PROFILE,'${{ needs.core.outputs.ui_session_profile }}');
   assert.equal(jobs.core.steps.find(s=>s.id==='select').run,'node test/select-tests.js');
   assert.equal(jobs.deploy.steps.find(s=>s.run==='node test/live.js').env.BW_SELECTION,'${{ needs.core.outputs.plan }}');
 });
-function listSuites(suites,{live=false}={}){
+test('painted session requires a matching active main push and retains full core/hosted gates',()=>{
+  const record=loadSession(),candidate='e'.repeat(40),previous='d'.repeat(40);
+  const productionBody='game/art/painted-release/body-30-crossbow.webp';
+  const files=[SESSION_FILE,'game/build.js','game/src/painted_gear.js','game/art/paintedgear/gear.webp',
+    productionBody,'game/art/painted-release/body-5-hands-hands-plated-block.webp',
+    'game/art/painted-release/doll-5-feet-feet-riding.webp','game/test/browser/appearance-materials.js'];
+  const pkg=fs.readFileSync(path.join(__dirname,'../package.json'),'utf8');
+  const lock=fs.readFileSync(path.join(__dirname,'../package-lock.json'),'utf8');
+  const simulate=({delta=files,time=Date.parse(record?.startsAt || '2026-11-26T14:46:00Z')+1000,
+    expectedBase=record?.publishedBase || 'cb5546ec62ab8b6219eb56cd3f1ef4aaf09671a8',
+    env={},packageBefore=pkg,noComparison=false}={})=>selection({
+    now:time, assertOrder:(base,head)=>assert.deepEqual([base,head],[expectedBase,candidate]),
+    env:{CI:'true',GITHUB_EVENT_NAME:'push',GITHUB_REF:'refs/heads/main',BW_DIFF_BASE:previous,
+      BW_RELEASE_BASE:expectedBase,BW_RELEASE_VERIFIED:'true',...env},
+    runGit:(...args)=>{
+      if(args[0]==='rev-parse')return candidate;
+      if(args[0]==='cat-file' && noComparison)throw Error('missing comparison');
+      if(args[0]==='diff')return (args[4]===previous||args[4]===expectedBase?delta:[]).join('\0')+'\0';
+      if(args[0]==='show')return args[1].endsWith('package-lock.json')?lock:packageBefore;
+      return '';
+    },
+  });
+  const selected=simulate();
+  if (!record) {
+    assert.equal(selected.tier,'full');
+    assert.deepEqual(selected.suites,ALL_SUITES);
+    assert.throws(()=>webkitGrep('painted-characters-2026-11-26'),/unavailable/);
+    return;
+  }
+  assert.equal(selected.tier,'session');assert.equal(selected.sessionProfile.candidate,candidate);
+  assert.deepEqual(selected.coreGroups,['all']);assert.deepEqual(selected.suites,record.chromiumSuites);
+  assert.deepEqual(liveSuites(selected),LIVE_SUITES);
+  const gate=(plan,browser='success',expectedCommit=candidate)=>releaseGate({core:'success',plan,browser,expectedCommit});
+  assert.equal(gate(selected),true);
+  assert.equal(gate(selected,'failed'),false);assert.equal(gate(selected,'skipped'),false);
+  assert.equal(gate(selected,'success','f'.repeat(40)),false);
+  for(const [key,value] of [['coreGroups',['assets']],['suites',['canary']],['profiles',['phone-chromium']],
+    ['sceneProfiles',['phone-webkit']],['live',false],['coverageBase',previous],['files',files.slice(1)],
+    ['sessionProfile',{...selected.sessionProfile,selectedAt:record.expiresAt}]])
+    assert.equal(gate({...selected,[key]:value}),false,key);
+  for(const opts of [{time:Date.parse(record.expiresAt)},{time:Date.parse(record.startsAt)-1},
+    {expectedBase:'f'.repeat(40)},{delta:[...files,'game/src/service-worker.js']},
+    {delta:[...files,'game/vendor/new.js']},{delta:files.slice(1)},{noComparison:true},
+    {delta:files.map(file=>file===productionBody?'game/art/painted/body-30-idle.webp':file)},
+    {packageBefore:JSON.stringify({...JSON.parse(pkg),dependencies:{unapproved:'1.0.0'}})},
+    {env:{BW_VERIFY_SCOPE:'full'}},{env:{GITHUB_EVENT_NAME:'pull_request'}},
+    {env:{GITHUB_EVENT_NAME:'schedule'}},{env:{GITHUB_REF:'refs/heads/another'}}]){
+    const normal=simulate(opts);assert.equal(normal.tier,'full',JSON.stringify(opts));assert.deepEqual(normal.suites,ALL_SUITES);
+  }
+  assert.throws(()=>webkitGrep('wrong-release'),/Unknown/);
+});
+function listSuites(suites,{live=false,session}={}){
   const env={...process.env,[live?'BW_LIVE_SUITES':'BW_UI_SUITES']:JSON.stringify(suites)};
   if(live)env.BW_LIVE='1';else delete env.BW_LIVE;
+  if(session)env.BW_UI_SESSION_PROFILE=session;else delete env.BW_UI_SESSION_PROFILE;
   const result=spawnSync(process.execPath,[require.resolve('@playwright/test/cli'),'test','--list','--reporter=json'],{
     cwd:path.resolve(__dirname,'..'),encoding:'utf8',env,maxBuffer:16*1024*1024});
   assert.equal(result.status,0,result.stderr);const report=JSON.parse(result.stdout);assert.deepEqual(report.errors,[]);
   const cases=[];function visit(s){for(const spec of s.specs||[])for(const t of spec.tests)cases.push({title:spec.title,file:spec.file,project:t.projectName});for(const child of s.suites||[])visit(child);}visit(report);return cases;
 }
+test('session real discovery keeps each exact WebKit critical case and complete selected Chromium suites',()=>{
+  const session=loadSession();
+  if (!session) {
+    assert.equal(webkitGrep(''),undefined);
+    return;
+  }
+  const standard=listSuites(session.chromiumSuites), cases=listSuites(session.chromiumSuites,{session:session.id});
+  assert.deepEqual(cases.filter(t=>t.project==='phone-webkit').map(t=>t.title).sort(),session.webkitTests.toSorted());
+  for(const profile of ['phone-chromium','desktop-chromium'])
+    assert.deepEqual(cases.filter(t=>t.project===profile),standard.filter(t=>t.project===profile));
+  assert.ok(cases.some(t=>t.title.includes('painted fit ·')&&t.project==='phone-chromium'));
+  assert.equal(cases.some(t=>t.title.includes('guided day without skipping')),false);
+});
 test('actual discovery retains full long flows and all projects; smoke stays bounded',()=>{
   const full=listSuites(ALL_SUITES),smoke=listSuites(['smoke']),music=listSuites(['smoke','music']);
   assert.deepEqual([...new Set(full.map(t=>t.project))].sort(),['desktop-chromium','phone-chromium','phone-webkit']);

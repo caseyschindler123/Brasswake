@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "tool": "Built-in ImageGen",
+  "paletteReference": {
+    "file": "body-front-painted.png",
+    "sha256": "96c472e45c6bb89c55b54b8f92040215f3389dc0559fb4ce81fa110b470f31d2"
+  },
+  "entries": [
+    {
+      "profile": 1,
+      "file": "exec-8f0a250a-0acc-46c6-bfbd-e32b71f944fd.png",
+      "sha256": "8058b7f456cfeb833e6dbd13dbdfc226ab5f54cd951b665464acddd7633e5b84",
+      "guide": "base-6.png",
+      "guideSha256": "7f13b1021e3d2f240222dfbf469c2111b54fb647298fb6d11a1eb4672b5920ae",
+      "prompt": "Use case: precise-object-edit. Paint a fixed 3D projection atlas for the muscular adult man in Image 1. Image 1 is the exact geometry guide: FRONT, RIGHT SIDE, BACK, three 512x1024 panels assembled as a 1536x1024 landscape. Preserve every crown, chin, hands, fingers, joint, shoulder, boots and foot position, silhouette, model camera and panel alignment. Image 2 provides only the Brasswake painted pigment/shading/realism style. Apply warm restrained hand-painted medieval RPG pigments to the existing exposed face, neck, arms and hands: calm face, subtle evidence of outdoor work, softly readable skin texture and natural painted fingers. Paint the guide's body cloth regions as fully opaque matte natural ivory, unadorned and modest close-fitting sleeveless base garments, and the boots as worn umber leather. Respect the exact volume and seam placements shown in the guide; exact pose, no anatomy changes, no enlargement or shifting of hands, feet, face, or any detail. Every front/side/back figure is the exact same model, paint, and lighting. Hands, neck, and the boots are the prioritized texture areas. Face has small warm skin details and short neutral brown scalp. Transparent background and margins, no scenery or shadow, no text and no borders. Keep same original 1536x1024 geometry and camera. This will be projected onto that exact mesh, so preserve the guide's silhouettes and landmarks."
+    },
+    {
+      "profile": 2,
+      "file": "exec-dbf8757a-47ca-4e1c-a68f-163fb5559d88.png",
+      "sha256": "9cbdbefb837308ba11342a0d12ae272458199848bf10cece858c8065038d144b",
+      "guide": "base-11.png",
+      "guideSha256": "43b31f5f9bac87943a1fa216eea83c6d370d7f38d730bdc6d713822874f4b933",
+      "prompt": "Use case: precise-object-edit. Paint a fixed 3D projection atlas for the heavy-built adult man in Image 1. Image 1 is the exact geometry guide: FRONT, RIGHT SIDE, BACK, three 512x1024 panels assembled as a 1536x1024 landscape. Preserve every crown, chin, hands, fingers, joint, shoulder, boots and foot position, silhouette, model camera and panel alignment. Image 2 provides only the Brasswake painted pigment/shading/realism style. Apply warm restrained hand-painted medieval RPG pigments to the existing exposed face, neck, arms and hands: calm face, subtle evidence of outdoor work, softly readable skin texture and natural painted fingers. Paint the guide's body cloth regions as fully opaque matte natural ivory, unadorned and modest close-fitting sleeveless base garments, and the boots as worn umber leather. Respect the exact volume and seam placements shown in the guide; exact pose, no anatomy changes, no enlargement or shifting of hands, feet, face, or any detail. Every front/side/back figure is the exact same model, paint, and lighting. Hands, neck, and the boots are the prioritized texture areas. Face has small warm skin details and short neutral brown scalp. Transparent background and margins, no scenery or shadow, no text and no borders. Keep same original 1536x1024 geometry and camera. This will be projected onto that exact mesh, so preserve the guide's silhouettes and landmarks."
+    },
+    {
+      "profile": 3,
+      "file": "exec-b434b947-211b-4060-afc1-20aa03b4f757.png",
+      "sha256": "0aecf7e5232cec25e0b10b5b67372fc30f590fc67d6d1bb9ceed8fb6fd2891ff",
+      "guide": "base-16.png",
+      "guideSha256": "7b0e3769f809131aee67382db3ac2847b21a29982ddc4db043b033509947b97d",
+      "prompt": "Use case: precise-object-edit. Paint a fixed 3D projection atlas for the average adult woman in Image 1. Image 1 is the exact geometry guide: FRONT, RIGHT SIDE, BACK, three 512x1024 panels assembled as a 1536x1024 landscape. Preserve every crown, chin, hands, fingers, joint, shoulder, boots and foot position, silhouette, model camera and panel alignment. Image 2 provides only the Brasswake painted pigment/shading/realism style. Apply warm restrained hand-painted medieval RPG pigments to the existing exposed face, neck, arms and hands: calm face, subtle evidence of outdoor work, softly readable skin texture and natural painted fingers. Paint the guide's body cloth regions as fully opaque matte natural ivory, unadorned and modest close-fitting sleeveless base garments, and the boots as worn umber leather. Respect the exact volume and seam placements shown in the guide; exact pose, no anatomy changes, no enlargement or shifting of hands, feet, face, or any detail. Every front/side/back figure is the exact same model, paint, and lighting. Hands, neck, and the boots are the prioritized texture areas. Face has small warm skin details and short neutral brown scalp. Transparent background and margins, no scenery or shadow, no text and no borders. Keep same original 1536x1024 geometry and camera. This will be projected onto that exact mesh, so preserve the guide's silhouettes and landmarks."
+    },
+    {
+      "profile": 4,
+      "file": "exec-ebfbc8e9-3e45-4603-8054-1038995e8fd5.png",
+      "sha256": "1e1c6cc64ba425453f4688df20292c28529fd8b1ea9366583772c2c1235491aa",
+      "guide": "base-21.png",
+      "guideSha256": "5996211cc1836445afd794d5ad71bd9e5c7b82135033d116eca618a7c30d522e",
+      "prompt": "Use case: precise-object-edit. Paint a fixed 3D projection atlas for the muscular adult woman in Image 1. Image 1 is the exact geometry guide: FRONT, RIGHT SIDE, BACK, three 512x1024 panels assembled as a 1536x1024 landscape. Preserve every crown, chin, hands, fingers, joint, shoulder, boots and foot position, silhouette, model camera and panel alignment. Image 2 provides only the Brasswake painted pigment/shading/realism style. Apply warm restrained hand-painted medieval RPG pigments to the existing exposed face, neck, arms and hands: calm face, subtle evidence of outdoor work, softly readable skin texture and natural painted fingers. Paint the guide's body cloth regions as fully opaque matte natural ivory, unadorned and modest close-fitting sleeveless base garments, and the boots as worn umber leather. Respect the exact volume and seam placements shown in the guide; exact pose, no anatomy changes, no enlargement or shifting of hands, feet, face, or any detail. Every front/side/back figure is the exact same model, paint, and lighting. Hands, neck, and the boots are the prioritized texture areas. Face has small warm skin details and short neutral brown scalp. Transparent background and margins, no scenery or shadow, no text and no borders. Keep same original 1536x1024 geometry and camera. This will be projected onto that exact mesh, so preserve the guide's silhouettes and landmarks."
+    },
+    {
+      "profile": 5,
+      "file": "exec-bb32561e-9617-405a-b9f1-65f2daad3426.png",
+      "sha256": "f448a714c78f63c5d0dceab5f33c792eddcb256d617776365f04a647359c4684",
+      "guide": "base-26.png",
+      "guideSha256": "b1b23ababd35b4d74f8b27d3b1107172731a75ecd3dfe4e75970606ad5ef88b5",
+      "prompt": "Use case: precise-object-edit. Paint a fixed 3D projection atlas for the heavy-built adult woman in Image 1. Image 1 is the exact geometry guide: FRONT, RIGHT SIDE, BACK, three 512x1024 panels assembled as a 1536x1024 landscape. Preserve every crown, chin, hands, fingers, joint, shoulder, boots and foot position, silhouette, model camera and panel alignment. Image 2 provides only the Brasswake painted pigment/shading/realism style. Apply warm restrained hand-painted medieval RPG pigments to the existing exposed face, neck, arms and hands: calm face, subtle evidence of outdoor work, softly readable skin texture and natural painted fingers. Paint the guide's body cloth regions as fully opaque matte natural ivory, unadorned and modest close-fitting sleeveless base garments, and the boots as worn umber leather. Respect the exact volume and seam placements shown in the guide; exact pose, no anatomy changes, no enlargement or shifting of hands, feet, face, or any detail. Every front/side/back figure is the exact same model, paint, and lighting. Hands, neck, and the boots are the prioritized texture areas. Face has small warm skin details and short neutral brown scalp. Transparent background and margins, no scenery or shadow, no text and no borders. Keep same original 1536x1024 geometry and camera. This will be projected onto that exact mesh, so preserve the guide's silhouettes and landmarks."
+    }
+  ]
+}

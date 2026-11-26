@@ -1,0 +1,136 @@
+/* Pack shared pose metadata once per body profile and state. */
+const fs = require('node:fs');
+
+const SOCKETS = [
+  'head', 'collar', 'torso', 'waist', 'leftPalm', 'leftForearm', 'leftFoot', 'rightPalm', 'rightForearm', 'rightFoot',
+];
+
+function ints(values) {
+  const bytes = Buffer.allocUnsafe(values.length * 2);
+  values.forEach((value, i) => {
+    if (!Number.isInteger(value) || value < -32768 || value > 32767) throw Error('Out-of-range atlas metadata: ' + value);
+    bytes.writeInt16LE(value, i * 2);
+  });
+  return bytes.toString('base64');
+}
+
+function encodePoses(frames) {
+  return frames.flatMap(row => row.flatMap(frame => {
+    const round = (values, factor) => values.map(value => Math.round(value * factor));
+    if (frame.supports.length > 2 || frame.feet.length !== 2) throw Error('Invalid foot count');
+    return [
+      round(frame.head, 100), round(frame.hands, 100),
+      frame.supports.length, [...round(frame.supports.flat(), 100), 0, 0, 0, 0].slice(0, 4), frame.flight ? 1 : 0,
+      frame.feet.flatMap(foot => [...round(foot.slice(0, 3), 100), Math.round(foot[3] * 1000)]),
+      Math.round(frame.angle * 1000),
+      SOCKETS.flatMap(key => {
+        const {p, axis, depth} = frame.sockets[key];
+        return [...round(p, 100), ...round(axis, 1000), Math.round(depth * 1000)];
+      }),
+    ].flat();
+  }));
+}
+
+function compact(meta) {
+  const source = JSON.parse(JSON.stringify(meta));
+  const poses = {};
+  function ownBanks(profile, item) {
+    for (const [state, bank] of Object.entries(item.states)) {
+      const rows = bank.frames, frame = rows[0][0];
+      const pose = [profile, state].join('-');
+      const stride = frame.m[1] - frame.r[1];
+      poses[pose] ||= ints(encodePoses(rows));
+      const rects = ints(rows.flatMap(row => row.flatMap(frame => [...frame.r, ...frame.offset])));
+      item.states[state] = {file: bank.file, rows: rows.length, count: rows[0].length, stride, pose, rects};
+    }
+  }
+  for (const combo of Object.values(source.combos)) ownBanks(combo.sex * 3 + combo.build, combo);
+  for (const [profile, catalog] of Object.entries(source.slots || {})) {
+    for (const items of Object.values(catalog)) for (const item of Object.values(items)) ownBanks(profile, item);
+  }
+  return {source, poses};
+}
+
+/* Stringified below into the generated browser module. */
+function hydrate(source, poses, socketNames) {
+  const decoded = new Map();
+  function ints(value) {
+    const binary = globalThis.atob(value);
+    const array = new Int16Array(binary.length / 2);
+    for (let i = 0, at = 0; at < binary.length; i++, at += 2) {
+      array[i] = binary.charCodeAt(at) | binary.charCodeAt(at + 1) << 8;
+    }
+    return array;
+  }
+  function poseRows(key, count) {
+    if (decoded.has(key)) return decoded.get(key);
+    const data = ints(poses[key]), rows = [];
+    delete poses[key];
+    let p = 0;
+    const take = (size, factor) => {
+      const values = [];
+      for (let i = 0; i < size; i++) values.push(data[p++] / factor);
+      return values;
+    };
+    while (p < data.length) {
+      const head = take(3, 100);
+      const hands = take(4, 100);
+      const supportCount = data[p++];
+      const points = take(4, 100);
+      const supports = Array.from({length: supportCount}, (_, i) => points.slice(i * 2, i * 2 + 2));
+      const flight = !!data[p++];
+      const feet = Array.from({length: 2}, () => [...take(3, 100), data[p++] / 1000]);
+      const angle = data[p++] / 1000;
+      const sockets = {};
+      for (const name of socketNames) {
+        sockets[name] = {p: take(2, 100), axis: take(3, 1000), depth: data[p++] / 1000};
+      }
+      rows.push({head, hands, supports, flight, feet, angle, sockets, origin: source.origin});
+    }
+    if (rows.length % count) throw Error('Invalid pose rows for ' + key);
+    decoded.set(key, rows);
+    return rows;
+  }
+  function banks(combo) {
+    for (const [key, bank] of Object.entries(combo.states)) {
+      let frames = null;
+      combo.states[key] = {
+        file: bank.file,
+        get frames() {
+          if (frames) return frames;
+          const data = ints(bank.rects), motion = poseRows(bank.pose, bank.count);
+          let i = 0, f = 0;
+          frames = Array.from({length: bank.rows}, () => Array.from({length: bank.count}, () => {
+            const x = data[i++], y = data[i++], w = data[i++], h = data[i++];
+            const offset = [data[i++], data[i++]];
+            return {...motion[f++], r: [x, y, w, h], m: [x, y + bank.stride, w, h], offset};
+          }));
+          bank.rects = null;
+          return frames;
+        },
+      };
+    }
+  }
+  for (const combo of Object.values(source.combos)) banks(combo);
+  for (const catalog of Object.values(source.slots || {})) {
+    for (const items of Object.values(catalog)) for (const item of Object.values(items)) banks(item);
+  }
+  return source;
+}
+
+function generate(meta) {
+  const {source, poses} = compact(meta);
+  return [
+    '/* Generated by arttools/painted_release_bake.cjs. Never edit coordinates. */',
+    'ArtData.painted = (' + hydrate.toString() + ')(' + [source, poses, SOCKETS].map(value => JSON.stringify(value)).join(',') + ');',
+    '',
+  ].join('\n');
+}
+
+if (require.main === module) {
+  const [input, output] = process.argv.slice(2);
+  if (!input || !output) throw Error('Usage: node painted_release_metadata.cjs <input.json> <output.js>');
+  fs.writeFileSync(output, generate(JSON.parse(fs.readFileSync(input, 'utf8'))));
+}
+
+module.exports = {generate};

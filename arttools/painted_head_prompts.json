@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "sex": 0,
+      "group": 0,
+      "names": [
+        "Bald, clean shaven",
+        "Short neat hair, clean shaven",
+        "Shaggy hair, clean shaven",
+        "Long hair, clean shaven"
+      ],
+      "reference": "C:/Users/caseys/.codex/worktrees/painted-character-release/Brasswake/work/painted-characters/head-reference-0-0.png",
+      "prompt": "Use case: stylized-concept. Production COMPLETE painted heads for Brasswake, to fit its hand-painted 2D fantasy characters.\nImage 1 shows FOUR existing identities/hair and facial-hair choices, from left to right. Use ONLY the identities, hairstyle shapes and facial hair as references, not their photographic finish. Image 2 gives the approved painted adult body finish and elevated game camera. Image 3 gives the game's warm scenery style.\nCreate a NEW transparent head atlas with exactly SIX EQUAL COLUMNS and FOUR EQUAL ROWS. Each of the 24 cells contains ONE complete adult man's head with coherent skull, face, jaw, ears, hair, facial hair if specified, and a short exposed neck stump. NO shoulders, clothing, jewelry or hat.\nRow styles in order: ROW 1: Bald, clean shaven; ROW 2: Short neat hair, clean shaven; ROW 3: Shaggy hair, clean shaven; ROW 4: Long hair, clean shaven.\nColumns in every row: 1 elevated SOUTH facing the viewer; 2 elevated SOUTHEAST face/nose toward lower right; 3 elevated EAST profile facing RIGHT; 4 elevated NORTHEAST back three-quarter facing upper right; 5 elevated NORTH back of the head, no face; 6 FRONTAL EYE-LEVEL portrait facing straight toward viewer for the equipment paper doll. Columns 1–5 use the same elevated camera as the body reference, looking down approximately 35 degrees. Column 6 has a level frontal portrait camera.\nKeep one constant physical skull size, natural adult proportions, warm tan neutral skin and medium brown hair, brown beards. Paint hair and beard as ONE coherent head, no detached beard cutouts. Consistent face identity, hair length, hairline and neck attachment across headings. Keep each head centered on its cell and neck base at the same vertical position; generously separate every cell.\nStyle: clearly PAINTED warm pigment, restrained ink contours, soft controlled planes, readable eyes and facial hair, subtle natural imperfections. Match the approved bodies and scenery, no CGI, hyperreal pores, shiny skin, chibi proportions, labels or decorative portraits. NO background or drop shadows, genuine transparent alpha. Wide 1536x1024 sheet."
+    },
+    {
+      "sex": 0,
+      "group": 1,
+      "names": [
+        "Ponytail, clean shaven",
+        "Curly hair, clean shaven",
+        "Short hair and short beard",
+        "Bald scalp with full beard"
+      ],
+      "reference": "C:/Users/caseys/.codex/worktrees/painted-character-release/Brasswake/work/painted-characters/head-reference-0-1.png",
+      "prompt": "Use case: stylized-concept. Production COMPLETE painted heads for Brasswake, to fit its hand-painted 2D fantasy characters.\nImage 1 shows FOUR existing identities/hair and facial-hair choices, from left to right. Use ONLY the identities, hairstyle shapes and facial hair as references, not their photographic finish. Image 2 gives the approved painted adult body finish and elevated game camera. Image 3 gives the game's warm scenery style.\nCreate a NEW transparent head atlas with exactly SIX EQUAL COLUMNS and FOUR EQUAL ROWS. Each of the 24 cells contains ONE complete adult man's head with coherent skull, face, jaw, ears, hair, facial hair if specified, and a short exposed neck stump. NO shoulders, clothing, jewelry or hat.\nRow styles in order: ROW 1: Ponytail, clean shaven; ROW 2: Curly hair, clean shaven; ROW 3: Short hair and short beard; ROW 4: Bald scalp with full beard.\nColumns in every row: 1 elevated SOUTH facing the viewer; 2 elevated SOUTHEAST face/nose toward lower right; 3 elevated EAST profile facing RIGHT; 4 elevated NORTHEAST back three-quarter facing upper right; 5 elevated NORTH back of the head, no face; 6 FRONTAL EYE-LEVEL portrait facing straight toward viewer for the equipment paper doll. Columns 1–5 use the same elevated camera as the body reference, looking down approximately 35 degrees. Column 6 has a level frontal portrait camera.\nKeep one constant physical skull size, natural adult proportions, warm tan neutral skin and medium brown hair, brown beards. Paint hair and beard as ONE coherent head, no detached beard cutouts. Consistent face identity, hair length, hairline and neck attachment across headings. Keep each head centered on its cell and neck base at the same vertical position; generously separate every cell.\nStyle: clearly PAINTED warm pigment, restrained ink contours, soft controlled planes, readable eyes and facial hair, subtle natural imperfections. Match the approved bodies and scenery, no CGI, hyperreal pores, shiny skin, chibi proportions, labels or decorative portraits. NO background or drop shadows, genuine transparent alpha. Wide 1536x1024 sheet."
+    },
+    {
+      "sex": 0,
+      "group": 2,
+      "names": [
+        "Long hair and full beard",
+        "Cropped hair and goatee",
+        "Ponytail and moustache",
+        "Long hair and neatly boxed beard"
+      ],
+      "reference": "C:/Users/caseys/.codex/worktrees/painted-character-release/Brasswake/work/painted-characters/head-reference-0-2.png",
+      "prompt": "Use case: stylized-concept. Production COMPLETE painted heads for Brasswake, to fit its hand-painted 2D fantasy characters.\nImage 1 shows FOUR existing identities/hair and facial-hair choices, from left to right. Use ONLY the identities, hairstyle shapes and facial hair as references, not their photographic finish. Image 2 gives the approved painted adult body finish and elevated game camera. Image 3 gives the game's warm scenery style.\nCreate a NEW transparent head atlas with exactly SIX EQUAL COLUMNS and FOUR EQUAL ROWS. Each of the 24 cells contains ONE complete adult man's head with coherent skull, face, jaw, ears, hair, facial hair if specified, and a short exposed neck stump. NO shoulders, clothing, jewelry or hat.\nRow styles in order: ROW 1: Long hair and full beard; ROW 2: Cropped hair and goatee; ROW 3: Ponytail and moustache; ROW 4: Long hair and neatly boxed beard.\nColumns in every row: 1 elevated SOUTH facing the viewer; 2 elevated SOUTHEAST face/nose toward lower right; 3 elevated EAST profile facing RIGHT; 4 elevated NORTHEAST back three-quarter facing upper right; 5 elevated NORTH back of the head, no face; 6 FRONTAL EYE-LEVEL portrait facing straight toward viewer for the equipment paper doll. Columns 1–5 use the same elevated camera as the body reference, looking down approximately 35 degrees. Column 6 has a level frontal portrait camera.\nKeep one constant physical skull size, natural adult proportions, warm tan neutral skin and medium brown hair, brown beards. Paint hair and beard as ONE coherent head, no detached beard cutouts. Consistent face identity, hair length, hairline and neck attachment across headings. Keep each head centered on its cell and neck base at the same vertical position; generously separate every cell.\nStyle: clearly PAINTED warm pigment, restrained ink contours, soft controlled planes, readable eyes and facial hair, subtle natural imperfections. Match the approved bodies and scenery, no CGI, hyperreal pores, shiny skin, chibi proportions, labels or decorative portraits. NO background or drop shadows, genuine transparent alpha. Wide 1536x1024 sheet."
+    },
+    {
+      "sex": 1,
+      "group": 0,
+      "names": [
+        "Bald",
+        "Short neat hair",
+        "Shaggy layered hair",
+        "Long loose hair"
+      ],
+      "reference": "C:/Users/caseys/.codex/worktrees/painted-character-release/Brasswake/work/painted-characters/head-reference-1-0.png",
+      "prompt": "Use case: stylized-concept. Production COMPLETE painted heads for Brasswake, to fit its hand-painted 2D fantasy characters.\nImage 1 shows FOUR existing identities/hair and facial-hair choices, from left to right. Use ONLY the identities, hairstyle shapes and facial hair as references, not their photographic finish. Image 2 gives the approved painted adult body finish and elevated game camera. Image 3 gives the game's warm scenery style.\nCreate a NEW transparent head atlas with exactly SIX EQUAL COLUMNS and FOUR EQUAL ROWS. Each of the 24 cells contains ONE complete adult woman's head with coherent skull, face, jaw, ears, hair, facial hair if specified, and a short exposed neck stump. NO shoulders, clothing, jewelry or hat.\nRow styles in order: ROW 1: Bald; ROW 2: Short neat hair; ROW 3: Shaggy layered hair; ROW 4: Long loose hair.\nColumns in every row: 1 elevated SOUTH facing the viewer; 2 elevated SOUTHEAST face/nose toward lower right; 3 elevated EAST profile facing RIGHT; 4 elevated NORTHEAST back three-quarter facing upper right; 5 elevated NORTH back of the head, no face; 6 FRONTAL EYE-LEVEL portrait facing straight toward viewer for the equipment paper doll. Columns 1–5 use the same elevated camera as the body reference, looking down approximately 35 degrees. Column 6 has a level frontal portrait camera.\nKeep one constant physical skull size, natural adult proportions, warm tan neutral skin and medium brown hair, brown beards. Paint hair and beard as ONE coherent head, no detached beard cutouts. Consistent face identity, hair length, hairline and neck attachment across headings. Keep each head centered on its cell and neck base at the same vertical position; generously separate every cell.\nStyle: clearly PAINTED warm pigment, restrained ink contours, soft controlled planes, readable eyes and facial hair, subtle natural imperfections. Match the approved bodies and scenery, no CGI, hyperreal pores, shiny skin, chibi proportions, labels or decorative portraits. NO background or drop shadows, genuine transparent alpha. Wide 1536x1024 sheet."
+    },
+    {
+      "sex": 1,
+      "group": 1,
+      "names": [
+        "Ponytail",
+        "Short cropped hair",
+        "Curly hair",
+        "Straight shoulder-length hair"
+      ],
+      "reference": "C:/Users/caseys/.codex/worktrees/painted-character-release/Brasswake/work/painted-characters/head-reference-1-1.png",
+      "prompt": "Use case: stylized-concept. Production COMPLETE painted heads for Brasswake, to fit its hand-painted 2D fantasy characters.\nImage 1 shows FOUR existing identities/hair and facial-hair choices, from left to right. Use ONLY the identities, hairstyle shapes and facial hair as references, not their photographic finish. Image 2 gives the approved painted adult body finish and elevated game camera. Image 3 gives the game's warm scenery style.\nCreate a NEW transparent head atlas with exactly SIX EQUAL COLUMNS and FOUR EQUAL ROWS. Each of the 24 cells contains ONE complete adult woman's head with coherent skull, face, jaw, ears, hair, facial hair if specified, and a short exposed neck stump. NO shoulders, clothing, jewelry or hat.\nRow styles in order: ROW 1: Ponytail; ROW 2: Short cropped hair; ROW 3: Curly hair; ROW 4: Straight shoulder-length hair.\nColumns in every row: 1 elevated SOUTH facing the viewer; 2 elevated SOUTHEAST face/nose toward lower right; 3 elevated EAST profile facing RIGHT; 4 elevated NORTHEAST back three-quarter facing upper right; 5 elevated NORTH back of the head, no face; 6 FRONTAL EYE-LEVEL portrait facing straight toward viewer for the equipment paper doll. Columns 1–5 use the same elevated camera as the body reference, looking down approximately 35 degrees. Column 6 has a level frontal portrait camera.\nKeep one constant physical skull size, natural adult proportions, warm tan neutral skin and medium brown hair, brown beards. Paint hair and beard as ONE coherent head, no detached beard cutouts. Consistent face identity, hair length, hairline and neck attachment across headings. Keep each head centered on its cell and neck base at the same vertical position; generously separate every cell.\nStyle: clearly PAINTED warm pigment, restrained ink contours, soft controlled planes, readable eyes and facial hair, subtle natural imperfections. Match the approved bodies and scenery, no CGI, hyperreal pores, shiny skin, chibi proportions, labels or decorative portraits. NO background or drop shadows, genuine transparent alpha. Wide 1536x1024 sheet."
+    },
+    {
+      "sex": 1,
+      "group": 2,
+      "names": [
+        "Single braid",
+        "Wavy hair",
+        "Hair in a bun",
+        "Two braids"
+      ],
+      "reference": "C:/Users/caseys/.codex/worktrees/painted-character-release/Brasswake/work/painted-characters/head-reference-1-2.png",
+      "prompt": "Use case: stylized-concept. Production COMPLETE painted heads for Brasswake, to fit its hand-painted 2D fantasy characters.\nImage 1 shows FOUR existing identities/hair and facial-hair choices, from left to right. Use ONLY the identities, hairstyle shapes and facial hair as references, not their photographic finish. Image 2 gives the approved painted adult body finish and elevated game camera. Image 3 gives the game's warm scenery style.\nCreate a NEW transparent head atlas with exactly SIX EQUAL COLUMNS and FOUR EQUAL ROWS. Each of the 24 cells contains ONE complete adult woman's head with coherent skull, face, jaw, ears, hair, facial hair if specified, and a short exposed neck stump. NO shoulders, clothing, jewelry or hat.\nRow styles in order: ROW 1: Single braid; ROW 2: Wavy hair; ROW 3: Hair in a bun; ROW 4: Two braids.\nColumns in every row: 1 elevated SOUTH facing the viewer; 2 elevated SOUTHEAST face/nose toward lower right; 3 elevated EAST profile facing RIGHT; 4 elevated NORTHEAST back three-quarter facing upper right; 5 elevated NORTH back of the head, no face; 6 FRONTAL EYE-LEVEL portrait facing straight toward viewer for the equipment paper doll. Columns 1–5 use the same elevated camera as the body reference, looking down approximately 35 degrees. Column 6 has a level frontal portrait camera.\nKeep one constant physical skull size, natural adult proportions, warm tan neutral skin and medium brown hair, brown beards. Paint hair and beard as ONE coherent head, no detached beard cutouts. Consistent face identity, hair length, hairline and neck attachment across headings. Keep each head centered on its cell and neck base at the same vertical position; generously separate every cell.\nStyle: clearly PAINTED warm pigment, restrained ink contours, soft controlled planes, readable eyes and facial hair, subtle natural imperfections. Match the approved bodies and scenery, no CGI, hyperreal pores, shiny skin, chibi proportions, labels or decorative portraits. NO background or drop shadows, genuine transparent alpha. Wide 1536x1024 sheet."
+    }
+  ]
+}

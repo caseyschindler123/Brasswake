@@ -1,0 +1,4270 @@
+{
+  "version": 1,
+  "files": [
+    {
+      "path": "art/painted/body-1-idle.webp",
+      "size": 17744,
+      "sha256": "7d1aaa85c90074cbc711360d689a56d507eb0514c713cfa625b0fa51725572d3",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-1-walk.webp",
+      "size": 400536,
+      "sha256": "f90eedde20d1fd0fe631607c05b15d6e4d91541b5ce5364dce7e206ae1506e64",
+      "dimensions": [
+        1024,
+        752
+      ]
+    },
+    {
+      "path": "art/painted/body-1-run.webp",
+      "size": 370970,
+      "sha256": "dffa5238d6b90572289b7ef280c6ef49507ef632f56387de6e7ad34655068171",
+      "dimensions": [
+        1024,
+        770
+      ]
+    },
+    {
+      "path": "art/painted/body-1-swing.webp",
+      "size": 34720,
+      "sha256": "7100f3e799436965be545aa2b99dd2753ac2a59b4c005e2d546bbacaadcd9450",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-1-swingtwo.webp",
+      "size": 35926,
+      "sha256": "e66d5b5bf9a3b9bf3df4d8cf258bc559e54290b79cbc0661cfff082a3f02185f",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-1-thrust.webp",
+      "size": 27618,
+      "sha256": "8a6fcf0aa097c487d07bd7f99782202c41c9f9436d9e44a2263cc8f2e20b8adc",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-1-thrusttwo.webp",
+      "size": 28206,
+      "sha256": "f6da4a12ef39ef64a12d881c8e962a4aa5e1c5748fc69447b7ebfc2e6b2d8430",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-1-bow.webp",
+      "size": 24614,
+      "sha256": "e58681141fd2c361082efcda353ef84ff96f1abf17e6b39949f2cdb11a3f03e6",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-1-cast.webp",
+      "size": 33794,
+      "sha256": "e8bfa30e2f8cbe62907807fd82aa147cbdd76f3c13c5d5e41ac1538e0b17fb0b",
+      "dimensions": [
+        1024,
+        184
+      ]
+    },
+    {
+      "path": "art/painted/body-1-book.webp",
+      "size": 19640,
+      "sha256": "4fdadf5b9090f7144327c45d88ec26d2c4a04cf7a12bc8a8d0be156e7111d62d",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-1-block.webp",
+      "size": 20020,
+      "sha256": "fcff2dff3cc3d915ff600a5e80a1cf92b836dda5eb48d61a22486287e1d23c9f",
+      "dimensions": [
+        1024,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-1-hit.webp",
+      "size": 41526,
+      "sha256": "7834ea2203036a1d7e8998b0e5b884cfc04642a782d4f93d232f0418937a2233",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-1-fall.webp",
+      "size": 70756,
+      "sha256": "14ae9b34e15624f1d9acd4093de940f7bc9f579eb3c654a338e73499c76ca67e",
+      "dimensions": [
+        1024,
+        214
+      ]
+    },
+    {
+      "path": "art/painted/body-1-sit.webp",
+      "size": 13912,
+      "sha256": "efe05bd7a645711d54ece6423c80947f3664b49b2465449bbd57ed38f740157e",
+      "dimensions": [
+        512,
+        122
+      ]
+    },
+    {
+      "path": "art/painted/doll-1.webp",
+      "size": 80016,
+      "sha256": "7088000611d32d6af1af508681556005bf4b19194b627785f61a6cb9d9aaf933",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-2-idle.webp",
+      "size": 18246,
+      "sha256": "27bf94b1a1901f4eaf52f2409241e7feefb009ebca794fffe4b4b0eaf9ba8c5c",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-2-walk.webp",
+      "size": 422212,
+      "sha256": "6e6f3e68397bc94c6906e38d1af8a860d9193805334b66397067fa3216d128f5",
+      "dimensions": [
+        1024,
+        732
+      ]
+    },
+    {
+      "path": "art/painted/body-2-run.webp",
+      "size": 420562,
+      "sha256": "27aba8adadd0db4d15374d65ce1e698b345b46b8727f7a68227e4682a462c90b",
+      "dimensions": [
+        1024,
+        762
+      ]
+    },
+    {
+      "path": "art/painted/body-2-swing.webp",
+      "size": 34796,
+      "sha256": "035de5a47e390a6c8c2ad31a6fb0d779c086ffb067d1e20461ecff2bd1249f9d",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-2-swingtwo.webp",
+      "size": 37218,
+      "sha256": "6386accab12f073f221ef0462ce90c1802df3c737ef137527dc71ea72a363d36",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-2-thrust.webp",
+      "size": 57140,
+      "sha256": "42458c4f1fb2cc1786f89873a8e13ffba7e541d480bb4a5dcbba310fbbfe80b0",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-2-thrusttwo.webp",
+      "size": 28826,
+      "sha256": "98160380bb3340b5220773e0711c64c72f69f2bf3a00378cbb7057b8a4f5fa86",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-2-bow.webp",
+      "size": 25276,
+      "sha256": "7ff011e89cc3a260cdfb772d7ed66021ad4c7431c4ab57d27b847cc93b900fce",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-2-cast.webp",
+      "size": 33976,
+      "sha256": "23123427aeb863988722fea397f849808572477cc042924085a89edadf1928e5",
+      "dimensions": [
+        1024,
+        184
+      ]
+    },
+    {
+      "path": "art/painted/body-2-book.webp",
+      "size": 20242,
+      "sha256": "1175b06c86ff90be444a012562ace5c5251c43bfe5a5faf8f8fbaf1afd5f165a",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-2-block.webp",
+      "size": 20454,
+      "sha256": "34c48c01ef8eba2634b61d8e6e860a0829c541e402a020ae1f77bce56c60703f",
+      "dimensions": [
+        1024,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-2-hit.webp",
+      "size": 43076,
+      "sha256": "935cceaea40bd17b4203b0f34bcfe907603ceaf6c0f9d225994f0c213ee8f6a8",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-2-fall.webp",
+      "size": 72814,
+      "sha256": "49706fd25fb80f33edff473098f0146c5f7615a25999c15e0d94ee57418485ed",
+      "dimensions": [
+        1024,
+        210
+      ]
+    },
+    {
+      "path": "art/painted/body-2-sit.webp",
+      "size": 14772,
+      "sha256": "f446873452f5ae4edaad87339895a69600e535a8321bc9532efddf6ef561def4",
+      "dimensions": [
+        512,
+        122
+      ]
+    },
+    {
+      "path": "art/painted/doll-2.webp",
+      "size": 80584,
+      "sha256": "bc3ad048fd3a44322393a50a175d79a4f777a7ed1e1b8c4ca8f7c60772c734af",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-3-idle.webp",
+      "size": 17084,
+      "sha256": "c458460d3b6b8424d2619ee7394316b3ccd3e5a58ffc13851a6dc42d38edd5a6",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-3-walk.webp",
+      "size": 381026,
+      "sha256": "76516c8f05625579be83aae363350728f5e95914bd5ec3d177aadae3e9537f32",
+      "dimensions": [
+        1024,
+        728
+      ]
+    },
+    {
+      "path": "art/painted/body-3-run.webp",
+      "size": 355318,
+      "sha256": "f16aaf2276fbc1b9b84b56f8bfd7020f28e3c75aee38b8dced914f2e7c38fd36",
+      "dimensions": [
+        1024,
+        766
+      ]
+    },
+    {
+      "path": "art/painted/body-3-swing.webp",
+      "size": 33616,
+      "sha256": "2c8681a7d2883346a1c66937cd9fd0e3d5c2631bcef22f8e269d4b19b5f3e19f",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-3-swingtwo.webp",
+      "size": 36574,
+      "sha256": "0f98de30faf7331c397c33f7028bb44b53dd4800ed98c8aad2758ba83aa955da",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-3-thrust.webp",
+      "size": 26860,
+      "sha256": "714e99f4e60c0dabbe4e70d07c0200876e3edecf729ce7fc1129cd450be0157c",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-3-thrusttwo.webp",
+      "size": 27918,
+      "sha256": "da8eca729032f1f21a060b498533cea7f7095ff73d4e1f2a8a73de58716bf08c",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-3-bow.webp",
+      "size": 23732,
+      "sha256": "8a065e8eae817b8d54a1b4e8ed367519d40df514bcc422156063971ea2f3499b",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-3-cast.webp",
+      "size": 32982,
+      "sha256": "57127ecba7a9a05ec331ebd26468325d2c6d2483ab88dbea737c87e10f0d68ba",
+      "dimensions": [
+        1024,
+        184
+      ]
+    },
+    {
+      "path": "art/painted/body-3-book.webp",
+      "size": 19010,
+      "sha256": "1083e1f2e46b1fb5c82965a2ba8a65e726a0b9fe774271c19bbe9f6b77647e79",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-3-block.webp",
+      "size": 19374,
+      "sha256": "14508ab2ac0313e974d80eb4a79c8eacaff96d52a91ce39982c497379967b464",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-3-hit.webp",
+      "size": 40892,
+      "sha256": "f04c36b7ba82f1264ee8d9de56f3496980d76434fbff24ed263bb55e3440e283",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-3-fall.webp",
+      "size": 67426,
+      "sha256": "7c430b7d7117e541822682f1377642072e94d54689f36c723385361192fc3849",
+      "dimensions": [
+        1024,
+        210
+      ]
+    },
+    {
+      "path": "art/painted/body-3-sit.webp",
+      "size": 13362,
+      "sha256": "cb6b9c4eafe988ae75745ddd98ab548b6ee5dcb17305022a989fa596b436af6c",
+      "dimensions": [
+        512,
+        122
+      ]
+    },
+    {
+      "path": "art/painted/doll-3.webp",
+      "size": 76168,
+      "sha256": "770e74a16018a6179197567b89db3977455eb72b69c780d3f87e593fdaf9cd50",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-4-idle.webp",
+      "size": 16818,
+      "sha256": "1c8da3607da76dba2de0d8b8d9b97383281f2f491850a55de6e5493f80faa0cc",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-4-walk.webp",
+      "size": 379794,
+      "sha256": "a7f48aee559cd195228ba0e29a8edcc35295be4b6c3e10e7f33585e09126fe02",
+      "dimensions": [
+        1024,
+        730
+      ]
+    },
+    {
+      "path": "art/painted/body-4-run.webp",
+      "size": 354952,
+      "sha256": "a16c6872c8166b4f7407e2bf5a51dc030fc254817f0d86d9eb2c87cf32f9ba9e",
+      "dimensions": [
+        1024,
+        764
+      ]
+    },
+    {
+      "path": "art/painted/body-4-swing.webp",
+      "size": 33516,
+      "sha256": "15c29ce4ed2a3968f68ad48360b80c3fdeec8e9941497d3c0b4dfb85c78553b4",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-4-swingtwo.webp",
+      "size": 36336,
+      "sha256": "9bee98d8bf648ddc3fef728413476054b4aba72cf497e7bc407180ae5c3868ac",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-4-thrust.webp",
+      "size": 26872,
+      "sha256": "ba4f45b6d1e1b1e88938ef634f4a6218479b384e4d0a3aff20953b696ad066f8",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-4-thrusttwo.webp",
+      "size": 27538,
+      "sha256": "bbe0064d85a5d79c531ffe26ab421437b6f34ab1c5e971f82cb83159615cd10a",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-4-bow.webp",
+      "size": 23852,
+      "sha256": "0793b14ca6b08424969739af854a165f92a5f64186bc2aacc15785ad62c9b2a8",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-4-cast.webp",
+      "size": 32772,
+      "sha256": "743e45ab346148abfcdf906ade5f41f64cb6f0f32037242eb7521d2e6c88e85a",
+      "dimensions": [
+        1024,
+        184
+      ]
+    },
+    {
+      "path": "art/painted/body-4-book.webp",
+      "size": 18740,
+      "sha256": "15f23bc439b4b9a56ef86c73dff009aae46236196e4c27f79c8467b3c336ce8a",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-4-block.webp",
+      "size": 19092,
+      "sha256": "17fa570a40e359263f5de4b1c1f6c1e165929475043d41bd7595f07746fd5789",
+      "dimensions": [
+        1024,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-4-hit.webp",
+      "size": 40554,
+      "sha256": "12fe492e9d593597ed04e36a286b4e5793196005b5d80231632ee24e9f66c6bf",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-4-fall.webp",
+      "size": 66722,
+      "sha256": "6c738b9905056a01ac290cd5c2f4282a399a9fef5c47d02c1a427dec29e564c4",
+      "dimensions": [
+        1024,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-4-sit.webp",
+      "size": 13208,
+      "sha256": "e368576d0e35578f9c888409422bff8ce58580ffbeadbcaf6cf3529a8a47e369",
+      "dimensions": [
+        512,
+        122
+      ]
+    },
+    {
+      "path": "art/painted/doll-4.webp",
+      "size": 84234,
+      "sha256": "9fcca08fe03e6106273028eda6b973176ced8fcc6a1414dad0fed33d1b7a9d7f",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-5-idle.webp",
+      "size": 17338,
+      "sha256": "9eaf5c059b108fd6f9a43558ef4ce60cb62c356da892aa4d8040c3505da99952",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-5-walk.webp",
+      "size": 393040,
+      "sha256": "6db4ea34c4f04cd8d1d09376337a205661029dc6d1df1b429abd82d1baace26d",
+      "dimensions": [
+        1024,
+        760
+      ]
+    },
+    {
+      "path": "art/painted/body-5-run.webp",
+      "size": 370130,
+      "sha256": "86c21a4b1076863675f02bd7a13d0fb161eef214f6759941c5e16b23be5b1c43",
+      "dimensions": [
+        1024,
+        768
+      ]
+    },
+    {
+      "path": "art/painted/body-5-swing.webp",
+      "size": 34052,
+      "sha256": "44f76578d12fdcc90b7f2cd44d2f5df1f9ac7bf927726a5a3812f69e166cc6f6",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-5-swingtwo.webp",
+      "size": 35674,
+      "sha256": "1fd31a507ec6fda66dee8f9466b9edde61e6d360bd5b13ee5683d0d49e80ea89",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-5-thrust.webp",
+      "size": 27050,
+      "sha256": "7e77282e033f45904e115edcd7df4ea81f6b53c5aa16751e6eb08d0bcb7d4ad4",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-5-thrusttwo.webp",
+      "size": 27504,
+      "sha256": "236495b53f793fff6e21dc98a2ca1b9e441f06731e997801b55c56372f603a99",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-5-bow.webp",
+      "size": 24366,
+      "sha256": "282bb7143f54f54fddb818d957df9862db83b51bbc521a8f2f0cce289e743097",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-5-cast.webp",
+      "size": 32698,
+      "sha256": "9540419eef7430a8ca32c7e7be9f93b1c4956da76cf3fbe160ef1e1d9fb1e650",
+      "dimensions": [
+        1024,
+        184
+      ]
+    },
+    {
+      "path": "art/painted/body-5-book.webp",
+      "size": 19128,
+      "sha256": "effa3dff9aa5cc060595f9f6b1e2c7a2f6752b7832ed5f3c91b735ad37dd6c37",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-5-block.webp",
+      "size": 19506,
+      "sha256": "e373ba5f08228bd2b4308c76d71c3f44f0d496e01b01d376085e0097e2a7fcc3",
+      "dimensions": [
+        1024,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-5-hit.webp",
+      "size": 40946,
+      "sha256": "982acd7158ae8cd909860ce95ecc4b05ac68a07a6cf7d3c178e872325c6602ff",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-5-fall.webp",
+      "size": 68214,
+      "sha256": "b5a85e530e0e1c398a9faa25b84d611437cd39f76287abda9e2b7426ba68679c",
+      "dimensions": [
+        1024,
+        214
+      ]
+    },
+    {
+      "path": "art/painted/body-5-sit.webp",
+      "size": 13542,
+      "sha256": "433e7e116dc476432d92b75a11beb9033bd7c5de90f2518c999e5041befcbd61",
+      "dimensions": [
+        512,
+        122
+      ]
+    },
+    {
+      "path": "art/painted/doll-5.webp",
+      "size": 87636,
+      "sha256": "0671b7807a3dcb825c32eb43d0a7ec6cd8bd6fde354575ce23868a9b14bd618a",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-6-idle.webp",
+      "size": 18964,
+      "sha256": "2a2889bf4e9bf9493d9c0f8a6feb2b57974b0ed58b4d0575fb405fea7a2f5f71",
+      "dimensions": [
+        512,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-6-walk.webp",
+      "size": 438602,
+      "sha256": "da515472c65a10ae6f045b0f8a61f7ecdb4acaef4c59c1b38664f39353aea377",
+      "dimensions": [
+        1024,
+        766
+      ]
+    },
+    {
+      "path": "art/painted/body-6-run.webp",
+      "size": 413994,
+      "sha256": "03f1f6765c514d4849c6ca6995a0283dc88c2ac943078a6768a6a4725dc2eed3",
+      "dimensions": [
+        1024,
+        764
+      ]
+    },
+    {
+      "path": "art/painted/body-6-swing.webp",
+      "size": 68112,
+      "sha256": "314f6c0fc4f98009f199a6c2af37f62a3df1265e2c40fe0a5aeddcaab9e1a226",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-6-swingtwo.webp",
+      "size": 66168,
+      "sha256": "0bf37217775d3b24c162457422e162e4229502d4d44f99806b20c2539e1511c3",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-6-thrust.webp",
+      "size": 61644,
+      "sha256": "5dd5af552142391cd7a456afc9003abe84fbf2cc58cd8441992320c782188f97",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-6-thrusttwo.webp",
+      "size": 62356,
+      "sha256": "50dde42d19f5746d6c6dd56395cf3c64ac82e2a142354950eacc1508d35ab599",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-6-bow.webp",
+      "size": 54126,
+      "sha256": "09ef31fff642a0be5d5cec7635fdafca2c8efac9dee5bc307f9b89341af0f696",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-6-cast.webp",
+      "size": 69998,
+      "sha256": "d24d667d0e0c2f5478f139b431ebe1c87ef4355e59424c738a8048b01b347015",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-6-book.webp",
+      "size": 44800,
+      "sha256": "120978d9c53bc316d1c59aa3086d2eec7a713f7b93ec6dd0ac3da301e3d32a87",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-6-block.webp",
+      "size": 42672,
+      "sha256": "d8ee46a37c63c94a25ce1edde611bd0c9c8f2932086f042e8dcb5877ffc9a2b1",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-6-hit.webp",
+      "size": 72502,
+      "sha256": "52b1cc10377caf6d12401400ed5a986da26e6405f942748adb680f85f279fc91",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-6-fall.webp",
+      "size": 75332,
+      "sha256": "6116528a788887f942bfdd57aa4eadf70b5138b3dedb88d49b3ec1964eabe220",
+      "dimensions": [
+        1024,
+        218
+      ]
+    },
+    {
+      "path": "art/painted/body-6-sit.webp",
+      "size": 14382,
+      "sha256": "3f5484b522c61871baab6e9f1462e6128f61b2c7135d4c9cb4805b7315f0cffc",
+      "dimensions": [
+        512,
+        124
+      ]
+    },
+    {
+      "path": "art/painted/doll-6.webp",
+      "size": 85132,
+      "sha256": "960248096ecfcc8dd96c9d4af6fe82056a21984773c031baab2efbfae7b64b64",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-7-idle.webp",
+      "size": 19312,
+      "sha256": "e01329a8b73e7e91e5c16028bdcc7fa01257f9bcd5d84cc25cf8715bbcd6288f",
+      "dimensions": [
+        512,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-7-walk.webp",
+      "size": 447936,
+      "sha256": "8e16725ac4e6703bff6ff667291b4362a9c29f54f2ffcedaa7a2cfb1a2565a6f",
+      "dimensions": [
+        1024,
+        766
+      ]
+    },
+    {
+      "path": "art/painted/body-7-run.webp",
+      "size": 432942,
+      "sha256": "fef8b0279af4c47fa3171d3c83d27bada0663bf0f49c1a4cce77adce76a56fab",
+      "dimensions": [
+        1024,
+        766
+      ]
+    },
+    {
+      "path": "art/painted/body-7-swing.webp",
+      "size": 36624,
+      "sha256": "0f82569ede2834adcd4ecf3a4754256e4e857d6166eddcf29d12412c11d830d7",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-7-swingtwo.webp",
+      "size": 37964,
+      "sha256": "15ab88a5fe07a4231f2eaeffea4fead8af4b8b4f8ca7da855f5208df99011adb",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-7-thrust.webp",
+      "size": 29606,
+      "sha256": "e986e79aac9f651f216fc452bc886ca1e0a9a8d5d30feb689b7bccf05b38ef5a",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-7-thrusttwo.webp",
+      "size": 29622,
+      "sha256": "ccd47b9fccb029d180ac925e2f81b5089b7fca138ef595b40972a1efcc74d466",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-7-bow.webp",
+      "size": 26220,
+      "sha256": "ebfd401849d92e141022a80e020c2ea7c302ef9cee106b80a6223b48520565f2",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-7-cast.webp",
+      "size": 35366,
+      "sha256": "78d858de1cb0c84615e7e05f4989bea0b9c0e399a59e1dfa4e3329447259f8f0",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-7-book.webp",
+      "size": 20798,
+      "sha256": "299cb230e97dbac89343eecf0bd1d551e8236610f326f16ccfde80387e75e808",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-7-block.webp",
+      "size": 21028,
+      "sha256": "6948ae87b938596478ab5dc4ec4a584f56ee691cc5574c52cd12c3019299552f",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-7-hit.webp",
+      "size": 44356,
+      "sha256": "aee10aaaa9655de3f3b32482a6de198c0c255476f6f00350896a29cb921c2321",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-7-fall.webp",
+      "size": 77074,
+      "sha256": "a9ae375668500d7112d3370715c3b7607f4e9aaf094d6de3c6c07368dec6dc6e",
+      "dimensions": [
+        1024,
+        220
+      ]
+    },
+    {
+      "path": "art/painted/body-7-sit.webp",
+      "size": 15048,
+      "sha256": "e3e191f9dc72d0b878d85155de542a0835fed6df2683e7374c30499723361c96",
+      "dimensions": [
+        512,
+        124
+      ]
+    },
+    {
+      "path": "art/painted/doll-7.webp",
+      "size": 87398,
+      "sha256": "3a6a0ef643f2d950c1530f94f4a31306d5a7467e84d87e0b33f15e7ef47821c9",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-8-idle.webp",
+      "size": 17832,
+      "sha256": "1999843f61e5eab202f2f17b063d07161f808798af667c6421a847ac02c3e330",
+      "dimensions": [
+        512,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-8-walk.webp",
+      "size": 398196,
+      "sha256": "59d529feb8f5696bd480764fada50289639bbaa182a1138b164008213f52410f",
+      "dimensions": [
+        1024,
+        762
+      ]
+    },
+    {
+      "path": "art/painted/body-8-run.webp",
+      "size": 362968,
+      "sha256": "03a9b7f526a74e1614b7862e3feeab965cd7aa53bdb50606ce0be2570044f9e2",
+      "dimensions": [
+        1024,
+        764
+      ]
+    },
+    {
+      "path": "art/painted/body-8-swing.webp",
+      "size": 34310,
+      "sha256": "7d099ea7f9b50316a85b2c3485c2c491ce7368d7e7a94c3d951c8fb4b396da3a",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-8-swingtwo.webp",
+      "size": 36704,
+      "sha256": "90085f263479c39357099e97a25882ff02a8feb321799f77675bee1dc9c2d844",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-8-thrust.webp",
+      "size": 27632,
+      "sha256": "6e5850455cb2b709307ab97b372869f20d1620c620c9e32d11a1704818024acc",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-8-thrusttwo.webp",
+      "size": 28000,
+      "sha256": "9fa7d4cf33c64792afdff8bb1fb5499f2f03349187a9fa9521ca70d8ffd299ea",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-8-bow.webp",
+      "size": 23894,
+      "sha256": "7c346a647bb7e9c6da1da7a53cb9aaa26847960969096f922f28b4ac5724531b",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-8-cast.webp",
+      "size": 33304,
+      "sha256": "5db006de3244e5e66c50c96609b8bfa222c11490dfb79481fe85b7daa8252620",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-8-book.webp",
+      "size": 19228,
+      "sha256": "8e5b37c13e605eac466029778505beba886197e4da744e2a216c31b04fea9588",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-8-block.webp",
+      "size": 19474,
+      "sha256": "b24826c1c34487b031b93b89ae2b8c29bc0336bfd0b6f0310a0fc1208ca185b3",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-8-hit.webp",
+      "size": 41390,
+      "sha256": "c67ba0855be792aa76bf24f7ec29c67c679c136b2a9a75a7cc860eed5a03b204",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-8-fall.webp",
+      "size": 70310,
+      "sha256": "d6d2cd29dfb7c0aaf10a4e64ff3a1b5f300d81afcd21d70eeb0fb02b1f04119c",
+      "dimensions": [
+        1024,
+        220
+      ]
+    },
+    {
+      "path": "art/painted/body-8-sit.webp",
+      "size": 13432,
+      "sha256": "4377a2cf9e4388eebfe2bfb123577859822e590f7a76178f5c0aa6cd3887d875",
+      "dimensions": [
+        512,
+        124
+      ]
+    },
+    {
+      "path": "art/painted/doll-8.webp",
+      "size": 81446,
+      "sha256": "a1e53ad01e308c02d01db77a55ca1694280c65f63b572a01115e0c6bd9800c35",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-9-idle.webp",
+      "size": 17142,
+      "sha256": "4f26935a8f37c48fe50569cc2c6ca79efd8c3dd4ae040d91e912e1e589b608e9",
+      "dimensions": [
+        512,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-9-walk.webp",
+      "size": 384972,
+      "sha256": "6cb14441023049777d4bafe1576fc0356334e66d6ec3a141378a4f7d4d012695",
+      "dimensions": [
+        1024,
+        752
+      ]
+    },
+    {
+      "path": "art/painted/body-9-run.webp",
+      "size": 353726,
+      "sha256": "d180bc15f9763e931d41225d70321f9496c6c192e23a164120dcf7e57eb54e59",
+      "dimensions": [
+        1024,
+        764
+      ]
+    },
+    {
+      "path": "art/painted/body-9-swing.webp",
+      "size": 33580,
+      "sha256": "aebfe2c41f242a40d13ac7d2dbcca478e0c4358cc547df4629c0110d960d00ec",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-9-swingtwo.webp",
+      "size": 35178,
+      "sha256": "53f91e72413c4e3f276f00a0faf0191a8bb1ded33e046a17f0a74d53dba56aad",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-9-thrust.webp",
+      "size": 26782,
+      "sha256": "eb7ae723a88d5d129dd3f1b271a3e565b275904dc3286ec167a7cbd5d9eeb958",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-9-thrusttwo.webp",
+      "size": 27100,
+      "sha256": "6afb065eaa32c4e400258143f51f97f321109c62390cadb767e722e4f4ff6dac",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-9-bow.webp",
+      "size": 22992,
+      "sha256": "b4fa0df00654538a0cf9921347deb91bdd2b59e7e9745441e95119bfc0cb2049",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-9-cast.webp",
+      "size": 32382,
+      "sha256": "3645d798c881190ee2dafa21c598d808880afb1c52b55cebb3122c03d96be684",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-9-book.webp",
+      "size": 18614,
+      "sha256": "83b8e4e4096032c93b7482dc9cace8c0ae70c8cff029bf0efc4d3d4c2be3da16",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-9-block.webp",
+      "size": 18926,
+      "sha256": "1dfa7bcf915b48e0051a760ddf286741592745d214cef762646e6819182afb4f",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-9-hit.webp",
+      "size": 40096,
+      "sha256": "fc9516cb446b14f27477dba94c8941767438f3d134a9f5a72229c6918ce7c56a",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-9-fall.webp",
+      "size": 67990,
+      "sha256": "df627449f389064306fba6bb4954badab64c71f27625904c25e7c15b9a099a29",
+      "dimensions": [
+        1024,
+        220
+      ]
+    },
+    {
+      "path": "art/painted/body-9-sit.webp",
+      "size": 13148,
+      "sha256": "a1849abcb2c7f5c92add399ad7fd134c979c55bc89313a31b7382c2699125b8a",
+      "dimensions": [
+        512,
+        122
+      ]
+    },
+    {
+      "path": "art/painted/doll-9.webp",
+      "size": 89664,
+      "sha256": "d9fc75c6442f92f473ae94e0f4a0beb5614a8cc59f2bee1c251cc5bfa8cb8076",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-10-idle.webp",
+      "size": 17548,
+      "sha256": "f278fdeeb36cc8307d133d1aa376faa99e23f3766c3bf503a29cd7cedfd94968",
+      "dimensions": [
+        512,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-10-walk.webp",
+      "size": 399622,
+      "sha256": "8d1bd5fbdde3b1c6309cfbb6887c1fa018f2edc100bd9eed0d3a82da3cd7c5f9",
+      "dimensions": [
+        1024,
+        766
+      ]
+    },
+    {
+      "path": "art/painted/body-10-run.webp",
+      "size": 369196,
+      "sha256": "f0691486662a63bdf6e3d1a70d77d08e93b7bd58ef679e623f9a92e8acdd88dc",
+      "dimensions": [
+        1024,
+        764
+      ]
+    },
+    {
+      "path": "art/painted/body-10-swing.webp",
+      "size": 34186,
+      "sha256": "192f7c563707f16d1eb38674591bedac4d2206762f781ed9a9f61eb3c8ad3aea",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-10-swingtwo.webp",
+      "size": 35248,
+      "sha256": "9e269f6419878e333b6fd1aec2017f46552e198ab0621458762981608c665ac0",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-10-thrust.webp",
+      "size": 27062,
+      "sha256": "6ad52292a84c1debeada62d01ac40da0c81662d6c7a93d2986d275e62f59cbff",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-10-thrusttwo.webp",
+      "size": 27320,
+      "sha256": "ebdf0248c8c2a8d5b8aa320f44e290ef402e4ccabd651c9dccd83d78ed5babcc",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-10-bow.webp",
+      "size": 23680,
+      "sha256": "db7f364cc7b247899f34d897a3c065711821e057dc513eff6f135c4e8234c817",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-10-cast.webp",
+      "size": 32938,
+      "sha256": "8dd571f5a74f5a391df359936c8b8a2579916368d4657648c3f386167de92eb5",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-10-book.webp",
+      "size": 18868,
+      "sha256": "ab7980c47c738fc0f9ea762c2ce8fc2ef7cb170da778c5d4d02356af21327265",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-10-block.webp",
+      "size": 19116,
+      "sha256": "5442a61004c6369e94126e96fb8257b535c624e8dedf0ff6a029c822728a8f39",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-10-hit.webp",
+      "size": 40668,
+      "sha256": "30cdb78873d17e1409b2bf4e068be89e85179e4f2c538d0ce2e6f2a36a15cf66",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-10-fall.webp",
+      "size": 68816,
+      "sha256": "9ad0eaee565f1774a80e606d1ffb9f9e77eba9d0271420e1e65baace499da738",
+      "dimensions": [
+        1024,
+        222
+      ]
+    },
+    {
+      "path": "art/painted/body-10-sit.webp",
+      "size": 13478,
+      "sha256": "bfdee3b5b1065069be88ad10d3b0ed7618980080463b2cdd68f3126a8f458d98",
+      "dimensions": [
+        512,
+        124
+      ]
+    },
+    {
+      "path": "art/painted/doll-10.webp",
+      "size": 96880,
+      "sha256": "672a51ca7391e6908b69c3f2f0846d8fd5e06e496ae20720da5eed4248101914",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-11-idle.webp",
+      "size": 19648,
+      "sha256": "96264f7bd085ce79ded2f23cf1644c9070e633e356075c6ffa74d9fded454700",
+      "dimensions": [
+        512,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-11-walk.webp",
+      "size": 458328,
+      "sha256": "a502d0482b0f48aaf7bb6a3dde718684900b4b7f0fd055dbd3d4010985c5d035",
+      "dimensions": [
+        1024,
+        768
+      ]
+    },
+    {
+      "path": "art/painted/body-11-run.webp",
+      "size": 433116,
+      "sha256": "897fe65d17954d250d000a1d78b4613aca8b16291619a35d80a5345de8359d24",
+      "dimensions": [
+        1024,
+        770
+      ]
+    },
+    {
+      "path": "art/painted/body-11-swing.webp",
+      "size": 68928,
+      "sha256": "8e6cffec0137de48c3d6b83b37fd0466eda703954753f8864f052de91e7b4642",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-11-swingtwo.webp",
+      "size": 70826,
+      "sha256": "404450c76c36346efbecd836f10bf044fe219c00bbd6d7444c11e5ee93351daf",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-11-thrust.webp",
+      "size": 65100,
+      "sha256": "20e5fe250684689fe08c6c1b8d699218110051913eee6e915f38bf35064098a6",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-11-thrusttwo.webp",
+      "size": 61478,
+      "sha256": "26fe5125786d76bcb37378ded1d1258962187e132e94da5e832edda1d05c2848",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-11-bow.webp",
+      "size": 56710,
+      "sha256": "5f3e1a8bbb0e6924820677ff0585ef9422985014ef4624fef27abd2d9ed1a9be",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-11-cast.webp",
+      "size": 72776,
+      "sha256": "57ddd48ba7633658e7a7f8f0abca438dcb9632dbe671b7a45aa9dd096fd8532a",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-11-book.webp",
+      "size": 59930,
+      "sha256": "e6d5d5dfc96976cfa0b3b02e30894c18fe7d28c2d4cfee748cea56674f5c98ec",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-11-block.webp",
+      "size": 53480,
+      "sha256": "8e37369e686836df40cdc839d47908e541b0c11d9c17ae1b6a79488a23970a52",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-11-hit.webp",
+      "size": 66122,
+      "sha256": "ca7f7d179bcfd744e5b11e1ced42dddcc6e503a4077bf862f813a671cc3f9373",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-11-fall.webp",
+      "size": 79494,
+      "sha256": "1fbd9c5a538dded36b28c4fc2807194a06cc3a501e78f8522c97a98d3de19879",
+      "dimensions": [
+        1024,
+        232
+      ]
+    },
+    {
+      "path": "art/painted/body-11-sit.webp",
+      "size": 15360,
+      "sha256": "c6185c5b6c677cc645ecf46b65d619f27b3f600c873c514894aeeb530d17ce72",
+      "dimensions": [
+        512,
+        124
+      ]
+    },
+    {
+      "path": "art/painted/doll-11.webp",
+      "size": 86360,
+      "sha256": "98051104c3fa646181a55bab96588da8d8a316a8643f542ba5fda82d8a90c9b3",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-12-idle.webp",
+      "size": 20286,
+      "sha256": "98474fd1715078deddd514899281fe7c06e82fcab451432d5a81db5cbfd20c21",
+      "dimensions": [
+        512,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-12-walk.webp",
+      "size": 464100,
+      "sha256": "c045c305fed978790ef948e8c06185467aaf35ea87574ff04f4cace3c90ab6ab",
+      "dimensions": [
+        1024,
+        768
+      ]
+    },
+    {
+      "path": "art/painted/body-12-run.webp",
+      "size": 451320,
+      "sha256": "f35d69946d180882acca4f0d77c385f386f3a994edc6e161486e1277328eea0e",
+      "dimensions": [
+        1024,
+        772
+      ]
+    },
+    {
+      "path": "art/painted/body-12-swing.webp",
+      "size": 66766,
+      "sha256": "4ff4be8d43f7ecd34a2743497ea3bf39b8975f225c09f3813de35591fbff03af",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-12-swingtwo.webp",
+      "size": 65946,
+      "sha256": "9e305222ad60c0fc94b463e0bfd83e6edd6004ad027ed282e57ae84b5417462c",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-12-thrust.webp",
+      "size": 60670,
+      "sha256": "976486a60ac102534f25edafe1730c3cc550f7fd029608ecf2249c57e360abbf",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-12-thrusttwo.webp",
+      "size": 56148,
+      "sha256": "f8f89a4f7a960304ad81b25f966ef9b4726caf8afaa3fb516eb0ca640c90db6b",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-12-bow.webp",
+      "size": 59714,
+      "sha256": "a73aeddb98594c1b5c8665967e891fdec427712f6109cce57a8a18c1f1cd4dd3",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-12-cast.webp",
+      "size": 62880,
+      "sha256": "4a2fbd183f9169f7b58a5b22807c641281e950262aa8345d65cc46e46932110a",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-12-book.webp",
+      "size": 20944,
+      "sha256": "7fe9b939e143402bb52246374417b6db724bffcfc0d778b2b6855dc2661b39bd",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-12-block.webp",
+      "size": 21298,
+      "sha256": "92bc3223ceaea85d7133cee6a975621d3889428da6cfe44c321e301b3ec15453",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-12-hit.webp",
+      "size": 69090,
+      "sha256": "d24747281c18928de0bddfb1f2a9733cee4b48a59c34a4df2ec677cf12a0dd27",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-12-fall.webp",
+      "size": 79796,
+      "sha256": "05a16fe4a7519a431510736a1c586bfe17a14229c5f210f6ea6e87d36eab4b76",
+      "dimensions": [
+        1024,
+        250
+      ]
+    },
+    {
+      "path": "art/painted/body-12-sit.webp",
+      "size": 15480,
+      "sha256": "2afae581774c5e53e81b7e55ad0862dd24e2d52a67b55331dc6562da340d5189",
+      "dimensions": [
+        512,
+        124
+      ]
+    },
+    {
+      "path": "art/painted/doll-12.webp",
+      "size": 90362,
+      "sha256": "719e49336a59e11d8c72473892972ffdffc75459b167cf4d4d233297a8e2ba2d",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-13-idle.webp",
+      "size": 19066,
+      "sha256": "b1991e11b4d3f4d1be5ae6d7a2f3583f5eba9a8f5a6c8bfa995ebb63816784b1",
+      "dimensions": [
+        512,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-13-walk.webp",
+      "size": 422910,
+      "sha256": "ecbc3ec3af7dec90ac0bd1ce85cdf09caed108b2e5ffcff73f4a3cedb45e2684",
+      "dimensions": [
+        1024,
+        770
+      ]
+    },
+    {
+      "path": "art/painted/body-13-run.webp",
+      "size": 387602,
+      "sha256": "20d3754f7f7410629f7fef2ba3561945012a691d96bec746761f3be66eb5eb76",
+      "dimensions": [
+        1024,
+        768
+      ]
+    },
+    {
+      "path": "art/painted/body-13-swing.webp",
+      "size": 34794,
+      "sha256": "6c3f885420783248315c864d79ab63aa5794706679847f6cfe0bdb25796d30b8",
+      "dimensions": [
+        1024,
+        190
+      ]
+    },
+    {
+      "path": "art/painted/body-13-swingtwo.webp",
+      "size": 37270,
+      "sha256": "75432b0013a39ae8e6056031a40a427abd955594bfa018fc35650179ff4d9988",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-13-thrust.webp",
+      "size": 27892,
+      "sha256": "8f9cadcbfe898a366d953380930fb98bcadb2fd40060872162585c6bb9b9cd68",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-13-thrusttwo.webp",
+      "size": 28606,
+      "sha256": "54e485cc19e72598408ffa6c03b8cf34e6df81a532e1b1fdec47707e8ccc158c",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-13-bow.webp",
+      "size": 25278,
+      "sha256": "134b366efdd9b5293c0b9f68e9947ddeea4b33dbe8b9204df528437631d93af9",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-13-cast.webp",
+      "size": 34030,
+      "sha256": "0c89470583798d023992de1409d52a161d6cefbf8ba0216bee6cd541ee1e8f83",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-13-book.webp",
+      "size": 19820,
+      "sha256": "ca4f69f29c4a645442f0ac333fe23715944550b244fcb1abb4e36f287dda0056",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-13-block.webp",
+      "size": 20054,
+      "sha256": "3363f3e19960b4d919ded2751dd947c059a1dbed5afa9cdffbdb3c81e8dfb59c",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-13-hit.webp",
+      "size": 43168,
+      "sha256": "8cef7585fa6befb9df49160a0e48dfe6adcb86804ba7204c97eeac9cd682b257",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-13-fall.webp",
+      "size": 75494,
+      "sha256": "61b25c9d07ffdebed64946666e2da2906c4e6be13d41b77f24ba963ddabffa20",
+      "dimensions": [
+        1024,
+        232
+      ]
+    },
+    {
+      "path": "art/painted/body-13-sit.webp",
+      "size": 14180,
+      "sha256": "e936062f3d9f8f8169f0670e013d67790303bd7eca4e233d979bbd728c81bc15",
+      "dimensions": [
+        512,
+        124
+      ]
+    },
+    {
+      "path": "art/painted/doll-13.webp",
+      "size": 83824,
+      "sha256": "6a884312c3fcb3002c1f6a0a0b482a8d890e222e34284f5c9b4437a80a3290d6",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-14-idle.webp",
+      "size": 18334,
+      "sha256": "727289e1d94f5ee7deb6925bf24bf4e0575fe0e4e1a7baa7ef3909bc3fe12dcd",
+      "dimensions": [
+        512,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-14-walk.webp",
+      "size": 412222,
+      "sha256": "22c14e281cf10346f3ec0476311a6d4408affaa989bbdad137e9f50f6c815942",
+      "dimensions": [
+        1024,
+        770
+      ]
+    },
+    {
+      "path": "art/painted/body-14-run.webp",
+      "size": 379580,
+      "sha256": "119a5e92e7ed79b884964ee2d6509b32ea1f281669781f64312b291e0aa5d5a9",
+      "dimensions": [
+        1024,
+        770
+      ]
+    },
+    {
+      "path": "art/painted/body-14-swing.webp",
+      "size": 34160,
+      "sha256": "bf6c9b0e685c1338019c4a35caf226d4abbc56829adc93d554e9bdc09c6d2adc",
+      "dimensions": [
+        1024,
+        190
+      ]
+    },
+    {
+      "path": "art/painted/body-14-swingtwo.webp",
+      "size": 35948,
+      "sha256": "6bd8414be46ffc1725234a0f09f46e1b853ecffde4afebb15ddf1c144130bc35",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-14-thrust.webp",
+      "size": 27252,
+      "sha256": "36661279955b537edb3a208006bf74a4028cec4d15f4e01d92f64c20673c84b7",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-14-thrusttwo.webp",
+      "size": 27916,
+      "sha256": "0696c597c5a70afbf804055f807356d777d9684ed3c049d94f4072b278010228",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-14-bow.webp",
+      "size": 24754,
+      "sha256": "3c7211fb406f60160226bf0bea64986f55f52970ebdf7596cfe2a9d8a3f0a088",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-14-cast.webp",
+      "size": 33426,
+      "sha256": "211e23778885a20eea0160bd022f3f0cbb8caba3de88e30ba0eafb7450fa74c8",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-14-book.webp",
+      "size": 19274,
+      "sha256": "4f92e56d425fafb264d06e7c737d1d1c5a84cb751807735669e5348543975a6a",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-14-block.webp",
+      "size": 19640,
+      "sha256": "9c4d36444401e25063e0224cb0aa91019557197901e02a7e2dff7d59d37f88bd",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-14-hit.webp",
+      "size": 42294,
+      "sha256": "9e66efe83fa835aa2c6e7280a99b01e7f5767d54cf6bca4adff62e685bec0f65",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-14-fall.webp",
+      "size": 73022,
+      "sha256": "14e8b1398cb88239019e149c2135159fd9819109b498191ecee638c9a1665c74",
+      "dimensions": [
+        1024,
+        232
+      ]
+    },
+    {
+      "path": "art/painted/body-14-sit.webp",
+      "size": 14040,
+      "sha256": "bca59e980abe237cca0d107bb40c4c27561c593fbca7c8eea7bccefe201db55d",
+      "dimensions": [
+        512,
+        124
+      ]
+    },
+    {
+      "path": "art/painted/doll-14.webp",
+      "size": 100348,
+      "sha256": "fd4e039d744ca578e4335f8a4d06cf3054e46020c6b1332bfd51cdca0e48afe0",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-15-idle.webp",
+      "size": 18772,
+      "sha256": "e20dcca0601435edfa0ed788cc685f0ac715822ee2430de610589a4d0ba95f6d",
+      "dimensions": [
+        512,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-15-walk.webp",
+      "size": 422456,
+      "sha256": "a21fc4e62e9e666b8cf16129c508165a11defb0f012c0225a6a7408344a2b9a8",
+      "dimensions": [
+        1024,
+        772
+      ]
+    },
+    {
+      "path": "art/painted/body-15-run.webp",
+      "size": 390886,
+      "sha256": "2c401652d27764cf13db0813280d6ada86d3c2a05e2e46ee3c55be2e36f797db",
+      "dimensions": [
+        1024,
+        770
+      ]
+    },
+    {
+      "path": "art/painted/body-15-swing.webp",
+      "size": 35244,
+      "sha256": "ea931d657a94d9bce775743a9ab4cc40f192c6f9de7d21375c3a92818ecfd2f9",
+      "dimensions": [
+        1024,
+        190
+      ]
+    },
+    {
+      "path": "art/painted/body-15-swingtwo.webp",
+      "size": 36976,
+      "sha256": "16e58505a63128bc42f2a5772c5e9fe6d34690075ab62bef63162dfc9b30037a",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-15-thrust.webp",
+      "size": 27852,
+      "sha256": "a442fbbc1313680871a0fa3986d1ea50a05359c3187eb6933b4ca5f654b32011",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-15-thrusttwo.webp",
+      "size": 28522,
+      "sha256": "daf71445a4cb0730edf634fce8507215ebb948375304a28f1d4df2160fb402de",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-15-bow.webp",
+      "size": 24976,
+      "sha256": "41f08d3b7eb42aadacccf169dff3e022b246fa80262c8a22e5e7cc9242c90d1c",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-15-cast.webp",
+      "size": 34154,
+      "sha256": "1b37131c197965f4e5ef6457dff7b9065ae2183c7d075d97b669cf7f46bb7f8e",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-15-book.webp",
+      "size": 19804,
+      "sha256": "71781837bcdb73e3aa600f4a37bcd7ef3410cc3a1203528c5d7f8ec1e4d0200e",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-15-block.webp",
+      "size": 20146,
+      "sha256": "509db5664fd79ddf137097f5a728d4fd0e9f92be1b9899250f5cb2be7cf323e0",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-15-hit.webp",
+      "size": 42720,
+      "sha256": "153cb9894e39b80b8b9f72b63f1ac2f1053893167a0a2de19120f8444d19ed1e",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-15-fall.webp",
+      "size": 73932,
+      "sha256": "66ff68bede147ee97ff4ce5e35011066c347622b6ce46f9ba2cb0beda75381d1",
+      "dimensions": [
+        1024,
+        230
+      ]
+    },
+    {
+      "path": "art/painted/body-15-sit.webp",
+      "size": 14370,
+      "sha256": "d9c5e68b0b2adba2d634970e8b7d12e5cd1badff00fad364534e69eca914a78e",
+      "dimensions": [
+        512,
+        126
+      ]
+    },
+    {
+      "path": "art/painted/doll-15.webp",
+      "size": 99662,
+      "sha256": "8357eda883168eccc41e38d4e6263b0b4b4e85ab23ed621c3de8ae62e7bc7de7",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-16-idle.webp",
+      "size": 17542,
+      "sha256": "e0daae2e3f3184eec98163fc653ed562cf27498b43212d31365f8348c6b8c170",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-16-walk.webp",
+      "size": 384554,
+      "sha256": "8a36d58c34e478a1b87320ed6fe79b60177f3bc9f3167970f53efcea51219a4f",
+      "dimensions": [
+        1024,
+        726
+      ]
+    },
+    {
+      "path": "art/painted/body-16-run.webp",
+      "size": 361388,
+      "sha256": "a96c42d22ab8fc9266c0f58396b407532dabb3104f5722654502f8c271d627e2",
+      "dimensions": [
+        1024,
+        760
+      ]
+    },
+    {
+      "path": "art/painted/body-16-swing.webp",
+      "size": 33078,
+      "sha256": "4982733a36e6713c283a68335cecc4fe825684405ea32d9fb80cf712621ab31d",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-16-swingtwo.webp",
+      "size": 35780,
+      "sha256": "a4eeaeec0af500a8b7008d16209a9a65f0c49e085af6cb9e23098f8bf0c57216",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-16-thrust.webp",
+      "size": 26596,
+      "sha256": "2351b6e17c1154ec06a871203dda35fba6904ad45ce8107f54f88ed4e9c3aa0a",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-16-thrusttwo.webp",
+      "size": 28116,
+      "sha256": "b47554789bab6775ce7eaff0ad81bacb630f61182df1b32303eb2a3d56440457",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-16-bow.webp",
+      "size": 24214,
+      "sha256": "b061946e84297976297f11f5971b65a0a574f623ca99d5bdacea815c54ee644b",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-16-cast.webp",
+      "size": 65668,
+      "sha256": "c50753862a0c5552509627b7670ed85a70a04898f5cbef30beb7e9076e4c6b3e",
+      "dimensions": [
+        1024,
+        184
+      ]
+    },
+    {
+      "path": "art/painted/body-16-book.webp",
+      "size": 19152,
+      "sha256": "46f0c7405557a6ef692a9b03d9ab03b785e5aa497233a0084e1e63c97861efb2",
+      "dimensions": [
+        1024,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-16-block.webp",
+      "size": 19778,
+      "sha256": "336f17ab48b4d4f7dd197256992d012a9b98dae3d39ee519d59ea0a56f7cbaa7",
+      "dimensions": [
+        1024,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-16-hit.webp",
+      "size": 41506,
+      "sha256": "58be88e6ae3dabd6ebd577381a53aa35f68c5fc843af26117171162759f485c2",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-16-fall.webp",
+      "size": 68236,
+      "sha256": "ab12d2d68bc5fd7c6f732527c53a9608449da4198dff0a92f2eebe19631676f9",
+      "dimensions": [
+        1024,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-16-sit.webp",
+      "size": 13514,
+      "sha256": "ba0c747134955aefbfff43de232faf3d252797538b2ba64d502f6dd99fb33ad4",
+      "dimensions": [
+        512,
+        122
+      ]
+    },
+    {
+      "path": "art/painted/doll-16.webp",
+      "size": 75940,
+      "sha256": "446df8addeede69349a54e5f257ed12db56279f45cf1dbabea6a6e0f01af06f7",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-17-idle.webp",
+      "size": 17838,
+      "sha256": "7e3a71df780ec5c37ac10b878ce5d3fc050c5971a55ac8f2f85351156bb296bc",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-17-walk.webp",
+      "size": 415578,
+      "sha256": "50e04ad9bb2fc9ff71e8b4039d5135652741057fcd7d39978e1fe6a7e6e4b3d9",
+      "dimensions": [
+        1024,
+        726
+      ]
+    },
+    {
+      "path": "art/painted/body-17-run.webp",
+      "size": 415370,
+      "sha256": "540dbac8b3b9057f55281b2cfb780238bb0ed5254053859ec3942b83be54b93a",
+      "dimensions": [
+        1024,
+        758
+      ]
+    },
+    {
+      "path": "art/painted/body-17-swing.webp",
+      "size": 34708,
+      "sha256": "2528f9e3b6f002316b0e89df900253484bebcfc23ecd228f4cf8c81aacd16000",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-17-swingtwo.webp",
+      "size": 36748,
+      "sha256": "a04564f8be3fdc16a7f9c9162920cc569e5215d55fbbe8da9707c12942eb1d07",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-17-thrust.webp",
+      "size": 48692,
+      "sha256": "4203035774fb9dec48c08dc402776b70d11997deef17e7d7fdf0e05f155783a7",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-17-thrusttwo.webp",
+      "size": 28404,
+      "sha256": "44680122bcbf0f3ee64455bee2d9b0f331b53349159a4c1b2d89f3e67400d160",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-17-bow.webp",
+      "size": 24990,
+      "sha256": "4edf367717bfbdd46a47c3e4728eec0a694d7404fa7837351509974eb5a572d2",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-17-cast.webp",
+      "size": 64494,
+      "sha256": "a812dcdd7eee71bd66f75c8e8bac93c430005f736cf060bd03f538b444451954",
+      "dimensions": [
+        1024,
+        184
+      ]
+    },
+    {
+      "path": "art/painted/body-17-book.webp",
+      "size": 19704,
+      "sha256": "0e6aea39c02a80220072eb26b8430822d99fc196cce93aed701f507a630a6adb",
+      "dimensions": [
+        1024,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-17-block.webp",
+      "size": 19936,
+      "sha256": "eba0dc2a9d1252cdf0bdd0d4331278db6f429b67d2490703763af4a8c9d0bc04",
+      "dimensions": [
+        1024,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-17-hit.webp",
+      "size": 42164,
+      "sha256": "dbd9f205ca0f98c3bcc28d1dc398dac6942907c74d201edf618544fdc4970f9c",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-17-fall.webp",
+      "size": 69618,
+      "sha256": "a51eadf39f93b43b1b5b1c6acf3bbfcff0bf283440183e3bb317f906a288af49",
+      "dimensions": [
+        1024,
+        208
+      ]
+    },
+    {
+      "path": "art/painted/body-17-sit.webp",
+      "size": 14454,
+      "sha256": "802b13127a5f03e6253e434833a85e947f1d241ad5762bdc280da44a4b0c7134",
+      "dimensions": [
+        512,
+        122
+      ]
+    },
+    {
+      "path": "art/painted/doll-17.webp",
+      "size": 75864,
+      "sha256": "73d7644e929c890f9083c99f3d990f4f74f9e244e36cb16d54d6144cb9843d6b",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-18-idle.webp",
+      "size": 16630,
+      "sha256": "124d2602e8d340d651f19b3676e6a015f294a2c660371122794e5681c4a5528b",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-18-walk.webp",
+      "size": 370884,
+      "sha256": "3ff3a5d7b5a2f648f5ee8a452a6a5b6fa9a70726916d0bf61106b3596103d42b",
+      "dimensions": [
+        1024,
+        720
+      ]
+    },
+    {
+      "path": "art/painted/body-18-run.webp",
+      "size": 347790,
+      "sha256": "dcde528a9b8b6d8e8ed9399e9769ce89e1dce3be38a97c17410795d672e55cbb",
+      "dimensions": [
+        1024,
+        776
+      ]
+    },
+    {
+      "path": "art/painted/body-18-swing.webp",
+      "size": 33114,
+      "sha256": "74559c3301be616438349c54fb5ea79669eb0a9db73d8c6cbe4bba6ee1369684",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-18-swingtwo.webp",
+      "size": 35974,
+      "sha256": "891ade31704b434d3574cea56edce418264dd0c498b088672576ab5de417e8b6",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-18-thrust.webp",
+      "size": 26396,
+      "sha256": "73703d7cc8899c8b908141e6a51bfccdcff106e073bfcb9991ec93d7b38a7327",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-18-thrusttwo.webp",
+      "size": 27444,
+      "sha256": "3b819328b28c7f2d601950d1327e28a3cc427a371a428eafc67d95a1e98c5730",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-18-bow.webp",
+      "size": 23314,
+      "sha256": "8d7cba8865700321af16171593af6c7a7a280c5bf31a9e12e7e7d5791f297485",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-18-cast.webp",
+      "size": 32488,
+      "sha256": "607b32241c8f2e8600175919eda885533184180938818983070d05f0e4bacaa5",
+      "dimensions": [
+        1024,
+        184
+      ]
+    },
+    {
+      "path": "art/painted/body-18-book.webp",
+      "size": 18606,
+      "sha256": "0e4528543e698df66c00064ded488b1fdb1f5025b8817ad42fc19ab6b39ab3d7",
+      "dimensions": [
+        1024,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-18-block.webp",
+      "size": 19048,
+      "sha256": "a1562187bdec3b0abaa81237399bb62e312cb1b9db388287d2f5fbac43a00fde",
+      "dimensions": [
+        1024,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-18-hit.webp",
+      "size": 40090,
+      "sha256": "bf1442946dc42b9a1ac4f928c65d4ddd201a714314c6d619a7ab9fdd1f612820",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-18-fall.webp",
+      "size": 66108,
+      "sha256": "9361e43dbccfe108b1d5ea2615c68f6a5b002ab0d73f2a412590757c5d957c2a",
+      "dimensions": [
+        1024,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-18-sit.webp",
+      "size": 13040,
+      "sha256": "6c159f9ff3e5a807ba469e4724f246fbe9dca524686d50f52152eeab48289b1f",
+      "dimensions": [
+        512,
+        122
+      ]
+    },
+    {
+      "path": "art/painted/doll-18.webp",
+      "size": 71244,
+      "sha256": "64ecfc4d1923b0f4cd574bde317ac56ec7e8eab111e46a80702274cce7dd7c55",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-19-idle.webp",
+      "size": 15998,
+      "sha256": "725f1b39d31ab66d2ed87cf29ee0b7d44f8ab841063e2a5343dfed8e814bc151",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-19-walk.webp",
+      "size": 356440,
+      "sha256": "6535da2dc4eb8b3817a3d6c1c060b96a14e659c60c17e583bd64f2ec1c4adb44",
+      "dimensions": [
+        1024,
+        722
+      ]
+    },
+    {
+      "path": "art/painted/body-19-run.webp",
+      "size": 333288,
+      "sha256": "c440b9d2bffdea2c7faebf9f2282fc47413e0fb5efba63903a4f5cc453ad0b6c",
+      "dimensions": [
+        1024,
+        774
+      ]
+    },
+    {
+      "path": "art/painted/body-19-swing.webp",
+      "size": 32012,
+      "sha256": "b26e79eee80307d120d4a1df45512be8b287fa297c21f68f86e197467d112db8",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-19-swingtwo.webp",
+      "size": 34562,
+      "sha256": "ad3f4d1856a167afd260af1c32c78e198eae70f89858f34332ec8a39c79b0306",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-19-thrust.webp",
+      "size": 25460,
+      "sha256": "c6dd2ce9179a5ce47ce341c2b8474baa016e6769b300912272f78dc0d9ff8f99",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-19-thrusttwo.webp",
+      "size": 26482,
+      "sha256": "f40b46dd778b052d2acdb3f8c4f9b023589a38c7659f404f0c31a79b6aaa9e21",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-19-bow.webp",
+      "size": 22912,
+      "sha256": "db114a5c29e863a56aaf74f195c8908e652d00cda2a73509cf66c6a91eb8a09f",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-19-cast.webp",
+      "size": 31240,
+      "sha256": "dd64ff173434785215ee579bb8733e2a1b1268bacc9bc87718dee20efcef2719",
+      "dimensions": [
+        1024,
+        184
+      ]
+    },
+    {
+      "path": "art/painted/body-19-book.webp",
+      "size": 17956,
+      "sha256": "bf5ae2da64d1f4add3b0cf82be86130d1c823e6d376a7cfa0ec764ea0b753da2",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-19-block.webp",
+      "size": 18324,
+      "sha256": "2ef5acb171c129ffd3798fc57859cc9cc2fcd01ae0144e93468e351b2edee622",
+      "dimensions": [
+        1024,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-19-hit.webp",
+      "size": 38708,
+      "sha256": "a8bb574ff62669aed4689e228486b5f9a79700eb81a9255d6d8965f37e096dbb",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-19-fall.webp",
+      "size": 63048,
+      "sha256": "32fa5378a636c4e3fdad1577213214302d5f10fc4fc177fded746cdefec2ebf1",
+      "dimensions": [
+        1024,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-19-sit.webp",
+      "size": 12518,
+      "sha256": "606f5185a4181b60fffad43ba561230fb6e2ef3b3e4a2049aed409bd75ad3b25",
+      "dimensions": [
+        512,
+        122
+      ]
+    },
+    {
+      "path": "art/painted/doll-19.webp",
+      "size": 84250,
+      "sha256": "eb1af8fdc485e359ec17ce484239106ad0c0c0c8c38e69153007e072f7698bb2",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-20-idle.webp",
+      "size": 15944,
+      "sha256": "9c66035dc10f077aadda390f9ba7180cf82030d2c30bfc17772a14ce79916476",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-20-walk.webp",
+      "size": 365378,
+      "sha256": "c29cda23dc466ebe85d0c839c838cde610bc5b067915580cf9fafac11906d966",
+      "dimensions": [
+        1024,
+        736
+      ]
+    },
+    {
+      "path": "art/painted/body-20-run.webp",
+      "size": 344362,
+      "sha256": "4576aaa9788b22320f39e7845d84baee9e37abcde4a19ea889fd51991bece483",
+      "dimensions": [
+        1024,
+        760
+      ]
+    },
+    {
+      "path": "art/painted/body-20-swing.webp",
+      "size": 31732,
+      "sha256": "0be01d2bdb395d32e20197a4cb2cb18754281ef60404e64a457a11c3e14a737b",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-20-swingtwo.webp",
+      "size": 33552,
+      "sha256": "6bd64fc731c62e5cb7ba5ecc6fb04cb4413bf305bec9ddda8dea8b77a89e5c65",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-20-thrust.webp",
+      "size": 24958,
+      "sha256": "0e88ab62de67dfa08a4a64825f5bf85c9b37d5395b5638c2d273175b2d46eaea",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-20-thrusttwo.webp",
+      "size": 25986,
+      "sha256": "9af7bab1c0157c9ec761af0e2cd2db40653ebe415945771a2ad6e2661e00fe15",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-20-bow.webp",
+      "size": 22668,
+      "sha256": "96511b825f021b6a4f74f5a56d5c8295dc0773fd18e2aff7dbcee6d1bc430f39",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-20-cast.webp",
+      "size": 30864,
+      "sha256": "9ecdacdacdc06f478ecaa7fc1722fa28c9ea59194b288878938ad795e7e10f13",
+      "dimensions": [
+        1024,
+        184
+      ]
+    },
+    {
+      "path": "art/painted/body-20-book.webp",
+      "size": 17874,
+      "sha256": "760a6444479094221f910d430af0075755ea9b3adccdc433b0f50ccd733d4a1e",
+      "dimensions": [
+        1024,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-20-block.webp",
+      "size": 18268,
+      "sha256": "908c676c3120030746ff8cd7477c8cbfe198b9ad9ab1621fef5679457de59032",
+      "dimensions": [
+        1024,
+        146
+      ]
+    },
+    {
+      "path": "art/painted/body-20-hit.webp",
+      "size": 38576,
+      "sha256": "ce4d51808cafd0f047f80ab731e238f27af07be760a0ad1e2ee996ce41f8e21e",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-20-fall.webp",
+      "size": 63000,
+      "sha256": "7dc6119c2b1c4d235e325eff9959662f915d34cce32f0d0b06bdeceb683f1b2d",
+      "dimensions": [
+        1024,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-20-sit.webp",
+      "size": 12554,
+      "sha256": "73e9774a2555cbe5a3820f613b234f97233948d947baa3927f3a5ff641193b08",
+      "dimensions": [
+        512,
+        122
+      ]
+    },
+    {
+      "path": "art/painted/doll-20.webp",
+      "size": 79280,
+      "sha256": "8fa4d2e9cce3b2a7ec72b750ffaf757ecf9fbf6fad8773b5a6ec241baeac04f5",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-21-idle.webp",
+      "size": 17872,
+      "sha256": "7991bdfb0121f8045ddea4e3b37e07a87289e9397c4a095bfefa5858cfe77212",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-21-walk.webp",
+      "size": 392286,
+      "sha256": "2cb0d1b9d20da5b522daf632e8600b9bf8ea67511a51eb2abd3146e68592d407",
+      "dimensions": [
+        1024,
+        734
+      ]
+    },
+    {
+      "path": "art/painted/body-21-run.webp",
+      "size": 358040,
+      "sha256": "3e7ecd9a0e9b469ddc01df7bbbea506053e45177f035e744beead86b3e2c16ef",
+      "dimensions": [
+        1024,
+        764
+      ]
+    },
+    {
+      "path": "art/painted/body-21-swing.webp",
+      "size": 34354,
+      "sha256": "1c133d1fb1205a08e16fa11afe111564fad7a0af08fa0119a10d400ea5a93509",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-21-swingtwo.webp",
+      "size": 36274,
+      "sha256": "b7a2f21ccbff3b65a6a99b900cb341bdabaa93399a8f0bab820ef2c3fb4a5d0c",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-21-thrust.webp",
+      "size": 27360,
+      "sha256": "c546700c89d837ef1bb1d80e6856b9e19018f2ca05cbd98ee5ff74834f668ec5",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-21-thrusttwo.webp",
+      "size": 28012,
+      "sha256": "02e6a49a3f31a4a69b6ffdc273f9500e60ffaddca30632358d3f49aecd0fca40",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-21-bow.webp",
+      "size": 23972,
+      "sha256": "45aff0b4c659b54e72dc77ad8d8b10dc28b2f595df9a904df70a132bb8cc2947",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-21-cast.webp",
+      "size": 32688,
+      "sha256": "c3802622435bc3d5ceb5ada026185df858f924c29782636452c4467305350b3c",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-21-book.webp",
+      "size": 19192,
+      "sha256": "ab37c77a8b795196ae021441671c93a35af85aebbb33a7954539415bfcc065e2",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-21-block.webp",
+      "size": 19552,
+      "sha256": "d4da8d08181bffef9662b42f3eaa730d47d78fe8f119014770c6f819ea68680c",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-21-hit.webp",
+      "size": 41378,
+      "sha256": "57a63c323a6b9c2af31b8d71968b9d4f5064d62cc89948a77f0be37e4c76c79d",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-21-fall.webp",
+      "size": 69230,
+      "sha256": "66e096ed3bed6d0187cbc8d4f1b636510792d48e53a7ff8217e82789e79adba3",
+      "dimensions": [
+        1024,
+        216
+      ]
+    },
+    {
+      "path": "art/painted/body-21-sit.webp",
+      "size": 13714,
+      "sha256": "e086b0c4ff20b46c2fac2641dabe94d7046fb08857c62298ce89d1325c723622",
+      "dimensions": [
+        512,
+        124
+      ]
+    },
+    {
+      "path": "art/painted/doll-21.webp",
+      "size": 81064,
+      "sha256": "355946656f9cc594f94f9e0ac4ff4302dd8e51963a093ab298a16cd5cd1a5f06",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-22-idle.webp",
+      "size": 19054,
+      "sha256": "ad24e7ff90e6a2392416a422c7a5de4ae1e6e82dc52f4babf23fc1d880afd6b4",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-22-walk.webp",
+      "size": 435934,
+      "sha256": "48d07dc0667616cd20e665074dc903ed188081be1bc16405acc05a0158d36e45",
+      "dimensions": [
+        1024,
+        764
+      ]
+    },
+    {
+      "path": "art/painted/body-22-run.webp",
+      "size": 425474,
+      "sha256": "bf681ed3143ae9f89529e150ed832a6392c0f1393a9c2676094ba2f29a2c22d5",
+      "dimensions": [
+        1024,
+        760
+      ]
+    },
+    {
+      "path": "art/painted/body-22-swing.webp",
+      "size": 35876,
+      "sha256": "5b985a1bdfa337481a3243cbe4fd757333e866308bd217cbe2d51322e0d3aa7c",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-22-swingtwo.webp",
+      "size": 38194,
+      "sha256": "3cf2af84947a175ba9fa4d402dc24a126abb8a3c556b579d6acfef9d6e176776",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-22-thrust.webp",
+      "size": 29154,
+      "sha256": "232ee9c6e329e8d75c7eb910866631740e2f2149556ea71edd7de11faf0a7146",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-22-thrusttwo.webp",
+      "size": 29616,
+      "sha256": "9b0fd62e8bc7c3c18125276cd81b3d1c22f58f6e8e2742b43fc2319b3f289c12",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-22-bow.webp",
+      "size": 25742,
+      "sha256": "d8364337782ce85ceb53d0de120645a8ab95a652be85b19f67158a2716206c88",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-22-cast.webp",
+      "size": 34858,
+      "sha256": "88d5149229b046e315d233feb956917b3b57626e257cb79db1b81989d563e199",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-22-book.webp",
+      "size": 20546,
+      "sha256": "fdc40b09c0a387664c4b0b82fa13449f916f2c4a5c0e42fbb7065eee03670ae7",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-22-block.webp",
+      "size": 20962,
+      "sha256": "670b6bcaa1ae35c060a0d070b3e2e667a23bbae9fdf348220d614ce983ef0c3e",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-22-hit.webp",
+      "size": 44486,
+      "sha256": "1246b939066e846f3167b456a12b9f7d383154e075d9544c74b0a8a46cf3a6ea",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-22-fall.webp",
+      "size": 75950,
+      "sha256": "9fac1924a496873507a482d338d79168f2540f1be5b814a162e8f912275b11a2",
+      "dimensions": [
+        1024,
+        216
+      ]
+    },
+    {
+      "path": "art/painted/body-22-sit.webp",
+      "size": 14980,
+      "sha256": "e93e1d66573a0371ad1c96897bb8890046cba14e552e92ec210e8b3d0c711484",
+      "dimensions": [
+        512,
+        122
+      ]
+    },
+    {
+      "path": "art/painted/doll-22.webp",
+      "size": 85248,
+      "sha256": "213a5f21e90ff8ed7b95d5be8155502d4387e6dbdaf5e19371878b47db4804e4",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-23-idle.webp",
+      "size": 17536,
+      "sha256": "fb95c3b0d1f2f05aef7fe99437ba01fb01640da3a6b691f44fcece3c8bd2b8d1",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-23-walk.webp",
+      "size": 389344,
+      "sha256": "8b5de50dfdc45fe5206176e5f45b1059cf4e47dfcef22816cb691176bf2c1f81",
+      "dimensions": [
+        1024,
+        740
+      ]
+    },
+    {
+      "path": "art/painted/body-23-run.webp",
+      "size": 356688,
+      "sha256": "78e541863b834d53107f26b908cc1a1f74d1eb895fdec37ab674b8100f79b2a9",
+      "dimensions": [
+        1024,
+        778
+      ]
+    },
+    {
+      "path": "art/painted/body-23-swing.webp",
+      "size": 33576,
+      "sha256": "c0a5c709266ae710d81e3b9343936489ca220149d95935c985003b23b9d43ac3",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-23-swingtwo.webp",
+      "size": 36516,
+      "sha256": "992093adc61f3817ba6bcc2f28b31b54d1b27d6563b97cfefb8934dc52d0b5b3",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-23-thrust.webp",
+      "size": 27152,
+      "sha256": "7b8515802026649e5a392ba638bf561ccd6040aa9aea1413d469e806086ad2e3",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-23-thrusttwo.webp",
+      "size": 27790,
+      "sha256": "6fc091e3c95c8ad7db01c0c51066ccf19233aa4e8900921f2fe46fbe38f7196a",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-23-bow.webp",
+      "size": 23672,
+      "sha256": "3d21ba76cb105a2cacd929c445d22f22408017ef64a280896b31ad4f54f69f03",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-23-cast.webp",
+      "size": 32942,
+      "sha256": "8d4ba31b05f1246902d2c99ca7341c54b3b61a8ed8d53b2a36e89b68ff130c8c",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-23-book.webp",
+      "size": 19006,
+      "sha256": "193c6b312a356801f2337ad5beda6574811abfd6dcb1637d16b419f8ff848ca2",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-23-block.webp",
+      "size": 19362,
+      "sha256": "7f5a60351deb2728efe3242a10cf933f6ade1d23fe534582e7c353b7aa1f149c",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-23-hit.webp",
+      "size": 41212,
+      "sha256": "f265d2a4c8d2399b9f8f55fbf5b945c3e313ee70f8fbaff205783ec0859872a8",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-23-fall.webp",
+      "size": 69770,
+      "sha256": "1e4c00943a862d7a4c41b161298f2ff689c44f1d30904f941b59f4b38307ea6f",
+      "dimensions": [
+        1024,
+        216
+      ]
+    },
+    {
+      "path": "art/painted/body-23-sit.webp",
+      "size": 13460,
+      "sha256": "d1785d9c0797df2eb9e97e472526757df090d743f10fcd0d831b10c382718acf",
+      "dimensions": [
+        512,
+        122
+      ]
+    },
+    {
+      "path": "art/painted/doll-23.webp",
+      "size": 74802,
+      "sha256": "5a4fd1e4d9b77d3ced40fb3ff651651b963442466ea98fe369eddd71de75438d",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-24-idle.webp",
+      "size": 16294,
+      "sha256": "63b9f00a0919d51438d3f3117efaa561652fbedf557abb7f0236c3856d7451aa",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-24-walk.webp",
+      "size": 363832,
+      "sha256": "ba381b41a2fbbb8909f864494b4a5348338cb08f2116975759cf45c060703b20",
+      "dimensions": [
+        1024,
+        750
+      ]
+    },
+    {
+      "path": "art/painted/body-24-run.webp",
+      "size": 336824,
+      "sha256": "0f2cbb178cd103c92d6dc18989c448b55501aef48998ea6a116807cc573bf093",
+      "dimensions": [
+        1024,
+        780
+      ]
+    },
+    {
+      "path": "art/painted/body-24-swing.webp",
+      "size": 32122,
+      "sha256": "a9ef8d1d08cf3a49ffe8775440824dcdb20d3e897bfb08eff6010fef27807caf",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-24-swingtwo.webp",
+      "size": 34264,
+      "sha256": "3359bc72fa41eb78b06debbe2195efeb8f1b56a3c4694af5e596e12f750d3e06",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-24-thrust.webp",
+      "size": 25772,
+      "sha256": "a288e46fed786930ded88946bc51940507256db7b9c126399a97a8bdbed00f22",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-24-thrusttwo.webp",
+      "size": 26166,
+      "sha256": "c4aea014cdfdf43bc7f74fcc2cb71c27d2edf9281faa36da64760fbddaac457f",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-24-bow.webp",
+      "size": 22860,
+      "sha256": "0ab6f178e25f045392ad1a8c2e98c433109ad8973da914520cd7b778c916f735",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-24-cast.webp",
+      "size": 31330,
+      "sha256": "ab7dfc7a43ed4863d1b01b6d38ef653e2e2c9574d56ab77748585bf1d79a3d27",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-24-book.webp",
+      "size": 17868,
+      "sha256": "71779f60d0a9ce2825de3698a5f7b78fc62d55afacbc4a38ffec08d92f97252d",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-24-block.webp",
+      "size": 18202,
+      "sha256": "51ae3e989d09ea2fdd1e22552b229dafec31e7c05a5551746f3666d0fd0e9886",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-24-hit.webp",
+      "size": 38768,
+      "sha256": "8f98ae38d5faafa4c573eb2e9e1d2917f6437ff9a2831833200387bbc2a87f18",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-24-fall.webp",
+      "size": 64836,
+      "sha256": "382c7bb132057a1d2697be97b583172540c44a4080e4bd067ae25a714b6d952e",
+      "dimensions": [
+        1024,
+        216
+      ]
+    },
+    {
+      "path": "art/painted/body-24-sit.webp",
+      "size": 12490,
+      "sha256": "a99c254b725c93c031b1837c9de1567b80eb60d0c7c406ff18d39fd1de2e67f8",
+      "dimensions": [
+        512,
+        122
+      ]
+    },
+    {
+      "path": "art/painted/doll-24.webp",
+      "size": 87392,
+      "sha256": "018de9055b797cadae97f473037f8bf5eeeddf324f388e375edece0819bf1a4f",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-25-idle.webp",
+      "size": 16850,
+      "sha256": "1032c79a8ca0633ed9826d33528792171b6c2988f5bc85da7fac78a15e933274",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-25-walk.webp",
+      "size": 380252,
+      "sha256": "8b62c8dddbfa66e41e56ab10943deabff6e2f40e89c85a1e4d5f9e68445f4df6",
+      "dimensions": [
+        1024,
+        742
+      ]
+    },
+    {
+      "path": "art/painted/body-25-run.webp",
+      "size": 354058,
+      "sha256": "28d4751a1ff6d6a3c43c7ca4b6c21e76d73a6a475e0ba3e390aeb9af0a3b1c83",
+      "dimensions": [
+        1024,
+        764
+      ]
+    },
+    {
+      "path": "art/painted/body-25-swing.webp",
+      "size": 32854,
+      "sha256": "137b0acae228baf30cda395c0dc8182fda8b1d376f34cf1088863d8fb672c017",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-25-swingtwo.webp",
+      "size": 34642,
+      "sha256": "4bfa3d1d77f2ef9a6109b6c989a3a14ecc658e895ce158437011d62bacffd031",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-25-thrust.webp",
+      "size": 26290,
+      "sha256": "1d2af676c6dea1927e43c2245d56f3283858faee8e8fad99f8ee26d189680a10",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-25-thrusttwo.webp",
+      "size": 26658,
+      "sha256": "b7c03e0e717d9d47d88c93b8c600c394d18f71a1d0ce2ebadf0af58e3cbd5161",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-25-bow.webp",
+      "size": 23196,
+      "sha256": "031e07f978effe00bdbfb2672c69e7fa02c956e89bdc9c9c499f2b834a1fe403",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-25-cast.webp",
+      "size": 31770,
+      "sha256": "18f98d746388589ce1e2a21fd09d8e9294f457f6fd5ab9bec9dfde318371f8cd",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-25-book.webp",
+      "size": 18374,
+      "sha256": "e78b089d4c647fae64924b1742b9716aa1e62142d7e35670f25ade2006e3db68",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-25-block.webp",
+      "size": 18602,
+      "sha256": "abbb11f44c9ab89a04af4046349835de8724e83bf8d69aca96cd1bce035f6f48",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-25-hit.webp",
+      "size": 39398,
+      "sha256": "591b6a757726f30ced6c994c6b24165b46aeff4be09965ce47636e6e5853aba9",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-25-fall.webp",
+      "size": 66540,
+      "sha256": "540fc9e8830f061bcca111e5294a93be74a8b344853e3eeb77f31bee945e6d3d",
+      "dimensions": [
+        1024,
+        214
+      ]
+    },
+    {
+      "path": "art/painted/body-25-sit.webp",
+      "size": 13110,
+      "sha256": "bbbedf6c87f4603843179bf90f9b8595de001356598030b4c321f9b23c7bd659",
+      "dimensions": [
+        512,
+        122
+      ]
+    },
+    {
+      "path": "art/painted/doll-25.webp",
+      "size": 86840,
+      "sha256": "7ea8710546ba9a6d9d49be26fe919fd85300a8009a60428465bbd48bfc0fd62c",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-26-idle.webp",
+      "size": 19418,
+      "sha256": "e8cf08202727efbe911c077875040ef375f678fb2f160f583bc27af1fd4fe912",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-26-walk.webp",
+      "size": 454096,
+      "sha256": "a346f1422e5e0be10e3a9e938580d4c9334916223726767893c6d441a57a5966",
+      "dimensions": [
+        1024,
+        766
+      ]
+    },
+    {
+      "path": "art/painted/body-26-run.webp",
+      "size": 434378,
+      "sha256": "64a8829af63e03a2c559f04d9d5c9f17a58acc2300009a5f25c3c931828540a1",
+      "dimensions": [
+        1024,
+        766
+      ]
+    },
+    {
+      "path": "art/painted/body-26-swing.webp",
+      "size": 68632,
+      "sha256": "98b5774fa3d23d0c079e4d36891e2a8ed52c28f2472866309711b28eec84bcf2",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-26-swingtwo.webp",
+      "size": 67336,
+      "sha256": "a78686e90c469df6fead789645c5a3f9655b6fa4c25b1f66d36665731cb16fd0",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-26-thrust.webp",
+      "size": 58448,
+      "sha256": "ca84d4b88d0a985628a06786c2d37302e401a36663f81071dae05fd16b3549bb",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-26-thrusttwo.webp",
+      "size": 58602,
+      "sha256": "a0efd189050e035bb24a45b3f65f198033d7bf843f4370c410e5c869ee99707c",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-26-bow.webp",
+      "size": 56152,
+      "sha256": "f05a7ec5b41954a385bf50282165bb5228b34454658164565f37b1cc313e7249",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-26-cast.webp",
+      "size": 67236,
+      "sha256": "2420ebdcb3dc5ed2040e53c0ddcdd4a2f1da8d43ed7348bbebc95e574d4351ed",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-26-book.webp",
+      "size": 50890,
+      "sha256": "9e937f0736604f7a749228f8dde42ed198ccc3b2919e9e7fbee96c5eb5927c47",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-26-block.webp",
+      "size": 49888,
+      "sha256": "5a542ddce08c6136dc98effcfa49c9a8638299235bb1434ddd9e3e2b126d7b84",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-26-hit.webp",
+      "size": 76920,
+      "sha256": "4037bd890b380cfec0fd6399da552277c5d8236f652872f90e96abc02390f5e0",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-26-fall.webp",
+      "size": 78756,
+      "sha256": "719139f520211dfdf5b0bf45035f03a70823814c37e721afde95287ae569cca4",
+      "dimensions": [
+        1024,
+        224
+      ]
+    },
+    {
+      "path": "art/painted/body-26-sit.webp",
+      "size": 14960,
+      "sha256": "6e6fe0a2788f3cd63b756ca33b0a6f568a279e2f1b5831cd95c872a399284ff2",
+      "dimensions": [
+        512,
+        124
+      ]
+    },
+    {
+      "path": "art/painted/doll-26.webp",
+      "size": 90038,
+      "sha256": "a21655e667853a7c5f436b29ebf184533c53e7f23acfe3c922fb1c64ba138984",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-27-idle.webp",
+      "size": 19756,
+      "sha256": "89f25a5a0765bacc6163f69348dcb37ac5e2d7e7bb05819fbd4585697cbcfbff",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-27-walk.webp",
+      "size": 455448,
+      "sha256": "5d8d99ac859461714da29944d3826855ccd7d5ac407511364067c7dacc3c76ab",
+      "dimensions": [
+        1024,
+        764
+      ]
+    },
+    {
+      "path": "art/painted/body-27-run.webp",
+      "size": 446464,
+      "sha256": "8ae5dd71e65fec2c6277202d8d01cdf31cae4917cf8ef61a06a80365bd89131b",
+      "dimensions": [
+        1024,
+        764
+      ]
+    },
+    {
+      "path": "art/painted/body-27-swing.webp",
+      "size": 36044,
+      "sha256": "92d6c4389e0f3926489099af7d4585188bd5c1172b0ce0d7bfcfe014fd73359f",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-27-swingtwo.webp",
+      "size": 38394,
+      "sha256": "a3945f325d3df8e122b2fe81d54713581814c71cc65609c3309d31bebbb91381",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-27-thrust.webp",
+      "size": 57834,
+      "sha256": "6053a21a8fd1aeb90f13451f027cd7f99a5af1d447793ee5d147fd3ad8f90711",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-27-thrusttwo.webp",
+      "size": 29680,
+      "sha256": "fbcf9ad477890a9f6bcaad26e02ea0a629f0a7083caa5e384aa7c2694e7fea88",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-27-bow.webp",
+      "size": 26410,
+      "sha256": "ca1a4a011561445ab542978b78dc6e50cbcaed8b470e0d6412c6fbf579a7631e",
+      "dimensions": [
+        1024,
+        150
+      ]
+    },
+    {
+      "path": "art/painted/body-27-cast.webp",
+      "size": 61964,
+      "sha256": "8fe331651d5740cd2ad83b82984a94e3b8e540a094ee6880f594c783f17dd8ff",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-27-book.webp",
+      "size": 20822,
+      "sha256": "27e14b01c4975a9b3d48d36419bb65c29eef8a503def6d951bfce4f94f6cd0fb",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-27-block.webp",
+      "size": 21090,
+      "sha256": "0acd791f527cb191652dd7a7ae5aa6bb9b6fd79e49110a3e96e3dbb853570aea",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-27-hit.webp",
+      "size": 44460,
+      "sha256": "9d8b885dc300331698bc6e8517595ccca686fb0c7295c3d6d78f7c01ed87d5d3",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-27-fall.webp",
+      "size": 79404,
+      "sha256": "0518503d540c57be63700f628a7926d7b6a4081c1c7d24e973e0b20939d597f8",
+      "dimensions": [
+        1024,
+        248
+      ]
+    },
+    {
+      "path": "art/painted/body-27-sit.webp",
+      "size": 15304,
+      "sha256": "d4857fe19bc768deabd054edb92399f6a392ff939b58ce6831d8782ec7d9e3dd",
+      "dimensions": [
+        512,
+        124
+      ]
+    },
+    {
+      "path": "art/painted/doll-27.webp",
+      "size": 96352,
+      "sha256": "0b08e97737563f63f6de229d24402406eaad8eb618bd4675554c555d31aea109",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-28-idle.webp",
+      "size": 19060,
+      "sha256": "ea38cc45557f19281a7c66df0c59b67ee879f41b54f9662b8c7d1b934ecd994a",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-28-walk.webp",
+      "size": 423574,
+      "sha256": "e2fc279f30d79fbf3cf977cbee369f0eb3ea195c15a6c2a4540d9648b6053c10",
+      "dimensions": [
+        1024,
+        766
+      ]
+    },
+    {
+      "path": "art/painted/body-28-run.webp",
+      "size": 389688,
+      "sha256": "d4fee3f26c853b24c85ab92a5e6e519c97707e1f9c3643e8631e9e7222858007",
+      "dimensions": [
+        1024,
+        764
+      ]
+    },
+    {
+      "path": "art/painted/body-28-swing.webp",
+      "size": 35408,
+      "sha256": "9cd9677673b3db44def8eb01fc6b1436ff943dfaffdf582b0509568749c8e263",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-28-swingtwo.webp",
+      "size": 37504,
+      "sha256": "2de14add29645fcd102b24547eb10b64a97c62c844df1a92073b2456bb7da749",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-28-thrust.webp",
+      "size": 28326,
+      "sha256": "0c8b9a3c5ac8c7148393f28649abf8f3efc5bcfb47a768030240aa950c576be7",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-28-thrusttwo.webp",
+      "size": 29032,
+      "sha256": "a06e4d31ab869db879ec9081edb47c39ba09b28ec6d5af28bb5381380890606c",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-28-bow.webp",
+      "size": 25256,
+      "sha256": "f6c63f364a345fac78e5ad51faff9db84a26925c50b369656370239d6438be90",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-28-cast.webp",
+      "size": 34538,
+      "sha256": "30fb6fb624d0cda60a6d66b74a0d053cd65ec0119b942d58829f121ffcf0cdb6",
+      "dimensions": [
+        1024,
+        184
+      ]
+    },
+    {
+      "path": "art/painted/body-28-book.webp",
+      "size": 20194,
+      "sha256": "b6978f30d23e2eca0eb031a012a45a583b6029af682e801ffcbd939a8a0482cb",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-28-block.webp",
+      "size": 20506,
+      "sha256": "c95390cc7c3dbde3bc8432ae9035bb22d82e0b28cfee4759d06f81327cf1df9a",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-28-hit.webp",
+      "size": 43692,
+      "sha256": "a22e04d1c6fc9083ab849fb7dea4a343adc951310660135a079b13a5aee0d1dd",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-28-fall.webp",
+      "size": 75278,
+      "sha256": "d0cf4c12f49eef2578070a99b64904e5d069d655c4629b4ac553df0e90b0d76d",
+      "dimensions": [
+        1024,
+        230
+      ]
+    },
+    {
+      "path": "art/painted/body-28-sit.webp",
+      "size": 14482,
+      "sha256": "0756ee2a05f6cea8924956a018576412f966fa226c33d704d71f256f17ad98a7",
+      "dimensions": [
+        512,
+        124
+      ]
+    },
+    {
+      "path": "art/painted/doll-28.webp",
+      "size": 83066,
+      "sha256": "64d7a82b1356d5c6b710e058fe0a8b10fab9e78caadeda6f6f2cedfbc41c3f98",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-29-idle.webp",
+      "size": 17984,
+      "sha256": "ce19f4ae77b22e119a608aba168d6eb1173ae8e439957c500d5c2fb36b3a7d20",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-29-walk.webp",
+      "size": 434246,
+      "sha256": "70e04796ff27eae1a9e40542393f24d3cc9af4e1234c689de56bac4387ac8418",
+      "dimensions": [
+        1024,
+        766
+      ]
+    },
+    {
+      "path": "art/painted/body-29-run.webp",
+      "size": 367628,
+      "sha256": "7d5a2154d2cb8859f6405f72e8b6d12a179bdd01f37ace91288b42e0cd9ce397",
+      "dimensions": [
+        1024,
+        766
+      ]
+    },
+    {
+      "path": "art/painted/body-29-swing.webp",
+      "size": 33970,
+      "sha256": "d67a44e3234374725cbf2b82e55d6af1c3dd8092fbc77dff1b6c109b9fca3ffa",
+      "dimensions": [
+        1024,
+        192
+      ]
+    },
+    {
+      "path": "art/painted/body-29-swingtwo.webp",
+      "size": 35856,
+      "sha256": "424fc9ce24e06e45b39ae78cab9ec9585050e2a4b3184584f921d41f48e96e0a",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-29-thrust.webp",
+      "size": 27052,
+      "sha256": "bcd44efede0292d0d3899bdf119d487b6a4a7f4a4d4151675c774c72db8dc68d",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-29-thrusttwo.webp",
+      "size": 27604,
+      "sha256": "acf80b4e58d02fddaa6d8ad490c0c912724e5c6804e633a070d05a31150bca57",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-29-bow.webp",
+      "size": 24172,
+      "sha256": "2445fa7a5bcb83b8eb9829a3e8a84bbacbbec7242b4a72dd89ec1ffd164f6412",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-29-cast.webp",
+      "size": 33044,
+      "sha256": "10913a1373edc2b7053404764cf637d3d137408938cb520f9a031e8d44fc3236",
+      "dimensions": [
+        1024,
+        186
+      ]
+    },
+    {
+      "path": "art/painted/body-29-book.webp",
+      "size": 18900,
+      "sha256": "ec5c54116bef49b77abf8fb0b83973ade370db7ef1d34167afe994c2e4dfc4a2",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-29-block.webp",
+      "size": 19262,
+      "sha256": "67d8590231e4407713879fb143469fac474f4898172f74c00efc701303612316",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-29-hit.webp",
+      "size": 41340,
+      "sha256": "6867f759b5001871e14a729a253b00984c9d9fcd624178e2369168bbc2b34a0d",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-29-fall.webp",
+      "size": 71518,
+      "sha256": "1a71af1d83467e9a7908623796601f3dc16d80c616dd07486a71a9424eb967ab",
+      "dimensions": [
+        1024,
+        228
+      ]
+    },
+    {
+      "path": "art/painted/body-29-sit.webp",
+      "size": 13934,
+      "sha256": "6a6fd357e5d2d7695910e0893380a5b7eca88f9eda8da0526228bf3d7689a163",
+      "dimensions": [
+        512,
+        124
+      ]
+    },
+    {
+      "path": "art/painted/doll-29.webp",
+      "size": 95514,
+      "sha256": "38db8a46043c3c53442e8ab6e42a460dfa960223e33c515da87f7d35b0260673",
+      "dimensions": [
+        300,
+        900
+      ]
+    },
+    {
+      "path": "art/painted/body-30-idle.webp",
+      "size": 19026,
+      "sha256": "07dc9271ef4b3307008d956298451f062ef05557cda7bee8f04e254e4c06b9c7",
+      "dimensions": [
+        512,
+        144
+      ]
+    },
+    {
+      "path": "art/painted/body-30-walk.webp",
+      "size": 430812,
+      "sha256": "b7315f5e9f38ca1f77a4185bdb6fdab0a151c21e3dae5591140ab883653e60e9",
+      "dimensions": [
+        1024,
+        768
+      ]
+    },
+    {
+      "path": "art/painted/body-30-run.webp",
+      "size": 409136,
+      "sha256": "7eab0ef9e2abba5c1925ba04806ae65fc993b176d1f4a9cfffc7b21cece06af5",
+      "dimensions": [
+        1024,
+        768
+      ]
+    },
+    {
+      "path": "art/painted/body-30-swing.webp",
+      "size": 35328,
+      "sha256": "078abc64bab8ca58e5bfe70b4f4d4b267c6a16a655f497e2145fed41e19c125d",
+      "dimensions": [
+        1024,
+        190
+      ]
+    },
+    {
+      "path": "art/painted/body-30-swingtwo.webp",
+      "size": 36940,
+      "sha256": "1d02dbb6e15a34aa0e9b9f1ab6a5fa7b4726e4a98cd5242df4c34bc85d9d18e7",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-30-thrust.webp",
+      "size": 28358,
+      "sha256": "21d64ac505918f26a33f29e8096f56cafbbd41421793d833bcccbc1f1c265f5f",
+      "dimensions": [
+        1024,
+        168
+      ]
+    },
+    {
+      "path": "art/painted/body-30-thrusttwo.webp",
+      "size": 29010,
+      "sha256": "1faf44c6a3e6439d65cb5145355ac2d87340dd9e4b10cf9d413334f6f30e3cae",
+      "dimensions": [
+        1024,
+        158
+      ]
+    },
+    {
+      "path": "art/painted/body-30-bow.webp",
+      "size": 25462,
+      "sha256": "75876acec0674ea6278983e9cb1df9325dedeb58c84f90901706eec5f28ec1e4",
+      "dimensions": [
+        1024,
+        152
+      ]
+    },
+    {
+      "path": "art/painted/body-30-cast.webp",
+      "size": 34472,
+      "sha256": "f470e3223ae0f2ac7cdd621eb0e5bf114c533bc2f5ff625f728329c4a8938aaa",
+      "dimensions": [
+        1024,
+        184
+      ]
+    },
+    {
+      "path": "art/painted/body-30-book.webp",
+      "size": 20610,
+      "sha256": "a6d4f1b0c61145facf87ed201757e8537a73d0d298c170c8992dc42cf565da3b",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-30-block.webp",
+      "size": 20848,
+      "sha256": "5ce7877a27c39aff83998250aa3dbc8688eda272a2140bfe07aae00ba01283b9",
+      "dimensions": [
+        1024,
+        148
+      ]
+    },
+    {
+      "path": "art/painted/body-30-hit.webp",
+      "size": 44134,
+      "sha256": "9e975d2eed965b327f49d166cd2458ab7fb700b19a7c348e1a3c81a46fc11a4e",
+      "dimensions": [
+        1024,
+        160
+      ]
+    },
+    {
+      "path": "art/painted/body-30-fall.webp",
+      "size": 75346,
+      "sha256": "43b6496875b779e642b293b5f12bbfc62add952a67e92560cd632b246a171d6c",
+      "dimensions": [
+        1024,
+        228
+      ]
+    },
+    {
+      "path": "art/painted/body-30-sit.webp",
+      "size": 14794,
+      "sha256": "f984591c8620331539af7a624c5adcbdb4efabf216f12d9456b47ca4058f3657",
+      "dimensions": [
+        512,
+        124
+      ]
+    },
+    {
+      "path": "art/painted/doll-30.webp",
+      "size": 97154,
+      "sha256": "4d23485857fbac05cf46fcf4f41320aef79830cb7ef483c083a148c12fabed9a",
+      "dimensions": [
+        300,
+        900
+      ]
+    }
+  ],
+  "metadata": {
+    "path": "game/src/artpainted.js",
+    "sha256": "6408377f49787ac39b206339a2b6ee35693331efeba3fbb6fe74c60ec460ce14"
+  },
+  "gaits": {
+    "path": "game/src/painted_gaits.js",
+    "sha256": "315254ebd160fbdb656e32ea450898920d96d0e9d76a60134f7281969d6006c0"
+  },
+  "motion": "Pinned local Mixamo source; baked painted images only.",
+  "inputs": [
+    {
+      "path": "arttools/painted_character_inputs.json",
+      "sha256": "3081588ba96b1014b74b193e5b2107350958d8ac0d0a6f4bdc18edd95aa6d94f"
+    },
+    {
+      "path": "arttools/painted_character_prompts.json",
+      "sha256": "e0893500fa6402958b2f2206df11e13490cdae0191f3ed069d4fe705e0ecac16"
+    },
+    {
+      "path": "arttools/painted_character_corrections.json",
+      "sha256": "103bdbd811f4ddbe001110c8b5cf27d220cdef5d7850551a58cb4ed6018db750"
+    },
+    {
+      "path": "arttools/painted_references.json",
+      "sha256": "12cd6d406902f69b159deb685c68ec4f0f24f3537b817e67a68091487fe78cd7"
+    },
+    {
+      "path": "arttools/painted_sprites.cjs",
+      "sha256": "9b22e8cd0c611ee7eb8eec8576b0babaecbb8f3bc36866490574daeaf30c34c4"
+    },
+    {
+      "path": "arttools/painted_parts.py",
+      "sha256": "e3f0c447d040d9022aea4bc0d0fcc50379d179f3176c4e2209c98828efc1b965"
+    },
+    {
+      "path": "arttools/painted_profiles.js",
+      "sha256": "a4df5083b30b0e8a3ff89e92275504d84b525939c3004b67fdac62c5a93849f8"
+    },
+    {
+      "path": "arttools/painted_rig.js",
+      "sha256": "d1d0a7cec47f1bb58bb4853b12a82d7a569b0c3a6d757d87fd96f7848853fd1d"
+    },
+    {
+      "path": "arttools/painted_motion.cjs",
+      "sha256": "27fb2140f19d4f8885370507f1353c8ee9e42117b334aafd2fbd68b5787ce96c"
+    },
+    {
+      "path": "arttools/human_encode.py",
+      "sha256": "91262d1f57ab255f8f6f075acd98f687720cb530597a4d3afc6df2328c05b681"
+    },
+    {
+      "path": "game/src/human_mesh_data.js",
+      "sha256": "854eefbeaf91c3a8181534a0da5e32739d59c49d37ca4559bf092a560ba50354"
+    },
+    {
+      "path": "game/src/human_locomotion.js",
+      "sha256": "81725d8120e4cc1b7577cb01233604a6b99467fce23178304efaca664d830a9c"
+    }
+  ],
+  "sources": [
+    {
+      "id": 1,
+      "file": "exec-ae48c62d-0326-43db-b96c-0a7f1b544a1b.png",
+      "sha256": "7d7e877850582d248731e1fea735c820fafa8f52ab70d352e3b355a2cc289fe8"
+    },
+    {
+      "id": 2,
+      "file": "exec-0171a48d-0362-4d48-954e-eca2d85cd1a5.png",
+      "sha256": "e88dd2e6a08fe7ccf38fbc47b82998e6e3148d2de0e2c4963678764cb014dea9"
+    },
+    {
+      "id": 3,
+      "file": "exec-52b486b9-29a8-4a9b-81b0-eaebf1621d55.png",
+      "sha256": "8d2441e7f342f2eb9d0ea2c81ffaf99b5e2524ed352e384cc1b90fa05c2dad4b"
+    },
+    {
+      "id": 4,
+      "file": "exec-ce85ceea-a65e-46db-83dc-8dbfab8ee812.png",
+      "sha256": "eaa5436ac037a08e71b2260454fd9be0c34421691bba94e46642fadc26b9e720"
+    },
+    {
+      "id": 5,
+      "file": "exec-db12fca4-a363-4015-93e3-55e45ce6537b.png",
+      "sha256": "1cd696fd71fbf36fca1f33e98ed27f7bc671b20d4191b0196f13901b4ace294e"
+    },
+    {
+      "id": 6,
+      "file": "exec-7ab3df85-251f-44a7-a82e-472d8c43d8e0.png",
+      "sha256": "e95897a4b787d401b5af2578391b10e7f178469ad2f39fff02660a60d150932f"
+    },
+    {
+      "id": 7,
+      "file": "exec-e09c0269-0b3d-4ed0-b282-9536bc53ed60.png",
+      "sha256": "80825d9a0271dea6f204e42d0a9ed53f2e6a2dcacdcdac8d32b90359f769c254"
+    },
+    {
+      "id": 8,
+      "file": "exec-da8bb473-4894-44e3-b213-b220b177e850.png",
+      "sha256": "0561714ec629196ec455b15e9ba5a73c19696d6c372d0bd13bfdf4bd4f795948"
+    },
+    {
+      "id": 9,
+      "file": "exec-47144020-612d-45f4-aecd-efe638bbf967.png",
+      "sha256": "3c0030d6bb7431a8e2c1f059aa0526200f45749010807311d1d82e6049730dc8"
+    },
+    {
+      "id": 10,
+      "file": "exec-656c838b-11c0-49ed-a22f-5aaa579ab747.png",
+      "sha256": "a70b0a44d692531a1198e1cbe0a1ae1c9c21a9ce5ab65d4a3d0ed05255d2d04e"
+    },
+    {
+      "id": 11,
+      "file": "exec-8a50fde4-6bb6-4773-816b-87ad039e3b34.png",
+      "sha256": "f9da54bc9563b00a1e95c58a0650e1c812de2ebefe9933ce37c211513c5799e2"
+    },
+    {
+      "id": 12,
+      "file": "exec-692b89ae-8f79-4e81-bca9-4457d79915a6.png",
+      "sha256": "c82b8b2743a4d73c5a44a12fc6f39b523a1897cb50986cd2a3253eebab5ea878"
+    },
+    {
+      "id": 13,
+      "file": "exec-6f1ed4b3-2a33-40fa-8731-69e359408a08.png",
+      "sha256": "930161c1b4e0d2935b7c44d666bbcc8a832132448c10c21e99ff4b35c42dd0bc"
+    },
+    {
+      "id": 14,
+      "file": "exec-3baf590c-35a4-486f-baa5-8d4135b60387.png",
+      "sha256": "9e14d998da2fc11d1e1dfa530263b4b19a34fe506e38e0e6e0dc9b5ade68339e"
+    },
+    {
+      "id": 15,
+      "file": "exec-665b71c6-5fc5-4c37-8bd6-e7a46f7cd2da.png",
+      "sha256": "28dd83362f4eab87cb88ff35fe85ab26ecbeef2b578ab884eae413966a6f2507"
+    },
+    {
+      "id": 16,
+      "file": "exec-3d2dcce2-3b6a-4682-a0ff-f0f00534df87.png",
+      "sha256": "51b498b6ce1e405d832662f225a16a797adcaa2547826da94433b25df489adc9"
+    },
+    {
+      "id": 17,
+      "file": "exec-a8196d4f-f260-4bce-9424-8b1d9e8b2ccc.png",
+      "sha256": "593289875138b4b7d7d37138889d69477a1bd4e0c19dfe13e31dfa791f96f024"
+    },
+    {
+      "id": 18,
+      "file": "exec-6dbcfb78-31c3-4eb6-b76b-ed3d95795f18.png",
+      "sha256": "251a0aad92e8d0afae60d7b1f4f1ac36cb12b356f0e5dbf65c6bb789a06d7389"
+    },
+    {
+      "id": 19,
+      "file": "exec-ffc2d0f1-fd8e-4ade-a3ce-230048726a3b.png",
+      "sha256": "e24002440926e7bc536c90a67aa864cffd6bb3e36b60914b64af1b090a96a182"
+    },
+    {
+      "id": 20,
+      "file": "exec-df8cacc3-33c6-480b-8f01-e4f3f0aca1a7.png",
+      "sha256": "3390face395ef087ab7c08c74bb670ef3e7e6865f863929716f1bb56447971cb"
+    },
+    {
+      "id": 21,
+      "file": "exec-80bebded-d971-4ef5-b892-2888cbb18334.png",
+      "sha256": "f8236044d699a440375aee181ac1c6977eb2df5a1f94e4ffe6fe4bc61855b4a7"
+    },
+    {
+      "id": 22,
+      "file": "exec-98320c5b-6be1-4da5-a000-d10963f87672.png",
+      "sha256": "c7569db2fd7b0c9a78bb7dbb2c8166a893a8259dfcb0bdd8dff0fb73a06743ed"
+    },
+    {
+      "id": 23,
+      "file": "exec-6e74e8bd-8030-445f-aa19-6887d38a3877.png",
+      "sha256": "46d290cd50bf27e355140d097342ad47f24ee2041faaebadcff25883819755c1"
+    },
+    {
+      "id": 24,
+      "file": "exec-355d23f9-8fd1-4563-b0b9-f521873a05b7.png",
+      "sha256": "64f74cd512226914f6bdc96e182a61f115ee5b679227880023b861e0a69568b7"
+    },
+    {
+      "id": 25,
+      "file": "exec-2feb1031-337d-4b6d-b76c-17d598a5b510.png",
+      "sha256": "921a5045451a04417b3d64fc54fd089cbe0313dbc2213d87d5b53778dff162b3"
+    },
+    {
+      "id": 26,
+      "file": "exec-7955fe39-9a94-4735-981e-aa464e7e2475.png",
+      "sha256": "52a92d62c61207b611a2c336d2c0782b9c4bb92b70fea557ca6c1d2ebb2e22f7"
+    },
+    {
+      "id": 27,
+      "file": "exec-05d444a4-bc13-4e85-a5c2-a9b1c963fe2e.png",
+      "sha256": "32a2fe1ab5f351715f7bd1018707726a70efe5f08c8566aab1559db725028164"
+    },
+    {
+      "id": 28,
+      "file": "exec-91daac4f-c13d-40ab-bef0-857b5f53dd9d.png",
+      "sha256": "4d5bf6dcc873bed33e8c7cabf44e9b64ceca32aaf0f5bc8363d18ec8381a4f9a"
+    },
+    {
+      "id": 29,
+      "file": "exec-6ef250bd-eaac-497d-8cb5-768d30d7e276.png",
+      "sha256": "85d3e3e6bc7418cb409dd636346561183da992b5dc57192e3192d7a4824be792"
+    },
+    {
+      "id": 30,
+      "file": "exec-9772c916-ab89-4e79-bc4b-bdbba8bf075d.png",
+      "sha256": "b8a980c7fc3954c7b99d9b2afec35e7716404bf1a6051f59bdb67719d14c9ada"
+    }
+  ],
+  "localMotion": {
+    "sourceSha256": "dfb230fc1f942f259dd00281a1186953ad602fc5d69067ce63e24b2aa439736b",
+    "convertedSha256": "b479c177581f34f5da8f88b560b95216bbf36e7a59a38a5953ee5c5a9303da09"
+  }
+}

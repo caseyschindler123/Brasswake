@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "status": "Single-model pilot surface studies; not approved production art",
+  "rawArchive": "C:/Users/caseys/source/SQL Game/painted_characters_2026_11_26/model-pilot/out",
+  "entries": [
+    {
+      "id": "body",
+      "file": "exec-54456970-698b-4232-ae62-1a2a9ded936a.png",
+      "prompt": "Use case: texture-asset. Paint a surface-texture projection atlas for a single Brasswake adult male model. IMAGE 1 is an EXACT fixed 3D-model render guide: three 512x1024 panels, FRONT, RIGHT-FACING SIDE, BACK, total1536x1024. Keep EVERY guide silhouette, crown/feet location, height, head size, facial landmark location, joint position, hand and boot position, viewing camera and panel arrangement EXACTLY unchanged. Do not add volume, redesign anatomy, move limbs or alter proportions. The pixels will be projected back onto that exact mesh, so every painted feature must align to Image1. IMAGE2 supplies the desired warm hand-painted human pigment/face/cloth finish only. IMAGE3 supplies the actual game's painted environment style only. Paint one coherent normal healthy adult man with short brown hair, a calm adult face, lightly weathered warm skin and realistic anatomy. Dress the existing exact body in a thin worn ivory sleeveless linen undervest, plain close-fitting linen shorts ending above knees, and modest plain brown low boots. The guide's coarse cloth color borders are registration zones; paint smooth practical hems and a normal scoop neckline within those zones, retaining the exact body silhouette. Paint fabric weave, a few tiny seams, modest wrinkles, boot laces and leather creases with restrained late-1990s fantasy RPG illustration brushwork. No anatomical body-suit appearance, skin-tight muscle printing, glowing eyes, zombie face, photo skin, glossy CGI, toy or cartoon. Side/back must be the same man, clothing, hair and boots with matching colors and seams. Light is soft and consistent, controlled form highlights, lightly drawn contour, no heavy black outlines. No weapons, armor, ornaments, labels, grid lines or shadows outside the figure. True transparent alpha background and margins. Preserve exact1536x1024 THREE-column guide layout; do not crop or independently scale panels. This is source paint for a real rigged sprite bake, not a new character proposal.",
+      "references": [
+        "C:/Users/caseys/.codex/worktrees/painted-character-release/Brasswake/work/painted-characters/model-pilot/body-guide-v1.png",
+        "C:/Users/caseys/.codex/generated_images/01a21580-820c-74f3-9632-aac7dd04aadd/exec-50ed8df4-3afa-4f50-a11f-bea0083f5422.png",
+        "C:/Users/caseys/.codex/worktrees/painted-character-release/Brasswake/work/painted-characters/fit-browser/ui-visual-scene-tallyport-phone-chromium/tallyport.png"
+      ],
+      "sha256": "2007073dd455cf7dc51cee2cb1e52f5618f4def92f299ae3a4cf27b8ab5f3e4a"
+    },
+    {
+      "id": "plate",
+      "file": "exec-902e5c0c-f1f3-4ddb-9c4e-a129e805b815.png",
+      "prompt": "Use case: texture-asset. Paint a surface-texture projection atlas for Brasswake's ONE fitted practical field-plate set. IMAGE1 is the EXACT 3D-model render guide: three512x1024 panels, FRONT, RIGHT-FACING SIDE, BACK, total1536x1024. Preserve EVERY guide silhouette, plate boundary, head size, exact crown/foot locations, anatomy, pose, joint positions, hand/boot positions and panel camera EXACTLY. This image is projected back onto that mesh, so do not move, enlarge, shorten or reshape anything. IMAGE2 is the desired armor design and calm hand-painted metal finish; transfer that treatment onto Image1's fixed fitted model, never copy Image2's anatomy or layout. IMAGE3 is the actual game environment finish. Paint a coherent connected adult male wearing well-fitted neutral iron-grey plate over charcoal arming cloth. Compact shoulder plates, a sensible smooth cuirass, short fitted fauld/tassets, upper-arm plates, closed elbow guards, slim vambraces, natural-sized gauntlets, thigh plates, closed knee guards and slim greaves must align to the corresponding guide surfaces. Grey guide surfaces receive painted steel; dark cloth guide gaps remain flexible charcoal fabric. Brown boots remain brown with the guide's small fitted toe protection. No sculpted muscles or nipples in metal, no empty tube/cup joints, no gigantic shoulders, no giant gloves/boots. Paint small rolled edges, a few rivets, sparse brown fastenings and controlled broad grey reflections consistent across front/side/back. Calm brushed metal, selective small scratches/edge wear, very sparse dents. No all-over tan mottling, colored patina, gold trim, blue camouflage, glossy CGI or plastic. Exposed neck and face remain human and naturally connected; short brown hair, same man in all3views. Warm restrained hand-painted fantasy RPG pigment, fine readable contours, enough detail at300x450 while remaining legible as a small world sprite. No ground, external shadows, text, labels, grid lines or border. Genuine transparent alpha background. Exact1536x1024 THREE-column projection layout with unchanged registration and silhouette. This is texture paint for a real rigged model; the model controls all proportions.",
+      "references": [
+        "C:/Users/caseys/.codex/worktrees/painted-character-release/Brasswake/work/painted-characters/model-pilot/plate-guide-v1.png",
+        "C:/Users/caseys/.codex/generated_images/01a21580-820c-74f3-9632-aac7dd04aadd/exec-50ecb425-588e-461e-a228-5f7388e518ce.png",
+        "C:/Users/caseys/.codex/worktrees/painted-character-release/Brasswake/work/painted-characters/fit-browser/ui-visual-scene-tallyport-phone-chromium/tallyport.png"
+      ],
+      "sha256": "4c4f32643c11cf163504f5d55b94c20e10bfb21746d7c1e12766234808d353c1",
+      "panelTranslationPixels": [
+        [
+          20,
+          0
+        ],
+        [
+          12,
+          0
+        ],
+        [
+          -24,
+          0
+        ]
+      ],
+      "registrationNote": "Whole-panel translation against fixed guide head/shoulder/ankle landmarks. No geometry, proportions or per-part warping."
+    }
+  ]
+}

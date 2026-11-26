@@ -44,20 +44,22 @@ Missing or loading art must not silently reveal a crude production fallback. Pre
 
 ## People
 
-- **Proportions:** adult humans about seven heads tall, with natural shoulders, hands and feet. Not chibi. Think of the hand-pixelled character sprites of late-1990s isometric RPGs.
-- **Bodies (HB → HO → HN → HW/HR → HA → HK → HP):**
-  - two base bodies, a man and a woman
-  - five outfits each: tunic, robe, leather, mail, plate
-  - turnarounds, walk and run in five directions (the rest are mirrored), attacks (swing, thrust, cast), hit and fall, and a large painted paper-doll figure
-- **Layers drawn over the body:** hair (12 styles, 6 per body), beards (6), head gear (6), and weapons drawn side-on (HX). Each layer has six views: S, SE, E, NE, N, and a big S for the paper doll.
-- **Townsfolk, dojo fighters, rivals:** the same pixel style and size as the hero.
-- **Portraits:** head and shoulders, facing the viewer, face filling most of the cell, plain soft tan background. Painted, warm, slightly stylised, not photographic.
+The continuous fitted-model replacement is a production candidate authorized through deployment. Its earlier assembled-part prototype remains rejected. Shared body measurements drive painted clothing/armor, frontal paper dolls and the elevated game camera. The renderer and motion inputs are offline art tooling; the game displays 2D painted sprites. Source provenance and replay are recorded in the [pipeline guide](../../arttools/PAINTED_CHARACTERS.md).
+
+- **Proportions and finish:** adult humans about seven heads tall, with natural shoulders, hands and feet. Use subdued painted pigment, readable contours, worn cloth, stitched leather, practical straps and controlled plate reflections. Keep the world camera, door/furniture dimensions and painted environmental style.
+- **Painted candidate bodies:** man and woman, each in average, muscular and heavy profiles. Tunic, robe, leather, mail and plate have separate fitted sources for all thirty combinations. Broad shoulders retain normal arm/hand lengths; heavy armor follows a broad torso.
+- **Movement and actions:** eight native body/equipment headings retain left/right hands. Bake quiet 24-frame walk/run cycles, separate robe drape, seated poses, 12-frame one/two-hand swings/thrusts, bow, crossbow, cast, book, block, hit and fall. Maintain visible support/flight and stable skull size.
+- **Heads and equipment:** 24 complete hair/face/beard styles, each in five world directions and one frontal paper-doll view; mirror only the head attachment. Keep existing style IDs, skin tones, hair colors and separately fitted headwear. Use measured palms for held equipment; inspect fingers, shields, long weapons and edge clipping on every profile.
+- **Color:** semantic masks separate dyeable cloth, actual leather/metal material, skin and fixed fasteners/trim. An independent component mask permits fitted gloves/boots to follow their own materials. Preserve painted shading, stitches, worn edges and metallic highlights.
+- **Portraits:** existing authored head-and-shoulders portraits remain warm and slightly stylised, facing the viewer against a soft tan background.
+
+Publication status is tracked in [the painted character plan](plans/2026-11-26-painted-character-system.md); previous accepted source art remains intact. New-only prompts/corrections, raw source hashes and deterministic replay are documented in [the pipeline guide](../../arttools/PAINTED_CHARACTERS.md). No raw motion/model file or 3D renderer enters the game.
 
 ## Shared directional NPCs
 
-The verified `skills-attributes-and-directional-npcs` release reuses the ten existing hero body/outfit combinations and hair/beard/head/equipment layers for human services, named teachers/rivals, Tamsin, residents, travellers and dojo fighters. `NpcAppearance` defines stable named recipes and deterministic regional/occupational extras. Clothing and skin transforms are separate; boots, leather, facial detail and alpha are preserved. Existing portraits remain authored images. Creatures retain their own sprites; Varrick and the Council use human layers.
+Human services, teachers, rivals, Tamsin, residents, travellers and dojo fighters use the same painted fitting system. `NpcAppearance` retains stable skin/head/outfit recipes. `CharacterProfiles` assigns named builds/heights individually and uses explicit role profiles for other residents; no random or hashed body casting. These are art-direction decisions, independent of combat ability. Dialogue portraits and creature artwork retain their existing sources.
 
-NPCs compose visible frames lazily, sharing mirrored source directions through a 160-frame LRU; retired canvases survive the active drawing frame before release. Eight facing directions and moving strides use hero anchors; human wander steps can be diagonal when both adjacent cardinal cells are clear. Stationary staff turn toward the player. Dojo sparring uses the same layers, with flat mats sorted behind their occupants. No new image generation, packed-art edits, prompt/settings changes or baseline refresh was involved. Phone and desktop visual review passed; the closed release plan records the checks.
+World frames compose lazily through bounded caches and generated ground/head/hand slots. Stationary staff turn toward the player. Human wandering may use diagonals when both cardinal clearances permit. Seated residents use an authored seated pose, and dojo mats sort behind fighters. Inspect native contact sheets plus actual 390×720 and desktop scenes; captured screenshots must be opened. Browser emulation cannot establish physical-iPhone approval.
 
 ## Creatures
 
@@ -259,11 +261,11 @@ The new-only `arttools/prologue_prompts.json` supplies one authorized built-in i
 
 Buildings and dungeon masonry use the regional component system above. Business picture signs retain their discovered-map symbols. Natural ground feathers through nested source-over texture masks. Constructed paving ends in fitted masonry courses with joined corners and restrained relief; dirt paths have compacted wear and irregular grassy shoulders without footprint stamps. Subdued smoke follows fitted chimneys. Dungeon props remain in supporting wall recesses, with low-contrast room-scale floor details; visible-only drips/ripples/motes preserve readability.
 
-The earlier eight-pose painted sources remain immutable historical references. The anatomical rebuild below supplies the operating walk/run animation and game-composed motion sample. Actor separation uses ground shadows and a very thin, low-opacity dark edge; Casey rejected the stronger early outline. Twelve-pixel overhead names follow rendered head/silhouette geometry. Real-iPhone visual approval remains external.
+The earlier eight-pose painted sources remain immutable historical references. The painted candidate above supersedes the anatomical bake below; the latter remains an immutable historical source. Actor separation uses ground shadows and a very thin, low-opacity dark edge; Casey rejected the stronger early outline. Twelve-pixel overhead names follow rendered head/silhouette geometry. Real-iPhone visual approval remains external.
 
-## Anatomical human locomotion
+## Legacy anatomical human locomotion
 
-The full rebuild replaces the operating human walk/run poses with a new adult rig, opposing arm motion, anatomical leg recovery, a stable rigid skull and heel/sole/toe support. Each cycle has 64 poses. The ten body/outfit combinations have tailored tunic, articulated split robe, leather, mail and plate geometry, with coherent idle and action poses on the same body. Existing hair, beards, headwear, dye, skin and equipment recipes remain attached; facing-specific attachment widths stay fixed through gait changes. The large illustrated paperdoll retains its authored body/equipment art; the curated complete heads are described below. Dialogue portraits retain their existing authored art.
+The earlier `359f497` rebuild replaced the then-operating human walk/run poses with a new adult rig, opposing arm motion, anatomical leg recovery, a stable rigid skull and heel/sole/toe support. Each cycle has 64 poses. The ten body/outfit combinations have tailored tunic, articulated split robe, leather, mail and plate geometry, with coherent idle and action poses on the same body. Existing hair, beards, headwear, dye, skin and equipment recipes remain attached; facing-specific attachment widths stay fixed through gait changes. The large illustrated paperdoll retains its authored body/equipment art; the curated complete heads are described below. Dialogue portraits retain their existing authored art.
 
 MakeHuman core mesh/rig assets are CC0; capture is from the CMU Graphics Lab database with NSF EIA-0196217 acknowledgment and its redistribution terms recorded in pinned source manifests and `game/art/human/LICENSE.txt`. No UO artwork, MakeHuman application code, paid generation or prompt/settings changes are included. This is a newly rendered UO-inspired character style. Original packed art remains unchanged. A CPU renderer runs offline, generating palette material/shade frames in ten new lossless WebP atlases plus source-generated coordinates/calibration. The game recolours cropped frames without rendering a 3D mesh. Replay uses locked game Playwright Chromium and Pillow 12.0.0:
 
@@ -288,6 +290,17 @@ The stable and casino fittings use a new curated painted sheet, packed by `artto
 Casey requested complete generated paperdoll heads whose hair and beard are painted together. The final selection is a smaller curated set of complete styles for each body, with skin/hair colour choices retained and legacy appearances mapped to a close style. This replaces independent hair/beard selection in the paperdoll. Production follows a same-face proof, transparent isolated heads/neck, fixed skull landmarks, source receipts and reproducible packing. Headwear stays separately fitted. Existing tiny directional actors use matching curated hair/beard recipes and their calibrated attachments. The twenty-four selected heads are packed into two 1152×768 transparent atlases by `arttools/head_art.py`; `head_art_inputs.json` and `head_art_prompts.json` preserve exact source hashes, prompts, crops and skull landmarks, and `src/artheads.js` is generated. `HeadPortraits` uses bounded tinted complete-head canvases with one coherent face/hair/beard image; no beard or hairstyle bitmap is placed separately on the large paperdoll. The original generated horse/head filenames and receipts are archived in `C:/Users/caseys/source/SQL Game/brasswake_equipment_towns_2026_11_25/`. Replay with the pinned art environment and that directory as `--raw-dir`. Opened same-face, palette, full-body/collar, hat and material captures at 390×720 and 1280×800; source replays were byte-identical. Published source and verification evidence are in [release history](RELEASE_HISTORY.md#equipment-horses-and-lived-in-towns) and the closed coordinated plan.
 
 ## Decision log
+
+- 2026-11-26: Casey approved the corrected fitted-model walking/running pilot and authorized full wardrobe, combat, seating and paper-doll production through deployment. Every physical gear identity is included. Keep native eight-facing body/equipment banks, distinct fitted builds, a separately fitted frontal doll and dye/material masks. This supersedes the earlier pilot-only publication hold below.
+
+- 2026-11-26: Casey requested one fitted body/plate model before expansion.
+  Shared anatomy must survive both the face-on paper doll and elevated game
+  camera. The local painted-surface pilot corrected atlas registration and
+  shoulder coverage; gauntlets, rigid plate articulation and precise linen dye
+  masks remain review work. The prior assembled-part set is visually rejected
+  and unshipped. Keep all game publication held at this checkpoint.
+
+- 2026-11-26: Casey selected a painted 2D finish after rejecting the earlier smooth 3D appearance, and authorized the complete wardrobe/head/action/paper-doll set through deployment. Fit all six profiles separately; retain environmental scale, restrained Mixamo-guided locomotion, independent robe drape, clothing dye and special-material surfaces. New-only built-in sources and corrections are archived with their native filenames and exact prompts; older accepted art/settings remain unchanged.
 
 - 2026-11-26: Casey rejected the generated footsteps' texture and prominence. Use isolated CC0 footfalls and a subtle material-dependent mix: near-silent grass, soft dirt/sand/snow and slightly more audible wood/paving. Preserve contact timing and all non-footstep audio. Add dedicated sand/snow samples and terrain selection; keep original source/license provenance and archive the replaced footstep entries. Publication evidence belongs in release history.
 

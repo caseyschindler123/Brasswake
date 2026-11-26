@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "status": "Visual target and frontal fit studies only. Not a fitted animation model. Broader rollout held after user rejection.",
+  "date": "2026-11-26",
+  "rawArchive": "C:/Users/caseys/source/SQL Game/painted_characters_2026_11_26/out",
+  "references": [
+    "C:/Users/caseys/.codex/generated_images/01a21580-820c-74f3-9632-aac7dd04aadd/exec-a3c6822c-3330-4d95-897b-09ab943ed2de.png",
+    "C:/Users/caseys/.codex/worktrees/painted-character-release/Brasswake/work/painted-characters/fit-browser/ui-visual-scene-tallyport-phone-chromium/tallyport.png"
+  ],
+  "entries": [
+    {
+      "stage": "continuous frontal body",
+      "file": "exec-50ed8df4-3afa-4f50-a11f-bea0083f5422.png",
+      "prompt": "Production art correction for Brasswake. Image 1 is the accepted average adult male body study: preserve that man's normal athletic-but-not-bodybuilder physique. Image 2 shows the actual game's warm hand-painted environmental finish. Create ONE clean, continuous full human figure for the game's large PAPER DOLL, FRONT VIEW, standing upright and facing straight forward, orthographic portrait camera at chest height. Entire body including crown and soles is present, centered, with generous transparent margins. This is one anatomically connected man, not an assembly of detached body parts. Natural adult proportions: about 7.5 heads tall; ordinary healthy male shoulder and waist breadth; chest, abdomen and hips form a continuous torso; natural upper-arm, forearm, hand, thigh, knee, shin and foot lengths. Relaxed arms held just clear of the hips, elbows very slightly soft; both feet flat at the same ground level, modest balanced stance. Hands relaxed with fingers gently curled, normal adult hand size. No hunched pose, no one-foot-forward step, no giant palms, no pinched waist, no inflated shoulder balls, no hollow joints, no cuts, caps, cuffs or socket shapes at elbows/knees. Clothing is a thin worn ivory linen sleeveless undervest, simple close-fitting linen knee-above shorts, plain low brown leather boots. This light base clothing must reveal the underlying body's actual proportions without billowing or bulk. Paint a coherent face, short brown hair and exposed neck, warm lightly weathered skin. Painterly late-1990s fantasy RPG illustration, restrained texture, gently drawn contours, soft controlled light, believable folds and subtle imperfections. Not glossy CGI, not a toy, not a mannequin, no photographic skin, no metal or armor, no weapons, no decorative trim. TRUE transparent alpha background, no ground plane, no cast shadow, no labels. Portrait 1024x1536. The production goal is a good continuous illustrated human that fits the game's style at 300x450 pixels; no deformed cutout rigging.",
+      "sha256": "801365930b1ee697166ab52eaeb3084833fba8e705a6a237603be33040616a6f"
+    },
+    {
+      "stage": "first fitted frontal plate; excessive distributed weathering",
+      "file": "exec-fe83194e-4694-4cc8-990f-584627db52e6.png",
+      "prompt": "Edit the man in Image 1 by fitting ONE practical fantasy field-plate armor outfit OVER HIS EXISTING BODY. Preserve the exact person, anatomy, body proportions, face, hair, head size, height, limb lengths, pose, hand positions, stance, foot positions, frontal orthographic camera, image dimensions and placement. This is a body-fit proof: the man must not become wider, shorter, taller, squat, muscular, or bulky. Armor adds only a modest physical layer around the same body. Full uninterrupted connected human, no detached pieces. Replace the linen vest/shorts with a close-fitted neutral grey steel cuirass over a thin charcoal arming garment, compact shallow pauldrons following the deltoids, fitted upper-arm plates, closed elbow guards, slim vambraces and natural-sized articulated gauntlets. A short sensible fauld/tassets follows the hips. Thigh plates, small CLOSED kneecaps and fitted greaves follow the underlying legs. Keep natural-sized boots with small fitted steel protection. Elbows, knees and wrists remain visibly anatomically connected; dark flexible cloth or fine mail closes articulation gaps. NO hollow rims, open buckets, tube/socket ends, inflated shoulder balls, giant gloves, stack-of-cups knees, bodybuilder chest, pinched waist, individual sculpted muscle armor, huge boots, spikes or ceremonial ornament. Exposed neck and head stay unchanged and join naturally into the collar. Preserve a continuous neckline with no empty black hole below the jaw. Mostly iron-grey steel with controlled narrow reflections, brushed wear, a few small scratches and dents, subtle rivets and sparse plain brown fastening straps. No gold edging or blue camouflage patches. Preserve the source's restrained hand-painted fantasy RPG finish and the game's warm environmental style shown in Image 2. Readable painted form, lightly drawn contours, no glossy CGI or plastic. True transparent alpha background, no floor or cast shadow, no labels. One full body, FRONT-FACING paper-doll view, portrait 1024x1536. Do not alter the underlying anatomy to make armor fit.",
+      "sha256": "64207ac3d6c1601abc0b03057565c5e9ede394808cd8c0e0d0206a022fe876b1"
+    },
+    {
+      "stage": "finish revision; rejected opaque background",
+      "file": "exec-50ecb425-588e-461e-a228-5f7388e518ce.png",
+      "prompt": "Edit Image 1 ONLY to improve the PAINTED STEEL FINISH of this Brasswake paper-doll armor. Preserve the exact image dimensions, transparency, face, hair, body, proportions, pose, outfit shape, every armor plate, straps, articulation, hands, boots and their exact positions. Do not redesign or resize anything. The current steel has excessive evenly distributed mottled tan/grey weathering that reads as camouflage. Reduce that mottling and all-over scratch density by about 75%. Most metal should have calm, continuous iron-grey surfaces with subtle brushed steel grain. Show believable restrained shininess using a few coherent broad light planes and narrow soft edge highlights, consistent with light from upper left. Add only a few small directional scratches and slight edge wear, concentrated at exposed edges, elbows and knees. Keep shallow dents sparse. No ornate gold, no colored patina or blue patches. Preserve the warm hand-painted fantasy RPG style and lightly drawn contours; no smooth plastic or photorealistic CGI. Keep genuine transparent alpha and no ground shadow. This is one finish revision on an otherwise fixed fitted armor model; pixel placement and underlying anatomy must remain unchanged.",
+      "sha256": "e3288775ff8dfa464a997064a67d24cd2a65ff84e74523d25a4e0b608d60fd88"
+    },
+    {
+      "stage": "alpha correction of finish revision; not yet a rig",
+      "file": "exec-44a9117d-a27c-4c5a-a16b-7e3657764a83.png",
+      "prompt": "Background extraction only. Keep the exact full-body armored man from the reference image, every pixel's position, anatomy, face, armor shape, metal finish, colors, highlights, painted texture and details. Remove ALL of the brown/black gradient backdrop and any halo/shadow behind or under the figure. Every background pixel must have alpha exactly ZERO, including all four corners, all margins, the space between the arms and torso and the space between the legs. Preserve opaque character pixels, use only a narrow natural antialiased silhouette edge. NO translucent brown matte, no white matte, no painted background, no cast shadow, no pedestal, no checkerboard. Full figure crown through soles, same portrait 1024x1536 canvas and exact placement. Produce the isolated character on true transparent alpha. Do not restyle, smooth, redraw, resize or move the character.",
+      "sha256": "383adde4e3d9bc2049c7115a76ec6aafca02ebd21ec179825a71b16948b634fb"
+    }
+  ],
+  "sharedPacking": {
+    "sourceScale": 0.28314917127071826,
+    "offset": [
+      5,
+      16
+    ],
+    "canvas": [
+      300,
+      450
+    ],
+    "note": "One identical transform for all images; no independent crop/scale of armor."
+  },
+  "referenceRecords": [
+    {
+      "source": "C:/Users/caseys/.codex/generated_images/01a21580-820c-74f3-9632-aac7dd04aadd/exec-a3c6822c-3330-4d95-897b-09ab943ed2de.png",
+      "sha256": "3b27f890d043011ad362eedcb897cd7708c942661a363728e16c739aba508eb2"
+    },
+    {
+      "source": "C:/Users/caseys/.codex/worktrees/painted-character-release/Brasswake/work/painted-characters/fit-browser/ui-visual-scene-tallyport-phone-chromium/tallyport.png",
+      "sha256": "9eeb945f3588b4d2deca5e7fdfb9bd7105bb909fd3292eab462a5616cd642326"
+    }
+  ],
+  "review": {
+    "rejectedUnderlyingAssembly": "World-projection cutouts used in frontal paper doll; distorted proportions and hollow joint caps.",
+    "rejectedStripFit": "Visible horizontal banding and joint holes remained. Restored the old bake algorithm; rejected experiment retained only in ignored work.",
+    "frontalStudy": "Continuous connected adult body, a directly front-facing camera, one identical transform for body and plate, closed articulation and a less mottled finish.",
+    "limits": "Generated frontal visual targets only. No shared fitted 3D source model, directional animation, material masks, head variants or weapon grips proven for this treatment. Do not expand or deploy it."
+  }
+}

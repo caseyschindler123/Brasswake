@@ -1,0 +1,29 @@
+Brasswake painted character sources
+
+The wardrobe surface projections, gear and complete directional heads are newly generated painted
+images from the authorized built-in image-generation runs. Source filenames,
+new-only prompts, corrections and hashes are recorded in arttools/painted_*.
+The runtime displays baked 2D images; no character model is downloaded by players.
+
+The offline joint guide uses the pinned Three.js r180 Soldier.glb walk/run
+animations from Mixamo. Adobe permits royalty-free personal and commercial
+project use, including games and images. Raw models and animation/joint files
+remain in the local source archive and are not redistributed as standalone assets.
+https://helpx.adobe.com/creative-cloud/faq/mixamo-faq.html
+Source SHA-256:
+dfb230fc1f942f259dd00281a1186953ad602fc5d69067ce63e24b2aa439736b
+
+The reference skeleton derives from MakeHuman core assets, CC0-1.0; no MakeHuman
+application code is included. Body profiles, fitted surfaces, corrected leg contacts, robe drape and compositing are authored in repository tools.
+https://www.makehumancommunity.org/about/license.html
+https://github.com/makehumancommunity/makehuman/blob/master/LICENSE.ASSETS.md
+
+The older CMU-derived human atlases are retained unchanged in art/human with
+their existing acknowledgment and license. The painted walk/run uses the Mixamo
+guide instead of those archived capture clips.
+
+Combat and chair seating use KayKit Character Animations Free 1.1 (CC0-1.0),
+retargeted offline to the fitted anatomy. Source clip names, archive/GLB hashes
+and retarget adaptations are recorded in painted_release_combat_sources.json.
+https://kaylousberg.itch.io/kaykit-character-animations
+Only the painted sprite output is distributed by Brasswake.

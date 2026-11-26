@@ -9,30 +9,30 @@ const ActorRig = (() => {
     const widths=anchors.slice((row-5)*8,(row-4)*8).map(a=>a[2]).filter(Boolean).sort((a,b)=>a-b);
     return [raw[0],raw[1],widths[Math.floor(widths.length/2)]||raw[2]];
   }
-  const baked=typeof HumanGaits!=='undefined'?HumanGaits:require('./human_gaits');
+  const baked=typeof PaintedGaits!=='undefined'?PaintedGaits:typeof HumanGaits!=='undefined'?HumanGaits:require('./painted_gaits');
   const GAITS = Object.freeze([
     Object.freeze({...baked.walk,referenceSpeed:2.2}),
     Object.freeze({...baked.run,referenceSpeed:4.6}),
   ]);
-  const gait = running => GAITS[running ? 1 : 0];
+  const gait = (running,profile) => baked.profileGaits?.[profile]?.[running?'run':'walk']||GAITS[running ? 1 : 0];
   const speed = running => gait(running).stride*gait(running).cadence/120;
   const paceScale = running => speed(running)/gait(running).referenceSpeed;
-  function contacts(from,to,running) {
+  function contacts(from,to,running,profile) {
     if(!Number.isFinite(from)||!Number.isFinite(to)||to<=from)return 0;
-    const stride=gait(running).stride;
-    return gait(running).contacts.reduce((n,offset)=>n+Math.floor(Math.max(0,to)/stride-offset)-Math.floor(Math.max(0,from)/stride-offset),0);
+    const stride=gait(running,profile).stride;
+    return gait(running,profile).contacts.reduce((n,offset)=>n+Math.floor(Math.max(0,to)/stride-offset)-Math.floor(Math.max(0,from)/stride-offset),0);
   }
-  function phase(distance,running,count=baked.frames) {
-    const stride=gait(running).stride;
+  function phase(distance,running,count=baked.frames,profile) {
+    const stride=gait(running,profile).stride;
     return Math.floor(Math.max(0,distance)/stride*count)%count;
   }
   const distance=actor=>(actor.wd||0)+(actor.gaitOffset||0);
   function advance(actor,travel,running){
     if(!(travel>0)||!Number.isFinite(travel))return 0;
-    const actual=actor.wd||0;
-    if(actor.gaitRun!=null&&actor.gaitRun!==running)actor.gaitOffset=distance(actor)/gait(actor.gaitRun).stride*gait(running).stride-actual;
+    const actual=actor.wd||0,profile=actor.gaitProfile;
+    if(actor.gaitRun!=null&&actor.gaitRun!==running)actor.gaitOffset=distance(actor)/gait(actor.gaitRun,profile).stride*gait(running,profile).stride-actual;
     const before=distance(actor);actor.wd=actual+travel;actor.gaitRun=!!running;if(actor.npcLook)actor.npcRun=!!running;
-    return contacts(before,distance(actor),running);
+    return contacts(before,distance(actor),running,profile);
   }
   function headProfile(pixels,width,height){
     let top=0;
@@ -64,6 +64,7 @@ const ActorRig = (() => {
     const limits={body:[0,1],skin:[0,4],hair:[-1,11],hc:[0,6],beard:[-1,5],hat:[-1,5],wear:[0,1]};
     for(const [key,[min,max]]of Object.entries(limits))if(!Number.isInteger(look[key])||look[key]<min||look[key]>max)look[key]=fallback[key];
     if(!(typeof look.dye==='string'||Number.isInteger(look.dye)&&look.dye>=0&&look.dye<=8))look.dye=fallback.dye;
+    if(!Number.isInteger(look.build)||look.build<0||look.build>2)look.build=0;
     return look;
   }
   return {headAnchor,headProfile,pose,phase,gait,speed,paceScale,contacts,distance,advance,normalizeLook};

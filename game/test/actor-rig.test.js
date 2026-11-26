@@ -1,6 +1,6 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const Rig=require('../src/actor_rig');
-const Baked=require('../src/human_gaits');
+const Baked=require('../src/painted_gaits');
 const ctx={ArtData:{}};vm.runInNewContext(fs.readFileSync(require.resolve('../src/artbody.js'),'utf8'),ctx);
 test('every body and direction retains its walking head size throughout the run',()=>{
   const body=ctx.ArtData.body;
@@ -12,7 +12,7 @@ test('every body and direction retains its walking head size throughout the run'
 });
 test('the complete gait advances by travelled distance regardless of render sampling',()=>{
   const stride=Rig.gait(true).stride,frames=new Set();for(let d=0;d<stride;d+=.001)frames.add(Rig.phase(d,true));
-  assert.equal(frames.size,64);assert.equal(Rig.phase(stride,true),0);assert.equal(Rig.phase(0,false),0);
+  assert.equal(frames.size,Baked.frames);assert.equal(Rig.phase(stride,true),0);assert.equal(Rig.phase(0,false),0);
 });
 
 test('run contacts retain a grounded foot and recovery frames have a real flight phase without stretching the body',()=>{
@@ -36,16 +36,18 @@ test('head placement follows the actual skull rather than a body-centred run anc
   assert.deepEqual(Rig.pose(ctx.ArtData.body,1,7,0,profiles).anchor,[12,52.5,9]);
 });
 test('legacy and malformed appearance saves cannot request nonexistent atlases or skin transforms',()=>{
-  const fallback={body:0,skin:1,hair:0,hc:1,beard:-1,hat:-1,wear:0,dye:0};
+  const fallback={body:0,build:0,skin:1,hair:0,hc:1,beard:-1,hat:-1,wear:0,dye:0};
   const look=Rig.normalizeLook({body:99,skin:99,hair:NaN,hc:-3,beard:8,hat:'bad',wear:4,dye:null},fallback);
   assert.deepEqual(look,fallback);
   const legacy={body:1,hair:8,hc:2,beard:-1,hat:3,wear:1,dye:'frost'};
   assert.equal(Rig.normalizeLook(legacy,fallback),legacy);assert.equal(legacy.skin,1);assert.equal(legacy.dye,'frost');
+  assert.equal(legacy.build,0);assert.equal(Rig.normalizeLook({...legacy,build:2},fallback).build,2);assert.equal(Rig.normalizeLook({...legacy,build:99},fallback).build,0);
 });
 
 
-test('base travel speed follows the rebuilt rig stride at realistic high cadence',()=>{
-  for(const [running,expectedCadence,source] of [[false,132,Baked.walk],[true,180,Baked.run]]){
+test('base travel speed follows the chosen native walk/run cadence and shorter strides',()=>{
+  assert.equal(Baked.frames,24);assert.ok(Math.abs(Baked.walk.cadence-120/(31/30))<.0001);assert.ok(Math.abs(Baked.run.cadence-120/(21/30))<.0001);
+  for(const [running,expectedCadence,source] of [[false,Baked.walk.cadence,Baked.walk],[true,Baked.run.cadence,Baked.run]]){
     const gait=Rig.gait(running);assert.equal(gait.stride,source.stride);
     assert.ok(Math.abs(Rig.speed(running)/gait.stride*120-expectedCadence)<1e-12);
     assert.equal(Rig.phase(gait.stride,running),0);
@@ -79,4 +81,15 @@ test('changing pace preserves cycle phase and physical distance without phantom 
   const still=Rig.distance(actor);assert.equal(Rig.advance(actor,0,false),0);assert.equal(Rig.distance(actor),still);
   Rig.advance(actor,.31,true);const runPhase=Rig.distance(actor)/Rig.gait(true).stride;
   Rig.advance(actor,travel,false);assert.ok(Math.abs((Rig.distance(actor)-travel)/Rig.gait(false).stride-runPhase)<1e-12);
+});
+
+test('each fitted stature keeps its own sole-contact stride through pace changes',()=>{
+  const profileGaits=[{walk:{stride:1.1,cadence:116,contacts:[0,.46]},run:{stride:1.9,cadence:171,contacts:[0,.5]}}];
+  const context={PaintedGaits:{...Baked,profileGaits}};
+  vm.runInNewContext(fs.readFileSync(require.resolve('../src/actor_rig'),'utf8')+';this.rig=ActorRig;',context);
+  const rig=context.rig,actor={gaitProfile:0};
+  assert.equal(rig.phase(1.1,false,24,0),0);assert.equal(rig.contacts(0,2.2,false,0),4);
+  rig.advance(actor,.55,false);rig.advance(actor,.000001,true);
+  assert.ok(Math.abs((rig.distance(actor)-.000001)/1.9-.5)<1e-10);
+  assert.equal(rig.gait(false,99).stride,Baked.walk.stride);
 });

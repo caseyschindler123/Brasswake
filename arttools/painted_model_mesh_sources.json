@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "scope": "One average adult male pilot; neutral weight, 15% of the stronger muscle morph. Not a production replacement.",
+  "sources": [
+    {
+      "file": "caucasian-male-young.target",
+      "weight": 1.0,
+      "commit": "a8bc2d54ff0ac92e78ff71431b1023eda42bf482",
+      "url": "https://raw.githubusercontent.com/makehumancommunity/makehuman/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data/targets/macrodetails/caucasian-male-young.target",
+      "sha256": "70e228ba7164737dae664454394536fc5935fa48d333c1a97d77e2dc6eacc5f5"
+    },
+    {
+      "file": "universal-male-young-averagemuscle-averageweight.target",
+      "weight": 0.85,
+      "commit": "a8bc2d54ff0ac92e78ff71431b1023eda42bf482",
+      "url": "https://raw.githubusercontent.com/makehumancommunity/makehuman/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data/targets/macrodetails/universal-male-young-averagemuscle-averageweight.target",
+      "sha256": "4ba5396ddabda448ece15650a566fbebfbb10239256ccb201e8f883429e12249"
+    },
+    {
+      "file": "universal-male-young-maxmuscle-averageweight.target",
+      "weight": 0.15,
+      "commit": "a8bc2d54ff0ac92e78ff71431b1023eda42bf482",
+      "url": "https://raw.githubusercontent.com/makehumancommunity/makehuman/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data/targets/macrodetails/universal-male-young-maxmuscle-averageweight.target",
+      "sha256": "c171ff9cc95e96273beb3e3b1969a01988c2d4982ebc6fe04bf81cf72ee3b295"
+    }
+  ],
+  "converterSha256": "692acef51949225346acd8babc949e40c939e2bd2bd328b445e9d46d1d366552",
+  "outputSha256": "5ddde73c30414d6d05a8d0a1efa81db3c5542f055972ac705369196f33e7c91d",
+  "license": "CC0 1.0 official MakeHuman base and morphs. Source headers retained in the local archive."
+}

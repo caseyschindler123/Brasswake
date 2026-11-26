@@ -17,7 +17,7 @@
   const SC = {};
   function artWalk(k) { const C = AD && AD.chars, wk = C && C.walk ? C.walk[k] : null; if (wk == null) return null; if (!IMG['folk.webp']) img('folk.webp'); if (!have('folk.webp')) return null; const row = i => [0, 1, 2, 3].map(f => cut('folk.webp', (i * 4 + f) * C.cw, wk * C.ch, C.cw, C.ch)); return { f: row(0), l: row(1), s: row(2), b: row(3), art: 1 }; }
   /* ---------- the paper doll: recoloured outfits, head layers, and equipment ---------- */
-  // D8 order is S, SW, W, NW, N, NE, E, SE; the sheets have S, SE, E, NE, N, and the rest are mirrors
+  // D8 order is S, SW, W, NW, N, NE, E, SE. Only head/legacy sheets use mirrored five-view sources.
   const DSRC = [[0, 0], [1, 1], [2, 1], [3, 1], [4, 0], [3, 0], [2, 0], [1, 0]];
   const hexRGB = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
   const DOLL_ORDERS={head:new Map(),body:new Map(),sprite:new Map(),portrait:new Map()};
@@ -51,13 +51,23 @@
     for (let i = 0; i < p.length; i += 4) { if (p[i + 3] < 8) continue; const l = Math.min(1, (p[i] + p[i + 1] + p[i + 2]) / 765 * 1.15); for (let j = 0; j < 3; j++) p[i + j] = A[j] + (B[j] - A[j]) * l; }
     g.putImageData(d, 0, 0); return c;
   }
-  function dollReady(a) { const B = AD && AD.body; if (!B || !a) return false; const need = [AD.human?AD.human.combos[a.combo].file:'hb/C' + a.combo + '.webp', 'hb/hair.webp', 'hb/wx.webp']; need.forEach(n => { if (!IMG[n]) img(n); }); return need.every(have); }
+  const PAINTED_ASSETS=new Map(),PAINTED_ASSET_LIMIT=48*1024*1024,HEAD_LOADING=new Set(),PAINTED_LOADING=new Set();
+  function paintedAsset(file){const entry=img(file);if(!entry.ok&&!PAINTED_LOADING.has(file)){PAINTED_LOADING.add(file);entry.p.then(ok=>{PAINTED_LOADING.delete(file);if(ok)paintedAsset(file);});}if(entry.ok){PAINTED_ASSETS.delete(file);PAINTED_ASSETS.set(file,entry.im.width*entry.im.height*4);let bytes=[...PAINTED_ASSETS.values()].reduce((a,b)=>a+b,0);for(const [old,size]of PAINTED_ASSETS){if(bytes<=PAINTED_ASSET_LIMIT)break;if(old===file)continue;PAINTED_ASSETS.delete(old);delete IMG[old];bytes-=size;}}return entry;}
+  const paintedProfile=a=>a?Math.floor((a.combo-1)/5)*3+(Number.isInteger(a.build)&&a.build>=0&&a.build<3?a.build:0):undefined;
+  function paintedBody(a){const index=CharacterProfiles.index(a),base=AD.painted?.combos[index],profile=base?.sex*3+base?.build;return AD.painted?.slots?.[profile]?.armor?.[a.armorGear]||base;}
+  let paintedGearLoading=false;
+  function paintedGearReady(){if(!PaintedGear.ready()&&!paintedGearLoading){paintedGearLoading=true;PaintedGear.preload().then(ok=>{paintedGearLoading=false;if(ok)artVer++;});}return PaintedGear.ready();}
+  function dollReady(a) { const B = AD && AD.body; if (!B || !a) return false;
+    if(AD.painted){const body=paintedBody(a),sex=Math.floor((a.combo-1)/5);if(!body)return false;paintedAsset(body.states.idle.file);if(!HeadPortraits.ready(sex)&&!HEAD_LOADING.has(sex)){HEAD_LOADING.add(sex);HeadPortraits.preload(sex).then(ok=>{if(ok)artVer++;else HEAD_LOADING.delete(sex);});}return HeadPortraits.ready(sex)&&paintedGearReady();}
+    const need = [AD.human?AD.human.combos[a.combo].file:'hb/C' + a.combo + '.webp', 'hb/hair.webp', 'hb/wx.webp']; need.forEach(n => { if (!IMG[n]) img(n); }); return need.every(have); }
   function dollHeadLayers(a) {
-    const key = 'head|' + [a.cloth, a.metal, a.hc].join('|');
+    const key = 'head|' + [a.cloth, a.metal, a.hc,a.headMaterial?.id].join('|');
     if (DOLL[key]) return DOLL[key];
     const head = IMG['hb/hair.webp'].im;
     const frames=new Map();
-    return DOLL[key]={headFrame(area,hair,item,view){const key=(hair?'hair:':'gear:')+area.join(',')+':'+item+':'+view;if(frames.has(key))return frames.get(key);const frame=hair?gradMap(head,a.hc[0],a.hc[1],area):recolor(head,a.cloth,a.metal||'#9aa0a8',false,false,area);if(AttachmentFit.removesTail(item,view)){const q=frame.getContext('2d');q.clearRect(frame.width*.22,frame.height*.68,frame.width*.56,frame.height*.32);}frames.set(key,frame);return frame;}};
+    return DOLL[key]={headFrame(area,hair,item,view){const key=(hair?'hair:':'gear:')+area.join(',')+':'+item+':'+view;if(frames.has(key))return frames.get(key);let frame;
+      if(AD.painted&&!hair&&a.headMaterial){const material=a.headMaterial,palette=material.family==='cloth'&&a.cloth?PaintedCharacterView.dyePalette(a.cloth):material.palette;frame=EquipmentView.tintCanvas(head,palette,material.family,{area,protectSkin:false});}
+      else frame=hair?gradMap(head,a.hc[0],a.hc[1],area):recolor(head,a.cloth,a.metal||'#9aa0a8',false,false,area);if(AttachmentFit.removesTail(item,view)){const q=frame.getContext('2d');q.clearRect(frame.width*.22,frame.height*.68,frame.width*.56,frame.height*.32);}frames.set(key,frame);return frame;}};
   }
   const BODY_PROFILES = new Map();
   function bodyProfiles(combo) {
@@ -106,7 +116,7 @@
   }
   const EQUIPMENT_ICONS=new Map();
   function equipmentIcon(item){
-    const material=EquipmentRules.materialOf(item);if(!material)return null;
+    if(AD.painted&&PaintedGear.itemId(item)){paintedGearReady();return PaintedGear.icon(item);}const material=EquipmentRules.materialOf(item);if(!material)return null;
     const key=[item.ic,item.v,material.id,artVer].join(':');if(EQUIPMENT_ICONS.has(key))return EQUIPMENT_ICONS.get(key);
     if(item.slot==='weapon'&&item.v!=null&&AD.body.wx[item.v]&&have('hb/wx.webp')){const W=AD.body.wx[item.v],c=mk(64,64),g=c.getContext('2d'),scale=54/Math.max(W[2],W[3]);g.drawImage(equipmentImage(material),W[0],W[1],W[2],W[3],32-W[2]*scale/2,32-W[3]*scale/2,W[2]*scale,W[3]*scale);const url=c.toDataURL();EQUIPMENT_ICONS.set(key,url);if(EQUIPMENT_ICONS.size>128)EQUIPMENT_ICONS.delete(EQUIPMENT_ICONS.keys().next().value);return url;}
     const separate=/^(dz|hq)\d/.test(item.ic||''),file=separate?'i/'+item.ic+'.webp':'icons.webp',entry=img(file);if(!entry.ok)return null;
@@ -135,7 +145,37 @@
   }
   // The offline anatomical bake stores material/shade pixels. Recolouring a
   // cropped visible frame preserves skin, leather and anti-aliased coverage.
+  const PAINTED_PIXELS=new Map(),PAINTED_PIXEL_LIMIT=32;
+  function paintedPixels(file,frame){if(PAINTED_PIXELS.has(frame)){const d=PAINTED_PIXELS.get(frame);PAINTED_PIXELS.delete(frame);PAINTED_PIXELS.set(frame,d);return d;}
+    const c=mk(frame.r[2],frame.r[3]),g=c.getContext('2d',{willReadFrequently:true});g.drawImage(IMG[file].im,...frame.r,0,0,c.width,c.height);const color=g.getImageData(0,0,c.width,c.height).data;g.clearRect(0,0,c.width,c.height);g.drawImage(IMG[file].im,...frame.m,0,0,c.width,c.height);const mask=g.getImageData(0,0,c.width,c.height).data;c.width=c.height=0;const d={color,mask};PAINTED_PIXELS.set(frame,d);if(PAINTED_PIXELS.size>PAINTED_PIXEL_LIMIT)PAINTED_PIXELS.delete(PAINTED_PIXELS.keys().next().value);return d;}
+  function paintedSlotBank(slot){return slot.bank||AD.painted.combos[slot.index];}
+  function paintedLayerLook(a,layer){return layer.material?{...a,armorMaterial:layer.material,metal:null}:a;}
+  function paintedLayer(file,frame,a,only,covered){
+    const raw=paintedPixels(file,frame),c=mk(frame.r[2],frame.r[3]),g=c.getContext('2d'),data=g.createImageData(c.width,c.height);data.data.set(raw.color);PaintedCharacterView.tintPixels(data.data,raw.mask,a);
+    for(let i=0;i<data.data.length;i+=4){const component=PaintedCharacterView.component(raw.mask,i);if(only!=null&&component!==only||covered?.has(component))data.data[i+3]=0;}
+    g.putImageData(data,0,0);return c;
+  }
+  function paintedHead(g,a,frame,sex,direction,paper=false){
+    const pair=paper?[5,0]:DSRC[direction],an=frame.head;
+    PaintedGear.withHead(g,a,frame,{direction,paper},()=>{g.save();if(pair[1]){g.translate(an[1]*2,0);g.scale(-1,1);}HeadPortraits.draw(g,{body:sex,style:a.headStyle,hair:a.hair,beard:a.beard,skin:a.skin,hc:a.hc,direction:pair[0],angle:(frame.angle||0)*(pair[1]?-1:1)},an);g.restore();});
+  }
+  function paintedFrame(a,row,k,sr){
+    const H=AD.painted,body=paintedBody(a),state=PaintedCharacterView.state(a,row),bank=body.states[state];
+    if(!paintedAsset(bank.file).ok)return state==='idle'?null:paintedFrame(a,-1,0,sr);
+    const layers=PaintedCharacterView.slotSources(a).map(slot=>{const b=paintedSlotBank(slot).states[state];return{...slot,file:b.file,frame:b.frames[sr][k%b.frames[sr].length],ready:paintedAsset(b.file).ok};}),covered=new Set(layers.filter(l=>l.ready&&l.id!==10).map(l=>l.id));
+    const frame=bank.frames[sr][k%bank.frames[sr].length],raw=paintedPixels(bank.file,frame),bodyImage=paintedLayer(bank.file,frame,a,null,covered),c=mk(H.width,H.height),g=c.getContext('2d'),gearOptions={direction:sr,state,phase:k/Math.max(1,bank.frames[sr].length-1)};
+    PaintedGear.drawWorld(g,a,frame,{...gearOptions,layer:'back'});g.drawImage(bodyImage,...frame.offset);
+    for(const layer of layers.filter(l=>l.ready)){const image=paintedLayer(layer.file,layer.frame,paintedLayerLook(a,layer),layer.id);g.drawImage(image,...layer.frame.offset);image.width=image.height=0;}
+    paintedHead(g,a,frame,body.sex,sr);PaintedGear.drawWorld(g,a,frame,{...gearOptions,layer:'front'});
+    // The right fingers wrap the handle; shields retain their solid front face.
+    for(const side of (a.wpn>=0?[a.wpn===25||a.wpn===26?'leftPalm':'rightPalm']:[]).concat(a.gear?.shield==='off-orb'||a.gear?.shield==='off-book'?['leftPalm']:[])){if(!frame.sockets?.[side])continue;const hand=frame.sockets[side].p;g.save();g.beginPath();g.arc(...hand,2.1,0,Math.PI*2);g.clip();g.drawImage(bodyImage,...frame.offset);for(const layer of layers.filter(l=>l.ready&&l.id===8)){const im=paintedLayer(layer.file,layer.frame,paintedLayerLook(a,layer),8);g.drawImage(im,...layer.frame.offset);im.width=im.height=0;}g.restore();}
+    const bounds=actorBounds(c),left=Math.max(0,bounds.left-1),top=Math.max(0,bounds.top-1),out=mk(bounds.right-left+2,bounds.bottom-top+2);out.getContext('2d').drawImage(c,-left,-top);out.hr=out.human=1;
+    const origin=frame.origin||H.origin;out.originX=origin[0]-left;out.originY=origin[1]-top;out.anchor=[frame.head[0]-top,frame.head[1]-left,frame.head[2]];out.gait=state;out.gaitFrame=k;out.supports=(frame.supports||[]).map(([x,y])=>[x-left,y-top]);out.flight=frame.flight;out.feet=(frame.feet||[]).map(([x,y,floor,height])=>[x-left,y-top,floor-top,height]);
+    if(a.fx){const [,,w,h]=frame.r,m=mk(w,h),mg=m.getContext('2d'),md=mg.createImageData(w,h);for(let i=0;i<raw.mask.length;i+=4)if(Math.round(raw.mask[i]/24)===1){const v=Math.round((raw.color[i]+raw.color[i+1]+raw.color[i+2])/3);md.data[i]=md.data[i+1]=md.data[i+2]=v;md.data[i+3]=raw.color[i+3];}mg.putImageData(md,0,0);out.mask=mk(out.width,out.height);out.mask.getContext('2d').drawImage(m,frame.offset[0]-left,frame.offset[1]-top);out.mask.hr=1;m.width=m.height=0;}
+    out.pendingParts=layers.some(l=>!l.ready);c.width=c.height=bodyImage.width=bodyImage.height=0;return out;
+  }
   function anatomicalFrame(a,row,k,sr){
+    if(AD.painted)return paintedFrame(a,row,k,sr);
     const H=AD.human,combo=H.combos[a.combo],state=row<0?'idle':row<5?'walk':row<10?'run':row===19?'fall':row===20?'hit':row<13?'swing':row<16?'thrust':'cast';
     const frame=state==='idle'?combo.idle[sr]:state==='walk'||state==='run'?combo[state][sr][k%H.frames]:combo[state][sr===0?0:sr>=3?2:1][k%4];
     const c=mk(H.width,H.height),g=c.getContext('2d'),[x,y,w,h]=frame.r,scratch=mk(w,h),q=scratch.getContext('2d');
@@ -221,10 +261,11 @@
     const key = JSON.stringify(a); if (DOLL['s' + key]) return DOLL['s' + key]; if (!dollReady(a)) return null;
     if(AD.human){
       const s={art:1,doll:1,fx:a.fx},look={...a,key:'hero:'+key};
-      const lazy=(row,n,sources=DSRC)=>sources.map(([source,flip])=>{const frames=Array(n);for(let frame=0;frame<n;frame++)Object.defineProperty(frames,frame,{get(){const c=npcFrame(look,{row:row<0?-1:row<10?row+source:row,frame,source});return flip?mirroredHuman(c):c;},enumerable:true});return frames;});
-      s.w8=lazy(0,AD.human.frames);s.r8=lazy(5,AD.human.frames);s.idle8=lazy(-1,1);
-      const ar={swing:10,thrust:13,cast:16}[a.style]||10,attacks=lazy(ar,4,[[0,0],[2,0],[4,0],[2,1]]);[s.af,s.as,s.ab,s.al]=attacks;
-      s.f=s.idle8[0];s.s=s.idle8[6];s.l=s.idle8[2];s.b=s.idle8[4];s.fall=lazy(19,4,[[0,0]])[0];return DOLL['s'+key]=s;
+      const lazy=(row,n,sources=AD.painted?.directions===8?Array.from({length:8},(_,i)=>[i,0]):DSRC)=>sources.map(([source,flip])=>{const frames=Array(n);for(let frame=0;frame<n;frame++)Object.defineProperty(frames,frame,{get(){const c=npcFrame(look,{row:AD.painted?.directions===8?row:row<0?-1:row<10?row+source:row,frame,source});return flip?mirroredHuman(c):c;},enumerable:true});return frames;});
+      const count=(AD.painted||AD.human).frames;s.w8=lazy(0,count);s.r8=lazy(5,count);s.idle8=lazy(-1,1);
+      const ar={swing:10,thrust:13,cast:16}[a.style]||10,attacks=lazy(ar,AD.painted?.actions||4,AD.painted?.directions===8?[[0,0],[6,0],[4,0],[2,0]]:[[0,0],[2,0],[4,0],[2,1]]);[s.af,s.as,s.ab,s.al]=attacks;
+      if(AD.painted){s.attack8=lazy(ar,AD.painted.actions||4);s.recoil8=lazy(20,AD.painted.actions||4);s.block8=lazy(22,AD.painted.actions||4);s.seated8=lazy(23,1);}
+      s.f=s.idle8[0];s.s=s.idle8[6];s.l=s.idle8[2];s.b=s.idle8[4];s.fall=lazy(19,AD.painted?.actions||4,[[0,0]])[0];return DOLL['s'+key]=s;
     }
     const L = dollLayers(a), s = { art: 1, doll: 1, fx: a.fx };
     const dirRow = (row0, n) => { const rows = [0, 1, 2, 3, 4].map(sr => Array.from({ length: n }, (_, k) => dollFrame(a, L, row0 + sr, k, sr))); return DSRC.map(([sr, fl]) => fl ? rows[sr].map(flipC) : rows[sr]); };
@@ -233,8 +274,7 @@
     s.fall = [0, 1, 2, 3].map(k => dollFrame(a, L, 19, k, 0));
     return DOLL['s' + key] = s;
   }
-  // NPCs compose only a visible frame. The five painted directions share
-  // the same cached frame with their mirrored views.
+  // NPCs compose only visible frames; native eight-view equipment preserves handedness.
   const NPC_FRAMES = new Map(), NPC_FRAME_LIMIT = 160, npcRetired = [];
   const HUMAN_MIRRORS=new WeakMap();
   function mirroredHuman(c){let mirror=HUMAN_MIRRORS.get(c);if(!mirror){mirror=flipC(c);HUMAN_MIRRORS.set(c,mirror);}return mirror;}
@@ -244,25 +284,27 @@
     const moving = e.tx != null;
     const still = venueIdleFacing(e,e.npcFacing ?? (e.fs == null || !e.ff ? CARDINAL_D8[e.dir] || 0 : e.flip ? 2 : 6));
     const direction = moving ? NpcAppearance.direction(e.tx - e.fx, e.ty - e.fy, still) : still;
-    if (moving) e.npcFacing = direction;
-    const [source, flip] = DSRC[direction];
-    let row = !moving&&AD.human?-1:source+(moving&&e.npcRun?5:0), frame = moving ? ActorRig.phase(ActorRig.distance(e),!!e.npcRun,AD.human?AD.human.frames:8) : AD.human?0:2;
-    let scale = 1, lean = 0;
+    if (moving) e.npcFacing = direction;e.gaitProfile=paintedProfile(e.npcLook);
+    const [source, flip] = AD.painted?.directions===8?[direction,0]:DSRC[direction];
+    let row = !moving&&AD.human?-1:(AD.painted?.directions===8?0:source)+(moving&&e.npcRun?5:0), frame = moving ? ActorRig.phase(ActorRig.distance(e)/(AD.painted?e.npcLook.height||1:1),!!e.npcRun,(AD.painted||AD.human)?.frames||8,paintedProfile(e.npcLook)) : AD.human?0:2;
+    let scale = AD.painted?e.npcLook.height||1:1, lean = 0;
+    if(AD.painted){if(e.dead)return{direction,row:19,frame:Math.min((AD.painted.actions||4)-1,Math.floor((performance.now()-(e.fallenAt||0))/450*(AD.painted.actions||4))),source,flip,scale,lean};if(e.react&&e.react.until>performance.now())return{direction,row:e.react.row,frame:Math.min((AD.painted.actions||4)-1,Math.floor((1-(e.react.until-performance.now())/e.react.duration)*(AD.painted.actions||4))),source,flip,scale,lean};if(e.attack&&e.attack.until>performance.now())return{direction,row:e.attack.row,frame:Math.min((AD.painted.actions||4)-1,Math.floor((1-(e.attack.until-performance.now())/e.attack.duration)*(AD.painted.actions||4))),source,flip,scale,lean};if(e.venueSeated&&!moving)row=23;}
     if (!moving && e.fs != null && e.ff >= 2 && e.ff <= 5) {
       const attack = { swing: 10, thrust: 13, cast: 16 }[e.npcLook.style];
-      row = attack + (source === 0 ? 0 : source >= 3 ? 2 : 1);
-      frame = e.ff - 2;
-      return { direction, row, frame, source: source === 0 ? 0 : source >= 3 ? 4 : 2, flip, scale, lean };
+      row = attack + (AD.painted?.directions===8?0:source === 0 ? 0 : source >= 3 ? 2 : 1);
+      const progress=e.ffPose?.frame===e.ff?clamp((performance.now()-e.ffPose.at)/e.ffPose.hold,0,.999999):0;frame = AD.painted?Math.min((AD.painted.actions||4)-1,Math.floor((e.ff-2+progress)/4*(AD.painted.actions||4))):e.ff-2;
+      return { direction, row, frame, source: AD.painted?source:source === 0 ? 0 : source >= 3 ? 4 : 2, flip, scale, lean };
     }
-    if (!moving && e.fs != null && e.ff === 6) lean = flip ? 2 : -2;
-    if (!moving && e.fs != null && e.ff === 7) { if(AD.human){row=20;frame=2;}else{scale=.94;row+=5;frame=3;} }
+    if (!moving && e.fs != null && e.ff === 6){lean=flip?2:-2;if(AD.painted){row=22;frame=Math.floor((AD.painted.actions||4)/2);}}
+    if (!moving && e.fs != null && e.ff === 7) { if(AD.human){row=20;frame=Math.floor((AD.painted?.actions||4)/2);}else{scale=.94;row+=5;frame=3;} }
     return { direction, row, frame, source, flip, scale, lean };
   }
   function npcFrame(a, { row, frame, source }) {
-    if (!dollReady(a)) return null;
     const key = [a.key, row, frame, source].join('|'), cached = NPC_FRAMES.get(key);
     if (cached) { NPC_FRAMES.delete(key); NPC_FRAMES.set(key, cached); return cached; }
-    if(AD.human){const image=anatomicalFrame(a,row,frame,source);NPC_FRAMES.set(key,image);retireNpcFrames();return image;}
+    if(!dollReady(a))return null;
+    if(AD.painted&&!paintedAsset(paintedBody(a).states[PaintedCharacterView.state(a,row)].file).ok)return row<0?null:npcFrame(a,{row:-1,frame:0,source});
+    if(AD.human){const image=anatomicalFrame(a,row,frame,source);if(image.pendingParts){if(drawingNpcFrames)npcRetired.push(image);return image;}NPC_FRAMES.set(key,image);retireNpcFrames();return image;}
     const cloth = hexRGB(a.cloth), head = IMG['hb/hair.webp'].im;
     const L = {
       profiles:bodyProfiles(a.combo),
@@ -294,7 +336,7 @@
   }
   function releaseHumanFrame(canvas){const mirror=HUMAN_MIRRORS.get(canvas);if(mirror){if(mirror.mask)mirror.mask.width=mirror.mask.height=0;mirror.width=mirror.height=0;}if(canvas.mask)canvas.mask.width=canvas.mask.height=0;canvas.width=canvas.height=0;}
   function npcDraw(e, bx, by, sort, list) {
-    const pose = npcPose(e), sourceImage = npcFrame(e.npcLook, pose), image=e.venueSeated&&sourceImage?venueSeatedFrame(sourceImage):sourceImage;
+    const pose = npcPose(e), sourceImage = npcFrame(e.npcLook, pose), image=!AD.painted&&e.venueSeated&&sourceImage?venueSeatedFrame(sourceImage):sourceImage;
     if (!image) return false;
     const { scale, flip, lean } = pose;
     const bounds=actorBounds(image),anchor=image.anchor||ActorRig.pose(AD.body,e.npcLook.combo,pose.row,pose.frame,bodyProfiles(e.npcLook.combo)).anchor;
@@ -339,12 +381,15 @@
     26: [100, 92, -.83, 164], // longbow
     27: [43, 35, 1.52, 128],  // crossbow
   };
+  const CARRY_BOUNDS=new Map();
+  function carryBounds(item){if(CARRY_BOUNDS.has(item))return CARRY_BOUNDS.get(item);const W=AD.body.wx[item],c=mk(W[2],W[3]),g=c.getContext('2d');g.drawImage(IMG['hb/wx.webp'].im,...W.slice(0,4),0,0,c.width,c.height);const b=actorBounds(c),bounds=[b.left,b.top,b.right+1,b.bottom+1];CARRY_BOUNDS.set(item,bounds);c.width=c.height=0;return bounds;}
   function paintHeld(g, body, item, hand, side, glow, material) {
     const W = AD.body.wx[item], pose = DOLL_CARRY[item];
     if (!W || !pose) return;
-    const [gx, gy, angle, length, tuck = 0] = pose, [x, y] = hand, f = length / Math.max(W[2], W[3]);
+    const [gx, gy, carryAngle, length, tuck = 0] = pose, [x, y] = hand,angle=body.painted&&item===2?2.14:carryAngle,desired=length/Math.max(W[2],W[3]),placement=body.painted?PaintedCharacterView.fitCarry(carryBounds(item),[gx,gy],[x-side*tuck,y],angle,desired,side<0):{scale:desired,flip:false},f=placement.scale;
     g.save();
     g.translate(x - side * tuck, y);
+    if(placement.flip)g.scale(-1,1);
     g.rotate(angle);
     if (glow) { g.shadowColor = glow; g.shadowBlur = 7; }
     g.drawImage(equipmentImage(material), W[0], W[1], W[2], W[3], -gx * f, -gy * f, W[2] * f, W[3] * f);
@@ -368,15 +413,34 @@
     const W = AD.body.wx[item];
     if (!W) return;
     if (DOLL_CARRY[item]) {
-      paintHeld(g, body, item, hand, -1,null,material);
+      paintHeld(g, body, item, hand, body.painted?(item===24?-1:hand[0]>150?-1:1):-1,null,material);
     } else if (item >= 20 && item <= 22) {
       // The shield face sits in front of the hand and lower forearm.
       const f = (item === 22 ? 84 : 108) / W[3], w = W[2] * f, h = W[3] * f;
-      g.drawImage(equipmentImage(material), W[0], W[1], W[2], W[3], hand[0] - 4 - w / 2, hand[1] + 6 - h / 2, w, h);
+      g.drawImage(equipmentImage(material), W[0], W[1], W[2], W[3], hand[0] + (body.painted?8:-4) - w / 2, hand[1] + 6 - h / 2, w, h);
     }
   }
   const DOLL_PAINT = new WeakMap();
+  const PAINTED_DOLLS=new Map();
+  function drawPaintedDoll(cv,a){
+    const body=paintedBody(a),pd=body?.doll;if(!pd)return false;const entry=paintedAsset(pd.file),sex=body.sex,layers=PaintedCharacterView.slotSources(a).map(slot=>({...slot,pd:paintedSlotBank(slot).doll,entry:paintedAsset(paintedSlotBank(slot).doll.file)}));
+    if(!entry.ok||layers.some(l=>!l.entry.ok)||!HeadPortraits.ready(sex)||!PaintedGear.ready()){
+      if(DOLL_PAINT.get(cv)?.a===a)return false;const request={a};DOLL_PAINT.set(cv,request);
+      Promise.all([entry.p,...layers.map(l=>l.entry.p),HeadPortraits.preload(sex),PaintedGear.preload()]).then(ok=>{if(ok.every(Boolean)&&cv.isConnected&&DOLL_PAINT.get(cv)===request){DOLL_PAINT.delete(cv);drawPaintedDoll(cv,a);}});return false;
+    }
+    DOLL_PAINT.delete(cv);const key=[pd.file,CharacterProfiles.index(a),a.cloth,a.skin,a.metal,a.armorMaterial?.id,a.handMaterial?.id,a.footMaterial?.id,a.cloakMaterial?.id,a.gear?.hands,a.gear?.feet,a.gear?.cloak,!!a.fx].join('|');let image=PAINTED_DOLLS.get(key);
+    if(!image){
+      image=mk(300,450);image.painted=1;const q=image.getContext('2d'),frame={r:[0,0,300,450],m:[0,450,300,450]},covered=new Set(layers.filter(l=>l.id!==10).map(l=>l.id)),base=paintedLayer(pd.file,frame,a,null,covered);q.drawImage(base,0,0);base.width=base.height=0;
+      for(const layer of layers){const im=paintedLayer(layer.pd.file,{r:[0,0,300,450],m:[0,450,300,450]},paintedLayerLook(a,layer),layer.id);q.drawImage(im,0,0);im.width=im.height=0;}
+      if(a.fx){const raw=paintedPixels(pd.file,frame),m=mk(300,450),mg=m.getContext('2d'),d=mg.createImageData(300,450);for(let i=0;i<d.data.length;i+=4)if(Math.round(raw.mask[i]/24)===1){const v=Math.round((raw.color[i]+raw.color[i+1]+raw.color[i+2])/3);d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=raw.color[i+3];}mg.putImageData(d,0,0);image.mask=m;}
+      PAINTED_DOLLS.set(key,image);if(PAINTED_DOLLS.size>24)PAINTED_DOLLS.delete(PAINTED_DOLLS.keys().next().value);
+    }
+    const g=cv.getContext('2d'),scale=Math.min(cv.width/300,cv.height/450);g.clearRect(0,0,cv.width,cv.height);g.save();g.translate((cv.width-300*scale)/2,(cv.height-450*scale)/2);g.scale(scale,scale);
+    PaintedGear.drawPaper(g,a,pd,{layer:'back'});g.drawImage(image,0,0);if(a.fx&&image.mask)dollFx(g,a.fx,image.mask,0,0,300,450,false,performance.now());paintedHead(g,a,pd,sex,0,true);PaintedGear.drawPaper(g,a,pd,{layer:'front'});
+    for(const side of (a.wpn>=0?[a.wpn===25||a.wpn===26?'leftPalm':'rightPalm']:[]).concat(a.gear?.shield==='off-orb'||a.gear?.shield==='off-book'?['leftPalm']:[])){if(!pd.sockets?.[side])continue;g.save();g.beginPath();g.arc(...pd.sockets[side].p,8,0,Math.PI*2);g.clip();g.drawImage(image,0,0);g.restore();}g.restore();return true;
+  }
   function drawDoll(cv, a) {
+    if(AD?.painted&&a)return drawPaintedDoll(cv,a);
     const B = AD && AD.body, hands = a && DOLL_HANDS[a.combo - 1], pd = B && a && B.pd[a.combo];
     if (!pd || !hands) return false;
     const headBody=Math.floor((a.combo-1)/5),headStyle=HeadPortraits.styles(headBody).find(p=>p.id===a.headStyle)?.id||HeadPortraits.match(headBody,a.hair,a.beard);
@@ -416,9 +480,9 @@
   }
   function previewHuman(canvas,a,direction,movingTime,running=false){
     const sprite=dollSprite(a);if(!sprite)return false;
-    const moving=Number.isFinite(movingTime),distance=moving?movingTime/1000*ActorRig.speed(running):0,frame=moving?ActorRig.phase(distance,running,AD.human?AD.human.frames:8):2;
+    const moving=Number.isFinite(movingTime),distance=moving?movingTime/1000*ActorRig.speed(running):0,frame=moving?ActorRig.phase(distance,running,(AD.painted||AD.human)?.frames||8,paintedProfile(a)):2;
     const image=!moving&&sprite.idle8?sprite.idle8[(direction||0)%8][0]:(running?sprite.r8:sprite.w8)[(direction||0)%8][frame],g=canvas.getContext('2d');
-    g.clearRect(0,0,canvas.width,canvas.height);g.imageSmoothingEnabled=true;
+    if(!image)return false;g.clearRect(0,0,canvas.width,canvas.height);g.imageSmoothingEnabled=true;
     const size=Math.min(canvas.width,canvas.height)*.95;
     if(image.originX!=null){const scale=size/80;g.drawImage(image,canvas.width/2-image.originX*scale,canvas.height-5-image.originY*scale,image.width*scale,image.height*scale);}else g.drawImage(image,(canvas.width-size)/2,canvas.height-size,size,size);return true;
   }
@@ -468,7 +532,7 @@
     world=null;map=null;P=null;lastPlace='';near=null;labelTargets=[];GUIDE=null;GHOST=null;
     parts=[];flies=[];anims=[];floats=[];slashes=[];shots=[];bars=[];
   }
-  function heroArt() { const ap = host.app && host.app(); if (ap && AD && AD.body) { const d = dollSprite(ap); if (d) return d; } const s = heroSprite(), C = AD && AD.chars; if (s && s.art && C && C.atk) { if (!IMG['atk.webp']) img('atk.webp'); if (have('atk.webp')) { const lk = host.look(), aw = C.aw || C.cw, row = i => [0, 1, 2, 3].map(f => cut('atk.webp', (i * 4 + f) * aw, lk * C.ch, aw, C.ch)); s.af = row(0); s.al = row(1); s.as = row(2); s.ab = row(3); } }
+  function heroArt() { const ap = host.app && host.app(); if (ap && AD && AD.body) { const d = dollSprite(ap); if (d) return d;if(AD.painted)return null; } const s = heroSprite(), C = AD && AD.chars; if (s && s.art && C && C.atk) { if (!IMG['atk.webp']) img('atk.webp'); if (have('atk.webp')) { const lk = host.look(), aw = C.aw || C.cw, row = i => [0, 1, 2, 3].map(f => cut('atk.webp', (i * 4 + f) * aw, lk * C.ch, aw, C.ch)); s.af = row(0); s.al = row(1); s.as = row(2); s.ab = row(3); } }
     if (s && s.art && C && C.diag) { if (!IMG['diag.webp']) img('diag.webp'); if (have('diag.webp')) { const lk = host.look(), row = i => [0, 1, 2, 3].map(f => cut('diag.webp', (i * 4 + f) * C.cw, lk * C.ch, C.cw, C.ch)); s.dl = row(0); s.dr = row(1); s.ul = row(2); s.ur = row(3); } }   // the four diagonals, once that sheet is packed
     if (s && s.art && C && C.w8) { const lk = host.look(), f = 'w8/L' + lk + '.webp'; if (C.w8[lk]) { if (!IMG[f]) img(f); if (have(f)) { const W8 = C.w8[lk], n = W8.n || 4, dir = (d, o) => Array.from({ length: n }, (_, k) => cut(f, (o + k) * W8.cw, d * W8.ch, W8.cw, W8.ch)); s.w8 = [0, 1, 2, 3, 4, 5, 6, 7].map(d => dir(d, 0)); s.r8 = [0, 1, 2, 3, 4, 5, 6, 7].map(d => dir(d, n)); } } }   // walk and run in eight directions
     return s; }
@@ -1081,7 +1145,7 @@
 
   /* ---------- drawing ---------- */
   const OBJK = [null, 'tree0', 'tree1', 'tree2', 'rock0', 'rock1', 'bush', 'flowers', null, null, 'bones'];
-  function draw() { if (P && host.app) { const ak = artVer + JSON.stringify(host.app()); if (P.sv !== ak) { P.sv = ak; P.spr = heroArt(); } }
+  function draw() { if (P && host.app) { const ak = artVer + JSON.stringify(host.app()); if (P.sv !== ak) { P.sv = ak;P.gaitProfile=paintedProfile(host.app()); P.spr = heroArt(); } }
     WORLD_BUILDING_CACHE.beginFrame();
     try {
     const g = cx, vv = Math.max(60, vh - inset / zoom), now = performance.now();
@@ -1123,12 +1187,13 @@
     const fr = (now / 260 | 0) % 2;
     const ent = (e, me) => {
       const bx = (e.fx + (e.ax || 0)) * T + 8, by = (e.fy + (e.ay || 0)) * T + 15; if (e.kind === 'fish') { if (AD && AD.fx2) { const tt = now + e.x * 400 + e.y * 130, cyc = tt % 6400, jump = cyc > 5800, a2 = artFx2(jump ? 1 : 0, jump ? Math.min(3, (cyc - 5800) / 150 | 0) : (tt / 240 | 0) % 4); if (a2) { const k = jump ? .62 : .55; list.push([by - 30, a2, bx - lw(a2) * k / 2, by - 8 - lh(a2) * k / 2 - (jump ? 3 : 0), false, k]); return; } } const rp = ripple(now + e.x * 400); list.push([by - 30, rp, bx - rp.width / 2, by - 13]); return; } if (e.obj?.c) { const sc=e.objectScale||1; list.push([by, e.obj.c, bx - e.obj.ax*sc, by - e.obj.ay*sc + 1, false, sc]); return; }
-      if (e.npcLook && !e.dead && npcDraw(e, bx, by, by + (bars.some(b => b.e === e) ? 4000 : 0), list)) return;
+      if(e.npcLook){npcDraw(e,bx,by,by+(bars.some(b=>b.e===e)?4000:0),list);return;}
       if (e.fs != null) { const c = fsCut(e.fs, e.ff | 0); if (c) list.push([by, c, bx - lw(c) / 2 + (e.ox || 0), by - lh(c) + 2, !!e.flip]); else if (e.spr) list.push([by, (e.spr.f || e.spr)[0], bx - 8, by - 15]); return; }
       if (!e.spr) return;
-      const s = e.spr, moving = me ? (P.moving||P.path.length) && !locked : e.tx != null, left = e.dir === 'l', fl = me && s.w8 && !(P.atk > 0) ? (P.run && moving && s.r8 ? s.r8 : s.w8)[P.d8 || 0] : me && P.dg && s[P.dg] && !(P.atk > 0) ? s[P.dg] : left && s.l ? s.l : s[left ? 's' : (e.dir || 'f')], f = s.beast ? fr : (moving ? (me && s.w8 && !(P.atk > 0) ? ActorRig.phase(ActorRig.distance(P),P.run,fl.length) : ((me ? P.walk : e.walk) | 0) % fl.length) : me && s.w8 && fl.length === 8 ? 2 : 0), ak = me && P.atk > 0 && s.af ? s['a' + (left ? 'l' : (e.dir || 'f'))] : null, baseImage = ak ? ak[Math.min(3, Math.floor((1 - P.atk / .3) * 4))] : me && !moving && s.idle8 ? s.idle8[P.d8 || 0][0] : fl[f], im = me && host.mounted&&host.mounted()?MountView.frame(s.idle8?s.idle8[P.d8||0][0]:baseImage,{direction:P.d8||0,distance:P.wd||0,moving,running:P.run})||baseImage:me && map.ship && map.ship.phase === 'rescue' && map.ship.time < 3.7 ? shipWaterFrame(baseImage) : baseImage, sc = e.big && !s.art ? 2 : s.msc || 1;
+      const s = e.spr, moving = me ? (P.moving||P.path.length) && !locked : e.tx != null, left = e.dir === 'l', fl = me && s.w8 && !(P.atk > 0) ? (P.run && moving && s.r8 ? s.r8 : s.w8)[P.d8 || 0] : me && P.dg && s[P.dg] && !(P.atk > 0) ? s[P.dg] : left && s.l ? s.l : s[left ? 's' : (e.dir || 'f')], f = s.beast ? fr : (moving ? (me && s.w8 && !(P.atk > 0) ? ActorRig.phase(ActorRig.distance(P),P.run,fl.length,P.gaitProfile) : ((me ? P.walk : e.walk) | 0) % fl.length) : me && s.w8 && fl.length === 8 ? 2 : 0), ak = me && P.atk > 0 && s.af ? s.attack8?s.attack8[P.d8||0]:s['a' + (left ? 'l' : (e.dir || 'f'))] : null, reaction=me&&P.react&&P.react.until>performance.now()?(P.react.row===22?s.block8:s.recoil8)?.[P.d8||0]:null, baseImage = reaction?reaction[Math.min(reaction.length-1,Math.floor((1-(P.react.until-performance.now())/P.react.duration)*reaction.length))]:ak ? ak[Math.min(ak.length-1,Math.floor((1-P.atk/(P.atkDuration||.3))*ak.length))] : me && !moving && s.idle8 ? s.idle8[P.d8 || 0][0] : fl[f], im = me && baseImage && host.mounted&&host.mounted()?MountView.frame((s.idle8?s.idle8[P.d8||0][0]:null)||baseImage,{direction:P.d8||0,distance:P.wd||0,moving,running:P.run})||baseImage:me && baseImage && map.ship && map.ship.phase === 'rescue' && map.ship.time < 3.7 ? shipWaterFrame(baseImage) : baseImage, sc = e.big && !s.art ? 2 : s.msc || 1;
+      if(!im)return;
       if (e.dead) { const da = artDead(e.inst ? (e.inst.art || e.inst.tpl) : e.tpl); if (da) { const ds = s.msc || 1; list.push([by - 8, da, bx - lw(da) * ds / 2, by - lh(da) * ds + 3, false, ds, 0, e.dying != null ? Math.max(0, e.dying) : 1]); return; } const di = (s.s || s.f)[0]; list.push([by - 8, di, bx - lw(di) * sc / 2, by - lh(di) * sc + 1, false, sc, 0, e.dying != null ? Math.max(0, e.dying) : 1, 1]); return; }
-      const flip = me && s.w8 && !(P.atk > 0) ? false : s.left ? (e.dir === 's' && !e.flip) : ((left && !s.l) || e.flip), bob = s.bob ? (moving && !(e.inst && FLY[e.inst.tpl]) ? -Math.round(Math.abs(Math.sin(now / 105 + e.x)) * 3) / K : Math.round(Math.sin(now / 320 + e.x * 2) * 2) / K) : (s.one && moving ? Math.round(Math.abs(Math.sin(now / 90)) * 3) / K : 0);
+      const flip = me && s.w8 && (!(P.atk > 0)||s.attack8) ? false : s.left ? (e.dir === 's' && !e.flip) : ((left && !s.l) || e.flip), bob = s.bob ? (moving && !(e.inst && FLY[e.inst.tpl]) ? -Math.round(Math.abs(Math.sin(now / 105 + e.x)) * 3) / K : Math.round(Math.sin(now / 320 + e.x * 2) * 2) / K) : (s.one && moving ? Math.round(Math.abs(Math.sin(now / 90)) * 3) / K : 0);
       list.push([(me ? worldHeroSort(by) : by) + (bars.length && (me || bars.some(b => b.e === e)) ? 4000 : 0), im, bx - (im.originX != null ? im.originX/K : lw(im)/2) * sc, by - (im.originY != null ? im.originY/K : lh(im)) * sc + (s.art ? 1 : 2 + (s.beast ? 3 * sc : 0)) + (s.one && moving ? -bob : bob), flip, sc, e.flash > 0 ? 1 : 0, e.dying != null ? Math.max(0, e.dying) : me && host.visibility && host.visibility().hidden ? .45 : 1, 0, me && s.fx && im.mask ? s.fx : null]);
     };
     drawingNpcFrames = true;
@@ -1361,7 +1426,7 @@
   }
   function guideOff() { const m = world; if (!m || !GUIDE) return; const k = GUIDE.y * m.w + GUIDE.x; if (m.occ.get(k) === GUIDE) m.occ.delete(k); const i = m.ents.indexOf(GUIDE); if (i >= 0) m.ents.splice(i, 1); GUIDE = null; }
   function remains(x, y, loot, secs, name) { if (!map) return null; const e = { kind: 'corpse', x, y, fx: x, fy: y, r: map.dungeon ? map.r : (map.reg[y * map.w + x] || 1), dead: 1, mine: 1, name: name || 'Your body', sub: 'What you were carrying', loot, decay: secs, spr: heroArt(), solid: 0 }; map.ents.push(e); return e; }
-  function corpse(e, loot) { if (!map || !e) return; slashes.push({ x: e.x, y: e.y, t: 0, row: 3, f: 1, d: .55, rise: .3 }); { const o = e.y * map.w + e.x; if (map.occ.get(o) === e) map.occ.delete(o); } e.solid = 0; e.kind = 'corpse'; e.dead = 1; e.wander = 0; e.busy = 0; e.alert = 0; e.agg = 0; e.hunt = 0; e.tx = null; e.fx = e.x; e.fy = e.y; e.loot = loot; e.decay = 300; e.sub = 'Body'; e.name += ', dead'; e.flash = 0; e.ax = e.ay = 0; if (e.terr) (map.respawn = map.respawn || []).push({ t: respT(e.terr), node: false, terr: e.terr }); }
+  function corpse(e, loot) { if (!map || !e) return; slashes.push({ x: e.x, y: e.y, t: 0, row: 3, f: 1, d: .55, rise: .3 }); { const o = e.y * map.w + e.x; if (map.occ.get(o) === e) map.occ.delete(o); } e.solid = 0; e.kind = 'corpse'; e.dead = 1; e.fallenAt=performance.now();e.wander = 0; e.busy = 0; e.alert = 0; e.agg = 0; e.hunt = 0; e.tx = null; e.fx = e.x; e.fy = e.y; e.loot = loot; e.decay = 300; e.sub = 'Body'; e.name += ', dead'; e.flash = 0; e.ax = e.ay = 0; if (e.terr) (map.respawn = map.respawn || []).push({ t: respT(e.terr), node: false, terr: e.terr }); }
   function refresh() { if (!map) return; if(map.dungeonFloor && host.dungeonState)dungeonApply(map,host.dungeonState()); if (P) P.spr = heroArt(); for (const e of map.ents) if (e.kind === 'cache' && e.ok === 'chest' && host.cacheOpen(e.cid)) { e.ok = 'chestopen'; e.obj = null; e.sv = -1; } const c = map.ents.find(e => e.kind === 'chest'); if (c && host.chestOpen()) { c.ok = 'chestopen'; c.obj = spr('chestopen', c.r); c.sub = 'Open'; } }
   function resume() { size(); if (!map || running) { if (map) draw(); return; } running = true; last = performance.now(); if (!raf) raf = requestAnimationFrame(loop); }
   function pause() { running = false; clearSceneControls(); }
@@ -1385,7 +1450,8 @@
     });
   }
   function landHit(b, txt, col, style) {
-    const B = who(b); if (!B) return; const text = String(txt), healing = text[0] === '+', miss = text === 'miss' || text === '0';
+    const B = who(b); if (!B) return; const text = String(txt), healing = text[0] === '+',blocked=text==='block',miss = text === 'miss' || text === '0'||blocked;
+    if(AD?.painted&&!healing&&(blocked||!miss))B.react={row:blocked?22:20,duration:blocked?240:180,until:performance.now()+(blocked?240:180)};
     if (!healing) emit(miss ? 'miss' : style ? 'spellHit' : b === 'me' ? 'hurt' : 'hit', style);
     if (!miss && !healing) {
       B.flash = .16; if (!style) slashes.push(b === 'me' ? { x: B.fx, y: B.fy, t: 0, row: 3, f: 2, d: .3 } : { x: B.fx, y: B.fy, t: 0, row: 1 });
@@ -1399,7 +1465,7 @@
     face(e) { const dx = e.x - P.x, dy = e.y - P.y; P.dg = null; P.d8 = D8(Math.sign(dx), Math.sign(dy)); P.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 's' : 'l') : (dy > 0 ? 'f' : 'b'); e.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'l' : 's') : (dy > 0 ? 'b' : 'f'); if (e.npcLook) e.npcFacing = NpcAppearance.direction(-dx, -dy, e.npcFacing); e.busy = 1; e.tx = null; e.fx = e.x; e.fy = e.y; },
     free(e) { if (e) e.busy = 0; },
     swing(a, b, kind, style) {
-      const A = who(a), B = who(b); if (!A || !B) return; if (a === 'me') P.atk = .3;
+      const A = who(a), B = who(b); if (!A || !B) return; if (a === 'me'){P.atkDuration=AD?.painted?.actions===12 ? .5 : .3;P.atk=P.atkDuration;}else if(AD?.painted&&A.npcLook){const row=kind==='spell'?16:({swing:10,thrust:13,cast:16}[A.npcLook.style]||10);A.attack={row,duration:500,until:performance.now()+500};const bank=paintedBody(A.npcLook).states[PaintedCharacterView.state(A.npcLook,row)];paintedAsset(bank.file);}
       const dx = B.fx - A.fx, dy = B.fy - A.fy, d = Math.hypot(dx, dy) || 1;
       if (kind === 'spell') {
         if (a !== 'me') emit('creature', Effects.creature(A.name));
@@ -1429,6 +1495,6 @@
     enterVenue, exitVenue, venueState, restoreVenue, inInterior: () => !!(map && map.venue), outdoors:()=>!!(P&&map===world&&!world.blds.some(b=>b.enter&&buildingContains(b,P.x,P.y))), venues: () => world && world.venues ? Array.from(world.venues.values()) : [],
     traveling: () => !!(P && (P.moving||P.path.length)),
     cartographyCatalogue, cartographyBounds, cartographyRoute, cartographyGuide, cartographyMap, cartographyAtlas, cartographyInsideHome, cartographySign,
-    pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon && !map.ship), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ landscape: {piece:landscapePiece,entry:landscapeEntry,actors:landscapeActors,images:LANDSCAPE_IMAGES}, buildingCache: WORLD_BUILDING_CACHE.stats, map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, groundKinds, paintGround, humanSprite:dollSprite, bldSpr, effects: { shots, slashes, floats }, interactionDistance, interactionTarget: near, labels: labelTargets, advanceEffects, draw, npcPose, npcFrame, npcCache: () => ({ frames: NPC_FRAMES.size, limit: NPC_FRAME_LIMIT, materials:HUMAN_PIXELS.size, materialLimit:HUMAN_PIXEL_LIMIT }) }),
+    pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon && !map.ship), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ landscape: {piece:landscapePiece,entry:landscapeEntry,actors:landscapeActors,images:LANDSCAPE_IMAGES}, buildingCache: WORLD_BUILDING_CACHE.stats, map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, groundKinds, paintGround, humanSprite:dollSprite, bldSpr, effects: { shots, slashes, floats }, interactionDistance, interactionTarget: near, labels: labelTargets, advanceEffects, draw, npcPose, npcFrame, npcCache: () => ({ frames: NPC_FRAMES.size, limit: NPC_FRAME_LIMIT, materials:AD.painted?PAINTED_PIXELS.size:HUMAN_PIXELS.size, materialLimit:AD.painted?PAINTED_PIXEL_LIMIT:HUMAN_PIXEL_LIMIT,assetBytes:[...PAINTED_ASSETS.values()].reduce((a,b)=>a+b,0),assetLimit:PAINTED_ASSET_LIMIT }) }),
     warp(x, y) { load([x, y]); }, hop(x, y) { go(map, x, y); }, guidePut, guideOff, guideEnt: () => GUIDE, drawDoll,equipmentIcon, dollKey: () => artVer, enterHall, inHall: () => map && map.hall ? map.r : 0, hallAdd: o => map ? addEnt(map, Object.assign({ r: map.r }, o)) : null, hallMove: (e, x, y) => { if (!map || !e) return; const k = e.y * map.w + e.x; if (map.occ.get(k) === e) map.occ.delete(k); e.x = e.fx = x; e.y = e.fy = y; e.tx = null; map.occ.set(y * map.w + x, e); }, ents: () => map ? map.ents : [], fsReady: () => !!(AD && AD.dojo && (IMG['dj/fs.webp'] || img('dj/fs.webp')) && have('dj/fs.webp')) };
 })();

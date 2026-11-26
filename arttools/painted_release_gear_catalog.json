@@ -1,0 +1,184 @@
+{
+  "blades": {
+    "grid": [
+      4,
+      3
+    ],
+    "items": [
+      "w0|Short Sword|grip|.63",
+      "w1|Longsword|grip|.86",
+      "w2|Greatsword|two|1.05",
+      "w3|Broad Axe|grip|.64",
+      "w4|Battle Axe|two|.86",
+      "w5|Flanged Mace|grip|.67",
+      "w6|War Hammer|two|.89",
+      "w7|Spear|two|1.24",
+      "w14|Dagger|grip|.32",
+      "w15|Curved Blade|grip|.63",
+      "w16|Throwing Knives|grip|.25",
+      "w13|Wand|grip|.35"
+    ]
+  },
+  "ranged": {
+    "grid": [
+      4,
+      3
+    ],
+    "items": [
+      "w25|Short Bow|bow|.76",
+      "w26|Longbow|bow|.96",
+      "w27|Crossbow|crossbow|.70",
+      "w8|Quarterstaff|staff|1.23",
+      "w9|Oak Staff|staff|1.15",
+      "w10|Crystal Staff|staff|1.17",
+      "w11|Bone Staff|staff|1.16",
+      "w12|Iron Staff|staff|1.16",
+      "shield-wooden|Wooden Shield|shield|.54",
+      "shield-iron|Iron Shield|shield|.49",
+      "shield-kite|Kite Shield|shield|.69",
+      "shield-tower|Tower Shield|shield|.84"
+    ]
+  },
+  "headfront": {
+    "grid": [
+      3,
+      2
+    ],
+    "items": [
+      "head-0|Leather Cap|head",
+      "head-1|Mail Coif|head",
+      "head-2|Steel Helm|head",
+      "head-3|Cloth Hood|head",
+      "head-4|Wizard’s Hat|head",
+      "head-5|Silver Circlet|head"
+    ]
+  },
+  "wearables": {
+    "grid": [
+      4,
+      4
+    ],
+    "items": [
+      "hands-leather|Leather Gloves",
+      "hands-thief|Thief’s Gloves",
+      "hands-plated|Plated Gauntlets",
+      "hands-gilded|Gilded Gauntlets",
+      "feet-leather|Leather Boots",
+      "feet-riding|Riding Boots",
+      "feet-steel|Steel Sabatons",
+      "feet-gilded|Gilded Sabatons",
+      "cloak-wool|Wool Cloak|wardrobe",
+      "cloak-travelling|Travelling Cloak|wardrobe",
+      "cloak-silk|Silk Cloak|wardrobe",
+      "cloak-royal|Royal Cloak|wardrobe",
+      "ring-garnet|Garnet Ring|ring|.04",
+      "ring-sapphire|Sapphire Ring|ring|.04",
+      "ring-emerald|Emerald Ring|ring|.04",
+      "ring-moonstone|Moonstone Ring|ring|.04"
+    ]
+  },
+  "ornaments": {
+    "grid": [
+      4,
+      4
+    ],
+    "items": [
+      "charm-sun|Sun Amulet|neck|.18",
+      "charm-star|Star Amulet|neck|.18",
+      "charm-leaf|Leaf Amulet|neck|.18",
+      "charm-moon|Moon Amulet|neck|.18",
+      "off-orb|Glass Orb|orb|.22",
+      "off-book|Spellbook|book|.31",
+      "dojo-1|Coyle’s Anchor Belt|waist|.35",
+      "dojo-2|Reed-Woven Wraps|wrist|.16",
+      "dojo-3|The Counting Ring|ring|.05",
+      "dojo-4|Harrow’s Red Sash|waist|.37",
+      "dojo-5|Corrigan’s Gauntlets|hands|.18",
+      "dojo-6|Dunn’s Blue Crystal|neck|.14",
+      "dojo-7|The Snowflake Clasp|pin|.07",
+      "dojo-8|Gale’s Laurel|laurel|.23",
+      "relic-u_b1|Examiner's Monocle|monocle|.055",
+      "relic-u_b2|Wraithbane Ring|ring|.04"
+    ]
+  },
+  "relicfirst": {
+    "grid": [
+      4,
+      3
+    ],
+    "items": [
+      "relic-u_b3|Hydra-Tooth Charm|neck|.14",
+      "relic-u_b4|Kraken-Hide Cloak|wardrobe",
+      "relic-u_b5|Warden's Mainspring|hip|.12",
+      "relic-u_b6|The Lich's Phylactery|ring|.05",
+      "relic-u_b7|Sphinx-Feather Quill",
+      "relic-u_b8|The Council's Seal|pin|.13",
+      "relic-u_r1|Tidewater Quill",
+      "relic-u_r2|Fenlight Charm|neck|.13",
+      "relic-u_r3|Shepherd's Ring|ring|.05",
+      "relic-u_r4|Roadwarden's Mantle|wardrobe",
+      "relic-u_r5|Tome of True Measures",
+      "relic-u_r6|Kell Key Ring|hip|.16"
+    ]
+  },
+  "relicsecond": {
+    "grid": [
+      4,
+      3
+    ],
+    "items": [
+      "relic-u_r7|Spire-Glass Lens|neck|.13",
+      "relic-u_r8|Scrivener's Mantle|wardrobe",
+      "relic-u_w1|Barnacled Inkwell",
+      "relic-u_w2|Bog-Iron Signet|ring|.05",
+      "relic-u_w3|Tallowlight Candle",
+      "relic-u_w4|Waystone Quill",
+      "relic-u_w5|Cinderglass Lens|neck|.13",
+      "relic-u_w6|Gravedust Tome",
+      "relic-u_w7|Stormcaller's Cloak|wardrobe",
+      "relic-u_w8|Quill of the First Scribe",
+      "armor-leather|Leather Jerkin",
+      "armor-chain|Chain Shirt"
+    ]
+  },
+  "extras": {
+    "grid": [
+      2,
+      2
+    ],
+    "items": [
+      "armor-plate|Plate Cuirass",
+      "armor-knight|Knight’s Plate",
+      "armor-robe|Travelling Robe",
+      "armor-tunic|Tunic"
+    ]
+  },
+  "headside": {
+    "grid": [
+      3,
+      2
+    ],
+    "items": [
+      "head-0-side|Leather Cap|head",
+      "head-1-side|Mail Coif|head",
+      "head-2-side|Steel Helm|head",
+      "head-3-side|Cloth Hood|head",
+      "head-4-side|Wizard’s Hat|head",
+      "head-5-side|Silver Circlet|head"
+    ]
+  },
+  "headback": {
+    "grid": [
+      3,
+      2
+    ],
+    "items": [
+      "head-0-back|Leather Cap|head",
+      "head-1-back|Mail Coif|head",
+      "head-2-back|Steel Helm|head",
+      "head-3-back|Cloth Hood|head",
+      "head-4-back|Wizard’s Hat|head",
+      "head-5-back|Silver Circlet|head"
+    ]
+  }
+}

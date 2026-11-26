@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "rawArchive": "C:\\Users\\caseys\\source\\SQL Game\\painted_characters_2026_11_26\\references",
+  "files": [
+    {
+      "file": "exec-0a5c5d73-4986-46cc-a575-d3810a44ce9f.png",
+      "sha256": "9d1bced680e0cd9cc478628e323155948631ee5be4bc6225fa8d955632773c57"
+    },
+    {
+      "file": "exec-1ddf42f4-9075-4589-9f3c-4fcd82834196.png",
+      "sha256": "e04ec054059b20fd4252fab1e63b0699d835558eadced24f24b45b7a33dcca66"
+    },
+    {
+      "file": "exec-1f4e572a-d3d5-4436-88d4-17c883692178.png",
+      "sha256": "0e80179a633ac37aff4e1c1fff9f5b415c75f1d58d230a8a3033e9b0c23a24ab"
+    },
+    {
+      "file": "exec-65f3fbcd-2e90-434d-b10d-fff17c09e2bd.png",
+      "sha256": "85e574090d3db2f0a540a136378e22184aa6ff8b7c69837e342c423f0b5c3516"
+    },
+    {
+      "file": "exec-a3c6822c-3330-4d95-897b-09ab943ed2de.png",
+      "sha256": "3b27f890d043011ad362eedcb897cd7708c942661a363728e16c739aba508eb2"
+    },
+    {
+      "file": "exec-c29cc1f3-5cd6-47af-9791-280c20a7c836.png",
+      "sha256": "f788034403a313c3d57112ca37646fc7a085036133bd3c5d752aeedf5a084c0b"
+    },
+    {
+      "file": "exec-fa3303e7-be6b-4baf-8f5f-44121fdea6f1.png",
+      "sha256": "d2e738beddda817d78719f073b1c7afc2570720dfde7afddf8ab40db6718f08b"
+    },
+    {
+      "file": "head-reference-0-0.png",
+      "sha256": "fc936e7ae26efdbe6875c94cb3aff1197e17f49bba7bcff8b750f5d7c12313e6"
+    },
+    {
+      "file": "head-reference-0-1.png",
+      "sha256": "3e559c44355a3e7c01313c4bee0a17f6050870e25a019eff658b9d974b7cdd0a"
+    },
+    {
+      "file": "head-reference-0-2.png",
+      "sha256": "16311dadfdab63d62433948b6d8c2ed0a98f8e9b8d18f5e445555b5235ddbb7c"
+    },
+    {
+      "file": "head-reference-1-0.png",
+      "sha256": "c67d8f411afe909e439ae86170090c5fd2ea757f170b163af9b27da4376e2e16"
+    },
+    {
+      "file": "head-reference-1-1.png",
+      "sha256": "7125bb4d11f68f6763a9ba1cd9fb0ba93afcdf16d1187f218a238e3e3da818f8"
+    },
+    {
+      "file": "head-reference-1-2.png",
+      "sha256": "2f18c11f41962cfe84c095a7ae3641abf775b9fdb310c6b3fabca7303c26de88"
+    },
+    {
+      "file": "town-background.png",
+      "sha256": "ac2fab7d72f3cfe17245dbae671814db00e549a74c21388697dbeec315308b73"
+    }
+  ]
+}

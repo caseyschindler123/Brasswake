@@ -1,0 +1,105 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": "tunic",
+      "kind": "generated-registered-garment-paint",
+      "tool": "built-in image_gen",
+      "file": "exec-e447ac2d-425b-4cec-a02c-6c4de9b30a3c.png",
+      "sha256": "757e8eb7e27f18ff83af4e8305fcff96faedaa5ed80b93d79259ca758794eacf",
+      "size": [
+        1536,
+        1024
+      ],
+      "prompt": "Use case: precise-object-edit. Author a registered full-body garment surface projection atlas from the first supplied fixed model guide. The guide is exactly THREE 512×1024 columns, total 1536×1024: FRONT, right-facing PROFILE, BACK. First image fixes all garment boundaries, human proportions, width, height, head position, hand position, boots, foot placement, margins and camera. Keep positions pixel-aligned across all three columns, transparent exterior, and figure alpha silhouette. The second image is an approved finish reference for Brasswake's realistic soft painted fantasy art. It supplies pigment, lighting and finish only. Restrict the paint changes to clothing. Tunic. Painterly warm ecru linen, a modest gathered seam around neckline, subtly rolled stitched SHORT sleeves, a narrow dark leather belt with one small iron buckle, shoulder seams, controlled asymmetric creases marking natural hanging fabric, and a short sloping lower hem. Dark handmade twill trousers and practical brown low boots. The shirt looks like a real garment with room over the chest. No printed muscles, laced open chest, oversized pouch or stocking shine. Use fine hand-painted pigment and selective outline, varied widths of cloth folds, softly lit warm daylight, matte finish with a few natural highlighted edges. Preserve existing design and body anatomy. Side and back should agree physically with the front; front closures may not reappear at the back. Soft medium-detail brushwork with clear silhouette and readable contrast at final figure height 420 pixels. No external shadows, people or objects outside the three fixed guide silhouettes, no captions, no panel dividers, no ground, no vignette. Its 3D mesh will make the silhouette at runtime. Preserve true transparent alpha and exact layout.",
+      "references": [
+        {
+          "role": "immutable fitted neutral guide",
+          "file": "fit-1.png",
+          "sha256": "6def2e4121fe770811f40ec0db46b05bb428d6c3f8b989b5ac9195735cb24e2c",
+          "maskSha256": "5085739e43f3661c527350ceb0fda6705e9821c1f4a3279d1bb2cd5d56e3ee73"
+        },
+        {
+          "role": "approved plate finish reference",
+          "file": "work/painted-characters/model-pilot/plate-front-painted.png",
+          "sha256": "03a776d8e3d06db508852f6745a821ea6f712638758492e8d7bd259d979bbc7b"
+        }
+      ]
+    },
+    {
+      "id": "robe",
+      "kind": "generated-registered-garment-paint",
+      "tool": "built-in image_gen",
+      "file": "exec-813d04b3-dc52-4811-a11c-c77f36411397.png",
+      "sha256": "046593a9093d10cdc2fbe0b691ed108395a0fb167851013dfbeb6135d71b447f",
+      "size": [
+        1536,
+        1024
+      ],
+      "prompt": "Use case: precise-object-edit. Author a registered full-body garment surface projection atlas from the first supplied fixed model guide. The guide is exactly THREE 512×1024 columns, total 1536×1024: FRONT, right-facing PROFILE, BACK. First image fixes all garment boundaries, human proportions, width, height, head position, hand position, boots, foot placement, margins and camera. Keep positions pixel-aligned across all three columns, transparent exterior, and figure alpha silhouette. The second image is an approved finish reference for Brasswake's realistic soft painted fantasy art. It supplies pigment, lighting and finish only. Restrict the paint changes to clothing. Travelling robe. Quiet neutral ochre-grey natural linen, thin woven edging and small restrained eyelets, practical loose sleeves, one narrow weathered leather waist belt, overlapping wrap-front panel suggested by one subtle vertical sewn seam, and long continuous ankle-length draped skirt. Introduce a few large distinct folds from the belt to the hem and accompany with softer secondary ridges. Avoid crisply starched pleats, dress costume, wide angular sleeve silhouettes, embroidered symbols, and geometric mottling. Use fine hand-painted pigment and selective outline, varied widths of cloth folds, softly lit warm daylight, matte finish with a few natural highlighted edges. Preserve existing design and body anatomy. Side and back should agree physically with the front; front closures may not reappear at the back. Soft medium-detail brushwork with clear silhouette and readable contrast at final figure height 420 pixels. No external shadows, people or objects outside the three fixed guide silhouettes, no captions, no panel dividers, no ground, no vignette. Its 3D mesh will make the silhouette at runtime. Preserve true transparent alpha and exact layout.",
+      "references": [
+        {
+          "role": "immutable fitted neutral guide",
+          "file": "fit-2.png",
+          "sha256": "86c12780dcefeb23a408a17884ba559010f801a435a47899cb8e860978057988",
+          "maskSha256": "8cf75f43ac72c05119212584bb70c246d8df73af10d0551b3cdecab3b8a30607"
+        },
+        {
+          "role": "approved plate finish reference",
+          "file": "work/painted-characters/model-pilot/plate-front-painted.png",
+          "sha256": "03a776d8e3d06db508852f6745a821ea6f712638758492e8d7bd259d979bbc7b"
+        }
+      ]
+    },
+    {
+      "id": "leather",
+      "kind": "generated-registered-garment-paint",
+      "tool": "built-in image_gen",
+      "file": "exec-e50708a3-53b5-4727-998d-497aa846b2b7.png",
+      "sha256": "4ad8a0863e53f32c9eef7ba9b9d2b2cb97b0e627449c7440f734b592217ae63e",
+      "size": [
+        1536,
+        1024
+      ],
+      "prompt": "Use case: precise-object-edit. Author a registered full-body garment surface projection atlas from the first supplied fixed model guide. The guide is exactly THREE 512×1024 columns, total 1536×1024: FRONT, right-facing PROFILE, BACK. First image fixes all garment boundaries, human proportions, width, height, head position, hand position, boots, foot placement, margins and camera. Keep positions pixel-aligned across all three columns, transparent exterior, and figure alpha silhouette. The second image is an approved finish reference for Brasswake's realistic soft painted fantasy art. It supplies pigment, lighting and finish only. Restrict the paint changes to clothing. Leather jerkin. Muted realistic warm chestnut leather, sewn shoulder sections, side seam and lightly layered short leather panels below the belt accompanied by tiny rivets, one plain aged buckle, dark matte linen seams and gathers at elbows. Painted occasional hairline scratches and worn edges, vertical stitched front closure. High middle values with subtle larger shading. Fitted light leather armor, properly made by a medieval craftsperson. No huge pauldrons, superhero muscles, ornamental studs, chain rings, or shiny lacquer. Use fine hand-painted pigment and selective outline, varied widths of cloth folds, softly lit warm daylight, matte finish with a few natural highlighted edges. Preserve existing design and body anatomy. Side and back should agree physically with the front; front closures may not reappear at the back. Soft medium-detail brushwork with clear silhouette and readable contrast at final figure height 420 pixels. No external shadows, people or objects outside the three fixed guide silhouettes, no captions, no panel dividers, no ground, no vignette. Its 3D mesh will make the silhouette at runtime. Preserve true transparent alpha and exact layout.",
+      "references": [
+        {
+          "role": "immutable fitted neutral guide",
+          "file": "fit-3.png",
+          "sha256": "0daa8cca228f9370c363c5e22e9949d1d63f375fed541f00fc29401b946e3977",
+          "maskSha256": "e95a69fdc0be42fd1c8384e8e170a6c61219bb66a0474010043f2c1f4e7e69fa"
+        },
+        {
+          "role": "approved plate finish reference",
+          "file": "work/painted-characters/model-pilot/plate-front-painted.png",
+          "sha256": "03a776d8e3d06db508852f6745a821ea6f712638758492e8d7bd259d979bbc7b"
+        }
+      ]
+    },
+    {
+      "id": "mail",
+      "kind": "generated-registered-garment-paint",
+      "tool": "built-in image_gen",
+      "file": "exec-594d5c7b-870d-4287-8ba1-c37fe4b573dd.png",
+      "sha256": "90438e3fe6b54f7a8a8358df424739c8243e124a7cf134205c74c468b9ebf63b",
+      "size": [
+        1536,
+        1024
+      ],
+      "prompt": "Use case: precise-object-edit. Author a registered full-body garment surface projection atlas from the first supplied fixed model guide. The guide is exactly THREE 512×1024 columns, total 1536×1024: FRONT, right-facing PROFILE, BACK. First image fixes all garment boundaries, human proportions, width, height, head position, hand position, boots, foot placement, margins and camera. Keep positions pixel-aligned across all three columns, transparent exterior, and figure alpha silhouette. The second image is an approved finish reference for Brasswake's realistic soft painted fantasy art. It supplies pigment, lighting and finish only. Restrict the paint changes to clothing. Chain shirt. Readable pale neutral iron body with small close interlocking rings in even rows on torso, upper arms and short shirt skirt, dark underlying arming cloth at true sleeve ends and neckline, one small buckled oxblood leather belt, soft stress folds beneath waist and arms. Rings fine and low-to-medium contrast: scale roughly 20 to 26 links across the entire frontal chest and upper physique across visible surface, field readable as chainmail, never oversized scales or fishnet. Keep broad subdued form highlights and gentle darker folds. No rigid body plates, decoration, spikes, cape, sculpted muscles, mirror chrome or stark speckle. Use fine hand-painted pigment and selective outline, varied widths of cloth folds, softly lit warm daylight, matte finish with a few natural highlighted edges. Preserve existing design and body anatomy. Side and back should agree physically with the front; front closures may not reappear at the back. Soft medium-detail brushwork with clear silhouette and readable contrast at final figure height 420 pixels. No external shadows, people or objects outside the three fixed guide silhouettes, no captions, no panel dividers, no ground, no vignette. Its 3D mesh will make the silhouette at runtime. Preserve true transparent alpha and exact layout.",
+      "references": [
+        {
+          "role": "immutable fitted neutral guide",
+          "file": "fit-4.png",
+          "sha256": "86ac7cb21b99c21ae9734f65591d8440e3c360444941a2cece85689c78d6a64b",
+          "maskSha256": "13d5d2f2ab06e08a1c51ca5dc8f5c422f500776fc2cd5c08cffdfc3b5b45cc5c"
+        },
+        {
+          "role": "approved plate finish reference",
+          "file": "work/painted-characters/model-pilot/plate-front-painted.png",
+          "sha256": "03a776d8e3d06db508852f6745a821ea6f712638758492e8d7bd259d979bbc7b"
+        }
+      ]
+    }
+  ]
+}

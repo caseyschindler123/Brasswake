@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "files": [
+    {
+      "path": "art/paintedgear/gear.webp",
+      "size": 3164626,
+      "sha256": "183d7f839e7220d137a8ca08d1b3b47f33e22187e8d346f85d56f20e3122b895",
+      "dimensions": [
+        1280,
+        2816
+      ]
+    }
+  ],
+  "metadata": {
+    "path": "game/src/artpaintedgear.js",
+    "sha256": "0e81ed11a7c209e37c384ea3bb6f4f013d4553ba9b128eff89ca1bf8c1178d17"
+  }
+}

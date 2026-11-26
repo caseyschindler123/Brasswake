@@ -1,0 +1,188 @@
+{
+  "version": 1,
+  "rawArchive": "C:/Users/caseys/source/SQL Game/painted_characters_2026_11_26/out",
+  "prompts": "painted_character_prompts.json",
+  "corrections": "painted_character_corrections.json",
+  "entries": [
+    {
+      "id": 30,
+      "file": "exec-9772c916-ab89-4e79-bc4b-bdbba8bf075d.png",
+      "promptAppend": "",
+      "sha256": "b8a980c7fc3954c7b99d9b2afec35e7716404bf1a6051f59bdb67719d14c9ada"
+    },
+    {
+      "id": 22,
+      "file": "exec-98320c5b-6be1-4da5-a000-d10963f87672.png",
+      "promptAppend": "",
+      "sha256": "c7569db2fd7b0c9a78bb7dbb2c8166a893a8259dfcb0bdd8dff0fb73a06743ed"
+    },
+    {
+      "id": 1,
+      "file": "exec-ae48c62d-0326-43db-b96c-0a7f1b544a1b.png",
+      "promptAppend": "",
+      "sha256": "7d7e877850582d248731e1fea735c820fafa8f52ab70d352e3b355a2cc289fe8"
+    },
+    {
+      "id": 3,
+      "file": "exec-52b486b9-29a8-4a9b-81b0-eaebf1621d55.png",
+      "promptAppend": "",
+      "sha256": "8d2441e7f342f2eb9d0ea2c81ffaf99b5e2524ed352e384cc1b90fa05c2dad4b"
+    },
+    {
+      "id": 2,
+      "file": "exec-0171a48d-0362-4d48-954e-eca2d85cd1a5.png",
+      "promptAppend": "",
+      "sha256": "e88dd2e6a08fe7ccf38fbc47b82998e6e3148d2de0e2c4963678764cb014dea9"
+    },
+    {
+      "id": 4,
+      "file": "exec-ce85ceea-a65e-46db-83dc-8dbfab8ee812.png",
+      "promptAppend": "",
+      "sha256": "eaa5436ac037a08e71b2260454fd9be0c34421691bba94e46642fadc26b9e720"
+    },
+    {
+      "id": 5,
+      "file": "exec-db12fca4-a363-4015-93e3-55e45ce6537b.png",
+      "promptAppend": "",
+      "sha256": "1cd696fd71fbf36fca1f33e98ed27f7bc671b20d4191b0196f13901b4ace294e"
+    },
+    {
+      "id": 6,
+      "file": "exec-7ab3df85-251f-44a7-a82e-472d8c43d8e0.png",
+      "promptAppend": "",
+      "sha256": "e95897a4b787d401b5af2578391b10e7f178469ad2f39fff02660a60d150932f"
+    },
+    {
+      "id": 7,
+      "file": "exec-e09c0269-0b3d-4ed0-b282-9536bc53ed60.png",
+      "promptAppend": "",
+      "sha256": "80825d9a0271dea6f204e42d0a9ed53f2e6a2dcacdcdac8d32b90359f769c254"
+    },
+    {
+      "id": 8,
+      "file": "exec-da8bb473-4894-44e3-b213-b220b177e850.png",
+      "promptAppend": "",
+      "sha256": "0561714ec629196ec455b15e9ba5a73c19696d6c372d0bd13bfdf4bd4f795948"
+    },
+    {
+      "id": 9,
+      "file": "exec-47144020-612d-45f4-aecd-efe638bbf967.png",
+      "promptAppend": "",
+      "sha256": "3c0030d6bb7431a8e2c1f059aa0526200f45749010807311d1d82e6049730dc8"
+    },
+    {
+      "id": 10,
+      "file": "exec-656c838b-11c0-49ed-a22f-5aaa579ab747.png",
+      "promptAppend": "",
+      "sha256": "a70b0a44d692531a1198e1cbe0a1ae1c9c21a9ce5ab65d4a3d0ed05255d2d04e"
+    },
+    {
+      "id": 11,
+      "file": "exec-8a50fde4-6bb6-4773-816b-87ad039e3b34.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. The torso has an AMPLE ROUND WAIST AND BELLY, broad hips and thick upper arms. Keep a broad barrel waist under the armor, no tiny pinched fashion waist.",
+      "sha256": "f9da54bc9563b00a1e95c58a0650e1c812de2ebefe9933ce37c211513c5799e2"
+    },
+    {
+      "id": 12,
+      "file": "exec-692b89ae-8f79-4e81-bca9-4457d79915a6.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. The torso has an AMPLE ROUND WAIST AND BELLY, broad hips and thick upper arms. Keep a broad barrel waist under the armor, no tiny pinched fashion waist.",
+      "sha256": "c82b8b2743a4d73c5a44a12fc6f39b523a1897cb50986cd2a3253eebab5ea878"
+    },
+    {
+      "id": 13,
+      "file": "exec-6f1ed4b3-2a33-40fa-8731-69e359408a08.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. The torso has an AMPLE ROUND WAIST AND BELLY, broad hips and thick upper arms. Keep a broad barrel waist under the armor, no tiny pinched fashion waist.",
+      "sha256": "930161c1b4e0d2935b7c44d666bbcc8a832132448c10c21e99ff4b35c42dd0bc"
+    },
+    {
+      "id": 14,
+      "file": "exec-3baf590c-35a4-486f-baa5-8d4135b60387.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. The torso has an AMPLE ROUND WAIST AND BELLY, broad hips and thick upper arms. Keep a broad barrel waist under the armor, no tiny pinched fashion waist.",
+      "sha256": "9e14d998da2fc11d1e1dfa530263b4b19a34fe506e38e0e6e0dc9b5ade68339e"
+    },
+    {
+      "id": 15,
+      "file": "exec-665b71c6-5fc5-4c37-8bd6-e7a46f7cd2da.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. The torso has an AMPLE ROUND WAIST AND BELLY, broad hips and thick upper arms. Keep a broad barrel waist under the armor, no tiny pinched fashion waist.",
+      "sha256": "28dd83362f4eab87cb88ff35fe85ab26ecbeef2b578ab884eae413966a6f2507"
+    },
+    {
+      "id": 16,
+      "file": "exec-3d2dcce2-3b6a-4682-a0ff-f0f00534df87.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. Natural average adult mass.",
+      "sha256": "51b498b6ce1e405d832662f225a16a797adcaa2547826da94433b25df489adc9"
+    },
+    {
+      "id": 17,
+      "file": "exec-a8196d4f-f260-4bce-9424-8b1d9e8b2ccc.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. Natural average adult mass.",
+      "sha256": "593289875138b4b7d7d37138889d69477a1bd4e0c19dfe13e31dfa791f96f024"
+    },
+    {
+      "id": 18,
+      "file": "exec-6dbcfb78-31c3-4eb6-b76b-ed3d95795f18.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. Natural average adult mass.",
+      "sha256": "251a0aad92e8d0afae60d7b1f4f1ac36cb12b356f0e5dbf65c6bb789a06d7389"
+    },
+    {
+      "id": 19,
+      "file": "exec-ffc2d0f1-fd8e-4ade-a3ce-230048726a3b.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. Natural average adult mass.",
+      "sha256": "e24002440926e7bc536c90a67aa864cffd6bb3e36b60914b64af1b090a96a182"
+    },
+    {
+      "id": 20,
+      "file": "exec-df8cacc3-33c6-480b-8f01-e4f3f0aca1a7.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. Natural average adult mass.",
+      "sha256": "3390face395ef087ab7c08c74bb670ef3e7e6865f863929716f1bb56447971cb"
+    },
+    {
+      "id": 21,
+      "file": "exec-80bebded-d971-4ef5-b892-2888cbb18334.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. Broad muscular shoulders, thick upper arms, solid thighs and an athletic torso.",
+      "sha256": "f8236044d699a440375aee181ac1c6977eb2df5a1f94e4ffe6fe4bc61855b4a7"
+    },
+    {
+      "id": 23,
+      "file": "exec-6e74e8bd-8030-445f-aa19-6887d38a3877.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. Broad muscular shoulders, thick upper arms, solid thighs and an athletic torso.",
+      "sha256": "46d290cd50bf27e355140d097342ad47f24ee2041faaebadcff25883819755c1"
+    },
+    {
+      "id": 24,
+      "file": "exec-355d23f9-8fd1-4563-b0b9-f521873a05b7.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. Broad muscular shoulders, thick upper arms, solid thighs and an athletic torso.",
+      "sha256": "64f74cd512226914f6bdc96e182a61f115ee5b679227880023b861e0a69568b7"
+    },
+    {
+      "id": 25,
+      "file": "exec-2feb1031-337d-4b6d-b76c-17d598a5b510.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. Broad muscular shoulders, thick upper arms, solid thighs and an athletic torso. Use a single practical curved breastplate, no individually sculpted breast cups, with enough waist allowance for this body profile. ",
+      "sha256": "921a5045451a04417b3d64fc54fd089cbe0313dbc2213d87d5b53778dff162b3"
+    },
+    {
+      "id": 26,
+      "file": "exec-7955fe39-9a94-4735-981e-aa464e7e2475.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. The torso has an AMPLE ROUND WAIST AND BELLY, broad hips and thick upper arms. Keep a broad barrel waist under the armor, no tiny pinched fashion waist.",
+      "sha256": "52a92d62c61207b611a2c336d2c0782b9c4bb92b70fea557ca6c1d2ebb2e22f7"
+    },
+    {
+      "id": 27,
+      "file": "exec-05d444a4-bc13-4e85-a5c2-a9b1c963fe2e.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. The torso has an AMPLE ROUND WAIST AND BELLY, broad hips and thick upper arms. Keep a broad barrel waist under the armor, no tiny pinched fashion waist.",
+      "sha256": "32a2fe1ab5f351715f7bd1018707726a70efe5f08c8566aab1559db725028164"
+    },
+    {
+      "id": 28,
+      "file": "exec-91daac4f-c13d-40ab-bef0-857b5f53dd9d.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. The torso has an AMPLE ROUND WAIST AND BELLY, broad hips and thick upper arms. Keep a broad barrel waist under the armor, no tiny pinched fashion waist.",
+      "sha256": "4d5bf6dcc873bed33e8c7cabf44e9b64ceca32aaf0f5bc8363d18ec8381a4f9a"
+    },
+    {
+      "id": 29,
+      "file": "exec-6ef250bd-eaac-497d-8cb5-768d30d7e276.png",
+      "promptAppend": " CRITICAL: Row 4 has ONLY ONE trouser leg cut between HIP and KNEE, no pelvis, no paired shorts. All joint ends are closed rounded overlap surfaces, NOT dark open tubes. The torso has an AMPLE ROUND WAIST AND BELLY, broad hips and thick upper arms. Keep a broad barrel waist under the armor, no tiny pinched fashion waist.",
+      "sha256": "85d3e3e6bc7418cb409dd636346561183da992b5dc57192e3192d7a4824be792"
+    }
+  ]
+}

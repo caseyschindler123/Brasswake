@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "sex": 0,
+      "group": 1,
+      "original": "exec-57a6d876-5551-45e3-895e-0d4b23034bf3.png",
+      "final": "exec-18913092-7d5c-4304-96c7-74e629e85716.png",
+      "prompt": "Use case: background-extraction. Remove ONLY the pale white/cream background and all translucent background haze from this painted HEAD atlas. Preserve all 24 complete heads, the six-column four-row grid, every hairstyle and beard, the exact face identities, skin and hair colors, edges, positions, sizes and camera angles. Keep the same 1536x1024 sheet. Every gap and every corner must have genuine alpha ZERO, not a white or translucent matte. No drop shadows. Do not crop, resize, redesign, repaint faces or change the number of heads. Return clean transparent cutouts."
+    },
+    {
+      "sex": 0,
+      "group": 2,
+      "original": "exec-2e3e8470-e621-4847-80fa-0df7c436498e.png",
+      "final": "exec-44d185fe-1e4d-4fd0-bbdf-3bb8b2372c98.png",
+      "prompt": "Use case: background-extraction. Remove ONLY the pale white/cream background and all translucent background haze from this painted HEAD atlas. Preserve all 24 complete heads, the six-column four-row grid, every hairstyle and beard, the exact face identities, skin and hair colors, edges, positions, sizes and camera angles. Keep the same 1536x1024 sheet. Every gap and every corner must have genuine alpha ZERO, not a white or translucent matte. No drop shadows. Do not crop, resize, redesign, repaint faces or change the number of heads. Return clean transparent cutouts."
+    }
+  ]
+}

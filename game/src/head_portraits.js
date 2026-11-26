@@ -5,7 +5,7 @@ const HeadPortraits = ((assets) => {
   const SKIN = [[1.03, 1.05, 1.08], [1, 1, 1], [.84, .81, .77], [.65, .58, .51], [.49, .41, .35]];
   const BROWN = ['#2e1c10', '#8f5e34'];
   const HAIR_GROUPS = [[-1], [0, 1, 4, 5, 9], [2, 6, 8], [3, 7, 10, 11]];
-  const TINT_LIMIT = 24;
+  const TINT_LIMIT = 96;
   const images = new Map();
   const painted = new Map();
   const styles = body => STYLES[body] || [];
@@ -20,11 +20,12 @@ const HeadPortraits = ((assets) => {
     return choices.reduce((best, choice) => distance(choice) < distance(best) ? choice : best).id;
   }
 
-  function record(body, style, hair, beard) {
+  function record(body, style, hair, beard, direction = 5) {
     const options = assets[body]?.styles;
     if (!options) return null;
     const id = options.some(choice => choice.id === style) ? style : match(body, hair, beard);
-    return options.find(choice => choice.id === id);
+    const choice=options.find(choice => choice.id === id);
+    return choice?.directions?.[direction]?{...choice,...choice.directions[direction]}:choice;
   }
 
   function preload(body) {
@@ -73,12 +74,13 @@ const HeadPortraits = ((assets) => {
       const x = Math.abs(signedX);
       const y = (top + Math.floor(p / width) - skull) / heightUnit;
       const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
-      const scalp = style.hair >= 0 && (y < .34 || (y < .6 && x > .33));
+      const rear=style.direction===3||style.direction===4;
+      const scalp = style.hair >= 0 && (y < .34 || (y < .6 && x > .33) || rear&&(y<.98||r<160));
       const fringe = (sideHair && x > .35 && y > .4) || (rightTail && signedX > .42 && y > .8);
-      const beard = facialHair(style.beard, x, y);
+      const beard = style.direction===4?false:style.direction===3?style.beard>=0&&signedX>.20&&y>.45&&y<1.1:facialHair(style.beard, x, y);
       const hair = (scalp || fringe || beard) ? 1 - smooth(r, 142, 195) : 0;
       const warm = smooth(r, 73, 117) * smooth(r - g, 12, 29);
-      const skinWeight = warm * (1 - hair) * (1 - smooth(x, .46, .56));
+      const skinWeight = warm * (1 - hair) * (1 - smooth(x, style.direction<5?.62:.46, style.direction<5?.78:.56));
       const shade = unit(((r * .2126 + g * .7152 + b * .0722) - 25) / 147);
       const original = [r, g, b];
       for (let c = 0; c < 3; c++) {
@@ -95,8 +97,8 @@ const HeadPortraits = ((assets) => {
     return pixels;
   }
 
-  function geometry(body, style, anchor, hair, beard) {
-    const entry = record(body, style, hair, beard);
+  function geometry(body, style, anchor, hair, beard, direction = 5) {
+    const entry = record(body, style, hair, beard,direction);
     if (!entry || !Array.isArray(anchor) || !anchor.every(Number.isFinite) || anchor.length !== 3 || anchor[2] <= 0) return null;
     const [top, center, width] = anchor;
     const [x, y, w, h] = entry.rect;
@@ -107,7 +109,7 @@ const HeadPortraits = ((assets) => {
 
   function paintedHead(body, entry, tone, colors) {
     const pair = hairPair(colors);
-    const key = [body, entry.id, tone, ...pair].join('|');
+    const key = [body, entry.id, entry.direction??5,tone, ...pair].join('|');
     if (painted.has(key)) {
       const existing = painted.get(key);
       painted.delete(key);
@@ -128,14 +130,15 @@ const HeadPortraits = ((assets) => {
     return canvas;
   }
 
-  function draw(ctx, { body, style, hair, beard, skin = 1, hc } = {}, anchor) {
-    const entry = record(body, style, hair, beard);
-    const dest = geometry(body, style, anchor, hair, beard);
+  function draw(ctx, { body, style, hair, beard, skin = 1, hc,direction = 5,angle=0 } = {}, anchor) {
+    const entry = record(body, style, hair, beard,direction);
+    const dest = geometry(body, style, anchor, hair, beard,direction);
     if (!entry || !dest || !ready(body)) return false;
-    ctx.drawImage(paintedHead(body, entry, skin, hc), ...dest);
+    if(angle){ctx.save();ctx.translate(anchor[1],anchor[0]);ctx.rotate(angle);ctx.drawImage(paintedHead(body,entry,skin,hc),dest[0]-anchor[1],dest[1]-anchor[0],dest[2],dest[3]);ctx.restore();}
+    else ctx.drawImage(paintedHead(body, entry, skin, hc), ...dest);
     return true;
   }
 
   return Object.freeze({ STYLES, styles, match, preload, ready, draw, geometry, tintPixels });
-})(typeof ArtHeads !== 'undefined' ? ArtHeads : typeof module !== 'undefined' ? require('./artheads') : []);
+})(typeof ArtPaintedHeads !== 'undefined' ? ArtPaintedHeads : typeof ArtHeads !== 'undefined' ? ArtHeads : typeof module !== 'undefined' ? require('./artheads') : []);
 if (typeof module !== 'undefined' && module.exports) module.exports = HeadPortraits;

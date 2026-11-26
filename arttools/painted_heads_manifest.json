@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "file": "exec-eae724e4-61c1-4288-ac59-5af29eaf1749.png",
+      "sha256": "6c6db6820ae723c9f7f8ba8b8d359d8aee099e5d7224e6515c5f31d52778f17d"
+    },
+    {
+      "file": "exec-18913092-7d5c-4304-96c7-74e629e85716.png",
+      "sha256": "8d8d60b925a31575390a6af7f77b81019cd1c8cba081c4579612f78988f51f23"
+    },
+    {
+      "file": "exec-44d185fe-1e4d-4fd0-bbdf-3bb8b2372c98.png",
+      "sha256": "22c65f7a287afb28ed8862f9e3ea9f40c99aaee729798c370516345e119041f9"
+    },
+    {
+      "file": "exec-221b5026-b111-4a48-9bf3-74c7ae26987d.png",
+      "sha256": "4bf94c42ec059726b5b66aed72647ba31b7ef71d8f5a0a0c9c667389de1cc689"
+    },
+    {
+      "file": "exec-42fb3dee-d854-43d4-a9a0-23d03825af59.png",
+      "sha256": "ebe6532b0257cfed624be11e299ce7aa7e5d5a837d5f9e22b747a6f9ba9c8988"
+    },
+    {
+      "file": "exec-1a01eea9-3933-42af-9f36-30fedf37d795.png",
+      "sha256": "437968e8ca69efe87c05284b4e21b28f166d4adca7f47d407ca78017ac614d8a"
+    }
+  ],
+  "files": [
+    {
+      "path": "art/painted/heads-man.webp",
+      "size": 1553470,
+      "sha256": "9bdda9c7fcc7c22f57dbf9bc3967c500340de86021919d4a8ff3b6fa9a521e2c",
+      "dimensions": [
+        1024,
+        1613
+      ]
+    },
+    {
+      "path": "art/painted/heads-woman.webp",
+      "size": 1636134,
+      "sha256": "40b8780b5aed62dc5ee2ac1488fc2a93d84dccc5de33a810b8119c3247b9a387",
+      "dimensions": [
+        1024,
+        1737
+      ]
+    }
+  ],
+  "metadata": {
+    "path": "game/src/artpaintedheads.js",
+    "sha256": "0bf7a0c3dea94ce0ced5b78c7b9c0a3cdcb15f36623c9deedf8ded87d2fff5a3"
+  },
+  "inputs": [
+    {
+      "path": "arttools/painted_head_inputs.json",
+      "sha256": "66fbd1313b4c3015abbf10a338d603cb894a98f0de4ecb49aff718535c92e8ca"
+    },
+    {
+      "path": "arttools/painted_head_prompts.json",
+      "sha256": "65efeb61a16f20aea07b406d6196ccc1560b355707dc77420d9493d071dd17c2"
+    },
+    {
+      "path": "arttools/painted_head_corrections.json",
+      "sha256": "7cd9c8b95399e7837ef520b74b98c3f2d7264aa08ebb0cf009b5015c78811046"
+    },
+    {
+      "path": "arttools/painted_references.json",
+      "sha256": "12cd6d406902f69b159deb685c68ec4f0f24f3537b817e67a68091487fe78cd7"
+    },
+    {
+      "path": "arttools/painted_heads.py",
+      "sha256": "6f8bef70ddd3ea655c5cc659bf31b2c1907c3d2fade327766f22abf1463d3963"
+    },
+    {
+      "path": "game/src/artheads.js",
+      "sha256": "d1d54e20daaaa98b35bd9193bae751689292fbd4c44e334bc1cc17585564d5c8"
+    }
+  ]
+}

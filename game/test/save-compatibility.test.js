@@ -30,7 +30,7 @@ function runtime(storage, revision) {
   const code = source('game', revision);
   const dependencies = ['geography', 'world_progress', 'cartography', 'progression',
     'prologue', 'character_worlds', 'dungeon_progress', 'interiors'];
-  if (!revision) dependencies.push('equipment_rules', 'mounts');
+  if (!revision) dependencies.push('equipment_rules', 'mounts', 'character_profiles');
   const timers = new Map();
   let timerId = 0, itemId = 99;
   const quiet = () => {};
@@ -87,7 +87,7 @@ function currentSave() {
     world.slots[slotIndex] = Object.assign(rider, {
       name: 'Rider ' + worldIndex, path: 'warrior', tut: 3, g: 'done',
       horse: { owned: true, mounted: false },
-      app: { body: 0, skin: 2, hair: 2, hc: 1, beard: 3, headStyle: 'm-moustache' },
+      app: { body: 0, build:worldIndex===0?2:1,skin: 2, hair: 2, hc: 1, beard: 3, headStyle: 'm-moustache' },
       bank: { gold: 1432 + worldIndex, items: [{ id: 'bank-keepsake-' + worldIndex }] },
       inv: [{ id: sword, slot: 'weapon', w: 'swords', name: 'Iron short sword',
         tier: 2, rarity: 'common', stats: { dmg: 27 } }],
@@ -110,6 +110,7 @@ function currentSave() {
     assert.equal(rider.done.storyMilestone, true);
     assert.deepEqual(rider.horse, { owned: true, mounted: false });
     assert.equal(rider.app.headStyle, 'm-moustache');
+    assert.equal(rider.app.build,index===0?2:1);
     assert.equal(rider.inv[0].equipment.v, 1);
     assert.equal(rider.inv[0].stats.dmg, 27);
   }

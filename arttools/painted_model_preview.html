@@ -1,0 +1,48 @@
+<div id="brasswake-fitted-pilot-v3">
+  <div class="viz-controls">
+    <label class="form-label">Motion
+      <select class="form-select" data-motion><option value="walk">Walk</option><option value="run">Run</option></select>
+    </label>
+    <label class="form-label">Facing
+      <select class="form-select" data-direction><option value="0">Front</option><option value="1">Front left</option><option value="2">Left</option><option value="3">Back left</option><option value="4">Back</option><option value="5">Back right</option><option value="6" selected>Right</option><option value="7">Front right</option></select>
+    </label>
+    <button class="btn" type="button" data-play aria-pressed="true">Pause</button>
+    <span class="text-small tabular-nums" data-cadence></span>
+  </div>
+  <canvas data-world width="518" height="460" role="img" aria-label="The same male body and fitted plate armor moving on Brasswake's town artwork"></canvas>
+  <div class="pilot-inspect-labels"><span class="text-small">Body · enlarged</span><span class="text-small">Plate · enlarged</span></div>
+  <canvas data-inspect width="256" height="128" role="img" aria-label="Enlarged directional sprites for checking armor fit"></canvas>
+  <div class="viz-row"><span>Frontal paper doll · same body and equipment</span></div>
+  <div class="pilot-fronts"><img data-body alt="The average male body in linen and boots, directly face on"><img data-plate alt="Plate armor fitted over the same male body, directly face on"></div>
+  <div data-error role="alert" hidden></div>
+</div>
+<style>
+#brasswake-fitted-pilot-v3{display:flex;flex-direction:column;gap:calc(var(--font-size-base)*.6)}
+#brasswake-fitted-pilot-v3 canvas{display:block;max-width:100%;height:auto;align-self:center}
+#brasswake-fitted-pilot-v3 [data-world]{width:518px}
+#brasswake-fitted-pilot-v3 [data-inspect]{width:512px}
+#brasswake-fitted-pilot-v3 .pilot-fronts{display:flex;justify-content:center;align-items:start}
+#brasswake-fitted-pilot-v3 .pilot-fronts img{width:50%;max-width:300px;height:auto;min-width:0}
+#brasswake-fitted-pilot-v3 .pilot-inspect-labels{display:flex;width:100%;max-width:512px;align-self:center;text-align:center}
+#brasswake-fitted-pilot-v3 .pilot-inspect-labels span{width:50%}
+</style>
+<script>
+(()=>{
+  const assets=__PILOT_ASSETS__;
+  const root=document.getElementById('brasswake-fitted-pilot-v3'),world=root.querySelector('[data-world]'),inspect=root.querySelector('[data-inspect]');
+  root.dataset.frames=String(assets.frames);
+  const worldContext=world.getContext('2d'),inspectContext=inspect.getContext('2d');
+  const motion=root.querySelector('[data-motion]'),direction=root.querySelector('[data-direction]'),play=root.querySelector('[data-play]'),cadence=root.querySelector('[data-cadence]');
+  const state={motion:'walk',direction:6,playing:!matchMedia('(prefers-reduced-motion: reduce)').matches};let phase=0,last=0,images=null;
+  function apply(saved){const value=saved?.modelContent;if(value&&['walk','run'].includes(value.motion))state.motion=value.motion;if(Number.isInteger(value?.direction)&&value.direction>=0&&value.direction<8)state.direction=value.direction;if(typeof saved?.privateContent?.playing==='boolean')state.playing=saved.privateContent.playing;update();}
+  function update(){motion.value=state.motion;direction.value=String(state.direction);play.textContent=state.playing?'Pause':'Play';play.setAttribute('aria-pressed',String(state.playing));cadence.textContent=state.motion==='swing'?'':`${Math.round(assets.motion[state.motion].cadence)} steps/min`;draw();}
+  function remember(){window.openai?.setWidgetState?.({modelContent:{motion:state.motion,direction:state.direction},privateContent:{playing:state.playing}})?.catch(()=>{});}
+  function draw(){if(!images)return;const frame=Math.floor(phase*assets.frames)%assets.frames,[left,top,w,h]=assets.crop;worldContext.clearRect(0,0,518,460);worldContext.drawImage(images.town,0,0);inspectContext.clearRect(0,0,256,128);
+    for(const[look,x,slot]of[['body',210,0],['plate',330,1]]){const atlas=images[look+'-'+state.motion],sx=state.direction*w,sy=frame*h;worldContext.save();worldContext.fillStyle='rgba(35,27,19,.20)';worldContext.beginPath();worldContext.ellipse(x,340,9,3,0,0,Math.PI*2);worldContext.fill();worldContext.restore();worldContext.drawImage(atlas,sx,sy,w,h,x-(64-left)*.75,340-(104-top)*.75,w*.75,h*.75);inspectContext.drawImage(atlas,sx,sy,w,h,slot*128+left,top,w,h);}
+  }
+  motion.addEventListener('change',()=>{state.motion=motion.value;phase=0;update();remember();});direction.addEventListener('change',()=>{state.direction=Number(direction.value);update();remember();});play.addEventListener('click',()=>{state.playing=!state.playing;update();remember();});
+  window.addEventListener('openai:set_globals',event=>{if(event.detail?.globals?.widgetState)apply(event.detail.globals.widgetState);});apply(window.openai?.widgetState);
+  Promise.all(Object.entries(assets.images).map(async([name,url])=>{const image=new Image();image.src=url;await image.decode();return[name,image];})).then(entries=>{images=Object.fromEntries(entries);root.querySelector('[data-body]').src=assets.images['body-front'];root.querySelector('[data-plate]').src=assets.images['plate-front'];root.dataset.ready='true';update();}).catch(error=>{const message=root.querySelector('[data-error]');message.hidden=false;message.textContent='The character images could not load: '+error.message;});
+  function tick(time){if(last&&state.playing){const seconds=state.motion==='swing'?1.2:assets.motion[state.motion].cycleSeconds;phase=(phase+Math.min((time-last)/1000,.1)/seconds)%1;}last=time;draw();requestAnimationFrame(tick);}requestAnimationFrame(tick);
+})();
+</script>

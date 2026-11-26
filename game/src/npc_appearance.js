@@ -1,5 +1,6 @@
 // Appearance descriptors use the same body combinations and layer indices as the hero.
 const NpcAppearance = (() => {
+  const profiles=typeof CharacterProfiles!=='undefined'?CharacterProfiles:require('./character_profiles');
   const HAIR = [
     ['#1a1412', '#5c4a3e'], ['#2e1c10', '#8f5e34'], ['#3c1608', '#c4602c'],
     ['#5c4418', '#ecd08a'], ['#3e3e3e', '#cfcfcf'], ['#8c8c8c', '#ffffff'],
@@ -123,7 +124,8 @@ const NpcAppearance = (() => {
     }
     const [combo, hair, colour, skin, cloth, beard = -1, hat = -1, carried] = parts;
     const [wpn, wkind, style] = EQUIPMENT[carried] || [-1, '', 'swing'];
-    return { combo, hair, hc: HAIR[colour], skin, cloth, beard, hat, wpn, wkind, style, shield: -1 };
+    const profile=profiles.npc(e);
+    return { combo, build:profile.build,height:profile.height,hair, hc: HAIR[colour], skin, cloth, beard, hat, wpn, wkind, style, shield: -1 };
   }
 
   // Screen coordinates, clockwise from south through west. The legacy cardinal

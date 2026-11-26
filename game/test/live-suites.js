@@ -3,7 +3,7 @@ const { validSelection } = require('./ui-suites');
 const LIVE_SUITES = ['smoke', 'audio', 'offline', 'battle', 'arrival'];
 function liveSuites(plan) {
   if (!validSelection(plan)) throw Error('A valid verification plan is required for hosted selection.');
-  if (plan.tier === 'full') return LIVE_SUITES.slice();
+  if (plan.tier === 'full' || plan.tier === 'session') return LIVE_SUITES.slice();
   if (!Array.isArray(plan.files)) return LIVE_SUITES.slice();
   const suites = new Set(plan.suites), selected = new Set(['smoke']);
   const has = names => names.some(name => suites.has(name));

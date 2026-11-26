@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": 1,
+      "reason": "Paired shorts were drawn where the rig requires one thigh per cell.",
+      "prompt": "Use case: precise-object-edit. Edit the provided Brasswake modular character atlas. Keep the complete 5-column x 5-row layout, every torso, upper arm, forearm/hand, shin and boot, their camera headings, painted detail, colors and transparent padding. Change ONLY the five pieces in ROW FOUR. Each row-four cell must contain ONE single trouser-covered adult male THIGH, cut from the hip joint to the knee joint, with rounded overlapping ends, NO pelvis, NO crotch, NO paired shorts, NO second leg. Match the average male body's worn brown trousers and stitched patches. All five headings remain South, Southeast, East, Northeast, North. Keep the other twenty parts and the 1536x1024 framing. All gaps must have genuinely transparent alpha zero, no backdrop or drop shadows. This corrects a rigging error; do not redesign or add parts.",
+      "original": "exec-335869c0-7c61-4ae1-9719-35a3714873df.png",
+      "final": "exec-ae48c62d-0326-43db-b96c-0a7f1b544a1b.png"
+    },
+    {
+      "id": 20,
+      "reason": "Pale matte alpha 178 joined all rows; background must be genuinely transparent.",
+      "prompt": "Use case: background-extraction. Remove ONLY the pale white background and all soft background/drop-shadow haze from this 5-column, 5-row painted armor-part atlas. Preserve all 25 complete painted pieces, their positions, dimensions, colors, reflective highlights, straps, rivets and exact camera headings. Preserve fine edges. Every gap between pieces and every corner must be genuinely fully transparent alpha ZERO, not a white, grey or translucent matte. Return the same wide 1536x1024 5x5 sheet. No grid, labels, redesign, cropping, scaling or added shadows. The background should contain no pixels at all.",
+      "original": "exec-9d7065f2-8678-4e27-bf6d-8b4be03a5837.png",
+      "final": "exec-df8cacc3-33c6-480b-8f01-e4f3f0aca1a7.png"
+    },
+    {
+      "id": 30,
+      "reason": "The first heavy female breastplate had a pinched waist that did not fit the approved profile.",
+      "prompt": "Use case: identity-preserve. Image 1 is the existing five-column five-row modular plate armor atlas to EDIT. Image 2 is the approved heavy female body FIT reference. Change ONLY the FIVE TORSOS IN ROW ONE so they fit that heavy female body: a broad barrel waist and round abdomen, substantial hips and chest, no pinched hourglass waist. Use a practical single curved steel cuirass with enough room for her abdomen, no individually sculpted breast cups. Preserve the armless headless shoulder-to-upper-thigh torso concept and the column headings South, Southeast, East, Northeast, North. Preserve the worn reflective steel, scratches, narrow silver highlights, rivets, leather straps and brass fasteners. All other twenty upper-arm, forearm/hand, thigh and shin/boot pieces should remain unchanged. Keep the five-column five-row layout and 1536x1024 framing, with generous separate cells and fully TRANSPARENT alpha-zero gaps, no backdrop or shadow. This is a body-fit correction, not a different costume.",
+      "original": "exec-0c7cba78-0b1e-48ad-b6c3-7046f4a0a073.png",
+      "final": "exec-9772c916-ab89-4e79-bc4b-bdbba8bf075d.png"
+    }
+  ]
+}

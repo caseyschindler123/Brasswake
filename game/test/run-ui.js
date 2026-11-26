@@ -2,6 +2,7 @@ const { spawnSync } = require('node:child_process');
 const { ALL_SUITES, normalizeSuites, suitesFromEnvironment } = require('./ui-suites');
 const args = process.argv.slice(2), requested = args.find(a => a.startsWith('--suites='));
 if (requested && args.includes('--full')) throw Error('Choose --full or --suites, not both.');
+if (requested || args.includes('--full')) delete process.env.BW_UI_SESSION_PROFILE;
 const suites = args.includes('--full') ? ALL_SUITES : requested
   ? normalizeSuites(['canary', ...requested.slice(9).split(',')]) : suitesFromEnvironment();
 const sceneArg=args.find(a=>a.startsWith('--scenes='));
