@@ -1,6 +1,6 @@
 # Equipment, horses and lived-in towns
 
-Status: implementation in progress. Classification: complex. Owner: main agent; bounded equipment, settlement and mount workers. Requested as one coordinated release on 2026-11-25.
+Status: implementation complete; final non-publishing validation pending. Deployment explicitly held by Casey on 2026-11-25 while another agent tests live. Classification: complex. Owner: main agent; bounded equipment, settlement and mount workers. Requested as one coordinated release on 2026-11-25.
 
 ## Scope and consequential risks
 
@@ -28,8 +28,8 @@ Implement all eight reviewed requests and the subsequently agreed equipment mech
 5. [x] Shared integration: saves, item factory/combat/crafting/UI, attachment calibration, Home Screen packaging and deletion transactions.
 6. [x] Final curated stable/casino fitting source cuts and actual 390×720/1280×800 scenes opened and accepted. Earlier focused pure/runtime/browser checks and opened 390×720/desktop captures passed for equipment, mounts, settlements and deletion. Curated head creation/appearance and persistence passed phone Chromium and WebKit; full-body/collar views were opened at phone/desktop sizes. Reviewed intended diff and numerical descriptions.
 7. [x] Owning architecture/gameplay/art descriptions and dated decisions reconciled as a release candidate.
-8. [ ] Full selected core gate and exact-commit three-profile CI, deployment and hosted commit/HTML/player-flow verification.
-9. [ ] Record release evidence and limitations; close this plan and push documentation closure.
+8. [ ] Full selected core gate and exact-commit three-profile CI in non-publishing mode. Deployment and hosted verification are held by Casey; do not publish without an explicit later instruction.
+9. [ ] Record non-publishing validation evidence and limitations on the validation branch. Publication/release-history closure remains held.
 
 ## Ownership and integration contracts
 
@@ -46,7 +46,7 @@ New-only built-in image generation may supply horse artwork if no suitable exist
 
 ## Evidence and release
 
-Pending. No release claimed.
+Current repaired candidate: `76324f0c93642ca6e0dcdb19b1da7d0cef8ab643`, [Actions 45739694074](https://github.com/caseyschindler123/Brasswake/actions/runs/45739694074). The automatic run failed its historical fixture-proof test and did not deploy. Casey then explicitly held deployment. Finish full validation on `work/equipment-towns-validation` with `publish=false`; keep further executable commits off main during the hold. No release claimed.
 
 Artwork hold: Casey rejected the stable's procedural horse holder after the first visual acceptance. Replace it with curated painted joinery and review the other new recognizable furnishings, including gaming tables/seats. The art master and project/workflow entry points now explicitly require source/native/in-scene curation; passing browser tests never establishes visual quality. The replacement is integrated and root opened its native contact and actual phone/desktop stable, casino and dojo captures; painted joinery, transparent rail gaps, horse depth, table scale and regional rugs now meet the curation gate. Exact-commit verification/publication remain pending.
 
@@ -67,3 +67,5 @@ Repair verification: twenty targeted browser checks passed: twelve migration/sha
 First-run closure: desktop was 177/184 passing, phone Chromium 178/184 and phone WebKit 178/184; the aggregate failed and deployment was skipped. WebKit exposed one additional reachability failure (`L4b` in Four Fords) while its staircase case passed. Investigate and preserve all legacy-site approaches in world placement before the fresh full release gate.
 
 Lair repair: the parcel origin was in its assigned region while its actual center could cross the border. Validate the center after the existing random choice, then recover an invalid choice through the deterministic required-site search. With seeds 91 and 101 in Chromium/WebKit, every valid lair coordinate and all 16 IDs remain unchanged; only invalid WebKit L4b moves from region 1 at [259,807] to region 4 at [399,660], with its leader and five eligible center/cardinal cells. The strengthened legacy-sites case passes all three profiles. Root opened actual corrected 390×720 and 1280×800 camp captures; 29 focused world/geography/settlement checks passed. No retry/deadline/required assertion was weakened and no artwork changed. Fresh full exact-commit verification remains pending.
+
+Deployment hold and protocol correction: Casey instructed “Do not deploy yet” while another agent tests live. Automatic run 45739694074 had already failed core (Pages skipped); redundant non-publishing run 45740157558 was canceled. The fixture-proof tests incorrectly required the working tree to remain the historical byte-equivalent extraction forever. Test the immutable verified extraction at `c057ec8` against its existing `f7988d8` reference, reject five changed fixture bodies/helpers, and require exact full/long fallback for the current unproven fixtures. Production selection and publication rules are unchanged; independent review tightened the non-equivalent journeys assertion. Finish on the validation branch and do not merge/push further executable changes to main during the hold.

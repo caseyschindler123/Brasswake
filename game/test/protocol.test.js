@@ -6,6 +6,7 @@ const { chooseUI, collectChanges, packagingScripts, selection } = require('./sel
 const { publishedSource, assertDeploymentOrder, publicationDecision } = require('./deployment-baseline');
 const { ALL_SUITES, MODULES, normalizeSuites, suitesFromEnvironment, validSelection } = require('./ui-suites');
 const { releaseGate } = require('./release-gate');
+const { registrationEquivalent } = require('./scope-policy');
 const { LIVE_SUITES, liveSuites, suitesFromLiveEnvironment } = require('./live-suites');
 
 for (const file of ['AGENTS.md', 'game/docs/05_CODING_WORKFLOW.md']) {
@@ -60,7 +61,7 @@ test('reviewed landscape presentation selects its consumers while physical/runti
 test('journey scope retains targeted first-day checks and edits to its owning fixture retain long cases',()=>{
   assert.deepEqual(normalizeSuites(['smoke','journeys']),['smoke','first-day','journeys']);
   const fixture=chooseUI({files:['game/test/browser/first-day.js']});
-  assert.deepEqual(fixture.suites,['canary','dev-mode']);assert.equal(fixture.release,false);
+  assert.deepEqual(fixture.suites,registrationEquivalent()?['canary','dev-mode']:['smoke','first-day','journeys']);assert.equal(fixture.release,false);
   const incomplete=chooseUI({files:['game/src/game.js']});
   incomplete.suites=incomplete.suites.filter(name=>name!=='journeys');
   assert.equal(validSelection(incomplete),false,'full cannot omit long cases');
@@ -99,7 +100,11 @@ test('hosted selection always retains smoke, affected behavior and all risky/ful
 test('suite repairs keep their tests; shared fixture repairs require full coverage',()=>{
   for(const name of MODULES){
     const plan=chooseUI({files:['game/test/browser/'+name+'.js']});
-    if(['first-day','dungeons','journeys'].includes(name))assert.deepEqual(plan.suites,['canary','dev-mode']);else assert.ok(plan.suites.includes(name));assert.ok(plan.suites.includes('smoke')||plan.suites.includes('canary'));assert.equal(plan.release,false);
+    if(['first-day','dungeons','journeys'].includes(name)&&registrationEquivalent())assert.deepEqual(plan.suites,['canary','dev-mode']);
+    else if(name==='dungeons'){assert.equal(plan.tier,'full');assert.deepEqual(plan.suites,ALL_SUITES);}
+    else if(['first-day','journeys'].includes(name))assert.deepEqual(plan.suites,['smoke','first-day','journeys']);
+    else assert.ok(plan.suites.includes(name));
+    assert.ok(plan.suites.includes('smoke')||plan.suites.includes('canary'));assert.equal(plan.release,false);
   }
   for(const file of ['game/test/live-suites.js','game/test/live.js','game/test/browser/live.spec.js']){
     const plan=chooseUI({files:[file]});assert.ok(plan.suites.includes('smoke')||plan.suites.includes('canary'));assert.equal(plan.release,false);
