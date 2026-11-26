@@ -13,9 +13,10 @@ test('free creation controls change the real turning and walking preview and per
   await page.locator('[data-a=newslot]').first().click();await page.locator('[data-a=pick][data-look="3"]').click();
   await page.getByRole('combobox',{name:'Body',exact:true}).selectOption('0');
   await page.getByRole('combobox',{name:'Skin tone',exact:true}).selectOption('4');
-  await page.getByRole('combobox',{name:'Hair',exact:true}).selectOption('3');
+  await page.getByRole('combobox',{name:'Head style',exact:true}).selectOption('m-moustache');
   await page.getByRole('combobox',{name:'Hair colour',exact:true}).selectOption('2');
-  await page.getByRole('combobox',{name:'Facial hair',exact:true}).selectOption('3');
+  await expect(page.getByRole('combobox',{name:'Facial hair',exact:true})).toHaveCount(0);
+  await expect(page.locator('#cr-head-preview')).toBeVisible();
   const preview=page.locator('#cr-preview');
   await expect.poll(()=>preview.evaluate(c=>Array.from(c.getContext('2d').getImageData(0,0,c.width,c.height).data).some((n,i)=>i%4===3&&n>0))).toBe(true);
   const tones=[];
@@ -37,9 +38,9 @@ test('free creation controls change the real turning and walking preview and per
   await page.locator('[data-a=crwalk]').click();await screenshot(page,info,'world-character-creation');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.locator('[data-a=begin]').click();
-  expect(await page.evaluate(()=>({app:__bw.S.app,gold:__bw.S.gold}))).toMatchObject({gold:30,app:{body:0,skin:4,hair:3,hc:2,beard:3}});
+  expect(await page.evaluate(()=>({app:__bw.S.app,gold:__bw.S.gold}))).toMatchObject({gold:30,app:{body:0,skin:4,hair:3,hc:2,beard:3,headStyle:'m-moustache'}});
   await require('./intro-helper').returnToCharacters(page);await page.reload();await ready(page);await page.locator('[data-a=playslot]').click();
-  expect(await page.evaluate(()=>__bw.S.app)).toMatchObject({body:0,skin:4,hair:3,hc:2,beard:3});expect(errors).toEqual([]);
+  expect(await page.evaluate(()=>__bw.S.app)).toMatchObject({body:0,skin:4,hair:3,hc:2,beard:3,headStyle:'m-moustache'});expect(errors).toEqual([]);
 });
 
 test('legacy five-slot migration and world changes keep households rewards banks and stories isolated across import and reload',async({page},info)=>{

@@ -1,0 +1,24 @@
+{
+  "source": {
+    "filename": "exec-6896c33c-a5ae-41ff-81dc-655cac82d226.png",
+    "sha256": "c23641bc6b94ed2cef9ed0ecfb0832b68bbf243df801282d3b36802ecd38f387",
+    "dimensions": [1448, 1086]
+  },
+  "pillow": "12.0.0",
+  "cell": [148, 148],
+  "alpha_cutoff": 10,
+  "pieces": {
+    "venue_stall_back": {"crop": [38, 58, 354, 324], "bounds": [34, 29]},
+    "venue_stall_gate": {"crop": [404, 160, 701, 309], "bounds": [34, 17]},
+    "venue_hay_rack": {"crop": [774, 96, 1035, 287], "bounds": [16, 12]},
+    "venue_trough": {"crop": [1115, 140, 1400, 287], "bounds": [18, 10]},
+    "venue_poker": {"crop": [26, 440, 362, 662], "bounds": [46, 30]},
+    "venue_blackjack": {"crop": [394, 446, 711, 659], "bounds": [46, 30]},
+    "venue_wheel": {"crop": [783, 418, 1024, 675], "bounds": [34, 34]},
+    "venue_seat": {"crop": [1172, 437, 1344, 643], "bounds": [11, 10]},
+    "venue_runner": {"crop": [113, 740, 279, 1054], "bounds": [24, 45]},
+    "venue_records": {"crop": [388, 783, 708, 991], "bounds": [17, 12]},
+    "venue_meal": {"crop": [744, 787, 1060, 991], "bounds": [18, 12]},
+    "venue_tools": {"crop": [1107, 817, 1409, 1000], "bounds": [18, 12]}
+  }
+}

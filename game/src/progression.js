@@ -43,9 +43,10 @@ const Progression = (() => {
     s.hp=Math.max(0,Math.min(maxHp(s),finite(s.hp,maxHp(s)))); s.progression=1; return s;
   }
   const normalizeAccount = a => {if(a&&Array.isArray(a.slots))a.slots=a.slots.map(s=>s?normalize(s):null);return a;};
-  const maxHp = s => 50 + Math.round(s.attr.str / 2);
+  const equippedStat=(s,key)=>Array.from(new Set(Object.values(s.eq||{}))).reduce((sum,id)=>sum+Math.max(0,finite((s.inv||[]).find(it=>it.id===id)?.stats?.[key])),0);
+  const maxHp = s => 50 + Math.round(s.attr.str / 2)+equippedStat(s,'vitality');
   const maxMana = s => Math.round(s.attr.int);
-  const maxStamina = s => Math.round(s.attr.dex);
+  const maxStamina = s => Math.round(s.attr.dex)+equippedStat(s,'endurance');
   function setMode(s,id,next,stat=false) { if(!(stat?stats:ids).includes(id)||!['up','down','lock'].includes(next))return false; (stat?s.attrModes:s.skillModes)[id]=next; return true; }
   function setTarget(s,id,n,stat=false) { if(!(stat?stats:ids).includes(id)||!Number.isFinite(n))return false; const lo=stat?STAT_MIN:0,hi=stat?STAT_MAX:skillCap(s,id),v=value(Math.max(units(lo),Math.min(units(hi),units(n)))); (stat?s.attrTargets:s.skillTargets)[id]=v;if((stat?s.attr[id]:s.sk[id]||0)>=v)(stat?s.attrModes:s.skillModes)[id]='lock';return true; }
   function available(s,id,stat=false) {

@@ -1,0 +1,669 @@
+{
+  "schema": 1,
+  "source": {
+    "filename": "exec-01e76f2f-a8bc-42bb-9075-5ea7e715af6d.png",
+    "sha256": "962212172d5e0114274561e379738a790b41ef2bf1304a8adf1d6b1ebdfcd4c1",
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "generator": "Codex built-in imagegen",
+    "prompt": "Art for a 2D top-down fantasy role-playing game. Bright, colorful medieval fantasy in clear daylight. Realistic proportions, nothing cartoonish, nothing grim. No text, no borders, no watermarks, no drop shadows. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop.\nCreate a directional sprite sheet for Brasswake. Landscape or square sheet with exactly six evenly spaced separate horse cutouts, 3 columns by 2 rows, one in the exact center of each uniform cell, generous blank gutters, no clipping. This is a single consistent horse from several angles, a sturdy and elegant medieval riding bay with russet brown coat, dark mane and tail, black points at hocks and muzzle, brown medieval leather bridle and small low leather riding saddle with a subtle muted marine blue saddle blanket. No rider, no people, no extra props, no weapons, no armor. Saddle centered anatomically behind the withers over the ribs, clear sitting space for an adult rider added later. Full-body horse in all cells, all four clear articulated legs and hooves at rest, properly shaped equine head and ears. Same 35\u00b0 raised, slightly frontal screen camera for every direction, orthographic top-down 2D game camera with consistent scale; detailed hand-painted late-1990s pixel-RPG look, soft even daylight from upper left, bright rich natural colors, sharp clean silhouettes, carefully shaded with visible mane, creased saddle leather and muscle forms. Small sprite readability matters.\nDirection order is mandatory. Top-left horse looks SOUTH (head is near lower center, directly towards viewer), top-center looks SOUTHEAST (head points down-right at 45 degrees), top-right looks EAST in side profile (head points directly right). Bottom-left looks NORTHEAST (head up-right, viewer sees more rump than chest), bottom-center looks NORTH (rump close, head points directly away toward top, center saddle visible), bottom-right looks WEST (head directly left). Facing refers to screen coordinates, no labels. A genuinely transparent canvas, preserve alpha, isolated objects."
+  },
+  "packing": {
+    "pillow": "12.0.0",
+    "libwebp": "1.6.0"
+  },
+  "views": [
+    {
+      "name": "south",
+      "crop": [
+        169,
+        0,
+        378,
+        490
+      ],
+      "ground": [
+        271,
+        373
+      ],
+      "saddle": [
+        271,
+        137
+      ],
+      "scale": 0.268,
+      "stride": [
+        0,
+        16
+      ],
+      "legs": [
+        [
+          0.5,
+          [
+            [
+              223,
+              314
+            ],
+            [
+              265,
+              314
+            ],
+            [
+              268,
+              442
+            ],
+            [
+              211,
+              442
+            ]
+          ]
+        ],
+        [
+          0,
+          [
+            [
+              278,
+              313
+            ],
+            [
+              315,
+              313
+            ],
+            [
+              330,
+              442
+            ],
+            [
+              274,
+              442
+            ]
+          ]
+        ]
+      ],
+      "over": [
+        [
+          236,
+          147
+        ],
+        [
+          306,
+          148
+        ],
+        [
+          334,
+          199
+        ],
+        [
+          333,
+          267
+        ],
+        [
+          307,
+          306
+        ],
+        [
+          272,
+          314
+        ],
+        [
+          239,
+          306
+        ],
+        [
+          217,
+          262
+        ],
+        [
+          221,
+          199
+        ]
+      ]
+    },
+    {
+      "name": "southeast",
+      "crop": [
+        555,
+        7,
+        922,
+        478
+      ],
+      "ground": [
+        726,
+        363
+      ],
+      "saddle": [
+        707,
+        128
+      ],
+      "scale": 0.282,
+      "stride": [
+        27,
+        14
+      ],
+      "legs": [
+        [
+          0.5,
+          [
+            [
+              664,
+              209
+            ],
+            [
+              692,
+              209
+            ],
+            [
+              718,
+              308
+            ],
+            [
+              660,
+              308
+            ]
+          ]
+        ],
+        [
+          0,
+          [
+            [
+              615,
+              210
+            ],
+            [
+              648,
+              210
+            ],
+            [
+              665,
+              334
+            ],
+            [
+              610,
+              334
+            ]
+          ]
+        ],
+        [
+          0,
+          [
+            [
+              782,
+              293
+            ],
+            [
+              820,
+              293
+            ],
+            [
+              826,
+              407
+            ],
+            [
+              764,
+              407
+            ]
+          ]
+        ],
+        [
+          0.5,
+          [
+            [
+              730,
+              294
+            ],
+            [
+              770,
+              294
+            ],
+            [
+              782,
+              430
+            ],
+            [
+              715,
+              430
+            ]
+          ]
+        ]
+      ],
+      "over": [
+        [
+          754,
+          123
+        ],
+        [
+          843,
+          123
+        ],
+        [
+          875,
+          130
+        ],
+        [
+          892,
+          266
+        ],
+        [
+          858,
+          290
+        ],
+        [
+          823,
+          260
+        ],
+        [
+          780,
+          242
+        ],
+        [
+          744,
+          206
+        ]
+      ]
+    },
+    {
+      "name": "east",
+      "crop": [
+        1000,
+        18,
+        1500,
+        463
+      ],
+      "ground": [
+        1230,
+        381
+      ],
+      "saddle": [
+        1231,
+        145
+      ],
+      "scale": 0.294,
+      "stride": [
+        40,
+        0
+      ],
+      "legs": [
+        [
+          0.5,
+          [
+            [
+              1106,
+              297
+            ],
+            [
+              1141,
+              297
+            ],
+            [
+              1147,
+              383
+            ],
+            [
+              1104,
+              383
+            ]
+          ]
+        ],
+        [
+          0,
+          [
+            [
+              1074,
+              294
+            ],
+            [
+              1105,
+              294
+            ],
+            [
+              1115,
+              406
+            ],
+            [
+              1061,
+              406
+            ]
+          ]
+        ],
+        [
+          0,
+          [
+            [
+              1307,
+              311
+            ],
+            [
+              1327,
+              311
+            ],
+            [
+              1336,
+              391
+            ],
+            [
+              1301,
+              391
+            ]
+          ]
+        ],
+        [
+          0.5,
+          [
+            [
+              1277,
+              305
+            ],
+            [
+              1310,
+              305
+            ],
+            [
+              1321,
+              409
+            ],
+            [
+              1265,
+              409
+            ]
+          ]
+        ]
+      ],
+      "over": []
+    },
+    {
+      "name": "northeast",
+      "crop": [
+        94,
+        492,
+        452,
+        1020
+      ],
+      "ground": [
+        259,
+        905
+      ],
+      "saddle": [
+        267,
+        669
+      ],
+      "scale": 0.249,
+      "stride": [
+        28,
+        -16
+      ],
+      "legs": [
+        [
+          0.5,
+          [
+            [
+              299,
+              767
+            ],
+            [
+              337,
+              767
+            ],
+            [
+              362,
+              890
+            ],
+            [
+              289,
+              890
+            ]
+          ]
+        ],
+        [
+          0,
+          [
+            [
+              269,
+              790
+            ],
+            [
+              298,
+              790
+            ],
+            [
+              307,
+              878
+            ],
+            [
+              259,
+              878
+            ]
+          ]
+        ],
+        [
+          0,
+          [
+            [
+              153,
+              885
+            ],
+            [
+              183,
+              885
+            ],
+            [
+              191,
+              958
+            ],
+            [
+              142,
+              958
+            ]
+          ]
+        ],
+        [
+          0.5,
+          [
+            [
+              184,
+              870
+            ],
+            [
+              225,
+              870
+            ],
+            [
+              243,
+              986
+            ],
+            [
+              174,
+              986
+            ]
+          ]
+        ]
+      ],
+      "over": []
+    },
+    {
+      "name": "north",
+      "crop": [
+        622,
+        492,
+        850,
+        1024
+      ],
+      "ground": [
+        732,
+        927
+      ],
+      "saddle": [
+        734,
+        682
+      ],
+      "scale": 0.245,
+      "stride": [
+        0,
+        -17
+      ],
+      "legs": [
+        [
+          0,
+          [
+            [
+              688,
+              865
+            ],
+            [
+              720,
+              865
+            ],
+            [
+              723,
+              994
+            ],
+            [
+              677,
+              994
+            ]
+          ]
+        ],
+        [
+          0.5,
+          [
+            [
+              754,
+              865
+            ],
+            [
+              783,
+              865
+            ],
+            [
+              795,
+              994
+            ],
+            [
+              741,
+              994
+            ]
+          ]
+        ]
+      ],
+      "over": []
+    },
+    {
+      "name": "west",
+      "crop": [
+        983,
+        545,
+        1501,
+        990
+      ],
+      "ground": [
+        1269,
+        915
+      ],
+      "saddle": [
+        1266,
+        680
+      ],
+      "scale": 0.29,
+      "stride": [
+        -40,
+        0
+      ],
+      "legs": [
+        [
+          0.5,
+          [
+            [
+              1161,
+              842
+            ],
+            [
+              1182,
+              842
+            ],
+            [
+              1183,
+              924
+            ],
+            [
+              1148,
+              924
+            ]
+          ]
+        ],
+        [
+          0,
+          [
+            [
+              1182,
+              829
+            ],
+            [
+              1218,
+              829
+            ],
+            [
+              1222,
+              945
+            ],
+            [
+              1171,
+              945
+            ]
+          ]
+        ],
+        [
+          0,
+          [
+            [
+              1356,
+              820
+            ],
+            [
+              1393,
+              820
+            ],
+            [
+              1385,
+              917
+            ],
+            [
+              1336,
+              917
+            ]
+          ]
+        ],
+        [
+          0.5,
+          [
+            [
+              1390,
+              821
+            ],
+            [
+              1426,
+              821
+            ],
+            [
+              1437,
+              942
+            ],
+            [
+              1372,
+              942
+            ]
+          ]
+        ]
+      ],
+      "over": []
+    }
+  ],
+  "outputs": {
+    "horse.webp": {
+      "sha256": "252074d8fe6396931f3659a0820ff12d19d9cfc4c6db86c82d52e9a6fe84aaa7",
+      "bytes": 255344
+    },
+    "artmount.js": {
+      "sha256": "b65d6b16596e719287bc7da7c22a8227cd200e920d3693d151fbbe49344d2ee4",
+      "bytes": 234
+    }
+  }
+}

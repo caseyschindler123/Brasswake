@@ -2,7 +2,7 @@
 const MODULES = ['playability', 'query-feedback', 'battle-risk', 'battle-boundaries',
   'skill-system', 'backstab', 'npc-appearance', 'sound', 'dungeons', 'music', 'arming',
   'first-day', 'prologue', 'world-travel', 'world-buildings', 'cartography', 'joystick',
-  'venues', 'worlds', 'living-world', 'offline', 'offline-restart', 'journeys', 'dev-mode'];
+  'venues', 'worlds', 'living-world', 'offline', 'offline-restart', 'journeys', 'dev-mode','equipment','mounts','settlements','deletion','appearance-materials'];
 // Focused first-day runs omit long profession days; every full gate retains them.
 const ALL_SUITES = ['canary', 'smoke', 'scenes', ...MODULES];
 function normalizeSuites(suites) {

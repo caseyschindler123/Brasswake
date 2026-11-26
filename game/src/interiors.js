@@ -24,6 +24,36 @@ const Interiors = (() => {
   const timber = ['', '#ac7751', '#8b754b', '#ab875b', '#aa7c52', '#825242', '#766e76', '#88715c', '#a57e55'];
   const trim = ['', '#28536a', '#517353', '#976b3f', '#596f86', '#825036', '#625882', '#4f6670', '#365e82'];
 
+  const casino = {
+    w: 14, h: 10,
+    stations: [
+      { key: 'poker', name: 'Poker', table: [3.5, 4.8], footprint: [[2,3],[3,3],[4,3],[2,4],[3,4],[4,4]],
+        dealer: [2,5], facing: 'b', seats: [[1,4,'s'],[5,3,'l']] },
+      { key: 'blackjack', name: 'Blackjack', table: [10.5, 4.8], footprint: [[9,3],[10,3],[11,3],[9,4],[10,4],[11,4]],
+        dealer: [11,5], facing: 'b', seats: [[8,4,'s'],[12,3,'l']] },
+      { key: 'wheel', name: 'Wheel', table: [3.5, 8.15], footprint: [[2,7],[3,7],[4,7],[3,8]],
+        dealer: [5,7], facing: 'l', seats: [[4,8,'b']] },
+    ],
+  };
+  const stable = { w: 12, h: 8, stalls: [[2,2],[5,2],[8,2]] };
+
+  const roomUses = {
+    tavern: { pieces: [['!venue_meal',2.6,4.0]], resident: ['Guest', 'Waiting for supper', [1,4], 's',
+      'I’ve been on the road since dawn. I could smell the supper before I saw the sign.', true] },
+    bank: { pieces: [['!venue_records',2.1,2.2]], resident: ['Depositor', 'Counting a deposit', [2,3], 'b',
+      'I count it here on the counter. It saves us both an argument later.'] },
+    shop: { pieces: [['!venue_stock',2.0,2.1]], resident: ['Shop assistant', 'Sorting the stock', [1,2], 's',
+      'Let me know if you need a hand finding something. I’m putting the deliveries away.'] },
+    healer: { pieces: [['bed',1.45,2.85],['cupboard',3.85,1.75],['!venue_medicine',3.65,2.05]],
+      resident: ['Patient', 'Waiting for the healer', [1,1], 'f', 'I’m resting here until the healer has a moment.', true] },
+    guild: { pieces: [['shelf',1.5,2.15],['ltable',3.25,3.4],['!venue_records',3.2,2.75]],
+      resident: ['Company clerk', 'Checking the rolls', [5,2], 'l', 'I’m checking the names against the company rolls. The trials clerk can help you with your marks.'] },
+    work: { pieces: [['shelf',1.6,1.7],['chest',4.65,1.85],['!venue_tools',3.45,2.4]],
+      resident: ['Apprentice', 'Sorting tools', [4,2], 'l', 'The small tools go back on the bench. You can use them when I’m done sorting them.'] },
+    dojo: { pieces: [['bench',1.8,2.4],['!venue_training_mat',4.4,3.7]],
+      resident: ['Pupil', 'Waiting to practise', [2,2], 's', 'I come early to watch the others spar. It gives me something to work on when it’s my turn.'] },
+  };
+
   function diagram(w, h, cuts = [], partitions = []) {
     const rows = Array.from({ length: h }, () => Array(w).fill('.'));
     for (const [x, y, cw, ch] of cuts) {
@@ -67,6 +97,6 @@ const Interiors = (() => {
       || !Array.isArray(data.back) || data.back.length !== 2 || !coord(data.back[0],768) || !coord(data.back[1],1152)) return null;
     return { v:1, id:data.id, r:data.r, f:1, x:data.x, y:data.y, back:data.back.slice() };
   }
-  return { civic, civicLines, districts, timber, trim, diagram, frontage, upper, normalizeProgress };
+  return { civic, civicLines, districts, timber, trim, casino, stable, roomUses, diagram, frontage, upper, normalizeProgress };
 })();
 if (typeof module !== 'undefined') module.exports = Interiors;

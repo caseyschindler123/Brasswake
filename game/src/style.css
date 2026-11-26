@@ -913,3 +913,11 @@ html,body{background:#2b1c11;overscroll-behavior:none}
 #fight.st-prompt .f-head>div:first-child{flex:none}
 
 #fight.st-prompt .f-head>div:first-child{flex-direction:row;align-items:baseline;gap:8px}
+/* Complete, coherently painted head choices. */
+.head-style-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.head-style-choice{display:flex;flex-direction:column;align-items:center;padding:4px;border:1px solid #94723f;border-radius:8px;background:rgba(255,248,224,.3);color:#39271c;font:inherit;min-width:0}
+.head-style-choice.on{outline:2px solid #70411e;background:rgba(216,183,111,.3)}
+.head-style-choice canvas{width:96px;max-width:100%;height:auto}
+.head-style-choice span{font-size:14px;text-align:center}
+.cr-head-preview{width:144px;height:160px;max-width:100%;align-self:center}
+.material-swatch{display:inline-block;width:12px;height:12px;border:1px solid #6b573a;border-radius:50%;background:var(--material);margin-right:5px}

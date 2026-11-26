@@ -1,0 +1,61 @@
+# Equipment, horses and lived-in towns
+
+Status: implementation in progress. Classification: complex. Owner: main agent; bounded equipment, settlement and mount workers. Requested as one coordinated release on 2026-11-25.
+
+## Scope and consequential risks
+
+Implement all eight reviewed requests and the subsequently agreed equipment mechanics/comparisons. Persistent equipment/horse data must survive device, import, cloud and world/character switching. Enlarged premises must preserve reachable streets, doors, story meetings and safe saved positions. Deletion must bind both confirmations to the same world/character and retire stale encounters/cloud writes. Material appearance must follow actual material rather than rarity. Keep existing possessions and effective bonuses on migration.
+
+## Acceptance criteria
+
+- Proper Home Screen icon, Apple touch icon and manifest icons are packaged in the offline inventory.
+- Complete generated head images keep the same face while drawing hair length/style and facial hair together, following Casey's later direction. Generate and inspect a small source-face comparison first; use Casey’s chosen smaller curated selection, replacing independent hair/beard controls while retaining skin tone and hair colour. Fit headwear and check both body types/outfits and moving attachments. Fix the observed ponytail face patch, flared beards/stubble and floating circlet. Preserve weapon grips.
+- Larger, purposeful casinos with independently approachable poker/blackjack/wheel stations, dealers and seated patrons in every town. Give other service/civic interiors functional arrangements, inhabitants and regional detail. Keep routes/upper floors/arrival anchors usable. Provide working stables.
+- Stable partitions, gates/rails and other new recognizable fittings use curated finished painted art. Inspect native source cuts and actual horse/furniture layering at phone/desktop scales; flat procedural stand-ins cannot pass release. Review new gaming tables/seats against the same bar.
+- Tap a visible business sign to identify the named premises and services with a phone-sized target. Service use still requires physical approach.
+- Character-owned horses purchased at a stable for 650 gold. Menu mount/dismount; outdoor movement 1.7 times running speed at full pace. Actual horse/rider presentation, safe collision, automatic dismount in indoor/dungeon/ship/combat contexts, ownership isolated across worlds, persistence and no permanent horse death/upkeep in this version.
+- Explicit material families, Standard/Fine/Exceptional/Masterwork craftsmanship and magic levels I–V. Danger-based material/magic pools, useful crafting and guaranteed component/gold enchanting. Existing loot retains effective stats. Magic obeys SQL power and skill contracts.
+- Item details expose numerical material/workmanship/magic/legacy contributions and total effect. Expected damage per query and a consistently timed combat-DPS estimate compare the actual build, accuracy, page and strikes, with assumptions and creature-specific bonuses disclosed. Armour compares resulting capped mitigation. Materials visibly differ on icons, paperdolls and moving equipment while retaining texture/detail and skin.
+- Constructed paving borders have fitted corners and restrained relief. Dirt paths show compacted wear with uneven grassy shoulders and no footprints; decorative changes leave collision unchanged.
+- Intro/selection character and world deletion require two separate verification stages, including typed target identification. World deletion clears one of the three fixed households. Character deletion states main-role/shared-property effects. Cancellation, stale identity, other-world isolation and reload are covered.
+
+## Milestones
+
+1. [x] Inspect worktree, read relevant instructions, establish scope and independent ownership.
+2. [x] Equipment pure rules/tests: material/quality/magic generation, migration, crafting/enchanting and exact comparison calculations. Focused rules and three-profile item/enchant flows passed; final exact-commit coverage remains.
+3. [x] Towns: larger layouts, activity/stations, clickable sign geometry and natural/constructed terrain finish. Focused rules/three-profile flows passed, including the Highwatch legal-parcel fallback.
+4. [x] Horses: ownership/speed/context rules, directional rendering/animation and stable purchase integration. Focused three-profile riding/purchase/save/isolation flows passed; further immediate-transaction regressions added during review.
+5. [x] Shared integration: saves, item factory/combat/crafting/UI, attachment calibration, Home Screen packaging and deletion transactions.
+6. [x] Final curated stable/casino fitting source cuts and actual 390×720/1280×800 scenes opened and accepted. Earlier focused pure/runtime/browser checks and opened 390×720/desktop captures passed for equipment, mounts, settlements and deletion. Curated head creation/appearance and persistence passed phone Chromium and WebKit; full-body/collar views were opened at phone/desktop sizes. Reviewed intended diff and numerical descriptions.
+7. [x] Owning architecture/gameplay/art descriptions and dated decisions reconciled as a release candidate.
+8. [ ] Full selected core gate and exact-commit three-profile CI, deployment and hosted commit/HTML/player-flow verification.
+9. [ ] Record release evidence and limitations; close this plan and push documentation closure.
+
+## Ownership and integration contracts
+
+- Equipment worker owns new `src/equipment_rules.js` and `test/equipment-rules.test.js`. No shared game/render/build edits. Supply deterministic factory decoration/migration/stat breakdown/comparison/enchantment APIs and integration notes. Main owns actual combat/UI wiring and material rendering.
+- Settlement worker owns `src/interiors.js`, `src/scene_venues.js`, `src/scene_services.js`, `src/service_places.js`, `src/terrain_edges.js` and focused new tests. Main owns town footprint edits and Scene tap/draw integration in `scene_b.js` plus game station handlers. Supply exact integration notes. No game.js/build edits.
+- Mount worker owns new `src/mounts.js`, `src/mount_view.js`, `test/mounts.test.js` and new-only horse art/receipt files if needed. Main owns game/Scene hooks, persistence and build order. No shared renderer/game/build edits.
+- Main owns all remaining files, integration tests/registration, documentation and publication. Workers do not spawn other agents. Do not overwrite unrelated work or commit independently.
+
+## Verification strategy
+
+Develop rule calculations with pure tests; prepared Dev scenes for gear, combat and building composition; normal controls for stable purchases, mounted travel, physical table approaches, deletion and save/reload/import. Open phone and desktop captures including material comparisons, every facial attachment family, casino/stable/service interiors and terrain borders. Run focused checks in parallel only on independent stable areas. Shared save/game/movement/build changes select full release coverage, including journeys; use authoritative exact-commit CI instead of duplicating unchanged full local and CI runs. No weakened assertions, retries or art-baseline refreshes.
+
+New-only built-in image generation may supply horse artwork if no suitable existing asset exists. No paid API full batch or modifications to existing prompts/model/quality settings are authorized. Preserve generated source receipts and reproducible derivative packing. A physical iPhone remains unavailable; browser emulation cannot establish real-device Home Screen or touch/audio behavior.
+
+## Evidence and release
+
+Pending. No release claimed.
+
+Artwork hold: Casey rejected the stable's procedural horse holder after the first visual acceptance. Replace it with curated painted joinery and review the other new recognizable furnishings, including gaming tables/seats. The art master and project/workflow entry points now explicitly require source/native/in-scene curation; passing browser tests never establishes visual quality. The replacement is integrated and root opened its native contact and actual phone/desktop stable, casino and dojo captures; painted joinery, transparent rail gaps, horse depth, table scale and regional rugs now meet the curation gate. Exact-commit verification/publication remain pending.
+
+2026-11-25 development: full selected core gate passed with UI deferred. Opened face/hair/headgear, five material finishes in each main family, horse directional/alpha and gameplay captures. The improved attachment calibration is an intermediate result: Casey subsequently requested complete generated heads for coherent facial hair/hair presentation, so final art acceptance is still pending. Independent review added save-before-scene deletion, stable character identity across backups, newest-revision hot/device selection, immediate serialized cloud deletion flush and immediate mounted-context normalization. These changes retain focused regression and exact-commit CI requirements.
+
+2026-11-25 steering: Casey chose the smaller curated set of complete head styles. The six-head proof established identity consistency; dense combination sheets are exploratory inputs, not production acceptance. Final production targets twelve complete styles per body with higher native face resolution and generous neck/hair gutters.
+
+Final local evidence before exact-commit CI: full selected core gate passed with UI deferred (later narrow source changes covered by focused rules and browser cases); protocol suite 52/52; new equipment/view/battle 22/22, head portraits 4/4, mounts 5/5, settlement-focused 34/34 and deletion/resource checks passed. Three-profile prepared feature cases passed. Independent review added seven targeted phone deletion/mount save/cloud cases (mock cloud bridge), all passing. No required assertion or art baseline was weakened; seven new assets were appended after visual review while existing hashes remained unchanged. Real iPhone and independently played offline cross-device cloud conflict resolution remain external limits.
+
+2026-11-25 final curation: new-only `venues/fittings.webp` (110082 bytes, SHA-256 `30abaae3cf3f36e7595096ccc450528a4f9ee8f090937c8ef2471143e110a18f`) and generated metadata replay byte-identically with the pinned Pillow environment. Packed inventory is 624 files with all prior hashes unchanged. Independent final review also repaired accessory craft names/results, explicit fabrication icons/subtype bonuses and unselected-account background-save revision handling; focused regressions precede publication.
+
+Final follow-up evidence: explicit fabrication and actual Ring/Charm SQL crafting passed all three profiles; delayed startup cloud adoption/deletion passed phone Chromium including background/pagehide and cartography debounce; final enchanting material thumbnails passed phone WebKit with the capture opened. Stable/casino/clinic/dojo and supported service trays were visually reviewed at phone and desktop scales. Full exact-commit CI remains the publication gate.

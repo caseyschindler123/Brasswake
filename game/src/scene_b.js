@@ -57,7 +57,7 @@
     if (DOLL[key]) return DOLL[key];
     const head = IMG['hb/hair.webp'].im;
     const frames=new Map();
-    return DOLL[key]={headFrame(area,hair){const key=(hair?'hair:':'gear:')+area.join(',');if(frames.has(key))return frames.get(key);const frame=hair?gradMap(head,a.hc[0],a.hc[1],area):recolor(head,a.cloth,a.metal||'#9aa0a8',false,false,area);frames.set(key,frame);return frame;}};
+    return DOLL[key]={headFrame(area,hair,item,view){const key=(hair?'hair:':'gear:')+area.join(',')+':'+item+':'+view;if(frames.has(key))return frames.get(key);const frame=hair?gradMap(head,a.hc[0],a.hc[1],area):recolor(head,a.cloth,a.metal||'#9aa0a8',false,false,area);if(AttachmentFit.removesTail(item,view)){const q=frame.getContext('2d');q.clearRect(frame.width*.22,frame.height*.68,frame.width*.56,frame.height*.32);}frames.set(key,frame);return frame;}};
   }
   const BODY_PROFILES = new Map();
   function bodyProfiles(combo) {
@@ -70,7 +70,7 @@
     c.width=c.height=0;BODY_PROFILES.set(combo,profiles);return profiles;
   }
   function dollLayers(a) {   // recoloured sheets for this look, cached
-    const key = [a.combo, a.cloth, a.metal, a.hc, a.skin, !!a.fx].join('|'); if (DOLL[key]) return DOLL[key];
+    const key = [a.combo, a.cloth, a.metal, a.hc, a.skin, a.armorMaterial?.id,!!a.fx].join('|'); if (DOLL[key]) return DOLL[key];
     const body=recolor(IMG['hb/C' + a.combo + '.webp'].im, a.cloth, a.metal, (a.combo - 1) % 5 >= 3, !!a.fx);
     if(Number.isInteger(a.skin)){
       const ctx=body.getContext('2d'),B=AD.body;
@@ -86,17 +86,36 @@
   function headPlacement(item,v,an,lift){
     const H = AD.body.hair, mv = H.v[item] && H.v[item][v]; if (!mv || !an[2]) return; const [ri, cx] = mv, r = H.r[ri], f = an[2] / H.hw, w = r[2] * f, h = r[3] * f;
     const dx = an[1] - cx * f, dy = an[0] + lift * an[2], hair = item < 18;
-    return {r,w,h,dx,dy,hair};
+    return {r,w,h,dx,dy,hair,...AttachmentFit.placement(item,v,an,r,cx,f)};
   }
   function headLayer(g, L, a, item, v, an, lift, flip) {
     const placement=headPlacement(item,v,an,lift);if(!placement)return;const {r,w,h,dx,dy,hair}=placement;
-    if (L.headFrame) g.drawImage(L.headFrame(r, hair), dx, dy, w, h);
+    g.save();g.globalAlpha*=placement.alpha||1;
+    if (L.headFrame) g.drawImage(L.headFrame(r, hair,item,v), dx, dy, w, h);
     else g.drawImage(hair ? L.hair : L.gear, r[0], r[1], r[2], r[3], dx, dy, w, h);
+    g.restore();
   }
   const BEARD_Y = [.62, .62, .78, .78, .68, .72], HAT_Y = [-.18, -.2, -.3, -.22, -.95, -.02];
+  const EQUIPMENT_IMAGES=new Map();
+  function equipmentImage(material){
+    const source=IMG['hb/wx.webp'].im;if(!material)return source;
+    const key=material.id+':'+artVer;let canvas=EQUIPMENT_IMAGES.get(key);
+    if(canvas)return canvas;
+    canvas=EquipmentView.tintCanvas(source,material.palette,material.family,{protectSkin:material.family==='metal'});canvas.bwEquipment=true;
+    EQUIPMENT_IMAGES.set(key,canvas);if(EQUIPMENT_IMAGES.size>3)EQUIPMENT_IMAGES.delete(EQUIPMENT_IMAGES.keys().next().value);return canvas;
+  }
+  const EQUIPMENT_ICONS=new Map();
+  function equipmentIcon(item){
+    const material=EquipmentRules.materialOf(item);if(!material)return null;
+    const key=[item.ic,item.v,material.id,artVer].join(':');if(EQUIPMENT_ICONS.has(key))return EQUIPMENT_ICONS.get(key);
+    if(item.slot==='weapon'&&item.v!=null&&AD.body.wx[item.v]&&have('hb/wx.webp')){const W=AD.body.wx[item.v],c=mk(64,64),g=c.getContext('2d'),scale=54/Math.max(W[2],W[3]);g.drawImage(equipmentImage(material),W[0],W[1],W[2],W[3],32-W[2]*scale/2,32-W[3]*scale/2,W[2]*scale,W[3]*scale);const url=c.toDataURL();EQUIPMENT_ICONS.set(key,url);if(EQUIPMENT_ICONS.size>128)EQUIPMENT_ICONS.delete(EQUIPMENT_ICONS.keys().next().value);return url;}
+    const separate=/^(dz|hq)\d/.test(item.ic||''),file=separate?'i/'+item.ic+'.webp':'icons.webp',entry=img(file);if(!entry.ok)return null;
+    const size=entry.im.width/16,at=AD.icons.at[item.ic],options=separate?{}:at?{area:[at[0]*size,at[1]*size,size,size]}:null;if(!options)return null;
+    const url=EquipmentView.tintCanvas(entry.im,material.palette,material.family,{...options,protectSkin:false}).toDataURL();EQUIPMENT_ICONS.set(key,url);if(EQUIPMENT_ICONS.size>128)EQUIPMENT_ICONS.delete(EQUIPMENT_ICONS.keys().next().value);return url;
+  }
   function weapon(g, a, x, y, ang, len) {
     const W = AD.body.wx[a.wpn]; if (!W) return; const f = len / W[2]; g.save(); g.translate(x, y); g.rotate(ang); if (a.glow) { g.shadowColor = a.glow; g.shadowBlur = 7; }
-    g.drawImage(IMG['hb/wx.webp'].im, W[0], W[1], W[2], W[3], -W[4] * f - 2, -W[5] * f, W[2] * f, W[3] * f); g.restore();
+    g.drawImage(equipmentImage(a.weaponMaterial), W[0], W[1], W[2], W[3], -W[4] * f - 2, -W[5] * f, W[2] * f, W[3] * f); g.restore();
   }
   const ARC = { swing: [[-2.3, -1.3, .6, 1.6], [-2.2, -1.2, .1, .9], [-.8, -1.6, -2.6, 2.4]], thrust: [[1.3, 1.3, 1.4, 1.3], [.1, .05, 0, .1], [-1.5, -1.5, -1.55, -1.5]] };
   const swingAng = (a, sr, k) => a.wkind === 'staff' && a.style === 'cast' ? -1.45 : (ARC[a.style] || ARC.thrust)[sr === 0 ? 0 : sr === 2 ? 1 : 2][k];
@@ -121,12 +140,12 @@
     const frame=state==='idle'?combo.idle[sr]:state==='walk'||state==='run'?combo[state][sr][k%H.frames]:combo[state][sr===0?0:sr>=3?2:1][k%4];
     const c=mk(H.width,H.height),g=c.getContext('2d'),[x,y,w,h]=frame.r,scratch=mk(w,h),q=scratch.getContext('2d');
     const data=q.createImageData(w,h),p=data.data;p.set(humanPixels(combo.file,frame));
-    const skin=[[184,145,116],[179,132,95],[155,111,78],[116,77,50],[82,50,32]][a.skin??1],cloth=hexRGB(a.cloth||'#b9ac8f'),metal=hexRGB(a.metal||'#a9afb2');
-    const palette=[cloth,[79,66,49],[56,40,28],skin,skin,[57,40,25],[194,190,170],[81,47,38],metal,cloth.map(v=>Math.round(v*.73))],mask=a.fx&&mk(H.width,H.height),maskPixels=a.fx&&q.createImageData(w,h);
+    const skin=[[184,145,116],[179,132,95],[155,111,78],[116,77,50],[82,50,32]][a.skin??1],cloth=hexRGB(a.cloth||'#b9ac8f'),metal=hexRGB(a.armorMaterial?.palette.mid||a.metal||'#a9afb2');
+    const palette=[['cloth','leather'].includes(a.armorMaterial?.family)?hexRGB(a.armorMaterial.palette.mid):cloth,a.armorMaterial?.family==='leather'?hexRGB(a.armorMaterial.palette.mid):[79,66,49],[56,40,28],skin,skin,[57,40,25],[194,190,170],[81,47,38],metal,cloth.map(v=>Math.round(v*.73))],mask=a.fx&&mk(H.width,H.height),maskPixels=a.fx&&q.createImageData(w,h);
     for(let i=0;i<p.length;i+=4){if(!p[i+3])continue;const material=Math.round(p[i]/24)-1,base=palette[material];if(!base)throw Error('Unknown anatomical material '+material);const shade=p[i+1]/200;for(let j=0;j<3;j++)p[i+j]=Math.min(255,base[j]*shade);if(maskPixels&&(material===0||material===9)){maskPixels.data[i]=maskPixels.data[i+1]=maskPixels.data[i+2]=Math.min(255,shade*220);maskPixels.data[i+3]=p[i+3];}}
     q.putImageData(data,0,0);const an=[frame.head[0],frame.head[1],humanHeadWidth(a.combo,sr)],L=dollHeadLayers(a),back=sr>=3,atk=['swing','thrust','cast'].includes(state),len=64*(WLEN[a.wkind]||.6);
     const carry=()=>{
-      if(a.shield>=0){const W=AD.body.wx[a.shield],f=64*WLEN.shield/W[3];g.drawImage(IMG['hb/wx.webp'].im,W[0],W[1],W[2],W[3],an[1]-W[2]*f/2+(sr===2?-an[2]*.6:0),an[0]+an[2]*1.6,W[2]*f,W[3]*f);}
+      if(a.shield>=0){const W=AD.body.wx[a.shield],f=64*WLEN.shield/W[3];g.drawImage(equipmentImage(a.shieldMaterial),W[0],W[1],W[2],W[3],an[1]-W[2]*f/2+(sr===2?-an[2]*.6:0),an[0]+an[2]*1.6,W[2]*f,W[3]*f);}
       if(a.wpn>=0&&!atk&&a.wkind!=='book'){const staff=a.wkind==='staff'||a.wkind==='bow';weapon(g,a,an[1]+an[2]*(sr===2?-.4:sr>=3?-.55:.55),an[0]+an[2]*(staff?3.6:1.05),staff?(a.wkind==='bow'?-1.35:sr===2?-1.75:sr>=3?-1.2:-1.95):(sr===2?1.75:sr>=3?1.2:1.95),len);}
     };
     const held=()=>{if(a.wpn>=0){const hand=frame.hands.slice(2,4);weapon(g,a,hand[0],hand[1],swingAng(a,sr,k),len);}};
@@ -223,7 +242,7 @@
   const CARDINAL_D8 = { f: 0, l: 2, b: 4, s: 6 };
   function npcPose(e) {
     const moving = e.tx != null;
-    const still = e.npcFacing ?? (e.fs == null || !e.ff ? CARDINAL_D8[e.dir] || 0 : e.flip ? 2 : 6);
+    const still = venueIdleFacing(e,e.npcFacing ?? (e.fs == null || !e.ff ? CARDINAL_D8[e.dir] || 0 : e.flip ? 2 : 6));
     const direction = moving ? NpcAppearance.direction(e.tx - e.fx, e.ty - e.fy, still) : still;
     if (moving) e.npcFacing = direction;
     const [source, flip] = DSRC[direction];
@@ -275,7 +294,7 @@
   }
   function releaseHumanFrame(canvas){const mirror=HUMAN_MIRRORS.get(canvas);if(mirror){if(mirror.mask)mirror.mask.width=mirror.mask.height=0;mirror.width=mirror.height=0;}if(canvas.mask)canvas.mask.width=canvas.mask.height=0;canvas.width=canvas.height=0;}
   function npcDraw(e, bx, by, sort, list) {
-    const pose = npcPose(e), image = npcFrame(e.npcLook, pose);
+    const pose = npcPose(e), sourceImage = npcFrame(e.npcLook, pose), image=e.venueSeated&&sourceImage?venueSeatedFrame(sourceImage):sourceImage;
     if (!image) return false;
     const { scale, flip, lean } = pose;
     const bounds=actorBounds(image),anchor=image.anchor||ActorRig.pose(AD.body,e.npcLook.combo,pose.row,pose.frame,bodyProfiles(e.npcLook.combo)).anchor;
@@ -320,7 +339,7 @@
     26: [100, 92, -.83, 164], // longbow
     27: [43, 35, 1.52, 128],  // crossbow
   };
-  function paintHeld(g, body, item, hand, side, glow) {
+  function paintHeld(g, body, item, hand, side, glow, material) {
     const W = AD.body.wx[item], pose = DOLL_CARRY[item];
     if (!W || !pose) return;
     const [gx, gy, angle, length, tuck = 0] = pose, [x, y] = hand, f = length / Math.max(W[2], W[3]);
@@ -328,7 +347,7 @@
     g.translate(x - side * tuck, y);
     g.rotate(angle);
     if (glow) { g.shadowColor = glow; g.shadowBlur = 7; }
-    g.drawImage(IMG['hb/wx.webp'].im, W[0], W[1], W[2], W[3], -gx * f, -gy * f, W[2] * f, W[3] * f);
+    g.drawImage(equipmentImage(material), W[0], W[1], W[2], W[3], -gx * f, -gy * f, W[2] * f, W[3] * f);
     g.restore();
 
     // Restore the curled outer fingers from the dyed figure over the grip.
@@ -345,21 +364,28 @@
     g.drawImage(body, 0, 0);
     g.restore();
   }
-  function paintOffhand(g, body, item, hand) {
+  function paintOffhand(g, body, item, hand, material) {
     const W = AD.body.wx[item];
     if (!W) return;
     if (DOLL_CARRY[item]) {
-      paintHeld(g, body, item, hand, -1);
+      paintHeld(g, body, item, hand, -1,null,material);
     } else if (item >= 20 && item <= 22) {
       // The shield face sits in front of the hand and lower forearm.
       const f = (item === 22 ? 84 : 108) / W[3], w = W[2] * f, h = W[3] * f;
-      g.drawImage(IMG['hb/wx.webp'].im, W[0], W[1], W[2], W[3], hand[0] - 4 - w / 2, hand[1] + 6 - h / 2, w, h);
+      g.drawImage(equipmentImage(material), W[0], W[1], W[2], W[3], hand[0] - 4 - w / 2, hand[1] + 6 - h / 2, w, h);
     }
   }
   const DOLL_PAINT = new WeakMap();
   function drawDoll(cv, a) {
     const B = AD && AD.body, hands = a && DOLL_HANDS[a.combo - 1], pd = B && a && B.pd[a.combo];
     if (!pd || !hands) return false;
+    const headBody=Math.floor((a.combo-1)/5),headStyle=HeadPortraits.styles(headBody).find(p=>p.id===a.headStyle)?.id||HeadPortraits.match(headBody,a.hair,a.beard);
+    if(!HeadPortraits.ready(headBody)){
+      if(DOLL_PAINT.get(cv)?.a===a)return false;
+      const request={a};DOLL_PAINT.set(cv,request);
+      HeadPortraits.preload(headBody,headStyle).then(ok=>{if(ok&&cv.isConnected&&DOLL_PAINT.get(cv)===request){DOLL_PAINT.delete(cv);drawDoll(cv,a);}});
+      return false;
+    }
     const pn = 'hb/P' + a.combo + '.webp', images = [img(pn), img('hb/hair.webp'), img('hb/wx.webp')];
     if (!images.every(entry => entry.ok)) {
       if (DOLL_PAINT.get(cv)?.a === a) return false;
@@ -371,19 +397,21 @@
       return false;
     }
     DOLL_PAINT.delete(cv);
-    const key = 'P' + [a.combo, a.cloth, a.metal, a.skin, !!a.fx].join('|');
+    const key = 'P' + [a.combo, a.cloth, a.metal, a.skin,a.armorMaterial?.id,!!a.fx].join('|');
     if(!DOLL[key]){const image=recolor(IMG[pn].im,a.cloth,a.metal,(a.combo-1)%5>=3,!!a.fx);if(Number.isInteger(a.skin)){const q=image.getContext('2d'),data=q.getImageData(0,0,image.width,image.height);NpcAppearance.tintBody(data.data,image.width,[pd.top,pd.hx,pd.hw],a.combo,null,a.skin);q.putImageData(data,0,0);}DOLL[key]=image;}
-    const P=DOLL[key],L=dollHeadLayers(a),g=cv.getContext('2d');
+    if(a.armorMaterial&&!DOLL[key].materialApplied){const m=a.armorMaterial,source=DOLL[key],tinted=EquipmentView.tintCanvas(source,m.palette,m.family,{bounds:[0,73,300,377],protectSkin:m.family!=='leather',mask:m.family==='leather'?((x,y)=>x>93&&x<208&&y>96&&y<220||x>83&&x<217&&y>=220&&y<430?1:0):undefined});tinted.materialApplied=true;if(source.mask)tinted.mask=source.mask;DOLL[key]=tinted;}const P=DOLL[key],L=dollHeadLayers(a),g=cv.getContext('2d');
     g.clearRect(0, 0, cv.width, cv.height);
     const S = Math.min(cv.width / 300, cv.height / 450);
     g.save();
     g.translate((cv.width - 300 * S) / 2, (cv.height - 450 * S) / 2);
     g.scale(S, S);
-    g.drawImage(P, 0, 0); if (a.fx && P.mask) dollFx(g, a.fx, P.mask, 0, 0, 300, 450, false, performance.now());
-    const an = [pd.top, pd.hx, pd.hw], H = B.hair, big = (item, lift) => { const mv = H.v[item] && H.v[item][5], m0 = H.v[item] && H.v[item][0]; if (!mv) return; const r = H.r[mv[0]], f = an[2] / H.hw * (m0 ? m0[2] / mv[2] : .5), src = item < 18 ? L.hair : L.gear; if(L.headFrame)g.drawImage(L.headFrame(r,item<18),an[1]-mv[1]*f,an[0]+lift*an[2],r[2]*f,r[3]*f);else g.drawImage(src, r[0], r[1], r[2], r[3], an[1] - mv[1] * f, an[0] + lift * an[2], r[2] * f, r[3] * f); };
-    if (a.hat >= 0) big(18 + a.hat, HAT_Y[a.hat]); else if (a.hair >= 0) big(a.hair, -.12); if (a.beard >= 0) big(12 + a.beard, BEARD_Y[a.beard]);
-    paintHeld(g, P, a.wpn, hands[0], 1, a.glow);
-    paintOffhand(g, P, a.shield, hands[1]);
+    g.save();g.beginPath();g.rect(0,0,300,450);g.rect(pd.hx-pd.hw*.74,0,pd.hw*1.48,pd.top+pd.hw*1.18);g.clip('evenodd');g.drawImage(P,0,0);g.restore();
+    if (a.fx && P.mask) dollFx(g, a.fx, P.mask, 0, 0, 300, 450, false, performance.now());
+    HeadPortraits.draw(g,{body:headBody,style:headStyle,skin:a.skin,hc:a.hc},[pd.top,pd.hx,pd.hw]);
+    const an = [pd.top, pd.hx, pd.hw], H = B.hair, big = (item, lift) => { const mv=H.v[item]?.[5],m0=H.v[item]?.[0];if(!mv)return;const r=H.r[mv[0]],f=an[2]/H.hw*(m0?m0[2]/mv[2]:.5),p=AttachmentFit.placement(item,5,an,r,mv[1],f,true)||{dx:an[1]-mv[1]*f,dy:an[0]+lift*an[2],w:r[2]*f,h:r[3]*f,alpha:1};g.save();g.globalAlpha*=p.alpha;g.drawImage(L.headFrame(r,item<18,item,5),p.dx,p.dy,p.w,p.h);g.restore(); };
+    if (a.hat >= 0) big(18 + a.hat, HAT_Y[a.hat]);
+    paintHeld(g, P, a.wpn, hands[0], 1, a.glow,a.weaponMaterial);
+    paintOffhand(g, P, a.shield, hands[1],a.shieldMaterial);
     g.restore(); return true;
   }
   function previewHuman(canvas,a,direction,movingTime,running=false){
@@ -532,7 +560,7 @@
       for (let y = cy - 21; y <= cy + 14; y++) for (let x = cx - 26; x <= cx + 26; x++) if (inb(x, y)) { const i = ix(x, y); if (m.t[i] === 4 && m.b[i] !== 0) m.t[i] = 0; if (m.b[i] > 8) m.b[i] = r; }
       rect(cx - 7, cy - 4, cx + 7, cy + 5, 3); rect(cx - 23, cy, cx + 23, cy + 1, 2); rect(cx, cy - 17, cx + 1, cy + 17, 2); rect(cx - 23, cy + 10, cx + 22, cy + 11, 2);
       const bld = (x, y, w, h, slot, sign, en) => { if (wet(x, y, w, h)) return; rect(x, y, x + w - 1, y + h - 1, 2, 1); for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) m.solid[ix(xx, yy)] = 1; const ob = { x, y, w, h, slot, sign, r, by: (y + h) * T - 1 }; m.blds.push(ob); if (slot !== 'dojo') worldBuilding(m, ob, { doors: en ? ['south', 'east'] : ['south'] }); else if (en) setRoom(m, ob); m.lights.push({ x: x + .9, y: y + h - .6, r: 20, c: 1 }, { x: x + w - .9, y: y + h - .6, r: 20, c: 1 }); };
-      bld(cx - 9, cy - 10, 7, 5, 'guild', '#c9a23a'); bld(cx + 3, cy - 10, 7, 5, 'casino', '#6b2f7a'); bld(cx - 17, cy - 8, 7, 7, 'tavern', '#8a3a2a', 1); bld(cx - 23, cy - 5, 5, 4, 'house');
+      bld(cx - 9, cy - 10, 7, 5, 'guild', '#c9a23a'); /* The larger card room is placed by venueSetup. */ bld(cx - 17, cy - 8, 7, 7, 'tavern', '#8a3a2a', 1); bld(cx - 23, cy - 5, 5, 4, 'house');
       bld(cx + 10, cy - 5, 6, 4, 'work', '#8f949c'); bld(cx + 17, cy - 6, 6, 5, 'shop', null, 1); bld(cx - 15, cy + 5, 5, 4, 'healer'); bld(cx - 22, cy + 5, 5, 4, 'cottage'); bld(cx + 10, cy + 3, 6, 6, 'bank', '#d4a83a', 1); bld(cx + 17, cy + 5, 5, 4, 'cottage');
       bld(cx - 7, cy - 18, 5, 4, 'cottage'); bld(cx + 4, cy - 18, 5, 4, 'house');
       for (const [dx, dy] of [[11, -19], [-17, -17], [-25, -12], [18, -12]]) { const x = cx + dx, y = cy + dy; let ok = !wet(x, y, 7, 6); for (let yy = y; yy < y + 6 && ok; yy++) for (let xx = x; xx < x + 7; xx++) if (!inb(xx, yy) || m.solid[ix(xx, yy)]) { ok = false; break; } if (!ok) continue; bld(x, y, 7, 5, 'dojo', '#7a2a1a'); EE('dojo', x + 3, y + 5, r, { name: 'Dojo', sub: 'Go in' }); m.spots['dojo' + r] = [x + 3, y + 5]; break; }
@@ -872,6 +900,7 @@
       if (host.ghostMoved) host.ghostMoved(GHOST);
       return;
     }
+    if(inspectServiceSign(px,py))return;
     let best = null, closest = 1.1;
     for (const e of map.ents) {
       if (e.hidden || Math.abs(e.fx - wx) > 3 || Math.abs(e.fy - wy) > 4) continue;
@@ -917,17 +946,17 @@
     clock = (clock + dt / 600) % 1;
     for (const a of anims) { a.t += dt; a.f(Math.min(1, a.t / a.d)); if (a.t >= a.d && a.end) a.end(); } anims = anims.filter(a => a.t < a.d);
     if (P.atk > 0) P.atk -= dt; advanceEffects(dt);
-    placePresentation(dt);
+    placePresentation(dt);if(host.mountSafety)host.mountSafety();
     const manual = manualMovement();
     if(manual) {
       const actor=P,[dx,dy]=manual;
       P.d8=D8(dx,dy);P.dir=dirOf(dx,dy);P.dg=null;
-      const distance=Movement.advance(P,dx,dy,(P.run?RUN*(host.runMul?host.runMul():1):WALK)*dt,blocked);
+      const distance=Movement.advance(P,dx,dy,(host.travelSpeed?host.travelSpeed(P.run,P.run?RUN*(host.runMul?host.runMul():1):WALK):P.run?RUN*(host.runMul?host.runMul():1):WALK)*dt,blocked);
       if(P===actor){P.moving=distance>.00001;advanceGait(P,distance,P.run);P.walk+=distance*(P.run?13/4.6:9/2.2);if(distance<.00001)P.path=[];
         if(distance>0&&host.manualMotion)host.manualMotion(distance,P.run);
         // Tile ownership updates at cell boundaries; footsteps/resources use
         // actual distance so rocking across one boundary cannot farm steps.
-        P.footDistance=(P.footDistance||0)+distance;discoverServices();
+        P.footDistance=(P.footDistance||0)+distance;discoverServices();if(host.mountSafety)host.mountSafety();
         if(P.footDistance>=1){P.footDistance-=1;onTile();}
       }
     } else if (P.path.length) {
@@ -935,7 +964,7 @@
       if (blocked(nx, ny)) stopManualStep();
       else {
         const dx = nx - P.fx, dy = ny - P.fy, d = Math.hypot(dx, dy);
-        const speed = P.run ? RUN * (host.runMul ? host.runMul() : 1) : WALK, distance = speed * dt;
+        const speed = host.travelSpeed?host.travelSpeed(P.run,P.run?RUN*(host.runMul?host.runMul():1):WALK):P.run?RUN*(host.runMul?host.runMul():1):WALK, distance = speed * dt;
         const sx = nx - P.x, sy = ny - P.y;
         P.dg = sx && sy ? (sy > 0 ? 'd' : 'u') + (sx > 0 ? 'r' : 'l') : null;
         P.d8 = D8(sx, sy);
@@ -1049,14 +1078,14 @@
       if (e.npcLook && !e.dead && npcDraw(e, bx, by, by + (bars.some(b => b.e === e) ? 4000 : 0), list)) return;
       if (e.fs != null) { const c = fsCut(e.fs, e.ff | 0); if (c) list.push([by, c, bx - lw(c) / 2 + (e.ox || 0), by - lh(c) + 2, !!e.flip]); else if (e.spr) list.push([by, (e.spr.f || e.spr)[0], bx - 8, by - 15]); return; }
       if (!e.spr) return;
-      const s = e.spr, moving = me ? (P.moving||P.path.length) && !locked : e.tx != null, left = e.dir === 'l', fl = me && s.w8 && !(P.atk > 0) ? (P.run && moving && s.r8 ? s.r8 : s.w8)[P.d8 || 0] : me && P.dg && s[P.dg] && !(P.atk > 0) ? s[P.dg] : left && s.l ? s.l : s[left ? 's' : (e.dir || 'f')], f = s.beast ? fr : (moving ? (me && s.w8 && !(P.atk > 0) ? ActorRig.phase(ActorRig.distance(P),P.run,fl.length) : ((me ? P.walk : e.walk) | 0) % fl.length) : me && s.w8 && fl.length === 8 ? 2 : 0), ak = me && P.atk > 0 && s.af ? s['a' + (left ? 'l' : (e.dir || 'f'))] : null, baseImage = ak ? ak[Math.min(3, Math.floor((1 - P.atk / .3) * 4))] : me && !moving && s.idle8 ? s.idle8[P.d8 || 0][0] : fl[f], im = me && map.ship && map.ship.phase === 'rescue' && map.ship.time < 3.7 ? shipWaterFrame(baseImage) : baseImage, sc = e.big && !s.art ? 2 : s.msc || 1;
+      const s = e.spr, moving = me ? (P.moving||P.path.length) && !locked : e.tx != null, left = e.dir === 'l', fl = me && s.w8 && !(P.atk > 0) ? (P.run && moving && s.r8 ? s.r8 : s.w8)[P.d8 || 0] : me && P.dg && s[P.dg] && !(P.atk > 0) ? s[P.dg] : left && s.l ? s.l : s[left ? 's' : (e.dir || 'f')], f = s.beast ? fr : (moving ? (me && s.w8 && !(P.atk > 0) ? ActorRig.phase(ActorRig.distance(P),P.run,fl.length) : ((me ? P.walk : e.walk) | 0) % fl.length) : me && s.w8 && fl.length === 8 ? 2 : 0), ak = me && P.atk > 0 && s.af ? s['a' + (left ? 'l' : (e.dir || 'f'))] : null, baseImage = ak ? ak[Math.min(3, Math.floor((1 - P.atk / .3) * 4))] : me && !moving && s.idle8 ? s.idle8[P.d8 || 0][0] : fl[f], im = me && host.mounted&&host.mounted()?MountView.frame(s.idle8?s.idle8[P.d8||0][0]:baseImage,{direction:P.d8||0,distance:P.wd||0,moving,running:P.run})||baseImage:me && map.ship && map.ship.phase === 'rescue' && map.ship.time < 3.7 ? shipWaterFrame(baseImage) : baseImage, sc = e.big && !s.art ? 2 : s.msc || 1;
       if (e.dead) { const da = artDead(e.inst ? (e.inst.art || e.inst.tpl) : e.tpl); if (da) { const ds = s.msc || 1; list.push([by - 8, da, bx - lw(da) * ds / 2, by - lh(da) * ds + 3, false, ds, 0, e.dying != null ? Math.max(0, e.dying) : 1]); return; } const di = (s.s || s.f)[0]; list.push([by - 8, di, bx - lw(di) * sc / 2, by - lh(di) * sc + 1, false, sc, 0, e.dying != null ? Math.max(0, e.dying) : 1, 1]); return; }
       const flip = me && s.w8 && !(P.atk > 0) ? false : s.left ? (e.dir === 's' && !e.flip) : ((left && !s.l) || e.flip), bob = s.bob ? (moving && !(e.inst && FLY[e.inst.tpl]) ? -Math.round(Math.abs(Math.sin(now / 105 + e.x)) * 3) / K : Math.round(Math.sin(now / 320 + e.x * 2) * 2) / K) : (s.one && moving ? Math.round(Math.abs(Math.sin(now / 90)) * 3) / K : 0);
       list.push([(me ? worldHeroSort(by) : by) + (bars.length && (me || bars.some(b => b.e === e)) ? 4000 : 0), im, bx - (im.originX != null ? im.originX/K : lw(im)/2) * sc, by - (im.originY != null ? im.originY/K : lh(im)) * sc + (s.art ? 1 : 2 + (s.beast ? 3 * sc : 0)) + (s.one && moving ? -bob : bob), flip, sc, e.flash > 0 ? 1 : 0, e.dying != null ? Math.max(0, e.dying) : me && host.visibility && host.visibility().hidden ? .45 : 1, 0, me && s.fx && im.mask ? s.fx : null]);
     };
     drawingNpcFrames = true;
     for (const e of map.ents) { if(e.hidden)continue; if (Math.abs(e.fx * T - ox0 - vw / 2) > vw / 2 + 60 || Math.abs(e.fy * T - oy0 - vh / 2) > vh / 2 + 70) continue; if (e.sv !== artVer) dress(e); else if (e.wk && !e.spr.l && AD && AD.chars.walk && have('folk.webp')) dress(e); if (e.flash > 0) e.flash -= .016; ent(e); }
-    if(P.spr&&P.spr.doll)list.push([worldHeroSort(P.fy*T+15)-1,humanShadow(),P.fx*T+2,P.fy*T+14]);
+    if(P.spr&&P.spr.doll&&!(host.mounted&&host.mounted()))list.push([worldHeroSort(P.fy*T+15)-1,humanShadow(),P.fx*T+2,P.fy*T+14]);
     if (P.flash > 0) P.flash -= .016; ent(P, true);
     livingLayers(list,now);serviceLayers(list);
     list.sort((a, c2) => a[0] - c2[0]);
@@ -1332,14 +1361,14 @@
     if (map.dungeon) return { region: map.r, dun: map.r };
     const r = map.reg[P.y * map.w + P.x] || curReg || 1, t = TOWN[r];
     const room = map.blds.find(b => b.enter && buildingContains(b, P.x, P.y));
-    return { region: r, town: !!Geography.inTown(P.x,P.y) || !!(map.districts&&map.districts.some(d=>P.x>=d.box[0]&&P.x<=d.box[2]&&P.y>=d.box[1]&&P.y<=d.box[3])),
+    return { region: r, town: !!Geography.inTown(P.x,P.y) || !!map.publicVenueDistrict?.has(P.y*map.w+P.x) || !!(map.districts&&map.districts.some(d=>P.x>=d.box[0]&&P.x<=d.box[2]&&P.y>=d.box[1]&&P.y<=d.box[3])),
       venue: room && room.slot === 'tavern' ? 'tavern' : null };
   }
   return { preload, init, load, resetWorld, previewHuman, location:locationFacts, safePosition, restoreHomes, clearRemains: () => { if(world)world.ents=world.ents.filter(e=>!e.mine);if(map && map!==world)map.ents=map.ents.filter(e=>!e.mine); }, remains, emptied, musicContext, tacticalTime:()=>tacticalClock, chase: pursue, endChase, clearPursuits:()=>{for(const e of new Set([...(world?world.ents:[]),...(map?map.ents:[])]))if(e.chase>0||e.returning||e.engaged)endChase(e);}, behind, sight, observed, inDungeonMap: () => !!(map && map.dungeon && !map.ship), mapRegion: () => map ? (map.dungeon ? map.r : 0) : 0, enterDungeon, dungeonRefresh: p => { if(map && map.dungeonFloor)dungeonApply(map,p); }, backdrop, kill, corpse, refresh, resume, pause, portrait, act, FX, towns: () => TOWN, terr: () => world ? world.terr : [], sites: () => world ? world.sites : [], spots: () => world ? world.spots : {}, mini: () => world && world.mini, size: [WW, WH], ferries: () => world ? world.ferries : [], districts: () => world ? world.districts : [],
     enterShip, shipStage, inShip: () => !!(map && map.ship),
-    enterVenue, exitVenue, venueState, restoreVenue, inInterior: () => !!(map && map.venue), venues: () => world && world.venues ? Array.from(world.venues.values()) : [],
+    enterVenue, exitVenue, venueState, restoreVenue, inInterior: () => !!(map && map.venue), outdoors:()=>!!(P&&map===world&&!world.blds.some(b=>b.enter&&buildingContains(b,P.x,P.y))), venues: () => world && world.venues ? Array.from(world.venues.values()) : [],
     traveling: () => !!(P && (P.moving||P.path.length)),
     cartographyCatalogue, cartographyBounds, cartographyRoute, cartographyGuide, cartographyMap, cartographyAtlas, cartographyInsideHome, cartographySign,
     pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon && !map.ship), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ landscape: {piece:landscapePiece,entry:landscapeEntry,actors:landscapeActors,images:LANDSCAPE_IMAGES}, buildingCache: WORLD_BUILDING_CACHE.stats, map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, groundKinds, paintGround, humanSprite:dollSprite, bldSpr, effects: { shots, slashes, floats }, advanceEffects, draw, npcPose, npcFrame, npcCache: () => ({ frames: NPC_FRAMES.size, limit: NPC_FRAME_LIMIT, materials:HUMAN_PIXELS.size, materialLimit:HUMAN_PIXEL_LIMIT }) }),
-    warp(x, y) { load([x, y]); }, hop(x, y) { go(map, x, y); }, guidePut, guideOff, guideEnt: () => GUIDE, drawDoll, dollKey: () => artVer, enterHall, inHall: () => map && map.hall ? map.r : 0, hallAdd: o => map ? addEnt(map, Object.assign({ r: map.r }, o)) : null, hallMove: (e, x, y) => { if (!map || !e) return; const k = e.y * map.w + e.x; if (map.occ.get(k) === e) map.occ.delete(k); e.x = e.fx = x; e.y = e.fy = y; e.tx = null; map.occ.set(y * map.w + x, e); }, ents: () => map ? map.ents : [], fsReady: () => !!(AD && AD.dojo && (IMG['dj/fs.webp'] || img('dj/fs.webp')) && have('dj/fs.webp')) };
+    warp(x, y) { load([x, y]); }, hop(x, y) { go(map, x, y); }, guidePut, guideOff, guideEnt: () => GUIDE, drawDoll,equipmentIcon, dollKey: () => artVer, enterHall, inHall: () => map && map.hall ? map.r : 0, hallAdd: o => map ? addEnt(map, Object.assign({ r: map.r }, o)) : null, hallMove: (e, x, y) => { if (!map || !e) return; const k = e.y * map.w + e.x; if (map.occ.get(k) === e) map.occ.delete(k); e.x = e.fx = x; e.y = e.fy = y; e.tx = null; map.occ.set(y * map.w + x, e); }, ents: () => map ? map.ents : [], fsReady: () => !!(AD && AD.dojo && (IMG['dj/fs.webp'] || img('dj/fs.webp')) && have('dj/fs.webp')) };
 })();

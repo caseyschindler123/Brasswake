@@ -1,5 +1,32 @@
 [
   {
+    "path": "art/app/icon-180.png",
+    "size": 8310,
+    "sha256": "9e223b64672af3f3443352f85cb995947a22486bcadf79beaf6974ce45b9c72e",
+    "dimensions": [
+      180,
+      180
+    ]
+  },
+  {
+    "path": "art/app/icon-192.png",
+    "size": 8870,
+    "sha256": "8b7335d518e45fc5bc4051b44c11522c4a34ca2b38b330de2fead279bdc82e40",
+    "dimensions": [
+      192,
+      192
+    ]
+  },
+  {
+    "path": "art/app/icon-512.png",
+    "size": 17983,
+    "sha256": "3293d148aae0ff58d534b4f66edb70a1e6c1140813e1e0eeeaa35bf626c39233",
+    "dimensions": [
+      512,
+      512
+    ]
+  },
+  {
     "path": "art/architecture/region-1.webp",
     "size": 1159014,
     "sha256": "f7bd3127f8320d94c1142e5bbfe08c326cd2c6dd2b39910803aa3a43bc9f4f87",
@@ -1989,6 +2016,24 @@
     ]
   },
   {
+    "path": "art/heads/man.webp",
+    "size": 447050,
+    "sha256": "5eca0579b5e6a0a1be5633ce141a2f85da5983c4e4a9a703902fa2ede1e7a8f7",
+    "dimensions": [
+      1152,
+      768
+    ]
+  },
+  {
+    "path": "art/heads/woman.webp",
+    "size": 460428,
+    "sha256": "25bbe5e103d139ca06f6af4ecf73f4af8482daf978007445ce482a6b48864f81",
+    "dimensions": [
+      1152,
+      768
+    ]
+  },
+  {
     "path": "art/hm.webp",
     "size": 837938,
     "sha256": "f4fb936690e4e7b1c682a797625ae8a691f0b3a69b0633c4618b9ca132d4d942",
@@ -2775,6 +2820,15 @@
     "dimensions": [
       1600,
       5016
+    ]
+  },
+  {
+    "path": "art/mount/horse.webp",
+    "size": 255344,
+    "sha256": "252074d8fe6396931f3659a0820ff12d19d9cfc4c6db86c82d52e9a6fe84aaa7",
+    "dimensions": [
+      1680,
+      816
     ]
   },
   {
@@ -5003,6 +5057,15 @@
     "dimensions": [
       160,
       156
+    ]
+  },
+  {
+    "path": "art/venues/fittings.webp",
+    "size": 110082,
+    "sha256": "30abaae3cf3f36e7595096ccc450528a4f9ee8f090937c8ef2471143e110a18f",
+    "dimensions": [
+      592,
+      444
     ]
   },
   {

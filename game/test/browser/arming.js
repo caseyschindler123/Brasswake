@@ -26,7 +26,7 @@ test('paper doll grips preserve the fingers and fit every weapon and offhand on 
     // Replay just the weapon draw on a larger canvas. Its real opaque pixels
     // expose clipping and show which original fingers cover the grip.
     g.drawImage = (im, ...rect) => {
-      if (im.src?.endsWith('/hb/wx.webp')) {
+      if (im.src?.endsWith('/hb/wx.webp')||im.bwEquipment) {
         const transform = g.getTransform();
         q.setTransform(transform.a, transform.b, transform.c, transform.d, transform.e + 32, transform.f + 32);
         q.drawImage(im, ...rect);

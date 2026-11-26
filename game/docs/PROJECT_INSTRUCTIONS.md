@@ -14,6 +14,7 @@ You are helping build Brasswake, a mobile SQL-learning RPG in the spirit of Ulti
 - Use the [environment-use guide](05_CODING_WORKFLOW.md#choose-the-development-environment) before choosing checks: small pure tests for rules, direct captures for appearance, Dev setup for isolated battle/gear/building interactions, and normal player flows for progression/travel/save/audio/offline contracts. Automation uses Dev commands directly; no manual QA assignment or mandatory panel interaction is needed.
 - Before changing rules, numbers, content or story, read 02_GAMEPLAY.md.
 - Before writing any image prompt or packing art, read 03_ART_STYLE.md.
+- Before adding or changing recognizable world-object artwork, follow 03_ART_STYLE.md's curation gate. Do not publish placeholder-quality procedural furnishings as finished art; inspect the source and actual assembled scene at native, phone and desktop scales.
 - Before writing any text a player will see, read 04_WRITING_STYLE.md.
 - If the documents and the code disagree, the code is what ships. Say where they disagree, fix the document, and ask Casey if the difference looks unintended.
 

@@ -11,9 +11,10 @@
   const CONCEAL = Sneaking.create();
   let WOUNDS = Backstab.memory(), AMBUSH = null;
   function resetTactics(){WOUNDS=Backstab.memory();AMBUSH=null;if(sceneUp)Scene.clearPursuits();}
+  let GearScreen,deletionEpoch=0;
   let S, tab = 'world', sceneUp = false, sceneOwner = null, interiorSaveTimer = 0, sub = 'work', lsub = 'sandbox', sel = null, ready = false, engineErr = '', COLS = {}, benchSlot = 'weapon', con = { sql: '', res: null };
-  const fresh = () => ({ v: 8, wv: WorldProgress.revision, cartography: Cartography.create(), prologue:null, interior: null, dungeon: null, dungeons: {}, deathPending: null, seen: {}, gd: -1, gn: 0, bank: { gold: 0, items: [] }, homes: [], runes: 0, tabs: {}, tw: {}, vault: {}, letter: 0, archive: 0, cache: {}, campT: 0, meat: 0, met: {}, pk: { n: 0, net: 0 }, food: {}, er: { a: {}, d: {}, n: 0 }, poi: {}, fishd: {}, fishlog: {}, cs: {}, known: {}, name: '', tut: 0, pages: {}, scr: {}, jr: {}, hints: 1, page: null, gold: 30, path: null, look: null, hp: 50, sk: {}, wsk: null, been: { 1: 1 }, skills: {}, done: {}, seen: {}, boss: {}, rum: {}, inv: [], eq: {}, codex: {}, mats: {}, tonics: 1, bandages: 4, streak: 0, best: 0, stats: { q: 0, ok: 0, kills: 0, steals: 0, dungeons: 0, falls: 0 }, region: 1, pos: null, intro: 0, mv: 0, talked: 0, rival: {}, dpity: {}, rounds: null, stall: null, won: 0, rev: 0, at: 0 });
-  const migrate = o => { if (!o || ![5,6,7,8].includes(o.v)) return fresh(); const f = fresh(), s = Object.assign(f, o, {v:8}); s.prologue=Prologue.normalize(s.prologue); if (!o.cartography) delete s.cartography; if (!o.seen && o.tut >= 3) s.seen = { fight: 1, fprompt: 1, bag: 1, hero: 1, map: 1, ledger: 1, shop: 1 }; if (!o.g && o.tut >= 3) s.g = 'done'; if (s.casino) { s.gold += s.casino.stack || 0; s.casino = null; } s.stats = Object.assign(fresh().stats, s.stats || {}); return Progression.normalize(s); };
+  const fresh = () => ({ v: 9, uid:'c'+rid(), horse: {owned:false,mounted:false}, wv: WorldProgress.revision, cartography: Cartography.create(), prologue:null, interior: null, dungeon: null, dungeons: {}, deathPending: null, seen: {}, gd: -1, gn: 0, bank: { gold: 0, items: [] }, homes: [], runes: 0, tabs: {}, tw: {}, vault: {}, letter: 0, archive: 0, cache: {}, campT: 0, meat: 0, met: {}, pk: { n: 0, net: 0 }, food: {}, er: { a: {}, d: {}, n: 0 }, poi: {}, fishd: {}, fishlog: {}, cs: {}, known: {}, name: '', tut: 0, pages: {}, scr: {}, jr: {}, hints: 1, page: null, gold: 30, path: null, look: null, hp: 50, sk: {}, wsk: null, been: { 1: 1 }, skills: {}, done: {}, seen: {}, boss: {}, rum: {}, inv: [], eq: {}, codex: {}, mats: {}, tonics: 1, bandages: 4, streak: 0, best: 0, stats: { q: 0, ok: 0, kills: 0, steals: 0, dungeons: 0, falls: 0 }, region: 1, pos: null, intro: 0, mv: 0, talked: 0, rival: {}, dpity: {}, rounds: null, stall: null, won: 0, rev: 0, at: 0 });
+  const migrate = o => { if (!o || ![5,6,7,8,9].includes(o.v)) return fresh(); const f = fresh(), s = Object.assign(f, o, {v:9}); if(typeof s.uid!=='string'||!s.uid)s.uid='c'+rid();equipmentTree(s);s.horse=Mounts.normalize(s.horse);if(s.dungeon||s.interior||s.prologue&&s.prologue.phase!=='done')s.horse=Mounts.dismount(s.horse);s.prologue=Prologue.normalize(s.prologue); if (!o.cartography) delete s.cartography; if (!o.seen && o.tut >= 3) s.seen = { fight: 1, fprompt: 1, bag: 1, hero: 1, map: 1, ledger: 1, shop: 1 }; if (!o.g && o.tut >= 3) s.g = 'done'; if (s.casino) { s.gold += s.casino.stack || 0; s.casino = null; } s.stats = Object.assign(fresh().stats, s.stats || {}); return Progression.normalize(s); };
 
   /* ---------- saving: this device first, then the player's Claude account when available ---------- */
   const Cloud = { ref: null, state: 'device', busy: false, dirty: false, timer: 0 };
@@ -29,9 +30,9 @@
   const linkS = s => { s.homes = A.homes; s.codex = A.codex; return s; }, slotOut = s => { const o = Object.assign({}, s); delete o.homes; delete o.codex; return o; };
   function purgeOld() { try { for (let i = localStorage.length - 1; i >= 0; i--) { const k = localStorage.key(i); if (k && k.indexOf('brasswake.save') === 0) localStorage.removeItem(k); } } catch (e) { } }
   function loadA() { try { const t = localStorage.getItem(AKEY) || localStorage.getItem('brasswake.acct.v8') || localStorage.getItem('brasswake.acct.v7') || localStorage.getItem('brasswake.acct.v6'); return t ? CharacterWorlds.normalize(JSON.parse(t)) : null; } catch (e) { return null; } }
-  function loadCur() { resetTactics();for(const w of A.worlds){WorldProgress.migrateAccount(w);w.slots=w.slots.map(c=>c?migrate(c):null);} S = linkS(Progression.normalize(A.cur >= 0 && A.slots[A.cur] ? migrate(A.slots[A.cur]) : fresh())); Sneaking.reveal(CONCEAL); if(S.deathPending){S.region=S.deathPending.r;S.pos=S.deathPending.at;S.dungeon=null;S.interior=null;S.hp=maxHp();S.deathPending=null;} if (!(S.hp > 0)) S.hp = maxHp(); if(sceneUp){clearInterval(GSAY);Scene.guideOff();} }
+  function loadCur() { resetTactics();for(const w of A.worlds){WorldProgress.migrateAccount(w);equipmentTree(w.homes);w.slots=w.slots.map(c=>c?migrate(c):null);} S = linkS(Progression.normalize(A.cur >= 0 && A.slots[A.cur] ? migrate(A.slots[A.cur]) : fresh())); Sneaking.reveal(CONCEAL); if(S.deathPending){S.region=S.deathPending.r;S.pos=S.deathPending.at;S.dungeon=null;S.interior=null;S.hp=maxHp();S.deathPending=null;} if (!(S.hp > 0)) S.hp = maxHp(); if(sceneUp){clearInterval(GSAY);Scene.guideOff();} }
   function syncA() { const draft=boatActive()&&S.prologue.phase==='name'&&$('#boat-name');if(draft&&Prologue.cleanName(draft.value))S.name=Prologue.cleanName(draft.value); if(sceneUp && sceneOwner===S && boatActive() && Scene.inShip())S.prologue=Prologue.moved(S.prologue,Scene.pos()); clearTimeout(interiorSaveTimer);interiorSaveTimer=0; if(sceneUp && sceneOwner === S)S.interior=Scene.venueState(); if(sceneUp&&sceneOwner===S&&!Scene.inDungeon()&&!Scene.inHall()&&!Scene.inInterior()&&!Scene.inShip())S.pos=Scene.pos(); CMap.snapshot(); if (A && A.cur >= 0 && S && S.path) A.slots[A.cur] = slotOut(S); if(A)for(const w of A.worlds)for(const s of w.slots)if(s){if(s.openLocks)s.openLocks=Object.fromEntries(Object.entries(s.openLocks).filter(([,v])=>v===dayKey()));DungeonProgress.compact(s,now());if(s.cartography)s.cartography=Cartography.normalize(s.cartography);s.interior=Interiors.normalizeProgress(s.interior);} }
-  function save() { if (sceneUp && DG && Scene.inDungeon()) DP.snapshot(); if (!A) A = freshA(); if (A.cur >= 0 && S && S.path) { S.rev++; S.at = now(); } syncA(); A.rev++; A.at = now(); try { localStorage.setItem(AKEY, JSON.stringify(A)); deviceSave.ok=true;deviceSave.at=A.at; } catch (e) { deviceSave.ok=false; } drawSaveStatus(); if (Cloud.ref) { Cloud.dirty = true; clearTimeout(Cloud.timer); Cloud.timer = setTimeout(flush, 2500); } return deviceSave.ok; }
+  function save() { if(S?.horse&&sceneUp&&sceneOwner===S)S.horse=Mounts.enforceContext(S.horse,mountContext());if (sceneUp && DG && Scene.inDungeon()) DP.snapshot(); if (!A) A = freshA(); if (A.cur >= 0 && S && S.path) { S.rev++; S.at = now(); } syncA(); A.rev++; A.at = now(); try { localStorage.setItem(AKEY, JSON.stringify(A)); deviceSave.ok=true;deviceSave.at=A.at; } catch (e) { deviceSave.ok=false; } drawSaveStatus(); if (Cloud.ref) { Cloud.dirty = true; clearTimeout(Cloud.timer); Cloud.timer = setTimeout(flush, 2500); } return deviceSave.ok; }
   function saveCode(){save();return btoa(unescape(encodeURIComponent(JSON.stringify(A))));}
   function backupSheet(){sheet(`<h2>Back up your save</h2><p class="cap2">Progress saves automatically on this device. Keep a separate file to restore all three worlds on this or another device.</p><div class="save-backup-actions"><button class="btn solid" data-a="savefile">Save file</button><button class="btn quiet" data-a="export">Copy a save code</button></div><p class="cap2" id="backup-status" role="status">On iPhone, choose Save to Files in the share menu.</p>`);}
   async function saveFile(){
@@ -43,12 +44,15 @@
     } catch(e){if(status)status.textContent=e.name==='AbortError'?'Save file cancelled. Your progress is still here.':'The file could not be saved. Copy a save code instead.';}
   }
   async function flush() {
-    if (Cloud.busy || !Cloud.dirty || !Cloud.ref) return; Cloud.busy = true; Cloud.dirty = false;
-    try { syncA(); await Cloud.ref.set({ json: JSON.stringify(A), rev: A.rev, at: A.at }); Cloud.state = 'account'; }
+    if (Cloud.busy) {try{await Cloud.flight;}catch(_){}return;}
+    if (!Cloud.dirty || !Cloud.ref) return; Cloud.busy = true; Cloud.dirty = false;
+    try { syncA(); const ref=Cloud.ref,payload={json:JSON.stringify(A),rev:A.rev,at:A.at};Cloud.flight=Promise.resolve().then(()=>ref.set(payload));await Cloud.flight;Cloud.state = 'account'; }
     catch (e) { if (e && e.code === 'unavailable') Cloud.dirty = true; else { Cloud.state = 'device'; Cloud.ref = null; } }
-    Cloud.busy = false; if (Cloud.dirty && Cloud.ref) Cloud.timer = setTimeout(flush, 5000);
+    Cloud.busy = false;Cloud.flight=null;if (Cloud.dirty && Cloud.ref) Cloud.timer = setTimeout(flush, 5000);
   }
+  async function flushDeletion(){clearTimeout(Cloud.timer);await flush();if(Cloud.dirty&&Cloud.ref){clearTimeout(Cloud.timer);await flush();}}
   async function cloudInit() {
+    const deletionAtRead=deletionEpoch;
     try {
       if (!window.claude || !window.claude.use) return;
       const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]); if (!db || !user) return;
@@ -58,7 +62,8 @@
       const snap = await Promise.race([ref.get(), new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 10000))]);
       if (snap.exists) {
         const d = snap.data(), remote = d && d.json ? JSON.parse(d.json) : null;
-        if (remote && [6,7,8,9].includes(remote.v) && (remote.rev || 0) > (A.rev || 0)) {
+        if(remote&&[6,7,8,9].includes(remote.v)&&deletionEpoch!==deletionAtRead){A.rev=Math.max(A.rev,remote.rev||0);save();}
+        else if (remote && [6,7,8,9].includes(remote.v) && (remote.rev || 0) > (A.rev || 0)) {
           closeSheet(); CE = null;
           discardEncounter(); A = CharacterWorlds.normalize(remote); if(sceneUp&&Scene.resetWorld)Scene.resetWorld(); loadCur(); cmdBackfill();
           Q = null; F = null; DG = null;
@@ -80,6 +85,19 @@
   const CAP = Progression.CAP, skCap = id => Progression.skillCap(S,id), gainBoost = () => (S.boost || 0) > Date.now(), rv = id => S.sk[id] || 0, rpgName = id => (RPG.find(x => x[0] === id) || [id,id])[1];
   const total = () => Progression.total(S);
   const maxHp = () => Progression.maxHp(S);
+  const maxStamina = () => Progression.maxStamina(S);
+  const castingCost = c => EquipmentRules.castCost(Progression.castCost(c),bonus('focus'));
+  function mountContext(){return {outdoors:sceneUp&&Scene.outdoors(),indoors:sceneUp&&!Scene.outdoors(),dungeon:sceneUp&&Scene.inDungeon(),ship:sceneUp&&Scene.inShip(),combat:!!F||!!Q||!!DU||!!activePursuit()};}
+  function mounted(){return !!(S.horse?.mounted&&Mounts.canRide(mountContext()));}
+  function mountToggle(){const result=Mounts.toggle(S.horse,mountContext());if(!result.ok)return toast(result.reason==='horse'?'Buy a horse from a stable first.':'You can mount outdoors after leaving danger.');S.horse=result.state;Sneaking.reveal(CONCEAL);if(S.horse.mounted)MountView.preload();save();render();toast(S.horse.mounted?'You mount your horse.':'You dismount.');}
+  const liveService=kind=>!!CE&&CE.kind===kind&&Scene.ents().includes(CE)&&Math.abs(Scene.pos()[0]-CE.x)+Math.abs(Scene.pos()[1]-CE.y)<=1;
+  function buyHorse(){if(!liveService('stablekeep'))return toast('Walk up to the stablekeeper.');const result=Mounts.buy(S.horse,S.gold);if(!result.ok)return toast(result.reason==='owned'?'You already own a horse.':'You need '+Mounts.PRICE+' gold.');S.horse=result.state;S.gold=result.gold;MountView.preload();save();renderHud();SH.stablekeep(CE);toast('Your riding horse is ready. Mount from the Hero menu.');}
+  function equipmentTree(value,seen=new WeakSet()){
+    if(!value||typeof value!=='object'||seen.has(value))return value;seen.add(value);
+    if(value.slot&&value.stats)Object.assign(value,EquipmentRules.migrate(value));
+    for(const child of Object.values(value))if(child&&typeof child==='object')equipmentTree(child,seen);
+    return value;
+  }
   const activePursuit=()=>sceneUp&&Scene.find(e=>e.chase>0||e.engaged);
   const heal = (n, quiet) => { const b = S.hp; S.hp = Math.max(0, Math.min(maxHp(), Math.round(S.hp + n))); if (!quiet && S.hp > b && typeof Scene !== 'undefined') Scene.FX.heal(); return S.hp - b; };
   const diffOf = (t, elite, boss) => Math.min(100, (t - 1) * 12 + 8 + (elite ? 8 : 0) + (boss ? 14 : 0));
@@ -128,7 +146,7 @@
   const WN = { swords: ['Iron Sword', 'Steel Sword', 'Silvered Blade', 'Gilded Longsword'], fencing: ['Iron Rapier', 'Steel Rapier', 'Silvered Rapier', 'Gilded Rapier'], archery: ['Short Bow', 'Long Bow', 'Silvered Bow', 'Gilded Bow'], magery: ['Oak Staff', 'Ash Staff', 'Silvered Staff', 'Gilded Staff'] };
   const GN = { armor: ['Leather Jerkin', 'Chain Shirt', 'Plate Cuirass', 'Knight’s Plate'], shield: ['Wooden Shield', 'Iron Shield', 'Kite Shield', 'Tower Shield'], ring: ['Garnet Ring', 'Sapphire Ring', 'Emerald Ring', 'Moonstone Ring'], charm: ['Sun Amulet', 'Star Amulet', 'Leaf Amulet', 'Moon Amulet'] };
   const SUF = { gold: 'of the Purse', learn: 'of Study', luck: 'of Fortune' }, PRE = { common: '', uncommon: 'Fine ', rare: 'Superior ', epic: 'Exquisite ', legendary: 'Mythic ' };
-  const STATN = { dmg: 'Damage', def: 'Defence', xp: 'Damage', gold: 'Gold', learn: 'Skill gain', luck: 'Luck', deft: 'Deftness' };
+  const STATN = {embers:'Fire damage',slaying:'Damage against undead',precision:'Accuracy',focus:'Mana cost reduction',warding:'Magic defence',vitality:'Maximum health',quieting:'Hiding chance',endurance:'Maximum stamina', dmg: 'Damage', def: 'Defence', xp: 'Damage', gold: 'Gold', learn: 'Skill gain', luck: 'Luck', deft: 'Deftness' };
   // weapons you can find: art index (hb/wx), the skill it counts for, how it is carried and swung, the lowest grade it turns up at, its icon
   const WV = [{ v: 0, n: 'Short Sword', w: 'swords', k: 'sword', s: 'swing', g: 0 }, { v: 1, n: 'Longsword', w: 'swords', k: 'sword', s: 'swing', g: 1 }, { v: 2, n: 'Greatsword', w: 'swords', k: 'long', s: 'swing', g: 2, ic: 'hq28' },
     { v: 3, n: 'Broad Axe', w: 'swords', k: 'sword', s: 'swing', g: 0 }, { v: 4, n: 'Battle Axe', w: 'swords', k: 'long', s: 'swing', g: 2, ic: 'hq26' }, { v: 5, n: 'Flanged Mace', w: 'swords', k: 'sword', s: 'swing', g: 1 }, { v: 6, n: 'War Hammer', w: 'swords', k: 'long', s: 'swing', g: 2, ic: 'hq25' },
@@ -142,15 +160,17 @@
     hands: [['Leather Gloves'], ['Leather Gloves', 'Plated Gauntlets'], ['Plated Gauntlets'], ['Gilded Gauntlets']], feet: [['Leather Boots'], ['Riding Boots'], ['Steel Sabatons'], ['Gilded Sabatons']], cloak: [['Wool Cloak'], ['Travelling Cloak'], ['Silk Cloak'], ['Royal Cloak']] };
   const HATK = n => /Wizard/.test(n) ? 4 : /Hood/.test(n) ? 3 : /Circlet/.test(n) ? 5 : /Coif/.test(n) ? 1 : /Helm/.test(n) ? 2 : /Cap/.test(n) ? 0 : -1;
   const GEARIC = n => 'hq' + ({ 'Leather Cap': 1, 'Mail Coif': 2, 'Steel Helm': 3, 'Gilded Helm': 3, 'Cloth Hood': 4, 'Wizard’s Hat': 5, 'Silver Circlet': 6, 'Gilded Circlet': 6, 'Leather Gloves': 7, 'Thief’s Gloves': 8, 'Plated Gauntlets': 9, 'Gilded Gauntlets': 9, 'Leather Boots': 10, 'Riding Boots': 10, 'Steel Sabatons': 11, 'Gilded Sabatons': 11, 'Glass Orb': 20, 'Spellbook': 19 }[n] || 12);
-  function makeItem(rarity, tier, slot, w) {
+  function makeItem(rarity, tier, slot, w, options={}) {
     slot = slot || pick(['weapon', 'weapon', 'armor', 'shield', 'ring', 'charm', 'head', 'hands', 'feet', 'cloak']); const ri = RAR.indexOf(rarity), g = GRADE[rarity], it = { id: 'i' + rid(), slot, rarity, tier, stats: {} };
-    if (slot === 'weapon') { it.w = w || pick(Object.keys(WEAP)); it.stats.dmg = [6, 12, 20, 30, 42][ri] + tier * 2 + rint(0, 3); const V = pick(WV.filter(x => x.w === it.w && x.g <= g)); it.v = V.v; it.name = PRE[rarity] + (MATW[it.w][g] ? MATW[it.w][g] + ' ' : '') + V.n; it.ic = V.ic || `w_${it.w}_${g + 1}`; }
-    else if (slot === 'head' || slot === 'hands' || slot === 'feet' || slot === 'cloak') { const thief = slot === 'hands' && rnd() < .3; it.name = PRE[rarity] + (thief ? 'Thief’s Gloves' : pick(GEAR[slot][g])); it.stats.def = { head: [2, 4, 6, 9, 12], hands: [1, 3, 5, 7, 10], feet: [1, 3, 5, 7, 10], cloak: [1, 2, 4, 6, 8] }[slot][ri] + Math.ceil(tier / 3);
+    if (slot === 'weapon') { it.w = w || pick(Object.keys(WEAP)); it.stats.dmg = [6, 12, 20, 30, 42][ri] + tier * 2 + rint(0, 3); const V = pick(WV.filter(x => x.w === it.w && x.g <= g&&(!options.material||EquipmentRules.eligibleMaterials({...it,v:x.v,name:x.n},tier).some(m=>m.id===options.material)))); it.v = V.v; it.name = PRE[rarity] + (MATW[it.w][g] ? MATW[it.w][g] + ' ' : '') + V.n; it.ic = V.ic || `w_${it.w}_${g + 1}`; }
+    else if (slot === 'head' || slot === 'hands' || slot === 'feet' || slot === 'cloak') { const thief = !options.archetype && slot === 'hands' && rnd() < .3; it.name = PRE[rarity] + (options.archetype || (thief ? 'Thief’s Gloves' : pick(GEAR[slot][g]))); it.stats.def = { head: [2, 4, 6, 9, 12], hands: [1, 3, 5, 7, 10], feet: [1, 3, 5, 7, 10], cloak: [1, 2, 4, 6, 8] }[slot][ri] + Math.ceil(tier / 3);
       if (thief) it.stats.deft = [4, 7, 10, 14, 18][ri] + Math.floor(tier / 2); else if (slot === 'cloak') it.stats[pick(['luck', 'learn'])] = rint(2, 4) + ri * 2; else if (/Wizard|Circlet/.test(it.name)) it.stats.learn = rint(2, 4) + ri * 2; it.ic = GEARIC(it.name.replace(PRE[rarity], '')); }
-    else if (slot === 'shield' && rnd() < .25) { const nm = pick(['Glass Orb', 'Spellbook']); it.stats.def = [2, 3, 5, 8, 11][ri] + Math.ceil(tier / 3); it.stats.learn = rint(3, 5) + ri * 2; it.name = PRE[rarity] + nm; it.ic = GEARIC(nm); it.off = nm === 'Glass Orb' ? 23 : 24; }
+    else if (slot === 'shield' && !options.archetype && rnd() < .25) { const nm = pick(['Glass Orb', 'Spellbook']); it.stats.def = [2, 3, 5, 8, 11][ri] + Math.ceil(tier / 3); it.stats.learn = rint(3, 5) + ri * 2; it.name = PRE[rarity] + nm; it.ic = GEARIC(nm); it.off = nm === 'Glass Orb' ? 23 : 24; }
     else if (slot === 'armor' || slot === 'shield') { it.stats.def = (slot === 'armor' ? [4, 7, 11, 16, 22] : [3, 5, 8, 12, 16])[ri] + Math.ceil(tier / 2) + rint(0, 2); it.name = PRE[rarity] + GN[slot][g]; it.ic = `${slot}_${g + 1}`; }
     else { const n = ri >= 2 ? 2 : 1, [lo, hi] = [[2, 4], [4, 7], [4, 8], [7, 12], [9, 14]][ri], keys = ['gold', 'learn', 'luck'].sort(() => rnd() - .5).slice(0, n), v = rint(0, 3); keys.forEach(k => it.stats[k] = rint(lo, hi) + Math.floor(tier / 3)); it.name = PRE[rarity] + GN[slot][v] + ' ' + SUF[keys[0]]; it.ic = `${slot}_${v + 1}`; }
-    return it;
+    if(options.archetype){it.name=options.archetype;if(slot==='shield'){it.off=20;it.ic='shield_1';}if(slot==='armor')it.ic=/Robe/.test(it.name)?'cloak_1':/Leather/.test(it.name)?'armor_1':/Chain/.test(it.name)?'armor_2':'armor_3';if(slot==='armor'&&/Robe/.test(it.name)){it.stats.def=Math.ceil(it.stats.def*.5);it.stats.learn=3+ri*2;}}
+    const baseName=options.archetype||(slot==='weapon'?WV.find(x=>x.v===it.v)?.n:it.name.replace(PRE[rarity],''));
+    return EquipmentRules.decorate(it,{random:rnd,luck:S?.inv?luck():0,baseName,...options});
   }
   const worth = it => Math.round(Object.values(it.stats).reduce((a, b) => a + b, 0) * 3 + { common: 4, uncommon: 12, rare: 35, epic: 90, legendary: 250 }[it.rarity]);
   function rollRarity(lk, min = 0) { const w = [60, 26, 10 * (1 + lk / 50), 3.3 * (1 + lk / 50), 0.7 * (1 + lk / 50)].map((x, i) => i < min ? 0 : x); let t = rnd() * w.reduce((a, b) => a + b, 0); for (let i = 0; i < 5; i++) { t -= w[i]; if (t <= 0) return RAR[i]; } return RAR[min]; }
@@ -161,11 +181,13 @@
     if (S.inv.length >= 60 && !it.unique) { S.gold += worth(it); return Object.assign({ sold: worth(it) }, it); }
     S.inv.push(it); if (!S.eq[it.slot]) S.eq[it.slot] = it.id; return it;
   }
+  const attackChance=(base,skill)=>{const weapon=itemById(S.eq.weapon);return Math.max(2,Math.min(95,base+(weapon?.w===skill?weapon.stats.precision||0:0)));};
   const dmgPct = w => { const it = itemById(S.eq.weapon); return (it && it.w === w ? it.stats.dmg || 0 : 0) + bonus('xp'); };   // a weapon only helps the skill it is made for
-  const statLine = it => (it.w ? rpgName(it.w) + ' · ' : '') + Object.keys(it.stats).map(k => `+${it.stats[k]}% ${STATN[k]}`).join(' · ');
+  const statLine = it => (it.w ? rpgName(it.w) + ' · ' : '') + Object.keys(it.stats).map(k => `+${it.stats[k]}${['focus','vitality','endurance'].includes(k)?'':'%'} ${STATN[k]||k}`).join(' · ');
   const IFB = { trune: 'sigil', deed: 'scroll', fish: 'bread', bigfish: 'bread', cheese: 'bread', pie: 'bread', honey: 'draught', cider: 'draught', loaf: 'bread', eggs: 'bread', apple: 'bread', chicken: 'bread', rod: 'picks', meat: 'bread', ration: 'bread', pelt: 'hide', stew: 'bread', salve: 'bandage', hintkey: 'key', chips_gold: 'coin', wheel: 'gem', shoe: 'scroll', scroll_arms: 'scroll', scroll_spell: 'scroll', scroll_shadow: 'scroll', scroll_craft: 'scroll' };
   const ico = (name, n) => { if (ART && /^(dz|hq)\d/.test(name || '')) return `<i class="ico dz" style="background:url(art/i/${name}.webp) center/contain no-repeat">${n != null ? `<b>${n}</b>` : ''}</i>`; const I = ART && ArtData.icons, a = I && (I.at[name] || I.at[IFB[name]]); return `<i class="ico${a ? '' : ' none'}"${a ? ` style="background-position:${-a[0] * 44}px ${-a[1] * 44}px"` : ''}>${n != null ? `<b>${n}</b>` : ''}</i>`; };
-  const lootHTML = it => `<div class="loot rar-${it.rarity}">${ico(it.ic)}<div><small>${it.rarity} ${it.slot}${it.unique ? ' · named rare' : ''}${it.unique || it.bless ? ' · blessed' : it.ins ? ' · insured' : ''}</small><b>${esc(it.name)}</b><span class="stats">${statLine(it)}</span>${it.lore ? `<span class="lore">${esc(it.lore)}</span>` : ''}${it.sold ? `<small>Bag full: sold for ${it.sold} gold.</small>` : ''}</div></div>`;
+  const itemIcon=it=>{const url=sceneUp&&Scene.equipmentIcon(it);return url?'<i class="ico material-icon" style="background-image:url('+url+');background-size:contain;background-position:center"></i>':ico(it.ic);};
+  const lootHTML = it => `<div class="loot rar-${it.rarity}">${itemIcon(it)}<div><small>${it.rarity} ${it.slot}${it.unique ? ' · named rare' : ''}${it.unique || it.bless ? ' · blessed' : it.ins ? ' · insured' : ''}</small><b>${esc(it.name)}</b><span class="stats">${statLine(it)}</span>${it.lore ? `<span class="lore">${esc(it.lore)}</span>` : ''}${it.sold ? `<small>Bag full: sold for ${it.sold} gold.</small>` : ''}</div></div>`;
 
   /* ---------- repeatable tasks ---------- */
   const tplOf = id => BOUNTIES.find(b => b.id === id), tplSk = {};
@@ -174,16 +196,16 @@
   function seeded(tplId) { let seed = rid(); for (let i = 0; i < 8; i++) { try { if (Engine.target(makeTask({ tpl: tplId, seed })).rows.length) break; } catch (e) { } seed = rid(); } return seed; }
   function wPick(pool, w) { let t = rnd() * pool.reduce((a, x) => a + w(x), 0); for (const x of pool) { t -= w(x); if (t <= 0) return x; } return pool[0]; }
   const rustW = b => 1 + 3 * tplSkills(b.id).filter(rusty).length;
-  
+
   const dayKey = () => { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
   function rounds() {
     if (!S.rounds || S.rounds.day !== dayKey()) { const top = maxRegion(), pool = BOUNTIES.filter(b => b.r <= top), tasks = []; for (let i = 0; i < 5; i++) { const left = pool.filter(b => !tasks.some(t => t.tpl === b.id)), tpl = wPick(left.length ? left : pool, b => rustW(b) + (b.r === top ? 1.5 : 0)); tasks.push({ tpl: tpl.id, seed: seeded(tpl.id), done: false }); } S.rounds = { day: dayKey(), tasks, claimed: false }; }
     return S.rounds;
   }
   function rival(r) { let v = S.rival[r]; if (!v || (v.away <= 0 && v.taken)) v = S.rival[r] = { gold: rint(20, 40) * r, item: makeItem(rollRarity(0, 2), r), away: 0, taken: false }; return v; }
-  function stall() { if (!S.stall || S.stall.r !== S.region || S.stall.n >= 6) S.stall = { r: S.region, n: 0, stock: [1, 1, 2, rnd() < .35 ? 3 : 2].map(m => makeItem(RAR[m], S.region)) }; return S.stall; }
+  function stall() { if (!S.stall || S.stall.r !== S.region || S.stall.n >= 6) S.stall = { r: S.region, n: 0, stock: [1, 1, 2, rnd() < .35 ? 3 : 2].map(m => makeItem(RAR[m],S.region,null,null,{source:'shop'})) }; return S.stall; }
   const price = it => Math.round({ common: 20, uncommon: 60, rare: 160, epic: 420, legendary: 1200 }[it.rarity] * (1 + .2 * it.tier));
-  
+
   function tick() { if (S.stall) S.stall.n++; for (const r in S.rival) if (S.rival[r].away > 0) S.rival[r].away--; }
 
   /* ---------- hints ---------- */
@@ -409,11 +431,11 @@
     const lessons = {2:['Choose two columns','A comma separates column names. The result keeps their written order.','SELECT name, quantity FROM manifest;'],3:['Read every column','The star (*) asks for every column. It does not change the table.','SELECT * FROM manifest;'],4:['From practice to the town records','For the rest of our lessons, we use a training copy of the company books, with larger tables of items, customers and other records. The dates in this copy have been set for the exercises, so use the dates you’re given. Tap Fields to see the columns. The SELECT and FROM pattern still works.','SELECT name FROM items;']};
     const l = lessons[Q.i]; return l ? `<details class="lesson" open><summary>${l[0]}</summary><div class="lb"><p>${l[1]}</p><pre class="code">${codeHL(l[2])}</pre></div></details>` : '';
   }
-  const heavyArmor = () => {const arm=itemById(S.eq.armor);return !!arm&&!/Leather/.test(arm.name);};
+  const heavyArmor = () => {const arm=itemById(S.eq.armor);return !!arm&&EquipmentRules.materialOf(arm)?.family==='metal';};
   function queryOddsHTML() {
     if(!Q.roll)return '';
     if(Q.work==='recover')return '<p class="cap2">A useful query restores mana and up to 12 stamina. A wrong result leaves those amounts where they are.</p>';
-    const chance=grade=>Q.work==='hide'?Math.round(Sneaking.chance(rv('hiding'),Q.diff,{correct:1,close:.6,wrong:0}[grade],heavyArmor())):Q.work==='lock'||Q.work==='force'?SkillCrafting.lockChance(rv(Q.csk),Q.diff,{correct:1,close:.6,wrong:0}[grade],Q.work==='lock'):Q.work&&grade==='wrong'?0:odds(rv(Q.csk),Q.diff,grade).p;
+    const chance=grade=>Q.work==='hide'?Math.round(Sneaking.chance(rv('hiding'),Q.diff,{correct:1,close:.6,wrong:0}[grade],heavyArmor(),bonus('quieting'))):Q.work==='lock'||Q.work==='force'?SkillCrafting.lockChance(rv(Q.csk),Q.diff,{correct:1,close:.6,wrong:0}[grade],Q.work==='lock'):Q.work&&grade==='wrong'?0:odds(rv(Q.csk),Q.diff,grade).p;
     return `<p class="cap2">Your chance of success is ${chance('correct')}% if the query is correct, ${chance('close')}% if it’s close, and ${chance('wrong')}% if it’s wrong.${Q.work==='hide'&&heavyArmor()?' Heavy armor lowers concealment by 20 percentage points.':''}</p>`;
   }
   function drawQ() {
@@ -499,17 +521,22 @@
     Sound.sfx(win ? Q.csk === 'alchemy' ? 'alchemy' : 'smith' : 'craftFail');
     if (win) { const exc = res.ok && rnd() * 100 < rv(Q.csk) + (pg && pg.rare ? 20 : 0), out = { items: [] }; let head; S.mats[t] = have(t) - x.mats; if (x.sigils) S.mats.sigil = have('sigil') - x.sigils;
       if (x.id === 'scroll') { S.hints += exc ? 2 : 1; head = exc ? 'Two Hint Keys' : 'A Hint Key'; } else if (x.id === 'tonic') { S.tonics += exc ? 2 : 1; head = exc ? 'Two Healing Draughts' : 'A Healing Draught'; }
-      else { const it = makeItem(x.id, t, Q.slot, Q.slot === 'weapon' ? (S.path === 'mage' ? 'magery' : armsSkill()) : null); if (exc) { for (const q in it.stats) it.stats[q] = Math.round(it.stats[q] * 1.25); it.name = 'Exceptional ' + it.name; } out.items.push(it); head = exc ? 'Exceptional work' : 'Well made'; }
+      else { const it = makeItem(x.id,t,Q.slot,Q.slot==='weapon'?(S.path==='mage'?'magery':armsSkill()):null,{source:'craft',material:Q.material,archetype:Q.archetype,skill:rv(Q.csk),queryQuality:queryQuality(res),difficulty:Q.diff,rarePage:!!pg?.rare});if(!it.equipment&&exc){for(const key in it.stats)it.stats[key]=Math.round(it.stats[key]*1.25);it.name='Exceptional '+it.name;}out.items.push(it);head=it.equipment?EquipmentRules.QUALITY[it.equipment.quality].name+' work':exc?'Exceptional work':'Well made'; }
       body = `<h2 class="good">${head}</h2>${spoilsHTML(grant(out))}`; }
     else { const lost = Math.ceil(x.mats / 2); S.mats[t] = Math.max(0, have(t) - lost); body = `<h2 class="bad">Ruined</h2><p>The piece is ruined. You lost ${lost} ${MATS[t]}.</p>`; }
     tick(); save(); renderHud(); Q.result = `<p class="eyebrow">Result</p><p class="rollline"><b class="g-${res.grade}">${GRADE_N[res.grade]}</b> query · ${o.p}% chance</p>${body}${gainsHTML(gl)}${res.ok ? '' : answerHTML(Q.task)}`; Q.step = 'result'; drawQ();
   }
 
   let LOCK = null;
+  let benchMaterial='',benchArchetype='plate';
+  const craftShapes={plate:'Plate Cuirass',chain:'Chain Shirt',leather:'Leather Jerkin',robe:'Travelling Robe'};
+  function craftTemplate(){const w=S.path==='mage'?'magery':armsSkill();return {slot:benchSlot,w,name:benchSlot==='weapon'?(w==='magery'?'Oak Staff':w==='archery'?'Short Bow':'Iron Sword'):benchSlot==='armor'?craftShapes[benchArchetype]:({shield:'Wooden Shield',head:'Steel Helm',hands:'Leather Gloves',feet:'Leather Boots',cloak:'Wool Cloak'}[benchSlot]||'Ring')};}
+  function craftMaterialHTML(){const materials=EquipmentRules.eligibleMaterials(craftTemplate(),here());if(!materials.length)return '';if(!materials.some(m=>m.id===benchMaterial))benchMaterial=materials[materials.length-1].id;return `${benchSlot==='armor'?'<h3>Armour construction</h3><div class="chips">'+Object.entries(craftShapes).map(([id,name])=>'<button class="chip'+(id===benchArchetype?' on':'')+'" data-a="craftshape" data-id="'+id+'">'+name+'</button>').join('')+'</div>':''}<h3>Material</h3><div class="chips">${materials.map(m=>`<button class="chip${m.id===benchMaterial?' on':''}" data-a="craftmaterial" data-id="${m.id}"><i class="material-swatch" style="--material:${m.palette.mid}"></i>${esc(m.name)}</button>`).join('')}</div><p class="cap2">Your material sets the surface and base improvement. Skill and query quality determine Standard, Fine, Exceptional or Masterwork craftsmanship. Magic is added separately at the enchanting station.</p>`;}
   const queryQuality = res => ({correct:1,close:.6,partial:.4,wrong:0})[res.grade] || 0;
   function beginSkillWork(work,options={}) {
     if(work==='recover'&&activePursuit())return toast('Lose your pursuer before recovering outside combat.');
     if(!ready||Q||F)return;
+    if(work==='hide'&&mounted())return toast('Dismount before hiding.');
     if(work==='hide'&&Scene.observed())return toast('Break their line of sight or get farther away before hiding.');
     const t=Math.max(1,Math.min(8,options.r||here())),tpl=pick(BOUNTIES.filter(b=>b.r===t && !/^b80[123]/.test(b.id)));
     if(!tpl)return;
@@ -520,7 +547,7 @@
     if(!Q||Q.owner!==S)return;const q=queryQuality(res),sid=Q.csk,practiced=rv(sid),g=q?gain(sid,Q.diff,q):null,gl=g?[g]:[],o=Q.options;let ok=false,note='';
     if(Q.work==='hide') {
       const pos=Scene.pos(),heavy=heavyArmor();
-      ok=Sneaking.conceal(CONCEAL,{hiding:practiced,stealth:rv('stealth'),diff:Q.diff,quality:q,heavy,x:pos[0],y:pos[1],random:rnd});
+      ok=Sneaking.conceal(CONCEAL,{hiding:practiced,bonus:bonus('quieting'),stealth:rv('stealth'),diff:Q.diff,quality:q,heavy,x:pos[0],y:pos[1],random:rnd});
       note=ok?`You are concealed. Walk up to ${CONCEAL.steps} steps. Running or an offensive action reveals you. Observers can still detect you nearby.`:'You cannot find enough cover. Move away from watching enemies and try again.';
     } else if(Q.work==='recover') {ok=q>0;if(ok){const n=Progression.recover(S);note=`Recovered ${n} mana and stamina.`;}else note='The query gives no useful result.';
     } else if(Q.work==='craft') {
@@ -566,6 +593,7 @@
   function barsF() { if (!F) return; const b = F.foe ? [{ e: 'me', pct: S.hp / maxHp() }] : []; if (F.foe && F.ent) b.push({ e: F.ent, pct: F.foe.hp / F.foe.max, name: F.title }); Scene.FX.bars(b); }
   function fitPanel() { if (F) requestAnimationFrame(() => { if (F) Scene.FX.inset($('#fight').offsetHeight); }); }
   function openF(cfg) {
+    if(S.horse?.mounted){S.horse=Mounts.dismount(S.horse);}
     closeSay();closeSheet();
     if(cfg.act==='fight'&&cfg.foe&&gOn()&&(gid()==='fight'||cfg.ent&&cfg.ent.tutorial)){cfg.foe.hp=cfg.foe.max=18;cfg.tutorialSafe=true;}
     const ambush=AMBUSH&&AMBUSH.e===cfg.ent&&AMBUSH.owner===S?AMBUSH:backstabReason(cfg.ent)===null?{e:cfg.ent,owner:S,at:Scene.pos()}:null;AMBUSH=null;
@@ -634,10 +662,10 @@
     if(F.act!=='fight'||!F.foe)return '';
     const hp=Math.max(0,S.hp),enemy=Math.max(0,F.foe.hp),intent=F.busy&&F.intent?F.intent:nextEnemyIntent();
     const health=(name,value,max,cls)=>`<div class="battle-health ${cls}"><span>${esc(name)} <b>${value} / ${max}</b></span><div role="meter" aria-label="${esc(name)} health" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="${max}"><i style="width:${Math.round(100*value/max)}%"></i></div></div>`;
-    return `<div class="battle-status${hp<=maxHp()*.3?' danger':''}">${health('You',hp,maxHp(),'hero-health')}${health(F.title,enemy,F.foe.max,'foe-health')}<p class="combat-resources">Mana ${Math.round(S.mana)}/${Progression.maxMana(S)} · Stamina ${Math.round(S.stamina)}/${Progression.maxStamina(S)} · Bandages ${S.bandages||0}${F.defense&&F.defense.left>0?' · '+F.defense.label+' active':''}${F.focus?' · Focus ready':''}</p>${F.over?'':`<p class="battle-intent"><b>${F.busy?'Responding':'Next'}: ${esc(intent.label)}</b> <span>${esc(intent.detail)}</span></p>`}</div>`;
+    return `<div class="battle-status${hp<=maxHp()*.3?' danger':''}">${health('You',hp,maxHp(),'hero-health')}${health(F.title,enemy,F.foe.max,'foe-health')}<p class="combat-resources">Mana ${Math.round(S.mana)}/${Progression.maxMana(S)} · Stamina ${Math.round(S.stamina)}/${maxStamina()} · Bandages ${S.bandages||0}${F.defense&&F.defense.left>0?' · '+F.defense.label+' active':''}${F.focus?' · Focus ready':''}</p>${F.over?'':`<p class="battle-intent"><b>${F.busy?'Responding':'Next'}: ${esc(intent.label)}</b> <span>${esc(intent.detail)}</span></p>`}</div>`;
   }
   function attackChoices(p) {
-    const skill=pageSkill(p),hit=odds(rv(skill),F.diff,'correct').p,w=resist(p.c,F.r);
+    const skill=pageSkill(p),hit=attackChance(odds(rv(skill),F.diff,'correct').p,skill),w=resist(p.c,F.r);
     const primary=`<button class="pg${p.rare?' rare':''}" data-a="fpage" data-id="${p.id}"><b>${esc(p.name)}</b><em>${hit}% to hit${w<1?' · '+Math.round(w*100)+'% damage':''}</em></button>`;
     if(p.book==='spell')return primary;
     return `<div class="attack-choice">${primary}<div class="maneuver-choices">${['feint','cleave'].map(k=>{const m=BattleRules.maneuver(k,rv('tactics'));return `<button class="btn sm quiet" data-a="fmaneuver" data-id="${p.id}" data-stance="${k}"${S.stamina<m.stamina?' disabled':''}>${k==='feint'?'Feint':'Cleave'} · ${m.stamina} stamina</button>`;}).join('')}</div><small class="maneuver-note">Feint improves accuracy and evasion. Cleave hits harder and exposes you.</small></div>`;
@@ -668,7 +696,7 @@
   // the columns the answer needs, in a few words, after the question
   const needLine = t => t.kind === 'dml' ? '<span class="need">→ changes the Ledger; judged by what it holds afterwards</span>' : `<span class="need">→ ${esc(t.ret)}${t.order ? ' · sorted' : ''}</span>`;
   const ROUNDS = () => 1; let HPEN = 15;
-  const fPct = grade => {if(F.act!=='fight')return odds(rv(F.act==='steal'?'stealing':bestWeapon())+(F.bonus||0),F.diff,grade).p;const sid=pageSkill(F.page),move=BattleRules.maneuver(F.stance,rv('tactics'));return Math.max(2,Math.min(95,odds(rv(sid),F.diff,'correct').p-(F.hint===1?HPEN:0)+(F.focus||0)+(F.page.book==='spell'?0:move.accuracy)));};
+  const fPct = grade => {if(F.act!=='fight')return odds(rv(F.act==='steal'?'stealing':bestWeapon())+(F.bonus||0),F.diff,grade).p;const sid=pageSkill(F.page),move=BattleRules.maneuver(F.stance,rv('tactics'));return attackChance(odds(rv(sid),F.diff,'correct').p-(F.hint===1?HPEN:0)+(F.focus||0)+(F.page.book==='spell'?0:move.accuracy),sid);};
   const fOdds = () => F.utility ? 'Query quality · 1 response round' : F.act === 'fight' ? `${fPct('correct')}% to hit · query sets power · ${ROUNDS() === 1 ? '1 round' : ROUNDS() + ' rounds'}` : `${fPct('correct')}% if right · one try`;
   const fHintBtn = () => { const max = F.noHint ? 0 : 2; if (F.noHint) return ''; if (F.shown) return ''; return (F.hint >= max ? '' : `<button class="btn sm quiet" data-a="fhint">${F.hint ? 'Shape' : F.utility ? 'Hint · reduced power' : `Hint −${HPEN}%`}</button>`) + '<button class="btn sm quiet" data-a="fshow">Show me</button>'; };
   function fHint() {
@@ -695,7 +723,7 @@
   function runF() {
     if (!ready || !F || F.st !== 'prompt' || F.busy) return; const sql = $('#sql').value; if (!sql.trim()) return toast('Write a query first');
     if(F.backstab&&(!F.ambush||F.ambush.owner!==S||!F.ambush.at.every((v,i)=>v===Scene.pos()[i])||backstabReason(F.ent,true))){F.backstab=false;F.st='choose';toast('The opening is gone. Hide and approach from behind again.');drawF();return;}
-    if(F.act==='fight'&&F.page.book==='spell'&&!['guard','recover','bandage','study','draught'].includes(F.utility)&&S.mana<Progression.castCost(F.page.c)&&!(S.prepared>0)){F.st='choose';toast('Not enough mana. Meditate, use a prepared scroll, or choose another ability.');drawF();return;}
+    if(F.act==='fight'&&F.page.book==='spell'&&!['guard','recover','bandage','study','draught'].includes(F.utility)&&S.mana<castingCost(F.page.c)&&!(S.prepared>0)){F.st='choose';toast('Not enough mana. Meditate, use a prepared scroll, or choose another ability.');drawF();return;}
     if(F.act==='fight'&&!F.utility&&!F.backstab&&F.page.book!=='spell'&&S.stamina<BattleRules.maneuver(F.stance,rv('tactics')).stamina){toast('Not enough stamina for that maneuver.');return;}
     if(F.utility==='bandage'&&!(S.bandages>0))return toast('You need a bandage. The healer sells them.');
     let res = Engine.grade(F.task, sql); S.stats.q++; F.compareOpen=false; F.comparison=res.ok?null:QueryFeedback.prepare(F.task,sql,res,Engine);
@@ -728,7 +756,7 @@
     F.res={grade:'correct',quality:0};F.chips='';F.after='';F.intent=nextEnemyIntent();F.engaged=true;if(F.ent)F.ent.engaged=true;F.round++;
     resolveF(F.res);
   }
-  function spendCasting() {const cost=Progression.castCost(F.page.c);if(S.prepared>0&&(F.scroll||S.mana<cost)){S.prepared--;F.scroll=false;return true;}if(S.mana<cost)return false;S.mana-=cost;return true;}
+  function spendCasting() {const cost=castingCost(F.page.c);if(S.prepared>0&&(F.scroll||S.mana<cost)){S.prepared--;F.scroll=false;return true;}if(S.mana<cost)return false;S.mana-=cost;return true;}
   function enemySteps(steps,rounds,gl,q,context={}) {
     const f=F.foe,e=F.ent,intent=F.intent||nextEnemyIntent(),magic=intent.magic,shield=!!itemById(S.eq.shield);
     const swings=f.swings===0?0:F.animal||F.tutorialSafe?1:Math.max(0,intent.swings-(context.spellRare?1:0));
@@ -742,7 +770,7 @@
       if(rnd()*100>=chance){chip('miss','miss');return;}
       if(!magic&&shield&&rnd()<Progression.parryChance(S)){chip('hit','blocked');Scene.FX.hit('me','block','#9be0da');return;}
       const defended=F.defense&&F.defense.left>0?(magic?F.defense.magic:F.defense.physical):0;
-      const protection=(1-Math.min(60,bonus('def'))/100)*(magic?Progression.resistFactor(S):1)*(1-defended);
+    const protection=(1-EquipmentRules.mitigation(bonus('def'),bonus('warding'),magic)/100)*(magic?Progression.resistFactor(S):1)*(1-defended);
       const d=Math.max(1,Math.round((rint(3,6)+2*F.r+(F.boss?2:0))*intent.damage*protection));
       S.hp=Math.max(0,S.hp-d);chip('ouch','−'+d);Scene.FX.hit('me','−'+d,'#f08070');
       if(intent.manaDrain&&!drained){drained=true;const drain=Math.min(S.mana,intent.manaDrain);S.mana-=drain;chip('ouch','−'+drain+' mana');}
@@ -752,7 +780,7 @@
   }
   function refreshCombatStatus() {const el=$('#fight .battle-status');if(F&&el)el.outerHTML=combatStatus();}
   function finishCombatQuery(res,gl,note='') {
-    if(!F)return;F.busy=false;if(F.defense&&--F.defense.left<=0)F.defense=null;F.maneuverIncoming=0;if(!F.utility){S.mana=Math.min(Progression.maxMana(S),S.mana+2);S.stamina=Math.min(Progression.maxStamina(S),S.stamina+4);}
+    if(!F)return;F.busy=false;if(F.defense&&--F.defense.left<=0)F.defense=null;F.maneuverIncoming=0;if(!F.utility){S.mana=Math.min(Progression.maxMana(S),S.mana+2);S.stamina=Math.min(maxStamina(),S.stamina+4);}
     if(F.foe.hp<=0)return winF(res,gl);if(S.hp<=0)return loseF(res,gl);
     F.after=`${note?'<p>'+esc(note)+'</p>':''}${gainLine(gl)}<div class="row end"><button class="btn solid" data-a="fchoose">Choose next action</button></div>`;save();renderHud();drawF();
   }
@@ -783,17 +811,17 @@
     }
     const stance=F.backstab?'backstab':F.stance||'strike',move=BattleRules.maneuver(stance,rv('tactics'));
     if(!spell){const cost=F.backstab?Backstab.STAMINA:move.stamina;if(S.stamina<cost)return;S.stamina-=cost;F.maneuverIncoming=move.incomingAccuracy;}
-    const W=WEAP[sid],o0=odds(rv(sid),F.diff,'correct'),o=Math.max(2,Math.min(95,o0.p-(F.hint===1?HPEN:0)+(F.focus||0)+(!spell?move.accuracy:0))),g=gain(sid,F.diff,quality);
+    const attackSkill=rv(sid),attackFactor=spell?Progression.spellFactor(S):Progression.physicalFactor(S),W=WEAP[sid],o0=odds(attackSkill,F.diff,'correct'),o=Math.max(2,Math.min(95,o0.p-(F.hint===1?HPEN:0)+(F.focus||0)+(!spell?move.accuracy:0))),g=gain(sid,F.diff,quality);
     if(g)gl.push(g);supportGains(spell?['eval']:['tactics','anatomy'],F.diff,quality,gl);
     const intent=F.intent||nextEnemyIntent(),armor=F.drole==='armored'?.8:1,physicalArmor=1-(1-armor*intent.physicalArmor)*(1-(F.pierce||0));
-    const mult=power(p.c)*resist(p.c,F.r)*(1+dmgPct(sid)/100)*(spell?Progression.spellFactor(S):Progression.physicalFactor(S))*(spell?1:physicalArmor*move.power)*(F.focusPower||1)*(F.backstab?1+(Backstab.factor(rv('stealth'))-1)*quality:1)*F.queryPower;
+    const strike=EquipmentRules.attack({weapon:itemById(S.eq.weapon),skillId:sid,skill:attackSkill,damageBonus:bonus('xp'),accuracy:o,range:W.dmg,swings:F.backstab?Backstab.THRUSTS:W.swings+(p.rare&&p.book==='arms'?1:0),pageCircle:p.c,targetCircle:F.r,queryPower:F.queryPower,attributeFactor:attackFactor,physicalFactor:spell?1:physicalArmor*move.power,studyFactor:F.focusPower||1,ambushFactor:F.backstab?1+(Backstab.factor(rv('stealth'))-1)*quality:1,target:EquipmentRules.creatureProfile(F.title)});
     F.focus=0;F.focusPower=1;F.pierce=0;
-    const n=F.backstab?Backstab.THRUSTS:W.swings+(p.rare&&p.book==='arms'?1:0);F.pline=`${F.backstab?'Backstab · ':''}${o}% a swing · 1 exchange`;
+    const n=F.backstab?Backstab.THRUSTS:W.swings+(p.rare&&p.book==='arms'?1:0);F.pline=`${F.backstab?'Backstab · ':''}${strike.accuracy}% a swing · 1 exchange`;
     if(!F.queryPower)chip('miss','No useful effect');
     for(let i=0;i<n&&F.queryPower>0;i++)steps.push(()=>{
       if(f.hp<=0||S.hp<=0)return false;
       Scene.FX.swing('me',e,spell?'spell':sid,spell?Effects.spell(p.c,p.rare):null);
-      if(rnd()*100<o){const d=Math.max(1,Math.round((rint(W.dmg[0],W.dmg[1])+rv(sid)/8)*mult));f.hp-=d;chip('hit',d);Scene.FX.hit(e,d,'#ffe9a0');}
+      if(rnd()*100<strike.accuracy){const d=strike.damage(rint(W.dmg[0],W.dmg[1]));f.hp-=d;chip('hit',d);Scene.FX.hit(e,d,'#ffe9a0');}
       else{chip('miss','miss');Scene.FX.hit(e,'miss','#cfd6d8');}
       barsF();refreshCombatStatus();
     });
@@ -811,7 +839,7 @@
       if ((!st && (el || rnd() < (dn ? .5 : .35))) || (st && F.prize==='prize')) o.items.push(st&&F.prizeItem?F.prizeItem:makeItem(rollRarity(lk, el ? 1 : 0), t));
       if (F.inst && F.inst.lead && !st) { S.lairday = S.lairday || {}; if (S.lairday[F.inst.lair] !== dayKey()) { S.lairday[F.inst.lair] = dayKey(); o.gold += 40 * t; o.items.push(makeItem(rollRarity(lk, 2), t)); if (rnd() < .2) o.gscr = 1; if (t >= 6 && rnd() < .05) o.pscr = [makePscr(t)]; if (rnd() < (F.inst.lk === 'l14' ? .5 : .12 + t * .02)) o.runes = 1; } }
       }
-      if (gid() === 'fight' && k === 'monster' && !st) { const rw = makeItem('common', 1, 'weapon', pick(['swords', 'fencing'])); rw.name = 'Rusty ' + WEAP[rw.w].n; o.items = [rw]; }
+      if (gid() === 'fight' && k === 'monster' && !st) { const rw = makeItem('common', 1, 'weapon', pick(['swords', 'fencing']),{source:'starter'}); rw.name = 'Rusty ' + WEAP[rw.w].n; o.items = [rw]; }
       if (!st) maybeDye(F.kind === 'boss' ? .35 : F.keeper ? .3 : F.kind === 'dungeon' ? .04 : .015 + luck() / 4000);
       if(st&&F.prize==='prize')o.gold=Math.round(o.gold*.5); head = st ? 'Clean lift' : F.title + ' falls';
       if (st) {
@@ -822,7 +850,7 @@
     else if (k === 'rival') { const v = S.rival[t];
       if (F.act === 'steal') { o.gold = F.prize==='prize'?Math.round(v.gold/2):v.gold; if(F.prize==='prize')o.items.push(v.item); o.sigils = 1; o.scrolls.push('h' + t + 'r'); S.stats.steals++; head = F.prize==='prize'?'Prize lifted':'Purse lifted'; note = `${F.title} will not notice until morning.`; } else { o.gold = Math.round(v.gold / 2); head = 'Duel won'; note = `${F.title} pays the wager and leaves town for a while.`; } v.taken = true; v.away = 4; }
     else { const first = !S.boss[t], b = F.boss; S.boss[t] = S.boss[t] || now(); S.stats.kills++; o.gold = (60 * t + 40) * (first ? 1 : .4); o.sigils = first ? 2 : 1; o.items.push(first ? uniq(b.drop) : makeItem(rollRarity(lk, 2), t)); if (rnd() < (first ? .3 : .08)) o.bless = 1; if (t >= 5 && rnd() < (first ? .6 : .15)) o.pscr = [makePscr(t)]; if (rnd() < .5) o.gscr = 1; head = first ? `The mark of the ${CIRCLE[t]} Circle` : b.name + ' yields again'; note = b.win; if (t === 8 && first) S.won = now(); }
-    S.hp=Math.min(S.hp,maxHp()); S.mana=Math.min(S.mana,Progression.maxMana(S)); S.stamina=Math.min(S.stamina,Progression.maxStamina(S)); const g = grant(body ? {} : o); F.over = true; tick(); save(); renderHud(); barsF();
+    S.hp=Math.min(S.hp,maxHp()); S.mana=Math.min(S.mana,Progression.maxMana(S)); S.stamina=Math.min(S.stamina,maxStamina()); const g = grant(body ? {} : o); F.over = true; tick(); save(); renderHud(); barsF();
     F.after = `<h3 class="won">${esc(head)}</h3>${note ? `<p class="story">${esc(note)}</p>` : ''}${body ? '' : spoilsHTML(g)}${gainLine(gl)}<div class="row end">${body ? `<button class="btn quiet" data-a="fdone">Leave it</button><button class="btn solid${S.tut <= 2 ? ' pulse' : ''}" data-a="floot">Loot</button>` : '<button class="btn solid" data-a="fdone">Continue</button>'}</div>`; F.st = 'after'; drawF();
   }
   function loseF(res, gl) {
@@ -859,7 +887,7 @@
 
   /* ---------- starting things ---------- */
   const giverOf = c => { const l = CONTRACTS.filter(x => x.r === c.r); return Math.min(2, Math.floor(l.indexOf(c) * 3 / l.length)); };
-  const sneakPct = () => Math.round(Math.max(20, Math.min(95, 25 + rv('hiding') * .7 + bonus('deft') / 2)));
+  const sneakPct = () => Math.round(Sneaking.chance(rv('hiding'),diffOf(here()),1,heavyArmor(),bonus('quieting')));
   function sneak(diff) {if(CONCEAL.hidden)return true;toast('Use Hide, then approach while concealed.');return false;}
   const START = {
     intro: () => { COLS.manifest = FirstDay.columns; openQ({ kind: 'intro', r: 1, step: S.seen['intro.assembled'] ? 'turn' : S.seen['intro.result'] ? 'i3' : S.seen['intro.column'] ? 'i2' : S.seen['intro.row'] ? 'icol' : 'i1', task: REPS[0], tasks: S.seen['intro.assembled'] ? REPS : null, title: 'Help unload the Marigold' }); if (Q.tasks) { Q.i = REPS.findIndex((_, i) => !S.seen['intro.rep.' + i]); if (Q.i < 0) Q.i = 0; Q.task = REPS[Q.i]; drawQ(); } },
@@ -878,7 +906,7 @@
   };
 
   /* ---------- screens ---------- */
-  function renderHud() {const m=maxHp(),face=S.path&&ART?`<img alt="" src="art/p/${LOOKS[S.path][(S.look||0)%2]}.webp">`:'';$('#hud').innerHTML=`<div class="hud-row"><button class="hud-face" data-a="${boatActive()?'charactermenu':'tab'}" data-t="hero" aria-label="${boatActive()?'Character menu':'Character'}">${face}</button><div class="hud-id"><b>${esc(S.name||'Brasswake')}</b><span class="hpbar" title="Health"><i style="width:${Math.round(100*S.hp/m)}%"></i><b>${S.hp} / ${m}</b></span><small class="resource-line">Mana ${Math.round(S.mana)}/${Progression.maxMana(S)} · Stamina ${Math.round(S.stamina)}/${Progression.maxStamina(S)}</small></div><div class="hud-gold">${ico('coin')}<b>${S.gold}</b></div></div>${S.path&&S.tut>=1&&tab==='world'?`<div class="conceal-controls"><button class="btn sm quiet" data-a="conceal"${Q||F||DU?' disabled':''}>${CONCEAL.hidden?'Reveal · '+CONCEAL.steps+' steps':'Hide · SQL'}</button><button class="btn sm quiet" data-a="outrecover"${Q||F||DU?' disabled':''}>Recover · SQL</button></div>`:''}`;}
+  function renderHud() {const m=maxHp(),face=S.path&&ART?`<img alt="" src="art/p/${LOOKS[S.path][(S.look||0)%2]}.webp">`:'';$('#hud').innerHTML=`<div class="hud-row"><button class="hud-face" data-a="${boatActive()?'charactermenu':'tab'}" data-t="hero" aria-label="${boatActive()?'Character menu':'Character'}">${face}</button><div class="hud-id"><b>${esc(S.name||'Brasswake')}</b><span class="hpbar" title="Health"><i style="width:${Math.round(100*S.hp/m)}%"></i><b>${S.hp} / ${m}</b></span><small class="resource-line">Mana ${Math.round(S.mana)}/${Progression.maxMana(S)} · Stamina ${Math.round(S.stamina)}/${maxStamina()}</small></div><div class="hud-gold">${ico('coin')}<b>${S.gold}</b></div></div>${S.path&&S.tut>=1&&tab==='world'?`<div class="conceal-controls"><button class="btn sm quiet" data-a="conceal"${Q||F||DU?' disabled':''}>${CONCEAL.hidden?'Reveal · '+CONCEAL.steps+' steps':'Hide · SQL'}</button><button class="btn sm quiet" data-a="outrecover"${Q||F||DU?' disabled':''}>Recover · SQL</button></div>`:''}`;}
 
   // the bottom bar: framed slots with painted icons, the hero's own portrait in the middle
   const NAV = [['world', 'Adventure', 'sword', '⚔'], ['map', 'Map', 'map', '✥'], ['hero', 'Hero', null, '☺'], ['bag', 'Bag', 'bag', '◈'], ['ledger', 'Ledger', 'tome', '❖']];
@@ -918,12 +946,13 @@
   const ART = typeof ArtData !== 'undefined', LOOKS = { warrior: ['G10_1', 'G10_2'], thief: ['G10_3', 'G10_4'], mage: ['G11_1', 'G11_2'], crafter: ['G11_3', 'G11_4'] }, LOOK0 = { warrior: 0, thief: 2, mage: 4, crafter: 6 };
   const WSTART = { warrior: 'swords', thief: 'fencing', mage: 'magery', crafter: 'swords' }, NAMES = ['Edrik', 'Mara', 'Corin', 'Sable', 'Aldous', 'Ysanne', 'Brogan', 'Wren'];
   /* ---------- title, character creation, cold open ---------- */
-  let CR = null;
+  let CR = null, DELETE = null;
   const SKINN=['Fair','Light','Tan','Brown','Deep brown'];
   const tbg = n => ART ? ` style="background-image:url(art/t/${n}.jpg)"` : '';
   function showTitle(html, cls) { const t = $('#title'); t.hidden = false; t.className = cls || ''; t.innerHTML = html; if (sceneUp) Scene.pause(); }
   function hideTitle() { stopCreationPreview(); $('#title').hidden = true; $('#title').innerHTML = ''; if (sceneUp && tab === 'world' && !Q) Scene.resume(); }
   function title() {
+    DELETE=null;
     stopCreationPreview(); CR=null;
     const tot = c => Math.round(Object.values(c.sk || {}).reduce((a,b)=>a+b,0)), any=A.slots.some(Boolean);
     const emptyMain=A.main<0 ? A.slots.findIndex(c=>!c) : -1;
@@ -933,10 +962,11 @@
       const p=PATHS.find(x=>x.id===c.path);
       return `<button class="tt-btn${i===A.cur?'':' quiet'}" data-a="playslot" data-i="${i}"><span class="world-slot-label">${role}</span>${esc(c.prologue&&!c.prologue.named&&c.prologue.phase!=='done'?'New arrival':c.name)}<small>${p?p.name:''} · skills ${tot(c)}${c.boss&&Object.keys(c.boss).length?' · '+Object.keys(c.boss).length+' of 8 marks':''}</small></button>`;
     };
-    showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box tt-slots"><h1>Brasswake</h1><p class="tt-sub">Choose your world and character.</p>${Offline.html()}${savePanel()}<div class="world-tabs" role="group" aria-label="Worlds">${A.worlds.map((w,i)=>`<button class="btn${i===A.world?' solid':' quiet'}" data-a="worldpick" data-i="${i}" aria-pressed="${i===A.world}">World ${i+1}<small>${w.slots.filter(Boolean).length} / ${NSLOT}</small></button>`).join('')}</div><p class="world-summary">World ${A.world+1} · The same lands, with a separate story and saves.</p>${A.slots.map(row).join('')}${any?'<button class="tt-link" data-a="delpick">Delete a character</button>':''}<p class="tt-note">Characters in this world share houses, storage, named finds and learned commands. Each keeps their own bank. Your other worlds keep everything separate.</p></div>`);
+    showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box tt-slots"><h1>Brasswake</h1><p class="tt-sub">Choose your world and character.</p>${Offline.html()}${savePanel()}<div class="world-tabs" role="group" aria-label="Worlds">${A.worlds.map((w,i)=>`<button class="btn${i===A.world?' solid':' quiet'}" data-a="worldpick" data-i="${i}" aria-pressed="${i===A.world}">World ${i+1}<small>${w.slots.filter(Boolean).length} / ${NSLOT}</small></button>`).join('')}</div><p class="world-summary">World ${A.world+1} · The same lands, with a separate story and saves.</p>${A.slots.map(row).join('')}${any?'<button class="tt-link" data-a="delpick">Delete a character</button>':''}<button class="tt-link" data-a="delworld">Delete this world</button><p class="tt-note">Characters in this world share houses, storage, named finds and learned commands. Each keeps their own bank. Your other worlds keep everything separate.</p></div>`);
   }
   function returnCharacters(){ save(); PL=null;Scene.ghost(null);const placement=$('#placebar');if(placement)placement.remove(); closeSheet(); closeSay(); tab='world'; title(); render(); }
   function selectWorld(index){
+    DELETE=null;
     if(index===A.world || !Number.isInteger(index) || index<0 || index>=CharacterWorlds.count)return;
     save(); discardEncounter(); closeSheet(); closeSay(); CharacterWorlds.select(A,index); if(sceneUp&&Scene.resetWorld)Scene.resetWorld(); loadCur(); cmdBackfill();
     Q=null; F=null; DG=null; CE=null; tab='world'; sel=S.region;
@@ -945,23 +975,47 @@
     save(); title(); render();
   }
   function delPick() { showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box tt-slots"><h1>Delete who?</h1>${A.slots.map((c, i) => c ? `<button class="tt-btn quiet" data-a="delslot" data-i="${i}">${esc(c.name)}<small>${i === A.main ? 'Main: the Trials start over with your next new character' : 'Supporting'}</small></button>` : '').join('')}<button class="tt-btn" data-a="totitle">Back</button></div>`); }
+  function deletionStart(kind,index){
+    save();DELETE=DeletionRules.begin(A,kind,index);if(!DELETE)return;
+    const name=kind==='world'?'World '+(A.world+1):DELETE.phrase;
+    const detail=kind==='world'?`This deletes all ${A.slots.filter(Boolean).length} characters in this world, their banks, horses, houses, shared storage, discoveries and learned commands. Your other worlds stay safe. The empty world slot can be used again.`:`This deletes ${name}, their skills, bag, bank and horse. Shared houses and storage stay. ${A.main===index?'Your next new character becomes the main character; existing supporting characters keep their role.':''}`;
+    showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box tt-slots"><h1>Delete ${esc(name)}?</h1><p class="tt-sub">${esc(detail)}</p><p>This cannot be undone. Back up your save first if you want a copy.</p><button class="tt-btn quiet" data-a="backup">Back up save</button><button class="tt-btn" data-a="deleteverify">Continue to verification</button><button class="tt-btn quiet" data-a="totitle">Cancel</button></div>`);
+  }
+  function deletionVerify(){
+    DELETE=DeletionRules.advance(DELETE,A);if(!DELETE){title();return toast('The selection changed. Start deletion again.');}
+    showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box tt-slots"><h1>Final verification</h1><p class="tt-sub">Type <b>${esc(DELETE.phrase)}</b> exactly to confirm this deletion.</p><label for="delete-phrase">Confirmation</label><input id="delete-phrase" autocomplete="off" autocapitalize="off" spellcheck="false"><p id="delete-status" role="status"></p><button class="tt-btn danger" data-a="deletecommit">Permanently delete ${DELETE.kind==='world'?'world':'character'}</button><button class="tt-btn quiet" data-a="totitle">Cancel</button></div>`);
+  }
+  function deletionCommit(){
+    const ticket=DELETE,phrase=$('#delete-phrase')?.value;
+    if(!DeletionRules.valid(ticket,A)){title();return toast('The selection changed. Nothing was deleted.');}
+    if(ticket.stage!==2||String(phrase||'').trim()!==ticket.phrase){const status=$('#delete-status');if(status)status.textContent='The confirmation does not match. Nothing was deleted.';return;}
+    const selected=ticket.kind==='world'||A.cur===ticket.index;
+    if(selected){discardEncounter();sceneOwner=null;}
+    if(!DeletionRules.commit(ticket,A,phrase,CharacterWorlds.freshWorld))return;
+    deletionEpoch++;
+    DELETE=null;
+    // Commit the tombstone locally before any scene construction can fail.
+    save();void flushDeletion();
+    if(selected){if(sceneUp)Scene.resetWorld();loadCur();DG=null;Q=null;F=null;CE=null;tab='world';closeSheet();closeSay();$('#enc').hidden=true;$('#fight').hidden=true;$('#nav').hidden=false;if(sceneUp)restoreAccountScene(true);}
+    save();title();render();
+  }
   function playSlot(i) { if (!A.slots[i]) return; if (i !== A.cur) { save(); discardEncounter(); A.cur = i; loadCur(); DG = null; Q = null; F = null; CE = null; S.pos = S.pos || null; $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; tab = 'world'; sel = S.region; save(); if (sceneUp) { restoreAccountScene(); Scene.refresh(); } } hideTitle(); render(); renderHud(); }
   let creationFrame=0;
   function stopCreationPreview(){cancelAnimationFrame(creationFrame);creationFrame=0;}
-  function creationAppearance(){const L=CR.app;return {combo:L.body*5+(CR.path==='mage'?2:1),skin:L.skin,hair:L.hair,hc:HAIRC[L.hc],beard:L.beard,hat:-1,cloth:null,metal:null,wpn:-1,wkind:'',shield:-1,style:'swing'};}
+  function creationAppearance(){const L=normalizeHeadStyle(CR.app);return {combo:L.body*5+(CR.path==='mage'?2:1),skin:L.skin,hair:L.hair,headStyle:L.headStyle,hc:HAIRC[L.hc],beard:L.beard,hat:-1,cloth:null,metal:null,wpn:-1,wkind:'',shield:-1,style:'swing'};}
   function startCreationPreview(){
     stopCreationPreview();
-    const paint=t=>{const cv=$('#cr-preview');if(!CR||!cv||$('#title').hidden)return; if(Scene.previewHuman)Scene.previewHuman(cv,creationAppearance(),CR.direction||0,CR.moving?t:null);creationFrame=requestAnimationFrame(paint);};
+    const paint=t=>{const cv=$('#cr-preview');if(!CR||!cv||$('#title').hidden)return; if(Scene.previewHuman)Scene.previewHuman(cv,creationAppearance(),CR.direction||0,CR.moving?t:null);const head=$('#cr-head-preview'),L=CR.app;if(head){const g=head.getContext('2d');g.clearRect(0,0,head.width,head.height);HeadPortraits.draw(g,{body:L.body,style:L.headStyle,skin:L.skin,hc:HAIRC[L.hc]},[20,90,65]);}creationFrame=requestAnimationFrame(paint);};
     creationFrame=requestAnimationFrame(paint);
   }
   function create() {
     CR=CR||{path:null,look:null,name:''};
     CR.app=CR.app||{body:0,skin:1,hair:0,hc:1,beard:-1,hat:-1,wear:0,dye:0};
-    const firstArrival=A.main<0||!A.slots[A.main], L=CR.app;
+    const firstArrival=A.main<0||!A.slots[A.main],L=normalizeHeadStyle(CR.app);HeadPortraits.preload(L.body,L.headStyle);
     const select=(key,label,choices)=>`<label><span>${label}</span><select data-create="${key}" aria-label="${label}">${choices.map(([v,n])=>`<option value="${v}"${L[key]===v?' selected':''}>${esc(n)}</option>`).join('')}</select></label>`;
     showTitle(`<div class="cr"><p class="eyebrow">World ${A.world+1} · ${firstArrival?'Main character':'Supporting character'}</p><h2>Who were you back home?</h2><p class="cr-note">People had started to talk about you. Pick what you were known for.</p>${firstArrival?'<p class="cr-note">You’ll give your name when someone asks aboard the ship.</p>':`<label class="cr-name"><span>Name</span><input id="cr-name" maxlength="16" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Your name" value="${esc(CR.name||'')}"></label>`}
       <div class="cr-paths">${PATHS.map(p=>`<div class="cr-path${CR.path===p.id?' on':''}"><b>${p.name}</b><small>${Object.keys(p.sk).map(k=>rpgName(k)+' '+p.sk[k]).join(' · ')}</small><div class="looks">${LOOKS[p.id].map((g,i)=>`<button data-a="pick" data-id="${p.id}" data-look="${LOOK0[p.id]+i}" aria-pressed="${CR.path===p.id&&L.body===i}" aria-label="${p.name}, look ${i+1}">${ART?`<img alt="" src="art/p/${g}.webp">`:`<span class="nolook">${i?'Woman':'Man'}</span>`}</button>`).join('')}</div></div>`).join('')}</div>
-      <h3>Your appearance</h3><p class="cr-note">All creation choices are free. Turn and walk to see your character from every side.</p><div class="cr-appearance"><div class="cr-preview"><canvas id="cr-preview" width="240" height="240" aria-label="Your moving character preview"></canvas><div class="row"><button class="btn sm quiet" data-a="crturn" data-dir="-1" aria-label="Turn left">↶ Turn</button><button class="btn sm quiet" data-a="crwalk" aria-pressed="${!!CR.moving}">${CR.moving?'Stand':'Walk'}</button><button class="btn sm quiet" data-a="crturn" data-dir="1" aria-label="Turn right">Turn ↷</button></div></div><div class="cr-controls">${select('body','Body',[[0,'Man'],[1,'Woman']])}${select('skin','Skin tone',SKINN.map((n,i)=>[i,n]))}${select('hair','Hair',[[-1,'Bald'],...HAIRS.map((n,i)=>[i,n])])}${select('hc','Hair colour',HAIRCN.map((n,i)=>[i,n]))}${select('beard','Facial hair',[[-1,'None'],...BEARDS.map((n,i)=>[i,n])])}</div></div>
+      <h3>Your appearance</h3><p class="cr-note">All creation choices are free. Turn and walk to see your character from every side.</p><div class="cr-appearance"><div class="cr-preview"><canvas id="cr-preview" width="240" height="240" aria-label="Your moving character preview"></canvas><div class="row"><button class="btn sm quiet" data-a="crturn" data-dir="-1" aria-label="Turn left">↶ Turn</button><button class="btn sm quiet" data-a="crwalk" aria-pressed="${!!CR.moving}">${CR.moving?'Stand':'Walk'}</button><button class="btn sm quiet" data-a="crturn" data-dir="1" aria-label="Turn right">Turn ↷</button></div></div><div class="cr-controls">${select('body','Body',[[0,'Man'],[1,'Woman']])}${select('skin','Skin tone',SKINN.map((n,i)=>[i,n]))}${select('headStyle','Head style',HeadPortraits.styles(L.body).map(p=>[p.id,p.name]))}<canvas id="cr-head-preview" class="cr-head-preview" width="180" height="200" aria-label="Your complete head style"></canvas>${select('hc','Hair colour',HAIRCN.map((n,i)=>[i,n]))}</div></div>
       <p class="cr-note">You can learn any skill later by using it, and buy or find any page. Twenty skills share ${CAP} points. Your starting path leaves every skill available.</p><div class="row end"><button class="btn quiet" data-a="totitle">Back</button><button class="btn solid" data-a="begin"${CR.look==null?' disabled':''}>Begin</button></div></div>`,'creating');
     startCreationPreview();
   }
@@ -1022,7 +1076,7 @@
       <div class="card"><h2>Discovered places</h2>${places.length?`<ul class="tale plain">${places.map(e=>`<li>${esc(e.name)} <small>${Math.round(Math.hypot(e.x-at[0],e.y-at[1]))} paces ${compass({x:at[0],y:at[1]},e)}</small></li>`).join('')}</ul>`:'<p>Walk farther to map the passages.</p>'}<p class="cap2">${rooms.length} of ${m.layout.rooms.length} chambers mapped.</p></div>`;
   }
   const CMap = CartographyScreen.create({
-    state: () => S, account: () => A, scene: Scene, region, esc, sheet, save, toast, render,
+    state: () => S, account: () => A, scene: Scene, region, esc, sheet, save:()=>{if(S?.path)save();}, toast, render,
     world: () => { tab = 'world'; render(); }, close: closeSheet, homes: () => S.homes || [],
     houseSize: h => [HOUSES[h.shape][1], HOUSES[h.shape][2]], entity: () => CE,
     blocked: () => !!(Q || F || DU || DG || gOn() || PL || (sceneUp && Scene.find(e => e.chase > 0))),
@@ -1422,8 +1476,8 @@
     const day = dayKey();
     let st = S.cs[id];
     if (!st || st.day !== day) {
-      const items = specialty ? (R.gear || []).map(([slot, weapon], i) => makeItem(RAR[i + 1], r, slot, weapon)) :
-        Array.from({ length: R.gear || 0 }, () => makeItem(rollRarity(luck(), 1), r));
+      const items = specialty ? (R.gear || []).map(([slot, weapon], i) => makeItem(RAR[i+1],r,slot,weapon,{source:'shop'})) :
+        Array.from({ length: R.gear || 0 }, () => makeItem(rollRarity(luck(), 1),r,null,null,{source:'shop'}));
       st = S.cs[id] = { day, items, key: R.keys ? 1 : 0 };
     }
     const fp = k => Math.round(FOOD[k][3] * (1 + (r - 1) * .45)), goods = (R.sells || []).map(k => ({ ic: FOOD[k][2], name: FOOD[k][0], meta: `Restores ${FOOD[k][1]} health`, price: fp(k) + ' gold', a: 'buyfood', d: { k, c: fp(k) }, off: S.gold < fp(k) }));
@@ -1520,7 +1574,7 @@
     return owned(p.id) ? { ...base, meta: book.name, pill: 'in your book' } :
       { ...base, meta: book.name + ' · ' + book.what, price: p.price + ' gold', a: 'buypage', d: { id: p.id }, off: S.gold < p.price };
   });
-  function shopSheet(e, line, goods, extra) { setTimeout(() => coach(goods && goods.some(g => g.a === 'buyfood' || g.a === 'buymat') ? 'trade' : 'shop'), 0); CE = e; const pt = e.spr || e.pt ? Scene.portrait(e) : ''; sheet(`<div class="shop-head">${pt ? `<img alt="" src="${pt}">` : ''}<div><p class="eyebrow">${esc(e.sub || '')}</p><h2>${esc(e.name)}</h2></div></div><p class="story">${esc(line)}</p><ul class="goods">${goods.map(goodHTML).join('')}</ul><div class="row end">${extra || ''}<button class="btn sm quiet" data-a="chat">Chat</button></div>`); }
+  function shopSheet(e, line, goods, extra) { setTimeout(() => e.kind==='stablekeep'?null:coach(goods && goods.some(g => g.a === 'buyfood' || g.a === 'buymat') ? 'trade' : 'shop'), 0); CE = e; const pt = e.spr || e.pt ? Scene.portrait(e) : ''; sheet(`<div class="shop-head">${pt ? `<img alt="" src="${pt}">` : ''}<div><p class="eyebrow">${esc(e.sub || '')}</p><h2>${esc(e.name)}</h2></div></div><p class="story">${esc(line)}</p><ul class="goods">${goods.map(goodHTML).join('')}</ul><div class="row end">${extra || ''}<button class="btn sm quiet" data-a="chat">Chat</button></div>`); }
   /* ---------- the bank: one account shared by every town's banker. Gold and up to 60 things kept there are safe when you die. ---------- */
   const BANK_SLOTS = 60;
   function bankSheet(e) { if (e) CE = e; S.bank = S.bank || { gold: 0, items: [] }; coach('bank'); const B = S.bank, worn = new Set(Object.values(S.eq || {})), free = S.inv.filter(it => !worn.has(it.id)), pt = CE && (CE.spr || CE.pt) ? Scene.portrait(CE) : '';
@@ -1629,6 +1683,8 @@
       </ul></section>`; }
   function homesUp() { Scene.cartographyAtlas(null); const moved = Scene.restoreHomes(S.homes || []); CMap.restore(); return moved; }
   const SH = {
+    venuefolk(e){dlg(e,e.venueLine||'There is plenty of work to keep us busy here.',[bye]);},
+    stablekeep(e){shopSheet(e,'Our riding horses are trained for the roads. Your horse stays yours when you dismount, and you can call it from the Hero menu.',[{ic:'deed',name:'Bay riding horse',meta:S.horse?.owned?'Your horse is ready. Mount outdoors from the Hero menu.':'Rides 70% faster than running. No feeding charges or permanent horse loss.',price:Mounts.PRICE+' gold',a:'buyhorse',off:S.horse?.owned||S.gold<Mounts.PRICE}],S.horse?.owned?'<button class="btn sm" data-a="mounttoggle">'+(mounted()?'Dismount':'Mount horse')+'</button>':'');},
     venueup(e) { if(Scene.enterVenue(e)){S.interior=Scene.venueState();save();render();} },
     venuedown(e) { if(Scene.exitVenue(e)){S.interior=null;S.pos=Scene.pos();S.region=Scene.region();surfaceBodies();save();render();} },
     cartographer: e => CMap.shop(e), regionchart: e => CMap.chart(e), homeatlas: e => CMap.atlas(e), atlasdisplay: e => dlg(e, 'The Grand Atlas is a chart table made for a house. The capital cartographer sells it for 30,000 gold once you own all eight regional maps. Install it at home to travel between regions.', [bye]),
@@ -1669,10 +1725,10 @@
     healer(e) { const t = e.r, cost = 3 * t, dc = 10 * t, well = S.hp >= maxHp(); shopSheet(e, TALK.heal[t % 3], [{ ic: 'salve', name: 'Bind my wounds', meta: well ? 'You are well' : 'Back to full health', price: cost + ' gold', a: 'rest', d: { c: cost }, off: well || S.gold < cost }, {ic:'bandage',name:'Five bandages',meta:'Each Bandage action uses one. Healing skill sets recovery.',price:(3*t)+' gold',a:'buybandages',d:{c:3*t},off:S.gold<3*t}, { ic: 'draught', name: 'Healing Draught', meta: 'Restores 30 health, in or out of a fight', price: dc + ' gold', a: 'buytonic', d: { c: dc }, off: S.gold < dc }]); },
     board(e) { if (S.stats.ok < 4) return dlg(e, 'Nothing pinned for you yet.', [bye]); const R = rounds(); dlg(e, 'There are five drills each day, with extra practice for techniques you haven’t used in a while. Finish all five to earn a chest.', R.tasks.map((x, i) => ({ t: tplOf(x.tpl).title, n: x.done ? 'done' : (tplSkills(x.tpl).some(rusty) ? 'rusty · ' : '') + CIRCLE[tplOf(x.tpl).r] + ' Circle', a: 'start', d: { k: 'round', i }, off: x.done })).concat([bye])); },
     bench() {
-      const t = here(), CS = ['weapon', 'armor', 'shield', 'ring', 'charm'], cp = bestPage('craft'), can = !!cp && cp.c >= t;
-      sheet(`<p class="eyebrow">Workbench · ${CIRCLE[t]} Circle</p><h2>Craft</h2><div class="grid"><span class="cell">${ico('mat' + t, have(t))}</span><span class="cell">${ico('sigil', have('sigil'))}</span><span class="cell">${ico('draught', S.tonics)}</span><span class="cell">${ico('hintkey', S.hints)}</span></div>${can ? `<p class="cap2">Each piece is one query and one roll, asked at the circle of your best pattern page (${esc(cp.name)}). Blacksmithing ${rv('smith').toFixed(0)} makes gear, Alchemy ${rv('alchemy').toFixed(0)} makes draughts and keys. A spoiled piece wastes half the materials.</p>` : `<div class="verdict bad"><p>Working ${MATS[t]} needs a Pattern Book page of the ${CIRCLE[t]} Circle. ${esc(FOLK[t - 1][0][0])} sells one.</p></div>`}<div class="seg">${CS.map(c => `<button data-a="slot" data-s="${c}" aria-pressed="${benchSlot === c}">${c}</button>`).join('')}</div><ul class="inv">${RECIPES.filter(x => !x.minR || t >= x.minR).map(x => { const ok = can && have(t) >= x.mats && have('sigil') >= x.sigils, d = Math.min(100, diffOf(t) + ({ rare: 8, epic: 16, legendary: 24 }[x.id] || 0)); return `<li><span class="nm ${x.gear ? 'rar-' + x.id : ''}">${esc(x.id === 'scroll' ? 'Hint Key' : x.name)}${x.gear ? ' · ' + benchSlot : ''}</span><div class="row"><span class="meta grow">${x.mats} ${MATS[t]}${x.sigils ? ' + ' + x.sigils + ' sigil' : ''} · ${odds(rv(x.gear ? 'smith' : 'alchemy'), d, 'correct').p}% if correct</span><button class="btn sm" data-a="craft" data-id="${x.id}"${ok ? '' : ' disabled'}>Craft</button></div></li>`; }).join('')}</ul>${professionHTML()}`);
+      const t = here(), CS = ['weapon','armor','shield','head','hands','feet','cloak','ring','charm'], cp = bestPage('craft'), can = !!cp && cp.c >= t;
+      sheet(`<p class="eyebrow">Workbench · ${CIRCLE[t]} Circle</p><h2>Craft</h2><div class="grid"><span class="cell">${ico('mat' + t, have(t))}</span><span class="cell">${ico('sigil', have('sigil'))}</span><span class="cell">${ico('draught', S.tonics)}</span><span class="cell">${ico('hintkey', S.hints)}</span></div>${can ? `<p class="cap2">Each piece is one query and one roll, asked at the circle of your best pattern page (${esc(cp.name)}). Blacksmithing ${rv('smith').toFixed(0)} makes gear, Alchemy ${rv('alchemy').toFixed(0)} makes draughts and keys. A spoiled piece wastes half the materials.</p>` : `<div class="verdict bad"><p>Working ${MATS[t]} needs a Pattern Book page of the ${CIRCLE[t]} Circle. ${esc(FOLK[t - 1][0][0])} sells one.</p></div>`}<div class="seg">${CS.map(c => `<button data-a="slot" data-s="${c}" aria-pressed="${benchSlot === c}">${c}</button>`).join('')}</div><ul class="inv">${RECIPES.filter(x => !x.minR || t >= x.minR).map(x => { const ok = can && have(t) >= x.mats && have('sigil') >= x.sigils, d = Math.min(100, diffOf(t) + ({ rare: 8, epic: 16, legendary: 24 }[x.id] || 0)); return `<li><span class="nm ${x.gear ? 'rar-' + x.id : ''}">${esc(x.id === 'scroll' ? 'Hint Key' : x.name)}${x.gear ? ' · ' + benchSlot : ''}</span><div class="row"><span class="meta grow">${x.mats} ${MATS[t]}${x.sigils ? ' + ' + x.sigils + ' sigil' : ''} · ${odds(rv(x.gear ? 'smith' : 'alchemy'), d, 'correct').p}% if correct</span><button class="btn sm" data-a="craft" data-id="${x.id}"${ok ? '' : ' disabled'}>Craft</button></div></li>`; }).join('')}</ul>${craftMaterialHTML()}<button class="btn quiet" data-a="enchantmenu">Enchant equipment</button>${professionHTML()}`);
     },
-    casino(e) { const r = e.r, room = Poker.ROOM[r - 1]; shopSheet(e, pick(['"Chips at the cage, questions at the table. Welcome."', '"The house deals straight. Query the cards all you like."', '"Find a seat. The blinds are posted on each table."']), [{ ic: 'chips_gold', name: 'Blind Tally', meta: `Hold’em, six seats. Blinds ${room.bb / 2} and ${room.bb}. Sit with ${20 * room.bb} gold or more`, price: 'Table', a: 'pkrules', d: { r }, off: S.gold < 20 * room.bb },
+    casino(e) { CE=e;if(e.station==='poker'){const room=Poker.ROOM[e.r-1];return shopSheet(e,'There is an open seat at the poker table. The blinds are posted beside the dealer.',[{ic:'cards',name:'Blind Tally poker',meta:'Six seats. Blinds '+room.bb/2+' and '+room.bb+'.',price:'Join table',a:'pkrules',d:{r:e.r},off:S.gold<20*room.bb}]);}if(e.station==='blackjack')return bjOpen(e.r);if(e.station==='wheel')return whOpen(e.r);const r = e.r, room = Poker.ROOM[r - 1]; shopSheet(e, pick(['"Chips at the cage, questions at the table. Welcome."', '"The house deals straight. Query the cards all you like."', '"Find a seat. The blinds are posted on each table."']), [{ ic: 'chips_gold', name: 'Blind Tally', meta: `Hold’em, six seats. Blinds ${room.bb / 2} and ${room.bb}. Sit with ${20 * room.bb} gold or more`, price: 'Table', a: 'pkrules', d: { r }, off: S.gold < 20 * room.bb },
       { ic: 'wheel', name: 'The Crooked Wheel', meta: `Bet with a query. The wheel has a flaw, and its history is a table. Bets from ${room.bb} gold`, price: 'Wheel', a: 'whopen', d: { r } }, { ic: 'shoe', name: 'The Count', meta: `Blackjack. Every card shown is logged, so you can count the shoe with a query. Bets from ${room.bb} gold`, price: 'Deal', a: 'bjopen', d: { r } }]); },
     home(e) {
       const R = SETTLE[e.role], a = S.er.a[e.hid], opts = [], del = Object.values(S.er.a).find(x => x.type === 'deliver' && x.to === e.hid);
@@ -1753,7 +1809,7 @@
     inputBlocked: () => boatActive()&&!['walk','arrival'].includes(S.prologue.phase) || !$('#sheet').hidden || !$('#say').hidden || !$('#enc').hidden || !$('#coach').hidden || !$('#title').hidden,
     moveCloser: () => toast('Move closer to interact.'),
     cartography: () => CMap.visual(), waypoint: () => CMap.guide(), revealSurface: (x,y) => CMap.moved(x,y),
-    ghostMoved: () => placeBar(), runMul: () => gift('run') ? 1.15 : 1, keeperName: r => LAIRMON['k' + r], haveTable: r => haveT(r),
+    mountSafety:()=>{if(S.horse?.mounted&&!Mounts.canRide(mountContext())){S.horse=Mounts.dismount(S.horse);save();}},mounted, travelSpeed:(running,ordinary)=>Mounts.speed(S.horse,ordinary,ActorRig.speed(true)*(gift('run')?1.15:1),running?1:.58,mountContext()), inspectService:p=>sheet(`<p class="eyebrow">${esc(region(p.r).name)}</p><h2>${esc(p.name)}</h2><p>${esc(Array.isArray(p.services)?p.services.join(', '):p.services||ServicePlaces.types[p.type]?.name||'Local premises')}</p><p class="cap2">Walk inside and approach the counter or station to use its services.</p><button class="btn" data-a="closesheet">Done</button>`), ghostMoved: () => placeBar(), runMul: () => gift('run') ? 1.15 : 1, keeperName: r => LAIRMON['k' + r], haveTable: r => haveT(r),
     app: () => ART && ArtData.body ? app() : null, role: () => S.path, look: () => S.look != null ? S.look : (LOOK0[S.path] || 0), thief: () => !!bestPage('shadow'), hue: r => HUES[r], folk: r => FOLK[r - 1], tavern: r => TAVERNS[r - 1], rivalName: r => RIVALS[r - 1].name, bossName: r => BOSSES[r - 1].name, dungeonName: r => DUNGEONS[r - 1].name, matName: r => MATS[r], regionName: r => region(r).name, regionSub: r => region(r).sub,
     homeRoles: r => [0, 1, 2, 3, 4, 5, 6].map(k => HOMES[(r * 3 + k * 4) % HOMES.length]), roamRoles: r => [0, 1, 2, 3, 4, 5, 6].map(k => ROAMERS[(r + k) % ROAMERS.length]), settler: role => SETTLE[role], settlerName: (hid, role) => FIRST[hsh(hid) % FIRST.length] + ' the ' + SETTLE[role].n, stockName: t => STOCK[t] || 'Animal', place: pk => PLACES[pk],
     tpls: r => BOUNTIES.filter(b => b.r === r).map(b => b.id), habitat: t => HAB[t] || 'open', wild: (r, h) => (WILD[r] || []).filter(w => w[1] === h || (h === 'coast' && w[1] === 'water') || (h === 'water' && w[1] === 'coast')).map(w => w[0]), hunts: t => !!HUNT[t], cacheOpen: id => S.cache[id] === dayKey(),
@@ -1783,7 +1839,7 @@
     sound: (name, detail) => Sound.sfx(name, detail),
     dungeonState: () => DG ? DP.current() : null,
     shipRescued:owner=>{if(owner===S && boatActive() && S.prologue.phase==='rescue')boatAdvance('rescued');},
-    moved(x, y, dun, run) { if(Scene.inShip()){S.prologue=Prologue.moved(S.prologue,[x,y]);if(S.prologue.steps%3===0)save();return;} const was=CONCEAL.hidden;Sneaking.move(CONCEAL,x,y,run,1);if(CONCEAL.hidden){for(const e of Scene.ents()){if(e.dead||!['mon','rival','guard','keeper','boss'].includes(e.kind))continue;const d=Math.hypot(e.x-x,e.y-y);if(Sneaking.approach(CONCEAL,{id:e.id||e.name,x:e.x,y:e.y},d)){const g=gain('stealth',diffOf(e.r),.6,true);if(g&&g.after>g.before)toast('Stealth +'+(g.after-g.before).toFixed(1));break;}}}if(was)renderHud(); if(Scene.inInterior()){S.interior=Scene.venueState();if(!interiorSaveTimer){const owner=S;interiorSaveTimer=setTimeout(()=>{interiorSaveTimer=0;if(S===owner && sceneOwner===owner)save();},1500);}} if (dun && DG)DP.moved(x,y); if (gOn()) gMoved(x, y, dun, run); if (!dun && !Scene.inHall() && !Scene.inInterior()) { S.pos = [x, y]; CMap.moved(x,y); if (S.mv % 3 === 0) { S.lairs = S.lairs || {}; for (const L of Scene.sites()) if (L.kind === 'lair' && !S.lairs[L.id] && Math.hypot(L.x - x, L.y - y) < 11) { S.lairs[L.id] = 1; save(); toast(`Found: ${L.name}. It is on your map now.`); coach('lair'); } } } S.mv = (S.mv || 0) + 1; if (S.mv % 5 === 0 && S.hp < maxHp() && !activePursuit()) { heal(1 + Math.floor(rv('healing') / 40), true); renderHud(); } },
+    moved(x, y, dun, run) { if(S.horse?.mounted&&!Mounts.canRide(mountContext()))S.horse=Mounts.dismount(S.horse); if(Scene.inShip()){S.prologue=Prologue.moved(S.prologue,[x,y]);if(S.prologue.steps%3===0)save();return;} const was=CONCEAL.hidden;Sneaking.move(CONCEAL,x,y,run,1);if(CONCEAL.hidden){for(const e of Scene.ents()){if(e.dead||!['mon','rival','guard','keeper','boss'].includes(e.kind))continue;const d=Math.hypot(e.x-x,e.y-y);if(Sneaking.approach(CONCEAL,{id:e.id||e.name,x:e.x,y:e.y},d)){const g=gain('stealth',diffOf(e.r),.6,true);if(g&&g.after>g.before)toast('Stealth +'+(g.after-g.before).toFixed(1));break;}}}if(was)renderHud(); if(Scene.inInterior()){S.interior=Scene.venueState();if(!interiorSaveTimer){const owner=S;interiorSaveTimer=setTimeout(()=>{interiorSaveTimer=0;if(S===owner && sceneOwner===owner)save();},1500);}} if (dun && DG)DP.moved(x,y); if (gOn()) gMoved(x, y, dun, run); if (!dun && !Scene.inHall() && !Scene.inInterior()) { S.pos = [x, y]; CMap.moved(x,y); if (S.mv % 3 === 0) { S.lairs = S.lairs || {}; for (const L of Scene.sites()) if (L.kind === 'lair' && !S.lairs[L.id] && Math.hypot(L.x - x, L.y - y) < 11) { S.lairs[L.id] = 1; save(); toast(`Found: ${L.name}. It is on your map now.`); coach('lair'); } } } S.mv = (S.mv || 0) + 1; if (S.mv % 5 === 0 && S.hp < maxHp() && !activePursuit()) { heal(1 + Math.floor(rv('healing') / 40), true); renderHud(); } },
     hud(n) { if(boatActive()){const b=$('#ctx');b.hidden=!n||!['walk','arrival'].includes(S.prologue.phase);if(n){b.textContent=n.shipExit?'Step ashore':(n.shipPerson?'Talk: ':'Inspect: ')+n.name;b.setAttribute('aria-label',b.textContent);}return;} const reason=backstabReason(n),rear=n&&reason!=='target'&&CONCEAL.hidden&&Scene.behind(n)&&Scene.sight(n),ambush=reason===null,ob=objective(),k=(n?n.kind+n.name:'')+ob+(F?'f':'')+(rear?'rear':'')+(ambush?'ambush':''); if (k === HOST._k) return; HOST._k = k; const b = $('#ctx'); b.hidden = !n || !!F; if (n) b.textContent = n.kind === 'homeatlas' ? 'Use: Grand Atlas' : ({ venueup: 'Go upstairs: ', venuedown: 'Go downstairs: ', cartographer: 'Maps: ', regionchart: 'Read: ', homeatlas: 'Use: ', atlasdisplay: 'Inspect: ', roadsign: 'Read: ', banker: 'Bank: ', guide: 'Talk: ', lookout: 'Climb: ', dojo: 'Go in: ', hallexit: 'Leave: ', master: 'Talk: ', student: 'Talk: ', sorrel: 'Talk: ', traveler: 'Talk: ', odalys: 'Talk: ', foe: 'Talk: ', dummy: 'Practice: ', bracket: 'Read: ', rnote: 'Read: ', npc: 'Talk: ', folk: 'Talk: ', tavern: 'Talk: ', healer: 'Talk: ', registrar: 'Talk: ', stallkeep: 'Trade: ', shopkeep: 'Trade: ', specialist: 'Trade: ', ferry: 'Talk: ', landmark: 'Inspect: ', rival: 'Approach: ', boss: 'Face: ', mon: 'Engage: ', guard: 'Engage: ', keeper: 'Face: ', dtravel:'Use: ', dcache:'Open: ', dlever:'Use: ', dgate:'Inspect: ', dsecret:'Investigate: ', dlore:'Read: ', ltable:'Take: ', node: 'Gather: ', board: 'Read: ', bench: 'Use: ', stairs: 'Enter: ', chest: 'Open: ', exit: 'Use: ', page: 'Read: ', camp: 'Rest: ', peddler: 'Trade: ', cache: 'Open: ', corpse: 'Loot: ', casino: 'Enter: ', home: 'Talk: ', fish: 'Fish: ', stock: '', poi: (n.sub || 'Look') + ': ' }[n.kind] || '') + n.name; if(n){const label=b.textContent;if(rear)b.textContent=ambush?'Backstab ready':'Behind target';b.setAttribute('aria-label',b.textContent+(rear?' · '+label:''));b.title=label+(rear?' · '+(ambush?'Backstab ready':backstabNotes[backstabReason(n)]||'Approach from behind.'):'');}$('#obj').textContent=ob; }
   };
 
@@ -1825,17 +1881,18 @@
   // where each of the eight old heroes lands: [hair, colour, beard, hat]
   const LOOKAPP = { warrior: [[0, 1, -1, -1], [7, 3, -1, -1]], thief: [[1, 0, 5, 3], [6, 0, -1, -1]], mage: [[2, 5, 1, 4], [8, 0, -1, -1]], crafter: [[-1, 1, 0, -1], [6, 2, -1, -1]] };
   function look0() { const lk = S.look != null ? S.look : 0, d = (LOOKAPP[S.path] || LOOKAPP.warrior)[lk % 2]; return { body: lk % 2, skin: 1, hair: d[0], hc: d[1], beard: d[2], hat: d[3], wear: S.path === 'mage' ? 1 : 0, dye: S.path === 'mage' ? (lk % 2 ? 4 : 2) : 0 }; }
-  const myLook = () => (S.app=ActorRig.normalizeLook(S.app,look0()));
+  function normalizeHeadStyle(L){const styles=HeadPortraits.styles(L.body),style=styles.find(p=>p.id===L.headStyle)||styles.find(p=>p.id===HeadPortraits.match(L.body,L.hair,L.beard))||styles[0];L.headStyle=style.id;L.hair=style.hair;L.beard=style.beard;return L;}
+  const myLook=()=>normalizeHeadStyle(S.app=ActorRig.normalizeLook(S.app,look0()));
   const WPN = { swords: [0, 1, 1, 2], fencing: [14, 15, 0, 1], archery: [25, 26, 26, 27], magery: [9, 8, 10, 12] }, SHD = [20, 22, 21, 21];
   function appNow() {
     if (!S || !S.path) return null; const L = myLook(), arm = itemById(S.eq.armor), wp = itemById(S.eq.weapon), sh = itemById(S.eq.shield), hd = itemById(S.eq.head), hn = itemById(S.eq.hands);
-    const outfit = arm ? (/Leather/.test(arm.name) ? 2 : /Chain/.test(arm.name) ? 3 : 4) : L.wear, g = it => GRADE[it.rarity] || 0;
+    const outfit = arm ? (/Robe/.test(arm.name)?1:/Leather/.test(arm.name) ? 2 : /Chain/.test(arm.name) ? 3 : 4) : L.wear, g = it => GRADE[it.equipment?.baseRarity||it.rarity] || 0;
     const metal = arm ? [null, null, '#b8c8dc', '#d8b048', '#e0b84a'][RAR.indexOf(arm.rarity)] : null, sp = typeof L.dye === 'string' ? spec(L.dye) : null;
     let wi = -1, wk = '', st = 'swing';
     if (wp) { const V = wp.v != null && WV.find(x => x.v === wp.v); if (V) { wi = V.v; wk = V.k; st = V.s; } else { const ix = (WN[wp.w] || []).findIndex(n => wp.name.indexOf(n) >= 0); wi = (WPN[wp.w] || WPN.swords)[Math.min(3, ix < 0 ? g(wp) : ix)]; wk = wp.w === 'magery' ? 'staff' : wp.w === 'archery' ? 'bow' : wi === 2 ? 'long' : wi === 14 || wi === 15 ? 'dagger' : 'sword'; st = wp.w === 'magery' ? 'cast' : wp.w === 'swords' ? 'swing' : 'thrust'; } }
     const wg = L.wglow && spec(L.wglow), hat = hd ? HATK(hd.name) : L.hat;
-    return { combo: L.body * 5 + outfit + 1, skin: L.skin ?? 1, cloth: sp ? sp.base : DYES[L.dye] || null, fx: sp && sp.k ? { k: sp.k, c: sp.c || null, soft: sp.soft || 0 } : null, metal, hc: HAIRC[L.hc] || HAIRC[1], hair: L.hair, beard: L.beard, hat,
-      wpn: wi, wkind: wk, style: st, glow: wg ? wg.c || '#e0d8ff' : wp ? { epic: '#8fc0ff', legendary: '#ffd76a' }[wp.rarity] || null : null, shield: sh ? (sh.off != null ? sh.off : SHD[Math.min(3, g(sh))]) : -1, gl: hn && /Thief/.test(hn.name) ? 1 : 0 };
+    return { combo: L.body * 5 + outfit + 1, skin: L.skin ?? 1, cloth: sp ? sp.base : DYES[L.dye] || null, fx: sp && sp.k ? { k: sp.k, c: sp.c || null, soft: sp.soft || 0 } : null, metal,armorMaterial:EquipmentRules.materialOf(arm),weaponMaterial:EquipmentRules.materialOf(wp),shieldMaterial:EquipmentRules.materialOf(sh),hc: HAIRC[L.hc] || HAIRC[1], hair:L.hair,beard:L.beard,headStyle:L.headStyle,hat,
+      wpn: wi, wkind: wk, style: st, glow: wg ? wg.c || '#e0d8ff' : wp?.equipment?.enchantment?({embers:'#e89143',power:'#83b8dd',slaying:'#d2d8c2',focus:'#b49bd4',precision:'#a8b77c'}[wp.equipment.enchantment.id]||null):null, shield: sh ? (sh.off != null ? sh.off : SHD[Math.min(3, g(sh))]) : -1, gl: hn && /Thief/.test(hn.name) ? 1 : 0 };
   }
   let APPK = '', APPV = null; const app = () => { const a = appNow(), k = JSON.stringify(a); if (k !== APPK) { APPK = k; APPV = a; } return APPV; };
   const dollHTML = () => ART && ArtData.body ? `<section class="sec dollsec"><canvas id="doll" width="300" height="450" aria-label="Your character"></canvas><div class="row end"><button class="btn sm quiet" data-a="looks">Appearance</button></div></section>` : '';
@@ -1847,28 +1904,28 @@
     sheet(`<p class="eyebrow">The barber, the tailor and the dyer</p><h2>Appearance</h2><canvas id="doll2" class="dollbig" width="300" height="450"></canvas>
       <h3>Body${lc$('body')}</h3><div class="chips">${opt('body', 0, 'Man', L.body === 0)}${opt('body', 1, 'Woman', L.body === 1)}</div>
       <h3>Skin tone</h3><div class="chips">${SKINN.map((n,i)=>opt('skin',i,n,(L.skin??1)===i)).join('')}</div>
-      <h3>Hair${lc$('hair')}</h3><div class="chips">${opt('hair', -1, 'Bald', L.hair < 0)}${HAIRS.map((n, i) => opt('hair', i, n, L.hair === i)).join('')}</div>
+      <h3>Complete head style${lc$('hair')}</h3><div class="head-style-grid">${HeadPortraits.styles(L.body).map(p=>`<button class="head-style-choice${p.id===L.headStyle?' on':''}" data-a="headstyle" data-id="${p.id}" aria-pressed="${p.id===L.headStyle}"><canvas width="96" height="112" data-head-style="${p.id}" aria-hidden="true"></canvas><span>${esc(p.name)}</span></button>`).join('')}</div>
       <h3>Hair colour${lc$('hc')}</h3><div class="chips">${HAIRCN.map((n, i) => opt('hc', i, n, L.hc === i)).join('')}</div>
-      <h3>Facial hair${lc$('beard')}</h3><div class="chips">${opt('beard', -1, 'None', L.beard < 0)}${BEARDS.map((n, i) => opt('beard', i, n, L.beard === i)).join('')}</div>
+
       <h3>Head${lc$('hat')}</h3><div class="chips">${opt('hat', -1, 'Nothing', L.hat < 0)}${HATS.map((n, i) => opt('hat', i, n, L.hat === i)).join('')}</div>
       <h3>Clothes without armour${lc$('wear')}</h3><div class="chips">${opt('wear', 0, 'Tunic', L.wear === 0)}${opt('wear', 1, 'Robe', L.wear === 1)}</div>
       <h3>Dye${lc$('dye')}</h3><div class="chips">${DYEN.map((n, i) => opt('dye', i, n, L.dye === i)).join('')}${(S.dyeU || []).map(id => opt('dye', id, spec(id).n + ' ✦', L.dye === id)).join('')}</div>
       ${(S.dyeU || []).some(id => spec(id).k === 'glow') ? `<h3>Weapon glow</h3><div class="chips">${opt('wglow', '', 'By rarity', !L.wglow)}${S.dyeU.filter(id => spec(id).k === 'glow').map(id => opt('wglow', id, spec(id).n, L.wglow === id)).join('')}</div>` : ''}
       ${S.dyeU && S.dyeU.length ? '' : '<p class="cap2">Rare dyes turn up now and then on creatures, in vault chests and on keepers and examiners.</p>'}
       <div class="row end"><button class="btn solid" data-a="closesheet">Done</button></div>`);
-    paintDoll();
+    paintDoll();const owner=S;HeadPortraits.preload(L.body,L.headStyle).then(()=>{if(owner!==S)return;for(const cv of document.querySelectorAll('canvas[data-head-style]'))HeadPortraits.draw(cv.getContext('2d'),{body:L.body,style:cv.dataset.headStyle,skin:L.skin,hc:HAIRC[L.hc]},[12,48,38]);});
   }
   const modeName = m => ({up:'↑ Raise',down:'↓ Lower',lock:'Locked'})[m];
   function progressRow(id,name,note,stat=false) {const v=stat?S.attr[id]:rv(id),cp=stat?100:skCap(id),m=Progression.mode(S,id,stat),target=(stat?S.attrTargets:S.skillTargets)[id];return `<li><span class="nm"><b>${name}</b><small>${esc(note)}</small></span><span class="val">${v.toFixed(1)}<small>${stat?'':skTitle(v)+' · cap '+cp}</small></span><div class="progress-controls"><button class="btn sm quiet" data-a="progressmode" data-id="${id}" data-stat="${stat?1:0}" aria-label="${name}: ${modeName(m)}">${modeName(m)}</button><label>Stop at <input type="number" min="${stat?10:0}" max="${cp}" step="0.1" value="${target==null?'':target}" placeholder="${cp}" aria-label="${name} stop target" data-target="${id}" data-stat="${stat?1:0}"></label><button class="btn sm quiet" data-a="progresstarget" data-id="${id}" data-stat="${stat?1:0}">Set</button></div><span class="bar"><i style="width:${Math.min(100,v/cp*100)}%"></i></span></li>`;}
-  function progressPanel() {return `<section class="sec"><h2>Attributes <small>${Progression.statTotal(S).toFixed(1)} / 225</small></h2><p class="note">Strength sets health and physical power. Dexterity supplies stamina for maneuvers. Intelligence supplies mana for magic. Practice trains related attributes, including when a skill reaches its cap.</p><ul class="skills">${[['str','Strength','Health and physical power.'],['dex','Dexterity','Stamina and shield efficiency.'],['int','Intelligence','Mana and spell power.']].map(x=>progressRow(...x,true)).join('')}</ul><p>Mana ${Math.round(S.mana)} / ${Progression.maxMana(S)} · Stamina ${Math.round(S.stamina)} / ${Progression.maxStamina(S)}</p></section><section class="sec"><h2>Skills <small>${total().toFixed(1)} / ${CAP}</small></h2><p class="note">Raise learns through use. Lower releases points only when another skill needs room at the shared cap, starting with the highest skill set to Lower. Locked preserves its value. All three settings allow you to use the skill. Set a stopping target to lock automatically; leave it blank to clear the target. No skills decay while you are away.</p><ul class="skills">${RPG.map(x=>progressRow(...x)).join('')}</ul><p class="note">Skills improve fastest near their difficulty. The last ten points to Grandmaster take the longest. SQL techniques below have their own learning record.</p>${scrollsHTML()}</section>`;}
+  function progressPanel() {return `<section class="sec"><h2>Attributes <small>${Progression.statTotal(S).toFixed(1)} / 225</small></h2><p class="note">Strength sets health and physical power. Dexterity supplies stamina for maneuvers. Intelligence supplies mana for magic. Practice trains related attributes, including when a skill reaches its cap.</p><ul class="skills">${[['str','Strength','Health and physical power.'],['dex','Dexterity','Stamina and shield efficiency.'],['int','Intelligence','Mana and spell power.']].map(x=>progressRow(...x,true)).join('')}</ul><p>Mana ${Math.round(S.mana)} / ${Progression.maxMana(S)} · Stamina ${Math.round(S.stamina)} / ${maxStamina()}</p></section><section class="sec"><h2>Skills <small>${total().toFixed(1)} / ${CAP}</small></h2><p class="note">Raise learns through use. Lower releases points only when another skill needs room at the shared cap, starting with the highest skill set to Lower. Locked preserves its value. All three settings allow you to use the skill. Set a stopping target to lock automatically; leave it blank to clear the target. No skills decay while you are away.</p><ul class="skills">${RPG.map(x=>progressRow(...x)).join('')}</ul><p class="note">Skills improve fastest near their difficulty. The last ten points to Grandmaster take the longest. SQL techniques below have their own learning record.</p>${scrollsHTML()}</section>`;}
   function vHero() {
     const p = PATHS.find(x => x.id === S.path), acc = S.stats.q ? Math.round(100 * S.stats.ok / S.stats.q) : 0, w = armsSkill();
     paintDoll(); return `${savePanel()}${Offline.html()}<div class="character-return"><p class="eyebrow">World ${A.world+1} · ${isMain()?'Main character':'Supporting character'}</p><button class="btn solid" data-a="reset">Return to characters</button></div><section class="place"><p class="eyebrow">${p ? p.name : 'No path chosen'} · health ${S.hp} / ${maxHp()}</p><h1>${rankName()}</h1></section>${dollHTML()}
-      <section class="sec"><h2>Books ${qm('hero')}</h2>${bookHTML()}</section>
+      <section class="sec"><h2>Horse</h2><p>${S.horse?.owned?'Your bay riding horse travels 70% faster than running. Mount outdoors when you are clear of danger.':'Stablekeepers sell riding horses for '+Mounts.PRICE+' gold.'}</p>${S.horse?.owned?'<button class="btn solid" data-a="mounttoggle">'+(mounted()?'Dismount':'Mount horse')+'</button>':''}</section><section class="sec"><h2>Books ${qm('hero')}</h2>${bookHTML()}</section>
       ${progressPanel()}
       <details class="lesson"><summary>SQL skills</summary><div class="lb"><ul class="skills">${SKILLS.map(s => { const v = S.skills[s.id] || { v: 0 }; return `<li><span class="nm"><b>${s.name}</b> ${rusty(s.id) ? '<span class="pill rust">rusty</span>' : ''}<small>${esc(s.what)}</small></span><span class="val">${v.v.toFixed(1)}</span><span class="bar"><i style="width:${v.v}%"></i></span></li>`; }).join('')}</ul><p class="cap2">Tracked in the background. Rusty skills come back in the daily drills.</p></div></details>
       <details class="lesson"><summary>Commands learned · ${Object.keys(CMDS).filter(k => cmdSet()[k] === 2).length} of ${Object.keys(CMDS).length}</summary><div class="lb"><ul class="skills">${Object.keys(CMDS).map(k => `<li><span class="nm"><b>${cmdSet()[k] === 2 ? esc(cmdTitle(k)) : cmdSet()[k] ? esc(cmdTitle(k)) + ' <small>taught, not used yet</small>' : '?'}</b></span><span class="val">${cmdSet()[k] === 2 ? '✓' : ''}</span></li>`).join('')}</ul><p class="cap2">A command joins the Commands panel when its lesson opens. Using it correctly once earns a Hint Key.</p></div></details>
-      ${djTokens()}<section class="sec"><h2>Worn gear</h2><div class="grid doll">${SLOTS.map(s => { const it = itemById(S.eq[s]); return it ? `<button class="cell rar-${it.rarity}" data-a="item" data-id="${it.id}" aria-label="${esc(it.name)}">${ico(it.ic)}<em>${s}</em></button>` : `<span class="cell empty"><em>${s}</em></span>`; }).join('')}</div><div class="kv" style="margin-top:12px"><span>Book of Arms uses</span><span>${rpgName(w)}</span><span>Damage with it</span><span>+${dmgPct(w)}%</span><span>Defence</span><span>${Math.min(60, bonus('def'))}%</span><span>Gold bonus</span><span>+${bonus('gold')}%</span><span>Skill gain bonus</span><span>+${learnPct()}%</span><span>Luck (with streak ${S.streak})</span><span>+${luck()}%</span></div></section>
+      ${djTokens()}<section class="sec"><h2>Worn gear</h2><div class="grid doll">${SLOTS.map(s => { const it = itemById(S.eq[s]); return it ? `<button class="cell rar-${it.rarity}" data-a="item" data-id="${it.id}" aria-label="${esc(it.name)}">${itemIcon(it)}<em>${s}</em></button>` : `<span class="cell empty"><em>${s}</em></span>`; }).join('')}</div><div class="kv" style="margin-top:12px"><span>Book of Arms uses</span><span>${rpgName(w)}</span><span>Damage with it</span><span>+${dmgPct(w)}%</span><span>Defence</span><span>${Math.min(60, bonus('def'))}%</span><span>Gold bonus</span><span>+${bonus('gold')}%</span><span>Skill gain bonus</span><span>+${learnPct()}%</span><span>Luck (with streak ${S.streak})</span><span>+${luck()}%</span></div></section>
       <section class="sec"><h2>Record</h2><div class="kv" style="margin-top:10px"><span>Queries run</span><span>${S.stats.q}</span><span>Correct</span><span>${S.stats.ok} (${acc}%)</span><span>Exercises</span><span>${Object.keys(S.done).length} / ${CONTRACTS.length}</span><span>Marks</span><span>${Object.keys(S.boss).length} / 8</span><span>Journal pages</span><span>${Object.keys(S.jr).length} / 8</span><span>Creatures</span><span>${S.stats.kills}</span><span>Thefts</span><span>${S.stats.steals}</span><span>Dungeon chests</span><span>${S.stats.dungeons}</span><span>Times fallen</span><span>${S.stats.falls}</span><span>Best streak</span><span>${S.best}</span></div></section>
       <section class="sec"><h2>Sound</h2><p class="note">Music follows towns, wilderness, dungeons and fights. If you hear nothing, tap the screen once and check your device volume.</p><div class="row" style="margin-top:10px"><button class="btn sm quiet" data-a="snd" data-k="mu">Music: ${Sound.pref().mu ? 'on' : 'off'}</button><button class="btn sm quiet" data-a="snd" data-k="fx">Effects: ${Sound.pref().fx ? 'on' : 'off'}</button></div></section>
       <section class="sec"><h2>Save codes</h2><p class="note">You can also copy a code to restore all three worlds through Load save above.</p><button class="btn sm quiet" data-a="export">Save code</button></section>`;
@@ -1879,7 +1936,7 @@
       ${sc.length ? `<section class="sec"><h2>Scrolls</h2>` : ''}${sc.length ? `<div class="grid">${sc.map(id => { const p = pageById(id); return `<button class="cell rar-${p.rare ? 'epic' : 'uncommon'}" data-a="scroll" data-id="${id}" aria-label="${esc(p.name)}">${ico('scroll', S.scr[id] > 1 ? S.scr[id] : null)}</button>`; }).join('')}</div>` : ''}${sc.length ? '</section>' : ''}
       <section class="sec"><h2>Supplies</h2><p>You have ${S.bandages||0} bandages for combat. Food restores health while resting; a draught costs one response during combat.</p><div class="supplies">${[{k:'tonic',n:S.tonics,name:'Healing Draught',hp:30,ic:'draught'}, ...Object.keys(FOOD).filter(k => foodN(k)>0).map(k=>({k,n:foodN(k),name:FOOD[k][0],hp:FOOD[k][1],ic:FOOD[k][2]}))].map(x=>`<button class="supply" data-a="supply" data-k="${x.k}">${ico(x.ic)}<span><b>${esc(x.name)} ×${x.n}</b><small>Restores ${x.hp} health${S.hp>=maxHp()?' · Health is full':''}</small></span></button>`).join('')}</div><div class="grid">${have('hide') ? `<span class="cell" title="Hide">${ico('pelt', have('hide'))}</span>` : ''}<span class="cell">${ico('hintkey', S.hints)}</span><span class="cell">${ico('sigil', have('sigil'))}</span>${[1,2,3,4,5,6,7,8].filter(k=>have(k)).map(k=>`<span class="cell" title="${MATS[k]}">${ico('mat'+k,have(k))}</span>`).join('')}</div></section>
       ${(S.deeds || []).length ? `<section class="sec"><h2>Deeds</h2><ul class="goods">${S.deeds.map((d, k) => `<li class="good">${ico('deed')}<div><b>${esc(HMAT[d.mat][0])} ${esc(lc(HOUSES[d.shape][0]))}</b><small>${HOUSES[d.shape][1]} × ${HOUSES[d.shape][2]}</small></div><button class="btn sm" data-a="placedeed" data-k="${k}">Set it down</button></li>`).join('')}</ul></section>` : ''}
-      <section class="sec"><h2>Gear <small>tap a piece</small></h2>${inv.length ? `<div class="grid">${inv.map(it => `<button class="cell rar-${it.rarity}${S.eq[it.slot] === it.id ? ' worn' : ''}" data-a="item" data-id="${it.id}" aria-label="${esc(it.name)}">${ico(it.ic)}</button>`).join('')}</div><div class="row end" style="margin-top:10px"><button class="btn sm quiet" data-a="sellcommon">Sell all unworn common gear</button></div>` : '<p class="note">Nothing yet. Creatures, dungeons and the workbench are where gear comes from.</p>'}</section>
+      <section class="sec"><h2>Gear <small>tap a piece</small></h2>${inv.length ? `<div class="grid">${inv.map(it => `<button class="cell rar-${it.rarity}${S.eq[it.slot] === it.id ? ' worn' : ''}" data-a="item" data-id="${it.id}" aria-label="${esc(it.name)}">${itemIcon(it)}</button>`).join('')}</div><div class="row end" style="margin-top:10px"><button class="btn sm quiet" data-a="sellcommon">Sell all unworn common gear</button></div>` : '<p class="note">Nothing yet. Creatures, dungeons and the workbench are where gear comes from.</p>'}</section>
       <section class="sec"><h2>Named rares <small>${Object.keys(S.codex).length} / ${UNIQUES.length}</small></h2><div class="grid">${UNIQUES.map((u, i) => S.codex[u.id] ? `<span class="cell rar-${u.rarity}" title="${esc(u.name)}">${ico('u' + (i + 1))}</span>` : `<span class="cell unk" title="${esc(u.src)}">?</span>`).join('')}</div></section>`;
   }
 
@@ -1932,7 +1989,7 @@
       if (!CR || CR.look == null) return; const p = PATHS.find(x => x.id === CR.path), nm = (($('#cr-name')||{}).value || CR.name || '').trim().slice(0, 16) || NAMES[CR.look], rev = S.rev;
       const slot = CR.slot != null && !A.slots[CR.slot] ? CR.slot : A.slots.findIndex(c => !c); if (slot < 0) return toast('All five slots are taken'); syncA();
       const main = A.main < 0 || !A.slots[A.main]; A.cur = slot; if (main) A.main = slot;
-      resetTactics();S = linkS(fresh()); S.rev = rev; S.name = nm; S.path = p.id; S.look = CR.look; S.app=Object.assign({},CR.app,{wear:p.id==='mage'?1:0}); S.sk = Object.assign({}, p.sk); Progression.normalize(S); S.hp = maxHp(); give(makeItem('common', 1, 'weapon', WSTART[p.id])); for (const id of { warrior: ['a1'], thief: ['a1', 'h1'], mage: ['s1'], crafter: ['a1', 'c1'] }[p.id]) S.pages[id] = 1; S.intro = 1; S.pos = null; S.prologue=main?Prologue.fresh():null;
+      resetTactics();S = linkS(fresh()); S.rev = rev; S.name = nm; S.path = p.id; S.look = CR.look; S.app=Object.assign({},CR.app,{wear:p.id==='mage'?1:0}); S.sk = Object.assign({}, p.sk); Progression.normalize(S); S.hp = maxHp(); give(makeItem('common', 1, 'weapon', WSTART[p.id],{source:'starter'})); for (const id of { warrior: ['a1'], thief: ['a1', 'h1'], mage: ['s1'], crafter: ['a1', 'c1'] }[p.id]) S.pages[id] = 1; S.intro = 1; S.pos = null; S.prologue=main?Prologue.fresh():null;
       CR = null; DG = null; Q = null; F = null; if(sceneUp){clearInterval(GSAY);Scene.guideOff();} $('#enc').hidden = true; $('#fight').hidden = true; $('#nav').hidden = false; tab = 'world'; save(); if (sceneUp && !main) { Scene.load(null, 'dock'); sceneOwner=S; } hideTitle(); render();
       if (main) coldOpen(); else { hideTitle(); gSkip(); toast(`${nm} arrives in Tallyport`); }
     },
@@ -1940,11 +1997,10 @@
     newgame2: () => { CR = null; create(); }, totitle: () => title(), continue: () => hideTitle(),
     worldpick: d => selectWorld(+d.i), crturn:d=>{if(CR)CR.direction=((CR.direction||0)+ +d.dir+8)%8;}, crwalk:()=>{if(!CR)return;const n=$('#cr-name');if(n)CR.name=n.value;CR.moving=!CR.moving;create();},
     playslot: d => playSlot(+d.i), newslot: d => { CR = { path: null, look: null, name: '', slot: +d.i }; create(); }, delpick: () => delPick(),
-    delslot: d => { const i = +d.i, c = A.slots[i]; if (!c) return; showTitle(`<div class="tt-art"${tbg('J01')}></div><div class="tt-box"><h1>Delete ${esc(c.name)}?</h1><p class="tt-sub">${esc(c.name)}, their bag, their bank and their skills are gone for good. Houses stay.</p><button class="tt-btn" data-a="delyes" data-i="${i}">Delete</button><button class="tt-btn quiet" data-a="totitle">Back</button></div>`); },
-    delyes: d => { const i = +d.i; if (!A.slots[i]) return; A.slots[i] = null; if (A.main === i) A.main = -1; if (A.cur === i) { A.cur = -1; S = linkS(fresh()); } save(); title(); },
+    delslot: d => deletionStart('character',+d.i), delworld:()=>deletionStart('world'), deleteverify:()=>deletionVerify(), deletecommit:()=>deletionCommit(),
     charactermenu:()=>characterMenu(), boatskiprescue:()=>boatAdvance('rescued'), boatname:()=>boatName(), boathome:d=>boatAdvance('home',d.id), boatnext:d=>boatAdvance(d.step), boatmenu:()=>returnCharacters(),
     skipguide: () => { if(boatActive())return boatLand(true); hideTitle(); gSkip(); }, gskip: () => gSkip(),
-    looks: () => looksSheet(), lookset: d => { const L = myLook(), k = d.k, v = (k === 'dye' || k === 'wglow') && isNaN(+d.v) || d.v === '' ? d.v : +d.v; if (L[k] === v) return; const c = lookCost(k); if (c && S.gold < c) return toast(`That costs ${c} gold`); if (c) S.gold -= c; L[k] = v; if (k === 'body') { S.look = v; if (v && L.beard >= 0) L.beard = -1; if (L.hair >= 0 && (L.hair < 6) === !!v) L.hair = v ? 6 : 0; } save(); looksSheet(); renderHud(); },
+    headstyle:d=>{const L=myLook(),style=HeadPortraits.styles(L.body).find(p=>p.id===d.id);if(!style||style.id===L.headStyle)return;const cost=lookCost('hair');if(S.gold<cost)return toast('That costs '+cost+' gold.');S.gold-=cost;L.headStyle=style.id;normalizeHeadStyle(L);save();looksSheet();renderHud();},looks: () => looksSheet(), lookset: d => { const L = myLook(), k = d.k, v = (k === 'dye' || k === 'wglow') && isNaN(+d.v) || d.v === '' ? d.v : +d.v; if (L[k] === v) return; const c = lookCost(k); if (c && S.gold < c) return toast(`That costs ${c} gold`); if (c) S.gold -= c; L[k] = v; if(k==='body'){delete L.headStyle;S.look=v;}if(k==='hair'||k==='beard')delete L.headStyle;normalizeHeadStyle(L);save();looksSheet(); renderHud(); },
     djboard: () => { closeSay(); djBoard(Scene.inHall()); }, djsign: () => { const r = Scene.inHall(); if (!r || S.gold < 15 * r) return; djSign(r); closeSheet(); Scene.enterHall(r, hallFill(r)); clearInterval(SPT); SPT = setInterval(sparTick, 140); Scene.hop(5, 13); toast('You’re in the bracket'); render(); setTimeout(() => djBoard(r), 300); },
     djfight: () => { if (S.djb && S.djb.r === Scene.inHall()) djFight(); }, djmaster: () => { const r = Scene.inHall(), M = Scene.find(x => x.kind === 'master'); if (r && M && DJ(r).champ) boutStart(r, 4, Dojo.MASTERS[r - 1], M); },
     djilva: () => { const r = Scene.inHall(), M = Scene.find(x => x.kind === 'master'); CE = M; dlg(M, Dojo.SAY[r - 1].ilva.join(' '), [bye]); },
@@ -1990,7 +2046,7 @@
     placego: () => { const g = Scene.ghostNow(); if (!PL || !g) return; g.why = Scene.homeFits(g.x, g.y, g.w, g.h); if (g.why) return placeBar(); const n = (S.homes || []).length + 1, p = Scene.pos(), h = { id: 'h' + Date.now().toString(36), shape: PL.shape, mat: PL.mat, x: g.x, y: g.y, w: g.w, h: g.h, r: Scene.region(), wall: PAINT.wall[0][1], roof: PAINT.roof[0][1], pad: 0, chest: [], name: n === 1 ? 'Your home' : 'Home ' + n };
       S.deeds.splice(PL.k, 1); (S.homes = S.homes || []).push(h); Scene.addHome(h); PL = null; Scene.ghost(null); placeBar(); save(); toast('Built. Tap the door to go in.'); },
     paint: d => { const h = homeById(d.h); if (!h || h[d.k] === d.c) return; if (funds() < PAINT_C) return toast(`A coat of paint costs ${PAINT_C} gold`); pay(PAINT_C); h[d.k] = d.c; Scene.dropHome(h.id); Scene.addHome(h); CMap.restore(); save(); homeSheet(h); },
-    hbed: d => {if(activePursuit())return toast('Lose your pursuer before resting.'); const h = homeById(d.h); heal(maxHp()); S.mana=Progression.maxMana(S);S.stamina=Progression.maxStamina(S); if (h && h.fbed) S.rest = Date.now() + 60 * 60000; save(); renderHud(); toast(h && h.fbed ? 'You sleep well. Full health, and well rested for an hour.' : 'You sleep. Full health.'); homeSheet(h); },
+    hbed: d => {if(activePursuit())return toast('Lose your pursuer before resting.'); const h = homeById(d.h); heal(maxHp()); S.mana=Progression.maxMana(S);S.stamina=maxStamina(); if (h && h.fbed) S.rest = Date.now() + 60 * 60000; save(); renderHud(); toast(h && h.fbed ? 'You sleep well. Full health, and well rested for an hour.' : 'You sleep. Full health.'); homeSheet(h); },
     hup: d => { const h = homeById(d.h); if (!h) return; const k = d.k, c = k === 'xch' ? xchC(h) : k === 'fbed' ? BED_C : GARDEN_C; if (funds() < c || (k === 'xch' && (h.xch || 0) >= 4) || (k !== 'xch' && h[k])) return; pay(c); if (k === 'xch') h.xch = (h.xch || 0) + 1; else h[k] = 1; save(); renderHud(); toast('Done. ' + (k === 'xch' ? 'Another chest.' : k === 'fbed' ? 'A feather bed.' : 'A garden out back.')); homeSheet(h); },
     hpick: d => { const h = homeById(d.h); if (!h || !h.garden || h.gday === dayKey()) return; h.gday = dayKey(); const o = { food: {}, mats: { [h.r]: rint(2, 3) } }; o.food[pick(['apple', 'loaf', 'honey', 'cheese'])] = 2; const g = grant(o); save(); renderHud(); toast(bitsOf(g).join(' · ')); homeSheet(h); },
     hpad: d => { const h = homeById(d.h); if (!h || h.pad || !(S.runes > 0)) return; S.runes--; h.pad = 1; Scene.dropHome(h.id); Scene.addHome(h); CMap.restore(); save(); toast('The pad is set. Teleport here from the Map.'); homeSheet(h); },
@@ -2014,11 +2070,11 @@
     cardno: () => { closeCard(); render(); },
     atlas: () => sheet('<h2>Tables of the Great Ledger</h2>' + atlasHTML()),
     peek: d => { const r = Engine.peek(d.t); sheet(`<h2>${d.t}</h2><p class="cap2">First four rows.</p>${tableHTML(r)}<div class="row end"><button class="btn sm quiet" data-a="atlas">All tables</button></div>`); },
-    slot: d => { benchSlot = d.s; SH.bench(); },
+    slot: d => { benchSlot = d.s;benchMaterial='';SH.bench(); }, craftshape:d=>{if(craftShapes[d.id]){benchArchetype=d.id;benchMaterial='';SH.bench();}},craftmaterial:d=>{if(EquipmentRules.eligibleMaterials(craftTemplate(),here()).some(m=>m.id===d.id)){benchMaterial=d.id;SH.bench();}},
     craft: d => {
       const x = RECIPES.find(r => r.id === d.id), t = here(), cp = bestPage('craft'); if (!x || !cp || cp.c < t || have(t) < x.mats || have('sigil') < x.sigils) return; if (x.gear && S.inv.length >= 60) return toast('Your bag is full'); if (!ready) return toast(engineErr || 'The Ledger is still opening');
       const csk = x.gear ? 'smith' : 'alchemy', c = cp.c, b = pick(BOUNTIES.filter(q => q.r === c && !/^b80[123]/.test(q.id))), diff = Math.min(100, diffOf(t) + ({ rare: 8, epic: 16, legendary: 24 }[x.id] || 0));
-      openQ({ kind: 'craft', roll: true, csk, recipe: x, slot: benchSlot, r: t, diff, task: makeTask({ tpl: b.id, seed: seeded(b.id) }), title: (x.id === 'scroll' ? 'Hint Key' : x.name) + (x.gear ? ' · ' + benchSlot : '') });
+      openQ({ kind: 'craft', roll: true, csk, recipe: x, slot: benchSlot, material:benchMaterial,archetype:['armor','shield','head','hands','feet','cloak'].includes(benchSlot)?craftTemplate().name:null,r: t, diff, task: makeTask({ tpl: b.id, seed: seeded(b.id) }), title: (x.id === 'scroll' ? 'Hint Key' : x.name) + (x.gear ? ' · ' + benchSlot : '') });
     },
     profession: d => {if(SkillCrafting.can(S,d.id,here()))beginSkillWork('craft',{recipe:d.id});},
     lockwork: d => {if(!LOCK||LOCK.owner!==S)return;beginSkillWork(d.kind==='force'?'force':'lock',{key:LOCK.key,r:LOCK.e.r,diff:SkillCrafting.lockDifficulty(LOCK.e.r,DG?DG.f:0)});},
@@ -2028,9 +2084,9 @@
     studyshelf: d => {const h=homeById(d.h);if(!h||!h.shelf||!CE||CE.kind!=='myhome')return;if((h.studyUntil||0)>now())return toast('The shelf is already helping your study.');h.studyUntil=now()+10*60000;S.boost=Math.max(S.boost||0,h.studyUntil);save();homeSheet(h);toast('Double skill gains for ten minutes');},
     bench: () => SH.bench(),
     buy: d => { const st = stall(), it = st.stock[+d.i]; if (!it || S.gold < price(it)) return; if (S.inv.length >= 60) return toast('Your bag is full'); S.gold -= price(it); st.stock.splice(+d.i, 1); give(it); save(); renderHud(); if (CE) SH.stallkeep(CE); toast('Bought ' + it.name); },
-    equip: d => { const it = itemById(d.id); if (it) { S.eq[it.slot] = it.id; save(); closeSheet(); render(); if (gid() === 'bag' && it.id === S.gk) { ACT.tab({ t: 'world' }); gDone('bag'); } } },
-    item: d => { const it = itemById(d.id); if (!it) return; const on = S.eq[it.slot] === it.id; sheet(`${lootHTML(it)}<div class="row end">${on ? `<button class="btn" data-a="unequip" data-s="${it.slot}">Take off</button>` : `<button class="btn solid" data-a="equip" data-id="${it.id}">Wear</button>`}${it.unique ? '' : `<button class="btn quiet" data-a="sell" data-id="${it.id}">Sell · ${worth(it)}</button>`}</div>${it.unique || it.bless ? '' : `<div class="row end">${S.blessd ? `<button class="btn sm quiet" data-a="bless" data-id="${it.id}">Bless · ${S.blessd} deed${S.blessd > 1 ? 's' : ''}</button>` : ''}<button class="btn sm quiet" data-a="insure" data-id="${it.id}">${it.ins ? 'Stop insuring' : `Insure · ${insFee(it)} a fall`}</button></div>`}`); },
-    unequip: d => { delete S.eq[d.s]; save(); closeSheet(); render(); },
+    equip: d => { const it = itemById(d.id); if (it) { S.eq[it.slot] = it.id;Progression.normalize(S);save(); closeSheet(); render(); if (gid() === 'bag' && it.id === S.gk) { ACT.tab({ t: 'world' }); gDone('bag'); } } },
+    item: d => { const it = itemById(d.id); if (!it) return; const on = S.eq[it.slot] === it.id; sheet(`${lootHTML(it)}${GearScreen.details(it)}<div class="row end">${on ? `<button class="btn" data-a="unequip" data-s="${it.slot}">Take off</button>` : `<button class="btn solid" data-a="equip" data-id="${it.id}">Wear</button>`}${it.unique ? '' : `<button class="btn quiet" data-a="sell" data-id="${it.id}">Sell · ${worth(it)}</button>`}</div>${it.unique || it.bless ? '' : `<div class="row end">${S.blessd ? `<button class="btn sm quiet" data-a="bless" data-id="${it.id}">Bless · ${S.blessd} deed${S.blessd > 1 ? 's' : ''}</button>` : ''}<button class="btn sm quiet" data-a="insure" data-id="${it.id}">${it.ins ? 'Stop insuring' : `Insure · ${insFee(it)} a fall`}</button></div>`}`); },
+    unequip: d => { delete S.eq[d.s];Progression.normalize(S);save(); closeSheet(); render(); },
     progressmode: d => {const stat=d.stat==='1',m=Progression.mode(S,d.id,stat);Progression.setMode(S,d.id,{up:'down',down:'lock',lock:'up'}[m],stat);save();render();},
     progresstarget: d => {const stat=d.stat==='1',el=document.querySelector(`input[data-target="${d.id}"][data-stat="${stat?1:0}"]`);if(!el)return;const bag=stat?S.attrTargets:S.skillTargets;if(!el.value.trim())delete bag[d.id];else Progression.setTarget(S,d.id,Number(el.value),stat);save();render();},
     djtrain: () => trainSheet(),
@@ -2060,12 +2116,12 @@
       } catch (e) { toast('That is not a valid save code'); }
     },
     savenow:()=>{const ok=save();toast(ok?'Saved on this device':'Could not save. Back up your save before closing.');},
-    backup:()=>backupSheet(),savefile:()=>saveFile(),
+    enchantmenu:()=>GearScreen.openEnchant(),enchitem:d=>GearScreen.openEnchant(d.id),enchantapply:d=>GearScreen.enchant(d),comparetarget:d=>GearScreen.target(d),mounttoggle:()=>mountToggle(),buyhorse:()=>buyHorse(),backup:()=>backupSheet(),savefile:()=>saveFile(),
     offlinedownload:()=>{if(Offline.reopen()){if(save())location.assign(new URL('./',location.href));else toast('Back up your save before reopening.');}else Offline.download();},
     offlinehelp:()=>sheet(`<h2>Play offline</h2><p class="cap2">Download the game while you’re connected. Wait for “Ready for offline play” before leaving Wi-Fi. You can then close and reopen the game without a connection.</p><p class="cap2">On iPhone, use Safari’s Share menu to Add to Home Screen. Open that icon and download the offline copy there. Before flying, turn on airplane mode, turn Wi-Fi off, and reopen the game from the same icon.</p><p class="cap2">Progress saves automatically on this device. Save now keeps the latest position; Back up save makes a separate file. Clearing website data removes downloads and device saves, so keep a backup file somewhere safe.</p><button class="btn solid" data-a="closesheet">Done</button>`),
     reset: () => returnCharacters()
   };
-  document.addEventListener('change',e=>{const key=e.target.dataset&&e.target.dataset.create;if(!CR||!['body','skin','hair','hc','beard'].includes(key))return;CR.app[key]=+e.target.value;if(key==='body'&&CR.path)CR.look=LOOK0[CR.path]+CR.app.body;});
+  document.addEventListener('change',e=>{const key=e.target.dataset&&e.target.dataset.create;if(!CR||!['body','skin','headStyle','hc'].includes(key))return;CR.app[key]=key==='headStyle'?e.target.value:+e.target.value;if(key==='body'){delete CR.app.headStyle;if(CR.path)CR.look=LOOK0[CR.path]+CR.app.body;}normalizeHeadStyle(CR.app);HeadPortraits.preload(CR.app.body,CR.app.headStyle);if(key==='body'){const name=$('#cr-name');if(name)CR.name=name.value;create();}});
   document.addEventListener('change',async e=>{if(e.target.id!=='save-file')return;const file=e.target.files[0],box=$('#savebox'),status=$('#save-file-status');if(!file||!box||!status)return;try{if(file.size>8*1024*1024)throw 0;const code=(await file.text()).trim();const o=JSON.parse(decodeURIComponent(escape(atob(code))));if(!o||![6,7,8,9].includes(o.v))throw 0;box.value=code;status.textContent='Save file ready. Choose Load to replace your current worlds.';}catch(_){box.value='';status.textContent='That file is not a valid Brasswake save. Choose another file or paste a code.';}});
   document.addEventListener('click', e => { const el = e.target.closest('[data-a]'); if (!el || el.disabled || ghost(e)) return; const f = ACT[el.dataset.a]; if (f) f(el.dataset, el, e); });
   document.addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { if (Q || F) ACT.run(); else if ($('#con-sql')) ACT.conrun(); } if (e.key === 'Escape' && (!$('#sheet').hidden || SB)) closeSheet(); });
@@ -2082,9 +2138,10 @@
     if (!ART || !Scene.preload) return; const el = $('#artload'), app = $('#app'); let done = false; const fin = () => { if (done) return; done = true; app.classList.remove('artload'); el.hidden = true; };
     app.classList.add('artload'); el.hidden = false; el.textContent = 'Loading art'; Scene.preload(S.region || 1, (n, t) => { el.textContent = `Loading art ${n} of ${t}`; }).then(fin, fin); setTimeout(fin, 30000);
   }
-  window.addEventListener('pagehide',()=>{if(S && S.path)save();});
-  document.addEventListener('visibilitychange',()=>{if(document.hidden && S && S.path)save();});
-  function start(hot) { purgeOld(); A = (hot && hot.acct && CharacterWorlds.normalize(hot.acct)) || loadA() || freshA(); loadCur(); cmdBackfill(); deviceSave.at=A.at||0; title(); if(!new URLSearchParams(location.search).has('visual_test'))Offline.init(); artLoad(); if (hot && hot.tab) tab = hot.tab; sel = S.region; render(); setTimeout(bootEngine, 30); cloudInit(); }
+  window.addEventListener('pagehide',()=>{if(A){if(S?.path)save();void flush();}});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&A){if(S?.path)save();void flush();}});
+  function start(hot) { purgeOld(); const device=loadA(),snapshot=hot?.acct&&CharacterWorlds.normalize(hot.acct);A=!snapshot?device||freshA():!device?snapshot:device.rev>snapshot.rev||device.rev===snapshot.rev&&device.at>snapshot.at?device:snapshot; loadCur(); cmdBackfill(); deviceSave.at=A.at||0; title(); if(!new URLSearchParams(location.search).has('visual_test'))Offline.init(); artLoad(); if (A===snapshot&&hot&&hot.tab) tab=hot.tab; sel = S.region; render(); setTimeout(bootEngine, 30); cloudInit(); }
+  GearScreen=EquipmentScreen.create({state:()=>S,item:itemById,bonus,page:bestPage,defs:WEAP,skill:rv,physicalFactor:()=>Progression.physicalFactor(S),spellFactor:()=>Progression.spellFactor(S),circle:here,difficulty:()=>diffOf(here()),sheet,escape:esc,icon:ico,itemIcon,stats:statLine,save,render,toast,service:()=>({entity:CE,valid:liveService('bench')||liveService('enchanter')}),materialName:key=>MATS[key]||key,showItem:id=>ACT.item({id}),skillName:rpgName,accuracy:(skill,diff)=>odds(skill,diff,'correct').p,sync:()=>{Progression.normalize(S);if(sceneUp)Scene.refresh();}});
   if (location.protocol === 'file:' || location.hostname === 'localhost') window.__bw = { CMap, CONCEAL, beginSkillWork, combatUtility, maxHp, get A() { return A; }, makeItem, gain, odds, dropBody, insFee, trainCost, makePscr, maybeDye, homeSheet, get DU() { return DU; }, get FI() { return FI; }, errandFor, get PK() { return PK; }, get WH() { return WH; }, get BJ() { return BJ; }, get Q() { return Q; }, get F() { return F; }, KB, get S() { return S; }, get DG() { return DG; }, DP, get SB() { return SB; }, get TR() { return TR; }, setCE: e => { CE = e; }, HOST, SH, START, ACT, render, save, odds, gain, diffOf };
   // speech and story use curly quotes; SQL, code and table data keep straight ones
   const cq = t => t.replace(/"/g, (m, i) => (i === 0 || /[\s(\[\u2014\u2013-]/.test(t[i - 1])) ? '\u201c' : '\u201d'), RAW = 'pre,code,textarea,input,script,style,td,th,.qbox,.code,.sqlhl,[data-raw]';

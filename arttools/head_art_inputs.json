@@ -1,0 +1,59 @@
+{
+  "format": 1,
+  "referenceProof": "exec-7ce28f38-7334-4355-830f-2e4ae33d712f.png",
+  "atlasScale": 0.75,
+  "sources": [
+    {
+      "body": 0,
+      "output": "man.webp",
+      "filename": "exec-893d6f05-e0dc-465f-a793-725d5dd9d5db.png",
+      "sha256": "db96cab0f62a13cbf80a839f00c376fc7876b833f888f9712d5cb1bc0b777047",
+      "identityReference": "game/art/hb/P1.webp",
+      "promptReceipt": "P1-curated-prompt.txt",
+      "rows": [0, 328, 664, 1024],
+      "eyeLines": [158, 478, 799],
+      "faceWidth": 173,
+      "heightUnit": 188,
+      "styles": [
+        ["m-bald", "Bald", -1, -1],
+        ["m-neat", "Short and neat", 0, -1],
+        ["m-shaggy", "Shaggy", 1, -1],
+        ["m-long", "Long hair", 2, -1],
+        ["m-ponytail", "Ponytail", 3, -1],
+        ["m-curly", "Curly", 5, -1],
+        ["m-short-beard", "Short hair and beard", 0, 0],
+        ["m-bald-beard", "Bald with a full beard", -1, 1],
+        ["m-long-beard", "Long hair and full beard", 2, 1],
+        ["m-goatee", "Cropped hair and goatee", 4, 2],
+        ["m-moustache", "Ponytail and moustache", 3, 3],
+        ["m-boxed", "Long hair and boxed beard", 6, 4]
+      ]
+    },
+    {
+      "body": 1,
+      "output": "woman.webp",
+      "filename": "exec-1574dc34-2174-4c26-895e-188ae9a4fd1c.png",
+      "sha256": "1fd86c49939aa6d2a5f240b7ff196fcd23a4ac6e6a4cfad53bbca54757fd7609",
+      "identityReference": "game/art/hb/P6.webp",
+      "promptReceipt": "P6-curated-prompt.txt",
+      "rows": [0, 328, 641, 1024],
+      "eyeLines": [160, 477, 798],
+      "faceWidth": 171,
+      "heightUnit": 187,
+      "styles": [
+        ["f-bald", "Shaved head", -1, -1],
+        ["f-neat", "Short and neat", 0, -1],
+        ["f-shaggy", "Shaggy", 1, -1],
+        ["f-long", "Long hair", 2, -1],
+        ["f-ponytail", "Ponytail", 3, -1],
+        ["f-cropped", "Cropped", 4, -1],
+        ["f-curly", "Curly", 5, -1],
+        ["f-straight", "Long and straight", 6, -1],
+        ["f-braid", "One braid", 7, -1],
+        ["f-wavy", "Wavy", 8, -1],
+        ["f-bun", "Bun", 10, -1],
+        ["f-two-braids", "Two braids", 11, -1]
+      ]
+    }
+  ]
+}

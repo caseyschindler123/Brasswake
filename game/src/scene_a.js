@@ -31,7 +31,7 @@ const Scene = (() => {
   /* ---------- generated art: the artifact's own image files. The painters below remain as the fallback. ---------- */
   var artVer = 0; const AD = typeof ArtData !== 'undefined' ? ArtData : null, IMG = {}, ACUT = {}; let curR = 1;
   function img(name) { let o = IMG[name]; if (!o) { o = IMG[name] = { im: new Image(), ok: false }; o.p = new Promise(res => { o.im.onload = () => { o.ok = true; artVer++; res(true); }; o.im.onerror = () => res(false); }); o.im.src = 'art/' + name; } return o; }
-  const have = name => !!(AD && IMG[name] && IMG[name].ok), packs = r => ['chars.webp', 'mobs.webp', 'boss.webp', 'oc.webp', 'b' + r + '.webp', 'o' + r + '.webp'];
+  const have = name => !!(AD && IMG[name] && IMG[name].ok), packs = r => ['chars.webp', 'mobs.webp', 'boss.webp', 'oc.webp', 'b' + r + '.webp', 'o' + r + '.webp', VenueArt.image, 'kit/k1.webp'];
   function cut(name, x, y, w, h) { const key = name + ':' + x + ',' + y; if (ACUT[key]) return ACUT[key]; const c = mk(w, h); c.getContext('2d').drawImage(IMG[name].im, x, y, w, h, 0, 0, w, h); c.hr = 1; return ACUT[key] = c; }
   const lw = im => im.hr ? im.width / K : im.width, lh = im => im.hr ? im.height / K : im.height;   // art is stored at canvas resolution
   function artHero(look) { if (!have('chars.webp')) return null; const C = AD.chars, row = i => [0, 1, 2, 3].map(f => cut('chars.webp', (i * 4 + f) * C.cw, look * C.ch, C.cw, C.ch)); return { f: row(0), l: row(1), s: row(2), b: row(3), art: 1 }; }

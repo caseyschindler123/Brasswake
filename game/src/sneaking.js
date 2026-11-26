@@ -2,9 +2,9 @@
 const Sneaking = (() => {
   const create = () => ({hidden:false,steps:0,max:0,trained:false,x:null,y:null,sx:null,sy:null,target:null});
   const budget = skill => 3+Math.floor(Math.max(0,Math.min(120,skill))/8);
-  const chance = (hiding,diff,quality,heavy=false) => Math.max(0,Math.min(95,35+hiding*.7-diff*.25-(heavy?20:0)))*Math.max(0,Math.min(1,quality));
+  const chance = (hiding,diff,quality,heavy=false,bonus=0) => Math.max(0,Math.min(95,35+hiding*.7-diff*.25-(heavy?20:0)+(Number.isFinite(bonus)?bonus:0)))*Math.max(0,Math.min(1,quality));
   function conceal(state,options) {
-    const ok=(options.random||Math.random)()*100<chance(options.hiding,options.diff,options.quality,options.heavy);
+    const ok=(options.random||Math.random)()*100<chance(options.hiding,options.diff,options.quality,options.heavy,options.bonus);
     Object.assign(state,create()); if(ok)Object.assign(state,{hidden:true,steps:budget(options.stealth),max:budget(options.stealth),x:options.x,y:options.y,sx:options.x,sy:options.y});return ok;
   }
   function reveal(state) {const was=state.hidden;Object.assign(state,create());return was;}

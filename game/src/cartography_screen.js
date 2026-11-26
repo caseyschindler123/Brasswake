@@ -143,6 +143,7 @@ const CartographyScreen = (() => {
     function chartImage(r, cart, sites, { preview = 0, mode = 'map', ticket = 0, town = false } = {}) {
       const center=r&&Geography.towns[r],reach=r===8?85:42;
       const bounds = town&&center?[Math.max(0,center[0]-reach),Math.max(0,center[1]-reach),Math.min(C.width,center[0]+reach),Math.min(C.height,center[1]+reach)]:r&&scene.cartographyBounds(r)||[0,0,C.width,C.height];
+      if(town&&center)for(const p of sites)if(p.r===r&&p.kind==='service'&&['casino','stable'].includes(p.type)){bounds[0]=Math.max(0,Math.min(bounds[0],p.x-7));bounds[1]=Math.max(0,Math.min(bounds[1],p.y-7));bounds[2]=Math.min(C.width,Math.max(bounds[2],p.x+8));bounds[3]=Math.min(C.height,Math.max(bounds[3],p.y+8));}
       const [x, y, x1, y1] = bounds, w = x1 - x, h = y1 - y;
       const url = raster(bounds, preview, cart);
       const at = (px, py) => `left:${100 * (px - x) / w}%;top:${100 * (py - y) / h}%`;

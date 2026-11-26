@@ -11,10 +11,21 @@ const ServicePlaces=(()=>{
     cartographer:{name:'Map room',path:'M12 2l3 7 7 3-7 3-3 7-3-7-7-3 7-3 3-7zm0 6v8m-4-4h8'},
     dojo:{name:'Dojo',path:'M5 3l14 18m0-18L5 21M3 15l6 5m6 0l6-5'},
     civic:{name:'Civic hall',path:'M5 3h14v18H5V3zm3 5h8m-8 4h8m-8 4h5'},
+    stable:{name:'Stable',path:'M6 4v8a6 6 0 0012 0V4h-4v8a2 2 0 01-4 0V4H6zm1 3h2m-2 4h2m6-4h2m-2 4h2'},
   };
-  function typeFor(b){return b.cartographer?'cartographer':b.hall?'dojo':types[b.slot]?b.slot:null;}
+  const offerings = {
+    shop:['Buy and sell goods'], bank:['Deposit and withdraw gold', 'Store belongings'], tavern:['Talk to the keeper', 'Guest rooms'],
+    work:['Craft and enchant equipment'], healer:['Treatment and draughts', 'Recovery ward'], casino:['Poker', 'Blackjack', 'Wheel'],
+    guild:['Company business', 'Trial marks'], cartographer:['Consult local charts', 'Buy regional maps'], dojo:['Lessons and sparring'],
+    civic:['Speak to the keeper', 'Visit the upper rooms'], stable:['Buy a horse'],
+  };
+  function typeFor(b){return b.cartographer?'cartographer':b.hall?'dojo':b.civic?'civic':b.slot==='stable'&&!b.stalls?null:types[b.slot]?b.slot:null;}
+  function inspect(place){
+    const {id,name,type,r}=place;
+    return {id,name,type,r,services:name==='City Workshop'?['Local workshop premises']:(offerings[type]||[]).slice()};
+  }
   function html(type){const def=types[type];return def?`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${def.path}"/></svg>`:'';}
   function paint(g,type,x,y,size){const def=types[type];if(!def)return;g.save();g.translate(x,y);g.scale(size/24,size/24);g.lineWidth=1.8;g.lineJoin='round';g.lineCap='round';g.stroke(new Path2D(def.path));g.restore();}
-  return {types,typeFor,html,paint};
+  return {types,typeFor,inspect,html,paint};
 })();
 if(typeof module!=='undefined')module.exports=ServicePlaces;

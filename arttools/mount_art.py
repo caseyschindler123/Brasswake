@@ -1,0 +1,156 @@
+"""Pack the reviewed directional horse and its leg cycle from one original PNG."""
+
+import argparse
+import hashlib
+from io import BytesIO
+import json
+from math import pi, sin
+from pathlib import Path
+
+from PIL import Image, ImageChops, ImageDraw, __version__ as pillow_version, features
+
+
+ROOT = Path(__file__).resolve().parents[1]
+RECEIPT = ROOT / "arttools/mount_art_inputs.json"
+SIZE = (168, 136)
+ORIGIN = (84, 105)
+FRAMES = 8
+WEBP = {"lossless": True, "quality": 85, "method": 6}
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def alpha_mask(size, points, offset):
+    mask = Image.new("L", size)
+    ImageDraw.Draw(mask).polygon([(x-offset[0], y-offset[1]) for x, y in points], fill=255)
+    return mask
+
+
+def plane(im, point, view):
+    """Place a source-size layer in a fixed high-resolution cell."""
+    scale = view["scale"]
+    left, top = view["crop"][:2]
+    ground_x, ground_y = view["ground"]
+    position = lambda x, y: (round(ORIGIN[0]+(x-ground_x)*scale), round(ORIGIN[1]+(y-ground_y)*scale))
+    out = Image.new("RGBA", SIZE)
+    scaled = im.resize((round(im.width*scale), round(im.height*scale)), Image.Resampling.LANCZOS)
+    x, y = position(left, top)
+    bounds = scaled.getchannel("A").getbbox()
+    if bounds and (x+bounds[0] < 0 or y+bounds[1] < 0 or
+                   x+bounds[2] > SIZE[0] or y+bounds[3] > SIZE[1]):
+        raise ValueError(f'{view["name"]} crosses its frame at {(x, y)} with bounds {bounds}.')
+    out.paste(scaled, (x, y))
+    return out, position(*point)
+
+
+def animate(base, view, frame):
+    # Legs flex at their fixed upper attachment. Diagonal pairs alternate
+    # support and recovery. Project the stride onto the horse's screen heading.
+    fixed_alpha = base.getchannel("A")
+    layers = []
+    for shift, polygon in view["legs"]:
+        mask = alpha_mask(base.size, polygon, view["crop"][:2])
+        leg = base.copy()
+        leg.putalpha(ImageChops.multiply(fixed_alpha, mask))
+        fixed_alpha = ImageChops.subtract(fixed_alpha, mask)
+        x, y, right, bottom = mask.getbbox()
+        phase = (frame/FRAMES+shift) % 1
+        if phase < .56:
+            stride, lift = 1-2*phase/.56, 0
+        else:
+            recovery = (phase-.56)/.44
+            stride, lift = 2*recovery-1, sin(recovery*pi)
+        dx, dy = view["stride"]
+        delta_x, delta_y = stride*dx, stride*dy-lift*30
+        leg = leg.crop((x, y, right, bottom))
+        # Affine shear and compression map the source hoof towards its target.
+        # The upper joint retains its source position on every frame.
+        pad = 42
+        width, height = leg.size
+        scale = (height+delta_y)/height
+        incline = delta_x/(height*scale)
+        leg = leg.transform((width+pad*2, height+pad), Image.Transform.AFFINE,
+                            (1, -incline, -pad, 0, 1/scale, 0),
+                            resample=Image.Resampling.BICUBIC)
+        layers.append((leg, (x-pad, y)))
+
+    pose = base.copy()
+    pose.putalpha(fixed_alpha)
+    for leg, at in layers:
+        pose.alpha_composite(leg, at)
+    return pose
+
+
+def pack(raw_dir, approved):
+    source = approved["source"]
+    raw = (raw_dir/source["filename"]).read_bytes()
+    if digest(raw) != source["sha256"]:
+        raise ValueError("The horse source hash differs from its receipt.")
+    if pillow_version != approved["packing"]["pillow"]:
+        raise ValueError("Use the pinned Pillow version in the receipt.")
+    with Image.open(BytesIO(raw)) as image:
+        if image.format != "PNG" or image.mode != "RGBA" or list(image.size) != source["dimensions"]:
+            raise ValueError("The horse source dimensions or channels differ from its receipt.")
+        atlas = Image.new("RGBA", (SIZE[0]*(FRAMES+2), SIZE[1]*len(approved["views"])))
+        saddles = []
+        for row, view in enumerate(approved["views"]):
+            base = image.crop(tuple(view["crop"]))
+            # Remove the generator's transparent surround and preserve the painted edge.
+            base.putalpha(base.getchannel("A").point(lambda alpha: alpha if alpha > 9 else 0))
+            standing, saddle = plane(base, view["saddle"], view)
+            atlas.paste(standing, (0, row*SIZE[1]))
+            saddles.append(saddle)
+            for frame in range(FRAMES):
+                animated, _ = plane(animate(base, view, frame), view["saddle"], view)
+                atlas.paste(animated, ((frame+1)*SIZE[0], row*SIZE[1]))
+            if view["over"]:
+                mask = alpha_mask(base.size, view["over"], view["crop"][:2])
+                base.putalpha(ImageChops.multiply(base.getchannel("A"), mask))
+                overlap, _ = plane(base, view["saddle"], view)
+                atlas.paste(overlap, ((FRAMES+1)*SIZE[0], row*SIZE[1]))
+
+    encoded = BytesIO()
+    atlas.save(encoded, format="WEBP", **WEBP)
+    metadata = {"image": "mount/horse.webp", "size": SIZE, "origin": ORIGIN,
+                "frames": FRAMES, "saddles": saddles}
+    script = ("/* Generated by arttools/mount_art.py. Geometry is in high-resolution pixels. */\n"
+              "const MountArt = "+json.dumps(metadata, separators=(",", ":"))+";\n").encode()
+    outputs = {"horse.webp": encoded.getvalue(), "artmount.js": script}
+    evidence = {name: {"sha256": digest(data), "bytes": len(data)} for name, data in outputs.items()}
+    return outputs, evidence
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--raw-dir", required=True, type=Path)
+    parser.add_argument("--out-dir", type=Path, default=ROOT/"game/art/mount")
+    parser.add_argument("--js", type=Path, default=ROOT/"game/src/artmount.js")
+    parser.add_argument("--record", action="store_true", help="Record packed hashes after source review.")
+    options = parser.parse_args()
+    approved = json.loads(RECEIPT.read_text(encoding="utf-8"))
+    try:
+        if features.version("webp") != approved["packing"]["libwebp"]:
+            raise ValueError("Use the pinned libwebp version in the receipt.")
+        outputs, evidence = pack(options.raw_dir, approved)
+        if not options.record and evidence != approved["outputs"]:
+            raise ValueError("Packed horse hashes differ from the reviewed receipt.")
+        destinations = {options.out_dir/"horse.webp": outputs["horse.webp"],
+                        options.js: outputs["artmount.js"]}
+        if options.record:
+            approved["outputs"] = evidence
+            destinations[RECEIPT] = (json.dumps(approved, indent=2)+"\n").encode()
+        raw_dir = options.raw_dir.resolve()
+        if any(path.resolve().is_relative_to(raw_dir) for path in destinations):
+            raise ValueError("Packed output paths must be outside the raw source folder.")
+        for path, data in destinations.items():
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+    except (OSError, ValueError) as error:
+        parser.exit(1, f"{error}\n")
+    print("Packed horse art.")
+
+
+if __name__ == "__main__":
+    main()

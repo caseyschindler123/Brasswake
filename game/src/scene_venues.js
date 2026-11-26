@@ -25,10 +25,55 @@
     actor.venueId = b.plan.id;
   }
 
-  function venueFit(b, pieces) {
-    b.furniture = pieces.map(([piece, x, y]) => ({
+  function venueFit(b, pieces, keep = false) {
+    const fitted = pieces.map(([piece, x, y]) => ({
       p: piece.startsWith('!') ? piece.slice(1) : 'f' + b.r + '_' + piece, x, y,
     }));
+    b.furniture = keep ? b.furniture.concat(fitted) : fitted;
+  }
+
+  function venueReach(m, b, blocked = -1) {
+    const open = (x,y) => y * m.w + x !== blocked && Buildings.walkable(b.plan,x-b.x,y-b.y) && chartOpen(m,x,y);
+    const queue = b.plan.doors.map(d => [b.x + d.inside.x, b.y + d.inside.y]).filter(([x,y]) => open(x,y));
+    const reached = new Set(queue.map(([x,y]) => y*m.w+x));
+    for (let i = 0; i < queue.length; i++) {
+      const [x,y] = queue[i];
+      for (const [dx,dy] of chartSteps) {
+        const nx = x+dx, ny = y+dy, index = ny*m.w+nx;
+        if (reached.has(index) || !open(nx,ny)) continue;
+        reached.add(index); queue.push([nx,ny]);
+      }
+    }
+    return reached;
+  }
+
+  function venueResident(m, b, [name, sub, want, dir, venueLine, venueSeated], kind = 'venuefolk') {
+    const before = venueReach(m,b);
+    const residents = m.ents.filter(e => e.venueId === b.plan.id);
+    const spots = [];
+    for (const i of before) {
+      const x = i % m.w - b.x, y = Math.floor(i / m.w) - b.y;
+      if (b.plan.tiles[y*b.w+x] !== Buildings.FLOOR || b.plan.doors.some(d => d.inside.x === x && d.inside.y === y)) continue;
+      if (b.furniture.some(f => !f.p.startsWith('venue_') && Math.floor(f.x) === x && Math.floor(f.y) === y)) continue;
+      spots.push({ i, score: Math.abs(x-want[0]) + Math.abs(y-want[1]) });
+    }
+    spots.sort((a,c) => a.score-c.score);
+    for (const {i} of spots) {
+      const after = venueReach(m,b,i), x = i % m.w, y = Math.floor(i / m.w);
+      const approach = (xx,yy) => chartSteps.some(([dx,dy]) => after.has((yy+dy)*m.w+xx+dx));
+      if (after.size !== before.size-1 || !approach(x,y) || residents.some(e => !approach(e.x,e.y))) continue;
+      const e = addEnt(m,{kind,r:b.r,x,y,name,sub,dir,venueLine,venueSeated,venueId:b.plan.id,
+        venueActivity:dir, spr:folkSprite(null,name+'-'+b.r)});
+      venueResidentLook(e);
+      if (venueSeated) b.furniture.push({p:'venue_seat',x:x-b.x+.5,y:y-b.y+.91});
+      return e;
+    }
+    return null;
+  }
+
+  function venueResidentLook(e) {
+    const look = NpcAppearance.describe({ ...e, kind:'folk', venueId:e.id||e.venueId });
+    if (look) e.npcLook = { ...look, key:JSON.stringify(look) };
   }
 
   function venueRestoreFittings(m, b) {
@@ -51,34 +96,98 @@
     }
   }
 
-  function venueCivic(m, r) {
-    const spec = Interiors.civic[r];
-    if (r === 8) return m.blds.find(b => b.r === r && b.slot === 'palace');
-    const [cx, cy] = TOWN[r], { w, h } = spec;
-    const candidates = [];
+  function venueCapitalAvenue(x,y) {
+    const [cx,cy] = TOWN[8], dx = x-cx, dy = y-cy;
+    if (Math.abs(dx)>80 || Math.abs(dy)>65) return false;
+    // The capital's established north/south avenues and cross streets.
+    return [-76,-31,-1,29,76].some(v=>dx>=v&&dx<=v+2) || [-61,-29,21,61].some(v=>dy>=v&&dy<=v+2);
+  }
+
+  function venueParcel(m, r, slot, w, h, options) {
+    const [cx, cy] = TOWN[r];
+    const capitalParcel = (i,x,y) => r === 8 && m.t[i] === 3 && m.surface[i] === 3
+      && !venueCapitalAvenue(x,y) && Math.abs(x-cx)>11;
     // Keep the streets, old story locations and claimed sites. Nearest viable
     // parcels get first choice, with the public entrance facing the town road.
-    for (let y = cy - 65; y < cy + 58; y++) for (let x = cx - 65; x < cx + 58; x++) {
-      const dx = x + (w >> 1), dy = y + h;
-      if (!chartOpen(m, dx, dy) || !m.seen[dy * m.w + dx]) continue;
-      let okay = true;
-      for (let yy = y - 1; yy <= y + h && okay; yy++) for (let xx = x - 1; xx <= x + w; xx++) {
-        const i = yy * m.w + xx;
-        if (m.reg[i] !== r || m.t[i] > 1 || (m.solid[i] ? !m.o[i] : !m.seen[i])
-          || (m.keep[i] && !Geography.inTown(xx, yy, 3))) { okay = false; break; }
+    const search = (northwest,southeast,shore = false) => {
+      const candidates = [];
+      const bottom=Math.min(m.h-h-2,cy+southeast),right=Math.min(m.w-w-2,cx+southeast);
+      for (let y = Math.max(2,cy-northwest); y < bottom; y++) for (let x = Math.max(2,cx-northwest); x < right; x++) {
+        const dx = x + (w >> 1), dy = y + h;
+        if (!chartOpen(m, dx, dy) || !m.seen[dy * m.w + dx]) continue;
+        let okay = true;
+        for (let yy = y - 1; yy <= y + h && okay; yy++) for (let xx = x - 1; xx <= x + w; xx++) {
+          const i = yy * m.w + xx, tile = m.t[i];
+          const land = tile <= 1 || (shore && tile === 5) || capitalParcel(i,xx,yy);
+          if (m.reg[i] !== r || !land || (m.solid[i] ? !m.o[i] : !m.seen[i])
+            || (m.keep[i] && !Geography.inTown(xx, yy, 3))) { okay = false; break; }
+        }
+        if (okay) candidates.push({ x, y, score: Math.abs(dx - cx) + Math.abs(dy - cy) });
       }
-      if (okay) candidates.push({ x, y, score: Math.abs(dx - cx) + Math.abs(dy - cy) });
+      candidates.sort((a, b) => a.score - b.score);
+      for (const { x, y } of candidates) {
+        if (m.props.some(p => p.x >= x - 1 && p.x <= x + w && p.y >= y - 1 && p.y <= y + h)) continue;
+        const b = worldGrownBuilding(m, x, y, w, h, slot, r, options);
+        if (b) return b;
+      }
+      return null;
+    };
+    const b = search(65,58) || (slot !== 'civic' && (search(92,88,true) || search(124,121,true)));
+    if (b) return b;
+    throw new Error('No ' + slot + ' parcel in ' + host.regionName(r));
+  }
+
+  function venueCivic(m, r) {
+    if (r === 8) return m.blds.find(b => b.r === r && b.slot === 'palace');
+    const {name,shape,w,h} = Interiors.civic[r];
+    return venueParcel(m,r,'civic',w,h,{name,shape:shape === 'court' ? 'courtyard' : shape === 'L' ? 'L' : 'rect',
+      diagram:shape === 'gallery' ? Interiors.diagram(w,h,[[0,h-2,3,2],[w-3,h-2,3,2]]) : undefined,
+      id:'civic-'+r, doors:['south',r % 2 ? 'west' : 'east']});
+  }
+
+  function venueCasino(m, r, title, original) {
+    const {w,h,stations} = Interiors.casino, [cx,cy] = TOWN[r];
+    const b = venueParcel(m,r,'casino',w,h,{name:title,id:'casino-'+r,doors:['south'],diagram:Interiors.frontage('casino',w,h,r)});
+    b.serviceId = 'service:'+r+':casino:'+(cx+3)+':'+(cy-10);
+    b.roofFamily = Interiors.civic[r].roof;
+    venueStreet(m,b);
+    venueFit(b,[['rtable',10.3,7.8],['bench',11.8,8.2],['strongbox',7,2.25],['kegs',11.9,7.15],
+      ['shelf',1.5,2.15],['cupboard',12.1,2.15],
+      ...stations.map(({key,table:[x,y]})=>['!venue_'+key,x,y])]);
+    for (const station of stations) for (const [x,y] of station.footprint) m.solid[(b.y+y)*m.w+b.x+x] = 1;
+    for (const {key,name,dealer,facing,seats} of stations) {
+      const [x,y] = dealer;
+      let e;
+      if (key === 'poker') {
+        e = original;
+        venueSeat(m,b,e,dealer);
+      } else e = addEnt(m,{ kind:'casino', r, x:b.x+x, y:b.y+y, name:name+' dealer', venueId:b.plan.id,
+        ak:original.ak, pt:original.pt, spr:folkSprite(original.ak,key+'-'+r) });
+      Object.assign(e,{station:key,sub:name,dir:facing,venueActivity:facing});
+      for (const [seat, [sx,sy,dir]] of seats.entries()) {
+        const patron = addEnt(m,{kind:'venuefolk', id:'casino-patron-'+r+'-'+key+'-'+seat, r, x:b.x+sx,y:b.y+sy,
+          name:'Card room patron', sub:key==='wheel'?'Watching the wheel':'Playing '+name, dir, venueId:b.plan.id,
+          venueLine:key==='wheel' ? 'I like to watch the wheel turn. I’ll leave the betting to someone else.'
+            : 'I’m in the middle of a hand. The dealer can find you a seat when it’s done.',
+          venueSeated:true, venueActivity:dir, spr:folkSprite(null,key+'-patron-'+r+'-'+seat)});
+        venueResidentLook(patron);
+        b.furniture.push({p:'venue_seat',x:sx+.5,y:sy+.91});
+      }
+      m.lights.push({x:b.x+x+.5,y:b.y+y-.65,r:28,c:1});
     }
-    candidates.sort((a, b) => a.score - b.score);
-    for (const { x, y } of candidates) {
-      if (m.props.some(p => p.x >= x - 1 && p.x <= x + w && p.y >= y - 1 && p.y <= y + h)) continue;
-      const shape = spec.shape === 'court' ? 'courtyard' : spec.shape === 'L' ? 'L' : 'rect';
-      const diagram = spec.shape === 'gallery' ? Interiors.diagram(w, h, [[0, h - 2, 3, 2], [w - 3, h - 2, 3, 2]]) : undefined;
-      const b = worldGrownBuilding(m, x, y, w, h, 'civic', r, { name: spec.name, shape, diagram,
-        id: 'civic-' + r, doors: ['south', r % 2 ? 'west' : 'east'] });
-      if (b) return b;
-    }
-    throw new Error('No civic parcel in ' + host.regionName(r));
+  }
+
+  function venueStable(m,r,name) {
+    const {w,h,stalls} = Interiors.stable;
+    const b = venueParcel(m,r,'stable',w,h,{name,id:'stable-'+r,doors:['south']});
+    b.serviceId='service:'+r+':stable';
+    b.roofFamily = r===2 || r===3 ? 3 : 1;
+    b.stalls = stalls;
+    venueStreet(m,b);
+    venueFit(b,[['chest',9.6,5.2],['kegs',1.8,5.5]]);
+    for(const [x,y] of stalls) for(let xx=x;xx<=x+1;xx++) m.solid[(b.y+y)*m.w+b.x+xx] = 1;
+    const e = venueResident(m,b,['Stable keeper','Sells horses',[8,5],'l'], 'stablekeep');
+    if (!e) throw new Error('No fitting stable keeper position in ' + host.regionName(r));
   }
 
   function venueGroundStair(m, b, type, name) {
@@ -107,19 +216,21 @@
     }
     const buildable = (xx, yy) => {
       const i = yy * m.w + xx;
-      return chartOpen(m, xx, yy) && !inside.has(i) && m.reg[i] === b.r && [0,1,2,3,6].includes(m.t[i]);
+      return chartOpen(m, xx, yy) && !inside.has(i) && m.reg[i] === b.r && [0,1,2,3,5,6].includes(m.t[i]);
     };
     const paving = b.r === 2 ? 6 : [3,4,7].includes(b.r) ? 2 : 3;
     const pave = i => {
       // A connecting walk must leave an existing road, bridge or quay intact.
-      if (m.t[i] > 1) return;
+      if (m.t[i] > 1 && m.t[i] !== 5) return;
       m.t[i] = paving; m.keep[i] = 1; m.o[i] = 0;
       if (m.surface) m.surface[i] = b.r === 8 ? 3 : 0;
     };
     let road = null;
     for (let head = 0; head < queue.length; head++) {
       const i = queue[head], xx = i % m.w, yy = Math.floor(i / m.w);
-      if (m.t[i] === 2 && m.keep[i]) { road = i; break; }
+      if (m.keep[i] && (m.t[i] === 2 || (b.r === 8 && m.t[i] === 3 && venueCapitalAvenue(xx,yy)))) {
+        road = i; break;
+      }
       for (const [dx,dy] of chartSteps) {
         const nx = xx + dx, ny = yy + dy, ni = ny * m.w + nx;
         if (parent.has(ni) || Math.abs(nx - x) + Math.abs(ny - y) > margin || !buildable(nx,ny)) continue;
@@ -167,12 +278,10 @@
         b.name = titles[b.slot];
         b.roofFamily = b.slot === 'bank' || b.slot === 'guild' ? (r === 5 || r === 8 ? 4 : 2)
           : b.slot === 'work' || b.slot === 'dojo' ? (r === 2 || r === 3 ? 3 : 1) : civicSpec.roof;
-        if (b.slot === 'healer') venueFit(b, [['bed', 1.3, 2.8], ['cupboard', b.w - 1.1, 1.6],
-          ['!venue_medicine', b.w - 1.35, 2.0]]);
-        if (b.slot === 'guild') venueFit(b, [['shelf', 1.5, 2.3], ['ltable', 3.3, 3.4], ['stool', 5, 3.3]]);
-        if (b.slot === 'casino') venueFit(b, [['rtable', 2.2, 3.3], ['stool', 1.35, 3.5], ['stool', 3.15, 3.7], ['strongbox', 5.5, 1.8]]);
-        if (b.slot === 'work') venueFit(b, [['shelf', 1.6, 1.6], ['chest', b.w - 1.3, 1.8]]);
-        if (b.slot === 'dojo') venueFit(b, [['bench', 1.8, 2.4], ['!venue_training_mat', 4.4, 3.7]]);
+        const use = Interiors.roomUses[b.slot];
+        if (use) {
+          venueFit(b, use.pieces.filter(([,x,y])=>Buildings.walkable(b.plan,Math.floor(x),Math.floor(y))), !!ROOMS[b.slot]);
+        }
       }
       const civic = venueCivic(m, r);
       if (!civic) throw new Error('Missing civic venue in ' + host.regionName(r));
@@ -185,8 +294,10 @@
       venueFit(civic, furnishings);
       for (const [kind, slot, want] of [
         ['healer','healer',[3,2]], ['banker','bank',[4,1]], ['tavern','tavern',[5,2]],
-        ['shopkeep','shop',[4,1]], ['casino','casino',[4,2]], ['registrar','guild',[4,2]], ['bench','work',[2,1]],
+        ['shopkeep','shop',[4,1]], ['registrar','guild',[4,2]], ['bench','work',[2,1]],
       ]) venueSeat(m, bySlot(slot), entity(kind), want);
+      const workshop = bySlot('work');
+      if (workshop) workshop.venueBench = entity('bench');
 
       // First-day Odalys and Tamsin keep their original meetings. The other
       // chapter masters receive visitors in their guildhalls.
@@ -205,14 +316,28 @@
         const room = bySlot(slot);
         if (room) venueRestoreFittings(m, room);
       }
+      for (const [slot,use] of Object.entries(Interiors.roomUses)) {
+        const room = bySlot(slot);
+        if (room) venueResident(m,room,use.resident);
+      }
+      venueResident(m,civic,['Hall assistant','Sorting the hall’s deliveries',[civic.w-3,3],'l',
+        'If you’re here on business, you can speak to the keeper. I’m getting these deliveries out of the way.']);
+      venueCasino(m,r,titles.casino,entity('casino'));
+      venueStable(m,r,nick+' Stables');
     }
     m.venueRoofs = new Map();
     m.doorApproaches = new Set();
+    m.publicVenueDistrict = new Set();
     for (const b of m.blds) if (b.modular && b.enter) {
       for (const door of b.plan.doors) for (const p of [door.outside, door, door.inside])
         m.doorApproaches.add((b.y + p.y) * m.w + b.x + p.x);
       for (let y = 0; y < b.h; y++) for (let x = 0; x < b.w; x++)
         if (b.plan.roof[y * b.w + x]) m.venueRoofs.set((b.y + y) * m.w + b.x + x, b);
+      if (b.stalls || b.slot === 'casino') {
+        // Carry the town ambience across the new premises and their immediate forecourt.
+        for (let y = b.y; y < b.y + b.h + 3; y++) for (let x = b.x - 1; x <= b.x + b.w; x++)
+          m.publicVenueDistrict.add(y * m.w + x);
+      }
     }
     for (const e of m.ents) if (e.wander && m.doorApproaches.has(e.y * m.w + e.x)) venueClearDoor(m,e);
   }
@@ -366,55 +491,72 @@
   }
 
   const venueArt = new Map();
+  const venueSitting = new WeakMap();
+  function venueSeatedFrame(image) {
+    if (venueSitting.has(image)) return venueSitting.get(image);
+    const {width,height} = image, {top,bottom} = actorBounds(image);
+    const hips = Math.round(top + (bottom-top)*.58);
+    const lower = Math.round(Math.min(6*K,(bottom-hips)*.55));
+    if (width === 0 || lower < 1) return image;
+    const c = mk(width,height), g = c.getContext('2d');
+    c.hr = 1; c.originX = image.originX; c.originY = image.originY;
+    if (image.anchor) c.anchor = [image.anchor[0]+lower,...image.anchor.slice(1)];
+    g.drawImage(image,0,0,width,hips,0,lower,width,hips);
+    g.drawImage(image,0,hips,width,height-hips,0,hips+lower,width,height-hips-lower);
+    venueSitting.set(image,c);
+    return c;
+  }
+
+  function venueIdleFacing(e, still) {
+    if (!e.venueActivity || e.busy > 0) return still;
+    const base = {f:0,l:2,b:4,s:6}[e.venueActivity];
+    const phase = Math.floor((performance.now() + (e.x*619 + e.y*191) % 7300) / 1500) % 6;
+    return (base + (phase === 4 ? 1 : phase === 5 ? 7 : 0)) % 8;
+  }
+
+  const VENUE_SURFACE_FITTINGS = {
+    tavern: { tray:'venue_meal', support:'ltable', height:.7, offset:-4 },
+    bank: { tray:'venue_records', support:'bankctr', height:.39, offset:1 },
+    guild: { tray:'venue_records', support:'ltable', height:.7, offset:-4 },
+    work: { tray:'venue_tools', height:.66, offset:3 },
+  };
+  const VENUE_TRAYS = new Set(Object.values(VENUE_SURFACE_FITTINGS).map(fitting => fitting.tray));
+
+  function venuePiece(kind) {
+    if (typeof VenueArt === 'undefined' || !VenueArt.at[kind]) return null;
+    if (!IMG[VenueArt.image]) img(VenueArt.image);
+    return artRect(VenueArt.image, VenueArt.at[kind]);
+  }
+
+  function venueFittedProp(kind, r) {
+    if (kind === 'venue_medicine') {
+      const source = kitPiece('w_herbs');
+      if (!source && !IMG['kit/k1.webp']) img('kit/k1.webp');
+      return [source, 17, 18];
+    }
+    if (kind === 'venue_training_mat') return [worldPiece('f'+r+'_rug') || worldPiece('f1_rug'), 38, 23];
+    if (kind === 'venue_stock') return [worldPiece('f'+r+'_chest') || worldPiece('f1_chest'), 20, 16];
+    if (kind === 'venue_stairs_up') return [architecturePiece(r,'stairs_up'), 32, 32];
+    if (kind === 'venue_stairs_down') return [architecturePiece(r,'stairs_down'), 34, 24];
+    return [null, 0, 0];
+  }
+
   function venueProp(kind, r) {
-    const stair=kind==='venue_stairs_up'||kind==='venue_stairs_down';
-    const source=stair?architecturePiece(r,kind==='venue_stairs_up'?'stairs_up':'stairs_down'):null;
-    const key = kind + '/' + r+(source?'/painted/'+artVer:'');
+    if (VENUE_TRAYS.has(kind)) return {c:null};
+    const painted = venuePiece(kind);
+    if (painted) return painted;
+    const [source, w, h] = venueFittedProp(kind, r);
+    const key = kind + '/' + r + (source ? '/painted/' + artVer : '');
     if (venueArt.has(key)) return venueArt.get(key);
-    if(source){
-      const up=kind==='venue_stairs_up',scale=Math.min((up?32:34)*K/source.width,(up?32:24)*K/source.height);
-      const c=mk(Math.round(source.width*scale),Math.round(source.height*scale));c.hr=1;
-      const g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(source,0,0,c.width,c.height);
-      const art={c,ax:c.width/K/2,ay:c.height/K-1,source};venueArt.set(key,art);return art;
+    if (source) {
+      const scale = Math.min(w*K/source.width, h*K/source.height);
+      const c = mk(Math.round(source.width*scale), Math.round(source.height*scale)); c.hr = 1;
+      const g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(source,0,0,c.width,c.height);
+      const art = {c, ax:c.width/K/2, ay:c.height/K-1, source};
+      venueArt.set(key,art);
+      return art;
     }
-    const w = kind === 'venue_training_mat' ? 38 : 24;
-    const h = kind === 'venue_training_mat' ? 23 : kind === 'venue_medicine' ? 16 : 29;
-    const c = mk(w * K, h * K), g = c.getContext('2d'); c.hr = 1; g.scale(K, K);
-    const rect = (x, y, width, height, color) => { g.fillStyle=color; g.fillRect(x,y,width,height); };
-    const poly = (pts, color) => {
-      g.fillStyle=color; g.beginPath(); g.moveTo(...pts[0]); for(const p of pts.slice(1)) g.lineTo(...p);
-      g.closePath(); g.fill();
-    };
-    const wood = Interiors.timber[r], trim = Interiors.trim[r];
-    if (kind === 'venue_stairs_up' || kind === 'venue_stairs_down') {
-      const up = kind === 'venue_stairs_up';
-      poly([[1,26],[5,12],[18,1],[23,2],[23,17],[8,28]], '#44382c');
-      for (let i = 0; i < 6; i++) {
-        const x = 2 + i * 2.3, y = 26 - i * 3.65;
-        poly([[x,y-2],[x+4,y-5],[x+12,y-5],[x+9,y-2]], i%2 ? '#c8a57c' : '#b99b73');
-        poly([[x,y-2],[x+9,y-2],[x+9,y],[x,y]], up ? wood : '#675442');
-        rect(x+1,y-2,8,.45,'#e1c29a');
-        rect(x+2,y-1.1,5,.55,'#72543e');
-      }
-      g.lineWidth=1.25; g.strokeStyle=wood; g.beginPath(); g.moveTo(11,23);g.lineTo(23,4);g.stroke();
-      for(const [x,y] of [[11,23],[17,14],[23,4]]) rect(x-1,y-3,1.8,6,wood);
-    } else if (kind === 'venue_medicine') {
-      rect(1,10,22,4,'#5c4332'); rect(2,10,20,1,'#d1b495');
-      rect(3,8,9,2,'#b3b2a2'); rect(4,6.5,7,2,'#e3deca');
-      for (const [x, y, col] of [[13,3,'#47776a'],[17,5,'#976642'],[21,4,'#657d86']]) {
-        rect(x-1,y,2,2,'#b7a888');rect(x-1,y+2,2,2,col);rect(x-2,y+3,4,5,col);rect(x-1,y+4,1,2,'#c4d4be');
-      }
-      poly([[2,4],[3,8],[7,9],[10,5]],'#aa967a');
-      rect(1.5,4,9,1,'#e1d2b8');
-    } else if (kind === 'venue_training_mat') {
-      rect(0,1,w,h-1,'#65594c');rect(1.1,1,w-2.2,h-2.4,'#ad9d76');
-      for(let y=2; y<h-2; y+=1.3) {
-        rect(2,y,w-4,.35,'#766e54');
-        for(let x=4 + (Math.round(y)%2);x<w-2;x+=4)rect(x,y,1.6,.45,'#d4c6a0');
-      }
-      rect(1.2,1.2,1.5,h-2.5,trim);rect(w-2.6,1.2,1.5,h-2.5,trim);
-    }
-    const art = { c, ax:w/2, ay:h-1 }; venueArt.set(key,art); return art;
+    return {c:null};
   }
 
   const venueDoorArt = new Map();
@@ -431,11 +573,57 @@
     return value;
   }
 
+  function venueFittingLayer(list, kind, middle, feet, sortY = feet) {
+    const art = venuePiece(kind);
+    if (art) list.push([sortY,art.c,middle-art.ax,feet-art.c.height/K]);
+  }
+
+  function venueSurfaceLayers(b, list) {
+    const fitting = VENUE_SURFACE_FITTINGS[b.slot];
+    if (!fitting || !b.furniture?.some(f => f.p === fitting.tray)) return;
+    const support = b.furniture.find(f=>f.p.endsWith('_'+fitting.support));
+    const bench = b.venueBench;
+    const art = support ? worldPiece(support.p) || worldPiece('f1_'+fitting.support) : bench?.obj?.c;
+    if (!art) return;
+    const x = support ? (b.x+support.x)*T : (bench.x+.5)*T;
+    const feet = support ? (b.y+support.y)*T : (bench.y+1)*T;
+    const tabletop = feet - art.height/K*fitting.height;
+    venueFittingLayer(list,fitting.tray,x+fitting.offset,tabletop,feet+.2);
+  }
+
+  function venueStableLayers(b, list) {
+    for (const [i,[x,y]] of b.stalls.entries()) {
+      const middle = (b.x+x+1)*T;
+      const gate = (b.y+y+.98)*T;
+      const hooves = (b.y+y+.42)*T;
+      venueFittingLayer(list,'venue_stall_back',middle,gate,hooves-4);
+      venueFittingLayer(list,'venue_hay_rack',middle+5,gate-13,hooves-3);
+
+      // Open alpha between the painted rails reveals the standing horse.
+      if (i === 1) venueFittingLayer(list,'venue_trough',middle,hooves+3);
+      else if (typeof MountView !== 'undefined') {
+        const horse = MountView.standing(i === 0 ? 1 : 2);
+        if (horse) {
+          const scale = .72;
+          list.push([hooves,horse,middle-horse.originX/K*scale,hooves-horse.originY/K*scale,false,scale]);
+        }
+      }
+      venueFittingLayer(list,'venue_stall_gate',middle,gate);
+    }
+  }
+
   function venueDoors(b, list) {
     if (!map || !P || !b.plan) return;
     if (b.indoor) {
       if (map.venue) venueOpenAir(b,list);
       return;
+    }
+    if (b.slot === 'casino' && b.fa < 1) {
+      venueFittingLayer(list,'venue_runner',(b.x+b.w/2+.5)*T,(b.y+b.h-1.4)*T,b.y*T);
+    }
+    if (b.fa < 1) {
+      if (b.stalls) venueStableLayers(b,list);
+      venueSurfaceLayers(b,list);
     }
     if (b.storeyLift && b.fa > .01) venueUpperWalls(b,list);
     const now = performance.now();

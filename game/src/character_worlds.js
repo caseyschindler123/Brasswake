@@ -37,6 +37,6 @@ const CharacterWorlds = (() => {
     account.world=index;
     return true;
   }
-  return {version,count,slots,fresh,normalize,select};
+  return {version,count,slots,freshWorld,fresh,normalize,select};
 })();
 if (typeof module !== 'undefined') module.exports = CharacterWorlds;

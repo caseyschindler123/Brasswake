@@ -20,7 +20,7 @@ Before editing, inspect status and relevant instructions. Briefly state the chan
 | Shared/high risk/unknown | Full core and all browser scenarios/profiles, including journeys. Saves, ActorRig physical speed, movement, world ownership, progression, runtime/offline/packaging and unknown paths retain conservative fallback. |
 | Exhaustive validation | Nightly/manual full retains every existing scenario. Extended path/expedition campaigns remain opt-in for relevant balance/progression work. |
 
-Mixed changes union their risks; labels cannot override unknown/high-risk evidence. Preserve known relevant failures until diagnosed/repaired. Never weaken assertions, raise deadlines, add broad retries or refresh art baselines to obtain a pass. Screenshots must actually be opened by Codex before visual success is claimed; Casey is not responsible for routine QA. Emulated WebKit is not a physical iPhone test.
+Mixed changes union their risks; labels cannot override unknown/high-risk evidence. Preserve known relevant failures until diagnosed/repaired. Never weaken assertions, raise deadlines, add broad retries or refresh art baselines to obtain a pass. Screenshots must actually be opened by Codex before visual success is claimed; Casey is not responsible for routine QA. Recognizable world objects must also pass the source/native-scale/in-scene art curation gate in 03_ART_STYLE.md: interaction assertions and captured screenshots do not approve placeholder-quality physical furnishings. Emulated WebKit is not a physical iPhone test.
 
 ## Commands and selection
 

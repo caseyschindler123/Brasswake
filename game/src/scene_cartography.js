@@ -142,7 +142,7 @@
       const type=ServicePlaces.typeFor(b),door=b.plan&&b.plan.doors.find(d=>d.side==='south')||b.plan&&b.plan.doors[0];
       if(!type||!door||b.home)continue;
       const at=nearest(b.x+door.outside.x,b.y+door.outside.y,4,accessible);
-      const p=destination('service:'+b.r+':'+type+':'+b.x+':'+b.y,b.r,'service',b.name||ServicePlaces.types[type].name,[b.x+door.x,b.y+door.y],at);
+      const p=destination(b.serviceId||'service:'+b.r+':'+type+':'+b.x+':'+b.y,b.r,'service',b.name||ServicePlaces.types[type].name,[b.x+door.x,b.y+door.y],at);
       if(p){p.type=type;Object.defineProperties(p,{building:{value:b},door:{value:door}});}
     }
     const ferryLinks = m.ferries.map(ferry => ({ id: ferry.id,
