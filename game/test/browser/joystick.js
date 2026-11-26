@@ -292,8 +292,10 @@ test('joystick · slower gaits keep travel, contact sounds and distance events s
         const end=await frame.evaluate(()=>({wd:Scene.debug().P.wd,time:Scene.tacticalTime(),run:Scene.debug().P.run,mul:__bw.HOST.runMul(),gait:ActorRig.gait(Scene.debug().P.run)}));
         expect(end.run).toBe(run);
         const speed=(end.wd-start.wd)/((end.time-start.time)/1000),multiplier=run?end.mul:1;
+        // The approved 30 FPS source cycles take 31 walk or 21 run frames, with two steps per cycle.
+        const sourceCadence=2*60*30/(run?21:31);
         expect(speed).toBeCloseTo(end.gait.stride*end.gait.cadence/120*multiplier,3);
-        expect(speed/end.gait.stride*120).toBeCloseTo((run?180:132)*multiplier,3);
+        expect(speed/end.gait.stride*120).toBeCloseTo(sourceCadence*multiplier,3);
       }finally{if(holding){await driver.end();holding=false;}}
       await frame.waitForFunction(()=>!Scene.traveling());
       const stopped=await frame.evaluate(run=>({wd:Scene.debug().P.wd,sounds:__gaitSounds,moved:__gaitMoved,expected:ActorRig.contacts(0,Scene.debug().P.wd,run)}),run);

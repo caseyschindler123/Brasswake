@@ -17,8 +17,9 @@ const exact = new Set([
   'game/test/scope.test.js', 'game/test/select-tests.js', 'game/test/ui-suites.js',
   'game/test/live.js', 'game/test/live-suites.js', 'game/test/run-ui.js', 'game/test/selection-transport.js', 'game/test/verify.js',
   'game/test/browser/appearance-materials.js', 'game/test/browser/arming.js',
+  'game/test/browser/intro-helper.js', 'game/test/browser/joystick.js', 'game/test/browser/mounts.js',
   'game/test/browser/npc-appearance.js', 'game/test/browser/painted-release.js',
-  'game/test/browser/worlds.js',
+  'game/test/browser/prologue.js', 'game/test/browser/worlds.js',
 ]);
 const bodyPath = /^game\/art\/(?:painted|painted-release)\/(?:body|doll)-(?:[1-9]|[12]\d|30)(?:-[a-z]+)?\.webp$/;
 const slotPath = /^game\/art\/painted-release\/(?:body|doll)-[0-5]-(?:hands|feet|cloak|armor)-[a-z0-9_-]+\.webp$/;

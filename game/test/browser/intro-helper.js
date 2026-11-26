@@ -32,7 +32,7 @@ async function shipApproach(page,property){
     await drivePath(page,path,false);await page.waitForTimeout(120);
   }throw Error('Could not approach ship target');
 }
-async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunspire',rescue=true,visibleOnly=false,railApproachOffsetMs={}}={}){
+async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunspire',rescue=true,visibleOnly=false,railApproachOffset={}}={}){
   const holdInput=async({key,stickMove},{duration,label,leave=false})=>{
     const mouse=page.mouse;
     try{
@@ -72,9 +72,12 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
       }),{key,joystick:!!stickMove,duration,label,leave});
     }finally{if(stickMove)await mouse.up();else await page.keyboard.up(key);}
   };
-  const pulse=(key,duration)=>holdInput({key},{duration});
-  const offsetRailApproach=ms=>ms?pulse(ms<0?'ArrowUp':'ArrowDown',Math.abs(ms)):undefined;
-  const runToEastRail=duration=>holdInput({stickMove:{dx:1,dy:0,run:true}},{duration});
+  // Express the open-loop deck legs in tiles so a gait change preserves the
+  // same clearance. The input still stops on the visible interaction label.
+  const speeds=visibleOnly?await page.evaluate(()=>({walk:ActorRig.speed(false),run:ActorRig.speed(true)})):null;
+  const pulse=(key,tiles)=>holdInput({key},{duration:1000*tiles/speeds.walk});
+  const offsetRailApproach=tiles=>tiles?pulse(tiles<0?'ArrowUp':'ArrowDown',Math.abs(tiles)):undefined;
+  const runToEastRail=tiles=>holdInput({stickMove:{dx:1,dy:0,run:true}},{duration:1000*tiles/speeds.run});
   const walkUntil=async(input,label,leave=false)=>{
     if(await holdInput(input,{label,leave}))return;
     const ctx=page.locator('#ctx');
@@ -102,11 +105,11 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
   // mast. Cross the full blocked row before turning toward Tamsin.
   if(visibleOnly){
     await walkUntil({key:'ArrowDown'},'Talk: Deckhand');await walkUntil({key:'ArrowUp'},'Talk: Deckhand',true);
-    await pulse('ArrowUp',1400);
-    await offsetRailApproach(railApproachOffsetMs.tamsin);
+    await pulse('ArrowUp',2.15);
+    await offsetRailApproach(railApproachOffset.tamsin);
     // Cross above the mast to the closed east rail, then turn southwest
     // toward Tamsin's visible Talk control from the far side of the mast.
-    await runToEastRail(2400);
+    await runToEastRail(8.6);
     await walkUntil({stickMove:{dx:-1,dy:1,run:true}},'Talk: Tamsin');
   }else await shipApproach(page,'shipPerson');await expect(page.locator('#ctx')).toHaveText('Talk: Tamsin');if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();
   await expect(page.locator('#onboard')).toContainText('teaches SQL');
@@ -118,9 +121,9 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
     await expect(page.locator('#ctx')).toBeVisible();await expect(page.locator('#ctx')).toHaveText('Talk: Tamsin');
     // Re-anchor on the rail north of the plank. A southeast thumb hold
     // slides south at the rail, then east through the open gangplank.
-    await pulse('ArrowUp',850);
-    await offsetRailApproach(railApproachOffsetMs.gangplank);
-    await runToEastRail(650);
+    await pulse('ArrowUp',1.3);
+    await offsetRailApproach(railApproachOffset.gangplank);
+    await runToEastRail(2.35);
     await walkUntil({stickMove:{dx:1,dy:1,run:true}},'Step ashore');
   }else await shipApproach(page,'shipExit');
   if(screenshot)await screenshot(page,info,'gangplank-arrival');

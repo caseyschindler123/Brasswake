@@ -167,7 +167,8 @@ test('mounts · the stable sells one horse, outdoor riding is faster and obstacl
 
   await stage(page, fixture.road);
   const running = await joystickRun(page, 1, 0, 500);
-  expect(running.speed).toBeCloseTo(3.58143, 1);
+  // The reference run covers 2.183366 tiles per 21-frame source cycle at 30 FPS.
+  expect(running.speed).toBeCloseTo(2.183366 * 30 / 21, 1);
   await stage(page, fixture.road);
   await toggleHorse(page, 'Mount horse');
   expect(await horse(page)).toMatchObject({ owned: true, mounted: true });
