@@ -26,7 +26,7 @@ Last updated: 2026-11-25. The whole-world living landscape is released and verif
 - **Selection:** Hero -> Return to characters opens the three-world screen. During the boat arrival, tap the character portrait for a menu with automatic-save status, backups, Continue playing and Return to characters; ordinary intro dialogue has no exit-to-selection action. Every occupied slot explicitly states Main or Supporting. Returning saves progress. World changes retire encounters and regenerate the live scene so monsters/corpses and pending actions cannot cross worlds.
 - **Migration:** all five legacy slots and shared household data move into world one. Account v9/character v8 export/import includes all worlds. No save wipe.
 
-### Deletion (release candidate)
+### Deletion
 
 The selection screen offers Delete a character and Delete this world. Both require an explicit warning/continue step and then typed target identification: the exact character name or `DELETE WORLD N`. Cancel/mismatch changes nothing. Verification binds account/world/character identity and survives an offered backup of the same character. Character deletion removes its personal bank, possessions, skills and horse, preserving shared homes/storage; removing the main leaves existing supporters in their roles and allows the next new character to be main. World deletion clears its complete household and retains an empty reusable slot among the three worlds. Device persistence precedes any scene rebuild. Linked-account writes are requested immediately and serialized after an older write; late startup reads cannot undo a deletion performed after the read began. Cloud availability and conflicts between independently played offline devices still follow the existing account-wide synchronization limits. An intentional older backup import can restore its saved state.
 
@@ -114,7 +114,7 @@ Release `dungeon-rebuild-2026-11-22` replaces the shared four-room corridor with
 
 ## 4. Characters, skills and paths
 
-Creation offers free body, five skin tones, hairstyle, hair colour and facial-hair choices with a turning/walking preview of the actual layered avatar. Appearance persists in world animations and the paper doll. The in-game Appearance menu also offers free skin tones; existing barber/tailor prices remain for other services. Head layers retain direction-specific walking proportions throughout running; eight poses per direction are paced by distance. Actor separation uses a softened subpixel dark edge and ground shadow; 12 CSS px names anchor to the rendered head/silhouette.
+Creation offers free body, five skin tones, twelve complete head styles per body and seven hair colours, with a close-up head preview and a turning/walking preview of the customized avatar. Large paperdolls use coherent complete heads; small directional figures use matching hair/beard recipes and separately fitted headwear. Appearance persists across world animations and the paperdoll. The in-game Appearance menu also offers free skin tones; complete style changes cost 30 gold outside the guide, and other existing barber/tailor prices remain. Walk/run cycles have 64 poses and are paced by distance. Actor separation uses a softened subpixel dark edge and ground shadow; 12 CSS px names anchor to the rendered head/silhouette.
 
 - **Paths:** each path sets the starting skills, weapon and pages.
 
@@ -231,13 +231,13 @@ Optional surface treasure and dungeon caches offer Lockpicking with disarming or
 
 Rough value per kill: about 22 gold in circle 1 and about 69 in circle 8, counting the sale value of drops.
 
-### Complete head styles (release candidate)
+### Complete head styles
 
 Creation and Appearance offer twelve complete head styles for each body. Hair and beard are painted together on the same face; the independent hair/facial-hair selectors are replaced by one named style picker, with a close-up preview and appearance thumbnails. Five skin tones and seven hair colours remain. Creation choices are free; later complete style changes cost 30 gold outside the guide. Existing appearances map to the closest style using hair/beard type, retain tone/colour and save a stable `app.headStyle` ID. Small directional figures use matching curated hair/beard recipes; large paperdolls use the complete generated head. Headwear stays separately fitted.
 
 ## 8. Items
 
-The equipment, horse, town-interaction and deletion changes are under final verification. [Coordinated release plan](plans/2026-11-25-equipment-mounts-and-lived-in-towns.md)
+The coordinated equipment, horse, town-interaction, appearance and deletion release is live at `f8dc391`. [Release evidence](RELEASE_HISTORY.md#equipment-horses-and-lived-in-towns) · [Closed plan](plans/2026-11-25-equipment-mounts-and-lived-in-towns.md)
 
 - **Slots:** weapon, shield, head, armor, hands, feet, cloak, ring, charm, relic.
 - **Rarity** weights common 60 / uncommon 26 / rare 10 / epic 3.3 / legendary 0.7, with the top three scaling up with luck. Newly generated Masterwork equipment or equipment made of Circle VIII materials displays at Rare or higher. The initial roll still sets the physical base.
@@ -287,7 +287,7 @@ The equipment, horse, town-interaction and deletion changes are under final veri
 | House upgrades | extra chest 400 × n (up to 4 more), feather bed 900, garden 700, paint 40 a coat |
 | Card room and games | the stakes |
 
-### Riding horses (release candidate)
+### Riding horses
 
 Every town has a staffed stable. A bay riding horse costs 650 gold once per character. Ownership and mounted state save with that character and stay isolated across slots/worlds. Hero offers Mount horse / Dismount; mounting requires outdoors and no active pursuit, battle or skill query. Outer joystick pace is 1.7× current running speed (about 6.09 tiles/s before the existing travel gift); inner/keyboard pace is about 4.17 tiles/s. Existing swept collision still prevents crossing walls/corners. Entering a building, dungeon, dojo, upper room, ship or combat dismounts immediately, including synchronous saves. Mounting reveals concealment; hiding requires dismounting. No permanent horse loss, feeding or upkeep charges. The customized rider sits on a directional painted horse with distance-based hoof motion.
 
@@ -329,7 +329,7 @@ Every town has a staffed stable. A bay riding horse costs 650 gold once per char
 - **Reward feedback:** earned gold uses the existing gold-pile icon and actual credited `+amount gold`, including bonuses/rounding, in result panels and positive-gain notifications. Transfers and body recovery retain their own descriptions. Repeated unpaid exercises show no new payout.
 - **Story continuity:** `docs/STORY_BIBLE.md` records the cast, chronology, Ledger/practice rules and scene knowledge. Ilva’s archive and Trials can be completed in either order; both together record the council’s public admission and reopening of the archive in the Journal. The light appears forty narrative days after the rescue (`2026-06-14` → `2026-07-24`); there is no wall-clock deadline.
 - **Fishing:** a skill and a cast screen. SQL answers decide the catch, and higher skill unlocks rare fish and sunken things.
-- **Card room (release candidate):** every region has a 14×10 gaming room with five seated patrons and separate dealers for poker, blackjack and the wheel. Walk to the relevant table to join its game. A 12×8 stable adds stalls, two visible horses and a keeper. Taverns, banks, shops, infirmaries, guildhalls, workshops, dojos and civic rooms receive furnishings and residents suited to their work. Visible business signs have a minimum 44 CSS-pixel tap target and identify the premises and its services. Walk up to the staff or station to use a service. Casino discovery keeps its published ID. Stable discovery uses a region ID independent of parcel coordinates. Town maps include discovered outlying venues. Blind Tally's big blind ranges from 2 to 500 gold across the eight rooms. Players can query hand counts in Blind Tally, past spins at the Crooked Wheel, and cards already dealt from the Count's blackjack shoe.
+- **Card room:** every region has a 14×10 gaming room with five seated patrons and separate dealers for poker, blackjack and the wheel. Walk to the relevant table to join its game. A 12×8 stable adds stalls, two visible horses and a keeper. Taverns, banks, shops, infirmaries, guildhalls, workshops, dojos and civic rooms receive furnishings and residents suited to their work. Visible business signs have a minimum 44 CSS-pixel tap target and identify the premises and its services. Walk up to the staff or station to use a service. Casino discovery keeps its published ID. Stable discovery uses a region ID independent of parcel coordinates. Town maps include discovered outlying venues. Blind Tally's big blind ranges from 2 to 500 gold across the eight rooms. Players can query hand counts in Blind Tally, past spins at the Crooked Wheel, and cards already dealt from the Count's blackjack shoe.
 - **Rivals:** one per region, who duels you or steals from you.
 - **Luck:** gear luck + 3 per streak step, up to 10 steps.
 - **Gifts from Great Truths:** gold 10%, luck 10, damage 10%, learn 15%, defence 8%.
@@ -357,7 +357,7 @@ Workbench Carpentry crafts storage chests (6 regional materials, difficulty 25),
 
 - **New-player onboarding and dojo teaching (development held):** Casey requested all five bottom-tray tabs introduced aboard the boat, Tamsin's incomplete exploration map, specialized safe SQL practice in every town's dojo, broader question variety within introduced concepts, and a single homeland for new characters while preserving the impossible journey. No player-character label will be added. The [implementation plan](plans/2026-11-25-new-player-onboarding-and-dojo-learning.md) defines proposed readiness, practice, compatibility and playtest-fix details. This is planned only; Casey must say go before development starts. Existing shipped descriptions below remain current until implementation and release.
 
-- Boats beyond the existing ferries remain deferred. Horses are included in the coordinated release candidate under Riding horses.
+- Boats beyond the existing ferries remain deferred.
 - Cloaks, gloves and boots don't show on the body yet.
 - Dialogue portraits still use the old eight hero portraits.
 - Duel opponent speed needs playtest tuning.
@@ -371,6 +371,8 @@ Workbench Carpentry crafts storage chests (6 regional materials, difficulty 25),
 A new main character chooses appearance and former profession, then is hauled aboard the Marigold in the playable scene. Tamsin introduces herself, asks their name and homeland, recognizes their profession-specific reputation from merchant crews, and questions a journey that ordinary sailing cannot explain. Sunspire, Sylvanreach and Dwarrowdeep are existing distant trade realms, not new playable regions. The player walks on deck, meets Tamsin, can inspect cargo, rests during the three-day crossing, and walks off the gangplank at Tallyport. Tamsin first explains SQL as the language that gives skilled actions their power, then explains Corin and the Trials ashore. Odalys explicitly uses the manifest as safe query practice before a weapon/spell demonstration. She defines SQL and the Ledger before tables, rows, columns, queries and results; the source cargo, read-only teaching copy, full company records and safe ability practice have explicit handoffs. The entrance-cellar guardian, guided utility work and all guided Tallyport fishing casts use the SELECT/FROM forms taught that day. Existing guide indices, supplies, gold awards, equipment/paper-doll arming and the later story remain in place. The verified release is recorded in `RELEASE_HISTORY.md` and the completed boat-intro plan.
 
 ## Decision log
+
+- 2026-11-25: Released equipment/material/craft/magic comparison and enchanting, riding horses, lived-in premises/signs/terrain, curated heads, Home Screen icons and verified deletion at `f8dc391`. Current sections describe shipped behavior; [release history](RELEASE_HISTORY.md#equipment-horses-and-lived-in-towns) and the closed coordinated plan retain evidence and limits.
 
 - 2026-11-25: Casey requested a full plan before development for boat-wide navigation orientation, an incomplete map, dojo SQL specialists with safe repeatable practice, question diversity at the current learning level and removal of the homeland picker. Preserve the journey's story significance and omit a player label. The new-player onboarding plan records proposed implementation defaults and the explicit go hold; planning authorizes no executable changes or game deployment.
 
