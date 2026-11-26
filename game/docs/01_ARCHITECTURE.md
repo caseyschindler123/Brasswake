@@ -257,7 +257,7 @@ GitHub Pages uses the Actions publishing source. The publication payload is buil
 
 ## Painted character system
 
-Production candidate authorized through deployment; publication evidence belongs to [the painted character plan](plans/2026-11-26-painted-character-system.md). The accepted continuous MakeHuman anatomy replaces the rejected assembled-part prototype. Six male/female average, muscular and heavy profiles retain anatomical limb lengths. Surface-bound tunic, draped robe, leather, mail and plate are painted and baked by `arttools/painted_release_*`; Knight’s Plate has an independent fitted finish. Separate hand, foot and cloak banks cover every equipped identity, including wearable relics and Corrigan’s Gauntlets.
+Released at `0090c89`; verification evidence belongs to [the painted character plan](plans/2026-11-26-painted-character-system.md). The accepted continuous MakeHuman anatomy replaces the rejected assembled-part prototype. Six male/female average, muscular and heavy profiles retain anatomical limb lengths. Surface-bound tunic, draped robe, leather, mail and plate are painted and baked by `arttools/painted_release_*`; Knight’s Plate has an independent fitted finish. Separate hand, foot and cloak banks cover every equipped identity, including wearable relics and Corrigan’s Gauntlets.
 
 The offline renderer uses a true frontal 300×450 paper doll and eight native elevated world headings at the established 48 pixels/metre. Only complete-head art uses local mirroring; weapons and shields retain handedness. Corrected Mixamo-derived walk/run cycles have 24 frames. KayKit Character Animations 1.1 supplies CC0 source performances for 12-frame one/two-hand attacks, bow, crossbow, casting, book, block, hit and fall; the seated source is sampled into an independent pose. Book/crossbow grips are fitted to each body’s arm lengths. Raw models/motion remain offline inputs. Players receive immutable 2D WebP atlases, finish masks and compact lazily hydrated landmark metadata.
 
@@ -266,6 +266,8 @@ The offline renderer uses a true frontal 300×450 paper doll and eight native el
 Scene bounds composed frames at 160, immutable color/mask crops at 32, decoded state sources at 48 MiB and paper-doll bodies at 24. Complete-head tints have a separate 96-entry LRU. State files load lazily; a pending action temporarily retains the ready idle figure. Mirrors and frame-end retirement remain bounded. Existing collision, furniture/door sizes, resource distance costs, combat statistics and relative pursuit pace are unchanged. Individually authored named NPC builds/heights and reason strings live in `CharacterProfiles`; other residents use explicit role profiles.
 
 ## Decision log
+
+- 2026-11-26: Published fitted painted profiles, complete equipment and source-driven actions without a save-version change. Keep model/motion processing offline and authored NPC casting explicit; the painted character plan and release history own exact verification and session limits.
 
 - 2026-11-26: Casey authorized the accepted fitted-model approach across every gear identity through publication, with parallel art workers and no review stops. Replace the rejected part assembly; retain shared anatomy, native eight-facing equipment, frontal dolls, material/dye masks and authored NPC casting. Use a bounded, expiring release-session profile with all core checks, relevant Chromium integration, critical WebKit and full hosted verification; restore normal selection after the release. This supersedes the earlier pilot hold below.
 

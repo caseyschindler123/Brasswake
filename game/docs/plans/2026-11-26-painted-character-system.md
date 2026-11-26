@@ -1,6 +1,6 @@
 # Painted character system
 
-Status: authorized full production rollout in progress. Casey accepted the corrected v3 walk/run pilot, requested all clothing/armor, sitting and battle actions through deployment without review stops, and explicitly required every gear item. Three workers cover shared profile/bake tooling, fitted wardrobe, and held/head/accessory art; the lead owns motion, runtime integration, validation and publication.
+Status: complete. Published and verified at `0090c8926a0b1baa58bb53f6908c9c40e42d564f`. [Release record](../RELEASE_HISTORY.md#fitted-painted-characters-complete-equipment-and-source-actions) owns exact evidence and limits. Casey accepted the corrected v3 walk/run pilot, requested all clothing/armor, sitting and battle actions through deployment without review stops, and explicitly required every gear item. Three workers cover shared profile/bake tooling, fitted wardrobe, and held/head/accessory art; the lead owns motion, runtime integration, validation and publication.
 
 ## Production authorization — 2026-11-26
 
@@ -11,10 +11,10 @@ Start: 14:46 UTC. Target approximately two hours; full gear coverage is required
 - [x] Cover every named physical gear archetype and all twenty weapon variants, six offhand identities, headwear, hands/feet, cloaks and wearable accessories; retain honest inventory/icon representation for non-wearable relics.
 - [x] Wire complete equipment identities, authored NPC bodies, full-direction sockets/occlusion and bounded caches without save migration or environmental resizing.
 - [x] Inspect native and integrated phone/desktop captures, including difficult mixed gear and robes; fix visible defects.
-- [ ] Run full non-browser checks once and the session browser profile below; repair relevant failures without assertions/baseline weakening.
-- [ ] Commit/push intended source, pass exact-commit CI, verify hosted commit/HTML/assets and actual play/offline reopen, record release evidence.
+- [x] Run full non-browser checks once and the session browser profile below; repair relevant failures without assertions/baseline weakening.
+- [x] Commit/push intended source, pass exact-commit CI, verify hosted commit/HTML/assets and actual play/offline reopen, record release evidence.
 
-Production review evidence: six profiles/30 body fits, 108 equipment banks and 2,208 lossless WebPs are sealed. All 632 published assets retain their original hashes. Separate production source receipts preserve prompts, raw inputs and replay. Four initially indistinct non-average bodies were broadened and refitted. Review corrected feminine neck/waist joins, cloak/torso intersections in deep swings, crossbow/book grips and crossbow paper clipping. All six full wardrobe/action browser cases passed (43,680 composed frames). The full local non-browser verification passed with all core groups; final affected browser rerun and exact-commit CI are pending. The startup/water-rescue null-frame failures found during integration were corrected before release. The first release attempt f9738a5/run 45850921460 was cancelled before publication after review found the legacy 0.45-tile melee lunge duplicated the new captured weight shift. The correction retains creature motion, removes the extra human slide and passed an actual timed attack regression on all three browser profiles. Source art remains offline; no model is downloaded by players.
+Production review evidence: six profiles/30 body fits, 108 equipment banks and 2,208 lossless WebPs are sealed. All 632 published assets retain their original hashes. Separate production source receipts preserve prompts, raw inputs and replay. Four initially indistinct non-average bodies were broadened and refitted. Review corrected feminine neck/waist joins, cloak/torso intersections in deep swings, crossbow/book grips and crossbow paper clipping. All six full wardrobe/action browser cases passed (43,680 composed frames). The full local non-browser verification passed with all core groups; final exact-commit core, all 158 session browser cases and the aggregate passed at source `0090c89`. The startup/water-rescue null-frame failures found during integration were corrected before release. The first release attempt f9738a5/run 45850921460 was cancelled before publication after review found the legacy 0.45-tile melee lunge duplicated the new captured weight shift. The correction retains creature motion, removes the extra human slide and passed an actual timed attack regression on all three browser profiles. Source art remains offline; no model is downloaded by players.
 
 The corrected game candidate c8e6391/run 45851601718 was also cancelled before publication when the actual 2,400-path plan exceeded Linux’s single-environment-entry size limit. Lossless bounded verification-plan transport preserves the entire scope and raw JSON receipt, reducing the observed payload from 271 KB to 24 KB. Both consumers and 56 workflow/protocol/scope assertions passed; game/art bytes did not change during this repair.
 
@@ -26,7 +26,7 @@ Casey requested a faster checklist, specifically limited WebKit, and approved th
 
 The single-model material below records completed pilot evidence and earlier holds; this production authorization supersedes its scope/deployment hold.
 
-## Authorized single-model pilot
+## Historical single-model pilot (superseded by production rollout)
 
 Casey agreed to the fitted-model-to-painted-sprites approach and requested one first. Build one average male anatomical source and one plate set fitted from its surface. Keep body/bone measurements shared, use a true frontal paper-doll camera and the game's elevated directional camera, and preserve material/dye masks. Render actual stills and animation, inspect phone/desktop/native output, revise visible failures and record the limits. No broad art expansion, game release or main publication is authorized by this pilot checkpoint. The earlier integrated set stays an unshipped rejected prototype.
 
@@ -96,13 +96,13 @@ Replace the human presentation with the accepted painted direction: male and fem
 ## Milestones
 
 - [x] Inspect latest main and existing character, equipment, portrait and preview contracts; create an isolated worktree.
-- [ ] Re-prove one continuous body and fitted plate model before expansion. The earlier pilot and full-set contact sheets did not establish visual acceptance: Casey rejected distorted body proportions and hollow-looking disconnected joints. The first silhouette-strip fitting experiment also introduced visible banding and is rejected.
-- [ ] Author and pack fitted sources for six profiles and five clothing families, directional heads and equipment. Preserve raw filenames and existing art; record new-only prompts and source hashes.
-- [ ] Integrate profile selection/persistence/defaults, stable NPC variation, locomotion/actions/seated poses and paper-doll attachment metadata. Preserve mounts, headgear, skin/hair/dye/material choices, physical movement and world dimensions.
-- [ ] Review the complete fitting matrix: necks, shoulders, wrists, elbows, waists, knees, robe hems, footwear, grips, shields and headgear. Correct visible failures rather than masking them with tests.
-- [ ] Add meaningful compatibility/contract regressions; run focused checks and open actual desktop and 390×720 captures. Check normal creation/save/reload, equipment, movement, battle and seating flows.
-- [ ] Reconcile current master documentation and decisions. Review intended diff and provenance; integrate latest main without overwriting concurrent work.
-- [ ] Commit/push main; monitor exact-commit Actions through publication and hosted commit/HTML/offline/player-flow verification. Record release identity, evidence and remaining limitations; close this plan only after verification.
+- [x] Re-prove one continuous body and fitted plate model before expansion. The earlier pilot and full-set contact sheets did not establish visual acceptance: Casey rejected distorted body proportions and hollow-looking disconnected joints. The first silhouette-strip fitting experiment also introduced visible banding and is rejected.
+- [x] Author and pack fitted sources for six profiles and five clothing families, directional heads and equipment. Preserve raw filenames and existing art; record new-only prompts and source hashes.
+- [x] Integrate profile selection/persistence/defaults, stable NPC variation, locomotion/actions/seated poses and paper-doll attachment metadata. Preserve mounts, headgear, skin/hair/dye/material choices, physical movement and world dimensions.
+- [x] Review the complete fitting matrix: necks, shoulders, wrists, elbows, waists, knees, robe hems, footwear, grips, shields and headgear. Correct visible failures rather than masking them with tests.
+- [x] Add meaningful compatibility/contract regressions; run focused checks and open actual desktop and 390×720 captures. Check normal creation/save/reload, equipment, movement, battle and seating flows.
+- [x] Reconcile current master documentation and decisions. Review intended diff and provenance; integrate latest main without overwriting concurrent work.
+- [x] Commit/push main; monitor exact-commit Actions through publication and hosted commit/HTML/offline/player-flow verification. Record release identity, evidence and remaining limitations; close this plan only after verification.
 
 ## Acceptance and verification
 
@@ -112,12 +112,18 @@ Use source/packed-art replay and fit contacts, runtime regressions, affected-sce
 
 ## Evidence and release
 
-Casey's correction on 2026-11-26 changes the order of work: build one model, screenshot the actual output, critically inspect it, revise and repeat until excellent; only then expand to all clothing/armor. The paper doll must be directly face-on while gameplay uses the elevated directional view. Share anatomy, fitted armor measurements and landmarks between camera treatments; do not compensate by independently stretching the torso or limbs. The previous paper-doll bake reused the world projection and attached a frontal head, compounding independent source-part scaling and exposed cap/socket artwork. Current passes establish technical contracts only; they do not approve the rejected visual set. None of this workstream has shipped.
+Casey's correction on 2026-11-26 changes the order of work: build one model, screenshot the actual output, critically inspect it, revise and repeat until excellent; only then expand to all clothing/armor. The paper doll must be directly face-on while gameplay uses the elevated directional view. Share anatomy, fitted armor measurements and landmarks between camera treatments; do not compensate by independently stretching the torso or limbs. The previous paper-doll bake reused the world projection and attached a frontal head, compounding independent source-part scaling and exposed cap/socket artwork. Current passes establish technical contracts only; they do not approve the rejected visual set. This describes the rejected historical prototype; the production rollout above supersedes it.
 
 The first focused save checks rejected a character-v9 bump because two immutable published readers discard unsupported v9 character records. Keep account v9/character v8 and add the optional normalized `app.build` field. Old readers preserve additive appearance fields. Retain the existing old-reader integrity assertions, and extend them for build preservation rather than weakening backward compatibility.
 
 Focused checks so far: 20 actor/head/NPC/save checks passed after keeping the compatible version. Seven profile/material/action/save checks passed, including muscular/heavy appearance fields through both immutable older readers. These precede the final gait/source metadata and do not establish final rendering or release status.
 
-Pending. Production implementation has not shipped. Earlier accepted studies remain preview evidence, not production foot-locking or equipment-fit proof.
+Production source `0090c89` is published and verified; final evidence is linked above. Earlier studies remain historical evidence.
 
 Frontal correction studies: `arttools/painted_body_pilot.json` records a continuous frontal body, fitted plate, finish revision and alpha correction with exact prompts/hashes. These are visual targets, not proof of a shared fitted source model or animations. Both use the same source-to-paper-doll transform so independent scaling cannot hide fit changes. The finish revision with an opaque matte was rejected and corrected. An initial equipped-UI capture mistakenly stored an item object in the ID slot and showed the old tunic; the disposable fixture now asserts plate profile 5 before capturing. No production code or external release was changed by these preview-only captures.
+
+## Production closure — 2026-11-26
+
+Source `0090c89` passed full core, all 158 session browser cases and all six hosted flows in Actions 45856344033. Hosted offline cold reopen/save-file restoration passed at 16:39:10 UTC; all hosted flows finished at 16:40:12 UTC. Opened actual hosted world/restored-character/offline-ready/offline-saving captures. The first hosted attempt failed on an HTTP 503 for one cloak atlas; rerunning only the failed deploy job reused the exact published source and passed, without changing code, assertions or deadlines. Release history retains source/hash and detailed limits.
+
+Removed `game/test/painted-release-session.json`; normal selection is restored and all 56 workflow/protocol checks passed. The full non-publishing follow-up is queued separately from the completed authorized session release; it does not block the playable published build or claim exhaustive coverage already ran. Historical pilot holds and pending statements above describe superseded intermediate checkpoints, not the completed production rollout.

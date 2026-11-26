@@ -1,6 +1,6 @@
 # Painted character replay
 
-Status: the continuous fitted-model replacement is authorized for the full production rollout. The assembled-part implementation retained below is rejected historical tooling. Current publication and verification evidence belongs to `game/docs/plans/2026-11-26-painted-character-system.md`.
+Status: the continuous fitted-model replacement is published at `0090c89`. The assembled-part implementation retained below is rejected historical tooling. Current publication and verification evidence belongs to `game/docs/plans/2026-11-26-painted-character-system.md`.
 
 ## Production fitted-model pipeline
 
