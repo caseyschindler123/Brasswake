@@ -49,34 +49,36 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
     }
     finally{for(const key of keys.slice().reverse())await page.keyboard.up(key);}
   };
-  const walkUntil=async(keys,label,leave=false,running=false)=>{
+  const walkUntil=async(key,label,leave=false,stickMove=null)=>{
     // Observe the public control every rendered frame and release immediately.
     // Browser-protocol polling adds wall time and can miss an interaction lane.
-    keys=Array.isArray(keys)?keys:[keys];let reached=false;
+    let reached=false;
     const mouse=page.mouse;
     try{
-      if(running){
+      if(stickMove){
         const stick=page.locator('.movement-joystick'),box=await stick.boundingBox();
         if(!box)throw Error('Movement joystick is not visible');
         await expect(stick).toHaveAttribute('aria-disabled','false');
         await stick.evaluate(n=>n.addEventListener('pointerdown',e=>n.dataset.arrivalPointer=String(e.pointerId),{once:true}));
         const x=box.x+box.width/2,y=box.y+box.height/2;
-        await mouse.move(x,y);await mouse.down();await mouse.move(x+box.width*.42,y);
-        await expect(stick).toHaveAttribute('data-mode','run');
-      }else for(const key of keys)await page.keyboard.down(key);
-      reached=await page.evaluate(({keys,label,leave,running})=>new Promise(resolve=>{
+        const radius=Math.min(box.width,box.height)/2;
+        const distance=radius*(stickMove.run ? .84 : .54)/Math.hypot(stickMove.dx,stickMove.dy);
+        await mouse.move(x,y);await mouse.down();await mouse.move(x+stickMove.dx*distance,y+stickMove.dy*distance);
+        await expect(stick).toHaveAttribute('data-mode',stickMove.run?'run':'walk');
+      }else await page.keyboard.down(key);
+      reached=await page.evaluate(({key,label,leave,joystick})=>new Promise(resolve=>{
         const deadline=performance.now()+8000;
         const tick=now=>{
           const n=document.querySelector('#ctx'),matches=!n.hidden&&n.getClientRects().length>0&&n.textContent===label;
           if(matches!==leave||now>=deadline){
-            for(const key of keys)window.dispatchEvent(new KeyboardEvent('keyup',{key}));
-            if(running){const stick=document.querySelector('.movement-joystick');stick.dispatchEvent(new PointerEvent('pointercancel',{pointerId:+stick.dataset.arrivalPointer}));}
+            if(joystick){const stick=document.querySelector('.movement-joystick');stick.dispatchEvent(new PointerEvent('pointercancel',{pointerId:+stick.dataset.arrivalPointer}));}
+            else window.dispatchEvent(new KeyboardEvent('keyup',{key}));
             resolve(matches!==leave);return;
           }
           requestAnimationFrame(tick);
         };requestAnimationFrame(tick);
-      }),{keys,label,leave,running});
-    }finally{if(running)await mouse.up();else for(const key of keys.slice().reverse())await page.keyboard.up(key);}
+      }),{key,label,leave,joystick:!!stickMove});
+    }finally{if(stickMove)await mouse.up();else await page.keyboard.up(key);}
     if(reached)return;
       // Zero means an unlimited assertion wait, masking a blocked route until
       // the whole test expires. Preserve the bounded visible-control probe.
@@ -84,7 +86,7 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
         if(location.hostname!=='localhost')return null;const {P,map}=Scene.debug();
         return {player:[P.x,P.y,P.fx,P.fy],people:map.ents.filter(e=>e.shipPerson).map(e=>({name:e.name,at:[e.x,e.y,e.fx,e.fy]})),control:document.querySelector('#ctx').textContent};
       });
-      if(diagnostic)console.log('Visible ship probe: '+JSON.stringify({keys,label,leave,...diagnostic}));
+      if(diagnostic)console.log('Visible ship probe: '+JSON.stringify({key,label,leave,stickMove,...diagnostic}));
       await expect(page.locator('#ctx')).toBeVisible({timeout:1});
       if(leave)await expect(page.locator('#ctx')).not.toHaveText(label,{timeout:1});
       else await expect(page.locator('#ctx')).toHaveText(label,{timeout:1});
@@ -111,7 +113,7 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
     await pulse('ArrowUp',1400);
     // Run this long clear leg through the visible joystick. Even at very low
     // frame throughput it must reach the same adjacent Talk control in 8 s.
-    await walkUntil('ArrowRight','Talk: Tamsin',false,true);
+    await walkUntil(null,'Talk: Tamsin',false,{dx:1,dy:0,run:true});
   }else await shipApproach(page,'shipPerson');await expect(page.locator('#ctx')).toHaveText('Talk: Tamsin');if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();
   await expect(page.locator('#onboard')).toContainText('teaches SQL');
   if(screenshot)await screenshot(page,info,'meet-tamsin-on-deck');
@@ -122,8 +124,11 @@ async function fullArrival(page,info,screenshot,{name='New Reader',origin='sunsp
     // Reacquire Tamsin from her right to align with the one-tile gangplank.
     await expect(page.locator('#ctx')).toBeVisible();await expect(page.locator('#ctx')).toHaveText('Talk: Tamsin');
     await walkUntil('ArrowRight','Talk: Tamsin',true);await pulse('ArrowRight',250);
-    await walkUntil('ArrowDown','Talk: Tamsin');await pulse('ArrowDown',250);
-    await walkUntil('ArrowRight','Step ashore');
+    await walkUntil('ArrowDown','Talk: Tamsin');
+    // Reach the rail from above the plank's midpoint. Diagonal thumb input
+    // then slides south at the rail and east along the sides of the plank.
+    await pulse('ArrowRight',1000);
+    await walkUntil(null,'Step ashore',false,{dx:1,dy:1});
   }else await shipApproach(page,'shipExit');
   if(screenshot)await screenshot(page,info,'gangplank-arrival');
   await expect(page.locator('#ctx')).toHaveText('Step ashore');if(info.project.use.hasTouch)await page.locator('#ctx').tap();else await page.locator('#ctx').click();
