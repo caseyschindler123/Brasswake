@@ -146,7 +146,8 @@ test('living world · returning to characters retires house placement and dojo k
 test('living world · rebuilt walk and run preserve adult heads, planted feet and flight in every outfit and direction',async({page},info)=>{
   const errors=observeErrors(page),f=await scene(page);
   const result=await f.evaluate(async()=>{
-    Scene.pause();const debug=Scene.debug(),base={...__bw.HOST.app(),hair:-1,hat:-1,beard:-1,wpn:-1,shield:-1,fx:null},failures=[],sample=[];
+    // Clear fitted gear as well as legacy indices for the head-only comparison.
+    Scene.pause();const debug=Scene.debug(),base={...__bw.HOST.app(),hair:-1,hat:-1,beard:-1,wpn:-1,shield:-1,gear:null,fx:null},failures=[],sample=[];
     // Warm only the fitting under review so the bounded asset cache can retire
     // prior outfits without substituting an idle frame into a motion check.
     const readySprite=async a=>{let s;while(!(s=debug.humanSprite(a))||s.w8[0][0]?.gait!=='walk'||s.r8[0][0]?.gait!=='run')await new Promise(requestAnimationFrame);return s;};
@@ -183,9 +184,7 @@ test('living world · rebuilt walk and run preserve adult heads, planted feet an
       for(const direction of [0,6,7]){
         const width=(running,k)=>{
           const dressed=(running?s.r8:s.w8)[direction][k],plain=(running?debug.humanSprite({...base,combo}).r8:debug.humanSprite({...base,combo}).w8)[direction][k];
-          const art=ArtData.painted,body=art&&art.combos[CharacterProfiles.index({...base,combo})],source=art&&PaintedCharacterView.sourceDirection(direction,art),angle=body?.states[running?'run':'walk'].frames[source][k].angle||0;
-          // Undo authored head tilt before comparing size across different poses.
-          const canvases=[dressed,plain].map(im=>{const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d'),x=64-im.originX+im.anchor[1],y=96-im.originY+im.anchor[0];g.translate(x,y);g.rotate(-angle);g.translate(-x,-y);g.drawImage(im,64-im.originX,96-im.originY);return g.getImageData(0,0,128,128).data;});
+          const canvases=[dressed,plain].map(im=>{const c=document.createElement('canvas');c.width=c.height=128;c.getContext('2d').drawImage(im,64-im.originX,96-im.originY);return c.getContext('2d').getImageData(0,0,128,128).data;});
           const end=Math.min(128,Math.ceil(96-dressed.originY+dressed.anchor[0]+13));let left=128,right=0;
           for(let y=0;y<end;y++)for(let x=0;x<128;x++){const i=(y*128+x)*4,a=canvases[0],b=canvases[1];if(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2])+Math.abs(a[i+3]-b[i+3])>16){left=Math.min(left,x);right=Math.max(right,x);}}
           return right-left;
