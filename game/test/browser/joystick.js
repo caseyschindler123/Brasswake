@@ -310,3 +310,32 @@ test('joystick · slower gaits keep travel, contact sounds and distance events s
   }finally{if(holding)await driver.end();await frame.evaluate(()=>{Sound.sfx=__gaitOriginalSound;__bw.HOST.moved=__gaitOriginalMoved;delete window.__gaitOriginalSound;delete window.__gaitOriginalMoved;});}
   expect(errors).toEqual([]);
 });
+
+
+test('joystick · painted bodies and fitted gear face the direction of travel',async({page},info)=>{
+  const errors=observeErrors(page),{frame}=await adventure(page);
+  const result=await frame.evaluate(async()=>{
+    const base={...__bw.HOST.app(),combo:5,build:0,wpn:-1,shield:-1,hat:-1,gear:{cloak:'cloak-wool',hands:'hands-plated',feet:'feet-steel'}},
+      directions=[0,7,6,5,4,3,2,1],body=ArtData.painted.combos[5],canvas=document.createElement('canvas');
+    canvas.width=960;canvas.height=400;const g=canvas.getContext('2d');g.fillStyle='#eadbbd';g.fillRect(0,0,960,400);g.font='15px sans-serif';g.fillStyle='#302a21';
+    let sprite;for(let n=0;n<100;n++){sprite=Scene.debug().humanSprite(base);if(sprite)break;await new Promise(r=>setTimeout(r,30));}if(!sprite)throw Error('Facing sprite unavailable');
+    const failures=[];let checked=0;
+    for(const [row,state]of ['walk','run'].entries())for(let direction=0;direction<8;direction++){
+      const bank=body.states[state],expected=bank.frames[directions[direction]],images=state==='run'?sprite.r8:sprite.w8;
+      for(const k of [0,6,12,18]){
+        let image;for(let n=0;n<100;n++){image=images[direction][k];if(image?.gait===state&&!image.pendingParts)break;await new Promise(r=>setTimeout(r,30));}
+        if(image?.gait!==state||image.pendingParts)throw Error('Facing frame unavailable');
+        for(let foot=0;foot<2;foot++)for(let axis=0;axis<2;axis++){
+          const actual=image.feet[foot][axis]-(axis?image.originY:image.originX),wanted=expected[k].feet[foot][axis]-expected[k].origin[axis];
+          if(Math.abs(actual-wanted)>.001)failures.push({state,direction,k,foot,axis,actual,wanted});
+        }
+        if(k===6){const x=direction*120+60,y=row*200+180;g.fillText(state+' '+['S','SW','W','NW','N','NE','E','SE'][direction],direction*120+15,row*200+20);g.drawImage(image,x-image.originX*2,y-image.originY*2,image.width*2,image.height*2);}
+        checked++;
+      }
+    }
+    return{failures,checked,data:canvas.toDataURL()};
+  });
+  expect(result.failures).toEqual([]);expect(result.checked).toBe(64);
+  const path=info.outputPath('painted-facing-directions.png');await require('node:fs/promises').writeFile(path,Buffer.from(result.data.split(',')[1],'base64'));await info.attach('painted-facing-directions',{path,contentType:'image/png'});
+  await screenshot(page,info,'painted-facing-world');expect(errors).toEqual([]);
+});

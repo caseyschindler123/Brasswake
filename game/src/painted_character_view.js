@@ -19,6 +19,8 @@ const PaintedCharacterView = (() => {
       const light=Math.max(0,Math.min(255,Math.round(pixels[i]*.2126+pixels[i+1]*.7152+pixels[i+2]*.0722))),mapped=colors[light];for(let c=0;c<3;c++)pixels[i+c]=pixels[i+c]*.08+mapped[c]*.92;
     }return pixels;
   }
+  /* Camera yaw labels differ from clockwise screen-facing indices. */
+  function sourceDirection(direction,art){return art?.sourceDirections?.indexOf(direction)??direction;}
   function state(a,row){let value=row===23?'sit':row===22?'block':row===20?'hit':row===19?'fall':row<0?'idle':row<5?'walk':row<10?'run':row<13?'swing':row<16?'thrust':'cast';
     if(['swing','thrust','cast'].includes(value)){if(a.wpn===27||a.wkind==='crossbow')value='crossbow';else if(a.wkind==='bow')value='bow';else if(a.wkind==='book')value='book';else if(value!=='cast'&&['long','staff'].includes(a.wkind))value+='two';}return value;
   }
@@ -33,6 +35,6 @@ const PaintedCharacterView = (() => {
       let fit=scale;for(const x of [bounds[0],bounds[2]])for(const y of [bounds[1],bounds[3]]){const dx=((x-grip[0])*c-(y-grip[1])*s)*(flip?-1:1),dy=(x-grip[0])*s+(y-grip[1])*c;fit=Math.min(fit,dx>0?(293-hand[0])/dx:dx<0?(hand[0]-7)/-dx:Infinity,dy>0?(443-hand[1])/dy:dy<0?(hand[1]-7)/-dy:Infinity);}return{flip,scale:Math.max(0,fit)};
     });return candidates[0].scale>=scale?candidates[0]:candidates.sort((a,b)=>b.scale-a.scale)[0];
   }
-  return{tintPixels,state,slotSources,component,fitCarry,dyePalette:dye};
+  return{tintPixels,state,sourceDirection,slotSources,component,fitCarry,dyePalette:dye};
 })();
 if(typeof module!=='undefined')module.exports=PaintedCharacterView;

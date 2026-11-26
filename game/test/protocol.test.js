@@ -322,7 +322,7 @@ test('workflow YAML rejects duplicate keys and preserves baseline/publication wi
   assert.equal(jobs.deploy.steps.find(s=>s.run==='node test/live.js').env.BW_SELECTION,'${{ needs.core.outputs.plan }}');
 });
 test('painted session requires a matching active main push and retains full core/hosted gates',()=>{
-  const record=loadSession(),candidate='e'.repeat(40),previous='d'.repeat(40);
+  const active=loadSession(),record=active?.id==='painted-characters-2026-11-26'?active:null,candidate='e'.repeat(40),previous='d'.repeat(40);
   const productionBody='game/art/painted-release/body-30-crossbow.webp';
   const files=[SESSION_FILE,'game/build.js','game/src/painted_gear.js','game/art/paintedgear/gear.webp',
     productionBody,'game/art/painted-release/body-5-hands-hands-plated-block.webp',
@@ -371,6 +371,43 @@ test('painted session requires a matching active main push and retains full core
     const normal=simulate(opts);assert.equal(normal.tier,'full',JSON.stringify(opts));assert.deepEqual(normal.suites,ALL_SUITES);
   }
   assert.throws(()=>webkitGrep('wrong-release'),/Unknown/);
+});
+test('facing hotfix session binds the exact baseline, window, changed paths and core groups',()=>{
+  const record=loadSession(), id='painted-facing-hotfix-2026-11-26';
+  if (record?.id!==id) {
+    assert.throws(()=>webkitGrep(id),/unavailable/);
+    return;
+  }
+  const candidate='a'.repeat(40),previous='b'.repeat(40),base=record.publishedBase;
+  const sources=['game/src/painted_character_view.js','game/src/scene_b.js'];
+  const files=[SESSION_FILE,...sources,'game/test/browser/joystick.js','game/test/painted-character.test.js','game/test/select-tests.js'];
+  const pkg=fs.readFileSync(path.join(__dirname,'../package.json'),'utf8');
+  const lock=fs.readFileSync(path.join(__dirname,'../package-lock.json'),'utf8');
+  const simulate=(delta=files,reference=base,now=Date.parse(record.startsAt)+1000)=>selection({
+    now, assertOrder:(published,head)=>assert.deepEqual([published,head],[reference,candidate]),
+    env:{CI:'true',GITHUB_EVENT_NAME:'push',GITHUB_REF:'refs/heads/main',BW_DIFF_BASE:previous,
+      BW_RELEASE_BASE:reference,BW_RELEASE_VERIFIED:'true'},
+    runGit:(...args)=>{
+      if(args[0]==='rev-parse')return candidate;
+      if(args[0]==='diff')return (args[4]===previous||args[4]===reference?delta:[]).join('\0')+'\0';
+      if(args[0]==='show')return args[1].endsWith('package-lock.json')?lock:pkg;
+      return '';
+    },
+  });
+  const selected=simulate();
+  assert.equal(selected.tier,'session');
+  assert.deepEqual(selected.coreGroups,['assets','actors','build','protocol']);
+  assert.deepEqual(selected.suites,['canary','scenes','arming','joystick','appearance-materials']);
+  assert.equal(validSelection(selected),true);
+  assert.deepEqual(liveSuites(selected),LIVE_SUITES);
+  for(const coreGroups of [['all'],['assets','build','protocol'],['actors']])
+    assert.equal(validSelection({...selected,coreGroups}),false);
+  for(const full of [simulate(files,'d'.repeat(40)),simulate(files,base,Date.parse(record.expiresAt)),
+    ...sources.map(file=>simulate(files.filter(f=>f!==file))),
+    ...['game/src/game.js','game/build.js','game/package-lock.json','game/art/paintedgear/gear.webp','game/art/readme.md'].map(file=>simulate([...files,file]))]){
+    assert.equal(full.tier,'full');
+    assert.deepEqual(full.suites,ALL_SUITES);
+  }
 });
 function listSuites(suites,{live=false,session}={}){
   const env={...process.env,[live?'BW_LIVE_SUITES':'BW_UI_SUITES']:JSON.stringify(suites)};

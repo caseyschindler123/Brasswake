@@ -158,9 +158,12 @@ function selection({ forceFull = false, env = process.env, runGit = git, assertO
     return { ...chooseUI({...normal,scope:'full'}), reason:'Session release profile did not match verified scope; complete verification selected.', base, coverageBase, files };
   if (session) {
     const { SCENES } = require('./scope-policy');
-    return { ...selected, tier:'session', core:true, ui:true, coreGroups:['all'],
-      suites:normalizeSuites(loadSession().chromiumSuites), scenes:SCENES.slice(), sceneProfiles:CHROMIUM.slice(),
-      reason:'Approved painted-character session: full core, focused Chromium and critical WebKit, with full hosted verification.',
+    const profile=loadSession();
+    return { ...selected, tier:'session', core:true, ui:true, coreGroups:profile.coreGroups,
+      suites:normalizeSuites(profile.chromiumSuites), scenes:SCENES.slice(), sceneProfiles:CHROMIUM.slice(),
+      reason:profile.coreGroups.includes('all')
+        ? 'Approved painted-character session: full core, focused Chromium and critical WebKit, with full hosted verification.'
+        : 'Approved facing hotfix session: affected core and browser suites, with full hosted verification.',
       sessionProfile:session, base, coverageBase, files:[...new Set([...files,...currentFiles])] };
   }
   return { ...selected, base, coverageBase, files };

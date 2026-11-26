@@ -1,0 +1,13 @@
+{
+  "id": "painted-facing-hotfix-2026-11-26",
+  "publishedBase": "0090c8926a0b1baa58bb53f6908c9c40e42d564f",
+  "startsAt": "2026-11-26T16:52:00.000Z",
+  "expiresAt": "2026-11-26T17:30:00.000Z",
+  "chromiumSuites": ["canary", "scenes", "arming", "joystick", "appearance-materials"],
+  "webkitTests": [
+    "release canary: boot, real SQL and device persistence",
+    "joystick · painted bodies and fitted gear face the direction of travel",
+    "joystick · slower gaits keep travel, contact sounds and distance events synchronized",
+    "paper doll in hero and appearance reflects equip, unequip, legacy gear and reload"
+  ]
+}

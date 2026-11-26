@@ -40,6 +40,30 @@ test('equipment selects complete coordinated action poses',()=>{
   assert.equal(View.state({},23),'sit');assert.equal(View.state({},22),'block');assert.equal(View.state({},20),'hit');assert.equal(View.state({},19),'fall');
 });
 
+test('painted body and equipment banks match logical world headings',()=>{
+  const {painted}=vm.runInNewContext(read('game/src/artpainted.js').toString()+';ArtData;',{ArtData:{},atob});
+  const moves=[[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0],[1,1]];
+  const body=painted.combos[1], cloak=painted.slots[0].cloak['cloak-wool'];
+  for(const [heading,[dx,dy]] of moves.entries()){
+    assert.equal(NPC.direction(dx,dy),heading);
+    const source=View.sourceDirection(heading,painted);
+    assert.equal(painted.sourceDirections[source],heading,'atlas heading '+heading);
+    for(const [state,bank] of Object.entries(body.states)){
+      const frame=bank.frames[source][0], layer=cloak.states[state].frames[source][0];
+      assert.deepEqual(layer.head,frame.head,state+' cloak alignment at heading '+heading);
+    }
+    for(const state of ['walk','run']){
+      const cycle=body.states[state].frames[source];
+      // Summing both feet across the cycle separates the facing from individual foot turns.
+      const toes=cycle.reduce(([x,y],{sockets:{leftFoot,rightFoot}})=>[
+        x+leftFoot.axis[0]+rightFoot.axis[0],y+leftFoot.axis[1]+rightFoot.axis[1],
+      ],[0,0]).map(sum=>sum/cycle.length);
+      if(dx)assert.ok(toes[0]*dx>.45,state+' toes must point along horizontal heading '+heading);
+      if(dy)assert.ok(toes[1]*dy>.45,state+' toes must point along vertical heading '+heading);
+    }
+  }
+});
+
 test('independent gloves and boots select the matching fitted profile and keep cloth dye separate',()=>{
   const palette={shadow:'#263c51',mid:'#6885a0',light:'#d3e4f0'},a={combo:7,build:2,skin:1,cloth:'#cc2255',handMaterial:{family:'metal',palette},footMaterial:{family:'leather',palette}};
   assert.deepEqual(View.slotSources(a),[{id:8,index:30,outfit:4},{id:9,index:28,outfit:2}]);

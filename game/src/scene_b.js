@@ -160,10 +160,10 @@
     PaintedGear.withHead(g,a,frame,{direction,paper},()=>{g.save();if(pair[1]){g.translate(an[1]*2,0);g.scale(-1,1);}HeadPortraits.draw(g,{body:sex,style:a.headStyle,hair:a.hair,beard:a.beard,skin:a.skin,hc:a.hc,direction:pair[0],angle:(frame.angle||0)*(pair[1]?-1:1)},an);g.restore();});
   }
   function paintedFrame(a,row,k,sr){
-    const H=AD.painted,body=paintedBody(a),state=PaintedCharacterView.state(a,row),bank=body.states[state];
+    const H=AD.painted,body=paintedBody(a),state=PaintedCharacterView.state(a,row),bank=body.states[state],source=PaintedCharacterView.sourceDirection(sr,H);
     if(!paintedAsset(bank.file).ok)return state==='idle'?null:paintedFrame(a,-1,0,sr);
-    const layers=PaintedCharacterView.slotSources(a).map(slot=>{const b=paintedSlotBank(slot).states[state];return{...slot,file:b.file,frame:b.frames[sr][k%b.frames[sr].length],ready:paintedAsset(b.file).ok};}),covered=new Set(layers.filter(l=>l.ready&&l.id!==10).map(l=>l.id));
-    const frame=bank.frames[sr][k%bank.frames[sr].length],raw=paintedPixels(bank.file,frame),bodyImage=paintedLayer(bank.file,frame,a,null,covered),c=mk(H.width,H.height),g=c.getContext('2d'),gearOptions={direction:sr,state,phase:k/Math.max(1,bank.frames[sr].length-1)};
+    const layers=PaintedCharacterView.slotSources(a).map(slot=>{const b=paintedSlotBank(slot).states[state];return{...slot,file:b.file,frame:b.frames[source][k%b.frames[source].length],ready:paintedAsset(b.file).ok};}),covered=new Set(layers.filter(l=>l.ready&&l.id!==10).map(l=>l.id));
+    const frame=bank.frames[source][k%bank.frames[source].length],raw=paintedPixels(bank.file,frame),bodyImage=paintedLayer(bank.file,frame,a,null,covered),c=mk(H.width,H.height),g=c.getContext('2d'),gearOptions={direction:sr,state,phase:k/Math.max(1,bank.frames[source].length-1)};
     PaintedGear.drawWorld(g,a,frame,{...gearOptions,layer:'back'});g.drawImage(bodyImage,...frame.offset);
     for(const layer of layers.filter(l=>l.ready)){const image=paintedLayer(layer.file,layer.frame,paintedLayerLook(a,layer),layer.id);g.drawImage(image,...layer.frame.offset);image.width=image.height=0;}
     paintedHead(g,a,frame,body.sex,sr);PaintedGear.drawWorld(g,a,frame,{...gearOptions,layer:'front'});
