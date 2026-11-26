@@ -1,6 +1,6 @@
 # Brasswake story bible
 
-Continuity for the boat-intro/writing release verified on 2026-11-24 UTC. The targeted skilled-action introduction and portrait-menu correction shipped at `d3850c3`, verified on 2026-11-25 UTC; see the closed [polish plan](plans/2026-11-24-animation-and-world-polish.md). The runtime rules and release evidence live in `02_GAMEPLAY.md` and the implementation plan. The writing standard lives in `04_WRITING_STYLE.md`.
+Continuity for the boat-intro/writing release verified on 2026-11-24 UTC. The targeted skilled-action introduction and portrait-menu correction shipped at `d3850c3`, verified on 2026-11-25 UTC; see the closed [polish plan](plans/2026-11-24-animation-and-world-polish.md). The new-player boat orientation and regional dojo teaching are released at `cb5546e`, verified on 2026-11-26 UTC; see [release history](RELEASE_HISTORY.md#new-player-onboarding-regional-sql-practice-and-subtle-footsteps). The runtime rules live in `02_GAMEPLAY.md`. The writing standard lives in `04_WRITING_STYLE.md`.
 
 ## Synopsis
 
@@ -103,7 +103,7 @@ Dregan Vosk tries to get a rise out of Tallyport's replacement. Sister Calloway 
 
 ## Decision log
 
-- 2026-11-26: The onboarding/dojo candidate removes the new-character homeland choice in favor of Sunspire while retaining legacy origins. The impossible passage, its evidence and later payoff are unchanged. Tamsin introduces the complete tray aboard; local dojo fighters teach SQL safely without replacing their tournament roles. Publication evidence belongs to the new-player plan and release history.
+- 2026-11-26: The released onboarding/dojo update removes the new-character homeland choice in favor of Sunspire while retaining legacy origins. The impossible passage, its evidence and later payoff are unchanged. Tamsin introduces the complete tray aboard; local dojo fighters teach SQL safely without replacing their tournament roles. Verified publication evidence is linked from the closed new-player plan and release history.
 
 - 2026-11-24: The verified SQL-power release updates Odalys's mechanical explanation and battle help: query results set power while weapon skill determines accuracy. Keep the distinction in the world rules; story, characters and historical facts are unchanged.
 
