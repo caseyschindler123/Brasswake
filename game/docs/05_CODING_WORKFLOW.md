@@ -1,6 +1,6 @@
 # Automatic coding and release workflow
 
-Last updated: 2026-11-25. Scope-based testing and local development scenarios are implemented. The [implementation plan](plans/2026-11-25-scope-based-testing-and-dev-mode.md) records evidence and limitations. Current code owns executable behavior; historical decisions below describe earlier gates.
+Last updated: 2026-11-26. Scope-based testing and local development scenarios are implemented. The [implementation plan](plans/2026-11-25-scope-based-testing-and-dev-mode.md) records evidence and limitations. Current code owns executable behavior; historical decisions below describe earlier gates.
 
 ## Classify and scope
 
