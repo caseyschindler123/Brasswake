@@ -10,7 +10,7 @@ const INTRO_START = '2026-11-26T22:40:00.000Z', INTRO_EXPIRY = '2026-11-27T00:40
 const introCode = ['game/src/game.js','game/src/style.css','game/src/scene_b.js'];
 const introAllowed = new Set([FILE,...introCode,'game/test/release-session.js','game/test/select-tests.js',
   'game/playwright.config.js','game/test/protocol.test.js','game/test/browser/intro-helper.js',
-  'game/test/browser/learning-boundaries.js','game/test/browser/living-world.js']);
+  'game/test/browser/learning-boundaries.js','game/test/browser/living-world.js','game/test/browser/prologue.js']);
 const introSuites = ['canary','playability','first-day','prologue','living-world'];
 const introTests = [
   'release canary: boot, real SQL and device persistence',

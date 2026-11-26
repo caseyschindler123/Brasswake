@@ -17,3 +17,5 @@ Three pre-existing full-check failures were reproduced and repaired: safely labe
 - [ ] Remove activation, restore normal selection and dispatch full non-publishing checks. Track them through completion and repair actual failures without weakening assertions.
 
 No art regeneration, save format change or paid action is involved. Browser emulation does not establish physical iPhone testing.
+
+Candidate `0641bdd`, Actions 45906473900, passed affected core and both Chromium profiles but was correctly held by WebKit: the burst-frame arrival exceeded its existing 60-second budget after added layout probes/captures, and rapid checkpoint navigation cancelled title music. Keep the new visibility regression in ordinary arrival/checkpoint flows, retain the original stress-flow checks without duplicate instrumentation, and settle actual title requests before intentional unloads. No deadline, error assertion, case selection or retry policy is relaxed. Require a fresh exact-commit targeted gate.
