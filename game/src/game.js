@@ -1180,7 +1180,7 @@
     const errands = Object.values(S.er.a || {});
     const jobs = errands.length ? `<div class="card"><h2>Errands</h2><ul class="tale plain">${errands.map(a => `<li>${esc(a.what)} <small>${esc(a.from)} · ${errandProg(a)} · ${a.gold} gold</small><button class="btn sm quiet" data-a="erdrop" data-id="${a.id}">Drop</button></li>`).join('')}</ul></div>` : '';
     if(boatActive())return `<section class="place"><p class="eyebrow">Tamsin's sketch</p><h1>Your map</h1></section>${boatChart()}<p>The Marigold is approaching Tallyport. This is a rough coastal sketch, not your explored land map. Once ashore, walking records nearby terrain and discovered places. Surveys add detail; travel rights are earned separately.</p><p class="cap2">Legend: brass dot · Tallyport; white boat · the Marigold; dashed line · our approach. The unmarked coast is yours to explore.</p>`;
-    return `<button class="btn sm quiet" data-a="sketch">Tamsin's sketch</button>` + CMap.map() + '<p class="cap2">Legend: white dot · you; brass marks · discoveries; dark ground · not yet charted. Tap a destination in the list to set a waypoint.</p>' + jobs + homes;
+    return CMap.map() + `<button class="btn sm quiet" data-a="sketch">Tamsin's sketch</button>` + '<p class="cap2">Legend: white dot · you; brass marks · discoveries; dark ground · not yet charted. Tap a destination in the list to set a waypoint.</p>' + jobs + homes;
   }
   let sketchCache = '';
   function boatChart() {
