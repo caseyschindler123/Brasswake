@@ -1,6 +1,6 @@
 # Equipment, horses and lived-in towns
 
-Status: implementation complete; final non-publishing validation pending. Deployment explicitly held by Casey on 2026-11-25 while another agent tests live. Classification: complex. Owner: main agent; bounded equipment, settlement and mount workers. Requested as one coordinated release on 2026-11-25.
+Status: implementation and non-publishing validation complete. Deployment explicitly held by Casey on 2026-11-25 while another agent tests live. Classification: complex. Owner: main agent; bounded equipment, settlement and mount workers. Requested as one coordinated release on 2026-11-25.
 
 ## Scope and consequential risks
 
@@ -23,14 +23,14 @@ Implement all eight reviewed requests and the subsequently agreed equipment mech
 ## Milestones
 
 1. [x] Inspect worktree, read relevant instructions, establish scope and independent ownership.
-2. [x] Equipment pure rules/tests: material/quality/magic generation, migration, crafting/enchanting and exact comparison calculations. Focused rules and three-profile item/enchant flows passed; final exact-commit coverage remains.
+2. [x] Equipment pure rules/tests: material/quality/magic generation, migration, crafting/enchanting and exact comparison calculations. Focused rules, three-profile item/enchant flows and final exact-commit full coverage passed.
 3. [x] Towns: larger layouts, activity/stations, clickable sign geometry and natural/constructed terrain finish. Focused rules/three-profile flows passed, including the Highwatch legal-parcel fallback.
 4. [x] Horses: ownership/speed/context rules, directional rendering/animation and stable purchase integration. Focused three-profile riding/purchase/save/isolation flows passed; further immediate-transaction regressions added during review.
 5. [x] Shared integration: saves, item factory/combat/crafting/UI, attachment calibration, Home Screen packaging and deletion transactions.
 6. [x] Final curated stable/casino fitting source cuts and actual 390×720/1280×800 scenes opened and accepted. Earlier focused pure/runtime/browser checks and opened 390×720/desktop captures passed for equipment, mounts, settlements and deletion. Curated head creation/appearance and persistence passed phone Chromium and WebKit; full-body/collar views were opened at phone/desktop sizes. Reviewed intended diff and numerical descriptions.
 7. [x] Owning architecture/gameplay/art descriptions and dated decisions reconciled as a release candidate.
-8. [ ] Full selected core gate and exact-commit three-profile CI in non-publishing mode. Deployment and hosted verification are held by Casey; do not publish without an explicit later instruction.
-9. [ ] Record non-publishing validation evidence and limitations on the validation branch. Publication/release-history closure remains held.
+8. [x] Full selected core gate and exact-commit three-profile CI passed in non-publishing mode (184 cases per profile). Deployment and hosted verification are held by Casey; do not publish without an explicit later instruction.
+9. [x] Recorded non-publishing validation evidence and limitations on the validation branch. Publication/release-history closure remains held.
 
 ## Ownership and integration contracts
 
@@ -47,9 +47,11 @@ New-only built-in image generation may supply horse artwork if no suitable exist
 
 ## Evidence and release
 
+Current compatibility-corrected candidate: `87012b850f7c9d1724b589b072380af20b48c0ac`, [non-publishing Actions 45749383268](https://github.com/caseyschindler123/Brasswake/actions/runs/45749383268), branch `work/equipment-towns-validation`. Full core/build/protocol, including the 3 exact older-reader save regressions, and all 552 browser cases passed (184 per profile). The aggregate passed at `2026-11-26T04:28:28Z`; deployment was skipped. The retained CI selection has `release:false` and `live:false`. Casey’s deployment hold remains in force; no publication or hosted verification is authorized.
+
 Earlier non-publishing validation candidate (before the backward-reader correction): `f706ef31572b59ee2c5d556609791aad997b1245`, [Actions 45740696226](https://github.com/caseyschindler123/Brasswake/actions/runs/45740696226), branch `work/equipment-towns-validation`. Full core/build/protocol and all 552 browser cases passed (184 on each of three profiles); aggregate passed and deployment was skipped. A subsequent older-reader audit found the character-version marker incompatible, so this earlier full pass is not the final compatibility-corrected candidate. The retained selection explicitly records `release:false` and `live:false`. Deployment is held by Casey; no release or hosted verification is claimed.
 
-Artwork hold: Casey rejected the stable's procedural horse holder after the first visual acceptance. Replace it with curated painted joinery and review the other new recognizable furnishings, including gaming tables/seats. The art master and project/workflow entry points now explicitly require source/native/in-scene curation; passing browser tests never establishes visual quality. The replacement is integrated and root opened its native contact and actual phone/desktop stable, casino and dojo captures; painted joinery, transparent rail gaps, horse depth, table scale and regional rugs now meet the curation gate. Exact-commit verification/publication remain pending.
+Artwork hold: Casey rejected the stable's procedural horse holder after the first visual acceptance. Replace it with curated painted joinery and review the other new recognizable furnishings, including gaming tables/seats. The art master and project/workflow entry points now explicitly require source/native/in-scene curation; passing browser tests never establishes visual quality. The replacement is integrated and root opened its native contact and actual phone/desktop stable, casino and dojo captures; painted joinery, transparent rail gaps, horse depth, table scale and regional rugs now meet the curation gate. Exact-commit non-publishing verification passed; publication remains held by Casey.
 
 2026-11-25 development: full selected core gate passed with UI deferred. Opened face/hair/headgear, five material finishes in each main family, horse directional/alpha and gameplay captures. The improved attachment calibration is an intermediate result: Casey subsequently requested complete generated heads for coherent facial hair/hair presentation, so final art acceptance is still pending. Independent review added save-before-scene deletion, stable character identity across backups, newest-revision hot/device selection, immediate serialized cloud deletion flush and immediate mounted-context normalization. These changes retain focused regression and exact-commit CI requirements.
 
@@ -73,4 +75,12 @@ Deployment hold and protocol correction: Casey instructed “Do not deploy yet�
 
 Backward-reader compatibility correction: exact older `3e4601a` and `e6075e4` load/save/cartography code rejected the candidate character-v9 tag and autosaved blank characters into the unchanged account-v9 key. Retagging only outgoing records as v8 preserved both worlds, banks, story, weapons, UID and horses. Retain the compatible v8 envelope for additive fields, continue accepting v5–v9 (recover unpublished v9 drafts), and keep item metadata at its own v1. Add an actual-runtime regression and rerun required non-publishing validation. Existing stale-memory multi-tab/offline conflict behavior is separate and remains a documented limit. No deployment is authorized.
 
-Compatibility correction focused evidence: 3/3 exact-current/older-runtime save regressions passed, including both older boot/autosave rewrites and v9-draft normalization. Twelve current-format browser migration/shared-player-flow cases passed across all three profiles; 52 protocol checks and 8 focused compatibility/deletion/resources checks passed. New character writes use v8; optional feature data and item metadata remain intact. Final exact-commit full validation will remain non-publishing.
+Compatibility correction focused evidence: 3/3 exact-current/older-runtime save regressions passed, including both older boot/autosave rewrites and v9-draft normalization. Twelve current-format browser migration/shared-player-flow cases passed across all three profiles; 52 protocol checks and 8 focused compatibility/deletion/resources checks passed. New character writes use v8; optional feature data and item metadata remain intact. Final exact-commit full validation passed in non-publishing mode.
+
+## Completed implementation and held publication
+
+- Validated game/test source: `87012b850f7c9d1724b589b072380af20b48c0ac`; [Actions 45749383268](https://github.com/caseyschindler123/Brasswake/actions/runs/45749383268), completed `2026-11-26T04:28:28Z` UTC. Full core/build/protocol and all 552 browser cases passed, including complete profession journeys. Phone Chromium: 184/184; desktop Chromium: 184/184; phone WebKit: 184/184. Aggregate passed; deploy was skipped. The actual selection records `release:false` and `live:false`.
+- Implementation and verification are complete on `work/equipment-towns-validation`. Further executable changes, including the backward-reader compatibility fix, remain on this branch and must be integrated before any future publication. Documentation-only closure does not change the validated game output. Do not merge/push executable changes to main or deploy without Casey’s explicit later instruction.
+- Native/phone/desktop art curation and deterministic packing passed; 624 packed records match, with all 617 preexisting asset records unchanged. The current character-v8/account-v9 envelope preserves additive metadata in the exact two older readers and recovers unpublished v9 drafts.
+- No release, hosted commit/HTML hash or hosted player-flow result is claimed. Physical-iPhone installation/audio/touch and independently played stale-memory multi-tab/offline conflicts remain unverified/existing limits. Publication and its RELEASE_HISTORY entry are intentionally held, not an unfinished implementation task.
+- On an explicit later publication request, reconcile the branch with current main without overwriting concurrent work, follow the canonical exact-commit publication gate, verify hosted identity/HTML and relevant player flows, and then record release history.
