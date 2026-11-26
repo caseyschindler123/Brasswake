@@ -74,12 +74,14 @@ test('legacy errand sites and lairs retain their IDs and walkable approaches', a
         return map.seen[i] && !map.solid[i] && map.t[i] !== 4 && map.reg[i] === site.r;
       })).map(site => site.id);
     const leaders = map.terr.filter(territory => territory.lair && territory.lead).map(territory => territory.lair).sort();
-    return { actual, expected, unreachable, leaders };
+    const crossBorderLairs = sites.filter(site => site.kind === 'lair' && map.reg[site.y*map.w+site.x] !== site.r).map(site => site.id);
+    return { actual, expected, unreachable, crossBorderLairs, leaders };
   });
   expect(report.actual).toEqual(report.expected);
   expect(report.actual.home).toHaveLength(56);
   expect(report.actual.lair).toHaveLength(16);
   expect(report.unreachable).toEqual([]);
+  expect(report.crossBorderLairs).toEqual([]);
   expect(report.leaders).toEqual(report.expected.lair);
   expect(errors).toEqual([]);
 });

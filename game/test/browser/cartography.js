@@ -370,11 +370,27 @@ test('cartography · the Grand Atlas is a single installed household feature gat
   await closeSheet(frame);
 
   const home = await frame.evaluate(() => {
-    const [x, y] = Scene.towns()[1];
-    const h = { id: 'h-atlas', name: 'Atlas Cottage', r: 1, x: x + 55, y: y - 38, w: 6, h: 4,
+    const [cx, cy] = Scene.towns()[1], {world:m} = Scene.debug();
+    const width = 6, height = 4, lairs = Scene.sites().filter(s => s.kind === 'lair');
+    const plots = [];
+    for (let y = cy-60; y <= cy+45; y++) for (let x = cx+32; x <= cx+76; x++) {
+      if (m.reg[y*m.w+x] !== 1 || lairs.some(s => Math.hypot(s.x-x-width/2,s.y-y-height/2) < 15)) continue;
+      plots.push({x,y,score:Math.abs(x-(cx+55))+Math.abs(y-(cy-38))});
+    }
+    plots.sort((a,b) => a.score-b.score);
+    // A separate discovery lesson must not interrupt the actual keyboard walk.
+    const at = plots.find(({x,y}) => {
+      for (let yy=y-5; yy<=y+height+1; yy++) for (let xx=x-1; xx<=x+width; xx++) {
+        const i=yy*m.w+xx;
+        if (!m.seen[i] || m.solid[i] || m.keep[i] || m.t[i]>1 || m.occ.has(i) || Geography.inTown(xx,yy,4)) return false;
+      }
+      return !Scene.homeFits(x,y,width,height);
+    });
+    if (!at) throw Error('No legal Atlas Cottage parcel clear of lair lessons');
+    const h = { id: 'h-atlas', name: 'Atlas Cottage', r: 1, x: at.x, y: at.y, w: width, h: height,
       shape: 9, mat: 1, wall: '#8c7858', roof: '#633a2c', chest: [] };
     __bw.S.homes.push(h);
-    Scene.restoreHomes(__bw.S.homes);
+    if (Scene.restoreHomes(__bw.S.homes)) throw Error('The Atlas Cottage moved off the selected parcel');
     __bw.CMap.restore();
     return h;
   });

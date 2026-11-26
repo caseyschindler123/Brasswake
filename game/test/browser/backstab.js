@@ -34,11 +34,11 @@ async function dismiss(frame) {
   if (await coach.isVisible()) await coach.click();
 }
 
-async function fixture(page, { kind = 'mon', region = 1, elite = true } = {}) {
+async function fixture(page, { kind = 'mon', region = 1, elite = true, fencing = 40 } = {}) {
   await page.goto('/__visual?scene=tallyport');
   await expect(page.locator('body')).toHaveAttribute('data-ready', 'tallyport', { timeout: 45000 });
   const frame = page.frames().find(f => f.url().includes('visual_test=1'));
-  const lane = await frame.evaluate(({ kind, region, elite }) => {
+  const lane = await frame.evaluate(({ kind, region, elite, fencing }) => {
     Sound.setMu(false);
     window.__bwFast = true;
     const s = __bw.S, blade = __bw.makeItem('common', 1, 'weapon', 'fencing');
@@ -46,7 +46,7 @@ async function fixture(page, { kind = 'mon', region = 1, elite = true } = {}) {
     s.inv = [blade];
     s.eq = { weapon: blade.id };
     s.pages = { a1: 1, h1: 1 };
-    s.sk = { fencing: 40, hiding: 40, stealth: 10 };
+    s.sk = { fencing, hiding: 40, stealth: 10 };
     s.skillModes = { stealth: 'lock' };
     s.stamina = 35;
     s.hp = __bw.maxHp();
@@ -92,7 +92,7 @@ async function fixture(page, { kind = 'mon', region = 1, elite = true } = {}) {
       return { x, y, length };
     }
     throw Error('No open pursuit lane for ' + kind);
-  }, { kind, region, elite });
+  }, { kind, region, elite, fencing });
   await dismiss(frame);
   return { frame, lane };
 }
@@ -355,7 +355,8 @@ async function prepareEscapeRun(frame, target) {
 
 test('Backstab · Examiner pursuit, escape and re-entry keep wounds and the next SQL phase', async ({ page }, info) => {
   test.setTimeout(90000);
-  const errors = observeErrors(page), { frame, lane } = await fixture(page, { kind: 'boss' });
+  // Keep the minimum-roll finish clear of the damage rounding boundary when combat snapshots pre-practice skill.
+  const errors = observeErrors(page), { frame, lane } = await fixture(page, { kind: 'boss', fencing: 44 });
   const { x, y, length } = lane;
   await hideAndApproach(frame, lane);
   await engage(frame, true);

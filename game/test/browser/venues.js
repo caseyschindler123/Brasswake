@@ -305,6 +305,10 @@ test('venues · a real staircase restores the same upper room and returns safely
       const g=document.querySelector('#stage canvas.game').getContext('2d'),original=g.drawImage;let drawn=false;
       g.drawImage=function(image,...args){if(image===s.c)drawn=true;return original.call(this,image,...args);};
       try{Scene.debug().draw();}finally{g.drawImage=original;}
+      // A late atlas can leave a nearby travel object without a canvas for a frame.
+      const loaded=e.obj;
+      e.obj={...loaded,c:null};
+      try{Scene.debug().draw();}finally{e.obj=loaded;}
       return {drawn,regional:s.source.toDataURL()===c.toDataURL(),width:s.c.width/3,height:s.c.height/3,
         ratioError:Math.abs(s.c.width/s.c.height-w/h)};
     },kind);

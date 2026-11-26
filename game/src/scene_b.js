@@ -472,7 +472,7 @@
     if (s && s.art && C && C.diag) { if (!IMG['diag.webp']) img('diag.webp'); if (have('diag.webp')) { const lk = host.look(), row = i => [0, 1, 2, 3].map(f => cut('diag.webp', (i * 4 + f) * C.cw, lk * C.ch, C.cw, C.ch)); s.dl = row(0); s.dr = row(1); s.ul = row(2); s.ur = row(3); } }   // the four diagonals, once that sheet is packed
     if (s && s.art && C && C.w8) { const lk = host.look(), f = 'w8/L' + lk + '.webp'; if (C.w8[lk]) { if (!IMG[f]) img(f); if (have(f)) { const W8 = C.w8[lk], n = W8.n || 4, dir = (d, o) => Array.from({ length: n }, (_, k) => cut(f, (o + k) * W8.cw, d * W8.ch, W8.cw, W8.ch)); s.w8 = [0, 1, 2, 3, 4, 5, 6, 7].map(d => dir(d, 0)); s.r8 = [0, 1, 2, 3, 4, 5, 6, 7].map(d => dir(d, n)); } } }   // walk and run in eight directions
     return s; }
-  function spr(kind, r) { if(kind.startsWith('venue_'))return venueProp(kind,r); if ((typeof WorldArt !== 'undefined' && WorldArt.at[kind]) || (typeof CartographyArt !== 'undefined' && CartographyArt.at[kind])) return worldProp(kind); const key = kind + '|' + r, c = SC[key]; if (c && c.v === artVer) return c.s; let s = artProp(kind, r); if (!s && XP[kind]) s = spr(XP[kind], r); else if (!s && kind.slice(0, 3) !== 'sc_' && kind.slice(0, 3) !== 'pi_' && kind.slice(0, 3) !== 'dj_') { const pk = { rock0: 'rock', rock1: 'rock', bush: 'rock', pillar: 'lamp', sign: 'board', fire: 'torch' }[kind] || kind; s = pk === 'flowers' || pk === 'bones' ? null : prop(pk, world ? world.pal[r] : map.pal[r], r, host.hue(r)); } SC[key] = { v: artVer, s }; return s; }
+  function spr(kind, r) { if(kind.startsWith('venue_')) { const art=venueProp(kind,r); return art.c ? art : null; } if ((typeof WorldArt !== 'undefined' && WorldArt.at[kind]) || (typeof CartographyArt !== 'undefined' && CartographyArt.at[kind])) return worldProp(kind); const key = kind + '|' + r, c = SC[key]; if (c && c.v === artVer) return c.s; let s = artProp(kind, r); if (!s && XP[kind]) s = spr(XP[kind], r); else if (!s && kind.slice(0, 3) !== 'sc_' && kind.slice(0, 3) !== 'pi_' && kind.slice(0, 3) !== 'dj_') { const pk = { rock0: 'rock', rock1: 'rock', bush: 'rock', pillar: 'lamp', sign: 'board', fire: 'torch' }[kind] || kind; s = pk === 'flowers' || pk === 'bones' ? null : prop(pk, world ? world.pal[r] : map.pal[r], r, host.hue(r)); } SC[key] = { v: artVer, s }; return s; }
   function bldSpr(o) { if(!o.home){const painted=architectureScenery(o);if(painted)return painted;} if (o.v === artVer && o.s) return o.s; o.v = artVer; if (o.home) return o.s = homeSpr(o); const a = artBld(o.slot, o.w, o.r, o.enter); if (a) return o.s = a; if (!o.p) o.p = building(o.w, o.h, world.pal[o.r], o.r * 100 + o.x, o.sign, '-'); return o.s = o.p; }
   /* ---------- walk-in rooms: an enterable building fades out and its room is drawn in the same footprint ---------- */
   // Furniture per room, in tiles from the building's top-left. p: kit piece, x: centre column (may be fractional), y: row it stands on, s: tiles it blocks.
@@ -632,7 +632,7 @@
       const clearAt = (x0, y0, w, h) => { for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) { if (x < 14 || y < 14 || x > WW - 15 || y > WH - 15) return false; const i = ix(x, y); if (!openT(i) || m.keep[i] || m.occ.has(i) || (m.solid[i] ? !m.o[i] : !m.seen[i])) return false; } return true; };   // trees may be cleared; open ground must be reachable
       const claim = (x0, y0, w, h) => { for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) { const i = ix(x, y); m.keep[i] = 1; if (m.o[i]) { m.o[i] = 0; m.solid[i] = 0; } } };
       const placed = [];
-      const spot = (r, w, h, dmin, dmax, gap, want, required = false) => {
+      const spot = (r, w, h, dmin, dmax, gap, want, required = false, accept = null) => {
         const [cx, cy] = TOWN[r]; let best = null, bs = -1e9;
         const fits = (x, y, separation) => inb(x, y) && m.reg[ix(x, y)] === r
           && clearAt(x - 1, y - 1, w + 2, h + 2)
@@ -645,11 +645,14 @@
           if (score > bs) { bs = score; best = [x, y]; }
           if (k > 90 && best) break;
         }
+        // Check the published anchor as well as the parcel origin. Recover a
+        // cross-border choice without consuming the following sites' random stream.
+        if (accept && best && !accept(...best)) best = null;
         // Required saved-world identities cannot disappear when an island has less flat ground.
         if (!best && required) for (const separation of [gap * .4, 2, 0]) {
           for (let d = dmin; d <= dmax + 40 && !best; d++) for (let offset = -d; offset <= d && !best; offset++) {
             for (const [x, y] of [[cx + offset, cy - d], [cx + offset, cy + d], [cx - d, cy + offset], [cx + d, cy + offset]])
-              if (fits(x, y, separation)) { best = [x, y]; break; }
+              if (fits(x, y, separation) && (!accept || accept(x, y))) { best = [x, y]; break; }
           }
           if (best) break;
         }
@@ -689,7 +692,9 @@
         for (let k = 0, tries = 0; k < 10 && tries < 2000; tries++) { const a = g() * 6.283, d = 26 + g() * 116, x = Math.round(cx + Math.cos(a) * d), y = Math.round(cy + Math.sin(a) * d * .9); if (!free(x, y) || m.reg[ix(x, y)] !== r) continue; const b = m.b[ix(x, y)], pc = probe(x, y), tpl = b === 10 ? 'a8' : b === 11 || pc.rock > 4 ? 'a6' : b === 9 ? 'a4' : pc.forest > 9 ? (k % 2 ? 'a2' : 'a3') : ['a1', 'a5', 'a7', 'a4', 'a2'][k % 5]; m.terr.push({ r, tpl, x, y, n: 3 + gi(2), rad: 7, stray: 1 }); k++; }
       }
       // lairs: themed creatures with a leader, two per region, out where you have to go looking for them
-      m.lairs = []; for (const L of host.lairs()) { const at = spot(L.r, 9, 7, 45, 150, 30, null, true); if (!at) continue; const [x, y] = at, c = Math.min(8, L.r), lc = Math.min(8, L.r + 1);
+      m.lairs = []; for (const L of host.lairs()) {
+        const inRegion = (x, y) => m.reg[ix(x + 4, y + 3)] === L.r;
+        const at = spot(L.r, 9, 7, 45, 150, 30, null, true, inRegion); if (!at) continue; const [x, y] = at, c = Math.min(8, L.r), lc = Math.min(8, L.r + 1);
         for (let yy = y; yy < y + 7; yy++) for (let xx = x; xx < x + 9; xx++) { const i = ix(xx, yy); if (m.o[i]) { m.o[i] = 0; m.solid[i] = 0; } } const cx2 = x + 4, cy2 = y + 3; m.lairs.push({ id: L.id, r: L.r, name: L.name, x: cx2, y: cy2 }); m.sites.push({ id: L.id, kind: 'lair', name: L.name, x: cx2, y: cy2, r: L.r });
         const tp = host.tpls(c), tl = host.tpls(lc); for (const [lk, nn] of L.mob) m.terr.push({ r: L.r, tpl: tp[gi(tp.length)], x: cx2, y: cy2, n: nn, rad: 4, hab: 'any', agg: 1, lair: L.id, lk, c });
         m.terr.push({ r: L.r, tpl: tl[gi(tl.length)], x: cx2, y: cy2 - 1, n: 1, rad: 2, hab: 'any', agg: 1, lair: L.id, lk: L.lead, c: L.boss ? 8 : lc, lead: 1 });
@@ -1074,7 +1079,7 @@
       list.push([o.by, s.c, o.x * T - (s.ax || 0), o.by - s.ay + 1, false, s.k, 0, o.enter ? o.fa : undefined]); }
     const fr = (now / 260 | 0) % 2;
     const ent = (e, me) => {
-      const bx = (e.fx + (e.ax || 0)) * T + 8, by = (e.fy + (e.ay || 0)) * T + 15; if (e.kind === 'fish') { if (AD && AD.fx2) { const tt = now + e.x * 400 + e.y * 130, cyc = tt % 6400, jump = cyc > 5800, a2 = artFx2(jump ? 1 : 0, jump ? Math.min(3, (cyc - 5800) / 150 | 0) : (tt / 240 | 0) % 4); if (a2) { const k = jump ? .62 : .55; list.push([by - 30, a2, bx - lw(a2) * k / 2, by - 8 - lh(a2) * k / 2 - (jump ? 3 : 0), false, k]); return; } } const rp = ripple(now + e.x * 400); list.push([by - 30, rp, bx - rp.width / 2, by - 13]); return; } if (e.obj) { const sc=e.objectScale||1; list.push([by, e.obj.c, bx - e.obj.ax*sc, by - e.obj.ay*sc + 1, false, sc]); return; }
+      const bx = (e.fx + (e.ax || 0)) * T + 8, by = (e.fy + (e.ay || 0)) * T + 15; if (e.kind === 'fish') { if (AD && AD.fx2) { const tt = now + e.x * 400 + e.y * 130, cyc = tt % 6400, jump = cyc > 5800, a2 = artFx2(jump ? 1 : 0, jump ? Math.min(3, (cyc - 5800) / 150 | 0) : (tt / 240 | 0) % 4); if (a2) { const k = jump ? .62 : .55; list.push([by - 30, a2, bx - lw(a2) * k / 2, by - 8 - lh(a2) * k / 2 - (jump ? 3 : 0), false, k]); return; } } const rp = ripple(now + e.x * 400); list.push([by - 30, rp, bx - rp.width / 2, by - 13]); return; } if (e.obj?.c) { const sc=e.objectScale||1; list.push([by, e.obj.c, bx - e.obj.ax*sc, by - e.obj.ay*sc + 1, false, sc]); return; }
       if (e.npcLook && !e.dead && npcDraw(e, bx, by, by + (bars.some(b => b.e === e) ? 4000 : 0), list)) return;
       if (e.fs != null) { const c = fsCut(e.fs, e.ff | 0); if (c) list.push([by, c, bx - lw(c) / 2 + (e.ox || 0), by - lh(c) + 2, !!e.flip]); else if (e.spr) list.push([by, (e.spr.f || e.spr)[0], bx - 8, by - 15]); return; }
       if (!e.spr) return;
@@ -1123,7 +1128,7 @@
     if (fade > 0) { g.fillStyle = `rgba(5,7,9,${fade})`; g.fillRect(0, 0, vw, vh); }
     // crisp overlay: names, markers, health bars, damage numbers, corner map
     const o = ox, z = zoom * dpr; o.clearRect(0, 0, ov.width, ov.height); o.textAlign = 'center'; o.font = `600 ${12 * dpr}px 'Alegreya Sans', sans-serif`;
-    const top = e => e.rendered?(e.rendered.topY-oy0)*z:(e.fy * T - (e.spr && e.spr.art ? Math.max(6, lh(e.spr.f[0]) * (e.spr.msc || 1) - 13 * Math.min(1, e.spr.msc || 1)) : e.obj && e.obj.c.hr ? lh(e.obj.c)*(e.objectScale||1) - 12 : e.big ? 34 : e.obj ? 8 : 12) - oy0) * z;
+    const top = e => e.rendered?(e.rendered.topY-oy0)*z:(e.fy * T - (e.spr && e.spr.art ? Math.max(6, lh(e.spr.f[0]) * (e.spr.msc || 1) - 13 * Math.min(1, e.spr.msc || 1)) : e.obj?.c?.hr ? lh(e.obj.c)*(e.objectScale||1) - 12 : e.big ? 34 : e.obj ? 8 : 12) - oy0) * z;
     for (const e of map.ents) { if (e.hidden || e.dying != null || venueHiddenEntity(e)) continue; const sx = ((e.rendered?e.rendered.headX:e.fx*T+8)-ox0)*z, sy = top(e); if (sx < -50 || sy < -30 || sx > ov.width + 50 || sy > ov.height) continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy), mark = e.kind === 'folk' ? null : host.mark(e);
       if (mark) { o.font = `700 ${15 * dpr}px Georgia, serif`; o.fillStyle = '#0a0c0e'; o.fillText(mark[0], sx + dpr, sy - 2 * dpr + Math.sin(now / 300) * 2 * dpr + dpr); o.fillStyle = mark[1]; o.fillText(mark[0], sx, sy - 2 * dpr + Math.sin(now / 300) * 2 * dpr); o.font = `600 ${12 * dpr}px 'Alegreya Sans', sans-serif`; }
       if (d < (e.kind === 'mon' ? 3.4 : e.kind === 'folk' ? 2.2 : 4.6) && !bars.some(b => b.e === e)) { const y = sy - (mark ? 16 : 3) * dpr, txt = (e.agg&&!e.dead?'⚠ ':'')+(e.inst && e.inst.elite ? 'Gilded ' : '') + e.name; o.lineWidth = 3 * dpr; o.strokeStyle = 'rgba(8,10,12,.85)'; o.strokeText(txt, sx, y); o.fillStyle = e.kind === 'mon' || e.kind === 'guard' ? (e.inst && e.inst.elite ? '#f3a53f' : '#e8b0a0') : e.kind === 'boss' ? '#e06a50' : '#ece5d0'; o.fillText(txt, sx, y); if ((e.kind === 'mon' || e.kind === 'rival') && e.alert > 0 && host.thief() && !locked) { o.fillStyle = '#e06a50'; o.fillText('sees you', sx, y - 12 * dpr); } } }
@@ -1306,7 +1311,7 @@
   function resume() { size(); if (!map || running) { if (map) draw(); return; } running = true; last = performance.now(); if (!raf) raf = requestAnimationFrame(loop); }
   function pause() { running = false; clearSceneControls(); }
   function act() { if (near && inputAvailable()) interactNear(near); }
-  function portrait(e) { if (AD && e.pt) return 'art/p/' + e.pt + '.webp'; if (e.spr && e.spr.big) return 'art/f/' + e.spr.big + '.webp'; if (e.ok && !e.obj) e.obj = spr(e.ok, e.r); const s = (e.npcLook && npcFrame(e.npcLook, { row: 0, frame: 2, source: 0 })) || (e.obj ? e.obj.c : (e.spr.f || e.spr)[0]), k = 4; if (s.hr) { try { return s.toDataURL(); } catch (x) { return ''; } } const c = mk(s.width * k, s.height * k), g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(s, 0, 0, c.width, c.height); return c.toDataURL(); }
+  function portrait(e) { if (AD && e.pt) return 'art/p/' + e.pt + '.webp'; if (e.spr && e.spr.big) return 'art/f/' + e.spr.big + '.webp'; if (e.ok && !e.obj) e.obj = spr(e.ok, e.r); const s = (e.npcLook && npcFrame(e.npcLook, { row: 0, frame: 2, source: 0 })) || e.obj?.c || (e.spr?.f || e.spr)?.[0], k = 4; if (!s) return ''; if (s.hr) { try { return s.toDataURL(); } catch (x) { return ''; } } const c = mk(s.width * k, s.height * k), g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(s, 0, 0, c.width, c.height); return c.toDataURL(); }
   const backdrop = (r, dun) => AD ? 'art/bg/I' + String(dun ? 8 + r : r).padStart(2, '0') + '.jpg' : '';
   // fights are played on the map: the host asks for lunges, hits and health bars
   const who = a => a === 'me' ? P : a;

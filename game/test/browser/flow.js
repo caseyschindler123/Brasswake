@@ -83,7 +83,10 @@ async function playerFlow(page, info) {
   expect(account.v).toBe(9);
   expect(account.worlds).toHaveLength(3);
   const world = account.worlds[account.world], character = world.slots[world.cur];
-  expect(character).toMatchObject({ name: 'Release Tester', v: 8 });
+  expect(character).toMatchObject({
+    name: 'Release Tester', v: 9, uid: expect.stringMatching(/\S/),
+    horse: { owned: false, mounted: false },
+  });
   expect(character.skillTargets.magery).toBe(55);
   expect(character.skillModes.inscription).toBe('lock');
   await page.locator('.sheet-x').click();
