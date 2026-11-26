@@ -1,6 +1,6 @@
 # Visible intro controls: expedited release
 
-Status: implementation and local interaction checks complete; targeted publication pending.
+Status: published at `d3b1f682d6ddac82abe9806fa5527daab8be8aff`; final hosted recheck and full non-publishing follow-up pending.
 
 The intro layout fix is simple. Classification becomes complex solely for the consequential release-check exception: a reduced gate can miss unrelated regressions. Casey explicitly approved a targeted release now and full checks afterward before takeoff.
 
@@ -11,10 +11,13 @@ Three pre-existing full-check failures were reproduced and repaired: safely labe
 ## Release steps
 
 - [x] Implement the intro fix and open affected captures. All 18 intro/canary cases, the shorter-phone arrival, 13 focused core tests and the three repaired cases across all profiles passed locally. Normal exact-commit core/build passed in Actions 45905204418; its long browser run will be superseded by the authorized targeted run.
-- [ ] Validate a profile bound to live baseline `7954b6b5305999ef6ee5e8df400615955a3d4684`, exact file allowlist and 22:40–00:40 UTC window. Select assets/actors/world/build/protocol and nine exact browser cases in each of all three profiles. Unknown paths, dependencies, stale baseline, expiry or invalid selection fall back to full checks.
-- [ ] Publish only after the exact-commit targeted gate passes. Keep ancestry, aggregate, zero retries and all six hosted flows, including public arrival and complete offline/save restoration.
-- [ ] Verify live source/HTML, open hosted captures and record evidence in RELEASE_HISTORY.md.
-- [ ] Remove activation, restore normal selection and dispatch full non-publishing checks. Track them through completion and repair actual failures without weakening assertions.
+- [x] Validate a profile bound to live baseline `7954b6b5305999ef6ee5e8df400615955a3d4684`, exact file allowlist and 22:40–00:40 UTC window. Select assets/actors/world/build/protocol and nine exact browser cases in each of all three profiles. Unknown paths, dependencies, stale baseline, expiry or invalid selection fall back to full checks.
+- [x] Pass affected core and all 27 exact-commit browser cases, then publish through the aggregate and ancestry guards. Actions [45908625690](https://github.com/caseyschindler123/Brasswake/actions/runs/45908625690).
+- [ ] Complete all six hosted flows. Five passed; a CDN HTTP 503 interrupted offline download. The exact image now returns HTTP 200 with its committed SHA-256; rerun only the failed deploy/hosted job, retaining the existing publication guard.
+- [x] Independently verify live source/HTML and open the hosted phone intro-control capture. Identity verified `2026-11-26T23:10:02.302Z`; HTML SHA-256 `02efadaf84398c82b42c676ea3cad0d62e394d458692cac1eac1cc2d43313be2`.
+- [x] Remove activation and restore normal selection after confirming the published identity.
+- [ ] Start and monitor full non-publishing checks after publication. Use the closure push if it selects full; otherwise dispatch explicit full validation. Repair actual failures without weakening assertions.
+- [ ] Record final release and follow-up evidence in RELEASE_HISTORY.md and close this plan.
 
 No art regeneration, save format change or paid action is involved. Browser emulation does not establish physical iPhone testing.
 
