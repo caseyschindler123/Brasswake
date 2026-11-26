@@ -10,13 +10,20 @@ async function nameAboard(page,name){
   await page.locator('[data-a=boatname]').click();
 }
 async function skipArrival(page,name){await nameAboard(page,name);await page.locator('[data-a=skipguide]').click();}
+async function settleTitle(page){
+  await expect(page.locator('#title')).toBeVisible();
+  if(!await page.evaluate(()=>Sound.pref().mu))return;
+  if(await page.evaluate(()=>Sound.state()!=='running'))await page.locator('#title').click({position:{x:2,y:2}});
+  if(await page.evaluate(()=>Sound.state()==='none'))return;
+  await expect.poll(()=>page.evaluate(()=>{const s=Sound.status();return {state:Sound.state(),hidden:document.hidden,wanted:s.wanted,cached:s.cached,titleLoading:s.loading.includes('m_title')};})).toMatchObject({wanted:'m_title',cached:expect.arrayContaining(['m_title']),titleLoading:false});
+}
 async function returnToCharacters(page){
   await expect(page.locator('#onboard [data-a=boatmenu]')).toHaveCount(0);
   await page.getByRole('button',{name:'Character menu',exact:true}).click();
   await expect(page.locator('#sheet-body')).toContainText('Progress saves automatically');
   await page.locator('#sheet [data-a=boatmenu]').click();
   await expect(page.locator('#title')).toBeVisible();
-  await page.waitForLoadState('networkidle');
+  await settleTitle(page);
 }
 async function shipApproach(page,property){
   for(let attempt=0;attempt<10;attempt++){
@@ -158,4 +165,4 @@ async function orientAboard(page,info,screenshot,reopen){
     await page.locator('#onboard [data-a=boatnext]').click();
   }
 }
-module.exports={nameAboard,skipArrival,shipApproach,fullArrival,returnToCharacters,orientAboard};
+module.exports={nameAboard,skipArrival,shipApproach,fullArrival,returnToCharacters,orientAboard,settleTitle};
