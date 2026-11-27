@@ -787,6 +787,7 @@
   let uiLayoutFrame=0;
   function fitPanel() { if(!uiLayoutFrame)uiLayoutFrame=requestAnimationFrame(()=>{uiLayoutFrame=0;fitGameLayout();}); }
   function fitGameLayout() {
+    renderCombatUI(true);
     const app=$('#app'),ar=app.getBoundingClientRect(),hud=$('#hud'),nav=$('#nav');
     app.style.setProperty('--hud-bottom',Math.ceil(hud.getBoundingClientRect().bottom-ar.top)+'px');
     app.style.setProperty('--nav-height',(nav.hidden?0:nav.offsetHeight)+'px');

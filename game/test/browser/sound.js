@@ -180,7 +180,7 @@ test('game events select actual weapons, activity outcomes, transactions, and ch
     __bw.ACT.closesheet(); __bw.S.hp = 1; e.chase = 5; __sounds.length = 0; __bw.HOST.ambush(e);
     const contactDeath = __sounds.filter(x => x.name === 'death').length, random=Math.random;
     window.__bwFast=true;
-    try { Math.random=()=>.01; __bw.ACT.flee(); } finally { Math.random=random; }
+    try { Math.random=()=>.01; __bw.Combat.hit(e,__bw.Combat.enemy(e)); } finally { Math.random=random; }
     return { physical, families, buy, refused, contactDeath, death: __sounds.filter(x => x.name === 'death').length };
   });
   expect(result.physical).toBe('thrust'); expect(result.families).toEqual(['small', 'beast', 'bird', 'insect', 'stone']);
@@ -196,7 +196,7 @@ test('magic remains readable during an actual fight', async ({ page }, info) => 
   await f.waitForTimeout(900);
   if (await f.locator('[data-a=coachok]').isVisible()) await f.locator('[data-a=coachok]').click();
   await f.evaluate(() => {
-    Scene.pause(); const e = __bw.F.ent;
+    Scene.pause(); const id=__bw.Combat.snapshot().target.id,e=Scene.find(e=>e.id===id);
     Scene.FX.swing('me', e, 'spell', Effects.spell(5)); Scene.FX.hit(e, '12', '#ffe9a0');
     Scene.debug().advanceEffects(.13); Scene.debug().draw();
   });
