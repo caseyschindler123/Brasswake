@@ -1474,7 +1474,7 @@
   let DU = null, SPT = 0, SPN = 0, ODX = null;
   const fsEnt = (o, kind, x, y, ex) => Object.assign({ kind, x, y, fs: o.row, ff: 0, name: o.name, sub: o.sub || '', pt: o.pt }, ex || {});
   function hallFill(r) {
-    const M = Dojo.MASTERS[r - 1], st = Dojo.STUDENTS(r), b = S.djb && S.djb.r === r ? S.djb : null, intro = r === 1 && gid() === 'odalys', out = [];
+    const M = Dojo.MASTERS[r - 1], st = Dojo.STUDENTS(r), b = S.djb && S.djb.r === r ? S.djb : null, intro = r === 1 && ['odalys','page'].includes(gid()), out = [];
     out.push(fsEnt(M, 'master', 5, 4, { sub: 'Master of the dojo' }));
     if (intro) { out.push(fsEnt(st[0], 'student', 8, 9, { i: 0, ff: 0 }), fsEnt(st[1], 'student', 8, 12, { i: 1, ff: 0 }), fsEnt(Dojo.ODALYS, 'odalys', 6, 6, { sub: 'First Circle master' }), { kind: 'dummy', i: 9, x: 5, y: 8, name: 'Training dummy', sub: 'Odalys’s', ok: 'dj_dummy' }); }
     else { out.push(fsEnt(st[0], 'student', 4, 8, { i: 0, ff: 1, spar: 1 }), fsEnt(st[1], 'student', 7, 8, { i: 1, ff: 1, spar: 1, flip: 1 })); }
