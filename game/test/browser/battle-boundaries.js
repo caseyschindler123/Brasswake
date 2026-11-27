@@ -1,202 +1,44 @@
-const { test, expect } = require('@playwright/test');
-const { observeErrors } = require('./flow');
-const { fixture, submit, next, action } = require('./battle-risk');
-
-test('battle boundaries · paused pursuit cannot refill health through walking or recovery menus', async ({ page }) => {
-  const f = await fixture(page, 'warrior', true);
-  await action(f, 'flee').click(); await expect(f.locator('#fight')).toBeHidden();
-  const result = await f.evaluate(() => {
-    Scene.pause(); const s = __bw.S; s.hp = 20; s.meat = 1; s.mv = 4;
-    const before = { hp: s.hp, meat: s.meat, tonics: s.tonics, gold: s.gold, mana: s.mana };
-    const at = Scene.pos(); __bw.HOST.moved(...at, false, false);
-    __bw.ACT.eat({ k: 'meat' }); __bw.ACT.tonic(); __bw.ACT.rest({ c: 1 }); __bw.beginSkillWork('recover');
-    return { before, after: { hp: s.hp, meat: s.meat, tonics: s.tonics, gold: s.gold, mana: s.mana }, query: !!__bw.Q };
-  });
-  expect(result.after).toEqual(result.before); expect(result.query).toBe(false);
-});
-
-test('battle boundaries · novice Feint evades hits even when outgoing accuracy is already capped', async ({ page }) => {
-  const f = await fixture(page);
-  await f.evaluate(() => {
-    __bw.F.foe.hp = __bw.F.foe.max = 10000;
-    for (const id of Progression.ids) __bw.S.skillModes[id] = 'lock';
-    for (const id of Progression.stats) __bw.S.attrModes[id] = 'lock';
-  });
-  const hp = await f.evaluate(() => __bw.S.hp);
-  await action(f, 'fmaneuver', '[data-id=a1][data-stance=feint]').click();
-  await withEnemyRolls(f, [.3, .3], () => submit(f));
-  expect(await f.evaluate(() => __bw.S.hp)).toBe(hp);
-  expect(await f.evaluate(() => __bw.S.stamina)).toBe(31);
-  await next(f); await action(f, 'fpage').click();
-  await withEnemyRolls(f, [.3, .3], () => submit(f));
-  expect(await f.evaluate(() => __bw.S.hp)).toBeLessThan(hp);
-});
-
-test('battle boundaries · Study increases actual damage and is spent by the next attack', async ({ page }) => {
-  const f = await fixture(page);
-  await f.evaluate(() => {
-    __bw.F.foe.hp = __bw.F.foe.max = 10000;
-    for (const id of Progression.ids) __bw.S.skillModes[id] = 'lock';
-    for (const id of Progression.stats) __bw.S.attrModes[id] = 'lock';
-  });
-  let hp = await f.evaluate(() => __bw.F.foe.hp);
-  await action(f, 'fpage').click(); await submit(f);
-  const ordinary = hp - await f.evaluate(() => __bw.F.foe.hp);
-  await next(f); await action(f, 'futility', '[data-id=study]').click(); await submit(f);
-  expect(await f.evaluate(() => __bw.F.focus)).toBeGreaterThan(0);
-  await next(f); hp = await f.evaluate(() => __bw.F.foe.hp);
-  await action(f, 'fpage').click(); await submit(f);
-  expect(hp - await f.evaluate(() => __bw.F.foe.hp)).toBeGreaterThan(ordinary);
-  expect(await f.evaluate(() => [__bw.F.focus, __bw.F.focusPower, __bw.F.pierce])).toEqual([0, 1, 0]);
-});
-
-async function withEnemyRolls(f, rolls, execute) {
-  await f.evaluate(rolls => {
-    const saved = { swing: Scene.FX.swing, random: Math.random, swings: 0 };
-    window.battleBoundaryRolls = saved;
-    Scene.FX.swing = function (from, to, ...rest) {
-      const effect = saved.swing.call(this, from, to, ...rest);
-      if (to === 'me') {
-        const roll = rolls[saved.swings++];
-        Math.random = () => roll ?? .99;
-      }
-      return effect;
-    };
-  }, rolls);
-  try {
-    await execute();
-    return await f.evaluate(() => window.battleBoundaryRolls.swings);
-  } finally {
-    await f.evaluate(() => {
-      const { swing, random } = window.battleBoundaryRolls;
-      Scene.FX.swing = swing;
-      Math.random = random;
-      delete window.battleBoundaryRolls;
-    });
-  }
+const {test,expect}=require('@playwright/test');
+const {observeErrors}=require('./flow');
+const {fixture,submit,next,action}=require('./battle-risk');
+async function begin(f,id){await next(f);await f.evaluate(id=>{if(!__bw.Combat.begin(id))throw Error(__bw.Combat.descriptor(id)?.reason||id);},id);await expect(f.locator('#fight #sql')).toBeVisible();}
+async function withEnemyRolls(f,rolls,execute){
+  await f.evaluate(rolls=>{const saved={swing:Scene.FX.swing,random:Math.random,swings:0};window.battleBoundaryRolls=saved;Scene.FX.swing=function(from,to,...rest){const result=saved.swing.call(this,from,to,...rest);if(to==='me'){const roll=rolls[saved.swings++];Math.random=()=>roll??.99;}return result;};},rolls);
+  try{await execute();return await f.evaluate(()=>battleBoundaryRolls.swings);}finally{await f.evaluate(()=>{Scene.FX.swing=battleBoundaryRolls.swing;Math.random=battleBoundaryRolls.random;delete window.battleBoundaryRolls;});}
 }
-
-test('battle boundaries · a clean lift keeps a neutral foe and theft and duels own their prompts', async ({ page }) => {
-  const errors = observeErrors(page), f = await fixture(page, 'thief', false, false, 'b104');
-  const before = await f.evaluate(() => {
-    window.battleRiskTarget.unseen = true;
-    __bw.ACT.fchoose();
-    return { hp: __bw.S.hp, steals: __bw.S.stats.steals, kills: __bw.S.stats.kills };
-  });
-  await action(f, 'fsteal').click();
-  await expect(action(f, 'fchoose')).toHaveCount(0);
-  await submit(f);
-  await expect(f.locator('#f-after')).toContainText('Clean lift');
-  await action(f, 'fdone').click();
-  expect(await f.evaluate(() => ({
-    hp: __bw.S.hp, steals: __bw.S.stats.steals, kills: __bw.S.stats.kills,
-    engaged: !!window.battleRiskTarget.engaged, emptied: !!window.battleRiskTarget.pocketsEmpty,
-  }))).toEqual({ ...before, steals: before.steals + 1, engaged: false, emptied: true });
-
-  await f.evaluate(() => __bw.HOST.interact(window.battleRiskTarget));
-  await expect(f.locator('#fight')).toContainText('already picked');
-  await expect(action(f, 'flee')).toHaveText('Back away');
-  await action(f, 'flee').click();
-  await expect(f.locator('#fight')).toBeHidden();
-  await f.evaluate(() => {
-    const rival = Scene.find(e => e.kind === 'rival' && e.r === 1);
-    __bw.HOST.interact(rival);
-  });
-  await action(f, 'start', '[data-k=rival][data-m=duel]').click();
-  await expect(action(f, 'fchoose')).toHaveCount(0);
-  await expect(f.locator('#kb [data-fn=run]')).toHaveText('Answer');
-  await submit(f);
-  await expect(f.locator('#f-after')).toContainText('Duel won');
-  expect(errors).toEqual([]);
+test('battle boundaries · paused pursuit cannot refill health through walking or recovery menus',async({page})=>{
+  const f=await fixture(page,'warrior',true);
+  const result=await f.evaluate(()=>{Scene.pause();const s=__bw.S;s.hp=20;s.meat=1;s.mv=4;const before={hp:s.hp,meat:s.meat,tonics:s.tonics,gold:s.gold,mana:s.mana};__bw.HOST.moved(...Scene.pos(),false,false);__bw.ACT.eat({k:'meat'});__bw.ACT.tonic();__bw.ACT.rest({c:1});__bw.beginSkillWork('recover');return {before,after:{hp:s.hp,meat:s.meat,tonics:s.tonics,gold:s.gold,mana:s.mana},query:!!__bw.Q,active:__bw.Combat.active()};});
+  expect(result.active).toBe(true);expect(result.after).toEqual(result.before);expect(result.query).toBe(false);
 });
-
-test('battle boundaries · cancelling a rare spell preserves both enemy swings and avoids a casting charge', async ({ page }) => {
-  const errors = observeErrors(page), f = await fixture(page, 'mage', true);
-  await f.evaluate(() => {
-    const s = __bw.S;
-    s.pages.s1r = 1;
-    s.mana = 0;
-    s.prepared = 1;
-    __bw.ACT.fchoose();
-  });
-  const rare = action(f, 'fpage', '[data-id=s1r]');
-  await action(f, 'fscroll').click();
-  await rare.click();
-  await next(f);
-  await action(f, 'futility', '[data-id=guard]').click();
-  const guardSwings = await withEnemyRolls(f, [.01, .01], () => submit(f));
-  expect(guardSwings).toBe(2);
-  await expect(f.locator('#e-sw .ouch')).toHaveCount(2);
-  expect(await f.evaluate(() => [__bw.S.mana, __bw.S.prepared, __bw.F.round])).toEqual([0, 1, 1]);
-
-  await next(f);
-  await rare.click();
-  await next(f);
-  const beforeEscape = await f.evaluate(() => ({ hp: __bw.S.hp, queries: __bw.S.stats.q }));
-  const escapeSwings = await withEnemyRolls(f, [.01, .01], async () => {
-    await action(f, 'flee').click();
-    await expect(f.locator('#fight')).toBeHidden();
-  });
-  expect(escapeSwings).toBe(2);
-  expect(await f.evaluate(() => ({
-    queries: __bw.S.stats.q, mana: __bw.S.mana, prepared: __bw.S.prepared,
-    round: window.battleRiskTarget.battleRound, pursuing: window.battleRiskTarget.chase > 0,
-  }))).toEqual({ queries: beforeEscape.queries, mana: 0, prepared: 1, round: 2, pursuing: true });
-  expect(await f.evaluate(() => __bw.S.hp)).toBeLessThan(beforeEscape.hp);
-  expect(errors).toEqual([]);
+// Feint's removed evasion becomes a learned, bounded interruption at capped aim.
+test('battle boundaries · a learned interruption delays a live attack at capped outgoing accuracy',async({page})=>{
+  const f=await fixture(page);
+  const before=await f.evaluate(()=>{const s=__bw.S,e=battleRiskTarget;s.sk.swords=100;for(const id of Progression.ids)s.skillModes[id]='lock';for(const id of Progression.stats)s.attrModes[id]='lock';Techniques.teach(s,4);if(!__bw.Combat.equip('swords.pommel-strike',0).ok)throw Error('Equip failed');e.combat.hp=e.combat.max=10000;Scene.combatEngage(e);e.combat.windup=1;return {hp:s.hp,stamina:s.stamina};});
+  await begin(f,'swords.pommel-strike');await submit(f);expect(await f.evaluate(()=>__bw.S.hp)).toBe(before.hp);expect(await f.evaluate(()=>battleRiskTarget.combat.windup)).toBe(0);expect(await f.evaluate(()=>battleRiskTarget.combat.controlImmune)).toBeGreaterThan(0);expect(await f.evaluate(()=>__bw.S.stamina)).toBeLessThan(before.stamina);
+  await withEnemyRolls(f,[.01],()=>f.waitForFunction(hp=>__bw.S.hp<hp,before.hp));expect(await f.evaluate(()=>__bw.S.hp)).toBeLessThan(before.hp);
 });
-
-test('battle boundaries · Siphon drains once when its first swing misses and its second hits', async ({ page }) => {
-  const errors = observeErrors(page), f = await fixture(page, 'mage');
-  await f.evaluate(() => {
-    __bw.F.drole = 'caster';
-    __bw.S.mana = 18;
-    for (const id of Progression.ids) __bw.S.skillModes[id] = 'lock';
-    for (const id of Progression.stats) __bw.S.attrModes[id] = 'lock';
-  });
-  const guard = action(f, 'futility', '[data-id=guard]');
-  await guard.click();
-  await submit(f);
-  await next(f);
-  await expect(f.locator('.battle-intent')).toContainText('Siphon');
-  const hp = await f.evaluate(() => __bw.S.hp);
-  await guard.click();
-  const swings = await withEnemyRolls(f, [.99, .01], () => submit(f));
-  expect(swings).toBe(2);
-  await expect(f.locator('#e-sw .miss')).toHaveCount(1);
-  await expect(f.locator('#e-sw .ouch')).toHaveCount(2);
-  const attacker = await f.evaluate(() => __bw.F.title);
-  await expect(f.locator('#e-sw .ouch').filter({ hasText: 'mana' })).toHaveText(attacker + ': −4 mana');
-  expect(await f.evaluate(() => [__bw.S.mana, __bw.F.round])).toEqual([14, 2]);
-  expect(await f.evaluate(() => __bw.S.hp)).toBeLessThan(hp);
-  expect(errors).toEqual([]);
+// Study's removed universal preparation becomes an equipped, consumed exposure.
+test('battle boundaries · exposure increases actual next-attack damage and is consumed',async({page})=>{
+  const f=await fixture(page);await f.evaluate(()=>{const s=__bw.S;s.sk.swords=100;for(const id of Progression.ids)s.skillModes[id]='lock';for(const id of Progression.stats)s.attrModes[id]='lock';Techniques.teach(s,2);__bw.Combat.equip('swords.guard-break',0);battleRiskTarget.combat.hp=battleRiskTarget.combat.max=10000;});
+  let hp=await f.evaluate(()=>battleRiskTarget.combat.hp);await begin(f,'basic.swords');await submit(f);const ordinary=hp-await f.evaluate(()=>battleRiskTarget.combat.hp);expect(ordinary).toBeGreaterThan(0);
+  await begin(f,'swords.guard-break');await submit(f);expect(await f.evaluate(()=>battleRiskTarget.combat.exposed)).toBeGreaterThan(0);await next(f);hp=await f.evaluate(()=>battleRiskTarget.combat.hp);await begin(f,'basic.swords');await submit(f);expect(hp-await f.evaluate(()=>battleRiskTarget.combat.hp)).toBeGreaterThan(ordinary);expect(await f.evaluate(()=>battleRiskTarget.combat.exposed)).toBe(0);
 });
-
-test('battle boundaries · chase expires beyond visible scene range outside town safety', async ({ page }) => {
-  const errors = observeErrors(page), f = await fixture(page, 'warrior', true);
-  await withEnemyRolls(f, [.01, .01], async () => {
-    await action(f, 'flee').click();
-    await expect(f.locator('#fight')).toBeHidden();
-  });
-  const initial = await f.evaluate(() => {
-    const e = window.battleRiskTarget, { map } = Scene.debug();
-    const tiles = Array.from({ length: 81 * 81 }, (_, i) => [e.x + i % 81 - 40, e.y + Math.floor(i / 81) - 40]);
-    const at = tiles.find(([x, y]) => {
-      const i = y * map.w + x;
-      return x > 0 && y > 0 && x < map.w - 1 && y < map.h - 1 && Math.hypot(x - e.fx, y - e.fy) > 28 &&
-        map.reg[i] === e.r && map.seen[i] && !map.solid[i] && !map.occ.has(i) && map.t[i] !== 4 && !Geography.inTown(x, y);
-    });
-    if (!at) throw Error('No open distant wilderness tile');
-    for (const other of map.ents) if (other !== e) other.agg = false;
-    Scene.hop(...at);
-    if (e.chase > 0) e.chase = .2;
-    return { at, chase: e.chase, engaged: e.engaged, round: e.battleRound };
-  });
-  expect(initial).toMatchObject({ chase: .2, engaged: true, round: 1 });
-  await expect.poll(() => f.evaluate(() => {
-    const e = window.battleRiskTarget;
-    return { at: Scene.pos(), chase: e.chase, engaged: e.engaged, round: e.battleRound, lastSeen: e.lastSeen };
-  })).toEqual({ at: initial.at, chase: 0, engaged: false, round: 0, lastSeen: null });
-  await expect(f.locator('#fight')).toBeHidden();
-  expect(errors).toEqual([]);
+test('battle boundaries · a clean lift keeps a neutral foe and theft and duels own their prompts',async({page})=>{
+  const errors=observeErrors(page),f=await fixture(page,'thief',false,false,'b104');const before=await f.evaluate(()=>{battleRiskTarget.unseen=true;return {hp:__bw.S.hp,steals:__bw.S.stats.steals,kills:__bw.S.stats.kills};});await begin(f,'steal');expect(await f.evaluate(()=>__bw.F.act)).toBe('steal');await submit(f);await expect(f.locator('#fight')).toContainText('Clean lift');await action(f,'fdone').click();
+  expect(await f.evaluate(()=>({hp:__bw.S.hp,steals:__bw.S.stats.steals,kills:__bw.S.stats.kills,engaged:!!battleRiskTarget.engaged,emptied:!!battleRiskTarget.pocketsEmpty}))).toEqual({...before,steals:before.steals+1,engaged:false,emptied:true});expect(await f.evaluate(()=>__bw.Combat.snapshot().actions.some(a=>a.id==='steal'))).toBe(false);expect(await f.evaluate(()=>__bw.Combat.begin('steal'))).toBe(false);expect(await f.evaluate(()=>__bw.F)).toBeNull();
+  await f.evaluate(()=>__bw.HOST.interact(Scene.find(e=>e.kind==='rival'&&e.r===1)));await action(f,'start','[data-k=rival][data-m=duel]').click();await expect(f.locator('#kb [data-fn=run]')).toHaveText('Answer');await submit(f);await expect(f.locator('#fight')).toContainText('Duel won');expect(errors).toEqual([]);
+});
+test('battle boundaries · cancelling a rare spell grants no protection and consumes no scroll or mana',async({page})=>{
+  const errors=observeErrors(page),f=await fixture(page,'mage');await f.evaluate(()=>{const s=__bw.S;s.sk.magery=95;Techniques.learn(s,'magery.unwrite');__bw.Combat.equip('magery.unwrite',0);s.mana=0;s.prepared=1;Scene.combatEngage(battleRiskTarget);});await begin(f,'magery.unwrite');expect(await f.evaluate(()=>__bw.F.kc)).toBe(3);
+  const paused=await f.evaluate(()=>({mana:__bw.S.mana,prepared:__bw.S.prepared,hp:__bw.S.hp,immune:battleRiskTarget.combat.controlImmune,windup:battleRiskTarget.combat.windup,cooldown:battleRiskTarget.combat.cooldown,clock:Scene.tacticalTime()}));await f.waitForTimeout(300);expect(await f.evaluate(()=>({mana:__bw.S.mana,prepared:__bw.S.prepared,hp:__bw.S.hp,immune:battleRiskTarget.combat.controlImmune,windup:battleRiskTarget.combat.windup,cooldown:battleRiskTarget.combat.cooldown,clock:Scene.tacticalTime()}))).toEqual(paused);
+  expect(await f.evaluate(()=>{__bw.Combat.cancel();return {mana:__bw.S.mana,prepared:__bw.S.prepared,hp:__bw.S.hp,immune:battleRiskTarget.combat.controlImmune,active:__bw.Combat.active()};})).toEqual({mana:paused.mana,prepared:paused.prepared,hp:paused.hp,immune:0,active:true});await withEnemyRolls(f,[.01],()=>f.waitForFunction(hp=>__bw.S.hp<hp,paused.hp));expect(paused.hp-await f.evaluate(()=>__bw.S.hp)).toBe(5);expect(errors).toEqual([]);
+});
+test('battle boundaries · Siphon drains once on a live hit and never on a miss',async({page})=>{
+  const errors=observeErrors(page),f=await fixture(page,'mage');const hp=await f.evaluate(()=>{Scene.pause();const e=battleRiskTarget;e.combat.config.drole='caster';e.combat.profile=LiveCombat.profile({role:'caster',name:e.name,circle:1});__bw.S.mana=18;Scene.combatEngage(e);e.combat.round=1;e.combat.cooldown=0;e.combat.windup=.01;return __bw.S.hp;});
+  const missed=await withEnemyRolls(f,[.99],async()=>{await f.evaluate(()=>Scene.resume());await f.waitForFunction(()=>battleRiskTarget.combat.round===2);});expect(missed).toBe(1);expect(await f.evaluate(()=>__bw.S.mana)).toBe(18);expect(await f.evaluate(()=>__bw.S.hp)).toBe(hp);
+  await f.evaluate(()=>Scene.pause());const hits=await withEnemyRolls(f,[.01],async()=>{await f.evaluate(()=>{battleRiskTarget.combat.round=1;battleRiskTarget.combat.windup=.01;Scene.resume();});await f.waitForFunction(()=>battleRiskTarget.combat.round===2);});expect(hits).toBe(1);expect(await f.evaluate(()=>__bw.S.mana)).toBe(14);expect(await f.evaluate(()=>__bw.S.hp)).toBeLessThan(hp);expect(errors).toEqual([]);
+});
+test('battle boundaries · chase expires beyond visible scene range outside town safety',async({page})=>{
+  const errors=observeErrors(page),f=await fixture(page,'warrior',true);const initial=await f.evaluate(()=>{const e=battleRiskTarget,{map}=Scene.debug(),tiles=Array.from({length:81*81},(_,i)=>[e.x+i%81-40,e.y+Math.floor(i/81)-40]);const at=tiles.find(([x,y])=>{const i=y*map.w+x;return x>0&&y>0&&x<map.w-1&&y<map.h-1&&Math.hypot(x-e.fx,y-e.fy)>28&&map.reg[i]===e.r&&!map.solid[i]&&!map.occ.has(i)&&map.t[i]!==4&&!Geography.inTown(x,y);});if(!at)throw Error('No distant wilderness tile');Scene.hop(...at);e.combat.lost=3;e.combat.awareness=4;e.combat.hp=e.combat.max-5;e.combat.queries=2;return {at,hp:__bw.S.hp,phase:e.combat.phase,awareness:e.combat.awareness};});expect(initial.phase).toBe('chase');expect(initial.awareness).toBe(4);await expect.poll(()=>f.evaluate(()=>battleRiskTarget.combat.phase)).not.toBe('chase');expect(await f.evaluate(()=>({hp:battleRiskTarget.combat.hp,max:battleRiskTarget.combat.max,queries:battleRiskTarget.combat.queries,awareness:battleRiskTarget.combat.awareness}))).toEqual(await f.evaluate(()=>({hp:battleRiskTarget.combat.max,max:battleRiskTarget.combat.max,queries:0,awareness:0})));expect(await f.evaluate(()=>__bw.Combat.active())).toBe(false);expect(await f.evaluate(()=>battleRiskTarget.chase)).toBe(0);expect(await f.evaluate(()=>({at:Scene.pos(),engaged:battleRiskTarget.engaged,lastSeen:battleRiskTarget.lastSeen}))).toEqual({at:initial.at,engaged:false,lastSeen:null});expect(await f.evaluate(()=>__bw.S.hp)).toBe(initial.hp);expect(errors).toEqual([]);
 });
