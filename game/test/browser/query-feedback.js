@@ -3,24 +3,17 @@ const { observeErrors, screenshot } = require('./flow');
 
 async function dismiss(f) { const b = f.locator('[data-a=coachok]'); if (await b.isVisible()) await b.click(); }
 async function choosePage(f, { needsMultiRowLimit = false } = {}) {
-  if (needsMultiRowLimit) await f.evaluate(() => {
-    // Select the real creature's question through its normal seeded generator.
-    // LIMIT 1 cannot produce the useful partial result this fixture exercises.
-    const seed = Array.from({ length: 64 }, (_, i) => i + 1).find(seed => {
-      const task = Learning.next(__bw.A.learning, { circle: 1, family: 'limit', seed });
-      return Number(/\bLIMIT\s+(\d+)$/i.exec(task?.sql || '')?.[1]) >= 3;
-    });
-    if (!seed) throw Error('No multi-row LIMIT question in the seeded fixture');
-    window.__feedbackFixtureRandom = Math.random;
-    Math.random = () => (seed - .5) / 2147483647;
-  });
-  try { await f.locator('[data-a=fpage][data-id=a1]').click(); }
-  finally {
-    if (needsMultiRowLimit) await f.evaluate(() => {
-      Math.random = window.__feedbackFixtureRandom;
-      delete window.__feedbackFixtureRandom;
-    });
-  }
+  await f.waitForFunction(()=>__bw.Combat.descriptor('basic.swords').ready,null,{timeout:15000});
+  await f.locator('#combat-bar [data-id="basic.swords"]').click();
+  await dismiss(f);
+  // Prepare an actual seeded curriculum question at the relevant boundary.
+  // Actions still grade and resolve through the real SQL/combat controller.
+  await f.evaluate(needsMultiRowLimit=>{
+    const task=Array.from({length:64},(_,i)=>Learning.next(__bw.A.learning,{circle:1,family:window.feedbackFamily,seed:i+1})).find(t=>!needsMultiRowLimit||Number(/\bLIMIT\s+(\d+)$/i.exec(t?.sql||'')?.[1])>=3);
+    if(!task)throw Error('No suitable real curriculum task');
+    Object.keys(__bw.F.task).forEach(k=>delete __bw.F.task[k]);Object.assign(__bw.F.task,window.feedbackTip||task);
+    __bw.Combat.cancel();__bw.Combat.begin('basic.swords');
+  },needsMultiRowLimit);
   await dismiss(f);
 }
 async function game(page) {
@@ -33,15 +26,16 @@ async function fixture(page, tpl = 'b102', fast = false, options = {}) {
   await f.evaluate(({ tpl, fast, theft, withTip }) => {
     Sound.setMu(false); window.__bwFast = fast;
     const s = __bw.S; s.tut = 2; s.gd = 99; s.pages = { a1: 1 }; s.hp = __bw.maxHp();
+    const sword=__bw.makeItem('common',1,'weapon','swords');s.inv.push(sword);s.eq.weapon=sword.id;s.sk.swords=60;
     const e = Scene.find(e => e.kind === 'mon' && e.r === 1 && e.inst.tpl === tpl && !e.inst.elite);
     if (theft) {
       s.pages.h1 = 1;
       Object.assign(e, { unseen: true, engaged: false, forced: false, chase: 0, agg: 0, pocketsEmpty: false });
     }
-    Scene.warp(e.x + 1, e.y); __bw.HOST.interact(e);
+    Scene.warp(e.x + 1, e.y); e.wander=0;__bw.HOST.interact(e);window.feedbackFamily=tpl==='b101'?'sort':'limit';window.feedbackEnemy=e.id;
     if (withTip) {
       // Use Odalys's actual Ledger prompt in a disposable encounter.
-      __bw.F.tasks = () => FirstDay.tasks.find(t => t.tip && !t.practice);
+      window.feedbackTip = FirstDay.tasks.find(t => t.tip && !t.practice);
       Learning.introduce(__bw.A.learning ||= Learning.fresh(), ['select']);
     }
   }, { tpl, fast, theft: options.theft, withTip: options.withTip });
@@ -54,7 +48,8 @@ async function submit(f, sql) {
   await f.waitForTimeout(450);
 }
 async function settled(f) { await f.waitForFunction(() => __bw.F && !__bw.F.busy, null, { timeout: 25000 }); }
-async function next(f, question) { await f.locator('[data-a=fchoose]').click(); await choosePage(f, question); }
+async function details(f){if(await f.locator('#combat-result [data-a=combatdetails]').isVisible())await f.locator('#combat-result [data-a=combatdetails]').click();}
+async function next(f, question) { if(await f.locator('#sheet .sheet-x').isVisible())await f.locator('#sheet .sheet-x').click(); await choosePage(f, question); }
 const resources = f => f.evaluate(() => {
   const s = __bw.S, fight = __bw.F;
   return {
@@ -102,6 +97,7 @@ for (const scenario of ['sorting', 'partial', 'extra', 'syntax']) test(`query fe
   const question = f.locator('#fight .battle-question');
   if (scenario === 'syntax') {
     await expect(question.locator('.first-technique')).toBeVisible();
+    await question.locator('.first-technique summary').click();
     if (info.project.use.browserName === 'webkit' && info.project.use.isMobile) {
       // Playwright cannot send a mouse wheel in mobile WebKit.
       await question.locator('.ask').scrollIntoViewIfNeeded();
@@ -112,6 +108,7 @@ for (const scenario of ['sorting', 'partial', 'extra', 'syntax']) test(`query fe
     await expect.poll(() => question.evaluate(body => body.scrollTop)).toBeGreaterThan(0);
   }
   await submit(f, wrong);
+  if(scenario!=='syntax')await details(f);
   await expect(f.locator('.query-pair')).toBeVisible();
   expect(await f.evaluate(() => __bw.F.comparison.yours)).toBe(wrong);
   await expect(f.locator('.query-yours')).toContainText(scenario === 'syntax' ? 'SELEC' : wrong);
@@ -133,7 +130,7 @@ for (const scenario of ['sorting', 'partial', 'extra', 'syntax']) test(`query fe
     const pair = await f.locator('.query-pair').boundingBox(), area = await f.locator('#f-out').boundingBox();
     expect(pair.y + pair.height).toBeLessThanOrEqual(area.y + area.height);
     await screenshot(page, info, 'query-syntax-fix');
-    await submit(f, correct); await settled(f);
+    await submit(f, correct); await settled(f);await details(f);
     await expect(f.locator('.query-power')).toContainText('100% power');
   } else {
     await expect(f.locator('.query-solution b')).toHaveText('Corrected query');
@@ -142,7 +139,7 @@ for (const scenario of ['sorting', 'partial', 'extra', 'syntax']) test(`query fe
     await screenshot(page, info, 'query-' + scenario + '-animating');
     await settled(f);
     await expect(f.locator('.query-power')).toContainText(scenario === 'sorting' ? '85% power' : /[5-9]\d% power/);
-    const box = await f.locator('[data-a=fchoose], [data-a=floot]').last().boundingBox();
+    const box = await f.locator('#sheet .sheet-x, #fight [data-a=floot]').last().boundingBox();
     expect(box.y + box.height).toBeLessThanOrEqual(page.viewportSize().height);
     await screenshot(page, info, 'query-' + scenario + '-settled');
   }
@@ -175,7 +172,7 @@ test('query feedback · comparison completion survives unfavorable rolls and res
 test('query feedback · damage scales with result progress and wrong attacks cannot kill', async ({ page }, info) => {
   const errors = observeErrors(page), f = await fixture(page, 'b102', true);
   await f.evaluate(() => {
-    __bw.F.foe.hp = __bw.F.foe.max = 10000; __bw.F.foe.swings = 0;
+    __bw.F.ent.combat.hp=__bw.F.ent.combat.max=__bw.F.foe.hp=__bw.F.foe.max=10000; __bw.F.ent.combat.profile.attackTime=100;
     for (const [id] of Progression.skills) __bw.S.skillModes[id] = 'lock';
   });
   const damage = [];
@@ -191,7 +188,7 @@ test('query feedback · damage scales with result progress and wrong attacks can
   expect(Math.abs(damage[1].dealt - damage[0].dealt * damage[1].power)).toBeLessThanOrEqual(2);
   expect(damage[1].dealt).toBeLessThan(damage[0].dealt);
   expect(damage[2]).toEqual({ dealt: 0, power: 0, grade: 'wrong' });
-  await expect(f.locator('.query-feedback')).toContainText('No useful effect');
+  await details(f);await expect(f.locator('.query-feedback')).toContainText('No useful effect');
   await screenshot(page, info, 'query-zero-power');
   expect(errors).toEqual([]);
 });
@@ -219,11 +216,13 @@ test('query feedback · long queries expand safely and the second syntax failure
   expect(after.streak).toBe(0);
   expect(await f.evaluate(() => __bw.F.queryPower)).toBe(0);
   await expect(f.locator('.query-solution')).toHaveCount(0);
+  await details(f);
   await expect(f.locator('.query-pair')).toBeVisible();
   await f.locator('[data-a=fcompare]').click();
   await expect(f.locator('.query-yours pre')).toHaveText(bad);
   await expect(f.locator('.query-solution')).toHaveCount(0);
-  const nextBox = await f.locator('[data-a=fchoose]').boundingBox();
+  await details(f);
+  const nextBox = await f.locator('#sheet .sheet-x').boundingBox();
   expect(nextBox.y + nextBox.height).toBeLessThanOrEqual(page.viewportSize().height);
   await screenshot(page, info, 'query-expanded-result-with-controls');
   expect(errors).toEqual([]);
@@ -231,14 +230,15 @@ test('query feedback · long queries expand safely and the second syntax failure
 
 test('query feedback · equivalent SQL gets full power and shape/shown answers retain protections', async ({ page }) => {
   const errors = observeErrors(page), f = await fixture(page, 'b102', true);
-  await f.evaluate(() => { __bw.F.foe.hp = __bw.F.foe.max = 10000; __bw.F.foe.swings = 0; });
+  await f.evaluate(() => { __bw.F.ent.combat.hp=__bw.F.ent.combat.max=__bw.F.foe.hp=__bw.F.foe.max=10000; __bw.F.ent.combat.profile.attackTime=100; });
   const reference = await f.evaluate(() => __bw.F.task.sql);
   const equivalent = 'SELECT * FROM (' + reference + ') AS chosen_items';
   await f.locator('#sql').fill(equivalent);
   const unassisted = await resources(f);
+  await f.locator('[data-a=queryhelp]').click();
   const confirm = f.locator('[data-a=fshowconfirm]');
-  await expect(f.locator('[data-a=fshow]')).toHaveCount(1);
-  await f.locator('[data-a=fshow]').click();
+  await expect(f.locator('#kb [data-a=fshow]')).toHaveCount(1);
+  await f.locator('#kb [data-a=fshow]').click();
   await expect(confirm).toBeVisible();
   await expect(f.locator('#sheet-body')).toContainText('only 5% power');
   await expect(f.locator('#sheet-body')).toContainText('no skill or attribute practice');
@@ -256,17 +256,19 @@ test('query feedback · equivalent SQL gets full power and shape/shown answers r
   expect(await f.evaluate(() => __bw.F.queryPower)).toBe(1);
   await expect(f.locator('.query-pair')).toHaveCount(0);
   await next(f);
-  await f.locator('[data-a=fhint]').click();
-  await expect(f.locator('[data-a=fshow]')).toHaveCount(1);
-  await f.locator('[data-a=fhint]').click();
-  await expect(f.locator('[data-a=fshow]')).toHaveCount(1);
+  await f.locator('[data-a=queryhelp]').click();
+  await f.locator('#kb [data-a=fhint]').click();
+  await expect(f.locator('#kb [data-a=fshow]')).toHaveCount(1);
+  await f.locator('#kb [data-a=fhint]').click();
+  await expect(f.locator('#kb [data-a=fshow]')).toHaveCount(1);
   await submit(f, await f.evaluate(() => __bw.F.task.sql)); await settled(f);
   expect(await f.evaluate(() => __bw.F.queryPower)).toBe(.6);
   await next(f);
-  await f.locator('[data-a=fshow]').click();
+  await f.locator('[data-a=queryhelp]').click();
+  await f.locator('#kb [data-a=fshow]').click();
   await confirm.click();
   await expect(confirm).toBeHidden();
-  await expect(f.locator('#f-hint code')).toHaveText(await f.evaluate(() => __bw.F.task.sql));
+  await expect(f.locator('#kb .query-reference .fh code')).toHaveText(await f.evaluate(() => __bw.F.task.sql));
   const before = await f.evaluate(() => JSON.stringify([__bw.S.sk, __bw.S.attr, __bw.S.skills]));
   await submit(f, await f.evaluate(() => __bw.F.task.sql)); await settled(f);
   expect(await f.evaluate(() => __bw.F.queryPower)).toBe(.05);
@@ -276,22 +278,17 @@ test('query feedback · equivalent SQL gets full power and shape/shown answers r
 
 test('query feedback · a shown attack cannot switch into theft before committing the exchange', async ({ page }) => {
   const errors = observeErrors(page), f = await fixture(page, 'b102', true, { theft: true });
-  const actions = f.locator('[data-a=fchoose]'), steal = f.locator('[data-a=fsteal]');
-  await actions.click();
-  await dismiss(f);
-  await expect(steal).toBeVisible();
-  expect(await f.evaluate(() => __bw.F.engaged)).toBe(false);
-  await choosePage(f);
-  await f.locator('[data-a=fshow]').click();
+  await f.locator('[data-a=queryhelp]').click();
+  await f.locator('#kb [data-a=fshow]').click();
   await f.locator('[data-a=fshowconfirm]').click();
-  const before = await resources(f);
-  expect(before.shown).toBe(1);
-  await actions.click();
-  await dismiss(f);
-  await steal.click();
+  const before=await resources(f);expect(before.shown).toBe(1);
+  await f.locator('[data-a=combatback]').click();
+  await expect(f.locator('#combat-context [data-id=steal]')).toBeVisible();
+  await f.locator('#combat-context [data-id=steal]').click();
   await expect(f.locator('#toast')).toContainText('before switching to theft');
-  expect(await f.evaluate(() => ({ act: __bw.F.act, stage: __bw.F.st, pocketsEmpty: __bw.F.ent.pocketsEmpty })))
-    .toEqual({ act: 'fight', stage: 'choose', pocketsEmpty: false });
+  expect(await f.evaluate(()=>__bw.F)).toBeNull();
+  await f.locator('#combat-bar [data-id="basic.swords"]').click();
+  expect(await f.evaluate(()=>({act:__bw.F.act,stage:__bw.F.st,pocketsEmpty:__bw.F.ent.pocketsEmpty}))).toEqual({act:'fight',stage:'prompt',pocketsEmpty:false});
   expect(await resources(f)).toEqual(before);
   expect(errors).toEqual([]);
 });
@@ -300,14 +297,13 @@ test('query feedback · a contextual tip preserves full power and excludes readi
   const errors = observeErrors(page), f = await fixture(page, 'b102', true, { withTip: true });
   const task = await f.evaluate(() => {
     const { sql, fingerprint, newTeaching } = __bw.F.task;
-    __bw.F.foe.hp = __bw.F.foe.max = 10000;
-    __bw.F.foe.swings = 0;
+    __bw.F.ent.combat.hp=__bw.F.ent.combat.max=__bw.F.foe.hp=__bw.F.foe.max=10000;
+    __bw.F.ent.combat.profile.attackTime=100;
     return { sql, fingerprint, newTeaching };
   });
   expect(task.newTeaching).toBe(false);
-  const tip = f.getByRole('button', { name: 'A tip' });
-  await tip.click();
-  await expect(f.locator('#f-hint .tip')).toBeVisible();
+  await f.locator('[data-a=queryhelp]').click();
+  await expect(f.locator('#kb .query-reference')).toContainText(await f.evaluate(()=>__bw.F.task.tip));
   await submit(f, task.sql);
   await settled(f);
   expect(await f.evaluate(key => {
@@ -333,13 +329,13 @@ test('query feedback · a requested contract answer gives reduced pay without SQ
   });
   await f.locator('[data-a=qturn]').click();
   await f.locator('#enc [data-a=help]').click();
-  const hint = f.locator('#sheet-body [data-a=hint]');
-  for (const label of ['A nudge · free', 'The shape of the answer · 14 gold', 'The answer · 30 gold']) {
+  const hint = f.locator('#kb [data-a=hint]');
+  for (const label of ['Hint · free', 'Answer shape · 14 gold', 'Show answer · 30 gold']) {
     await expect(hint).toHaveText(label);
     await hint.click();
   }
-  await expect(f.locator('#sheet-body .hintbox').last()).toContainText('ORDER BY unit_price DESC');
-  await f.locator('#sheet .sheet-x').click();
+  await expect(f.locator('#kb .hintbox').last()).toContainText('ORDER BY unit_price DESC');
+  await f.locator('#kb [data-fn=ldone]').click();
   const sqlPractice = () => f.evaluate(() => ({
     gold: __bw.S.gold, hints: __bw.S.hints, skills: __bw.S.skills, commands: __bw.A.cmds, completed: __bw.S.done.c103
   }));

@@ -357,9 +357,10 @@ test('first-day boundaries · paid skill training shows the before, after and ga
 test('first-day boundaries · battle gains stay visible after an exchange and victory',async({page},info)=>{
   await openDev(page);
   await expect(page.locator('#toast [role=status]')).toHaveCount(0);
-  await page.evaluate(()=>{Dev.skills({swords:40});const ids=Dev.spawn({monster:'b102'});Dev.battle(ids[0]);__bw.F.foe.hp=__bw.F.foe.max=10000;});
+  await page.evaluate(()=>{Dev.skills({swords:40});const ids=Dev.spawn({monster:'b102'});Dev.battle(ids[0]);const e=Scene.find(e=>e.id===ids[0]);e.combat.hp=e.combat.max=10000;e.combat.profile.attackTime=100;});
   const submit=async()=>{
-    await page.locator('[data-a=fpage][data-id=a1]').click();
+    await page.waitForFunction(()=>__bw.Combat.descriptor('basic.swords').ready);
+    await page.locator('#combat-bar [data-id="basic.swords"]').click();
     const coach=page.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
     const before=await page.evaluate(()=>__bw.S.sk.swords);
     await page.locator('#sql').fill(await page.evaluate(()=>__bw.F.task.sql));
@@ -367,14 +368,15 @@ test('first-day boundaries · battle gains stay visible after an exchange and vi
     try{await page.locator('#kb [data-fn=run]').click();await page.waitForFunction(()=>__bw.F&&!__bw.F.busy);}finally{await page.evaluate(()=>{Math.random=window.gainTestRandom;});}
     const after=await page.evaluate(()=>__bw.S.sk.swords);
     expect(after).toBeGreaterThan(before);
-    const gain=page.locator('#fight .practice-gains');
+    if(!await page.evaluate(()=>__bw.F.over))await page.locator('#combat-result [data-a=combatdetails]').click();
+    const gain=page.locator('#fight .practice-gains, #sheet .practice-gains').filter({visible:true});
     await expect(gain).toBeVisible();
     await expect(gain).toContainText(`${before.toFixed(1)} → ${after.toFixed(1)} (+${(after-before).toFixed(1)})`);
   };
   await submit();
   await screenshot(page,info,'battle-exchange-skill-gain');
-  await page.locator('[data-a=fchoose]').click();
-  await page.evaluate(()=>{__bw.F.foe.hp=1;});
+  await page.locator('#sheet .sheet-x').click();
+  await page.evaluate(()=>{__bw.F.ent.combat.hp=1;});
   await submit();
   expect(await page.evaluate(()=>__bw.F.over)).toBeTruthy();
   await screenshot(page,info,'battle-victory-skill-gain');

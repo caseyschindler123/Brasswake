@@ -8,9 +8,9 @@ test('developer commands prepare real gear, skills, monsters and reset without l
   const result=await page.evaluate(()=>{Dev.skills({swords:60});Dev.attributes({str:75,dex:75,int:75});Dev.resources({gold:1234});const item=Dev.grant({weapon:'swords'});const ids=Dev.spawn({monster:'b102',count:2});return {item,ids,state:Dev.snapshot()};});
   expect(result.state.hero.sk.swords).toBe(60);expect(result.state.hero.gold).toBe(1234);expect(result.state.hero.eq.weapon).toBe(result.item.id);expect(result.ids).toHaveLength(2);
   await screenshot(page,info,'developer-arena');
-  await page.evaluate(()=>Dev.battle(Dev.snapshot().spawned[0].id));await expect(page.locator('#fight')).toBeVisible();
-  await page.locator('[data-a=fpage][data-id=a1]').click();const coach=page.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
-  await page.locator('#sql').fill('SELECT -987654321 AS unrelated_result');await page.locator('#kb [data-fn=run]').click();await expect(page.locator('.query-power')).toContainText('0% power');
+  await page.evaluate(()=>Dev.battle(Dev.snapshot().spawned[0].id));await expect(page.locator('#combat-bar')).toBeVisible();
+  await page.locator('#combat-bar [data-id="basic.swords"]').click();const coach=page.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
+  await page.locator('#sql').fill('SELECT -987654321 AS unrelated_result');await page.locator('#kb [data-fn=run]').click();await page.locator('#combat-result [data-a=combatdetails]').click();await expect(page.locator('.query-power')).toContainText('0% power');
   const reset=await page.evaluate(()=>Dev.reset(1));expect(reset.hero.gold).toBe(initial.hero.gold);expect(reset.spawned).toEqual([]);expect(reset.fight).toBeNull();
   await page.goto('/__health');expect(await page.evaluate(()=>localStorage.getItem('player-sentinel'))).toBe('keep');expect(await page.evaluate(()=>typeof window.Dev)).toBe('undefined');expect(errors).toEqual([]);
 });

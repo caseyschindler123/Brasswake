@@ -1146,7 +1146,7 @@
       const meter=$(`#hud [data-resource=${id}] .hpbar`);if(meter){const text=Math.round(value)+' / '+max;if(meter.querySelector('b').textContent!==text){meter.querySelector('b').textContent=text;meter.setAttribute('aria-valuenow',Math.max(0,Math.round(value)));meter.setAttribute('aria-valuemax',max);meter.querySelector('i').style.width=Math.max(0,Math.min(100,100*value/max))+'%';}}
     }
     const contextual=view.actions.filter(a=>['hide','steal','backstab'].includes(a.id));
-    const contextHtml=contextual.map(a=>`<button class="btn sm quiet" data-a="combatbegin" data-id="${esc(a.id)}" aria-disabled="${!a.ready}" aria-label="${esc(a.name+(a.reason?' · '+a.reason:''))}">${esc(a.name)}</button>`).join('');if(context.innerHTML!==contextHtml)context.innerHTML=contextHtml;
+    const contextHtml=contextual.map(a=>({...a,name:a.id==='hide'&&CONCEAL.hidden?'Reveal · '+Math.max(0,CONCEAL.max-CONCEAL.steps)+' steps':a.name})).map(a=>`<button class="btn sm quiet" data-a="combatbegin" data-id="${esc(a.id)}" aria-disabled="${!a.ready}" aria-label="${esc(a.name+(a.reason?' · '+a.reason:''))}">${esc(a.name)}</button>`).join('');if(context.innerHTML!==contextHtml)context.innerHTML=contextHtml;
     const actions=[...view.actions.filter(a=>!['hide','steal','backstab'].includes(a.id)).map(a=>({...a,slot:null})),...view.loadout.map((a,slot)=>a?{...a,slot}:{id:'',name:'Empty',slot})];
     const key=actions.map(a=>a.id+':'+a.name+':'+a.slot).join('|');
     if(bar.dataset.layout!==key){bar.dataset.layout=key;bar.innerHTML=`<div class="combat-basics">${actions.filter(a=>a.slot===null).map(a=>combatButton(a)).join('')}</div><div class="combat-techniques" aria-label="Four equipped techniques">${actions.filter(a=>a.slot!==null).map(a=>combatButton(a)).join('')}</div>`;}
@@ -2285,7 +2285,7 @@
     techniquefilter:d=>{if(['all','swords','fencing','archery','magery'].includes(d.id))techniqueFilter=d.id;openTechniqueBook();},
     combatequip:d=>{if(combatView()){const result=Combat.equip(d.id||null,+d.slot);if(result?.ok)openTechniqueBook();}},
     combatsupply:d=>{if(combatView()){Combat.setSupply(d.id);openTechniqueBook();}},
-    combatdetails:()=>{if(F?.live&&F.res)sheet('<h2>Last action</h2><p>'+esc(F.pline||GRADE_N[F.res.grade])+'</p>'+QueryFeedback.html(F.comparison,{power:F.queryPower,open:true})+F.after.replace(/<div class="row end">[\s\S]*<\/div>$/,''));},
+    combatdetails:()=>{if(F?.live&&F.res)sheet('<h2>Last action</h2><p>'+esc(F.pline||GRADE_N[F.res.grade])+'</p>'+QueryFeedback.html(F.comparison,{power:F.queryPower,open:!!F.compareOpen})+F.after.replace(/<div class="row end">[\s\S]*<\/div>$/,''));},
     queryhelp:()=>{if(F)F.readinessHelp=true;kbView('help');},
     ...CMap.actions,
     snd: d => { const p = Sound.pref(); if (d.k === 'mu') Sound.setMu(!p.mu); else Sound.setFx(!p.fx); render(); },
@@ -2391,7 +2391,7 @@
     blank: d => { if (!Q || !Q.blank || Q.bok) return; const i = Q.blank.indexOf(null); if (i < 0) return; Q.blank[i] = d.w; Q.bout = ''; drawQ(); }, unblank: d => { if (!Q || !Q.blank || Q.bok) return; Q.blank[+d.i] = null; Q.bout = ''; drawQ(); }, blankrun: () => blankRun(),
     fbackstab: () => pickBackstab(),
     fprize: d => {if(F&&F.act==='steal'&&!F.busy){const old=F.prize==='prize'?15:0;F.prize=d.id==='prize'?'prize':'purse';F.bonus=(F.bonus||0)+old-(F.prize==='prize'?15:0);drawF();}}, fstance: d => {if(F&&!F.busy){const p=bestPage('arms');if(p)pickPage(p.id,d.id);}}, futility: d => combatUtility(d.id), fscroll: () => {if(F&&!F.busy){F.scroll=!F.scroll;drawF();}}, fmaneuver:d=>pickPage(d.id,d.stance), fpage: d => pickPage(d.id,d.stance||'strike'), fsteal: () => pickSteal(),
-    fcompare: () => { if(!F)return;F.compareOpen=!F.compareOpen;if(F.st==='prompt')drawFightRepair();else drawF(); },
+    fcompare: () => { if(!F)return;F.compareOpen=!F.compareOpen;if(F.st==='prompt')drawFightRepair();else if(F.live&&!F.over)ACT.combatdetails();else drawF(); },
     livecontinue:()=>Combat.cancel(),fchoose: () => { if(F?.live)return Combat.cancel();if (F && !F.busy && !F.over) { stashFightDraft();F.st = 'choose'; drawF(); } }, fdone: () => closeF(), floot: () => { const b = F && F.body; closeF(); if (b) lootOpen(b); }, flee: () => flee(),
     cardno: () => { closeCard(); render(); },
     atlas: () => sheet('<h2>Tables of the Great Ledger</h2>' + atlasHTML()),

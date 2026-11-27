@@ -2,7 +2,7 @@ const { expect } = require('@playwright/test');
 const { screenshot } = require('./flow');
 const { skipArrival } = require('./intro-helper');
 
-// Public save import prepares post-tutorial access, Strike and a nearby location.
+// Public save import prepares post-tutorial access and a nearby location.
 // Starting combat stats/resources remain; battle actions, SQL and comparison
 // expansion use visible controls without localhost debug handles.
 async function battleRelease(page, info, { hosted = true } = {}) {
@@ -40,14 +40,16 @@ async function battleRelease(page, info, { hosted = true } = {}) {
   await expect(page.locator('[data-a=start][data-k=boss]')).toBeVisible();
   await page.locator('[data-a=start][data-k=boss]').click();
   if (await coach.isVisible()) await coach.click();
-  await page.locator('[data-a=fpage][data-id=a1]').click();
+  await page.locator('#combat-bar [data-id="basic.swords"]').click();
   if (await coach.isVisible()) await coach.click();
   await page.locator('#sql').fill('SELECT -987654321 AS unrelated_result');
   await page.locator('#kb [data-fn=run]').click();
+  await page.locator('#combat-result [data-a=combatdetails]').click();
   await expect(page.locator('.query-power')).toContainText('0% power');
   await expect(page.locator('.query-yours')).toContainText('SELECT -987654321');
   await expect(page.locator('.query-solution')).toContainText(/Corrected query|One correct solution/);
-  await expect(page.locator('[data-a=fchoose]')).toBeVisible({ timeout: 25000 });
+  await expect(page.locator('#sheet')).toBeVisible();
+  await expect(page.locator('#hud [data-resource=hp] [role=meter]')).toBeVisible();
   const expand = page.locator('[data-a=fcompare]');
   if (await expand.isVisible()) { await expand.click(); await expect(expand).toHaveAttribute('aria-expanded', 'true'); }
   await screenshot(page, info, 'released-battle-comparison');
