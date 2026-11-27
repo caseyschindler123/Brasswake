@@ -373,6 +373,7 @@ Workbench Carpentry crafts storage chests (6 regional materials, difficulty 25),
 
 ## 13. Planned, not built
 
+- **Landscape battle and technique presentation:** landscape-first phone play, four equipped techniques across disciplines, a Technique Book, persistent top-right HP/mana/stamina, and an on-demand SQL panel with separate question help and keyboard/reference views are planned. Live movement/enemy timing, whole-world SQL pauses, recovery/aggro/targeting feedback and natural escape must integrate with the coordinated gameplay overhaul. The [landscape battle UI build plan](plans/2026-11-26-landscape-battle-ui.md) owns presentation milestones, verification and unresolved gameplay contracts. Its discussion mockups are not shipped behavior; implementation and publication are not yet authorized. Existing page/combat descriptions above remain the current implementation until replaced and verified.
 - Boats beyond the existing ferries remain deferred.
 - Cloaks, gloves and boots don't show on the body yet.
 - Dialogue portraits still use the old eight hero portraits.
@@ -389,6 +390,8 @@ A new main character chooses appearance and former profession, then is hauled ab
 **Onboarding.** A new arrival is from Sunspire. Tamsin still asks where the character was before the rescue, recognizes their reputation and puzzles over the impossible crossing. Older characters keep their established home. Once you get to your feet, the tray makes Adventure, Map, Hero, Bag and Ledger available aboard the Marigold. Tamsin walks through the four panels before landfall, and Adventure returns you to the deck and the current dialogue. Intro action buttons stay visible below the independently scrolling dialogue, including Open Map and Continue. The Map shows her rough coastal chart with the Marigold and Tallyport. Ashore, walking fills the normal exploration map, and paid map surveys still grant the existing travel rights. The saved orientation resumes from the last checkpoint. The existing skip continues directly to the dock.
 
 ## Decision log
+
+- 2026-11-26: Casey requested a full build plan for landscape battle presentation, four equipped Techniques and the Technique Book. Keep HP, mana and stamina visible at the top right; put Tables/Help with the question and use Commands/Fields/reference views in place of letter keys while preserving the SQL draft. Record live-world combat integration and unresolved baseline actions, technique/Magery rules and migration as dependencies. This records planned design only and does not authorize implementation or publication; the [build plan](plans/2026-11-26-landscape-battle-ui.md) owns execution status.
 
 - 2026-11-26: Casey requested one character entry in the bottom-middle Hero control, clearer numerical practice gains, an explained ability-page purchase, vendor-only individual sales, and a journal led by the next action. Keep equipped/named gear protected, review exact goods before selling, and separate optional/reference records from current guidance. Character artwork and locomotion are assigned to a separate task.
 
