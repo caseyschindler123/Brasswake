@@ -107,13 +107,17 @@
     });
   }
 
-  function manualMovement() {
-    const available = !!inputAvailable();
+  function syncSceneControls(available = !!inputAvailable()) {
     if (joy && joy.available !== available) {
       joy.available = available;
       joy.base.setAttribute('aria-disabled', String(!available));
     }
-    if (!available) { if (key || joy && joy.pointer !== null || P.path.length) clearSceneControls(); return; }
+    if (!available && (key || joy && joy.pointer !== null || P?.path.length)) clearSceneControls();
+    return available;
+  }
+
+  function manualMovement() {
+    if (!syncSceneControls()) return;
     const joystick = joy && joy.pointer !== null;
     const direction = joystick ? joy.direction : MOVE_KEYS[key];
     if (!direction) { if(P.manual)stopManualStep(); return null; }

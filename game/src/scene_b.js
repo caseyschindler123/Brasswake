@@ -1050,7 +1050,7 @@
   let tacticalClock=0;
   function step(dt) {
     if (!map.pending) fade = Math.max(0, fade - dt * 2.2);
-    if(host.combatEnabled?.()&&(locked||map.pending||document.hidden||!host.combatRunning?.())){if(host.combatResolving?.()){if(P.atk>0)P.atk-=dt;advanceEffects(dt);}return;}
+    if(host.combatEnabled?.()&&(locked||map.pending||document.hidden||!host.combatRunning?.())){syncSceneControls(false);if(host.combatResolving?.()){if(P.atk>0)P.atk-=dt;advanceEffects(dt);}return;}
     if (map.ship) shipTick(dt);
     if(inputAvailable()&&!map.pending&&!document.hidden)tacticalClock+=dt*1000;
     clock = (clock + dt / 600) % 1;

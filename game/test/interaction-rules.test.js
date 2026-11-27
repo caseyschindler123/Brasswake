@@ -102,9 +102,9 @@ function keyboardFixture() {
       const blocked = () => false;
       ${source}
       initSceneControls(el);
-      return manualMovement;`)(window, document, Movement, host, p, element());
+      return {direction:manualMovement,sync:syncSceneControls};`)(window, document, Movement, host, p, element());
   const fixture = {
-    direction, document, window, p, modal: false,
+    direction: direction.direction, sync: direction.sync, document, window, p, modal: false,
     key(type, key, props = {}) {
       const event = Object.assign(new Event(type, { cancelable: true }), { key, ...props });
       window.dispatchEvent(event);
@@ -113,6 +113,19 @@ function keyboardFixture() {
   };
   return fixture;
 }
+
+test('paused scene frames retire held movement without advancing or restarting it', () => {
+  const f = keyboardFixture();
+  f.key('keydown', 'd');
+  assert.deepEqual(f.direction(), [1, 0]);
+  const position = [f.p.x, f.p.y];
+  assert.equal(f.sync(false), false);
+  assert.equal(f.p.manual, false);
+  assert.deepEqual(f.p.path, []);
+  assert.deepEqual([f.p.x, f.p.y], position);
+  f.key('keydown', 'd', { repeat: true });
+  assert.equal(f.direction(), null);
+});
 
 test('held WASD/arrow movement stops on keyup, blur and modal entry without restarting on repeats', () => {
   const f = keyboardFixture();

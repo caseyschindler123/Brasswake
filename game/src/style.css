@@ -1047,6 +1047,8 @@ html,body{background:#2b1c11;overscroll-behavior:none}
   #nav .hero .slot img { width:100%; height:100%; }
   #nav .lab { font-size:10px; }
   #nav::before,#nav::after { display:none; }
+  #app:has(#view:not([hidden])) #nav { position:relative; left:auto; bottom:auto; width:auto; }
+  #app.prologue #onboard { bottom:calc(var(--nav-height,64px) + 12px + var(--boat-kb,0px)); }
   .movement-joystick { left:18px; right:auto; bottom:76px; }
   #stage #ctx { left:116px; bottom:76px; max-width:calc(100% - 150px); }
   #fight,#fight.st-prompt,#fight.st-choose { left:auto; right:env(safe-area-inset-right,0px); top:var(--hud-bottom,64px); bottom:var(--kb,0px); width:var(--action-panel-width); max-height:none; border-top:0; border-left:2px solid var(--brass); padding:5px 7px calc(5px + env(safe-area-inset-bottom,0px)); }
@@ -1055,6 +1057,7 @@ html,body{background:#2b1c11;overscroll-behavior:none}
   #fight.st-prompt .f-head { flex-direction:row; align-items:center; }
   #fight.st-prompt .f-head .f-btns { width:auto; }
   #fight.st-prompt .f-head b { font-size:17px; }
+  #fight.st-prompt .f-head>div:first-child { min-width:150px; }
   #fight.st-prompt .f-head small { font-size:11px; }
   #fight.st-prompt .f-head .btn { min-height:30px; }
   #fight.st-prompt > .battle-question { min-height:34px; max-height:none; flex:1 1 auto; overflow:auto; gap:3px; }
