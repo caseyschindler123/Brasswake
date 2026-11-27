@@ -275,7 +275,7 @@ test('query feedback · equivalent SQL gets full power and shape/shown answers r
 });
 
 test('query feedback · a shown attack cannot switch into theft before committing the exchange', async ({ page }) => {
-  const errors = observeErrors(page), f = await fixture(page, 'b102', true, { theft: true });
+  const errors = observeErrors(page), f = await fixture(page, 'b104', true, { theft: true });
   const actions = f.locator('[data-a=fchoose]'), steal = f.locator('[data-a=fsteal]');
   await actions.click();
   await dismiss(f);

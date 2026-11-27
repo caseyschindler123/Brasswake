@@ -77,7 +77,7 @@ async function withEnemyRolls(f, rolls, execute) {
 }
 
 test('battle boundaries · a clean lift keeps a neutral foe and theft and duels own their prompts', async ({ page }) => {
-  const errors = observeErrors(page), f = await fixture(page, 'thief');
+  const errors = observeErrors(page), f = await fixture(page, 'thief', false, false, 'b104');
   const before = await f.evaluate(() => {
     window.battleRiskTarget.unseen = true;
     __bw.ACT.fchoose();

@@ -477,7 +477,7 @@ test('skill system · fleeing waits for attack and retaliation to finish', async
 
 async function theftTarget(f, elite) {
   await f.evaluate(elite=>{
-    for(const target of Scene.ents().filter(e=>e.kind==='mon'&&e.r===1&&!e.inst.lair&&e.inst.tpl[0]==='b')) {
+    for(const target of Scene.ents().filter(e=>e.kind==='mon'&&e.r===1&&!e.inst.lair&&e.inst.tpl[0]==='b'&&CreatureLoot.carries(e))) {
       target.testTheftCandidate=true;
       target.inst.elite=elite;
       target.agg=false;

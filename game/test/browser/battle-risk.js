@@ -2,11 +2,11 @@ const { test, expect } = require('@playwright/test');
 const { observeErrors, screenshot } = require('./flow');
 
 const action = (f, a, attrs = '') => f.locator(`[data-a="${a}"]${attrs}`);
-async function fixture(page, path = 'warrior', forced = false, blockedFirst = false) {
+async function fixture(page, path = 'warrior', forced = false, blockedFirst = false, template = 'b101') {
   await page.goto('/__visual?scene=tallyport');
   await expect(page.locator('body')).toHaveAttribute('data-ready', 'tallyport', { timeout: 45000 });
   const f = page.frames().find(f => f.url().includes('visual_test=1'));
-  await f.evaluate(({ path, forced, blockedFirst }) => {
+  await f.evaluate(({ path, forced, blockedFirst, template }) => {
     Sound.setMu(false); window.__bwFast = true;
     const s = __bw.S, presets = {
       warrior: { sk: { swords: 40, healing: 30 }, attr: { str: 60, dex: 35, int: 25 }, w: 'swords', pages: { a1: 1 } },
@@ -19,8 +19,8 @@ async function fixture(page, path = 'warrior', forced = false, blockedFirst = fa
     const weapon = __bw.makeItem('common', 1, 'weapon', p.w); s.inv = [weapon]; s.eq = { weapon: weapon.id };
     for (const e of Scene.ents()) { e.wander = 0; e.tx = null; e.fx = e.x; e.fy = e.y; e.chase = 0; }
     const m = Scene.debug().map;
-    const candidates = Scene.ents().filter(e => e.kind === 'mon' && e.r === 1 && e.inst.tpl === 'b101' && !e.inst.elite && !e.dead && !e.dying);
-    if (!candidates.length) throw Error('No ordinary b101 battle candidates');
+    const candidates = Scene.ents().filter(e => e.kind === 'mon' && e.r === 1 && e.inst.tpl === template && !e.inst.elite && !e.dead && !e.dying);
+    if (!candidates.length) throw Error('No ordinary battle candidates for ' + template);
     const neighbors = e => [[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy]) => [e.x+dx,e.y+dy]);
     // Population and wandering can surround the first matching creature.
     // Keep its actual starting stats, but choose a creature we can stand beside.
@@ -39,7 +39,7 @@ async function fixture(page, path = 'warrior', forced = false, blockedFirst = fa
     Scene.warp(...at);
     if (Scene.pos().join() !== at.join()) throw Error('Ordinary battle approach was displaced');
     if (forced) __bw.HOST.ambush(e); else __bw.HOST.interact(e);
-  }, { path, forced, blockedFirst });
+  }, { path, forced, blockedFirst, template });
   await expect(f.locator('#fight')).toBeVisible();
   return f;
 }

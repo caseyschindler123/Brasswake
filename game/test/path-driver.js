@@ -195,7 +195,7 @@ window.installPathAudit = function ({ path, seed, mistakeEvery=0 }) {
   function prepareTheft(r) {
     dismiss();Scene.pause();const {map}=Scene.debug();
     for(const e of Scene.ents()) {
-      if(e.kind!=='mon'||e.r!==r||e.dead||e.dying||!e.inst?.tpl?.startsWith('b')||theftTargets.has(e))continue;
+      if(e.kind!=='mon'||e.r!==r||e.dead||e.dying||!e.inst?.tpl?.startsWith('b')||theftTargets.has(e)||!CreatureLoot.carries(e))continue;
       for(const [dx,dy,key] of [[1,0,'ArrowRight'],[-1,0,'ArrowLeft'],[0,1,'ArrowDown'],[0,-1,'ArrowUp']]) {
         if(!Backstab.rear(-dx,-dy,facing(e)))continue;
         const cells=[3,2,1].map(n=>[e.x-n*dx,e.y-n*dy]);
