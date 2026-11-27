@@ -718,7 +718,7 @@
     task:(circle,e,cfg)=>{
       if(circle>8)return prepareLearning(AdvancedSQL.next(circle,rid()));
       if((S.tut<2||gOn())&&circle===1)return tutTask();
-      if(cfg.boss&&circle===cfg.r)return prepareLearning(Object.assign({kind:'read',r:circle,title:cfg.title},cfg.boss.phases[(e?.combat?.round||0)%cfg.boss.phases.length](RNG(rid()))));
+      if(cfg.boss&&circle===cfg.r)return prepareLearning(Object.assign({kind:'read',r:circle,title:cfg.title},cfg.boss.phases[(e?.combat?.queries||0)%cfg.boss.phases.length](RNG(rid()))));
       const tpl=circle===cfg.r&&cfg.sig?cfg.sig:pick(BOUNTIES.filter(b=>b.r===circle)).id;
       return prepareLearning(Learning.next(learningState(),{circle,seed:rid()})||makeTask({tpl,seed:rid()}));
     },
@@ -731,7 +731,7 @@
       const intent=BattleRules.intent({role:f.drole,boss:!!f.boss,magic:es.profile.magic,circle:f.r},es.round),armor=spell?1:(f.drole==='armored'?.8:1)*intent.physicalArmor;
       const physical=['pierce','expose'].includes(d.effect)||es.exposed>0?1:spell?(es.profile.magic?.85:1):armor;
       const strike=EquipmentRules.attack({weapon:itemById(S.eq.weapon),skillId:d.discipline,skill,damageBonus:bonus('xp'),accuracy:acc,range:W.dmg,swings:W.swings,
-        pageCircle:1,targetCircle:1,queryPower:q,attributeFactor:spell?Progression.spellFactor(S):Progression.physicalFactor(S),physicalFactor:physical*(es.exposed>0?1.2:1)*(d.power||1)*(d.effect==='backstab'?Backstab.factor(rv('stealth')):1),target:EquipmentRules.creatureProfile(e.name)});
+        pageCircle:1,targetCircle:1,queryPower:q,attributeFactor:spell?Progression.spellFactor(S):Progression.physicalFactor(S),physicalFactor:physical*(es.exposed>0?1.2:1)*(d.power||1)*(d.effect==='backstab'?1+(Backstab.factor(rv('stealth'))-1)*(f.shown?0:q):1),target:EquipmentRules.creatureProfile(e.name)});
       es.exposed=0;let damage=0;for(let k=0;k<(d.effect==='backstab'?2:W.swings);k++)if(rnd()*100<strike.accuracy)damage+=strike.damage(rint(...W.dmg));
       return {damage,accuracy:strike.accuracy};
     },
@@ -753,6 +753,7 @@
   const combatUiState=()=>Combat.snapshot();
   function runLiveSQL(){
     if(!ready||!F?.live||F.st!=='prompt'||F.busy)return;
+    const eligible=Combat.commitEligibility();if(!eligible.ok)return toast(eligible.reason);
     const sql=$('#fight #sql')?.value||'';if(!sql.trim())return toast('Write a query first.');
     const res=Engine.grade(F.task,sql);S.stats.q++;F.compareOpen=false;F.comparison=res.ok?null:QueryFeedback.prepare(F.task,sql,res,Engine);
     if(res.err&&!F.fixed){F.fixed=1;F.syntaxError=true;return drawFightRepair();}

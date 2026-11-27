@@ -13,7 +13,7 @@ const CombatController = (() => {
       if(cfg)e.combatConfig=cfg;
       if(e.combat&&e.combat.owner===state().uid)return e.combat;
       const config=cfg||e.combatConfig||h.encounter(e),p=LiveCombat.profile({role:config.drole,name:config.title,circle:config.r,boss:!!config.boss});
-      e.combat={...LiveCombat.enemy(),owner:state().uid,hp:config.foe.hp,max:config.foe.max,profile:p,config};
+      e.combat={...LiveCombat.enemy(),queries:0,owner:state().uid,hp:config.foe.hp,max:config.foe.max,profile:p,config};
       return e.combat;
     }
     function prepare(cfg) {
@@ -94,7 +94,7 @@ const CombatController = (() => {
       prepared=preparations.get(key);
       if(!prepared.task){h.message('No question is available at that Circle.');return false;}
       h.open({...config,ent:e||null,foe:e?{...config.foe,hp:enemy(e).hp,max:enemy(e).max}:config.foe,
-        live:true,actionId:id,definition:baseline(id),page:{id,book:view.discipline==='magery'?'spell':'arms',c:view.sqlCircle,rare:!!view.rare},
+        live:true,round:e?enemy(e).queries:0,actionId:id,definition:baseline(id),page:{id,book:view.discipline==='magery'?'spell':'arms',c:view.sqlCircle,rare:!!view.rare},
         st:'prompt',task:prepared.task,verb:view.name,kc:view.sqlCircle,utility:view.target==='self'?view.effect:null,
         hint:assistance.hint,shown:assistance.shown,fixed:assistance.fixed,syntaxError:!!assistance.fixed,readinessHelp:!!assistance.readinessHelp,hints:[],editorState:prepared.editorState,drafts:{[prepared.task.sql]:prepared.draft}});
       h.changed();return true;
@@ -117,9 +117,10 @@ const CombatController = (() => {
       if(s.stamina<(d.stamina||0)||s.mana<mana&&!(s.prepared>0&&d.discipline==='magery')){f.round--;f.st='prompt';h.message('The action is no longer affordable.');return;}
       if(d.discipline==='magery'&&s.prepared>0&&(f.scroll||s.mana<mana)){s.prepared--;f.scroll=false;}else s.mana-=mana;
       s.stamina-=d.stamina||0;
+      if(es)es.queries++;
       cooldown=LiveCombat.recovery(d.recovery,d.discipline,s.attr.dex);prepared=null;preparations.clear();assistance={hint:0,shown:0,fixed:0};f.busy=true;
       const skill=d.discipline==='support'?(d.effect==='recover'?'meditation':'healing'):d.discipline;
-      h.practice(skill,f.diff,quality,gains);
+      if(d.effect!=='draught')h.practice(skill,f.diff,quality,gains);
       let note=q>0?'The action succeeds.':'The query gives no useful effect.';
       if(e&&d.target==='enemy'){h.engage(e);h.reveal();}
       if(d.effect==='bandage'||d.effect==='draught'){
@@ -155,6 +156,7 @@ const CombatController = (() => {
     function hit(e,es) {
       if(h.paused()||state().hp<=0)return;
       const s=state(),p=es.profile,intent=BattleRules.intent({role:es.config.drole,boss:!!es.config.boss,magic:p.magic,circle:es.config.r},es.round-1);
+      if(intent.swings===0){h.changed();return;}
       const skill=s.sk[weapon()]||0,accuracy=BattleRules.enemyHit(skill,es.config.diff,intent.accuracy);
       const blocked=protection?(p.magic?protection.magic:protection.physical):0;
       const damage=h.enemyDamage(e,es,accuracy,blocked,intent);
@@ -162,9 +164,22 @@ const CombatController = (() => {
       h.changed();if(s.hp<=0)h.defeat(e,es);
     }
     function bleed(e,amount){const es=enemy(e);if(!es||es.hp<=0)return;es.hp=Math.max(1,es.hp-amount);h.present(e,{discipline:'swords'},amount);h.settled(e);}
-    function reset(e){if(e.combat){e.combat.hp=e.combat.max;e.combat.round=0;}h.settled(e);}
+    function reset(e){if(e.combat){e.combat.hp=e.combat.max;e.combat.round=0;e.combat.queries=0;}h.settled(e);}
+    function commitEligibility(){
+      const f=h.fight(),d=f?.definition,s=state();if(!f?.live||!d)return {ok:false,reason:'No live action is prepared.'};
+      let reason='';const facts=f.ent&&h.facts(f.ent);
+      if(d.target==='enemy'&&(!facts||f.ent.combat?.hp<=0))reason='The target is no longer available.';
+      if(!reason&&d.target==='enemy'&&facts.returning)reason='This creature is returning to its territory.';
+      if(!reason&&d.target==='enemy'&&(!facts.lineOfFire||facts.distance>d.range))reason='The target is out of reach or behind an obstacle.';
+      if(!reason&&Techniques.get(d.id)?.source){const result=Techniques.eligibility(s,d.id,{weapon:equippedWeapon()});if(!result.ok)reason=result.reason;else if(!s.techniques.equipped.includes(d.id))reason='This technique is no longer equipped.';}
+      if(!reason&&d.id==='backstab')reason=h.backstab(f.ent)||'';
+      if(!reason&&s.stamina<(d.stamina||0))reason='Not enough stamina for that action.';
+      if(!reason&&s.mana<h.manaCost(d.mana||0)&&!(s.prepared>0&&d.discipline==='magery'))reason='Not enough mana for that action.';
+      if(!reason&&['bandage','draught'].includes(d.effect)&&!(s[d.effect==='draught'?'tonics':'bandages']>0))reason='That supply is no longer available.';
+      return {ok:!reason,reason};
+    }
     function utilityCommitted(seconds=2){cooldown=LiveCombat.recovery(seconds,'support');}
-    return {snapshot,begin,cancel,equip,setSupply,selectTarget,prepare,enemy,tick,resolve,hit,bleed,reset,active,descriptor,utilityCommitted};
+    return {snapshot,begin,cancel,equip,setSupply,selectTarget,prepare,enemy,tick,resolve,hit,bleed,reset,active,descriptor,utilityCommitted,commitEligibility};
   }
   return {create};
 })();

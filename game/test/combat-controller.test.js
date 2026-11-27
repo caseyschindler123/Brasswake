@@ -10,7 +10,7 @@ function setup(){
     open:cfg=>{f=cfg;paused=true;},task:c=>({sql:'SELECT '+(++tasks),r:c}),challenge:()=>{},
     practice:()=>{},engage:e=>LiveCombat.engage(e.combat),reveal:()=>{},recover:()=>{s.mana=Math.min(100,s.mana+25);},bandage:()=>10,heal:n=>{const old=s.hp;s.hp=Math.min(100,s.hp+n);return s.hp-old;},
     attack:()=>({damage:20}),present:()=>{},settled:()=>{},push:()=>{},victory:()=>{},finish:()=>paused=false,enemyDamage:()=>5,defeat:()=>{}};
-  const c=create(h);c.snapshot();c.selectTarget(e);return {c,e,get s(){return s;},get f(){return f;},setDraft:v=>draft=v,tasks:()=>tasks,replace:()=>{s={...s,techniques:undefined,pages:{}};}};
+  const c=create(h);c.snapshot();c.selectTarget(e);return {c,e,host:h,get s(){return s;},get f(){return f;},setDraft:v=>draft=v,tasks:()=>tasks,replace:()=>{s={...s,techniques:undefined,pages:{}};}};
 }
 test('opponent offsets reach real IX/X and four-slot equipment uses real skill',()=>{
   const x=setup();Techniques.learn(x.s,'magery.frost-dart');Techniques.learn(x.s,'magery.unwrite');
@@ -43,4 +43,13 @@ test('healing and wards are available before high mastery and support uses local
   const x=setup();assert.equal(Techniques.get('magery.healing').requirement,60);assert.equal(Techniques.get('magery.ward').requirement,70);
   Techniques.teach(x.s,2);x.c.equip('magery.healing',0);assert.equal(x.c.descriptor('magery.healing').sqlCircle,9);
   assert.equal(x.c.begin('magery.healing'),true);assert.equal(x.f.ent,null);assert.equal(x.f.kc,9);
+});
+test('a depleted prepared action fails commitment before spending its recovery or resources',()=>{
+  const x=setup();x.c.begin('basic.magery');x.s.mana=0;const before=JSON.stringify(x.s);assert.equal(x.c.commitEligibility().ok,false);assert.equal(JSON.stringify(x.s),before);assert.equal(x.c.snapshot().recovery.ready,true);
+});
+test('brute preparation causes no damage while its following live attack does',()=>{
+  const x=setup();let hits=0;x.host.enemyDamage=()=>{hits++;return 5;};const es=x.e.combat;es.config.drole='brute';es.round=1;x.c.hit(x.e,es);assert.equal(hits,0);es.round=2;x.c.hit(x.e,es);assert.equal(hits,1);
+});
+test('committed query phases are independent of timed enemy attacks and reset at a full leash reset',()=>{
+  const x=setup();x.e.combat.round=3;x.c.begin('basic.magery');x.f.queryPower=1;x.f.round=1;x.c.resolve(x.f,{quality:1});assert.equal(x.e.combat.queries,1);assert.equal(x.e.combat.round,3);x.c.reset(x.e);assert.equal(x.e.combat.queries,0);assert.equal(x.e.combat.round,0);
 });
