@@ -32,7 +32,8 @@ Casey authorized the full build on 2026-11-27. The landscape/UI chat owns presen
 - [x] Scene/game adapters for targeting, live enemy attacks, SQL pause/commit/resume, natural escape and existing death/reward paths.
 - [x] Distinct Magery and physical effects/resources, finite support/supplies, dojo teaching and legacy shops/drops/onboarding transition.
 - [x] Actual browser integration evidence: native movement/recovery, actual SQL/actions/HP/mana, enemy LOS/ranged/chase, learned/equipped persistence and ordinary dojo completion. Open phone/desktop captures.
-- [ ] Diff/master-doc review, checks and branch commit supplied to UI/release coordinator. Combined full gate and publication remain coordinator-owned; do not call this released before exact commit/hash/hosted evidence exists.
+- [x] Gameplay diff/master-doc review, focused checks and implementation checkpoints supplied to the UI/release coordinator.
+- [ ] Complete migrated consumer evidence and combined full gate/publication. The coordinator owns release; do not call this released before exact commit/hash/hosted evidence exists.
 
 ## Acceptance and evidence
 
@@ -57,3 +58,5 @@ Earned full-day integration reached the retained page objective but found Odalys
 New-character covert review removes obsolete Arms-page ownership from Backstab: basic Fencing satisfies the combat half; Shadows ownership, Stealth/Fencing gear/stamina/concealed rear approach remain. The native Backstab fixture now owns only h1 and explicitly asserts no Arms page, so migration knowledge cannot mask availability.
 
 Independent consumer review restores native target selection, actual no-hint Help, wounded Examiner preview, authored next-phase and pre-victory reward assertions. Runtime card health now reads live state; legacy WOUNDS/attack-round fallback cannot override live query phase. Explicit end-chase and full return clear effect/counter state (full return retains attack exclusion until home). Focused reset regression covers effects/phase preservation.
+
+Battle-risk consumer migration retains eleven original cases and adds assistance carryover, using real shared recovery/live blows/SQL transactions instead of fixed retaliation/Flee/page menus. All twelve cases passed three supported profiles (36/36) against frozen1d0026c; actual phone/desktop captures were opened. The fixture preserves upstream optional species selection and unchanged real starter stats; independent species filtering remains coordinator-owned. Boundary seven cases passed three profiles (21/21) against05df217; review adds a resumed rare-cancel blow check, pending its bounded follow-up. No release claim.
