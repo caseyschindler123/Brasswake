@@ -150,13 +150,10 @@ test('a dungeon death survives reload before Wake up and its belongings survive 
   const setup=await f.evaluate(()=>{const e=Scene.find(e=>e.kind==='mon'&&e.inst.role==='armored');Scene.hop(e.x+1,e.y);return {id:e.id,x:e.x,y:e.y,back:__bw.DG.back};});
   await f.waitForTimeout(450);await dismiss(f);
   if(!await f.locator('#fight').isVisible())await canvasClick(f,setup.x,setup.y);
-  await expect(f.locator('#fight')).toBeVisible();await dismiss(f);
+  // Enemy attacks advance in live world time; death no longer requires a
+  // submitted player action to trigger the opponent's response round.
+  await f.waitForFunction(()=>__bw.F?.kick===true,null,{timeout:15000});
   expect(await f.evaluate(()=>__bw.F.ent.id)).toBe(setup.id);
-  for(let i=0;i<8&&!(await f.evaluate(()=>!!__bw.F.over));i++){
-    if(await f.locator('[data-a=fchoose]').isVisible())await f.locator('[data-a=fchoose]').click();
-    await f.locator('[data-a=fpage]').first().click();await dismiss(f);await f.locator('#sql').fill('SELECT 0 AS wrong_answer');await f.locator('#kb [data-fn=run]').click();
-    await f.waitForFunction(()=>!__bw.F.busy);
-  }
   await expect(f.locator('[data-a=fdone]')).toContainText('Wake up');
   const dropped=await f.evaluate(()=>({pending:!!__bw.S.deathPending,dungeon:__bw.S.dungeon,gold:__bw.S.gold,body:[__bw.S.remains.x,__bw.S.remains.y]}));
   expect(dropped).toEqual({pending:true,dungeon:null,gold:0,body:setup.back});
@@ -204,6 +201,7 @@ for(let r=1;r<=8;r++){
       }
       __bw.S.er.a.audit={type:'hunt',tpl:'b'+r+'01',have:0,n:2,from:'Test hunt',x:'creature'};
       __bw.S.seen.fight=__bw.S.seen.fprompt=__bw.S.seen.loot=1;
+      __bw.Combat.setSupply('draught');
       window.__bwFast=true;
       const stairs=Scene.find(e=>e.kind==='stairs'&&e.r===r);Scene.warp(stairs.x+1,stairs.y);__bw.save();
     },r);

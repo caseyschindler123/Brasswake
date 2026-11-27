@@ -1,6 +1,6 @@
 const {test,expect}=require('@playwright/test');
 const {screenshot,observeErrors}=require('./flow');
-const {walk}=require('./dungeon-helper');
+const {walk,liveFight}=require('./dungeon-helper');
 const {drivePath}=require('./movement');
 
 async function speech(f, action) {
@@ -73,7 +73,7 @@ async function visit(f,kind,stats,extra={}){
   if(await f.locator('#ctx').isVisible()&&(await f.locator('#ctx').innerText()).includes(e.name))await f.locator('#ctx').click();else await clickWorld(f,e.at);
   await f.waitForTimeout(500);
   if(kind==='guide'){if(await f.locator('#say').isVisible())return;continue;}
-  if(!['mon','guard'].includes(kind)||await f.locator('#fight').isVisible())return;
+  if(!['mon','guard'].includes(kind)||await f.locator('#fight').isVisible()||await f.evaluate(id=>__bw.Combat?.snapshot().target?.id===id,e.id))return;
   }
   throw Error('Could not approach and engage '+kind);
 }
@@ -86,6 +86,7 @@ function beginnerAnswer(ask){
   return 'SELECT '+pick[1].replace(/ and the /g,', ')+' FROM '+({vendor:'vendors',item:'items',customer:'customers',employee:'employees'}[pick[2]]);
 }
 async function beginnerFight(f,stats){
+  if(await f.evaluate(()=>!!__bw.Combat&&(!__bw.F||__bw.F.live)))return liveFight(f,stats,beginnerAnswer,30);
   for(let n=0;n<30;n++){
     const coach=f.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
     if(await f.locator('[data-a=floot]').isVisible())break;
@@ -141,7 +142,19 @@ async function finishGuidedDay(f,info,stats,fish=false,study=false){
   const gift=await f.evaluate(()=>__bw.S.gk);await f.locator(`[data-a=item][data-id="${gift}"]`).click();await f.locator('[data-a=equip]').click();await speech(f);
   await f.locator('#nav [data-t=hero]').click();if(await coach.isVisible())await coach.click();await expect(f.locator('#doll')).toBeVisible();await expect(f.getByRole('heading',{name:'New arrival',exact:true})).toBeVisible();await screenshot(f,info,'equipped-weapon-after-first-fight');await f.locator('#nav [data-t=world]').click();
   await visit(f,'stallkeep',stats,{r:1});await f.locator('#sheet [data-a=sellcommon]').click();await expect(f.locator('#sheet')).toContainText('Choose goods to sell');await f.locator('#sheet [data-a=sellallcommon]').click();await expect(f.locator('#sheet')).toContainText('Review this sale');await f.locator('#sheet [data-a=sellconfirm]').click();await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(8);await speech(f);
-  await visit(f,'npc',stats,{r:1,i:0});await speech(f,'#say [data-a=pages]');if(await coach.isVisible())await coach.click();await f.locator('[data-a=buypage]:not([disabled])').first().click();await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(9);await f.locator('.sheet-x').click();await speech(f);
+  await person(f,'dojo',stats);await person(f,'odalys',stats);await speech(f,'#say [data-a=learnpractice]');
+  const trainingBefore=await f.evaluate(()=>({gold:__bw.S.gold,hp:__bw.S.hp,mana:__bw.S.mana,skills:JSON.stringify(__bw.S.sk)}));
+  for(let i=0;i<3;i++){
+    await query(f,await f.evaluate(()=>__bw.Q.task.sql));stats.queries++;
+    await expect(f.locator('#enc')).toContainText('Your query gives the requested result.');
+    expect(await f.evaluate(()=>__bw.Q.practiceScore[0])).toBe(i+1);
+    if(i<2)await f.locator('#enc [data-a=learnnext]').click();
+  }
+  await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(9);
+  expect(await f.evaluate(()=>Object.keys(__bw.S.techniques.learned))).toEqual(expect.arrayContaining(['swords.cross-cut','fencing.stop-thrust','archery.true-shot','magery.frost-dart']));
+  expect(await f.evaluate(()=>({gold:__bw.S.gold,hp:__bw.S.hp,mana:__bw.S.mana,skills:JSON.stringify(__bw.S.sk)}))).toEqual(trainingBefore);
+  await screenshot(f,info,'earned-first-techniques');await f.locator('#enc .q-head [data-a=qleave]').click();
+  await visit(f,'hallexit',stats);await speech(f);
   await visit(f,'banker',stats,{r:1});await speech(f,'[data-a=bankopen]');{const bankCoach=f.locator('[data-a=coachok]');if(await bankCoach.isVisible())await bankCoach.click();}await f.locator('[data-a=bdep]').click();await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(10);await expect(f.locator('#sheet')).toBeVisible();await f.locator('.sheet-x').click();await speech(f);
   await visit(f,'lookout',stats);await speech(f);await screenshot(f,info,'harbour-tower-and-road');
   if(fish){

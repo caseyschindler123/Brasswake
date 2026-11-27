@@ -9,8 +9,39 @@ async function closeSheet(f) {
   for(const selector of ['#sheet [data-a=closesheet]','#say [data-a=closesheet]']){const b=f.locator(selector).last();if(await b.isVisible())await b.click();}
   for(let i=0;i<4&&await f.locator('#say-text').isVisible();i++)await f.locator('#say-text').click();
 }
+async function liveFight(f,stats,answer,limit=60){
+  await dismiss(f);
+  const target=await f.evaluate(()=>__bw.F?.ent?.id||__bw.F?.body?.id||__bw.Combat.snapshot().target?.id);
+  expect(target,'a selected live opponent').toBeTruthy();
+  for(let n=0;n<limit;n++){
+    await dismiss(f);
+    const state=await f.evaluate(()=>({over:!!__bw.F?.over,dead:__bw.S.hp<=0,prompt:__bw.F?.live&&__bw.F.st==='prompt',
+      weapon:__bw.Combat.snapshot().actions[0].id,mana:__bw.S.mana,maxHp:__bw.maxHp(),hp:__bw.S.hp,
+      supply:__bw.Combat.descriptor('supply'),recover:__bw.Combat.descriptor('recover'),attack:__bw.Combat.snapshot().actions[0]}));
+    if(state.dead)throw Error('Dungeon traversal character died');
+    if(state.over)break;
+    if(!state.prompt){
+      const hurt=answer?state.hp<=state.maxHp-30:state.hp<state.maxHp*.7;
+      const action=hurt&&state.supply.eligible?'supply':state.mana<state.attack.mana&&state.recover.eligible?'recover':state.weapon;
+      await f.waitForFunction(id=>__bw.F?.over||__bw.Combat.descriptor(id)?.ready,action,{timeout:15000});
+      if(await f.evaluate(()=>!!__bw.F?.over))break;
+      await f.locator(`#combat-bar [data-a=combatbegin][data-id="${action}"]`).click();
+    }
+    await expect(f.locator('#fight #sql')).toBeVisible();
+    const sql=answer?answer(await f.locator('#fight .ask').innerText()):await f.evaluate(()=>__bw.F.task.sql);
+    await f.locator('#fight #sql').fill(sql);await f.locator('#fight #kb [data-fn=run]').click();stats.queries++;
+    await f.waitForFunction(()=>__bw.F&&!__bw.F.busy);
+  }
+  expect(await f.evaluate(()=>!!__bw.F?.over),'a real live victory within the bounded query budget').toBe(true);
+  expect(await f.evaluate(id=>__bw.F?.body?.id===id&&__bw.F.foe.hp<=0&&!!__bw.F.body.dead,target)).toBe(true);
+  stats.fights=(stats.fights||0)+1;
+  await f.locator('[data-a=floot]').click();await dismiss(f);
+  const take=f.locator('[data-a=lootall]');if(await take.isVisible())await take.click();
+  await closeSheet(f);
+}
 async function win(f, stats) {
   if(stats.solveVisibleFight)return stats.solveVisibleFight(f,stats);
+  if(await f.evaluate(()=>!!__bw.Combat&&(!__bw.F||__bw.F.live)))return liveFight(f,stats);
   await dismiss(f);
   // Each query and each draught now allows one enemy response. Bound complete
   // exchanges, including deliberate recovery actions, rather than old batches.
@@ -131,6 +162,9 @@ async function walk(f, goal, stats, adjacent=true, recovering=false) {
     if(stats.stopWhenGuideEnds&&await f.evaluate(()=>__bw.S.gd>=15))return;
     if(stats.solveVisibleFight)await dismiss(f);
     if(await f.locator('#say').isVisible())await closeSheet(f);
+    if(await f.evaluate(()=>{const view=__bw.Combat?.snapshot(),target=view?.target,e=target&&Scene.find(e=>e.id===target.id);return !!(view?.active&&e?.combat?.phase==='chase'&&target.visible&&target.distance<=7);})){
+      await win(f,stats);recent.length=0;continue;
+    }
     if(await f.locator('#fight').isVisible()){await win(f,stats);recent.length=0;continue;}
     const step=await f.evaluate(({goal,adjacent})=>{
       const {map:m,P,cam,zoom}=Scene.debug(),start=P.y*m.w+P.x;
@@ -210,7 +244,10 @@ async function interact(f,id,stats,recovering=false,beforeClick){
       if(await f.evaluate(id=>__bw.F?.ent?.id===id,id))return e;
       await win(f,stats);continue;
     }
-    if(['mon','guard','keeper'].includes(e.kind))continue;
+    if(['mon','guard','keeper'].includes(e.kind)){
+      if(await f.evaluate(id=>__bw.Combat?.snapshot().target?.id===id,id))return e;
+      continue;
+    }
     return e;
   }
   throw Error('Repeated ambushes prevented reaching '+id);
@@ -219,9 +256,9 @@ async function engage(f,id,stats,recovering=false){
   const status=await f.evaluate(id=>{const e=Scene.find(e=>e.id===id&&!e.dead&&!e.dying)||Scene.find(e=>e.id===id);return {kind:e?.kind,killed:!!__bw.DP.current()?.kills[id]};},id);
   if(status.killed&&(!status.kind||status.kind==='corpse'))return;
   await interact(f,id,stats,recovering);
-  if(await f.locator('#fight').isVisible())await win(f,stats);
+  if(await f.locator('#fight').isVisible()||await f.evaluate(id=>__bw.Combat?.snapshot().target?.id===id,id))await win(f,stats);
   else expect(await f.evaluate(id=>!!__bw.DP.current().kills[id],id)).toBe(true);
 }
 
 
-module.exports={dismiss,closeSheet,win,canvasClick,assertTexture,assertPortalArt,capturePortal,walk,interact,engage};
+module.exports={dismiss,closeSheet,win,liveFight,canvasClick,assertTexture,assertPortalArt,capturePortal,walk,interact,engage};
