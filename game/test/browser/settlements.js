@@ -81,7 +81,11 @@ test('settlements · a street sign identifies its games and a player walks to ea
   await drivePath(frame,[[entry[0],entry[1]+1],entry,door,[door[0],door[1]-1]],false);
   await frame.waitForFunction(()=>Scene.debug().world.blds.some(b=>b.r===1&&b.slot==='casino'&&b.inside&&b.fa===0));
   await screenshot(page,info,'settlement-card-room-interior');
+  const stick = frame.getByRole('group', { name: 'Movement joystick' });
   for (const [station,name] of [['poker','Blind Tally'],['blackjack','The Count'],['wheel','The Crooked Wheel']]) {
+    // The sheet or encounter can close before the next scene frame
+    // re-enables the thumb control.
+    await expect(stick).toHaveAttribute('aria-disabled', 'false');
     const a=await frame.evaluate(station=>{
       const {map:m}=Scene.debug(), e=m.ents.find(e=>e.r===1&&e.station===station);
       const paths=[[0,1],[1,0],[0,-1],[-1,0]].map(([dx,dy])=>
@@ -89,10 +93,12 @@ test('settlements · a street sign identifies its games and a player walks to ea
       paths.sort((a,b)=>a.length-b.length);
       return {path:paths[0],xy:[e.x,e.y]};
     },station);
+    expect(a.path, `A walkable approach to the ${station} dealer`).toBeDefined();
     await drivePath(frame,a.path,false);
     const point=await frame.evaluate(([x,y])=>{
       const {cam,zoom}=Scene.debug();
-      if(Math.abs(Scene.pos()[0]-x)+Math.abs(Scene.pos()[1]-y)!==1)throw Error('Dealer is out of reach');
+      const at=Scene.pos();
+      if(Math.abs(at[0]-x)+Math.abs(at[1]-y)!==1)throw Error(`Dealer at ${x},${y} is out of reach from ${at}`);
       return {x:(x*16+8-cam.x)*zoom,y:(y*16+4-cam.y)*zoom};
     },a.xy);
     await canvas.click({position:point});

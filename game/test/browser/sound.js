@@ -276,10 +276,15 @@ test('crafting and fishing outcomes and walked room crossings have contextual so
   }
   await f.waitForFunction(() => __sounds.some(x => x.name === 'door'), null, { timeout: 5000 });
   expect(await f.evaluate(() => Scene.pos())).toEqual(result.inside);
-  const steps = await f.evaluate(() => { Scene.pause(); return __sounds.filter(x => x.name === 'step'); });
+  const steps = await f.evaluate(() => __sounds.filter(x => x.name === 'step'));
   expect(steps.some(x => x.detail === 'wood')).toBe(true);
   expect(await f.evaluate(() => __sounds.some(x => x.name === 'door' && x.detail === 'opening'))).toBe(true);
-  await f.evaluate(() => { __sounds.length = 0; Scene.resume(); });
+  await f.evaluate(() => {
+    // Movement has settled at the inside tile. Keep scene input active while
+    // clearing the sound log between crossings.
+    __sounds.length = 0;
+    document.body.focus({ preventScroll: true });
+  });
   const reverse = dx > 0 ? 'ArrowLeft' : dx < 0 ? 'ArrowRight' : dy > 0 ? 'ArrowUp' : 'ArrowDown';
   await page.keyboard.down(reverse);
   try {
