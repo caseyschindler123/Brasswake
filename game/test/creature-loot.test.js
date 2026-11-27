@@ -36,6 +36,8 @@ test('wildlife harvest matches its advertised meat, hide or empty drop', () => {
 test('actual dungeon species and lair appearance take precedence over borrowed SQL templates', () => {
   const rat = { species:'d11', inst:{ tpl:'b101' } };
   const smuggler = { species:'l04', inst:{ tpl:'b102' } };
+  assert.equal(Loot.profile({ species:'d21', inst:{tpl:'b201'} }), 'game');
+  assert.equal(Loot.profile({ species:'k2', inst:{tpl:'b203'} }), 'material');
   assert.equal(Loot.profile(rat), 'hide'); assert.equal(Loot.carries(smuggler), true);
   assert.equal(Loot.profile(enemy('b104', { lk:'l10' })), 'none');
   assert.equal(Loot.profile({ species:'k4', inst:{tpl:'b403'} }), 'game');
