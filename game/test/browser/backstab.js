@@ -179,6 +179,39 @@ const combatState=frame=>frame.evaluate(()=>({foe:__bw.F?.over&&(__bw.F.ent===ba
 async function beginBackstab(frame){await frame.waitForFunction(()=>__bw.Combat.descriptor('backstab').ready);await action(frame,'combatbegin','[data-id=backstab]').click();await expect(frame.locator('#fight #sql')).toBeVisible();await dismiss(frame);}
 async function finishAction(frame,sql){await submit(frame,'F',null,sql);return combatState(frame);}
 async function waitAttack(frame){await frame.waitForFunction(()=>__bw.Combat.snapshot().recovery.ready);}
+// A chasing actor reserves its next integer tile before its visible feet arrive.
+// Finish recovery first, then follow current feet with short native walking legs;
+// never let a later readiness wait turn an in-range approach into a stale one.
+async function approachLiveContact(frame) {
+  await waitAttack(frame);
+  for (let leg = 0; leg < 3; leg++) {
+    const state = await frame.evaluate(() => {
+      const { P, map } = Scene.debug(), e = backstabFixtureTarget;
+      const contact = Scene.debug().interactionDistance(e);
+      if (Number.isFinite(contact) && contact <= 1.1 && e.tx == null) return { ready: true };
+      const dx = P.fx - e.fx, dy = P.fy - e.fy;
+      const directions = Math.abs(dx) >= Math.abs(dy)
+        ? [[Math.sign(dx) || 1, 0], [0, Math.sign(dy) || 1]]
+        : [[0, Math.sign(dy) || 1], [Math.sign(dx) || 1, 0]];
+      const point = directions.map(([x, y]) => [e.fx + x * .95, e.fy + y * .95]).find(([x, y]) => {
+        const cx = Math.round(x), cy = Math.round(y), i = cy * map.w + cx;
+        return cx > 0 && cy > 0 && cx < map.w && cy < map.h && !map.solid[i] && !map.occ.has(i);
+      });
+      if (!point) throw Error('No clear native approach to the moving Examiner');
+      return { ready: false, point };
+    });
+    if (state.ready) break;
+    await move(frame, [state.point], false);
+  }
+  const contact = await frame.evaluate(() => ({
+    distance: Scene.debug().interactionDistance(backstabFixtureTarget), limit: InteractionRules.reach,
+    lineOfFire: Scene.combatFacts(backstabFixtureTarget).lineOfFire, settled: backstabFixtureTarget.tx == null
+  }));
+  expect(Number.isFinite(contact.distance)).toBe(true);
+  expect(contact.distance).toBeLessThanOrEqual(contact.limit);
+  expect(contact.lineOfFire).toBe(true);
+  expect(contact.settled).toBe(true);
+}
 async function noHints(frame){await action(frame,'queryhelp').click();await expect(frame.locator('#kb')).toContainText('No hints are available');await expect(action(frame,'fhint')).toHaveCount(0);await expect(action(frame,'fshow')).toHaveCount(0);await frame.locator('#kb [data-fn=ldone]').click();}
 
 
@@ -199,10 +232,45 @@ for(const method of ['wrong','shown'])test('Backstab · '+method+' answer preser
   if(method==='wrong'){expect(after.foe).toBe(before.foe);expect(after.kills).toBe(before.kills);expect(await frame.evaluate(()=>__bw.F.queryPower)).toBe(0);expect(await frame.evaluate(()=>__bw.Combat.active())).toBe(true);}else{expect(after.foe).toBeLessThanOrEqual(0);expect(after.kills).toBe(before.kills+1);expect(after.hp).toBe(before.hp);}expect(after.bandages).toBe(before.bandages);expect(after.sk).toEqual(before.sk);expect(after.attr).toEqual(before.attr);expect(after.sql).toEqual(before.sql);expect(errors).toEqual([]);
 });
 
+test('Backstab · cancelling SQL beside an unchanged target restores native context', async ({ page }) => {
+  const errors = observeErrors(page), { frame, lane } = await fixture(page, { kind: 'boss' });
+  // This is a practiced player's cancellation, independent of first-fight coaching.
+  await frame.evaluate(() => Object.assign(__bw.S.seen, { fight: 1, fprompt: 1 }));
+  await move(frame, [[lane.x + 1.25, lane.y]], false);
+  const context = frame.locator('#ctx'), name = await frame.evaluate(() => backstabFixtureTarget.name);
+  await expect(context).toBeVisible();
+  await expect(context).toHaveAccessibleName('Face: ' + name);
+  await context.click();
+  await action(frame, 'start', '[data-k=boss]').click();
+  await expect(context).toBeVisible();
+  const result = await frame.evaluate(() => {
+    const read = () => ({ at: Scene.pos(), target: [backstabFixtureTarget.fx, backstabFixtureTarget.fy],
+      hp: __bw.S.hp, mana: __bw.S.mana, stamina: __bw.S.stamina, q: __bw.S.stats.q,
+      gold: __bw.S.gold, kills: __bw.S.stats.kills, marks: Object.keys(__bw.S.boss).length });
+    // Opening from a paused interaction must not need an intermediate SQL HUD
+    // frame before cancelling. This is Scene's normal interaction pause.
+    Scene.pause();
+    const before = read();
+    // Exercise a rapid real begin/cancel before the next world frame. The HUD
+    // must restore visibility even when its nearest-target label is unchanged.
+    const opened = __bw.Combat.begin('basic.fencing');
+    const prompt = __bw.F?.st, hiddenWhileWriting = document.querySelector('#ctx').hidden;
+    const cancelled = __bw.Combat.cancel();
+    return { opened, prompt, hiddenWhileWriting, cancelled, before, after: read(), fight: __bw.F, query: __bw.Q };
+  });
+  expect(result).toMatchObject({ opened: true, prompt: 'prompt', hiddenWhileWriting: true, cancelled: true, fight: null, query: null });
+  expect(result.after).toEqual(result.before);
+  await expect(context).toBeVisible();
+  await expect(context).toHaveAccessibleName('Face: ' + name);
+  await context.click();
+  await expect(frame.locator('#enc h1')).toHaveText(name);
+  expect(errors).toEqual([]);
+});
+
 test('Backstab · Examiner pursuit and brief re-entry keep wounds and committed SQL phase',async({page},info)=>{
   test.setTimeout(90000);const errors=observeErrors(page),{frame,lane}=await fixture(page,{kind:'boss',fencing:44});await hideAndApproach(frame,lane);await engage(frame,true);const full=await combatState(frame);await beginBackstab(frame);await expect(frame.locator('#fight .ask')).toContainText('lead_time_days');await noHints(frame);await finishAction(frame);const wounded=await combatState(frame);expect(wounded.foe).toBeGreaterThan(0);expect(wounded.foe).toBeLessThan(full.foe);
   await frame.evaluate(()=>__bw.Combat.cancel());await move(frame,[[lane.x+5,lane.y]],true);expect(await frame.evaluate(()=>backstabFixtureTarget.combat.phase)).toBe('chase');expect((await combatState(frame)).foe).toBe(wounded.foe);expect((await combatState(frame)).round).toBe(1);
-  const at=await frame.evaluate(()=>{const e=backstabFixtureTarget,m=Scene.debug().map;return [[e.x+1,e.y],[e.x-1,e.y],[e.x,e.y+1],[e.x,e.y-1]].find(([x,y])=>!m.solid[y*m.w+x]&&!m.occ.has(y*m.w+x));});await move(frame,[at],true);await waitAttack(frame);expect(await frame.evaluate(()=>Scene.observed())).toBe(true);expect(await frame.evaluate(()=>__bw.Combat.begin('hide'))).toBe(false);await frame.locator('#ctx').click();await expect(frame.locator('#enc')).toContainText(wounded.foe+' health');expect(await frame.evaluate(()=>({gold:__bw.S.gold,kills:__bw.S.stats.kills,marks:Object.keys(__bw.S.boss).length}))).toEqual({gold:full.gold,kills:full.kills,marks:full.marks});await action(frame,'start','[data-k=boss]').click();await action(frame,'combatbegin','[data-id="basic.fencing"]').click();await dismiss(frame);expect(await frame.evaluate(()=>__bw.F.round)).toBe(1);expect(await frame.evaluate(()=>__bw.F.task.ret)).toBe('name, unit_price');
+  await approachLiveContact(frame);expect(await frame.evaluate(()=>Scene.observed())).toBe(true);expect(await frame.evaluate(()=>__bw.Combat.begin('hide'))).toBe(false);await frame.locator('#ctx').click();await expect(frame.locator('#enc')).toContainText(wounded.foe+' health');expect(await frame.evaluate(()=>({gold:__bw.S.gold,kills:__bw.S.stats.kills,marks:Object.keys(__bw.S.boss).length}))).toEqual({gold:full.gold,kills:full.kills,marks:full.marks});await action(frame,'start','[data-k=boss]').click();await action(frame,'combatbegin','[data-id="basic.fencing"]').click();await dismiss(frame);expect(await frame.evaluate(()=>__bw.F.round)).toBe(1);expect(await frame.evaluate(()=>__bw.F.task.ret)).toBe('name, unit_price');
   const paused=await frame.evaluate(()=>{window.backstabWall=Date.now;Date.now=()=>backstabWall()+180000;return {clock:Scene.tacticalTime(),round:backstabFixtureTarget.combat.queries};});try{await frame.waitForTimeout(250);expect(await frame.evaluate(()=>({clock:Scene.tacticalTime(),round:backstabFixtureTarget.combat.queries}))).toEqual(paused);}finally{await frame.evaluate(()=>{Date.now=backstabWall;delete window.backstabWall;});}
   await screenshot(page,info,'backstab-live-examiner-reentry');await finishAction(frame);for(let n=0;n<5&&!await frame.evaluate(()=>__bw.F?.over);n++){await frame.evaluate(()=>__bw.Combat.cancel());await waitAttack(frame);await frame.evaluate(()=>__bw.Combat.begin('basic.fencing'));await finishAction(frame);}const won=await combatState(frame);expect(won.foe).toBeLessThanOrEqual(0);expect(won.marks).toBe(full.marks+1);expect(won.kills).toBe(full.kills+1);expect(won.gold).toBeGreaterThan(full.gold);expect(errors).toEqual([]);
 });
