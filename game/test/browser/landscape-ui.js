@@ -32,7 +32,7 @@ test('landscape SQL reference views replace letters and preserve the selected dr
     if(view==='tables'||view==='help')await screenshot(page,info,'landscape-'+view);
     await page.locator('#kb [data-fn=ldone]').click();await expect(page.locator('#kb')).toHaveAttribute('data-view','keyboard');
   }
-  for(const size of [{width:390,height:720},{width:812,height:375},{width:844,height:390}]){
+  for(const size of [{width:390,height:720},{width:812,height:375},{width:740,height:320},{width:844,height:390}]){
     await page.setViewportSize(size);await expect(page.locator('#sql')).toHaveValue(draft);await resourcesVisible(page);
     expect(await page.evaluate(()=>({task:__bw.F.task.sql,hint:__bw.F.hint,fixed:__bw.F.fixed}))).toEqual(context);
   }
@@ -76,4 +76,14 @@ test('Technique Book equips exactly four stable slots across weapon and spell di
   await expect(page.locator('.combat-techniques .combat-action')).toHaveCount(4);await screenshot(page,info,'desktop-four-techniques');
   await page.setViewportSize({width:844,height:390});await expect(page.locator('.combat-techniques .combat-action')).toHaveCount(4);await screenshot(page,info,'landscape-four-techniques');
   expect(errors).toEqual([]);
+});
+
+test('rotation releases held movement instead of replaying the old input on the new layout',async({page})=>{
+  const errors=observeErrors(page);await page.setViewportSize({width:844,height:390});await openDev(page);
+  await page.keyboard.down('w');await page.waitForTimeout(160);
+  await page.setViewportSize({width:390,height:720});
+  await expect.poll(()=>page.evaluate(()=>!!Scene.debug().P.manual)).toBe(false);
+  const stopped=await page.evaluate(()=>Scene.pos());await page.waitForTimeout(250);
+  const after=await page.evaluate(()=>Scene.pos());expect(Math.hypot(after[0]-stopped[0],after[1]-stopped[1])).toBeLessThan(.05);
+  await page.keyboard.up('w');expect(errors).toEqual([]);
 });

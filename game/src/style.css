@@ -960,7 +960,7 @@ html,body{background:#2b1c11;overscroll-behavior:none}
 .hud-id { gap:2px; max-width:calc(100% - 190px); }
 .hud-id>b { font-size:16px; }
 .hud-id .hud-gold { display:flex; align-items:center; gap:4px; font-size:12px; }
-.hud-id .hud-gold .ico { transform:scale(.42); transform-origin:left center; width:20px; height:21px; margin:0; }
+.hud-id .hud-gold .ico { transform:scale(.42); width:44px; height:44px; margin:-12px; }
 .hud-resources { display:grid; gap:3px; width:180px; margin-left:auto; font:600 12px/1.15 var(--body); }
 .hud-resource { display:grid; grid-template-columns:47px 1fr; align-items:center; gap:5px; }
 .hud-resource .hpbar { width:100%; height:15px; margin:0; }
@@ -971,6 +971,7 @@ html,body{background:#2b1c11;overscroll-behavior:none}
 #sheet { top:var(--hud-bottom,64px); }
 #app.prologue #sheet { top:var(--hud-bottom,64px); }
 #toast { top:calc(var(--hud-bottom,64px) + 8px); }
+.coach,.odq { top:calc(var(--hud-bottom,64px) + 8px); }
 .query-tools { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 .query-tools .btn { min-height:34px; font-size:13px; padding:5px 10px; }
 .query-task { display:flex; align-items:flex-start; gap:10px; }
@@ -1003,6 +1004,9 @@ html,body{background:#2b1c11;overscroll-behavior:none}
 #combat-target b { font:600 14px var(--body); }
 #combat-target span,#combat-target small { font-size:12px; }
 #combat-result { position:absolute; z-index:7; left:8px; right:8px; bottom:calc(var(--nav-height,84px) + 95px); padding:7px 9px; background:#f2e7cc; color:#352819; border:1px solid #b38d4d; border-radius:7px; }
+#combat-context { position:absolute; z-index:5; left:12px; bottom:calc(var(--nav-height,84px) + 190px); display:flex; flex-wrap:wrap; gap:5px; max-width:210px; }
+#combat-context .btn { min-height:44px; font-size:12px; padding:6px 10px; }
+#combat-context [aria-disabled=true] { opacity:.65; }
 .combat-outcome { display:flex; align-items:center; gap:8px; font-size:13px; }
 .combat-outcome .swings { flex:1; min-width:0; max-height:42px; overflow:auto; }
 .combat-outcome .btn { min-height:34px; margin-left:auto; font-size:12px; padding:5px 8px; }
@@ -1073,6 +1077,7 @@ html,body{background:#2b1c11;overscroll-behavior:none}
   #combat-bar { left:auto; right:calc(8px + env(safe-area-inset-right,0px)); bottom:calc(7px + env(safe-area-inset-bottom,0px)); width:calc(100% - 265px); max-width:780px; }
   #combat-result { left:auto; right:calc(8px + env(safe-area-inset-right,0px)); bottom:calc(99px + env(safe-area-inset-bottom,0px)); width:min(480px,calc(100% - 265px)); }
   #combat-target { top:calc(var(--hud-bottom,64px) + 8px); left:200px; }
+  #combat-context { bottom:calc(175px + env(safe-area-inset-bottom,0px)); }
   #app:has(#fight:not([hidden])) #combat-target { left:12px; max-width:calc(100% - var(--action-panel-width) - 24px); }
   #app:has(#fight:not([hidden])) #toast { left:12px; right:auto; max-width:calc(100% - var(--action-panel-width) - 24px); top:calc(var(--hud-bottom,64px) + 65px); }
   .sheet-card { width:min(850px,100%); margin-left:auto; }
@@ -1083,6 +1088,18 @@ html,body{background:#2b1c11;overscroll-behavior:none}
 @media (max-width:699px) {
   #app { max-width:520px; }
   #fight.st-prompt .f-head { flex-direction:row; flex-wrap:wrap; }
+}
+@media (min-width:700px) and (orientation:landscape) and (max-height:360px) {
+  #fight.st-prompt { left:0; right:0; width:auto; display:grid; grid-template-columns:minmax(180px,.8fr) minmax(440px,1.7fr); grid-template-rows:auto minmax(0,1fr); gap:5px 10px; }
+  #fight.st-prompt>.f-head { grid-column:1; grid-row:1; }
+  #fight.st-prompt>.battle-question { grid-column:1; grid-row:2; min-height:0; }
+  #fight.st-prompt>.qp { grid-column:2; grid-row:1 / span 2; align-self:end; }
+  #fight.st-prompt .query-task { flex-direction:column; }
+  #fight.st-prompt #sql { min-height:42px; height:42px; --query-max-height:42; }
+  #fight.st-prompt .kbar .k { height:28px; }
+  #fight.st-prompt .kb .k { height:32px; }
+  #fight.st-prompt .klist,#fight.st-prompt .query-reference { height:102px; }
+  #app:has(#fight:not([hidden])) #toast { top:calc(env(safe-area-inset-top,0px) + 2px); max-width:calc(100% - 220px); }
 }
 
 .boat-tool-note, .boat-chart { flex-shrink: 0; }

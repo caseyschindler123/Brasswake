@@ -82,6 +82,7 @@
       base.addEventListener(event, e => { if (e.pointerId === joy.pointer) stopJoystick(); });
     }
     window.addEventListener('blur', clearSceneControls);
+    window.addEventListener('resize', clearSceneControls);
     document.addEventListener('visibilitychange', () => { if (document.hidden) clearSceneControls(); });
     document.addEventListener('focusin', e => {
       if (editsText(e.composedPath()[0])) clearSceneControls();

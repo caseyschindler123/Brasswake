@@ -353,7 +353,7 @@
     const ta = $('#sql'), d = b.dataset; if (!ta) return;
     if (d.fn === 'run') return ACT.run();
     if (d.fn === 'lcmd' || d.fn === 'lfld') return kbView(d.fn.slice(1));
-    if (d.fn === 'ldone') { KB.list=null;kbDraw();fitAll();return kbFocus(); }
+    if (d.fn === 'ldone') { KB.list=null;kbDraw();fitAll();if(KB.sys)ta.focus({preventScroll:true});else kbFocus();return; }
     if (d.fn === 'fmt') { if (ta.value.trim()) { ta.value = SqlEd.format(ta.value); ta.setSelectionRange(ta.value.length, ta.value.length); } return kbGrow(); }
     if (d.fn === 'ret') { const b0 = ta.value.slice(0, ta.selectionStart); upWord(ta); const cur = ta.value.slice(0, ta.selectionStart).split('\n').pop(), ind = (/^\s*/.exec(cur) || [''])[0], one = /^\s*(WHERE|HAVING|ON|JOIN|LEFT JOIN)\b/i.test(cur) ? '  ' : ''; ta.setRangeText('\n' + ind + one, ta.selectionStart, ta.selectionEnd, 'end'); return kbGrow(); }
     if (d.ins != null) { listIns(ta, d.ins, b.classList); return kbGrow(); }
@@ -561,7 +561,7 @@
       el.innerHTML = head('Learn') + `<div class="q-body">${Q.prerequisites?.length?`<section class="sec"><h3>This builds on earlier techniques</h3><p>Read these examples first, or choose one to practise it before continuing.</p>${Q.prerequisites.map(id=>conceptHTML(id,true)).join('' )}</section>`:''}<p class="eyebrow">${CIRCLE[Q.r]} Circle</p><h2>${esc(l.title)}</h2><p>${esc(lead)}</p><p class="lab">Example</p><pre class="code" data-lesson-example>${codeHL(l.code)}</pre>${ex ? `<p class="lab">What it returns</p>${tableHTML(ex, 5)}` : ''}${rest ? `<details class="lesson"><summary>More</summary><div class="lb"><p>${esc(rest)}</p></div></details>` : ''}</div><footer class="q-foot"><button class="btn solid big" data-a="qturn">Try it</button></footer>`; return;
     }
     if (Q.step === 'turn') {
-      el.innerHTML = head('Your turn') + `<div class="q-body" id="q-body"><p class="eyebrow">${Q.tasks ? `${Q.i + 1} of ${Q.tasks.length}` : esc(Q.title || '')}</p>${Q.kind==='learning'?'<p class="practice-safety">Free, untimed dojo practice · no lasting resource loss or RPG rewards</p>':''}${t.teaching||''}${t.tip ? `<p class="tip">${esc(t.tip)}</p>` : ''}${Q.kind === 'intro' ? introTaskLesson() : Q.kind === 'firstpractice' ? `<p>A page is an ability recorded in one of your books. Choose the one you want to practise, then write its query.</p><div class="row">${fightPages().map(p=>`<button class="btn" data-a="practicepage" data-id="${p.id}" aria-pressed="${Q.practicePage===p.id}">${esc(p.name)}${Q.practicePage===p.id?' · chosen':''}</button>`).join('')}</div>` : ''}<p class="ask">${esc(t.ask)}</p>${needsHTML(t)}${queryOddsHTML()}<div id="q-out"></div></div>
+      el.innerHTML = head('Your turn') + `<div class="q-body" id="q-body"><p class="eyebrow">${Q.tasks ? `${Q.i + 1} of ${Q.tasks.length}` : esc(Q.title || '')}</p>${Q.kind==='learning'?'<p class="practice-safety">Free, untimed dojo practice · no lasting resource loss or RPG rewards</p>':''}${t.teaching||''}${t.tip ? `<p class="tip">${esc(t.tip)}</p>` : ''}${Q.kind === 'intro' ? introTaskLesson() : Q.kind === 'firstpractice' ? `<p>Choose a basic attack, then write its query. You can learn special techniques at the dojo and equip them in your Technique Book.</p><div class="row">${fightPages().filter(p=>p.c===1&&!p.rare).map(p=>`<button class="btn" data-a="practicepage" data-id="${p.id}" aria-pressed="${Q.practicePage===p.id}">${p.book==='spell'?'Spark':'Attack'}${Q.practicePage===p.id?' · chosen':''}</button>`).join('')}</div>` : ''}<p class="ask">${esc(t.ask)}</p>${needsHTML(t)}${queryOddsHTML()}<div id="q-out"></div></div>
         <div class="dock" id="q-dock">${kbHTML(t, Q.r, Q.work ? ({hide:'Hide',recover:'Recover',lock:'Pick lock',force:'Force lock',craft:'Craft'}[Q.work]||'Run') : Q.roll ? 'Craft' : 'Run')}</div>`;
       $('#q-body .ask').insertAdjacentHTML('afterend','<div class="query-tools"><button class="btn sm quiet" data-a="ftables">Tables</button><button class="btn sm quiet" data-a="help">Help</button></div>');
       kbDraw();if(Q.draft!=null){$('#sql').value=Q.draft;kbGrow();} kbFocus(); fitQ(); return;
@@ -600,7 +600,7 @@
     save(); drawQ();
   }
   function runQ() {
-    if (!ready || !Q || Q.step !== 'turn') return; if(Q.kind==='firstpractice'&&!Q.practicePage)return toast('Choose an ability page before writing its practice query.'); const sql = $('#sql').value; if (!sql.trim()) return toast('Write a query first');
+    if (!ready || !Q || Q.step !== 'turn') return; if(Q.kind==='firstpractice'&&!Q.practicePage)return toast('Choose a basic attack before writing its practice query.'); const sql = $('#sql').value; if (!sql.trim()) return toast('Write a query first');
     if(Q.kind==='learning')return runLearning(sql);
     const res = practiceGrade(Q.task, sql), o = $('#q-out'); S.stats.q++;
     if (res.err) { Q.syntaxError=true;o.innerHTML = `<div class="verdict err"><h3>That query didn’t run</h3><p>${esc(res.err)}</p><p class="cap2">Errors cost nothing. Fix it and run it again.</p></div>`; return showOut(); }
@@ -798,7 +798,7 @@
   }
   function stashFightDraft() {const input=$('#fight #sql');if(F?.task&&input){F.drafts=F.drafts||{};F.drafts[F.task.sql]=input.value;F.editorState={start:input.selectionStart,end:input.selectionEnd,scroll:input.scrollTop,view:KB.list,system:KB.sys};}}
   function drawF() {
-    if(F.live&&!F.over&&(F.st==='choose'||F.st==='after')){$('#fight').hidden=true;renderCombatUI(true);fitPanel();return;}
+    if(F.live&&!F.over&&(F.st==='choose'||F.st==='after')){$('#fight').hidden=true;$('#nav').hidden=false;$('#app').classList.remove('infight');renderCombatUI(true);fitPanel();return;}
     $('#fight').hidden=false;
     if(F.st==='prompt'&&F.task)F.task=prepareLearning(F.task);
     const el = $('#fight'), f = F.foe, t = F.r; let h;
@@ -1053,21 +1053,23 @@
   let combatUiTick=0,techniqueFilter='all',techniqueSlot=0;
   function combatView(){return typeof Combat!=='undefined'&&Combat.snapshot?Combat.snapshot():null;}
   function renderCombatUI(force=false) {
-    const bar=$('#combat-bar'),target=$('#combat-target'),result=$('#combat-result');if(!bar)return;
+    const bar=$('#combat-bar'),target=$('#combat-target'),result=$('#combat-result'),context=$('#combat-context');if(!bar)return;
     const now=performance.now();if(!force&&now-combatUiTick<80)return;combatUiTick=now;
     const view=combatView(),visible=!!view&&sceneUp&&tab==='world'&&$('#title').hidden&&!boatActive()&&!Q&&!DU&&!FI&&!WH&&!BJ&&!PK&&$('#sheet').hidden&&$('#say').hidden&&$('#coach').hidden;
-    bar.hidden=!visible||F?.st==='prompt'||!!F?.over;target.hidden=!visible||!view?.target;result.hidden=!visible||!F?.live||F.st!=='after'||F.over;
+    bar.hidden=!visible||F?.st==='prompt'||!!F?.over;context.hidden=bar.hidden;target.hidden=!visible||!view?.target;result.hidden=!visible||!F?.live||F.st!=='after'||F.over;
     if(!view)return;
     for(const [id,value,max] of [['hp',view.resources.hp,view.resources.maxHp],['mana',view.resources.mana,view.resources.maxMana],['stamina',view.resources.stamina,view.resources.maxStamina]]){
       const meter=$(`#hud [data-resource=${id}] .hpbar`);if(meter){const text=Math.round(value)+' / '+max;if(meter.querySelector('b').textContent!==text){meter.querySelector('b').textContent=text;meter.setAttribute('aria-valuenow',Math.max(0,Math.round(value)));meter.setAttribute('aria-valuemax',max);meter.querySelector('i').style.width=Math.max(0,Math.min(100,100*value/max))+'%';}}
     }
-    const actions=[...view.actions.map(a=>({...a,slot:null})),...view.loadout.map((a,slot)=>a?{...a,slot}:{id:'',name:'Empty',slot})];
+    const contextual=view.actions.filter(a=>['hide','steal','backstab'].includes(a.id));
+    const contextHtml=contextual.map(a=>`<button class="btn sm quiet" data-a="combatbegin" data-id="${esc(a.id)}" aria-disabled="${!a.ready}" aria-label="${esc(a.name+(a.reason?' · '+a.reason:''))}">${esc(a.name)}</button>`).join('');if(context.innerHTML!==contextHtml)context.innerHTML=contextHtml;
+    const actions=[...view.actions.filter(a=>!['hide','steal','backstab'].includes(a.id)).map(a=>({...a,slot:null})),...view.loadout.map((a,slot)=>a?{...a,slot}:{id:'',name:'Empty',slot})];
     const key=actions.map(a=>a.id+':'+a.name+':'+a.slot).join('|');
     if(bar.dataset.layout!==key){bar.dataset.layout=key;bar.innerHTML=`<div class="combat-basics">${actions.filter(a=>a.slot===null).map(a=>combatButton(a)).join('')}</div><div class="combat-techniques" aria-label="Four equipped techniques">${actions.filter(a=>a.slot!==null).map(a=>combatButton(a)).join('')}</div>`;}
     const buttons=[...bar.querySelectorAll('.combat-action')];
     actions.forEach((a,index)=>{const button=buttons[index];if(!button)return;const ready=!!a.ready,reason=a.id?(a.reason||(!ready?'Recovering.':'')):'Equip a technique in this slot.';button.setAttribute('aria-disabled',String(!ready));button.classList.toggle('unavailable',!a.eligible);button.classList.toggle('recovering',!!a.id&&!!a.eligible&&!ready);button.title=reason||a.description||a.name;const label=(a.slot!==null?'Slot '+(a.slot+1)+': ':'')+a.name+(reason?' · '+reason:'');if(button.getAttribute('aria-label')!==label)button.setAttribute('aria-label',label);button.querySelector('.action-recovery i').style.width=(ready?100:a.eligible?Math.round(100*(view.recovery.fraction||0)):0)+'%';const meta=button.querySelector('.action-meta'),text=!a.id?'Slot '+(a.slot+1):a.eligible&&!ready?Math.max(.1,a.remaining||view.recovery.remaining).toFixed(1)+'s':a.sqlOffset?'+'+a.sqlOffset+' SQL':a.mana?a.mana+' mana':a.stamina?a.stamina+' stam.':'';if(meta.textContent!==text)meta.textContent=text;});
     if(!target.hidden){const t=view.target,html=`<b>${esc(t.name||'Selected opponent')}</b><span>${Math.max(0,Math.round(t.hp||0))} / ${t.max||t.maxHp||0} HP</span><small>${t.returning?'Returning home':t.distance!=null?t.distance.toFixed(1)+' tiles away':''}</small>`;if(target.innerHTML!==html)target.innerHTML=html;}
-    if(!result.hidden){const html=`<div class="combat-outcome"><b>${GRADE_N[F.res?.grade]||'Action resolved'}</b><div class="swings">${F.chips||''}</div><button class="btn sm quiet" data-a="combatdetails">Details</button></div>`;if(result.innerHTML!==html)result.innerHTML=html;}
+    if(!result.hidden){const html=`<div class="combat-outcome"><b>${GRADE_N[F.res?.grade]||'Action resolved'}</b><div class="swings">${F.chips||esc(F.pline||'')}</div><button class="btn sm quiet" data-a="combatdetails">Details</button></div>`;if(result.innerHTML!==html)result.innerHTML=html;}
   }
   function combatButton(action){return `<button class="combat-action${action.slot===null?' basic':''}" data-a="${action.id?'combatbegin':'combatbook'}" data-id="${esc(action.id)}"${action.slot!==null?` data-slot="${action.slot}"`:''}><span class="action-art" aria-hidden="true">${action.id?ico(action.icon||'sword'):'+'}</span><span class="action-label">${esc(action.name)}</span><small class="action-meta"></small><span class="action-recovery" aria-hidden="true"><i></i></span></button>`;}
   function techniqueBookHTML(view=combatView()) {
@@ -1077,7 +1079,7 @@
     const entries=view.techniques.filter(t=>(techniqueFilter==='all'||t.discipline===techniqueFilter)&&(!t.rare||t.learned));
     return `<div class="technique-book"><div class="technique-equipped" aria-label="Equipped techniques">${view.loadout.map((t,slot)=>`<button class="technique-position${slot===techniqueSlot?' selected':''}" data-a="techniqueslot" data-slot="${slot}" aria-pressed="${slot===techniqueSlot}"><small>Slot ${slot+1}</small><b>${esc(t?.name||'Empty')}</b></button>`).join('')}</div><p class="cap2">Choose a slot, then equip a learned technique.${locked?' Find safety before changing your techniques.':''}</p><div class="technique-filters" role="group" aria-label="Combat discipline">${Object.entries(labels).map(([id,label])=>`<button class="btn sm quiet" data-a="techniquefilter" data-id="${id}" aria-pressed="${techniqueFilter===id}">${label}</button>`).join('')}</div><div class="technique-entries">${entries.map(t=>{const qualification=Techniques.eligibility(S,t.id,{weapon:currentWeapon}),status=t.learned?(qualification.ok?'Learned':qualification.reason):t.source?.dojo?'Learn at dojo '+t.source.dojo:'Not learned',cost=[t.mana?t.mana+' mana':'',t.stamina?t.stamina+' stamina':''].filter(Boolean).join(' · ');return `<article class="technique-entry${t.equipped>=0?' equipped':''}" data-technique="${esc(t.id)}"><div>${ico(t.icon||'sword')}<h3>${esc(t.name)}</h3><small>${esc(labels[t.discipline])} ${t.requirement} · +${t.sqlOffset} Circle${t.sqlOffset===1?'':'s'} SQL${t.rare?' · rare':''}</small></div><p>${esc(t.description||'')}</p><small>${esc(cost)}${t.range?' · '+t.range+' tile range':''}</small><span class="technique-status">${esc(t.equipped>=0?'Equipped in slot '+(t.equipped+1):status)}</span><button class="btn sm" data-a="combatequip" data-id="${esc(t.id)}" data-slot="${techniqueSlot}"${locked||!qualification.ok||t.equipped>=0?' disabled':''}>Equip in slot ${techniqueSlot+1}</button></article>`;}).join('')}</div><button class="btn quiet" data-a="combatequip" data-slot="${techniqueSlot}"${locked||!view.loadout[techniqueSlot]?' disabled':''}>Clear slot ${techniqueSlot+1}</button><div class="row"><span class="cap2">Combat supply</span>${['bandage','draught'].map(kind=>`<button class="btn sm quiet" data-a="combatsupply" data-id="${kind}" aria-pressed="${view.supply===kind}"${locked?' disabled':''}>${kind==='bandage'?'Bandage':'Draught'}</button>`).join('')}</div></div>`;
   }
-  function openTechniqueBook(){if(!combatView())return;sheet('<h2>Technique Book</h2>'+techniqueBookHTML());renderCombatUI(true);}
+  function openTechniqueBook(){const view=combatView();if(!view)return;if(F?.live&&F.st==='after'&&!F.over&&!view.active)Combat.cancel();sheet('<h2>Technique Book</h2>'+techniqueBookHTML());renderCombatUI(true);}
 
   // the bottom bar: framed slots with painted icons, the hero's own portrait in the middle
   const NAV = [['world', 'Adventure', 'sword', '⚔'], ['map', 'Map', 'map', '✥'], ['hero', 'Hero', null, '☺'], ['bag', 'Bag', 'bag', '◈'], ['ledger', 'Ledger', 'tome', '❖']];

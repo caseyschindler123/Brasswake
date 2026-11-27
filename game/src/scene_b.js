@@ -1287,7 +1287,7 @@
     } finally { WORLD_BUILDING_CACHE.endFrame(); }
   }
   function loop(ts) { raf = 0; if (!running) return; const dt = Math.max(0, Math.min(.05, (ts - last) / 1000 || 0)); last = ts; step(dt); draw(); raf = requestAnimationFrame(loop); }
-  function size() { if (!wrap) return; const w = wrap.clientWidth, h = wrap.clientHeight; if (!w || !h) return;const nextZoom=w>=1100?3:2,nextDpr=Math.min(3,window.devicePixelRatio||1);if(vw===Math.ceil(w/nextZoom)&&vh===Math.ceil(h/nextZoom)&&dpr===nextDpr)return;dpr=nextDpr;zoom=nextZoom; vw = Math.ceil(w / zoom); vh = Math.ceil(h / zoom); cv.width = vw * K; cv.height = vh * K; cv.style.width = vw * zoom + 'px'; cv.style.height = vh * zoom + 'px'; ov.width = Math.round(w * dpr); ov.height = Math.round(h * dpr); cx.imageSmoothingEnabled = false; lightCv = mk(vw, vh); }
+  function size() { if (!wrap) return; const w = wrap.clientWidth, h = wrap.clientHeight; if (!w || !h) return;const nextZoom=w>=1100?3:2,nextDpr=Math.min(3,window.devicePixelRatio||1);if(vw===Math.ceil(w/nextZoom)&&vh===Math.ceil(h/nextZoom)&&dpr===nextDpr)return;dpr=nextDpr;zoom=nextZoom; vw = Math.ceil(w / zoom); vh = Math.ceil(h / zoom); cv.width = vw * K; cv.height = vh * K; cv.style.width = vw * zoom + 'px'; cv.style.height = vh * zoom + 'px'; ov.width = Math.round(w * dpr); ov.height = Math.round(h * dpr); cx.imageSmoothingEnabled = false; lightCv = mk(vw, vh);if(!running&&map&&P)draw(); }
 
   /* ---------- public ---------- */
   function init(el, h) {
@@ -1466,7 +1466,7 @@
   }
   const FX = {
     heal() { if (map && P) { emit('heal'); slashes.push({ x: P.fx, y: P.fy - .5, t: 0, row: 3, f: 0, d: .9, rise: .8 }); } }, treasure(x, y) { if (map) { emit('coins'); slashes.push({ x, y: y - .4, t: 0, row: 3, f: 3, d: .8, rise: .6 }); } },
-    lock(v) { locked = !!v; clearSceneControls(); }, inset(px) { inset = px || 0; }, viewport(edges={},target=null){for(const key of ['top','right','bottom','left'])viewportInsets[key]=Math.max(0,Number(edges[key])||0);viewportFocus=target;size();}, bars(b) { bars = b || []; },
+    lock(v) { locked = !!v; clearSceneControls(); }, inset(px) { inset = px || 0; }, viewport(edges={},target=null){let changed=viewportFocus!==target;for(const key of ['top','right','bottom','left']){const value=Math.max(0,Number(edges[key])||0);changed=changed||value!==viewportInsets[key];viewportInsets[key]=value;}viewportFocus=target;size();if(changed&&!running&&map&&P)draw();}, bars(b) { bars = b || []; },
     face(e) { const dx = e.x - P.x, dy = e.y - P.y; P.dg = null; P.d8 = D8(Math.sign(dx), Math.sign(dy)); P.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 's' : 'l') : (dy > 0 ? 'f' : 'b'); e.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'l' : 's') : (dy > 0 ? 'b' : 'f'); if (e.npcLook) e.npcFacing = NpcAppearance.direction(-dx, -dy, e.npcFacing); e.busy = 1; e.tx = null; e.fx = e.x; e.fy = e.y; },
     free(e) { if (e) e.busy = 0; },
     swing(a, b, kind, style) {
