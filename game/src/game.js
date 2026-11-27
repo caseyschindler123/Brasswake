@@ -282,19 +282,44 @@
   const KB = { sys: false, shift: false, sym: false, tbl: null, kw: null, tables: [], run: 'Run' };
   const tablesIn = sql => World.ORDER.filter(t => new RegExp('\\b' + t + '\\b', 'i').test(sql));
   function kbHTML(task, circle, runLabel) {
-    KB.tables = task.tables || tablesIn(task.sql + ' ' + (task.check || '')); KB.kw = task.kw || KWC[circle] || null; KB.tbl = KB.tables[0] || null; KB.shift = KB.sym = false; KB.run = runLabel; KB.list = null;
-    return `<div class="qp"><label for="sql" class="vh">Your query</label><div class="qbox"><pre id="sqlhl" class="sqlhl" aria-hidden="true"></pre><textarea id="sql" rows="2" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" inputmode="${KB.sys ? 'text' : 'none'}" placeholder="Your query"></textarea></div>${S.klog ? '<p id="klog" class="klog">Key log: tap keys and it fills in here</p>' : ''}<div id="kb" class="kb"></div></div>`;
+    KB.task = task;KB.practiceAnswer=false; KB.tables = task.tables || tablesIn(task.sql + ' ' + (task.check || '')); KB.kw = task.kw || KWC[circle] || null; KB.tbl = KB.tables[0] || null; KB.shift = KB.sym = false; KB.run = runLabel; KB.list = null;
+    return `<div class="qp"><label for="sql" class="vh">Your query</label><div class="qbox"><pre id="sqlhl" class="sqlhl" aria-hidden="true"></pre><textarea id="sql" rows="2" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" inputmode="${KB.sys ? 'text' : 'none'}" placeholder="Your query"></textarea></div><div id="kb" class="kb"></div></div>`;
+  }
+  function kbView(view) {
+    const ta = $('#sql'); if (!ta) return;
+    KB.list = KB.list === view ? null : view;
+    if (KB.list) ta.blur();
+    kbDraw(); fitAll();
+    if (!KB.list) { if (KB.sys) ta.focus({preventScroll:true}); else kbFocus(); }
+  }
+  function queryReferenceHTML(view) {
+    const c = ctx(), t = c?.task || KB.task; if (!t) return '<p>No question is open.</p>';
+    if (view === 'tables') return (t.tables || KB.tables).map(n => {
+      let data; try { data = t.practice ? manifestDb().read('SELECT * FROM manifest') : Engine.peek(n, 12); } catch (_) { data = null; }
+      return `<section class="query-table"><h3>${esc(n)}</h3><div class="ret">${(COLS[n] || data?.cols || []).map(x=>`<code>${esc(x)}</code>`).join('')}</div>${data ? tableHTML(data,12) : ''}</section>`;
+    }).join('') || '<p>This action has no source tables.</p>';
+    if (Q?.kind === 'intro') return `<h3>Your first query</h3><p>SELECT chooses columns. FROM identifies the table.</p>${t.tip ? `<p>${esc(t.tip)}</p>` : ''}<details class="lesson"><summary>Study one answer</summary><div class="lb"><pre class="code">${codeHL(t.sql)}</pre></div></details>`;
+    if (Q?.kind === 'learning') return `<h3>Practice help</h3><p>This attempt counts as assisted practice. Help costs no resources.</p>${KB.practiceAnswer?`<pre class="code">${codeHL(t.sql)}</pre>`:(t.concepts||[]).map(id=>conceptHTML(id,false)).join('')}<button class="btn sm" data-a="learnshow">Study one answer</button>`;
+    if (F?.act === 'fight') return `<h3>Help with this query</h3>${F.task.tip&&!F.noHint?`<p>${esc(F.task.tip)}</p>`:''}${F.hints.join('')}${F.noHint?'<p>No hints are available for this opponent.</p>':`<div class="row wrap">${fHintBtn()}</div>`}`;
+    const hint = c?.hint || 0, max = c?.noHint ? 0 : Q?.kind === 'contract' ? 3 : 1, level = hint+1, cost = hintCost(level,c?.r || here());
+    let expected = ''; try { const w=Engine.target(t); expected=`<details class="lesson"><summary>Expected result</summary><div class="lb">${Q&&!Q.roll?tableHTML(w,8):`<p>${w.rows.length} rows · ${esc(w.cols.join(', '))}</p>`}</div></details>`; } catch (_) {}
+    return `<h3>Help with this query</h3>${t.tip?`<p>${esc(t.tip)}</p>`:''}${c?.hints?.join('')||''}${hint<max?`<button class="btn sm" data-a="hint">${level===1?'Hint':level===2?'Answer shape':'Show answer'} · ${cost?(S.hints>0?'1 Hint Key':cost+' gold'):'free'}</button>`:''}${expected}${Q?.lesson?lessonHTML(Q.lesson,false):''}`;
   }
   function kbDraw() {
     const el = $('#kb'); if (!el) return; const key = (k, cls, lab) => `<button type="button" class="k ${cls || ''}" data-k="${esc(k)}">${lab || esc(k)}</button>`;
     // one row for tables, then the columns of the table last tapped, then * and a comma; one row for the commands
-    const bar = `<div class="kbar"><button type="button" class="k kb-b${KB.list === 'cmd' ? ' on' : ''}" data-fn="lcmd">Commands</button><button type="button" class="k kb-b${KB.list === 'fld' ? ' on' : ''}" data-fn="lfld">Fields</button><button type="button" class="k kb-b" data-fn="fmt">Format</button></div>`;
+    const bar = `<div class="kbar${KB.list?' with-return':''}"><button type="button" class="k kb-b${KB.list === 'cmd' ? ' on' : ''}" data-fn="lcmd" aria-pressed="${KB.list==='cmd'}">Commands</button><button type="button" class="k kb-b${KB.list === 'fld' ? ' on' : ''}" data-fn="lfld" aria-pressed="${KB.list==='fld'}">Fields</button><button type="button" class="k kb-b" data-fn="fmt">Format</button>${KB.list?'<button type="button" class="k fn" data-fn="ldone">Keyboard ↵</button>':''}</div>`;
+    if (KB.list === 'tables' || KB.list === 'help') {
+      el.className='kb reference'; el.dataset.view=KB.list;
+      el.innerHTML=bar+`<div class="query-reference" role="region" aria-label="${KB.list==='tables'?'Tables for this query':'Query help'}">${queryReferenceHTML(KB.list)}</div><div class="row last"><button type="button" class="k go" data-fn="run"${ready?'':' disabled'}>${esc(ready?KB.run:'Opening…')}</button></div>`; return;
+    }
+    el.dataset.view=KB.list || 'keyboard';
     if (KB.list) { const li = (v, cls, lab) => `<button type="button" class="li ${cls || ''}" data-ins="${esc(v)}">${lab || esc(v)}</button>`;
       const TOP = [',', '*', "'"], symAll = (SqlEd.LISTS.find(([g]) => g === 'Symbols') || ['', []])[1].filter(x => !TOP.includes(x));
       const learned = SqlEd.LISTS.filter(([g]) => g !== 'Symbols').map(([g, xs]) => [g, xs.filter(cmdHas)]).filter(([g, xs]) => xs.length);const listed=new Set(SqlEd.LISTS.flatMap(([,xs])=>xs).map(t=>t.toUpperCase())),extra=[...new Set(Learning.CONCEPTS.filter(c=>learningState().introduced[c.id]).flatMap(c=>c.commands))].filter(t=>!listed.has(t.toUpperCase()));if(extra.length)learned.push(['More from your lessons',extra]);
       const groups = KB.list === 'cmd' ? `<div class="lgrid ltop">${TOP.map(x => li(x, 'sy')).join('')}<button type="button" class="li lsym${KB.lsym ? ' on' : ''}" data-fn="lsym">Symbols ${KB.lsym ? '▴' : '▾'}</button></div>` + (KB.lsym ? `<div class="lgrid lsyms">${symAll.map(x => li(x, 'sy')).join('')}</div>` : '') + (learned.length ? learned.map(([g, xs]) => `<p class="lg">${g}</p><div class="lgrid">${xs.map(x => li(x, 'kw')).join('')}</div>`).join('') : '<p class="cap2 lnone">Commands appear here as lessons teach them. You can always type any command.</p>')
         : (() => { const mine = KB.tables, rest = World.ORDER.filter(t => !mine.includes(t)), tb = t => `<p class="lg">${li(t, 'tb', esc(t))}</p><div class="lgrid">${(COLS[t] || []).map(c => li(c, 'cl')).join('')}</div>`; return mine.map(tb).join('') + (rest.length && !TR ? `<p class="lg lg2">Other tables</p>` + rest.map(tb).join('') : ''); })();
-      el.className = 'kb listing'; el.innerHTML = bar + `<div class="klist" id="klist">${groups}</div><div class="row last"><button type="button" class="k fn" data-fn="ldone">Done</button><button type="button" class="k sy ksy" data-ins="," aria-label="Comma">,</button><button type="button" class="k sy ksy" data-ins="*" aria-label="Star">*</button><button type="button" class="k fn ret" data-fn="ret" aria-label="New line">Return ↵</button><button type="button" class="k fn" data-fn="del" aria-label="Delete">⌫</button><button type="button" class="k go" data-fn="run"${ready ? '' : ' disabled'}>${esc(ready ? KB.run : 'Opening…')}</button></div>`; return; }
+      el.className = 'kb listing'; el.innerHTML = bar + `<div class="klist" id="klist">${groups}</div><div class="row last"><button type="button" class="k sy ksy" data-ins="," aria-label="Comma">,</button><button type="button" class="k sy ksy" data-ins="*" aria-label="Star">*</button><button type="button" class="k fn ret" data-fn="ret" aria-label="New line">Return ↵</button><button type="button" class="k fn" data-fn="del" aria-label="Delete">⌫</button><button type="button" class="k go" data-fn="run"${ready ? '' : ' disabled'}>${esc(ready ? KB.run : 'Opening…')}</button></div>`; return; }
     const chips = bar, row2 = '';
     const L = KB.sym ? [['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'], ['(', ')', "'", '=', '<', '>', ',', '.', '_', '%'], ['-', '+', '/', '*', ';', '|', '!']] : [['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'], ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'], ['z', 'x', 'c', 'v', 'b', 'n', 'm']];
     const up = s => KB.shift && !KB.sym ? s.toUpperCase() : s, del = '<button type="button" class="k fn" data-fn="del" aria-label="Delete">⌫</button>';
@@ -306,7 +331,7 @@
   const deepNames = () => Deep.TABLES.map(t => t.name);
   let HLT = null; const hlTables = () => HLT || (HLT = new Set(World.ORDER.concat(deepNames(), ['my_skills', 'bestiary', 'my_bag', 'my_materials', 'recipes']).map(t => t.toLowerCase())));
   function hlSync() { const ta = $('#sql'), pre = $('#sqlhl'); if (!ta || !pre) return; const foc = document.activeElement === ta || !KB.sys; pre.innerHTML = SqlEd.hl(ta.value, hlTables(), foc ? ta.selectionEnd : null) + '\n'; pre.scrollTop = ta.scrollTop; pre.classList.toggle('ph', !ta.value); }
-  function kbGrow() { const ta = $('#sql'); if (!ta) return; const min = parseFloat(getComputedStyle(ta).minHeight) || 52, lh = 16 * 1.3, max = Math.round(lh * 6 + 16); ta.style.height = 'auto'; const h = Math.min(max, Math.max(min, ta.scrollHeight + 2)); ta.style.height = h + 'px'; if (ta.selectionStart >= ta.value.length) ta.scrollTop = ta.scrollHeight; hlSync(); if (h !== ta._h) { ta._h = h; fitAll(); } }
+  function kbGrow() { const ta = $('#sql'); if (!ta) return; const style=getComputedStyle(ta),min = parseFloat(style.minHeight) || 52, lh = 16 * 1.3, max = parseFloat(style.getPropertyValue('--query-max-height'))||Math.round(lh * 6 + 16); ta.style.height = 'auto'; const h = Math.min(max, Math.max(min, ta.scrollHeight + 2)); ta.style.height = h + 'px'; if (ta.selectionStart >= ta.value.length) ta.scrollTop = ta.scrollHeight; hlSync(); if (h !== ta._h) { ta._h = h; fitAll(); } }
   document.addEventListener('selectionchange', () => { if (document.activeElement && document.activeElement.id === 'sql') hlSync(); });
   document.addEventListener('scroll', e => { if (e.target && e.target.id === 'sql') { const pre = $('#sqlhl'); if (pre) pre.scrollTop = e.target.scrollTop; } }, true);
   function insert(text, word) {
@@ -327,8 +352,8 @@
   function kbPress(b) {
     const ta = $('#sql'), d = b.dataset; if (!ta) return;
     if (d.fn === 'run') return ACT.run();
-    if (d.fn === 'lcmd' || d.fn === 'lfld') { KB.list = KB.list === d.fn.slice(1) ? null : d.fn.slice(1); kbDraw(); return fitAll(); }
-    if (d.fn === 'ldone') { KB.list = null; kbDraw(); return fitAll(); }
+    if (d.fn === 'lcmd' || d.fn === 'lfld') return kbView(d.fn.slice(1));
+    if (d.fn === 'ldone') { KB.list=null;kbDraw();fitAll();return kbFocus(); }
     if (d.fn === 'fmt') { if (ta.value.trim()) { ta.value = SqlEd.format(ta.value); ta.setSelectionRange(ta.value.length, ta.value.length); } return kbGrow(); }
     if (d.fn === 'ret') { const b0 = ta.value.slice(0, ta.selectionStart); upWord(ta); const cur = ta.value.slice(0, ta.selectionStart).split('\n').pop(), ind = (/^\s*/.exec(cur) || [''])[0], one = /^\s*(WHERE|HAVING|ON|JOIN|LEFT JOIN)\b/i.test(cur) ? '  ' : ''; ta.setRangeText('\n' + ind + one, ta.selectionStart, ta.selectionEnd, 'end'); return kbGrow(); }
     if (d.ins != null) { listIns(ta, d.ins, b.classList); return kbGrow(); }
@@ -360,11 +385,11 @@
   document.addEventListener('pointermove', e => { if (LT && Math.hypot(e.clientX - LT.x, e.clientY - LT.y) > 9) LT = null; }, true);
   document.addEventListener('pointerup', e => { if (!LT) return; const it = LT.it; LT = null; it.classList.add('dn'); setTimeout(() => it.classList.remove('dn'), 120); kbPress(it); }, true);
   document.addEventListener('pointercancel', () => { LT = null; }, true);
-  document.addEventListener('pointerdown', e => { const kb = e.target.closest && e.target.closest('#kb'); if (!kb) return; e.preventDefault(); if (e.target.closest('#klist')) return; const t0 = performance.now(), dt = t0 - (tapT || t0);
+  document.addEventListener('pointerdown', e => { const kb = e.target.closest && e.target.closest('#kb'); if (!kb || e.target.closest('.query-reference')) return; e.preventDefault(); if (e.target.closest('#klist')) return; const t0 = performance.now(), dt = t0 - (tapT || t0);
     const [k, why] = kbPick(kb, e.clientX, e.clientY, e.target); if (S && S.klog) kbLog(k, why, dt); if (!k || k.disabled) return; tapT = t0; if (k.closest('.row') && !k.dataset.fn) kbLetterT = t0; k.classList.add('dn'); setTimeout(() => k.classList.remove('dn'), 110); kbPress(k); if (k.dataset.fn === 'del') { clearTimeout(kbRep); const again = () => { const b = $('#kb [data-fn="del"]'); if (!b) return; kbPress(b); kbRep = setTimeout(again, 70); }; kbRep = setTimeout(again, 380); } });
   for (const ev of ['pointerup', 'pointercancel']) document.addEventListener(ev, () => clearTimeout(kbRep));
   // with the phone keyboard up, iOS shrinks only the visual viewport: lift the docked panel by the covered height while the box has focus
-  function vvFit() { const vv = window.visualViewport, ta = $('#sql'), on = KB.sys && ta && document.activeElement === ta && vv, kb = on ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0; $('#app').style.setProperty('--kb', kb + 'px'); const naming=vv && document.activeElement.id==='boat-name', boatKb=naming?Math.max(0,window.innerHeight-vv.height-vv.offsetTop):0; $('#app').style.setProperty('--boat-kb',boatKb+'px'); if (on && kb > 0) window.scrollTo(0, 0); fitPanel(); fitQ(); }
+  function vvFit() { const vv = window.visualViewport, ta = $('#sql'), on = KB.sys && ta && document.activeElement === ta && vv, kb = on ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0; $('#app').style.setProperty('--kb', kb + 'px');$('#app').classList.toggle('native-keyboard',!!on&&kb>0); const naming=vv && document.activeElement?.id==='boat-name', boatKb=naming?Math.max(0,window.innerHeight-vv.height-vv.offsetTop):0; $('#app').style.setProperty('--boat-kb',boatKb+'px'); if (on && kb > 0) window.scrollTo(0, 0); fitPanel(); fitQ(); }
   if (window.visualViewport) { window.visualViewport.addEventListener('resize', vvFit); window.visualViewport.addEventListener('scroll', vvFit); }
   document.addEventListener('focusin', vvFit); document.addEventListener('focusout', () => setTimeout(vvFit, 60));
   document.addEventListener('input', e => { if (e.target && e.target.id === 'sql') { if (e.data && /^[ ,()\n]$/.test(e.data)) { const ta = e.target, s = ta.selectionStart; ta.setSelectionRange(s - 1, s - 1); upWord(ta, e.data === '('); const t = ta.selectionStart + 1; ta.setSelectionRange(t, t); } kbGrow(); } });
@@ -442,6 +467,7 @@
   function learningHelp(show=false) {
     if(!Q||Q.kind!=='learning')return;
     const draft=$('#sql');if(draft)Q.draft=draft.value;Q.assisted=true;recordLearning(Q.task,{ok:false,assisted:true,first:false});save();
+    if(draft){KB.practiceAnswer=show;KB.list='help';kbDraw();fitAll();return;}
     sheet(`<h2>${show?'One answer to study':'Free practice help'}</h2><p>Help costs nothing here. This attempt will count as assisted practice; a new question lets you try independently.</p>${show?`<pre class="code">${codeHL(Q.task.sql)}</pre>`:(Q.task.concepts||[]).map(id=>conceptHTML(id,true)).join('')}<button class="btn sm" data-a="learnshow">Show this answer</button><button class="btn sm quiet" data-a="closesheet">Back to my query</button>`);
   }
   function runLearning(sql) {
@@ -484,7 +510,8 @@
 
   /* ---------- help: tables, expected result and hint behind one button ---------- */
   const ctx = () => Q || F || DU;
-  function helpSheet() {
+  function helpSheet(refresh=false) {
+    if ($('#sql') && Q?.kind!=='learning') {if(refresh){KB.list='help';kbDraw();return fitAll();}return kbView('help');}
     if(Q&&Q.kind==='learning')return learningHelp();
     const c = ctx(), t = c && c.task; if (!t) return; if (Q && Q.kind === 'intro') return sheet(`<h2>Your first query</h2><p>SELECT chooses columns. FROM identifies the table. A comma separates column names; a star means every column.</p>${t.practice ? manifestHTML() : `<p>You are now reading the town Ledger. Open Fields to see its columns.</p>`}<p>${esc(t.tip)}</p><details class="lesson"><summary>Show a worked answer</summary><div class="lb"><pre class="code">${codeHL(t.sql)}</pre></div></details>`); const tabs = tablesIn(t.sql + ' ' + (t.check || '')), full = !!Q && !Q.roll; let w = null; try { w = Engine.target(t); } catch (e) { }
     const maxH = c.noHint ? 0 : Q && Q.kind === 'contract' ? 3 : 1, lv = c.hint + 1, cost = hintCost(lv, c.r), key = S.hints > 0 && cost > 0;
@@ -497,7 +524,7 @@
     const c = ctx(); if (!c || c.noHint) return; const maxH = Q && Q.kind === 'contract' ? 3 : 1; if (c.hint >= maxH) return; const lv = c.hint + 1, cost = hintCost(lv, c.r), key = S.hints > 0 && cost > 0;
     if (!key && S.gold < cost) return toast(`That hint costs ${cost} gold`); if (key) S.hints--; else S.gold -= cost; c.hint = lv; const t = c.task, txt = lv === 1 ? (t.hint || clauseHint(t.sql)) : lv === 2 ? skeleton(t.sql) : pretty(t.sql);
     if(Q&&lv===3)recordLearning(Q.task,{ok:false,assisted:true,first:false});
-    c.hints.push(`<div class="hintbox"><b>${['', 'Nudge', 'Shape · pay −25%', 'Answer · pay −75%'][lv]}</b>${lv === 1 ? `<span>${esc(txt)}</span>` : `<pre class="code">${codeHL(txt)}</pre>`}</div>`); renderHud(); save(); helpSheet();
+    c.hints.push(`<div class="hintbox"><b>${['', 'Nudge', 'Shape · pay −25%', 'Answer · pay −75%'][lv]}</b>${lv === 1 ? `<span>${esc(txt)}</span>` : `<pre class="code">${codeHL(txt)}</pre>`}</div>`); renderHud(); save(); helpSheet(true);
   }
 
   /* ---------- full-screen exercises: learn, your turn, result. One job a screen. ---------- */
@@ -509,7 +536,7 @@
   function tutTask() {return prepareLearning(Learning.next(learningState(),{circle:0,specialist:'intro',seed:rid()})||{kind:'read',ask:'Show the name of every item in items.',ret:'name',sql:'SELECT name FROM items',tables:['items'],kw:['SELECT','FROM']});}
   function openQ(cfg) { closeSay(); closeSheet(); Q = Object.assign({ tries: 0, hint: 0, hints: [], i: 0 }, cfg);if(Q.task)Q.task=prepareLearning(Q.task);if(Q.lesson)introduceConcepts(Learning.conceptsFor(Q.lesson.code)); if (!Q.step) Q.step = Q.lesson && Q.first ? 'learn' : 'turn'; Scene.pause(); $('#enc').hidden = false; $('#nav').hidden = true; drawQ(); }
   function closeQ() { const then = Q && Q.then; Q = null; $('#enc').hidden = true; $('#enc').innerHTML = ''; $('#nav').hidden = false; closeSheet(); Scene.refresh(); render(); if (then) then(); }
-  function fitQ() { const d = $('#q-dock'), b = $('#q-body'); if (d && b) b.style.paddingBottom = d.offsetHeight + 14 + 'px'; }
+  function fitQ() { const d = $('#q-dock'), b = $('#q-body'); if (d && b) b.style.paddingBottom = getComputedStyle(d).position==='absolute'?d.offsetHeight + 14 + 'px':'8px'; }
   const showOut = () => { fitQ(); const o = $('#q-out'); if (o && o.scrollIntoView) o.scrollIntoView({ block: 'start', behavior: FAST() ? 'auto' : 'smooth' }); };
   function introTaskLesson() {
     const lessons = {2:['Choose two columns','A comma separates column names. The result keeps their written order.','SELECT name, quantity FROM manifest;'],3:['Read every column','The star (*) asks for every column. It does not change the table.','SELECT * FROM manifest;'],4:['From practice to the town records','For the rest of our lessons, we use a training copy of the company books, with larger tables of items, customers and other records. The dates in this copy have been set for the exercises, so use the dates you’re given. Tap Fields to see the columns. The SELECT and FROM pattern still works.','SELECT name FROM items;']};
@@ -526,7 +553,7 @@
     if(Q.task)Q.task=prepareLearning(Q.task);
     const el = $('#enc'), t = Q.task, hasL = !!Q.lesson || Q.kind === 'intro', names = hasL ? ['Learn', 'Your turn', 'Result'] : ['Your turn', 'Result'];
     const head = cur => `<header class="q-head"><button class="q-x" data-a="qleave">‹ Leave</button><div class="q-steps">${names.map(s => `<span class="${s === cur ? 'on' : ''}">${s}</span>`).join('<i>›</i>')}</div></header>`;
-    el.className = 'q';
+    el.className = 'q'+(Q.roll?' action-query':'');
     if (Q.step[0] === 'i') return drawIntro(el, head('Learn'));
     if (Q.step === 'practice-result') { el.innerHTML = head('Result') + `<div class="q-body">${Q.result}</div><footer class="q-foot"><button class="btn solid big" data-a="introcontinue">Continue</button></footer>`; return; }
     if (Q.step === 'learn') {
@@ -535,7 +562,8 @@
     }
     if (Q.step === 'turn') {
       el.innerHTML = head('Your turn') + `<div class="q-body" id="q-body"><p class="eyebrow">${Q.tasks ? `${Q.i + 1} of ${Q.tasks.length}` : esc(Q.title || '')}</p>${Q.kind==='learning'?'<p class="practice-safety">Free, untimed dojo practice · no lasting resource loss or RPG rewards</p>':''}${t.teaching||''}${t.tip ? `<p class="tip">${esc(t.tip)}</p>` : ''}${Q.kind === 'intro' ? introTaskLesson() : Q.kind === 'firstpractice' ? `<p>A page is an ability recorded in one of your books. Choose the one you want to practise, then write its query.</p><div class="row">${fightPages().map(p=>`<button class="btn" data-a="practicepage" data-id="${p.id}" aria-pressed="${Q.practicePage===p.id}">${esc(p.name)}${Q.practicePage===p.id?' · chosen':''}</button>`).join('')}</div>` : ''}<p class="ask">${esc(t.ask)}</p>${needsHTML(t)}${queryOddsHTML()}<div id="q-out"></div></div>
-        <div class="dock" id="q-dock"><div class="q-tools"><button class="btn sm quiet" data-a="help">Help</button><button class="btn sm quiet" data-a="clear">Clear</button></div>${kbHTML(t, Q.r, Q.work ? ({hide:'Hide',recover:'Recover',lock:'Pick lock',force:'Force lock',craft:'Craft'}[Q.work]||'Run') : Q.roll ? 'Craft' : 'Run')}</div>`;
+        <div class="dock" id="q-dock">${kbHTML(t, Q.r, Q.work ? ({hide:'Hide',recover:'Recover',lock:'Pick lock',force:'Force lock',craft:'Craft'}[Q.work]||'Run') : Q.roll ? 'Craft' : 'Run')}</div>`;
+      $('#q-body .ask').insertAdjacentHTML('afterend','<div class="query-tools"><button class="btn sm quiet" data-a="ftables">Tables</button><button class="btn sm quiet" data-a="help">Help</button></div>');
       kbDraw();if(Q.draft!=null){$('#sql').value=Q.draft;kbGrow();} kbFocus(); fitQ(); return;
     }
     el.innerHTML = head('Result') + `<div class="q-body">${Q.result}</div><footer class="q-foot">${Q.nextId ? `<button class="btn big" data-a="qnext">Next exercise</button>` : ''}<button class="btn solid big" data-a="qleave">Continue</button></footer>`;
@@ -679,7 +707,17 @@
     guideStart:()=>{S.gd++;save();setTimeout(()=>gSay('"Beat the cellar rat, then open the chest beside the stairs. The deeper floors can wait."'),600);},guideChest:()=>setTimeout(()=>gDone('chest'),50),
     difficulty:diffOf,foe:mkFoe,fight:openF,toast,dialog:dlg,sheet,main:isMain,haveTable:r=>haveT(r),takeTable,grant,item:makeItem,rarity:rollRarity,luck,random:rnd,int:rint,unique:uniq,spoils:spoilsHTML,escape:esc,dye:maybeDye,unlock:(e,cb)=>lockOffer(e,cb)});
   function barsF() { if (!F) return; const b = F.foe ? [{ e: 'me', pct: S.hp / maxHp() }] : []; if (F.foe && F.ent) b.push({ e: F.ent, pct: F.foe.hp / F.foe.max, name: F.title }); Scene.FX.bars(b); }
-  function fitPanel() { if (F) requestAnimationFrame(() => { if (F) Scene.FX.inset($('#fight').offsetHeight); }); }
+  let uiLayoutFrame=0;
+  function fitPanel() { if(!uiLayoutFrame)uiLayoutFrame=requestAnimationFrame(()=>{uiLayoutFrame=0;fitGameLayout();}); }
+  function fitGameLayout() {
+    const app=$('#app'),ar=app.getBoundingClientRect(),hud=$('#hud'),nav=$('#nav');
+    app.style.setProperty('--hud-bottom',Math.ceil(hud.getBoundingClientRect().bottom-ar.top)+'px');
+    app.style.setProperty('--nav-height',(nav.hidden?0:nav.offsetHeight)+'px');
+    const sr=$('#stage').getBoundingClientRect(),panel=!$('#fight').hidden?$('#fight'):$('#enc').classList.contains('action-query')?$('#enc'):$('#fight');let right=0,bottom=0;
+    if(!panel.hidden){const pr=panel.getBoundingClientRect();if(pr.width<sr.width*.88&&pr.left>sr.left+20)right=Math.max(0,sr.right-pr.left);else bottom=Math.max(0,sr.bottom-pr.top);if(F)Scene.FX.inset(0);}
+    if(sceneUp&&Scene.FX.viewport)Scene.FX.viewport({right,bottom},F?.ent||null);
+  }
+  window.addEventListener('resize',fitPanel);
   function openF(cfg) {
     if(S.horse?.mounted){S.horse=Mounts.dismount(S.horse);}
     closeSay();closeSheet();
@@ -758,8 +796,10 @@
     if(p.book==='spell')return primary;
     return `<div class="attack-choice">${primary}<div class="maneuver-choices">${['feint','cleave'].map(k=>{const m=BattleRules.maneuver(k,rv('tactics'));return `<button class="btn sm quiet" data-a="fmaneuver" data-id="${p.id}" data-stance="${k}"${S.stamina<m.stamina?' disabled':''}>${k==='feint'?'Feint':'Cleave'} · ${m.stamina} stamina</button>`;}).join('')}</div><small class="maneuver-note">Feint improves accuracy and evasion. Cleave hits harder and exposes you.</small></div>`;
   }
-  function stashFightDraft() {const input=$('#fight #sql');if(F?.task&&input){F.drafts=F.drafts||{};F.drafts[F.task.sql]=input.value;}}
+  function stashFightDraft() {const input=$('#fight #sql');if(F?.task&&input){F.drafts=F.drafts||{};F.drafts[F.task.sql]=input.value;F.editorState={start:input.selectionStart,end:input.selectionEnd,scroll:input.scrollTop,view:KB.list,system:KB.sys};}}
   function drawF() {
+    if(F.live&&!F.over&&(F.st==='choose'||F.st==='after')){$('#fight').hidden=true;renderCombatUI(true);fitPanel();return;}
+    $('#fight').hidden=false;
     if(F.st==='prompt'&&F.task)F.task=prepareLearning(F.task);
     const el = $('#fight'), f = F.foe, t = F.r; let h;
     if (F.st === 'choose') {
@@ -771,7 +811,7 @@
     } else if (F.st === 'escape') {
       h='<div class="f-head"><b>Disengaging</b></div><p>The foe can respond while you pull away.</p>';
     } else if (F.st === 'prompt') {
-      h = `<div class="f-head"><div><b>${esc(F.verb)}</b><small id="f-odds">${fOdds()}</small></div><div class="f-btns">${qm('fprompt')}<button class="btn sm quiet${S.tut === 1 ? ' pulse' : ''}" data-a="ftables">Tables</button>${F.act === 'fight' ? fHintBtn() : ''}${F.act==='fight'?'<button class="btn sm quiet" data-a="fchoose">Actions</button>':''}</div></div><div class="battle-question">${F.task.teaching||''}<p class="ask">${esc(F.task.ask)} ${needLine(F.task)}${F.task.tip&&!F.noHint ? ` <button class="qm sm" data-a="ftip" aria-label="A tip">?</button>` : ''}</p><div id="f-hint">${F.hints.join('')}</div><div id="f-out"></div></div>${kbHTML(F.task, F.kc, F.verb)}`;
+      h = `<div class="f-head"><div><b>${esc(F.verb)}</b><small id="f-odds">${fOdds()}</small></div><div class="f-btns">${F.act==='fight'?'<button class="btn sm quiet" data-a="fchoose">Back</button>':''}</div></div><div class="battle-question"><div class="query-task"><p class="ask">${esc(F.task.ask)} ${needLine(F.task)}</p><div class="query-tools"><button class="btn sm quiet${S.tut===1?' pulse':''}" data-a="ftables">Tables</button><button class="btn sm quiet" data-a="queryhelp">Help</button></div></div>${F.task.teaching?`<details class="first-technique"><summary>A new SQL concept</summary>${F.task.teaching}</details>`:''}<div id="f-hint" hidden>${F.hints.join('')}</div><div id="f-out"></div></div>${kbHTML(F.task, F.kc, F.verb)}`;
     } else {
       const controls=F.after.match(/<div class="row end">[\s\S]*<\/div>$/),body=controls?F.after.slice(0,controls.index):F.after;
       h = `<div class="f-head"><div><b class="g-${F.res.grade}">${F.instant?'Action resolved':GRADE_N[F.res.grade]}</b><small>${F.pline}</small></div>${F.act === 'fight' && !F.over ? `<button class="btn sm quiet" data-a="flee"${F.busy ? ' disabled' : ''}>Flee</button>` : ''}</div><div class="f-result">${F.instant?'':QueryFeedback.html(F.comparison, {power:F.queryPower,open:F.compareOpen,hidePower:F.act!=='fight',note:F.shown?'Shown answer · no practice':F.hint>=2?'Shape hint':F.utility&&F.hint?'Hint used':''})}<div class="swings" id="e-sw">${F.chips}</div><div id="f-after">${body}</div></div><div class="f-actions">${controls?controls[0]:''}</div>`;
@@ -781,23 +821,25 @@
       h+=combatTools();
     } if(F.act==='steal'&&F.st==='prompt')h=`<div class="row"><button class="btn sm quiet" data-a="fprize" data-id="purse">Purse · easier</button><button class="btn sm quiet" data-a="fprize" data-id="prize">${esc(F.prizeItem?F.prizeItem.name:F.kind==='rival'?rival(F.r).item.name:'Selected prize')} · −15 effective skill</button><span>${F.prize==='prize'?'Selected prize':'Purse'}</span></div>`+h;
     if (F.st !== 'choose') unCoach('fight', 'stealth'); if (F.st !== 'prompt') unCoach('fprompt');
-    el.innerHTML = combatStatus()+h; el.className = 'st-' + F.st; if (F.st === 'prompt') { kbDraw();if(F.drafts?.[F.task.sql]!=null){$('#sql').value=F.drafts[F.task.sql];kbGrow();} kbFocus(); } fitPanel();
+    if(F.live&&F.st==='prompt')h=h.replace('data-a="fchoose"','data-a="combatback"');
+    el.innerHTML = (F.live?'':combatStatus())+h; el.className = 'st-' + F.st+(F.live?' live-query':''); if (F.st === 'prompt') { kbDraw();if(F.drafts?.[F.task.sql]!=null){$('#sql').value=F.drafts[F.task.sql];kbGrow();}const memory=F.editorState;if(memory){const input=$('#sql');input.setSelectionRange(Math.min(memory.start,input.value.length),Math.min(memory.end,input.value.length));input.scrollTop=memory.scroll||0;KB.list=memory.view||null;kbDraw();hlSync();} kbFocus(); } renderCombatUI(true);fitPanel();
   }
   // the columns the answer needs, in a few words, after the question
-  const needLine = t => t.kind === 'dml' ? '<span class="need">→ changes the Ledger; judged by what it holds afterwards</span>' : `<span class="need">→ ${esc(t.ret)}${t.order ? ' · sorted' : ''}</span>`;
+  const needLine = t => t.kind === 'dml' ? '<span class="need">Check the resulting records.</span>' : `<span class="need">Return: ${esc(t.ret)}${t.order ? ' · sorted as asked' : ''}</span>`;
   const ROUNDS = () => 1; let HPEN = 15;
   const fPct = grade => {if(F.act!=='fight')return odds(rv(F.act==='steal'?'stealing':bestWeapon())+(F.bonus||0),F.diff,grade).p;const sid=pageSkill(F.page),move=BattleRules.maneuver(F.stance,rv('tactics'));return attackChance(odds(rv(sid),F.diff,grade).p-(F.hint===1?HPEN:0)+(F.focus||0)+(F.page.book==='spell'?0:move.accuracy),sid);};
-  const fOdds = () => F.utility ? 'Query quality · 1 response round' : F.act === 'fight' ? `${Math.round(fPct('correct'))}% to hit · query sets power · ${ROUNDS() === 1 ? '1 round' : ROUNDS() + ' rounds'}` : `${fPct('correct')}% if right · one try`;
+  const fOdds = () => F.live ? F.kc+' Circle SQL · Paused' : F.utility ? 'Query quality · 1 response round' : F.act === 'fight' ? `${Math.round(fPct('correct'))}% to hit` : `${fPct('correct')}% if right · one try`;
   const fHintBtn = () => { const max = F.noHint ? 0 : 2; if (F.noHint) return ''; if (F.shown) return ''; return (F.hint >= max ? '' : `<button class="btn sm quiet" data-a="fhint">${F.hint ? 'Shape' : F.utility ? 'Hint · reduced power' : `Hint −${HPEN}%`}</button>`) + '<button class="btn sm quiet" data-a="fshow">Show me</button>'; };
   function fHint() {
     if (!F || F.st !== 'prompt' || F.act !== 'fight' || F.noHint) return; const max = 2; if (F.hint >= max) return; F.hint++; const t = F.task;
     F.hints = F.hints.filter(h => h.includes('class="fh tip"')).concat([F.hint === 1 ? `<p class="fh"><b>${F.utility ? 'Hint, reduced power and practice:' : `Hint, −${HPEN}% to hit:`}</b> ${esc(t.hint || clauseHint(t.sql))}</p>` : `<p class="fh"><b>Shape, at most 60% power:</b> <code>${esc(skeleton(t.sql).replace(/\s+/g, ' '))}</code></p>`]);
-    $('#f-hint').innerHTML = F.hints.join(''); $('#f-odds').textContent = fOdds(); const row=$('#fight .f-btns');row.querySelectorAll('[data-a=fhint],[data-a=fshow]').forEach(b=>b.remove());row.insertAdjacentHTML('beforeend',fHintBtn()); fitPanel();
+    $('#f-hint').innerHTML = F.hints.join(''); $('#f-odds').textContent = fOdds();if(KB.list==='help')kbDraw();fitPanel();
   }
   function fShow() {if(!F||F.st!=='prompt'||F.shown||F.noHint)return;stashFightDraft();sheet(`<h2>Show this answer?</h2><p>${F.utility?'This demonstration gives no useful support effect.':'This attack will have only 5% power.'} It grants no skill or attribute practice. The penalty lasts for this exchange, including if you change actions.</p><button class="btn solid" data-a="fshowconfirm">Show answer</button><button class="btn quiet" data-a="closesheet">Keep trying</button>`);}
   function fShowConfirmed() { if (!F || F.st !== 'prompt' || F.act !== 'fight' || F.shown || F.noHint) return; F.shown = 1;recordLearning(F.task,{ok:false,assisted:true,first:false});save(); F.hints = [`<p class="fh"><b>${F.utility?'Type it in. It gives no useful effect and teaches no skill:':'Type it in. It has only 5% power and teaches no skill:'}</b> <code>${esc(F.task.sql)}</code></p>`];
-    $('#f-hint').innerHTML = F.hints.join(''); $('#f-odds').textContent = fOdds(); $('#fight .f-btns').querySelectorAll('[data-a=fhint],[data-a=fshow]').forEach(b => b.remove()); fitPanel(); }
+    $('#f-hint').innerHTML = F.hints.join(''); $('#f-odds').textContent = fOdds();if(KB.list==='help')kbDraw();fitPanel(); }
   function tablesSheet() {
+    if ($('#sql')) return kbView('tables');
     const c = ctx(), t = c && c.task; if (!t) return; const tabs = t.tables || tablesIn(t.sql + ' ' + (t.check || ''));
     sheet(`<h2>Tables</h2>${tabs.map(n => `<section class="sec"><h2>${n}</h2><div class="ret">${(COLS[n] || []).map(x => `<code>${x}</code>`).join('')}</div>${tableHTML(Engine.peek(n, 12), 12)}</section>`).join('')}<div class="row"><button class="btn sm quiet" data-a="atlas">All tables</button><button class="btn sm quiet" data-a="klog">${S.klog ? 'Hide' : 'Show'} the key log</button></div><p class="cap2">The key log shows, under your query, the last keys the game read. Use it if the keyboard types something you did not press.</p>`);
   }
@@ -1004,7 +1046,38 @@
   };
 
   /* ---------- screens ---------- */
-  function renderHud() {const m=maxHp();$('#hud').innerHTML=`<div class="hud-row"><div class="hud-id"><b>${esc(S.name||'Brasswake')}</b><span class="hpbar" title="Health"><i style="width:${Math.round(100*S.hp/m)}%"></i><b>${S.hp} / ${m}</b></span><small class="resource-line">Mana ${Math.round(S.mana)}/${Progression.maxMana(S)} · Stamina ${Math.round(S.stamina)}/${maxStamina()}</small></div><div class="hud-gold">${ico('coin')}<b>${S.gold}</b></div></div>${S.path&&S.tut>=1&&tab==='world'?`<div class="conceal-controls"><button class="btn sm quiet" data-a="conceal"${Q||F||DU?' disabled':''}>${CONCEAL.hidden?'Reveal · '+CONCEAL.steps+' steps':'Hide · SQL'}</button><button class="btn sm quiet" data-a="outrecover"${Q||F||DU?' disabled':''}>Recover · SQL</button></div>`:''}`;}
+  function renderHud() {
+    const meter=(id,label,value,max)=>`<div class="hud-resource" data-resource="${id}"><span>${label}</span><span class="hpbar ${id}" role="meter" aria-label="${label}" aria-valuemin="0" aria-valuemax="${max}" aria-valuenow="${Math.max(0,Math.round(value))}"><i style="width:${Math.max(0,Math.min(100,Math.round(100*value/max)))}%"></i><b>${Math.round(value)} / ${max}</b></span></div>`;
+    $('#hud').innerHTML=`<div class="hud-row"><div class="hud-id"><b>${esc(S.name||'Brasswake')}</b><div class="hud-gold">${ico('coin')}<b>${S.gold}</b></div></div><div class="hud-resources resource-line" aria-label="Resources">${meter('hp','HP',S.hp,maxHp())}${meter('mana','Mana',S.mana,Progression.maxMana(S))}${meter('stamina','Stamina',S.stamina,maxStamina())}</div></div>`;fitPanel();
+  }
+  let combatUiTick=0,techniqueFilter='all',techniqueSlot=0;
+  function combatView(){return typeof Combat!=='undefined'&&Combat.snapshot?Combat.snapshot():null;}
+  function renderCombatUI(force=false) {
+    const bar=$('#combat-bar'),target=$('#combat-target'),result=$('#combat-result');if(!bar)return;
+    const now=performance.now();if(!force&&now-combatUiTick<80)return;combatUiTick=now;
+    const view=combatView(),visible=!!view&&sceneUp&&tab==='world'&&$('#title').hidden&&!boatActive()&&!Q&&!DU&&!FI&&!WH&&!BJ&&!PK&&$('#sheet').hidden&&$('#say').hidden&&$('#coach').hidden;
+    bar.hidden=!visible||F?.st==='prompt'||!!F?.over;target.hidden=!visible||!view?.target;result.hidden=!visible||!F?.live||F.st!=='after'||F.over;
+    if(!view)return;
+    for(const [id,value,max] of [['hp',view.resources.hp,view.resources.maxHp],['mana',view.resources.mana,view.resources.maxMana],['stamina',view.resources.stamina,view.resources.maxStamina]]){
+      const meter=$(`#hud [data-resource=${id}] .hpbar`);if(meter){const text=Math.round(value)+' / '+max;if(meter.querySelector('b').textContent!==text){meter.querySelector('b').textContent=text;meter.setAttribute('aria-valuenow',Math.max(0,Math.round(value)));meter.setAttribute('aria-valuemax',max);meter.querySelector('i').style.width=Math.max(0,Math.min(100,100*value/max))+'%';}}
+    }
+    const actions=[...view.actions.map(a=>({...a,slot:null})),...view.loadout.map((a,slot)=>a?{...a,slot}:{id:'',name:'Empty',slot})];
+    const key=actions.map(a=>a.id+':'+a.name+':'+a.slot).join('|');
+    if(bar.dataset.layout!==key){bar.dataset.layout=key;bar.innerHTML=`<div class="combat-basics">${actions.filter(a=>a.slot===null).map(a=>combatButton(a)).join('')}</div><div class="combat-techniques" aria-label="Four equipped techniques">${actions.filter(a=>a.slot!==null).map(a=>combatButton(a)).join('')}</div>`;}
+    const buttons=[...bar.querySelectorAll('.combat-action')];
+    actions.forEach((a,index)=>{const button=buttons[index];if(!button)return;const ready=!!a.ready,reason=a.id?(a.reason||(!ready?'Recovering.':'')):'Equip a technique in this slot.';button.setAttribute('aria-disabled',String(!ready));button.classList.toggle('unavailable',!a.eligible);button.classList.toggle('recovering',!!a.id&&!!a.eligible&&!ready);button.title=reason||a.description||a.name;const label=(a.slot!==null?'Slot '+(a.slot+1)+': ':'')+a.name+(reason?' · '+reason:'');if(button.getAttribute('aria-label')!==label)button.setAttribute('aria-label',label);button.querySelector('.action-recovery i').style.width=(ready?100:a.eligible?Math.round(100*(view.recovery.fraction||0)):0)+'%';const meta=button.querySelector('.action-meta'),text=!a.id?'Slot '+(a.slot+1):a.eligible&&!ready?Math.max(.1,a.remaining||view.recovery.remaining).toFixed(1)+'s':a.sqlOffset?'+'+a.sqlOffset+' SQL':a.mana?a.mana+' mana':a.stamina?a.stamina+' stam.':'';if(meta.textContent!==text)meta.textContent=text;});
+    if(!target.hidden){const t=view.target,html=`<b>${esc(t.name||'Selected opponent')}</b><span>${Math.max(0,Math.round(t.hp||0))} / ${t.max||t.maxHp||0} HP</span><small>${t.returning?'Returning home':t.distance!=null?t.distance.toFixed(1)+' tiles away':''}</small>`;if(target.innerHTML!==html)target.innerHTML=html;}
+    if(!result.hidden){const html=`<div class="combat-outcome"><b>${GRADE_N[F.res?.grade]||'Action resolved'}</b><div class="swings">${F.chips||''}</div><button class="btn sm quiet" data-a="combatdetails">Details</button></div>`;if(result.innerHTML!==html)result.innerHTML=html;}
+  }
+  function combatButton(action){return `<button class="combat-action${action.slot===null?' basic':''}" data-a="${action.id?'combatbegin':'combatbook'}" data-id="${esc(action.id)}"${action.slot!==null?` data-slot="${action.slot}"`:''}><span class="action-art" aria-hidden="true">${action.id?ico(action.icon||'sword'):'+'}</span><span class="action-label">${esc(action.name)}</span><small class="action-meta"></small><span class="action-recovery" aria-hidden="true"><i></i></span></button>`;}
+  function techniqueBookHTML(view=combatView()) {
+    if(!view)return '';
+    const labels={all:'All',swords:'Swords',fencing:'Fencing',archery:'Archery',magery:'Magery'},locked=view.active||!!F||!!Q||!!DU;
+    const currentWeapon=itemById(S.eq.weapon)?.w||bestWeapon();
+    const entries=view.techniques.filter(t=>(techniqueFilter==='all'||t.discipline===techniqueFilter)&&(!t.rare||t.learned));
+    return `<div class="technique-book"><div class="technique-equipped" aria-label="Equipped techniques">${view.loadout.map((t,slot)=>`<button class="technique-position${slot===techniqueSlot?' selected':''}" data-a="techniqueslot" data-slot="${slot}" aria-pressed="${slot===techniqueSlot}"><small>Slot ${slot+1}</small><b>${esc(t?.name||'Empty')}</b></button>`).join('')}</div><p class="cap2">Choose a slot, then equip a learned technique.${locked?' Find safety before changing your techniques.':''}</p><div class="technique-filters" role="group" aria-label="Combat discipline">${Object.entries(labels).map(([id,label])=>`<button class="btn sm quiet" data-a="techniquefilter" data-id="${id}" aria-pressed="${techniqueFilter===id}">${label}</button>`).join('')}</div><div class="technique-entries">${entries.map(t=>{const qualification=Techniques.eligibility(S,t.id,{weapon:currentWeapon}),status=t.learned?(qualification.ok?'Learned':qualification.reason):t.source?.dojo?'Learn at dojo '+t.source.dojo:'Not learned',cost=[t.mana?t.mana+' mana':'',t.stamina?t.stamina+' stamina':''].filter(Boolean).join(' · ');return `<article class="technique-entry${t.equipped>=0?' equipped':''}" data-technique="${esc(t.id)}"><div>${ico(t.icon||'sword')}<h3>${esc(t.name)}</h3><small>${esc(labels[t.discipline])} ${t.requirement} · +${t.sqlOffset} Circle${t.sqlOffset===1?'':'s'} SQL${t.rare?' · rare':''}</small></div><p>${esc(t.description||'')}</p><small>${esc(cost)}${t.range?' · '+t.range+' tile range':''}</small><span class="technique-status">${esc(t.equipped>=0?'Equipped in slot '+(t.equipped+1):status)}</span><button class="btn sm" data-a="combatequip" data-id="${esc(t.id)}" data-slot="${techniqueSlot}"${locked||!qualification.ok||t.equipped>=0?' disabled':''}>Equip in slot ${techniqueSlot+1}</button></article>`;}).join('')}</div><button class="btn quiet" data-a="combatequip" data-slot="${techniqueSlot}"${locked||!view.loadout[techniqueSlot]?' disabled':''}>Clear slot ${techniqueSlot+1}</button><div class="row"><span class="cap2">Combat supply</span>${['bandage','draught'].map(kind=>`<button class="btn sm quiet" data-a="combatsupply" data-id="${kind}" aria-pressed="${view.supply===kind}"${locked?' disabled':''}>${kind==='bandage'?'Bandage':'Draught'}</button>`).join('')}</div></div>`;
+  }
+  function openTechniqueBook(){if(!combatView())return;sheet('<h2>Technique Book</h2>'+techniqueBookHTML());renderCombatUI(true);}
 
   // the bottom bar: framed slots with painted icons, the hero's own portrait in the middle
   const NAV = [['world', 'Adventure', 'sword', '⚔'], ['map', 'Map', 'map', '✥'], ['hero', 'Hero', null, '☺'], ['bag', 'Bag', 'bag', '◈'], ['ledger', 'Ledger', 'tome', '❖']];
@@ -1016,7 +1089,7 @@
     $('#app').classList.toggle('prologue',boatActive() && $('#title').hidden);
     if(!boatActive() || !$('#title').hidden) $('#onboard').hidden=true;
     renderHud(); renderNav(); document.querySelectorAll('#nav button').forEach(b => b.dataset.t === tab ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
-    const world = tab === 'world'; $('#stage').hidden = !world; $('#view').hidden = world;
+    const world = tab === 'world'; $('#stage').hidden = !world; $('#view').hidden = world;renderCombatUI(true);
     if (world) { if (ready && !sceneUp) bootScene(); if(boatActive()){if($('#title').hidden)boatRender();return;} if (sceneUp) { if(!Q)Scene.resume(); gPlace(); } return; }
     Scene.pause(); const v = $('#view'), keep = v.dataset.tab === tab + lsub ? v.scrollTop : 0;
     v.innerHTML = '<button class="pclose" data-a="tab" data-t="world" aria-label="Close">✕</button>' + ({ map: vMap, ledger: vLedger, hero: vHero, bag: vBag }[tab])(); v.dataset.tab = tab + lsub; v.scrollTop = keep;
@@ -1919,6 +1992,7 @@
   };
   const BRASS = '#f3c95a';
   const HOST = {
+    combatUi:()=>renderCombatUI(),
     inputBlocked: () => boatActive()&&!['walk','arrival'].includes(S.prologue.phase) || !$('#sheet').hidden || !$('#say').hidden || !$('#enc').hidden || !$('#coach').hidden || !$('#title').hidden,
     moveCloser: () => toast('Move closer to interact.'),
     cartography: () => CMap.visual(), waypoint: () => CMap.guide(), revealSurface: (x,y) => CMap.moved(x,y),
@@ -1982,7 +2056,7 @@
     return h;
   }
   const conHTML = r => r.err ? `<div class="verdict err"><p>${esc(r.err)}</p></div>` : (r.note ? `<div class="verdict good"><p>${esc(r.note)}</p></div>` : tableHTML(r, 60));
-  const bookHTML = () => Object.keys(BOOKS).map(b => { const B = BOOKS[b], mine = PAGES.filter(p => p.book === b); return `<details class="lesson book"><summary><span>${B.name} <small>${mine.filter(p => owned(p.id)).length} / ${mine.length}</small></span></summary><div class="lb"><p class="cap2">${esc(B.what)}.</p><ul class="pglist">${mine.map(p => `<li class="${owned(p.id) ? 'has' : ''}${p.rare ? ' rare' : ''}"><b>${owned(p.id) || !p.rare ? esc(p.name) : 'Unknown page'}</b><small>${CIRCLE[p.c]} Circle${p.rare ? ' · rare' : ''}</small><span>${owned(p.id) ? (p.note || 'In your book') : S.scr[p.id] ? 'The scroll is in your bag' : esc(p.src)}</span></li>`).join('')}</ul></div></details>`; }).join('');
+  const bookHTML = () => (combatView()?'<button class="btn solid" data-a="combatbook">Technique Book</button>':'')+Object.keys(BOOKS).filter(b=>!combatView()||!['arms','spell'].includes(b)).map(b => { const B = BOOKS[b], mine = PAGES.filter(p => p.book === b); return `<details class="lesson book"><summary><span>${B.name} <small>${mine.filter(p => owned(p.id)).length} / ${mine.length}</small></span></summary><div class="lb"><p class="cap2">${esc(B.what)}.</p><ul class="pglist">${mine.map(p => `<li class="${owned(p.id) ? 'has' : ''}${p.rare ? ' rare' : ''}"><b>${owned(p.id) || !p.rare ? esc(p.name) : 'Unknown page'}</b><small>${CIRCLE[p.c]} Circle${p.rare ? ' · rare' : ''}</small><span>${owned(p.id) ? (p.note || 'In your book') : S.scr[p.id] ? 'The scroll is in your bag' : esc(p.src)}</span></li>`).join('')}</ul></div></details>`; }).join('');
   /* ---------- how you look: body, hair, beard, head gear, clothes and dye; armour and weapon come from what you wear ---------- */
   const HAIRS = ['Short and neat', 'Shaggy', 'Long', 'Ponytail', 'Cropped', 'Curly', 'Long and straight', 'One braid', 'Wavy', 'Short crop', 'Bun', 'Two braids'];
   const BEARDS = ['Short beard', 'Long beard', 'Goatee', 'Moustache', 'Boxed beard', 'Stubble'], HATS = ['Leather cap', 'Mail coif', 'Helmet', 'Hood', 'Wizard’s hat', 'Circlet'];
@@ -2111,6 +2185,15 @@
 
   /* ---------- actions ---------- */
   const ACT = {
+    combatbegin:d=>{if(d.id&&combatView())Combat.begin(d.id);renderCombatUI(true);},
+    combatback:()=>{stashFightDraft();if(combatView())Combat.cancel();renderCombatUI(true);fitPanel();},
+    combatbook:openTechniqueBook,
+    techniqueslot:d=>{techniqueSlot=Math.max(0,Math.min(3,+d.slot||0));openTechniqueBook();},
+    techniquefilter:d=>{if(['all','swords','fencing','archery','magery'].includes(d.id))techniqueFilter=d.id;openTechniqueBook();},
+    combatequip:d=>{if(combatView()){const result=Combat.equip(d.id||null,+d.slot);if(result?.ok)openTechniqueBook();}},
+    combatsupply:d=>{if(combatView()){Combat.setSupply(d.id);openTechniqueBook();}},
+    combatdetails:()=>{if(F?.live&&F.res)sheet('<h2>Last action</h2><p>'+esc(F.pline||GRADE_N[F.res.grade])+'</p>'+QueryFeedback.html(F.comparison,{power:F.queryPower,open:true})+F.after.replace(/<div class="row end">[\s\S]*<\/div>$/,''));},
+    queryhelp:()=>{if(F)F.readinessHelp=true;kbView('help');},
     ...CMap.actions,
     snd: d => { const p = Sound.pref(); if (d.k === 'mu') Sound.setMu(!p.mu); else Sound.setFx(!p.fx); render(); },
     tab: d => { if (F || Q || DU || !NAV.some(t=>t[0]===d.t)) return; if(tab==='ledger'&&$('#con-sql'))con.sql=$('#con-sql').value;if(boatActive()){S.prologue=Prologue.viewed(S.prologue,d.t);save();}tab = d.t;if(boatActive()&&tab==='ledger')lsub='grimoire'; if (tab === 'map') sel = S.region; closeSheet(); render(); $('#view').scrollTop = 0; },

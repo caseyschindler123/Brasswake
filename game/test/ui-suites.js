@@ -1,7 +1,7 @@
 /* One inventory for automatic selection, local execution and the CI gate. */
 const MODULES = ['playability', 'query-feedback', 'battle-risk', 'battle-boundaries',
   'skill-system', 'backstab', 'npc-appearance', 'sound', 'dungeons', 'music', 'arming',
-  'first-day', 'prologue', 'world-travel', 'world-buildings', 'cartography', 'joystick',
+  'first-day', 'prologue', 'world-travel', 'world-buildings', 'cartography', 'joystick', 'landscape-ui',
   'venues', 'worlds', 'living-world', 'offline', 'offline-restart', 'journeys', 'dev-mode','equipment','mounts','settlements','deletion','appearance-materials','painted-release'];
 // Focused first-day runs omit long profession days; every full gate retains them.
 const ALL_SUITES = ['canary', 'smoke', 'scenes', ...MODULES];

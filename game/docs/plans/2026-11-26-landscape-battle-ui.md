@@ -2,9 +2,18 @@
 
 Date: 2026-11-26 (Casey's local date).
 
-Status: planned, not built. Casey requested a full build plan; implementation and game publication remain unauthorized. This task writes documentation only. No game checks, build, asset generation or deployment belong to this planning task.
+Status: implementation authorized and in progress on 2026-11-27. Casey explicitly assigned this chat landscape/UI implementation, coordination of the dungeon and Magery/technique chats, and deployment of the combined build after all required testing. No partial gameplay/UI publication is planned.
 
-Planning classification: simple, because this deliverable changes documentation only. The future implementation is complex because it changes the shared viewport/camera/input contract and consumes the new gameplay pause/action and persistent four-slot technique contracts. Incorrect integration could move the wrong actor, freeze or advance combat clocks incorrectly, or equip/execute a technique for the wrong character. Use this plan when implementation is authorized, updating milestones and evidence as the work proceeds.
+Implementation classification: complex because this changes the shared viewport/camera/input contract and consumes the new gameplay pause/action and persistent four-slot technique contracts. Incorrect integration could move the wrong actor, freeze or advance combat clocks incorrectly, or equip/execute a technique for the wrong character. The original planning-only task was simple and completed at b07f61f; subsequent implementation checks and release evidence belong below.
+
+## Coordinated build: 2026-11-27
+
+- Landscape/UI and final integration/release: Discuss iPhone landscape mode, branch `codex/landscape-battle-ui`, checkout `work/landscape-battle-ui`.
+- Techniques/Magery/live-combat gameplay: Review Magery technique design, branch `codex/live-combat-techniques`, checkout `work/live-combat-techniques`.
+- Dungeon floor design/terrain/progression integration: Review dungeon floor plans, branch `codex/dungeon-spatial-design`, checkout `work/dungeon-spatial`.
+- All checkouts start at b07f61f. Workers commit locally and hold main/publication. Shared game/scene functions merge by ownership; the coordinator owns the sole integrated publication after focused worker checks and full required exact-commit testing.
+- The gameplay adapter is being finalized as `Combat` backed by pure `Techniques` and `LiveCombat` modules. UI consumes definitions/state, eligibility, selection, begin/cancel and equipment operations; it never maintains parallel combat/resource/cooldown rules.
+- The dungeon owner provides terrain and revision/migration contracts from dungeon-owned files. Shared scene viewport/drawing changes stay with UI; live update/AI/LOS stays with gameplay.
 
 ## Outcome and ownership
 
@@ -130,6 +139,8 @@ Handle the native keyboard as a real alternate layout, using visual-viewport cha
 
 ## Milestones and acceptance gates
 
+Implementation checkpoint (2026-11-27): isolated UI source now contains the landscape shell/resource cluster, side-panel camera occlusion, keyboard/reference view switching, four-slot/finite-baseline action presentation and Technique Book adapters. Chromium and WebKit local probes at 844x390 exercised Tables/Commands/Fields/Help and portrait/landscape round trips without losing the draft or producing page errors; captures were opened. These probes used the existing battle controller while the coordinated gameplay branch was still being built. They do not establish integrated live combat, earned technique learning, native iPhone keyboard behavior or release readiness. A registered `landscape-ui` suite now targets those real gameplay adapters; it remains to run on the integrated build. P1-P6 remain open until their actual combined acceptance criteria pass.
+
 - [x] **P0: Record the build plan.** Capture settled requirements, provisional controls and ownership boundaries. Add a planned-state pointer and dated decision in the gameplay master doc. Documentation review and `git diff --check` only; no game release.
 - [ ] **P1: Freeze integration contracts and layout specification.** Receive answers for the dependent decisions above; record which are still intentionally deferred. Update the discussion layout for live-world combat, top-right resources and real available phone space. Define the action/target/pause/view state transition table and four-slot equipment semantics. Acceptance: every visible control maps to an actual gameplay operation/state, and no illustrative mock values are treated as rules.
 - [ ] **P2: Build the landscape shell and camera/input adapter.** Implement resource reservation, movement/action regions, safe-area and portrait/desktop fallbacks, plus usable scene-rectangle geometry. Acceptance: native world taps/joystick agree with rendered positions before/after rotation and panel open/close; resources never overlap the active input or in-play overlays. Normal movement, arrival and navigation still work.
@@ -137,7 +148,7 @@ Handle the native keyboard as a real alternate layout, using visual-viewport cha
 - [ ] **P4: Build four-slot controls and Technique Book presentation.** Read real technique definitions/eligibility and use the shared equipped-state API. Acceptance: exactly four ordered cross-discipline slots, stable unavailable/empty states, actual readiness and costs, clear book equipment changes, and reload/character isolation through the gameplay-owned persistence contract.
 - [ ] **P5: Integrate the live combat lifecycle.** Connect ready/valid selection, authoritative pause and question identity, commit/repair/cancel, resolution, recovery displays, target/aggro/LOS cues and natural escape. Remove obsolete choose-page/Feint/Cleave/Guard/Flee/exchange UI only with its actual replacement. Acceptance: wrong/rapid/repeated clicks cannot commit twice, pause or resumption cannot advance/reset the wrong clocks, and an enemy can be visible yet correctly out of range or behind blocked line of fire.
 - [ ] **P6: Verify cross-flow presentation and regressions.** Exercise actual ordinary flows where travel, learning, progression, saves, audio/offline or navigation are claimed. Open all relevant captures. Reconcile old page-based shop/loot/equipment/onboarding descriptions with the gameplay change; do not repurpose unrelated noncombat screens wholesale. Acceptance: the matrix below passes and all known relevant failures are resolved without weaker assertions/baselines.
-- [ ] **P7: Release after implementation is authorized and integrated.** Complete the selected authoritative gate, commit/push intended files through one coordinated game publisher, monitor the exact Actions run through publication and hosted checks, verify source/HTML identity and open hosted layout captures. Record actual evidence/limits, reconcile master docs and close this plan only when complete. No release is authorized by completing P0.
+- [ ] **P7: Release the authorized integrated build.** Complete the selected authoritative gate, commit/push intended files through one coordinated game publisher, monitor the exact Actions run through publication and hosted checks, verify source/HTML identity and open hosted layout captures. Record actual evidence/limits, reconcile master docs and close this plan only when complete.
 
 P2/P3 can be developed against an explicit adapter after P1; P4 needs technique/save state and P5 needs the approved live-combat implementation. Use isolated checkouts/ports for concurrent executable work and integrate shared `game.js`/scene/build changes sequentially. Delegation is optional and must have nonoverlapping owned areas; do not duplicate the separate gameplay or dungeon investigation.
 
@@ -191,4 +202,4 @@ Evidence to fill during implementation/release:
 - Save/legacy-page migration verification from gameplay owner: pending.
 - Physical iPhone/browser/Home Screen/native-keyboard evidence and limitations: pending; discussion mockups do not supply it.
 
-Planning-task completion consists of wording/link/scope review and `git diff --check`, followed by a documentation-only commit/push under the repository workflow. This completes the requested plan, not P1-P7 or the game overhaul. Pages ignores Markdown-only pushes. Do not append a game-release record or mark this build plan released for this documentation change.
+The original planning task completed wording/link/scope review and `git diff --check` with documentation-only commit/push b07f61f. That was not a game release. The 2026-11-27 authorization now activates P1-P7; keep their actual progress, verification and eventual publication evidence current.

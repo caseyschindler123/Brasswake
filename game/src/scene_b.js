@@ -2,6 +2,7 @@
   /* ===== mainland and island regions, ground painted in chunks as you walk ===== */
   const [WW, WH] = Geography.size, CS = 8, TOWN = Geography.towns;
   let world = null, curReg = 1, curB = 1, curT = null, tcheck = 0, inset = 0, locked = false, ambNow = 0, anims = [], floats = [], slashes = [], shots = [], bars = [];
+  let viewportInsets={top:0,right:0,bottom:0,left:0},viewportFocus=null;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   Object.assign(ART, { s1: ['wolf', '#8a5a3a'], s2: ['bird', '#b0703a'], s3: ['wolf', '#e0a0a0'], s4: ['wolf', '#7a4a2a'], s5: ['wolf', '#2a2a2a'], s6: ['bird', '#f0f0f0'], s7: ['bird', '#1a1a1a'], s8: ['wolf', '#8a8a8a'], a1: ['rat', '#9a7a5a'], a2: ['wolf', '#b08a5a'], a3: ['wolf', '#4a3a32'], a4: ['wolf', '#c9703a'], a5: ['bird', '#8a5a3a'], a6: ['wolf', '#d8d4c8'], a7: ['wolf', '#e6e0d0'], a8: ['rat', '#f0f0f0'] });
   const FB = { bank: 'guild', work: 'shop', house: 'healer', cottage: 'house', hall: 'tavern', casino: 'hall', farm: 'house', barn: 'work', mill: 'hall', cottage2: 'cottage', shack: 'cottage', cabin: 'house', hut: 'cottage', way: 'tavern', tower: 'guild', ruin: 'work', shrine: 'healer', stable: 'work', adobe: 'house', lodge: 'house', stilt: 'cottage', mine: 'work' };
@@ -1148,8 +1149,12 @@
   function draw() { if (P && host.app) { const ak = artVer + JSON.stringify(host.app()); if (P.sv !== ak) { P.sv = ak;P.gaitProfile=paintedProfile(host.app()); P.spr = heroArt(); } }
     WORLD_BUILDING_CACHE.beginFrame();
     try {
-    const g = cx, vv = Math.max(60, vh - inset / zoom), now = performance.now();
-    cam.x = map.w * T < vw ? (map.w * T - vw) / 2 : clamp(P.fx * T + 8 - vw / 2, 0, map.w * T - vw); cam.y = map.h * T < vv ? (map.h * T - vv) / 2 : clamp(P.fy * T + 8 - vv / 2, map.dungeonFloor ? -4*T : 0, map.h * T - vv);
+    const g = cx, visibleW=Math.max(60,vw-(viewportInsets.left+viewportInsets.right)/zoom), vv = Math.max(60, vh - (viewportInsets.top+Math.max(inset,viewportInsets.bottom)) / zoom), now = performance.now();
+    const centerX=viewportInsets.left/zoom+visibleW/2,centerY=viewportInsets.top/zoom+vv/2,target=viewportFocus&&viewportFocus.hp!==0?viewportFocus:null;
+    const focusX=target&&Math.abs((target.fx??target.x)-P.fx)*T<visibleW-32?(P.fx+(target.fx??target.x))/2:P.fx;
+    const focusY=target&&Math.abs((target.fy??target.y)-P.fy)*T<vv-32?(P.fy+(target.fy??target.y))/2:P.fy;
+    cam.x = map.w*T<visibleW?map.w*T/2-centerX:clamp(focusX*T+8-centerX,-viewportInsets.left/zoom,map.w*T-visibleW-viewportInsets.left/zoom);
+    cam.y = map.h*T<vv?map.h*T/2-centerY:clamp(focusY*T+8-centerY,(map.dungeonFloor?-4*T:0)-viewportInsets.top/zoom,map.h*T-vv-viewportInsets.top/zoom);
     const ox0 = Math.round(cam.x * K) / K, oy0 = Math.round(cam.y * K) / K; g.setTransform(K, 0, 0, K, 0, 0); g.imageSmoothingEnabled = false; g.fillStyle = map.dungeonFloor ? map.layout.theme.wall : map.dungeon ? '#15151b' : '#20303a'; g.fillRect(0, 0, vw, vh);
     if(map.dungeonFloor){g.fillStyle='#070c1266';g.fillRect(0,0,vw,vh);}
     const x0 = Math.max(0, ox0 / T | 0), y0 = Math.max(0, oy0 / T | 0), x1 = Math.min(map.w - 1, (ox0 + vw) / T | 0), y1 = Math.min(map.h - 1, (oy0 + vh) / T | 0);
@@ -1278,11 +1283,11 @@
     }
     if(map.dungeonFloor && !locked){ const area=map.layout.rooms.find(R=>P.x>=R.x&&P.y>=R.y&&P.x<R.x+R.w&&P.y<R.y+R.h);o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const label='Floor '+(map.f+1)+' · '+(area?area.name:map.layout.name);const tw=o.measureText(label).width;o.fillStyle='rgba(8,15,22,.85)';o.fillRect(8*dpr,84*dpr,Math.min(tw+16*dpr,ov.width-16*dpr),23*dpr);o.fillStyle='#f4dfac';o.fillText(label,16*dpr,100*dpr,ov.width-36*dpr);o.textAlign='center';}
     if(map.venue && !locked){o.save();o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const width=Math.min(ov.width-112*dpr,o.measureText('Upper floor · '+map.venue.name).width+16*dpr);o.fillStyle='rgba(12,24,28,.9)';o.fillRect(8*dpr,84*dpr,width,23*dpr);o.fillStyle='#f4dfac';o.fillText('Upper floor · '+map.venue.name,16*dpr,100*dpr,width-16*dpr);o.restore();}
-    host.hud(locked ? null : near);
+    host.hud(locked ? null : near);host.combatUi?.();
     } finally { WORLD_BUILDING_CACHE.endFrame(); }
   }
   function loop(ts) { raf = 0; if (!running) return; const dt = Math.max(0, Math.min(.05, (ts - last) / 1000 || 0)); last = ts; step(dt); draw(); raf = requestAnimationFrame(loop); }
-  function size() { if (!wrap) return; const w = wrap.clientWidth, h = wrap.clientHeight; if (!w || !h) return; dpr = Math.min(3, window.devicePixelRatio || 1); zoom = w >= 760 ? 3 : 2; vw = Math.ceil(w / zoom); vh = Math.ceil(h / zoom); cv.width = vw * K; cv.height = vh * K; cv.style.width = vw * zoom + 'px'; cv.style.height = vh * zoom + 'px'; ov.width = Math.round(w * dpr); ov.height = Math.round(h * dpr); cx.imageSmoothingEnabled = false; lightCv = mk(vw, vh); }
+  function size() { if (!wrap) return; const w = wrap.clientWidth, h = wrap.clientHeight; if (!w || !h) return;const nextZoom=w>=1100?3:2,nextDpr=Math.min(3,window.devicePixelRatio||1);if(vw===Math.ceil(w/nextZoom)&&vh===Math.ceil(h/nextZoom)&&dpr===nextDpr)return;dpr=nextDpr;zoom=nextZoom; vw = Math.ceil(w / zoom); vh = Math.ceil(h / zoom); cv.width = vw * K; cv.height = vh * K; cv.style.width = vw * zoom + 'px'; cv.style.height = vh * zoom + 'px'; ov.width = Math.round(w * dpr); ov.height = Math.round(h * dpr); cx.imageSmoothingEnabled = false; lightCv = mk(vw, vh); }
 
   /* ---------- public ---------- */
   function init(el, h) {
@@ -1461,7 +1466,7 @@
   }
   const FX = {
     heal() { if (map && P) { emit('heal'); slashes.push({ x: P.fx, y: P.fy - .5, t: 0, row: 3, f: 0, d: .9, rise: .8 }); } }, treasure(x, y) { if (map) { emit('coins'); slashes.push({ x, y: y - .4, t: 0, row: 3, f: 3, d: .8, rise: .6 }); } },
-    lock(v) { locked = !!v; clearSceneControls(); }, inset(px) { inset = px || 0; }, bars(b) { bars = b || []; },
+    lock(v) { locked = !!v; clearSceneControls(); }, inset(px) { inset = px || 0; }, viewport(edges={},target=null){for(const key of ['top','right','bottom','left'])viewportInsets[key]=Math.max(0,Number(edges[key])||0);viewportFocus=target;size();}, bars(b) { bars = b || []; },
     face(e) { const dx = e.x - P.x, dy = e.y - P.y; P.dg = null; P.d8 = D8(Math.sign(dx), Math.sign(dy)); P.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 's' : 'l') : (dy > 0 ? 'f' : 'b'); e.dir = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'l' : 's') : (dy > 0 ? 'b' : 'f'); if (e.npcLook) e.npcFacing = NpcAppearance.direction(-dx, -dy, e.npcFacing); e.busy = 1; e.tx = null; e.fx = e.x; e.fy = e.y; },
     free(e) { if (e) e.busy = 0; },
     swing(a, b, kind, style) {
