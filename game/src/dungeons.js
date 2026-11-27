@@ -1,4 +1,5 @@
 const Dungeons = (() => {
+  const Layouts = typeof DungeonLayouts !== 'undefined' ? DungeonLayouts : require('./dungeon_layouts.js');
   const WALL = 0, FLOOR = 1, WATER = 2, HAZARD = 3, BRIDGE = 4;
   const W = 124, H = 109;
 
@@ -209,102 +210,39 @@ const Dungeons = (() => {
     ]]
   ];
 
-  // Width and height profiles are listed in room order and repeat when needed.
-  // Shorter widths keep passage mouths distinct. The cave profiles round off
-  // their corners by two or three cells.
-  const styles = {
-    1: { rooms: [[13, 9], [17, 9], [11, 11], [15, 13]], passage: [3, 2, 3], corners: 0 },
-    2: { rooms: [[11, 13], [17, 9], [13, 15], [15, 11]], passage: [3, 3, 2, 3], corners: 2 },
-    3: { rooms: [[13, 11], [11, 13], [17, 11], [13, 15]], passage: [2, 3, 2], corners: 1 },
-    4: { rooms: [[11, 9], [13, 15], [15, 11], [17, 13]], passage: [2, 2, 3, 2], corners: 3 },
-    5: { rooms: [[15, 11], [17, 13], [13, 11], [17, 9]], passage: [3, 3, 3, 2], corners: 0 },
-    6: { rooms: [[11, 15], [17, 11], [15, 13], [13, 15]], passage: [3, 2, 2], corners: 3 },
-    7: { rooms: [[15, 11], [11, 15], [17, 9], [13, 13]], passage: [2, 3, 3, 2], corners: 2 },
-    8: { rooms: [[17, 11], [13, 13], [15, 9], [11, 11]], passage: [3, 3, 2], corners: 0 }
-  };
   const dungeons = definitions.map(([name, levels], i) => {
-    const r = i + 1;
-    const floors = levels.map((level, f) => ({ ...level, r, f, w: W, h: H, step: [24, 21], origin: [12, 11] }));
-    return { r, name, theme: themes[r], floors, species: rosters[r], keeper: `k${r}` };
+    const r=i+1;
+    return {r,name,theme:themes[r],species:rosters[r],keeper:'k'+r,
+      floors:levels.map((level,f)=>({...level,r,f,w:W,h:H,revision:Layouts.REVISION}))};
   });
-
-  const get = r => dungeons[r - 1];
-  const floor = (r, f = 0) => get(r)?.floors[f];
-  const center = (spec, code) => {
-    const row = spec.diagram.findIndex(line => line.includes(code));
-    return [spec.origin[0] + spec.diagram[row].indexOf(code) * spec.step[0], spec.origin[1] + row * spec.step[1]];
+  const get=r=>dungeons[r-1], floor=(r,f=0)=>get(r)?.floors[f];
+  const geometry=spec=>Layouts.compile(spec);
+  const routeOf=spec=>[...spec.diagram.join('')].filter(c=>/[A-Z]/.test(c)).sort();
+  const arrivalAt=(spec,code)=>{
+    const g=geometry(spec);
+    if(code==='A')return [g.up.x,g.up.y+2];
+    const R=g.byId[code];return [R.cx+1,R.cy+2];
   };
-  const routeOf = spec => [...spec.diagram.join('')].filter(code => /[A-Z]/.test(code)).sort();
-  const arrivalAt = (spec, code) => {
-    if(code==='A'){const {up}=geometry(spec);return [up.x,up.y+2];}
-    const [x, y] = center(spec, code);
-    return [x + 1, y + 2];
-  };
-  const position = (room, dx = 0, dy = 0) => [room.cx + dx, room.cy + dy];
-
-  function geometry(spec) {
-    const {r,f,w,h}=spec,style=styles[r],tiles=new Uint8Array(w*h);
-    const paint = (x, y, tile = FLOOR) => { tiles[y * w + x] = tile; };
-    const route = routeOf(spec);
-    const codes = route.concat([...'wxyzv'].filter(code => spec.diagram.some(line => line.includes(code))));
-    const rooms = codes.map((id, i) => {
-      const [cx, cy] = center(spec, id);
-      const [rw, rh] = style.rooms[(i + f) % style.rooms.length];
-      const x = cx - (rw >> 1), y = cy - (rh >> 1);
-      for (let dy = 0; dy < rh; dy++) for (let dx = 0; dx < rw; dx++) {
-        const corner = Math.min(dx, rw - 1 - dx) + Math.min(dy, rh - 1 - dy);
-        if (corner >= style.corners) paint(x + dx, y + dy);
-      }
-      return { id, name: spec.names[i], x, y, w: rw, h: rh, cx, cy };
-    });
-    const byId = Object.fromEntries(rooms.map(room => [room.id, room]));
-    const routeLinks = route.slice(1).map((code, i) => route[i] + code);
-    const terrain = Object.fromEntries(spec.terrain.map(([a, b, type]) => [a + b, type === 'w' ? WATER : HAZARD]));
-    const links = routeLinks.concat(spec.branches).map(([from, to], i) => {
-      const a = byId[from], b = byId[to], type = terrain[from + to];
-      const dx = Math.sign(b.cx - a.cx), dy = Math.sign(b.cy - a.cy);
-      const length = Math.abs(b.cx - a.cx) + Math.abs(b.cy - a.cy);
-      const width = type ? 3 : style.passage[(i + f) % style.passage.length];
-      const mid = Math.floor(length / 2);
-      const spine = [], cells = [];
-      for (let step = 0; step <= length; step++) {
-        const x = a.cx + step * dx, y = a.cy + step * dy;
-        spine.push([x, y]);
-        for (let side = -1; side < width - 1; side++) {
-          const tx = x + side * dy, ty = y + side * dx;
-          const crossing = type && Math.abs(step - mid) <= 2;
-          paint(tx, ty, crossing ? side === 0 ? BRIDGE : type : FLOOR);
-          if (step === mid) cells.push([tx, ty]);
-        }
-      }
-      return { from, to, width, spine, cells, optional: i >= routeLinks.length, terrain: type || FLOOR };
-    });
-
-    // A stairwell occupies existing wall mass, clear of corridor mouths and
-    // rounded corners. Its floor landing stays in the connected first room.
-    const first=byId.A,y=first.y-1;
-    const candidates=Array.from({length:first.w-4},(_,i)=>first.x+2+i).sort((a,b)=>Math.abs(a-first.cx)-Math.abs(b-first.cx)||a-b);
-    const supported=x=>[-2,-1,0].every(dy=>[-1,0,1].every(dx=>tiles[(y+dy)*w+x+dx]===WALL));
-    const landing=x=>[1,2].flatMap(dy=>[-1,0,1].map(dx=>(y+dy)*w+x+dx));
-    let x=candidates.find(x=>supported(x)&&landing(x).every(i=>tiles[i]===FLOOR));
-    const landingAdded=[];
-    if(x===undefined){
-      // A narrow rounded room with a north corridor can lack a three-cell
-      // landing. Square off only its dry corner; never close an existing path.
-      x=candidates.filter(supported).filter(x=>landing(x).every(i=>tiles[i]===WALL||tiles[i]===FLOOR))
-        .sort((a,b)=>landing(a).filter(i=>tiles[i]===WALL).length-landing(b).filter(i=>tiles[i]===WALL).length)[0];
-      if(x===undefined)throw Error(`No supported ascent in ${r}/${f}`);
-      for(const i of landing(x))if(tiles[i]===WALL){tiles[i]=FLOOR;landingAdded.push([i%w,Math.floor(i/w)]);}
-    }
-    const up={x,y,side:'north',support:{x:x-1,y:y-2,w:3,h:3}};
-    return {tiles,rooms,byId,route,routeLinks,links,up,landingAdded};
-  }
+  const position=(room,dx=0,dy=0)=>[room.cx+dx,room.cy+dy];
 
   function build(r, f = 0) {
     const dungeon=get(r),spec=floor(r,f);if(!spec)return undefined;
-    const {theme}=dungeon,{w,h}=spec,{tiles,rooms,byId,route,routeLinks,links,up,landingAdded}=geometry(spec),entities=[];
+    const {theme}=dungeon,{w,h}=spec,g=geometry(spec),{tiles,rooms,byId,route,routeLinks,links,up,landingAdded}=g,entities=[];
     const codes=route.concat([...'wxyzv'].filter(code=>byId[code]));
-    const anchor=(key,kind,[x,y],name,data={})=>{entities.push({id:`r${r}f${f}-${key}`,kind,x,y,r,f,name,...data});return entities[entities.length-1];};
+    const reserved=new Set([[up.x,up.y+2],arrivalAt(spec,route.at(-1))].map(([x,y])=>y*w+x));
+    const anchor=(key,kind,[x,y],name,data={})=>{
+      if(kind!=='dtravel'&&kind!=='dgate'&&kind!=='dsecret'){
+        const valid=(xx,yy)=>tiles[yy*w+xx]===FLOOR&&!reserved.has(yy*w+xx)&&!entities.some(e=>e.x===xx&&e.y===yy);
+        if(!valid(x,y)){
+          const room=byId[data.room];
+          const choices=(room?.cells||[]).map(i=>[i%w,Math.floor(i/w)]).filter(([xx,yy])=>valid(xx,yy));
+          choices.sort((a,b)=>(a[0]-x)**2+(a[1]-y)**2-((b[0]-x)**2+(b[1]-y)**2)||a[1]-b[1]||a[0]-b[0]);
+          if(!choices.length)throw Error('No safe anchor '+r+'/'+f+'/'+key);
+          [x,y]=choices[0];
+        }
+      }
+      entities.push({id:`r${r}f${f}-${key}`,kind,x,y,r,f,name,...data});return entities[entities.length-1];
+    };
     const first = byId.A, end = byId[route[route.length - 1]];
     const previous = floor(r, f - 1), next = floor(r, f + 1);
     const entry = [up.x,up.y+2];
@@ -321,12 +259,12 @@ const Dungeons = (() => {
       anchor('table', 'ltable', position(end, -2, -3), 'Sealed scroll', { room: end.id });
     }
 
-    const gateLink = links[routeLinks.length], gateCenter = gateLink.spine[Math.floor(gateLink.spine.length / 2)];
+    const gateLink = links.find(link=>link.kind==='return'), gateCenter = gateLink.point;
     const gate = anchor('gate', 'dgate', gateCenter, theme.gate, { cells: gateLink.cells, type: theme.id });
-    const controlRoom = byId[gateLink.from];
+    const controlRoom = byId[g.controlRoom];
     anchor('lever', 'dlever', position(controlRoom, 2, -1), theme.control, { target: gate.id, type: theme.id, room: controlRoom.id });
     const secretLink = links.find(link => link.to === 'z');
-    const revealAt = secretLink.spine[Math.floor(secretLink.spine.length / 2) - 2];
+    const revealAt = g.secretReveal;
     anchor('secret', 'dsecret', revealAt, theme.secret, { cells: secretLink.cells, type: theme.id, room: secretLink.from });
     anchor('cache', 'dcache', position(byId.z, 2, 1), theme.cache, { room: 'z' });
     const loreRoom = byId.v || byId.y;
@@ -337,11 +275,17 @@ const Dungeons = (() => {
       anchor(key, 'dmon', point, sp.name, { species: id, tpl: sp.tpl, role: sp.role, room: room.id, lieutenant: false, ...data });
     };
     const roster = dungeon.species;
+    const encounterPoint=(room,id,side)=>{
+      const incoming=links.find(l=>l.kind==='main'&&l.to===room.id),origin=incoming&&byId[incoming.from]||first;
+      const dx=room.cx-origin.cx,dy=room.cy-origin.cy,v=Math.abs(dx)>Math.abs(dy)?[Math.sign(dx)||1,0]:[0,Math.sign(dy)||1];
+      const role=species[id].role,depth=role==='caster'?4:role==='armored'?-4:1,flank=role==='brute'?2:3;
+      return position(room,v[0]*depth-v[1]*flank*side,v[1]*depth+v[0]*flank*side);
+    };
     route.slice(1).forEach((code, i) => {
       const room = byId[code];
       const primary = +spec.territory[i + 1], secondary = +spec.territory[i];
-      mob(`${code}-1`, position(room, -3, -2), room, roster[primary]);
-      mob(`${code}-2`, position(room, 3, 2), room, roster[secondary]);
+      mob(`${code}-1`, encounterPoint(room,roster[primary],-1), room, roster[primary]);
+      mob(`${code}-2`, encounterPoint(room,roster[secondary],1), room, roster[secondary]);
     });
     codes.slice(route.length).forEach((code, i) => {
       const room = byId[code];
@@ -356,10 +300,14 @@ const Dungeons = (() => {
       anchor('tutorial-chest', 'dcache', position(first, -3, -3), 'Starter chest', { room: first.id, tutorial: true });
     }
 
-    return { w, h, tiles, rooms, entry, entities, links, theme, name: spec.name, dungeon: dungeon.name, route, r, f, landingAdded };
+    return { ...g, w, h, entry, entities, theme, name: spec.name, dungeon: dungeon.name, r, f };
   }
 
-  return { get, floor, build, species, themes, WALL, FLOOR, WATER, HAZARD, BRIDGE };
+  const roomAt=(layout,x,y)=>{
+    if(layout.tiles&&layout.tiles[y*layout.w+x]!==FLOOR&&layout.tiles[y*layout.w+x]!==BRIDGE)return undefined;
+    return layout.roomIndex ? layout.rooms[layout.roomIndex[y*layout.w+x]] : layout.rooms.find(R=>x>=R.x&&y>=R.y&&x<R.x+R.w&&y<R.y+R.h);
+  };
+  return { get, floor, build, roomAt, REVISION:Layouts.REVISION, species, themes, WALL, FLOOR, WATER, HAZARD, BRIDGE };
 })();
 
 if (typeof module !== 'undefined') module.exports = Dungeons;

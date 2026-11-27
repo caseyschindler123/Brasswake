@@ -75,7 +75,7 @@
   function genDungeon(r, options) {
     const opt = options && !Array.isArray(options) ? options : {}, f=opt.floor||0, layout=Dungeons.build(r,f), theme=layout.theme;
     const w=layout.w,h=layout.h,p=opt.progress||{seen:{},gates:{},claimed:{},kills:{}}, b=Object.assign({},BIO[r],{dw:theme.wall,df:theme.floor,g:theme.floor,G:theme.alternate,amb:.17,fx:r===5?'ember':r===7?'snow':'mote',liquid:r===5?'lava':'none'});
-    const m={r,f,w,h,t:new Uint8Array(w*h),dt:layout.tiles,b:new Uint8Array(w*h).fill(r),reg:new Uint8Array(w*h).fill(r),solid:new Uint8Array(w*h),o:new Uint8Array(w*h),keep:new Uint8Array(w*h),blds:[],props:[],ents:[],lights:[],pal:[],dungeon:true,dungeonFloor:true,tutorial:!!opt.tutorial,occ:new Map(),chunks:new Map(),terr:[],layout,progress:p,discovered:new Uint8Array(w*h),entry:layout.entry,mini:mk(w,h),spawnDefs:[]};
+    const m={r,f,w,h,t:new Uint8Array(w*h),dt:layout.tiles,opaque:layout.opaque.slice(),b:new Uint8Array(w*h).fill(r),reg:new Uint8Array(w*h).fill(r),solid:new Uint8Array(w*h),o:new Uint8Array(w*h),keep:new Uint8Array(w*h),blds:[],props:[],ents:[],lights:[],pal:[],dungeon:true,dungeonFloor:true,tutorial:!!opt.tutorial,occ:new Map(),chunks:new Map(),terr:[],layout,progress:p,discovered:new Uint8Array(w*h),entry:layout.entry,mini:mk(w,h),spawnDefs:[]};
     m.pal[r]=b;
     for(let i=0;i<w*h;i++){m.t[i]=[8,7,4,4,6][m.dt[i]];m.solid[i]=m.dt[i]===0||m.dt[i]===2||m.dt[i]===3?1:0;}
     m.discovered= DungeonProgress.unpackSeen(p.seen&&p.seen[f],w*h);
@@ -136,7 +136,7 @@
     for(const e of m.ents){
       if(e.kind==='dgate'||e.kind==='dsecret'){
         const opened=!!p.gates[e.target||e.gate||e.id];
-        for(const [x,y]of e.cells||[])m.solid[y*m.w+x]=opened?0:1;
+        for(const [x,y]of e.cells||[]){m.solid[y*m.w+x]=opened?0:1;if(m.opaque)m.opaque[y*m.w+x]=opened?0:1;}
         e.hidden=opened;
         if(opened){const i=e.y*m.w+e.x;if(m.occ.get(i)===e)m.occ.delete(i);e.solid=0;e.sub='Open passage';}
       }
@@ -529,7 +529,7 @@
     const th=m.layout.theme,art=typeof DungeonArt!=='undefined'&&DungeonArt.themes[m.r],wallArt=dungeonWallArt(m.r);
     const texture=key=>{if(!art)return null;const rc=art[key];if(!rc||!have(DungeonArt.image))return null;const k=m.r+key;if(!DUNPAT[k])DUNPAT[k]=g.createPattern(cut(DungeonArt.image,...rc),'repeat');return DUNPAT[k];};
     for(let y=Y0;y<Math.min(m.h,Y0+CS);y++)for(let x=X0;x<Math.min(m.w,X0+CS);x++){
-      const i=y*m.w+x,t=m.dt[i],room=m.layout.rooms.find(R=>x>=R.x&&y>=R.y&&x<R.x+R.w&&y<R.y+R.h),alt=room&&(room.cx+room.cy+m.f)%4===0,key=t===0?'wall':t===2||t===3?'hazard':t===4?'alternate':alt?'alternate':'floor';
+      const i=y*m.w+x,t=m.dt[i],room=Dungeons.roomAt(m.layout,x,y),alt=room&&(room.cx+room.cy+m.f)%4===0,key=t===0?'wall':t===2||t===3?'hazard':t===4?'alternate':alt?'alternate':'floor';
       g.fillStyle=texture(key)||(t===0?th.wall:t===2?th.water:t===3?th.hazard:t===4?th.bridge:alt?th.alternate:th.floor);
       g.fillRect(x*TS,y*TS,TS,TS);
       if(t===1&&room)dungeonFloorDetail(m,g,x,y,room);
@@ -600,7 +600,7 @@
       }
       if(t===1&&(map.r===1||map.r===2)&&(x*13+y*19)%43===0){
         const phase=(now/4800+(x+y)%13/13)%1;
-        const room=map.layout.rooms.find(R=>x>=R.x&&y>=R.y&&x<R.x+R.w&&y<R.y+R.h);
+        const room=Dungeons.roomAt(map.layout,x,y);
         if(room){
           g.globalAlpha=Math.max(0,Math.sin(phase*Math.PI))*.25;g.strokeStyle='#b6cfca';g.lineWidth=.55;
           if(phase<.5){g.fillStyle='#b5d0d0';g.fillRect(x*T+6,y*T-12+phase*44,.65,1.8);}

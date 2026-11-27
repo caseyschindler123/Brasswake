@@ -5,7 +5,11 @@ const DungeonPlay = (() => {
   const CACHE_GOLD = { multiplier:10, base:8, materials:2 };
   function create(a) {
     let movementSave=0,lastMovementSave=0;
-    const s = () => a.state(), dg = () => a.run(), progress = r => DungeonProgress.ensure(s(), r, a.day());
+    const s = () => a.state(), dg = () => a.run(), progress = r => {
+      const p=DungeonProgress.ensure(s(),r,a.day());
+      if(p.layout!==Dungeons.REVISION)DungeonProgress.revise(p,Dungeons.get(r).floors.map(f=>Dungeons.build(r,f.f)),Dungeons.REVISION,a.now());
+      return p;
+    };
     const current = () => { const d = dg(); return d && progress(d.r); };
     function snapshot() {
       clearTimeout(movementSave);movementSave=0;
@@ -14,7 +18,7 @@ const DungeonPlay = (() => {
       const p=current();p.seen[d.f]=DungeonProgress.packSeen(m.discovered||[]);
       p.bodies=p.bodies||{};
       for(const e of m.ents)if(e.kind==='corpse'&&e.id&&e.decay>0)p.bodies[e.id]={x:e.x,y:e.y,loot:e.loot,empty:!!e.empty,until:a.now()+e.decay*1000};
-      const at=a.scene.pos();s().dungeon={r:d.r,f:d.f,x:at[0],y:at[1],back:d.back,tutorial:d.tutorial};
+      const at=a.scene.pos();s().dungeon={layout:Dungeons.REVISION,r:d.r,f:d.f,x:at[0],y:at[1],back:d.back,tutorial:d.tutorial};
     }
     function floor(f, pos) {
       const d = dg(), def = Dungeons.get(d.r);
@@ -24,7 +28,7 @@ const DungeonPlay = (() => {
       d.left = d.tutorial ? (p.claimed.tutorialKey ? 0 : 1) : DungeonProgress.missing(p, def.floors.length).length;
       d.keeper = p.keeper; d.done = !!p.claimed.vault;
       const at = DungeonProgress.validPosition(layout, pos, p, a.now()) ? pos : layout.entry;
-      s().dungeon = { r: d.r, f, x: at[0], y: at[1], back: d.back, tutorial: d.tutorial };
+      s().dungeon = { layout:Dungeons.REVISION, r: d.r, f, x: at[0], y: at[1], back: d.back, tutorial: d.tutorial };
       a.close(); a.scene.enterDungeon(d.r, { floor: f, progress: p, now: a.now(), tutorial: d.tutorial, pos: at });
       a.save(); a.hud();
     }
@@ -33,7 +37,7 @@ const DungeonPlay = (() => {
       const back = saved && saved.back || a.scene.pos();
       a.setRun({ r, f: 0, back, tutorial: saved ? !!saved.tutorial : r===1 && ['vault','chest'].includes(a.guideId()), done: false, left: 0 });
       if (!saved && r===1 && a.guideId()==='vault') a.guideStart();
-      floor(saved ? saved.f : 0, saved ? [saved.x, saved.y] : null);
+      floor(saved ? saved.f : 0, saved?.layout===Dungeons.REVISION ? [saved.x, saved.y] : null);
     }
     function restore() {
       const d = s().dungeon;
@@ -47,7 +51,7 @@ const DungeonPlay = (() => {
     }
     function moved(x, y) {
       const d = dg(); if (!d) return;
-      s().dungeon = { r:d.r, f:d.f, x,y, back:d.back, tutorial:d.tutorial };
+      s().dungeon = { layout:Dungeons.REVISION, r:d.r, f:d.f, x,y, back:d.back, tutorial:d.tutorial };
       clearTimeout(movementSave);
       if(a.now()-lastMovementSave>=1500){lastMovementSave=a.now();a.save();}
       else movementSave=setTimeout(()=>{movementSave=0;if(dg())a.save();},600);
@@ -78,7 +82,7 @@ const DungeonPlay = (() => {
         const need = DungeonProgress.missing(p,Dungeons.get(d.r).floors.length).map(f=>Dungeons.floor(d.r,f).name).join(', ');
         return a.dialog(e,need ? 'Recover the floor seals from '+need+'. Then defeat the keeper.' : 'Defeat the keeper to open the vault.',[{t:'Leave',a:'closesheet'}]);
       }
-      const t = d.r, lk = a.luck(), o = {gold: vault || starter ? 30*t+20 : CACHE_GOLD.multiplier*t+CACHE_GOLD.base,mats:{[t]:vault || starter ? a.int(4,6) : CACHE_GOLD.materials},sigils:vault || starter ? 1+(a.random()<.4?1:0) : 0,items:[a.item(a.rarity(lk,vault || starter ? 2 : 1),t)],scrolls: vault || starter ? ['s'+t+'r'] : []};
+      const t = d.r, lk = a.luck(), o = {gold: vault || starter ? 30*t+20 : CACHE_GOLD.multiplier*t+CACHE_GOLD.base,mats:{[t]:vault || starter ? a.int(4,6) : CACHE_GOLD.materials},sigils:vault || starter ? 1+(a.random()<.4?1:0) : 0,items:[a.item(a.rarity(lk,vault || starter ? 2 : 1),t)],scrolls: []};
       if (vault || starter) { o.bless=a.random()<.06?1:0; o.gscr=a.random()<.3?1:0; a.dye(.12); }
       let note=''; const u='u_w'+t;
       if ((vault || starter) && !s().codex[u]) { s().dpity[t]=(s().dpity[t]||0)+1; if(a.random()<.2*(1+lk/100)||s().dpity[t]>=5) {o.items.push(a.unique(u));s().dpity[t]=0;note='At the bottom of the chest: a named rare.';} }

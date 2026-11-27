@@ -58,7 +58,7 @@ async function assertTexture(f) {
     for(const [key,chunk] of m.chunks){const cx=key%1000,cy=Math.floor(key/1000);
       for(let ly=1;ly<CS-1;ly++)for(let lx=1;lx<CS-1;lx++){
         const x=cx*CS+lx,y=cy*CS+ly;if(m.dt[y*m.w+x]!==1)continue;
-        const room=m.layout.rooms.find(R=>x>=R.x&&y>=R.y&&x<R.x+R.w&&y<R.y+R.h),alt=room&&(room.cx+room.cy+m.f)%4===0,rc=DungeonArt.themes[m.r][alt?'alternate':'floor'];
+        const room=Dungeons.roomAt(m.layout,x,y),alt=room&&(room.cx+room.cy+m.f)%4===0,rc=DungeonArt.themes[m.r][alt?'alternate':'floor'];
         const actual=Array.from(chunk.getContext('2d').getImageData(lx*TS+21,ly*TS+21,1,1).data);
         const expected=Array.from(g.getImageData(rc[0]+(x*TS+21)%rc[2],rc[1]+(y*TS+21)%rc[3],1,1).data);
         samples.push({actual,expected});if(samples.length===8)return samples;

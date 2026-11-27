@@ -17,6 +17,38 @@ const entityId = (m, e) => id(m, e.x, e.y);
 const around = (x, y) => [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]];
 const passable = tile => tile === Dungeons.FLOOR || tile === Dungeons.BRIDGE;
 
+test('all floors have real cover, distinct room scales and return shortcuts that reduce retreat',()=>{
+  for(const {r,f}of floors){
+    const m=Dungeons.build(r,f),label=r+'/'+f;
+    assert.equal(m.revision,2,label);
+    assert.ok(m.cover.length>0,label+' physical cover');
+    assert.ok(m.rooms.some(R=>R.w>=23)&&m.rooms.some(R=>R.w<=13),label+' scale contrast');
+    for(const C of m.cover)for(let y=C.y;y<C.y+C.h;y++)for(let x=C.x;x<C.x+C.w;x++){
+      assert.equal(m.tiles[y*m.w+x],Dungeons.WALL,label+' cover collision');assert.equal(m.opaque[y*m.w+x],1,label+' cover opacity');
+    }
+    const gate=m.entities.find(e=>e.kind==='dgate'),secret=m.entities.find(e=>e.kind==='dsecret');
+    const blockers=new Set(m.entities.map(e=>entityId(m,e)));
+    for(const e of [gate,secret])for(const [x,y]of e.cells)blockers.add(id(m,x,y));
+    const goal=m.entities.find(e=>e.kind==='dlever');
+    const closed=approach(m,distances(m,blockers),goal);
+    for(const [x,y]of gate.cells)blockers.delete(id(m,x,y));
+    const open=approach(m,distances(m,blockers),goal);
+    assert.ok(closed-open>=20,label+' return saves '+(closed-open)+' steps');
+    for(let i=0;i<m.tiles.length;i++)assert.equal(m.opaque[i],+(m.tiles[i]===Dungeons.WALL),label+' base sight mask');
+  }
+});
+
+test('irregular room labels use real floor membership and the starter room stays outside ordinary territories',()=>{
+  for(const {r,f}of floors){
+    const m=Dungeons.build(r,f);
+    for(const R of m.rooms)for(const cell of R.cells){assert.equal(Dungeons.roomAt(m,cell%m.w,Math.floor(cell/m.w)),R);assert.ok(passable(m.tiles[cell]));}
+    for(let i=0;i<m.tiles.length;i++)if(m.roomIndex[i]<0||!passable(m.tiles[i]))assert.equal(Dungeons.roomAt(m,i%m.w,Math.floor(i/m.w)),undefined);
+  }
+  const m=Dungeons.build(1,0),first=m.rooms[0];
+  for(const e of m.entities.filter(e=>e.tutorial))assert.ok(first.cells.includes(id(m,e.x,e.y)),e.id);
+  for(const e of m.entities.filter(e=>e.kind==='dmon'&&!e.tutorial))assert.ok(Math.hypot(e.x-m.entry[0],e.y-m.entry[1])>8,e.id+' outside initial discovery radius');
+});
+
 function distances(m, blocked = new Set()) {
   const start = id(m, ...m.entry);
   const queue = [start], result = new Map([[start, 0]]);
@@ -76,7 +108,7 @@ test('all 28 floors have complete and distinct authored layouts', () => {
 });
 
 test('every floor has a connected dry route with two loops, branches, and traversable crossings', () => {
-  for (const { r, f, terrain } of floors) {
+  for (const { r, f } of floors) {
     const m = Dungeons.build(r, f), label = `${r}/${f}`;
     const reachable = distances(m);
     assert.ok(reachable.size >= 1200, label);
@@ -87,9 +119,7 @@ test('every floor has a connected dry route with two loops, branches, and traver
     const branchEntrances = m.links.filter(link => link.optional && main.has(link.from) !== main.has(link.to));
     const branches = new Set(branchEntrances.map(link => main.has(link.from) ? link.to : link.from));
     assert.ok(branches.size >= 3, label);
-    for (const edge of terrain) {
-      const link = m.links.find(link => link.from + link.to === edge.slice(0, 2));
-      assert.equal(link.terrain, edge[2] === 'w' ? Dungeons.WATER : Dungeons.HAZARD, label);
+    for (const link of m.links.filter(link=>link.terrain!==Dungeons.FLOOR)) {
       assert.ok(link.spine.every(([x, y]) => passable(m.tiles[id(m, x, y)])), label);
       assert.ok(link.cells.some(([x, y]) => m.tiles[id(m, x, y)] === link.terrain), label);
     }
@@ -159,7 +189,7 @@ test('stairs are reciprocal, with clear arrivals beside the corresponding stairs
   }
 });
 
-test('supported ascents retain room-centre save positions and only square off the one narrow Highwatch landing',()=>{
+test('redesigned ascents have complete authored landings and unoccupied room centres',()=>{
   for(const {r,f} of floors){
     const m=Dungeons.build(r,f),room=m.rooms[0],up=m.entities.find(e=>e.kind==='dtravel'&&e.to<f);
     assert.equal(m.tiles[id(m,room.cx,room.cy)],Dungeons.FLOOR,'old ascent position stays open');
@@ -167,7 +197,7 @@ test('supported ascents retain room-centre save positions and only square off th
     assert.equal(DungeonProgress.validPosition(m,[room.cx,room.cy]),true,'old saved room-centre position restores safely');
     assert.deepEqual(m.entry,[up.x,up.y+2]);
     assert.ok(Number.isFinite(approach(m,distances(m),up)),up.id+' remains reachable from entry');
-    assert.deepEqual(m.landingAdded,r===7&&f===1?[[56,88]]:[]);
+    assert.deepEqual(m.landingAdded,[],'landings are authored in revision two');
   }
 });
 

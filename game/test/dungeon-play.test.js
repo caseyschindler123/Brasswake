@@ -5,7 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const Content = require('../src/quests.js');
 
-const source = ['dungeons.js', 'dungeon_progress.js', 'dungeon_play.js']
+const source = ['dungeon_layouts.js', 'dungeons.js', 'dungeon_progress.js', 'dungeon_play.js']
   .map(name => fs.readFileSync(path.join(__dirname, '../src', name), 'utf8')).join('\n');
 const { Dungeons, DungeonProgress, DungeonPlay } = vm.runInNewContext(`${source}\n({ Dungeons, DungeonProgress, DungeonPlay })`, {setTimeout,clearTimeout});
 const bounties = new Map(Content.BOUNTIES.map(b => [b.id, b.r]));
@@ -173,7 +173,7 @@ test('each floor seal and the final keeper are required for one vault payout per
   h.game.interact(vault()); h.game.interact(vault());
   assert.equal(h.calls.grants.length, 1);
   assert.equal(h.state.stats.dungeons, 1);
-  assert.ok(h.calls.grants[0].scrolls.includes('s2r'));
+  assert.deepEqual([...h.calls.grants[0].scrolls],[],'rare techniques are earned through the new teaching-drop rules');
 
   h.nextDay();
   h.game.interact(vault());
@@ -229,8 +229,30 @@ test('restore discards unknown floors and uses a safe entry for invalid coordina
     h.stairs(0); h.stairs(-1);
     assert.deepEqual(h.calls.load.at(-1).position, back);
   }
-  const h = harness({ saved: { r: 1, f: 1, x: closedGate.x, y: closedGate.y, back } });
+  const h = harness({ saved: { layout:Dungeons.REVISION,r: 1, f: 1, x: closedGate.x, y: closedGate.y, back } });
   h.game.progress(1).gates[closedGate.id] = true;
   assert.equal(h.game.restore(), true);
   assert.deepEqual(h.scene.pos(), [closedGate.x, closedGate.y]);
+});
+
+test('legacy expeditions move to the same-floor landing even when their old coordinate remains dry',()=>{
+  const layout=Dungeons.build(1,1),room=layout.byId.J,back=[121,145],point=[room.cx+1,room.cy+2];
+  assert.equal(DungeonProgress.validPosition(layout,point),true);
+  const legacy=harness({saved:{r:1,f:1,x:point[0],y:point[1],back,tutorial:true}});
+  assert.equal(legacy.game.restore(),true);
+  assert.deepEqual(legacy.scene.pos(),[...layout.entry]);
+  assert.equal(legacy.state.dungeon.layout,Dungeons.REVISION);assert.equal(legacy.state.dungeon.tutorial,true);
+  assert.deepEqual(legacy.state.dungeon.back,back);
+  const current=harness({saved:{layout:Dungeons.REVISION,r:1,f:1,x:point[0],y:point[1],back}});
+  assert.equal(current.game.restore(),true);assert.deepEqual(current.scene.pos(),point);
+  current.game.moved(...point);assert.equal(current.state.dungeon.layout,Dungeons.REVISION);
+});
+
+test('vault and guided starter rewards no longer create legacy rare Spell pages',()=>{
+  const h=harness({guide:'vault'});h.game.enter(1);
+  h.game.victory(h.by(e=>e.tutorial&&e.kind==='dmon'));h.game.reward(h.by(e=>e.tutorial&&e.kind==='dcache'));
+  assert.deepEqual([...h.calls.grants[0].scrolls],[]);
+  h.game.floor(0);h.game.victory(h.by(e=>e.lieutenant));h.game.floor(1);h.game.victory(h.by(e=>e.lieutenant));h.game.floor(2);h.game.victory(h.by(e=>e.kind==='keeper'));
+  h.game.reward(h.by(e=>e.kind==='chest'));
+  assert.deepEqual([...h.calls.grants.at(-1).scrolls],[]);assert.equal(h.state.stats.dungeons,2);
 });

@@ -97,8 +97,8 @@ test('dungeon torches follow exposed wall faces around rounded corners and avoid
     }
   }
   assert.ok(checked>800);
-  const m=Dungeons.build(4,0),first=m.rooms[0];
-  assert.ok(h.dungeonTorchSites(m,first).every(p=>p.y>first.y-1),'rounded corners cannot mount torches in the void above them');
+  const m=Dungeons.build(4,0),rounded=m.rooms.find(R=>R.shape==='lobe');
+  assert.ok(h.dungeonTorchSites(m,rounded).every(p=>m.tiles[p.y*m.w+p.x]===Dungeons.WALL&&m.tiles[(p.y+1)*m.w+p.x]===Dungeons.FLOOR),'irregular rooms only mount torches on actual exposed walls');
 });
 
 test('ascent back walls continue their painted courses and coping across the supported frontage and chunk boundary',()=>{

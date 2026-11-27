@@ -115,3 +115,20 @@ test('five fully explored characters fit below one MiB of UTF-16 save storage', 
     assert.ok(P.unpackSeen(saved, w * h).every(value => value === 1), `region ${r}, floor ${f}`);
   }
 });
+
+test('layout revisions retain earned progress and relocate live corpse loot exactly once',()=>{
+  const p=P.ensure({},1,'today'),layouts=Dungeons.get(1).floors.map(f=>Dungeons.build(1,f.f));
+  const enemy=layouts[1].entities.find(e=>e.kind==='dmon');
+  p.seen={0:'b1:____',1:[2,3]};p.gates['r1f0-gate']=true;p.lore['r1f0-lore']=true;
+  p.kills[enemy.id]=100;p.seals[0]=true;p.claimed.vault=true;p.claimed.tutorialKey=true;p.keeper=true;
+  p.bodies={[enemy.id]:{x:1,y:1,until:1000,loot:{gold:19,items:[{id:'keepsake'}]}},unknown:{until:1000,loot:{gold:1}}};
+  assert.equal(P.revise(p,layouts,Dungeons.REVISION,500),true);
+  assert.deepEqual(p.seen,{});assert.equal(p.layout,Dungeons.REVISION);
+  assert.deepEqual([p.bodies[enemy.id].x,p.bodies[enemy.id].y],[enemy.x,enemy.y]);
+  assert.deepEqual(p.bodies[enemy.id].loot,{gold:19,items:[{id:'keepsake'}]});assert.equal(p.bodies.unknown,undefined);
+  assert.equal(p.gates['r1f0-gate'],true);assert.equal(p.lore['r1f0-lore'],true);assert.equal(p.kills[enemy.id],100);
+  assert.equal(p.seals[0],true);assert.equal(p.claimed.vault,true);assert.equal(p.claimed.tutorialKey,true);assert.equal(p.keeper,true);
+  p.seen[1]='b1:B';p.bodies[enemy.id].x++;
+  assert.equal(P.revise(p,layouts,Dungeons.REVISION,500),false);
+  assert.equal(p.seen[1],'b1:B');assert.equal(p.bodies[enemy.id].x,enemy.x+1,'same-revision corpse position remains settled');
+});

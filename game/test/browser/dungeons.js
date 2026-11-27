@@ -1,6 +1,66 @@
 const {test,expect}=require('@playwright/test');
 const {screenshot,observeErrors}=require('./flow');
 const {dismiss,closeSheet,win,canvasClick,assertTexture,assertPortalArt,capturePortal,walk,interact,engage}=require('./dungeon-helper');
+
+test('spatial dungeon revisions expose physical cover and transparent water on every floor',async({page},info)=>{
+  test.setTimeout(120000);
+  const errors=observeErrors(page);
+  await page.goto('/__visual?scene=dungeon');
+  await expect(page.locator('body')).toHaveAttribute('data-ready','dungeon',{timeout:45000});
+  const frame=page.frames().find(f=>f.url().includes('visual_test=1'));
+  for(let r=1;r<=8;r++){
+    const count=await frame.evaluate(r=>Dungeons.get(r).floors.length,r);
+    for(let f=0;f<count;f++){
+      const result=await frame.evaluate(({r,f})=>{
+        if(__bw.DG)__bw.DP.exit();__bw.DP.enter(r);if(f)__bw.DP.floor(f);
+        const m=Scene.debug().map;
+        for(const e of m.ents)if(['mon','guard','keeper'].includes(e.kind)){e.agg=0;e.wander=0;e.chase=0;e.alert=0;}
+        const doors=m.ents.filter(e=>e.kind==='dgate'||e.kind==='dsecret');
+        const closed=doors.every(e=>e.cells.every(([x,y])=>m.solid[y*m.w+x]===1&&m.opaque[y*m.w+x]===1));
+        for(const e of doors)__bw.DP.open(e.id);
+        const opened=doors.every(e=>e.cells.every(([x,y])=>m.solid[y*m.w+x]===0&&m.opaque[y*m.w+x]===0));
+        const masks=m.dt.every((t,i)=>m.opaque[i]===+(t===0)&&m.solid[i]===+([0,2,3].includes(t)));
+        const R=m.layout.rooms.filter(R=>R.id!=='A').sort((a,b)=>b.cells.length-a.cells.length)[0];
+        const at=R.cells.map(i=>[i%m.w,Math.floor(i/m.w)]).filter(([x,y])=>!m.solid[y*m.w+x]&&!m.occ.has(y*m.w+x))
+          .sort((a,b)=>Math.hypot(a[0]-R.cx,a[1]-R.cy)-Math.hypot(b[0]-R.cx,b[1]-R.cy))[0];
+        Scene.hop(...at);
+        return {r,f,closed,opened,masks,revision:__bw.S.dungeon.layout,cover:m.layout.cover.length};
+      },{r,f});
+      expect(result).toEqual({r,f,closed:true,opened:true,masks:true,revision:2,cover:expect.any(Number)});
+      expect(result.cover).toBeGreaterThan(0);
+      if(f===count-1){await frame.waitForFunction(()=>!Scene.debug().map.pending);await frame.waitForTimeout(600);await screenshot(page,info,'spatial-dungeon-'+r);}
+    }
+  }
+  expect(errors).toEqual([]);
+});
+
+test('an old-layout expedition restores at its same-floor landing and keeps earned progress and live loot',async({page})=>{
+  await page.goto('/__visual?scene=dungeon');
+  await expect(page.locator('body')).toHaveAttribute('data-ready','dungeon',{timeout:45000});
+  const frame=page.frames().find(f=>f.url().includes('visual_test=1'));
+  const seed=await frame.evaluate(()=>{
+    __bw.DP.floor(1);const m=Scene.debug().map,p=__bw.DP.current();
+    m.discovered.fill(1);p.claimed.vault=true;p.seals[0]=true;p.keeper=true;p.gates['r1f1-gate']=true;p.lore['r1f1-lore']=true;
+    __bw.S.gold=123;__bw.S.bank.gold=345;__bw.save();
+    const raw=JSON.parse(localStorage.getItem('brasswake.acct.v9')),world=raw.worlds[raw.world],slot=world.slots[world.cur],layout=Dungeons.build(1,1);
+    const point=layout.byId.J.cells.map(i=>[i%layout.w,Math.floor(i/layout.w)]).find(p=>DungeonProgress.validPosition(layout,p));
+    const enemy=layout.entities.find(e=>e.kind==='dmon'&&!e.tutorial);
+    slot.dungeon={...slot.dungeon,layout:1,x:point[0],y:point[1]};slot.dungeons[1].layout=1;
+    slot.dungeons[1].kills[enemy.id]=Date.now();slot.dungeons[1].bodies={[enemy.id]:{x:1,y:1,until:Date.now()+120000,loot:{gold:19},empty:false}};
+    return {raw,enemy:enemy.id,at:[enemy.x,enemy.y],entry:layout.entry,size:layout.w*layout.h};
+  });
+  await page.addInitScript(raw=>localStorage.setItem('brasswake.acct.v9',JSON.stringify(raw)),seed.raw);
+  await page.goto('/index.html?visual_test=1');await expect(page.locator('#artload')).toBeHidden({timeout:45000});
+  await page.locator('[data-a=playslot]').first().click();await page.waitForFunction(()=>!!__bw.DG);
+  const restored=await page.evaluate(id=>{
+    const p=__bw.DP.current(),body=Scene.find(e=>e.id===id&&e.kind==='corpse');
+    return {layout:__bw.S.dungeon.layout,f:__bw.DG.f,at:Scene.pos(),gold:__bw.S.gold,bank:__bw.S.bank.gold,
+      gate:p.gates['r1f1-gate'],note:p.lore['r1f1-lore'],seal:p.seals[0],claimed:p.claimed.vault,keeper:p.keeper,
+      seen:Scene.debug().map.discovered.reduce((n,v)=>n+v,0),body:body&&{at:[body.x,body.y],gold:body.loot.gold}};
+  },seed.enemy);
+  expect(restored).toMatchObject({layout:2,f:1,at:seed.entry,gold:123,bank:345,gate:true,note:true,seal:true,claimed:true,keeper:true,body:{at:seed.at,gold:19}});
+  expect(restored.seen).toBeGreaterThan(0);expect(restored.seen).toBeLessThan(seed.size/10);
+});
 test('version six accounts migrate without losing their character or bank',async({page})=>{
   await page.goto('/__visual?scene=tallyport');
   await expect(page.locator('body')).toHaveAttribute('data-ready','tallyport',{timeout:45000});
@@ -33,7 +93,7 @@ test('five fully mapped characters compact local and cloud saves and reload an i
   const saved=await f.evaluate(()=>{
     const maps={};
     for(let r=1;r<=8;r++){
-      const p=maps[r]={v:1,day:'capacity-test',seen:{},gates:{},lore:{},kills:{},seals:{},claimed:{}};
+      const p=maps[r]={v:1,layout:Dungeons.REVISION,day:'capacity-test',seen:{},gates:{},lore:{},kills:{},seals:{},claimed:{}};
       for(let floor=0;floor<Dungeons.get(r).floors.length;floor++)p.seen[floor]=Array.from({length:Dungeons.build(r,floor).tiles.length},(_,i)=>i);
     }
     const legacy=JSON.stringify(maps);

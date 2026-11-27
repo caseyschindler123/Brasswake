@@ -78,6 +78,20 @@ const DungeonProgress = (() => {
   function missing(p, floors) { return Array.from({ length: floors - 1 }, (_, i) => i).filter(i => !p.seals[i]); }
   function canVault(p, floors) { return p.keeper && missing(p, floors).length === 0; }
   function claim(p, id) { if (p.claimed[id]) return false; p.claimed[id] = true; return true; }
+  // Layout revisions are independent of the account/character save envelope.
+  // Stable reward/encounter keys survive; tile addresses cannot cross revisions.
+  function revise(p, layouts, revision, now = Date.now()) {
+    if(p.layout===revision)return false;
+    p.seen={};
+    const anchors=new Map(layouts.flatMap(m=>m.entities.filter(e=>e.kind==='dmon'||e.kind==='keeper').map(e=>[e.id,e])));
+    for(const [id,body]of Object.entries(p.bodies||{})){
+      const anchor=anchors.get(id);
+      if(!anchor||!body||!(body.until>now))delete p.bodies[id];
+      else {body.x=anchor.x;body.y=anchor.y;}
+    }
+    p.layout=revision;
+    return true;
+  }
   function validPosition(layout, point, progress = { gates:{}, kills:{} }, now = Date.now()) {
     if (!point || !Number.isInteger(point[0]) || !Number.isInteger(point[1])) return false;
     const [x,y] = point;
@@ -88,6 +102,6 @@ const DungeonProgress = (() => {
       return e.x===x&&e.y===y;
     });
   }
-  return { VERSION, RESPAWN, IMPORTANT_RESPAWN, packSeen, unpackSeen, compact, ensure, alive, defeat, missing, canVault, claim, validPosition };
+  return { VERSION, RESPAWN, IMPORTANT_RESPAWN, packSeen, unpackSeen, compact, ensure, revise, alive, defeat, missing, canVault, claim, validPosition };
 })();
 if (typeof module !== 'undefined') module.exports = DungeonProgress;
