@@ -96,11 +96,11 @@ for (const scenario of ['sorting', 'partial', 'extra', 'syntax']) test(`query fe
   const before = scenario === 'syntax' && await resources(f);
   const question = f.locator('#fight .battle-question');
   if (scenario === 'syntax') {
-    await expect(question.locator('.first-technique')).toBeVisible();
-    await question.locator('.first-technique summary').click();
+    await expect(question.locator(':scope > details.first-technique')).toBeVisible();
+    await question.locator(':scope > details.first-technique > summary').click();
     if (info.project.use.browserName === 'webkit' && info.project.use.isMobile) {
       // Playwright cannot send a mouse wheel in mobile WebKit.
-      await question.locator('.ask').scrollIntoViewIfNeeded();
+      await question.evaluate(body=>body.scrollTop=body.scrollHeight);
     } else {
       await question.hover();
       await page.mouse.wheel(0, 1200);
@@ -109,25 +109,25 @@ for (const scenario of ['sorting', 'partial', 'extra', 'syntax']) test(`query fe
   }
   await submit(f, wrong);
   if(scenario!=='syntax')await details(f);
-  await expect(f.locator('.query-pair')).toBeVisible();
+  await expect(f.locator('.query-pair:visible')).toBeVisible();
   expect(await f.evaluate(() => __bw.F.comparison.yours)).toBe(wrong);
-  await expect(f.locator('.query-yours')).toContainText(scenario === 'syntax' ? 'SELEC' : wrong);
+  await expect(f.locator('.query-yours:visible')).toContainText(scenario === 'syntax' ? 'SELEC' : wrong);
   await expect(f.locator('.query-pair mark')).not.toHaveCount(0);
   if (scenario === 'syntax') {
     expect(before.round).toBe(0);
     expect(await resources(f)).toEqual(before);
     expect(await f.evaluate(() => __bw.F.comparison.solution)).toBeUndefined();
-    await expect(f.locator('.query-solution')).toHaveCount(0);
+    await expect(f.locator('.query-solution:visible')).toHaveCount(0);
     await expect(f.locator('.query-error')).toContainText(/SELEC.*syntax error/);
     await expect(f.locator('#sql')).toHaveValue(wrong);
-    const repair = f.locator('.query-feedback').getByText('One free fix', { exact: true });
+    const repair = f.locator('.query-feedback:visible').getByText('One free fix', { exact: true });
     await expect(repair).toBeVisible();
     const headingBox = await repair.boundingBox(), questionBox = await question.boundingBox();
     expect(headingBox.y).toBeGreaterThanOrEqual(questionBox.y);
     expect(headingBox.y + headingBox.height).toBeLessThanOrEqual(questionBox.y + questionBox.height);
     const box = await f.locator('#kb [data-fn=run]').boundingBox();
     expect(box.y + box.height).toBeLessThanOrEqual(page.viewportSize().height);
-    const pair = await f.locator('.query-pair').boundingBox(), area = await f.locator('#f-out').boundingBox();
+    const pair = await f.locator('.query-pair:visible').boundingBox(), area = await f.locator('#f-out').boundingBox();
     expect(pair.y + pair.height).toBeLessThanOrEqual(area.y + area.height);
     await screenshot(page, info, 'query-syntax-fix');
     await submit(f, correct); await settled(f);await details(f);
@@ -188,7 +188,7 @@ test('query feedback · damage scales with result progress and wrong attacks can
   expect(Math.abs(damage[1].dealt - damage[0].dealt * damage[1].power)).toBeLessThanOrEqual(2);
   expect(damage[1].dealt).toBeLessThan(damage[0].dealt);
   expect(damage[2]).toEqual({ dealt: 0, power: 0, grade: 'wrong' });
-  await details(f);await expect(f.locator('.query-feedback')).toContainText('No useful effect');
+  await details(f);await expect(f.locator('.query-feedback:visible')).toContainText('No useful effect');
   await screenshot(page, info, 'query-zero-power');
   expect(errors).toEqual([]);
 });
@@ -201,26 +201,26 @@ test('query feedback · long queries expand safely and the second syntax failure
   await submit(f, bad);
   expect(await resources(f)).toEqual(before);
   await expect(f.locator('#sql')).toHaveValue(bad);
-  await expect(f.locator('.query-solution')).toHaveCount(0);
-  await expect(f.locator('[data-a=fcompare]')).toHaveAttribute('aria-expanded', 'false');
-  await f.locator('[data-a=fcompare]').click();
-  await expect(f.locator('.query-yours pre')).toHaveText(bad);
-  await expect(f.locator('.query-solution')).toHaveCount(0);
+  await expect(f.locator('.query-solution:visible')).toHaveCount(0);
+  await expect(f.locator('[data-a=fcompare]:visible')).toHaveAttribute('aria-expanded', 'false');
+  await f.locator('[data-a=fcompare]:visible').click();
+  await expect(f.locator('.query-yours:visible pre')).toHaveText(bad);
+  await expect(f.locator('.query-solution:visible')).toHaveCount(0);
   await expect(f.locator('#sql')).toHaveValue(bad);
-  await expect(f.locator('[data-a=fcompare]')).toHaveAttribute('aria-expanded', 'true');
+  await expect(f.locator('[data-a=fcompare]:visible')).toHaveAttribute('aria-expanded', 'true');
   await screenshot(page, info, 'query-expanded');
-  await f.locator('[data-a=fcompare]').click();
+  await f.locator('[data-a=fcompare]:visible').click();
   await submit(f, bad); await settled(f);
   const after = await resources(f);
   expect(after.round).toBe(before.round + 1);
   expect(after.streak).toBe(0);
   expect(await f.evaluate(() => __bw.F.queryPower)).toBe(0);
-  await expect(f.locator('.query-solution')).toHaveCount(0);
+  await expect(f.locator('.query-solution:visible')).toHaveCount(0);
   await details(f);
-  await expect(f.locator('.query-pair')).toBeVisible();
-  await f.locator('[data-a=fcompare]').click();
-  await expect(f.locator('.query-yours pre')).toHaveText(bad);
-  await expect(f.locator('.query-solution')).toHaveCount(0);
+  await expect(f.locator('.query-pair:visible')).toBeVisible();
+  await f.locator('[data-a=fcompare]:visible').click();
+  await expect(f.locator('.query-yours:visible pre')).toHaveText(bad);
+  await expect(f.locator('.query-solution:visible')).toHaveCount(0);
   await details(f);
   const nextBox = await f.locator('#sheet .sheet-x').boundingBox();
   expect(nextBox.y + nextBox.height).toBeLessThanOrEqual(page.viewportSize().height);
@@ -254,7 +254,7 @@ test('query feedback · equivalent SQL gets full power and shape/shown answers r
   await submit(f);
   await settled(f);
   expect(await f.evaluate(() => __bw.F.queryPower)).toBe(1);
-  await expect(f.locator('.query-pair')).toHaveCount(0);
+  await expect(f.locator('.query-pair:visible')).toHaveCount(0);
   await next(f);
   await f.locator('[data-a=queryhelp]').click();
   await f.locator('#kb [data-a=fhint]').click();
