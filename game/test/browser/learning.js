@@ -158,13 +158,16 @@ test('dojo learning · help preserves a draft, disclosure earns no readiness, an
   const draft = 'SELECT 42 AS my_draft';
   await page.locator('#sql').fill(draft);
   await action(page, 'help', '#enc').click();
-  await expect(sheet(page)).toContainText('count as assisted practice');
-  const show = action(page, 'learnshow', '#sheet');
+  const help = page.getByRole('region', { name: 'Query help', exact: true });
+  await expect(page.locator('#kb')).toHaveAttribute('data-view', 'help');
+  await expect(help).toContainText('counts as assisted practice');
+  const show = action(page, 'learnshow', '#kb');
   await expect(show).toHaveCount(1);
   await show.click();
-  await expect(sheet(page).getByRole('heading', { level: 2, name: 'One answer to study', exact: true })).toBeVisible();
-  await expectSql(sheet(page).locator('pre.code'), task.sql);
-  await sheet(page).getByRole('button', { name: 'Back to my query', exact: true }).click();
+  await expect(help.getByRole('heading', { name: 'Practice help', exact: true })).toBeVisible();
+  await expectSql(help.locator('pre.code'), task.sql);
+  await page.locator('#kb [data-fn="ldone"]').click();
+  await expect(help).toBeHidden();
   await expect(page.locator('#sql')).toHaveValue(draft);
 
   await answer(page, task.sql);
