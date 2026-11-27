@@ -74,6 +74,7 @@ test('Technique Book equips exactly four stable slots across weapon and spell di
   await expect(page.locator('.technique-entry.equipped')).toHaveCount(4);await screenshot(page,info,'technique-book-mixed');
   await page.locator('[data-a=closesheet]').first().click();await page.locator('#nav [data-t=world]').click();
   await expect(page.locator('.combat-techniques .combat-action')).toHaveCount(4);await screenshot(page,info,'desktop-four-techniques');
+  await expect(page.locator('#combat-bar .combat-action:not([data-id=""]) .ico.none')).toHaveCount(0);
   await page.setViewportSize({width:844,height:390});await expect(page.locator('.combat-techniques .combat-action')).toHaveCount(4);await screenshot(page,info,'landscape-four-techniques');
   expect(errors).toEqual([]);
 });
@@ -86,4 +87,22 @@ test('rotation releases held movement instead of replaying the old input on the 
   const stopped=await page.evaluate(()=>Scene.pos());await page.waitForTimeout(250);
   const after=await page.evaluate(()=>Scene.pos());expect(Math.hypot(after[0]-stopped[0],after[1]-stopped[1])).toBeLessThan(.05);
   await page.keyboard.up('w');expect(errors).toEqual([]);
+});
+
+test('the paused side panel frames both actors without changing their world positions on rotation',async({page},info)=>{
+  const errors=observeErrors(page);await page.setViewportSize({width:844,height:390});await openDev(page);
+  await page.evaluate(()=>{
+    const ids=Dev.spawn({monster:'b102',count:3});
+    for(const id of ids){Dev.battle(id);if(Combat.snapshot().actions.some(a=>a.id==='basic.magery'&&a.ready))return;}
+    throw Error('No prepared creature has a clear casting approach.');
+  });
+  await page.locator('#combat-bar [data-id="basic.magery"]').click();await expect(page.locator('#sql')).toBeVisible();
+  const actors=()=>page.evaluate(()=>{const d=Scene.debug(),e=__bw.F.ent;return [[d.P.fx,d.P.fy],[e.fx??e.x,e.fy??e.y]];});
+  const initial=await actors();
+  for(const size of [{width:844,height:390},{width:812,height:375}]){
+    await page.setViewportSize(size);
+    await expect.poll(()=>page.evaluate(()=>{const d=Scene.debug(),sr=document.querySelector('#stage').getBoundingClientRect(),pr=document.querySelector('#fight').getBoundingClientRect(),e=__bw.F.ent;return [d.P,e].every(a=>{const x=sr.left+((a.fx??a.x)*16+8-d.cam.x)*d.zoom,y=sr.top+((a.fy??a.y)*16+8-d.cam.y)*d.zoom;return x>sr.left&&x<pr.left&&y>sr.top&&y<sr.bottom;});})).toBe(true);
+    expect(await actors()).toEqual(initial);await resourcesVisible(page);
+  }
+  await screenshot(page,info,'landscape-paused-world');expect(errors).toEqual([]);
 });

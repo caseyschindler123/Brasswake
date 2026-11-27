@@ -714,7 +714,7 @@
     app.style.setProperty('--hud-bottom',Math.ceil(hud.getBoundingClientRect().bottom-ar.top)+'px');
     app.style.setProperty('--nav-height',(nav.hidden?0:nav.offsetHeight)+'px');
     const sr=$('#stage').getBoundingClientRect(),panel=!$('#fight').hidden?$('#fight'):$('#enc').classList.contains('action-query')?$('#enc'):$('#fight');let right=0,bottom=0;
-    if(!panel.hidden){const pr=panel.getBoundingClientRect();if(pr.width<sr.width*.88&&pr.left>sr.left+20)right=Math.max(0,sr.right-pr.left);else bottom=Math.max(0,sr.bottom-pr.top);if(F)Scene.FX.inset(0);}
+    if(!panel.hidden){const pr=panel.getBoundingClientRect();if(pr.width<sr.width*.88&&pr.left>sr.left+20)right=Math.max(0,sr.right-pr.left);else bottom=Math.max(0,sr.bottom-pr.top);if(F||DU)Scene.FX.inset(0);}
     if(sceneUp&&Scene.FX.viewport)Scene.FX.viewport({right,bottom},F?.ent||null);
   }
   window.addEventListener('resize',fitPanel);
@@ -1071,12 +1071,18 @@
     if(!target.hidden){const t=view.target,html=`<b>${esc(t.name||'Selected opponent')}</b><span>${Math.max(0,Math.round(t.hp||0))} / ${t.max||t.maxHp||0} HP</span><small>${t.returning?'Returning home':t.distance!=null?t.distance.toFixed(1)+' tiles away':''}</small>`;if(target.innerHTML!==html)target.innerHTML=html;}
     if(!result.hidden){const html=`<div class="combat-outcome"><b>${GRADE_N[F.res?.grade]||'Action resolved'}</b><div class="swings">${F.chips||esc(F.pline||'')}</div><button class="btn sm quiet" data-a="combatdetails">Details</button></div>`;if(result.innerHTML!==html)result.innerHTML=html;}
   }
-  function combatButton(action){return `<button class="combat-action${action.slot===null?' basic':''}" data-a="${action.id?'combatbegin':'combatbook'}" data-id="${esc(action.id)}"${action.slot!==null?` data-slot="${action.slot}"`:''}><span class="action-art" aria-hidden="true">${action.id?ico(action.icon||'sword'):'+'}</span><span class="action-label">${esc(action.name)}</span><small class="action-meta"></small><span class="action-recovery" aria-hidden="true"><i></i></span></button>`;}
+  function combatIcon(action){
+    if(action.id==='recover')return 'book_spell';
+    if(action.id==='supply')return action.name==='Draught'?'draught':'bandage';
+    const effectIcons={defend:'shield_1',ward:'shield_4',heal:'bandage',slow:'frost',bleed:'dfang',interrupt:'warhorn',disrupt:'bell',precision:'lens',pierce:'w_fencing_3',riposte:'w_fencing_2',lunge:'boots_2',expose:'armor_2',siphon:'leechoil',displace:'boots_3',burst:action.discipline==='magery'?'sigil':'w_'+action.discipline+'_3'};
+    return effectIcons[action.effect]||(ART&&ArtData.icons.at[action.icon]?action.icon:null)||({swords:'w_swords_1',fencing:'w_fencing_1',archery:'w_archery_1',magery:'scroll_spell',support:'bandage'}[action.discipline])||'book_arms';
+  }
+  function combatButton(action){return `<button class="combat-action${action.slot===null?' basic':''}" data-a="${action.id?'combatbegin':'combatbook'}" data-id="${esc(action.id)}"${action.slot!==null?` data-slot="${action.slot}"`:''}>${action.slot!==null?`<span class="action-slot" aria-hidden="true">${action.slot+1}</span>`:''}<span class="action-art" aria-hidden="true">${action.id?ico(combatIcon(action)):'+'}</span><span class="action-label">${esc(action.name)}</span><small class="action-meta"></small><span class="action-recovery" aria-hidden="true"><i></i></span></button>`;}
   function techniqueBookHTML(view=combatView()) {
     if(!view)return '';
     const labels={all:'All',swords:'Swords',fencing:'Fencing',archery:'Archery',magery:'Magery'},locked=view.active||!!F||!!Q||!!DU;
     const currentWeapon=itemById(S.eq.weapon)?.w||bestWeapon();
-    const entries=view.techniques.filter(t=>(techniqueFilter==='all'||t.discipline===techniqueFilter)&&(!t.rare||t.learned));
+    const entries=view.techniques.filter(t=>(techniqueFilter==='all'||t.discipline===techniqueFilter)&&(!t.rare||t.learned)).map(t=>({...t,icon:combatIcon(t)}));
     return `<div class="technique-book"><div class="technique-equipped" aria-label="Equipped techniques">${view.loadout.map((t,slot)=>`<button class="technique-position${slot===techniqueSlot?' selected':''}" data-a="techniqueslot" data-slot="${slot}" aria-pressed="${slot===techniqueSlot}"><small>Slot ${slot+1}</small><b>${esc(t?.name||'Empty')}</b></button>`).join('')}</div><p class="cap2">Choose a slot, then equip a learned technique.${locked?' Find safety before changing your techniques.':''}</p><div class="technique-filters" role="group" aria-label="Combat discipline">${Object.entries(labels).map(([id,label])=>`<button class="btn sm quiet" data-a="techniquefilter" data-id="${id}" aria-pressed="${techniqueFilter===id}">${label}</button>`).join('')}</div><div class="technique-entries">${entries.map(t=>{const qualification=Techniques.eligibility(S,t.id,{weapon:currentWeapon}),status=t.learned?(qualification.ok?'Learned':qualification.reason):t.source?.dojo?'Learn at dojo '+t.source.dojo:'Not learned',cost=[t.mana?t.mana+' mana':'',t.stamina?t.stamina+' stamina':''].filter(Boolean).join(' · ');return `<article class="technique-entry${t.equipped>=0?' equipped':''}" data-technique="${esc(t.id)}"><div>${ico(t.icon||'sword')}<h3>${esc(t.name)}</h3><small>${esc(labels[t.discipline])} ${t.requirement} · +${t.sqlOffset} Circle${t.sqlOffset===1?'':'s'} SQL${t.rare?' · rare':''}</small></div><p>${esc(t.description||'')}</p><small>${esc(cost)}${t.range?' · '+t.range+' tile range':''}</small><span class="technique-status">${esc(t.equipped>=0?'Equipped in slot '+(t.equipped+1):status)}</span><button class="btn sm" data-a="combatequip" data-id="${esc(t.id)}" data-slot="${techniqueSlot}"${locked||!qualification.ok||t.equipped>=0?' disabled':''}>Equip in slot ${techniqueSlot+1}</button></article>`;}).join('')}</div><button class="btn quiet" data-a="combatequip" data-slot="${techniqueSlot}"${locked||!view.loadout[techniqueSlot]?' disabled':''}>Clear slot ${techniqueSlot+1}</button><div class="row"><span class="cap2">Combat supply</span>${['bandage','draught'].map(kind=>`<button class="btn sm quiet" data-a="combatsupply" data-id="${kind}" aria-pressed="${view.supply===kind}"${locked?' disabled':''}>${kind==='bandage'?'Bandage':'Draught'}</button>`).join('')}</div></div>`;
   }
   function openTechniqueBook(){const view=combatView();if(!view)return;if(F?.live&&F.st==='after'&&!F.over&&!view.active)Combat.cancel();sheet('<h2>Technique Book</h2>'+techniqueBookHTML());renderCombatUI(true);}
@@ -1456,7 +1462,7 @@
     if (res.ok) { S.stats.ok++; trainSql(res.used || [], DU.c, sql); if (DU.mode === 'practice') { const d = DU.dummy; Scene.FX.swing('me', d, S.path === 'mage' ? 'spell' : 'hit'); hurtDummy(d); Scene.FX.hit(d, '✓', '#ffe9a0'); DU.n = (DU.n || 0) + 1; DU.task = djTask(DU.c); DU.out = `<div class="verdict ok"><p>Clean hit. ${DU.n} so far. Here's another.</p></div>`; save(); return duDraw(); } save(); return duEnd(0, sql); }
     $('#f-out').innerHTML = `<div class="verdict err"><p>${esc(res.err || res.msg || 'Not the answer yet.')}</p></div>`; fitDU();
   }
-  const fitDU = () => requestAnimationFrame(() => { if (DU) Scene.FX.inset($('#fight').offsetHeight); });
+  const fitDU = () => {if(DU)fitPanel();};
   const pips = n => '●'.repeat(n) + '○'.repeat(Math.max(0, 2 - n));
   function duDraw() {
     const el = $('#fight'), D = DU; let h = '';
