@@ -970,7 +970,7 @@ html,body{background:#2b1c11;overscroll-behavior:none}
 #enc { top:var(--hud-bottom,64px); }
 #sheet { top:var(--hud-bottom,64px); }
 #app.prologue #sheet { top:var(--hud-bottom,64px); }
-#toast { top:calc(var(--hud-bottom,64px) + 8px); }
+#toast { top:calc(var(--hud-bottom,64px) + 8px); max-height:min(128px,30vh); overflow-y:auto; pointer-events:auto; }
 #app:has(#enc:not([hidden]),#sheet:not([hidden]),#say:not([hidden]),#coach:not([hidden])) :is(#combat-bar,#combat-context,#combat-result,#combat-target) { display:none !important; }
 .coach,.odq { top:calc(var(--hud-bottom,64px) + 8px); }
 .query-tools { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
@@ -1103,8 +1103,8 @@ html,body{background:#2b1c11;overscroll-behavior:none}
 @media (max-width:699px) {
   #app { max-width:520px; }
   #fight.st-prompt .f-head { flex-direction:row; flex-wrap:wrap; }
-  #app:has(#sql) #toast { top:4px; left:10px; right:200px; max-height:52px; overflow-y:auto; align-items:flex-start; pointer-events:auto; }
-  #app:has(#sql) #toast div { padding:4px 6px; font:600 12px/1.2 var(--body); flex:none; }
+  #app:has(#sql,#fight:not([hidden])) #toast { top:4px; left:10px; right:200px; max-height:52px; align-items:flex-start; }
+  #app:has(#sql,#fight:not([hidden])) #toast div { padding:4px 6px; font:600 12px/1.2 var(--body); flex:none; }
 }
 @media (min-width:700px) and (orientation:landscape) and (max-height:360px) {
   #fight.st-prompt { left:0; right:0; width:auto; display:grid; grid-template-columns:minmax(180px,.8fr) minmax(440px,1.7fr); grid-template-rows:auto minmax(0,1fr); gap:5px 10px; }

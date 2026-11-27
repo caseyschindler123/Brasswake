@@ -2287,7 +2287,7 @@
     techniquefilter:d=>{if(['all','swords','fencing','archery','magery'].includes(d.id))techniqueFilter=d.id;openTechniqueBook();},
     combatequip:d=>{if(combatView()){const result=Combat.equip(d.id||null,+d.slot);if(result?.ok)openTechniqueBook();}},
     combatsupply:d=>{if(combatView()){Combat.setSupply(d.id);openTechniqueBook();}},
-    combatdetails:()=>{if(F?.live&&F.res)sheet('<h2>Last action</h2><p>'+esc(F.pline||GRADE_N[F.res.grade])+'</p>'+QueryFeedback.html(F.comparison,{power:F.queryPower,open:!!F.compareOpen})+F.after.replace(/<div class="row end">[\s\S]*<\/div>$/,''));},
+    combatdetails:()=>{if(F?.live&&F.res)sheet('<h2>Last action</h2>'+QueryFeedback.html(F.comparison,{power:F.queryPower,open:!!F.compareOpen})+F.after.replace(/<div class="row end">[\s\S]*<\/div>$/,''));},
     queryhelp:()=>{if(F)F.readinessHelp=true;kbView('help');},
     ...CMap.actions,
     snd: d => { const p = Sound.pref(); if (d.k === 'mu') Sound.setMu(!p.mu); else Sound.setFx(!p.fx); render(); },
