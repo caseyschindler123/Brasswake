@@ -1287,7 +1287,7 @@
       o.font=`400 ${30*dpr}px 'IM Fell English',Georgia,serif`;o.fillStyle='#f3ead5';o.fillText(banner.a,ov.width/2,by,width-24*dpr);
       o.font=`italic 400 ${16*dpr}px 'IM Fell English',Georgia,serif`;o.fillStyle='#e6c47c';o.fillText(banner.b,ov.width/2,by+24*dpr,width-24*dpr);o.restore();
     }
-    if(map.dungeonFloor && !locked){ const area=map.layout.rooms.find(R=>P.x>=R.x&&P.y>=R.y&&P.x<R.x+R.w&&P.y<R.y+R.h);o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const label='Floor '+(map.f+1)+' · '+(area?area.name:map.layout.name);const tw=o.measureText(label).width;o.fillStyle='rgba(8,15,22,.85)';o.fillRect(8*dpr,84*dpr,Math.min(tw+16*dpr,ov.width-16*dpr),23*dpr);o.fillStyle='#f4dfac';o.fillText(label,16*dpr,100*dpr,ov.width-36*dpr);o.textAlign='center';}
+    if(map.dungeonFloor && !locked){ const area=Dungeons.roomAt(map.layout,P.x,P.y);o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const label='Floor '+(map.f+1)+' · '+(area?area.name:map.layout.name);const tw=o.measureText(label).width;o.fillStyle='rgba(8,15,22,.85)';o.fillRect(8*dpr,84*dpr,Math.min(tw+16*dpr,ov.width-16*dpr),23*dpr);o.fillStyle='#f4dfac';o.fillText(label,16*dpr,100*dpr,ov.width-36*dpr);o.textAlign='center';}
     if(map.venue && !locked){o.save();o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const width=Math.min(ov.width-112*dpr,o.measureText('Upper floor · '+map.venue.name).width+16*dpr);o.fillStyle='rgba(12,24,28,.9)';o.fillRect(8*dpr,84*dpr,width,23*dpr);o.fillStyle='#f4dfac';o.fillText('Upper floor · '+map.venue.name,16*dpr,100*dpr,width-16*dpr);o.restore();}
     combatLabels(o,ox0,oy0,z);
     host.hud(locked ? null : near);host.combatUi?.();
