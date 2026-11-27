@@ -1005,7 +1005,7 @@ html,body{background:#2b1c11;overscroll-behavior:none}
 #combat-target { position:absolute; z-index:4; top:calc(var(--hud-bottom,64px) + 8px); left:10px; max-width:250px; padding:6px 10px; display:flex; align-items:baseline; flex-wrap:wrap; gap:5px 10px; background:#182521ed; border:1px solid #927648; border-radius:6px; color:#f3e5c7; pointer-events:none; }
 #combat-target b { font:600 14px var(--body); }
 #combat-target span,#combat-target small { font-size:12px; }
-#combat-result { position:absolute; z-index:7; left:8px; right:8px; bottom:calc(var(--nav-height,84px) + 95px); padding:7px 9px; background:#f2e7cc; color:#352819; border:1px solid #b38d4d; border-radius:7px; }
+#combat-result { position:absolute; z-index:7; left:8px; right:8px; bottom:calc(var(--nav-height,84px) + var(--combat-bar-height,90px) + 16px); padding:7px 9px; background:#f2e7cc; color:#352819; border:1px solid #b38d4d; border-radius:7px; }
 #combat-context { position:absolute; z-index:5; left:12px; bottom:calc(var(--nav-height,84px) + 190px); display:flex; flex-wrap:wrap; gap:5px; max-width:210px; }
 #combat-context .btn { min-height:44px; font-size:12px; padding:6px 10px; }
 #combat-context [aria-disabled=true] { opacity:.65; }
@@ -1090,7 +1090,8 @@ html,body{background:#2b1c11;overscroll-behavior:none}
   #fight.duel .ask { font-size:14px; max-height:80px; overflow:auto; }
   #view { margin:8px auto; width:min(1100px,calc(100% - 16px)); }
   #combat-bar { left:auto; right:calc(8px + env(safe-area-inset-right,0px)); bottom:calc(7px + env(safe-area-inset-bottom,0px)); width:calc(100% - 265px); max-width:780px; }
-  #combat-result { left:auto; right:calc(8px + env(safe-area-inset-right,0px)); bottom:calc(99px + env(safe-area-inset-bottom,0px)); width:min(480px,calc(100% - 265px)); }
+  #combat-result { left:auto; right:calc(8px + env(safe-area-inset-right,0px)); bottom:calc(var(--combat-bar-height,90px) + 16px + env(safe-area-inset-bottom,0px)); width:min(480px,calc(100% - 265px)); }
+  #app:has(#combat-result:not([hidden])) #stage #ctx { max-width:calc(100% - min(480px,calc(100% - 265px)) - 140px); }
   #combat-target { top:calc(var(--hud-bottom,64px) + 8px); left:200px; }
   #combat-context { bottom:calc(175px + env(safe-area-inset-bottom,0px)); }
   #app:has(#fight:not([hidden])) #combat-target { left:12px; max-width:calc(100% - var(--action-panel-width) - 24px); }
@@ -1105,6 +1106,9 @@ html,body{background:#2b1c11;overscroll-behavior:none}
   #fight.st-prompt .f-head { flex-direction:row; flex-wrap:wrap; }
   .combat-basics,.combat-techniques { flex:1; }
   .combat-action.basic .action-label { font-size:10.5px; white-space:nowrap; overflow-wrap:normal; }
+  #combat-context { max-width:96px; }
+  #combat-context .btn { max-width:100%; white-space:normal; }
+  #app:has(#combat-result:not([hidden])) #stage #ctx { bottom:calc(var(--combat-bar-height,90px) + var(--combat-result-height,50px) + 24px); }
   #app:has(#sql,#fight:not([hidden])) #toast { top:4px; left:10px; right:200px; max-height:52px; align-items:flex-start; }
   #app:has(#sql,#fight:not([hidden])) #toast div { padding:4px 6px; font:600 12px/1.2 var(--body); flex:none; }
 }

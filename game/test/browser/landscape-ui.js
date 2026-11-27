@@ -128,3 +128,15 @@ test('scene arrival becomes visible while SQL keeps both actors paused',async({p
   expect(await page.evaluate(()=>({p:[Scene.debug().P.fx,Scene.debug().P.fy],clock:Scene.tacticalTime()}))).toEqual(before);
   await screenshot(page,info,'paused-arrival-visible');expect(errors).toEqual([]);
 });
+
+test('resolved support actions leave menus and nearby dialogue usable without resetting recovery',async({page},info)=>{
+  const errors=observeErrors(page);await openDev(page);
+  await page.evaluate(()=>{const e=Scene.find(e=>e.kind==='npc'&&e.r===1&&e.i===0),m=Scene.debug().map;const at=[[0,1],[1,0],[-1,0],[0,-1]].map(([dx,dy])=>[e.x+dx,e.y+dy]).find(([x,y])=>!m.solid[y*m.w+x]&&!m.occ.has(y*m.w+x));if(!at)throw Error('No dialogue approach');Scene.hop(...at);Dev.resources({mana:1,stamina:1});});
+  const recover=async()=>{await page.waitForFunction(()=>__bw.Combat.descriptor('recover').ready);await page.locator('#combat-bar [data-id=recover]').click();await page.locator('#sql').fill(await page.evaluate(()=>__bw.F.task.sql));await page.locator('#kb [data-fn=run]').click();await page.waitForFunction(()=>__bw.F?.live&&__bw.F.st==='after');};
+  await recover();expect(await page.evaluate(()=>__bw.Combat.snapshot().recovery.remaining)).toBeGreaterThan(0);
+  await page.locator('#nav [data-t=hero]').click();await expect(page.locator('#nav [data-t=hero]')).toHaveAttribute('aria-current','page');expect(await page.evaluate(()=>__bw.F)).toBeNull();
+  const paused=await page.evaluate(()=>__bw.Combat.snapshot().recovery.remaining);expect(paused).toBeGreaterThan(0);await page.waitForTimeout(300);expect(await page.evaluate(()=>__bw.Combat.snapshot().recovery.remaining)).toBe(paused);
+  await page.locator('#nav [data-t=world]').click();await recover();await expect(page.locator('#ctx')).toContainText('Odalys');await page.locator('#ctx').click();await expect(page.locator('#say')).toBeVisible();expect(await page.evaluate(()=>__bw.F)).toBeNull();
+  for(const id of ['hp','mana','stamina'])await expect(page.locator('#hud [data-resource='+id+'] [role=meter]')).toBeVisible();
+  await screenshot(page,info,'resolved-action-dialogue');expect(errors).toEqual([]);
+});
