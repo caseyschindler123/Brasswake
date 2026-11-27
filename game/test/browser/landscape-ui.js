@@ -47,7 +47,7 @@ test('SQL command and field insertion use the selected range without changing re
   await page.evaluate(()=>Dev.resources({mana:1,stamina:1}));await page.locator('#combat-bar [data-id=recover]').click();
   await page.locator('#sql').fill('select replace_me from items');
   await page.locator('#sql').evaluate(el=>el.setSelectionRange(7,17));await page.locator('[data-fn=lfld]').click();
-  await page.locator('#klist .li.cl[data-ins=name]').click();await expect(page.locator('#kb')).toHaveAttribute('data-view','fld');
+  await page.locator('#klist .lg:has(.tb[data-ins=items]) + .lgrid .li.cl[data-ins=name]').click();await expect(page.locator('#kb')).toHaveAttribute('data-view','fld');
   const inserted=await page.locator('#sql').inputValue();expect(inserted).toContain('name');expect(inserted).not.toContain('replace_me');
   await page.locator('[data-fn=fmt]').click();await expect(page.locator('#kb')).toHaveAttribute('data-view','fld');await expect(page.locator('#sql')).toHaveValue(/SELECT[\s\S]*FROM/);
   await page.locator('[data-fn=ret]').click();await expect(page.locator('#sql')).toHaveValue(/\n/);await expect(page.locator('#kb')).toHaveAttribute('data-view','fld');
@@ -61,18 +61,18 @@ test('Technique Book equips exactly four stable slots across weapon and spell di
   // Prepare learned knowledge; earned dojo learning is covered by the gameplay suite.
   await page.evaluate(()=>{Dev.skills({swords:70,magery:70});Techniques.teach(__bw.S,1);Techniques.teach(__bw.S,2);__bw.render();});
   await page.locator('#nav [data-t=hero]').click();if(await page.locator('[data-a=coachok]').isVisible())await page.locator('[data-a=coachok]').click();
-  await page.locator('[data-a=combatbook]').click();await expect(page.locator('.technique-position')).toHaveCount(4);
-  const ids=await page.evaluate(()=>Combat.snapshot().techniques.filter(t=>t.learned&&t.requirement<=70&&['swords','magery'].includes(t.discipline)).slice(0,4).map(t=>t.id));
+  await page.locator('#view [data-a=combatbook]').click();await expect(page.locator('.technique-position')).toHaveCount(4);
+  const ids=await page.evaluate(()=>__bw.Combat.snapshot().techniques.filter(t=>t.learned&&t.requirement<=70&&['swords','magery'].includes(t.discipline)).slice(0,4).map(t=>t.id));
   // Choose two weapon techniques and two spells, rather than relying on catalog ordering.
-  const mixed=await page.evaluate(()=>['swords','magery'].flatMap(d=>Combat.snapshot().techniques.filter(t=>t.learned&&t.requirement<=70&&t.discipline===d).slice(0,2).map(t=>t.id)));
+  const mixed=await page.evaluate(()=>['swords','magery'].flatMap(d=>__bw.Combat.snapshot().techniques.filter(t=>t.learned&&t.requirement<=70&&t.discipline===d).slice(0,2).map(t=>t.id)));
   expect(ids.length).toBeGreaterThanOrEqual(4);expect(mixed).toHaveLength(4);
   for(let slot=0;slot<4;slot++){
     await page.locator(`[data-a=techniqueslot][data-slot="${slot}"]`).click();
     await page.locator(`[data-a=combatequip][data-id="${mixed[slot]}"]`).click();
   }
-  expect(await page.evaluate(()=>Combat.snapshot().loadout.map(t=>t?.id))).toEqual(mixed);
+  expect(await page.evaluate(()=>__bw.Combat.snapshot().loadout.map(t=>t?.id))).toEqual(mixed);
   await expect(page.locator('.technique-entry.equipped')).toHaveCount(4);await screenshot(page,info,'technique-book-mixed');
-  await page.locator('[data-a=closesheet]').first().click();await page.locator('#nav [data-t=world]').click();
+  await page.locator('#sheet .sheet-x').click();await page.locator('#nav [data-t=world]').click();
   await expect(page.locator('.combat-techniques .combat-action')).toHaveCount(4);await screenshot(page,info,'desktop-four-techniques');
   await expect(page.locator('#combat-bar .combat-action:not([data-id=""]) .ico.none')).toHaveCount(0);
   await page.setViewportSize({width:844,height:390});await expect(page.locator('.combat-techniques .combat-action')).toHaveCount(4);await screenshot(page,info,'landscape-four-techniques');
@@ -93,7 +93,7 @@ test('the paused side panel frames both actors without changing their world posi
   const errors=observeErrors(page);await page.setViewportSize({width:844,height:390});await openDev(page);
   await page.evaluate(()=>{
     const ids=Dev.spawn({monster:'b102',count:3});
-    for(const id of ids){Dev.battle(id);if(Combat.snapshot().actions.some(a=>a.id==='basic.magery'&&a.ready))return;}
+    for(const id of ids){Dev.battle(id);if(__bw.Combat.snapshot().actions.some(a=>a.id==='basic.magery'&&a.ready))return;}
     throw Error('No prepared creature has a clear casting approach.');
   });
   await page.locator('#combat-bar [data-id="basic.magery"]').click();await expect(page.locator('#sql')).toBeVisible();
