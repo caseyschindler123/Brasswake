@@ -71,7 +71,8 @@ test('equipment details compare the worn build and enchanting spends the quoted 
   const comparison = sheet.locator('[data-equipment-comparison]');
   await expect(comparison).toContainText(/Expected damage per query\s*\d+\.\d → \d+\.\d/);
   await expect(comparison).toContainText(/Combat DPS\s*\d+\.\d → \d+\.\d/);
-  await expect(comparison).toContainText('no time spent writing SQL');
+  await expect(comparison).toContainText('stationary basic attacks, correct SQL without hints, and active recovery time');
+  await expect(comparison).toContainText('SQL pauses the world.');
   const strength = comparison.locator('[data-equipment-strength]');
   await expect(strength).toContainText(/(?:\d+\.\d% (?:more|less)|Same) damage per second · (?:[+−])?\d+\.\d DPS/);
   const expectedDamage = comparison.getByText('Expected damage per query', { exact: true }).locator('xpath=following-sibling::span[1]');

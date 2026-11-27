@@ -81,7 +81,8 @@ test('joystick · dead zone, walking and diagonal running use the stage control'
   const start = await emptyLane(frame), box = await stick.boundingBox();
   const stage = await frame.locator('#stage').boundingBox();
   const nav = await frame.locator('#nav').boundingBox();
-  expect(box.x - stage.x).toBeGreaterThan(stage.width / 2);
+  expect(box.x).toBeGreaterThanOrEqual(stage.x);
+  expect(box.x + box.width).toBeLessThan(stage.x + stage.width / 2);
   expect(box.y - stage.y).toBeGreaterThan(stage.height / 2);
   expect(box.y + box.height).toBeLessThanOrEqual(nav.y);
   const pointer = await pointerDriver(page, box, info.project.name);
@@ -153,7 +154,9 @@ test('joystick · taps interact only in reach and a bank modal blocks movement',
   await frame.evaluate(at => Scene.hop(...at), close);
   await frame.waitForTimeout(420);
   await tapCanvas(frame, tap, touch);
-  await expect(frame.locator('#sheet')).toBeVisible();
+  const bank = frame.locator('#sheet');
+  await expect(bank).toBeVisible();
+  await expect(bank).toContainText('Your account');
   // Canvas interaction suppresses click-through to overlays for 450 ms.
   await frame.waitForTimeout(470);
   const coach = frame.locator('[data-a=coachok]');
