@@ -232,7 +232,7 @@ for(const method of ['wrong','shown'])test('Backstab · '+method+' answer preser
   if(method==='wrong'){expect(after.foe).toBe(before.foe);expect(after.kills).toBe(before.kills);expect(await frame.evaluate(()=>__bw.F.queryPower)).toBe(0);expect(await frame.evaluate(()=>__bw.Combat.active())).toBe(true);}else{expect(after.foe).toBeLessThanOrEqual(0);expect(after.kills).toBe(before.kills+1);expect(after.hp).toBe(before.hp);}expect(after.bandages).toBe(before.bandages);expect(after.sk).toEqual(before.sk);expect(after.attr).toEqual(before.attr);expect(after.sql).toEqual(before.sql);expect(errors).toEqual([]);
 });
 
-test('Backstab · cancelling SQL beside an unchanged target restores native context', async ({ page }) => {
+test('Backstab · cancelling SQL beside an unchanged target restores native context', async ({ page }, info) => {
   const errors = observeErrors(page), { frame, lane } = await fixture(page, { kind: 'boss' });
   // This is a practiced player's cancellation, independent of first-fight coaching.
   await frame.evaluate(() => Object.assign(__bw.S.seen, { fight: 1, fprompt: 1 }));
@@ -262,6 +262,7 @@ test('Backstab · cancelling SQL beside an unchanged target restores native cont
   expect(result.after).toEqual(result.before);
   await expect(context).toBeVisible();
   await expect(context).toHaveAccessibleName('Face: ' + name);
+  await screenshot(page, info, 'cancelled-sql-context');
   await context.click();
   await expect(frame.locator('#enc h1')).toHaveText(name);
   expect(errors).toEqual([]);
