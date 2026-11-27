@@ -6,61 +6,61 @@ const Sound = (() => {
   const MUSIC = {
     "m_tallyport": {
       "a": 0,
-      "b": 37.894739,
+      "b": 26.749388,
       "v": 1,
       "loop": true
     },
     "m_brackwater": {
       "a": 0,
-      "b": 26.749388,
+      "b": 53.638776,
       "v": 1,
       "loop": true
     },
     "m_haverly": {
       "a": 0,
-      "b": 49.230771,
+      "b": 44.582313,
       "v": 1,
       "loop": true
     },
     "m_four_fords": {
       "a": 0,
-      "b": 34.285714,
+      "b": 44.442313,
       "v": 1,
       "loop": true
     },
     "m_cinderwick": {
       "a": 0,
-      "b": 43.636372,
+      "b": 47.694467,
       "v": 1,
       "loop": true
     },
     "m_kell": {
       "a": 0,
-      "b": 28.235283,
+      "b": 53.498776,
       "v": 1,
       "loop": true
     },
     "m_highwatch": {
       "a": 0,
-      "b": 46.811429,
+      "b": 44.722313,
       "v": 1,
       "loop": true
     },
     "m_aldermoot": {
       "a": 0,
-      "b": 37.894739,
+      "b": 53.638776,
       "v": 1,
       "loop": true
     },
     "m_bilge": {
       "a": 0,
-      "b": 25.263152,
+      "b": 29.721542,
       "v": 1,
       "loop": true
     },
     "m_sunken_sluice": {
       "a": 0,
-      "b": 26.666667,
+      "b": 35.66585,
       "v": 1,
       "loop": true
     },
@@ -126,7 +126,7 @@ const Sound = (() => {
     },
     "m_combat": {
       "a": 0,
-      "b": 35.66585,
+      "b": 26.749388,
       "v": 1,
       "loop": true
     },

@@ -179,19 +179,24 @@ class AssetTests(unittest.TestCase):
                 self.assertGreater(entry['duration'],3)
                 self.assertLess(entry['duration'],16)
             origin=entry['origin']
-            self.assertEqual(origin['kind'],'stable-audio')
-            self.assertEqual(origin['model'],'Stable Audio 3 (UI default)')
             self.assertEqual(len(origin['sourceSHA256']),64)
-            self.assertRegex(origin['prompt'],r'video game|fantasy role-playing game')
-            self.assertEqual(origin['take'],1)
-            self.assertEqual(origin['requestedSeconds'],60 if entry['loop'] else 6 if ident=='m_victory' else 9)
+            self.assertIn(origin['kind'],('stable-audio','user-supplied-suno'))
+            if origin['kind']=='stable-audio':
+                self.assertEqual(origin['model'],'Stable Audio 3 (UI default)')
+                self.assertRegex(origin['prompt'],r'video game|fantasy role-playing game')
+                self.assertEqual(origin['take'],1)
+                self.assertEqual(origin['requestedSeconds'],60 if entry['loop'] else 6 if ident=='m_victory' else 9)
             if entry['loop']:
                 selection=origin['selection']
-                self.assertIn(selection['periodBars'],(8,16))
-                self.assertAlmostEqual(entry['b'],selection['endSeconds']-selection['startSeconds'],places=4)
+                if 'periodBars' in selection:
+                    self.assertIn(selection['periodBars'],(8,16))
+                    self.assertAlmostEqual(entry['b'],selection['endSeconds']-selection['startSeconds'],places=4)
+                    self.assertLessEqual(abs(selection['estimatedBPM']/selection['requestedBPM']-1),.13)
+                else:
+                    self.assertEqual(origin['kind'],'user-supplied-suno')
+                    self.assertAlmostEqual(entry['b'],selection['b']-selection['a'],places=4)
                 self.assertGreaterEqual(selection['phraseSimilarity'],.80)
                 self.assertLessEqual(selection['energyLogMismatch'],.5)
-                self.assertLessEqual(abs(selection['estimatedBPM']/selection['requestedBPM']-1),.13)
         self.assertEqual(len({e['origin']['sourceSHA256'] for e in tracks.values()}),28)
         # Historical scores remain editable and auditable without supplying the
         # replacement game's soundtrack or overwriting the new catalog.
@@ -206,12 +211,35 @@ class AssetTests(unittest.TestCase):
             if not entry['loop']: continue
             with self.subTest(track=ident):
                 selection=entry['origin']['selection']
+                # The original eight Suno loops predate requested-metre
+                # metadata; their precise bytes/selection are checked below.
+                if 'periodBars' not in selection: continue
                 self.assertIn(selection['meter'],('3/4','4/4'))
                 beats_per_bar=int(selection['meter'].split('/')[0])
                 expected=selection['periodBars']*beats_per_bar*60/selection['estimatedBPM']
                 self.assertAlmostEqual(entry['b'],expected,places=4)
-        tallyport=self.catalog['tracks']['m_tallyport']['origin']['selection']
-        self.assertEqual((tallyport['meter'],tallyport['requestedBPM']),('3/4',76))
+
+    def test_original_suno_roles_and_other_music_are_preserved(self):
+        baseline=json.loads((HERE/'history/soundtrack-before-suno-2026-11-26.json').read_text())
+        history=json.loads((HERE/'history/soundtrack-2026-11-22.json').read_text())
+        expected={'m_tallyport','m_brackwater','m_haverly','m_four_fords','m_cinderwick',
+                  'm_kell','m_highwatch','m_aldermoot','m_bilge','m_sunken_sluice','m_combat'}
+        tracks=self.catalog['tracks']
+        self.assertEqual({key for key,e in tracks.items() if e['origin']['kind']=='user-supplied-suno'},expected)
+        for ident,entry in tracks.items():
+            with self.subTest(track=ident):
+                if ident not in expected:
+                    self.assertEqual(entry,baseline['tracks'][ident])
+                elif ident in history['tracks']:
+                    self.assertEqual(entry,history['tracks'][ident])
+                else:
+                    origin=entry['origin']
+                    self.assertEqual(origin['sourceCommit'],'ec29131')
+                    self.assertEqual(origin['sourcePath'],f'game/art/mu/{ident}.mp3')
+                    selection=origin['selection']
+                    self.assertGreaterEqual(selection['startSeconds'],origin['formerLoop']['a'])
+                    self.assertLessEqual(selection['endSeconds'],origin['formerLoop']['b'])
+                    self.assertNotEqual(entry['sha256'],baseline['tracks'][ident]['sha256'])
 
     def test_actual_audio_levels_lengths_and_loop_tails(self):
         if not FFMPEG: self.skipTest('Pass --ffmpeg for actual audio decode and level checks')

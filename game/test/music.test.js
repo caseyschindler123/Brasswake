@@ -308,6 +308,35 @@ test('unavailable audio and inaccessible device preferences safely preserve sile
   assert.equal(Sound.state(), 'none'); assert.equal(Sound.playing(), null); assert.deepEqual(Sound.pref(), { mu: 0, fx: 0 });
 });
 
+test('the former Suno themes include regular battles while other music stays intact', () => {
+  const read = name => JSON.parse(fs.readFileSync(path.join(__dirname, '../../arttools/music', name), 'utf8'));
+  const { tracks } = read('soundtrack.json');
+  const history = read('history/soundtrack-2026-11-22.json').tracks;
+  const baseline = read('history/soundtrack-before-suno-2026-11-26.json').tracks;
+  const restored = ['m_tallyport','m_brackwater','m_haverly','m_four_fords','m_cinderwick',
+    'm_kell','m_highwatch','m_aldermoot','m_bilge','m_sunken_sluice','m_combat'];
+  const originals = {
+    m_tallyport: 'e8b72f694913e7c466104b13028f8281270e8ac8d26cf1de122e1b8e7fd28bfb',
+    m_bilge: 'f762b09c3b813119e03c341fb5f6cf3cdd3aaa030a3baa51c60a414ae2579e84',
+    m_combat: '85f298d9a93427b687bb0b1948418e1449482fddc464a89bc8103aefde95e353',
+  };
+  assert.deepEqual(Object.keys(tracks).filter(id => tracks[id].origin.kind === 'user-supplied-suno').sort(), restored.sort());
+  for (const [id, entry] of Object.entries(tracks)) {
+    if (!restored.includes(id)) assert.deepEqual(entry, baseline[id], id);
+    else if (history[id]) assert.deepEqual(entry, history[id], id);
+    else {
+      assert.equal(entry.origin.sourceCommit, 'ec29131', id);
+      assert.equal(entry.origin.sourcePath, 'game/art/mu/' + id + '.mp3', id);
+      assert.equal(entry.origin.sourceSHA256, originals[id], id);
+      assert.ok(entry.origin.selection.startSeconds >= entry.origin.formerLoop.a, id);
+      assert.ok(entry.origin.selection.endSeconds <= entry.origin.formerLoop.b, id);
+    }
+  }
+  const { Sound } = fixture();
+  assert.equal(Sound.trackFor({ fight: true }), 'm_combat');
+  assert.equal(Sound.trackFor({ fight: true, boss: true }), 'm_examiner');
+});
+
 test('a cold effect responds immediately and a completed load never replays an old event', async () => {
   const f = fixture(); await f.complete();
   f.Sound.sfx('door', 'opening');
