@@ -73,6 +73,7 @@ The selection screen offers Delete a character and Delete this world. Both requi
   - lair guards 480 s
   - lair leaders 900 s
   - ore and herb nodes 240 s
+- **Creature loot** (`creature_loot.js`): surface and dungeon drops follow the actual species, including lair leaders and dungeon creatures that share another creature’s SQL exercise. Birds and crabs yield meat; wolves, deer and similar game yield meat and hides; small furred predators yield hides. Wildlife descriptions specify meat, hide or no useful drop. Insects, leeches and spiders currently have no harvestable resource. Magical creatures and constructs yield regional material; people, armed humanoids and equipped undead can carry gold, gear and scrolls. Only these carriers offer theft and special dye drops. Gilded animals and beast leaders never acquire purses, weapons, scrolls or sigils through reward bonuses. Tamsin supplies the guided weapon upgrade; the first creature follows its ordinary loot profile. Chests, rival wagers and Examiner awards keep their separate rewards. Existing saved corpses retain their contents.
 - **Corpses:** unlooted ones stay 300 s and looted ones 90 s. Your own body lasts 10 minutes.
 - **Creature size** (`MSC` in scene_a.js, 1 = a grown man): rodents and birds about 0.3–0.45, wolves 0.6, people 0.83 (normalised), golems 1.1–1.2, frost giant 1.5, dragon 1.6 (capped).
 
@@ -418,6 +419,8 @@ A new main character chooses appearance and former profession, then is hauled ab
 - 2026-11-27: Casey authorized unique dungeon layouts independently of the combat prototype. Preserve story/floor/seal/keeper/starter requirements while introducing regional circulation, real cover, scale contrasts and return routes. Reuse approved art; combat dimensions remain tunable. Per the coordinated technique transition, future starter/vault rewards no longer create guaranteed legacy rare Spell pages; other loot and story rewards retain their existing rules.
 
 - 2026-11-27: The coordinated dungeon candidate consumes shared live enemy profiles and sight/fire rules rather than the former caster response-round count. Retain dungeon health/difficulty, rewards and progression; geometry and revision-2 migration remain candidate behavior until the coordinator verifies and publishes the combined build.
+
+- 2026-11-27: Casey requested loot that fits each enemy. Use explicit species profiles for wildlife, hostile beasts, magical creatures, constructs and carriers; bonuses and theft obey the same restrictions. Preserve chest and earned challenge rewards, and keep the guided equipment upgrade with Tamsin.
 
 - 2026-11-26: Casey requested a full build plan for landscape battle presentation, four equipped Techniques and the Technique Book. Keep HP, mana and stamina visible at the top right; put Tables/Help with the question and use Commands/Fields/reference views in place of letter keys while preserving the SQL draft. Record live-world combat integration and unresolved baseline actions, technique/Magery rules and migration as dependencies. This records planned design only and does not authorize implementation or publication; the [build plan](plans/2026-11-26-landscape-battle-ui.md) owns execution status.
 

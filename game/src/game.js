@@ -712,7 +712,7 @@
     lungeClear:e=>Scene.combatLunge(e),
     hidden:()=>CONCEAL.hidden,hideUnlocked:()=>S.tut>=1,hideReason:()=>S.tut<1?'Complete the first SQL lesson.':CONCEAL.hidden?'':mounted()?'Dismount before hiding.':Scene.observed()?'Break their line of sight or gain distance before hiding.':'',
     hide:()=>{ACT.conceal();return !!Q||CONCEAL.hidden===false;},
-    covert:e=>!e||e.kind!=='mon'||e.inst?.dungeon||!bestPage('shadow')||e.pocketsEmpty||e.combat?.phase==='chase'?'No theft opening.':!e.unseen&&!CONCEAL.hidden?'Hide before approaching.':'',
+    covert:e=>!e||e.kind!=='mon'||!CreatureLoot.carries(e)||e.inst?.dungeon||!bestPage('shadow')||e.pocketsEmpty||e.combat?.phase==='chase'?'No theft opening.':!e.unseen&&!CONCEAL.hidden?'Hide before approaching.':'',
     steal:e=>{openF({...liveEncounter(e),legacy:true});pickSteal();return F?.act==='steal';},
     open:cfg=>openF(cfg),
     task:(circle,e,cfg)=>{
@@ -883,7 +883,7 @@
     if(F.st==='prompt'&&F.task)F.task=prepareLearning(F.task);
     const el = $('#fight'), f = F.foe, t = F.r; let h;
     if (F.st === 'choose') {
-      const pgs = fightPages(), sh = bestPage('shadow'), canSteal = F.kind === 'monster' && !F.engaged && !F.round && !F.animal;
+      const pgs = fightPages(), sh = bestPage('shadow'), canSteal = F.kind === 'monster' && !F.engaged && !F.round && CreatureLoot.carries(F.ent);
       const pocketsEmpty = canSteal && sh && F.ent.pocketsEmpty;
       const stealOk = canSteal && sh && !pocketsEmpty && (F.ent.unseen || rv('hiding') > 0); if (stealOk) setTimeout(() => coach('stealth'), 0);
       h = `<div class="f-head"><div><b>${esc(F.title)}</b><small>${CIRCLE[t]} Circle · choose one action</small></div><div class="f-btns">${qm('fight')}<button class="btn sm quiet" data-a="flee">${F.engaged?'Flee':'Back away'}</button></div></div><div class="f-pages">${pgs.map(attackChoices).join('') || '<p class="cap2">No attack page. Odalys Brine in Tallyport sells Strike and Spark.</p>'}${stealOk ? `<button class="pg sh" data-a="fsteal"><b>${esc(sh.name)}</b><em>${F.ent.unseen ? 'unseen' : `Hiding ${sneakPct()}%`}</em></button>` : ''}</div>`;
@@ -929,7 +929,7 @@
     F.backstab=false;F.utility=null;F.instant=false; F.page = p; S.page = id; F.verb = p.book==='spell'?'Cast':stance==='feint'?'Feint':stance==='cleave'?'Cleave':WEAP[sk2].verb; F.kc = F.tasks ? F.r : p.c; if(F.taskRound!==F.round){F.preparedTasks={};F.drafts={};F.taskRound=F.round;F.readinessHelp=false;}const taskKey=id+':'+stance;F.task = F.preparedTasks[taskKey]||(F.preparedTasks[taskKey]=taskFor(p)); F.tries=0;const sameRound=F.prepRound===F.round;F.fixed=sameRound?F.fixed:0;F.hint=sameRound?F.hint:0;F.shown=sameRound?F.shown:0;F.prepRound=F.round;F.hints=F.shown?[`<p class="fh">An answer was shown this exchange. It grants no practice. <code>${esc(F.task.sql)}</code></p>`]:F.hint?['<p class="fh">The hint penalty carries across changing actions.</p>']:[]; F.oddsLine = `${odds(rv(sk2), F.diff, 'correct').p}% a swing if correct · ${odds(rv(sk2), F.diff, 'wrong').p}% if wrong`; F.st = 'prompt'; drawF(); coach('fprompt');
   }
   function pickSteal() {
-    if (!F || F.kind !== 'monster' || F.round || F.busy || F.animal) return;if(F.shown||F.hint)return toast('Finish this hinted exchange before switching to theft. The disclosed penalty stays with the exchange.'); const e = F.ent, sh = bestPage('shadow'); if (!sh || e.pocketsEmpty) return;
+    if (!F || F.kind !== 'monster' || F.round || F.busy || !CreatureLoot.carries(F.ent)) return;if(F.shown||F.hint)return toast('Finish this hinted exchange before switching to theft. The disclosed penalty stays with the exchange.'); const e = F.ent, sh = bestPage('shadow'); if (!sh || e.pocketsEmpty) return;
     if (!e.unseen && !CONCEAL.hidden) {toast('Back away and Hide before approaching, or come from behind.');return;}
     Sneaking.reveal(CONCEAL); renderHud(); const c = Math.min(sh.c, F.r), tpl = c === F.r ? F.sig : pick(BOUNTIES.filter(b => b.r === c)).id; F.act = 'steal'; F.foe = null; F.page = sh; F.verb = 'Steal'; F.kc = c; F.bonus = 10 + (sh.rare ? 15 : 0) - 12 * Math.max(0, F.r - sh.c) + bonus('deft');
     F.prize=F.prize||'purse'; F.prizeItem=F.prizeItem||makeItem(rollRarity(luck()),F.r); F.task = S.tut < 2 ? tutTask() : makeTask({ tpl, seed: seeded(tpl) }); F.fixed = 0; F.hint = 0; F.hints = []; F.oddsLine = `${odds(rv('stealing') + F.bonus, F.diff, 'correct').p}% if correct · one try`; F.st = 'prompt'; barsF(); drawF();
@@ -1056,16 +1056,16 @@
     if(F.act==='fight'&&F.ent){Backstab.forget(WOUNDS,F.ent);Scene.endChase(F.ent);}
     if (F && F.act === 'fight') Sound.sfx('win');
     if (gift('mend') && F.act === 'fight') heal(maxHp() * .2);
-    const t = F.r, lk = luck(), k = F.kind, o = { gold: 0, mats: {}, items: [], scrolls: [] }; let head, note = '', band = '', body = false;
+    const t = F.r, lk = luck(), k = F.kind; let o = { gold: 0, mats: {}, items: [], scrolls: [] }, head, note = '', band = '', body = false;
     if (k === 'monster' || k === 'dungeon') { const st = F.act === 'steal', el = !!(F.inst && F.inst.elite), dn = k === 'dungeon'; if (st) S.stats.steals++; else S.stats.kills++;
-      if (F.animal) { o.meat = 1 + (rnd() < .3 ? 1 : 0); o.hide = rnd() < .5 ? 1 : 0; } else {
+      if (!CreatureLoot.carries(F.ent)) { o.mats[t] = 1 + (el ? 2 : 0); } else {
       o.gold = (st ? 12 * t + 8 : 6 * t + 4) * (el ? 2 : 1) * (dn ? 1.4 : 1) * (.8 + rnd() * .4); o.mats[t] = (1 + (el ? 2 : 0)) * (st ? 2 : 1); if (el) { o.sigils = 1; if (rnd() < .015) o.bless = 1; if (rnd() < .06) o.gscr = 1; }
       if ((!st && (el || rnd() < (dn ? .5 : .35))) || (st && F.prize==='prize')) o.items.push(st&&F.prizeItem?F.prizeItem:makeItem(rollRarity(lk, el ? 1 : 0), t));
       if (F.inst && F.inst.lead && !st) { S.lairday = S.lairday || {}; if (S.lairday[F.inst.lair] !== dayKey()) { S.lairday[F.inst.lair] = dayKey(); o.gold += 40 * t; o.items.push(makeItem(rollRarity(lk, 2), t)); if (rnd() < .2) o.gscr = 1; if (t >= 6 && rnd() < .05) o.pscr = [makePscr(t)]; if (rnd() < (F.inst.lk === 'l14' ? .5 : .12 + t * .02)) o.runes = 1; } }
       }
-      if (gid() === 'fight' && k === 'monster' && !st) { const rw = makeItem('common', 1, 'weapon', pick(['swords', 'fencing']),{source:'starter'}); rw.name = 'Rusty ' + WEAP[rw.w].n; o.items = [rw]; }
-      if(!st&&F.live&&!F.animal&&t>=5&&rnd()<.003){const rare=pick(Techniques.catalog.filter(d=>d.rare));o.scrolls.push('tech:'+rare.id);}
-      if (!st) maybeDye(F.kind === 'boss' ? .35 : F.keeper ? .3 : F.kind === 'dungeon' ? .04 : .015 + luck() / 4000);
+      if(!st&&F.live&&CreatureLoot.carries(F.ent)&&t>=5&&rnd()<.003){const rare=pick(Techniques.catalog.filter(d=>d.rare));o.scrolls.push('tech:'+rare.id);}
+      o = CreatureLoot.filter(o, F.ent, rnd);
+      if (!st && CreatureLoot.carries(F.ent)) maybeDye(F.keeper ? .3 : dn ? .04 : .015 + luck() / 4000);
       if(st&&F.prize==='prize')o.gold=Math.round(o.gold*.5); head = st ? 'Clean lift' : F.title + ' falls';
       if (st) {
         // Surface respawns create new entities even though the live creature's alert can clear.
@@ -1447,7 +1447,7 @@
     { id: 'fight', ob: 'Walk to the green south of town and tap a creature', tabs: ['ledger'], at: () => off(T1(), 5, 13), arrow: () => nearest(e => e.kind === 'mon' && e.r === 1 && !e.inst.elite), say: '"You’ve practised an ability safely with Odalys. Let’s try it on the green south of town. Tap a creature, choose the ability you practised, and answer its question. Watch your health, since a creature can fight back."' },
     { id: 'loot', ob: 'Tap the body to take what it dropped', arrow: () => nearest(e => e.kind === 'corpse' && e.r === 1 && e.loot), say: '"You won. Tap the body to see what it dropped, then choose what to take. I have a spare weapon for you once you’ve finished."' },
     { id: 'bag', ob: 'Open your Bag and equip the weapon Tamsin gave you', tabs: ['bag', 'hero'], say: ['"We had a spare weapon aboard the Marigold, so I brought it for you. Open your Bag, tap the weapon, and choose Equip. The Hero screen shows what you’re wearing and holding."','"I brought two pieces of dark bread as well. Each restores 12 health. Tap the bread under Supplies and choose Eat if you’re hurt. Save the Healing Draught for when you need up to 30 health back."'] },
-    { id: 'sell', ob: 'Sell the old weapon at the stall', at: () => off(entAt(x => x.kind === 'stallkeep' && x.r === 1), 1, 1), arrow: () => entAt(x => x.kind === 'stallkeep' && x.r === 1), say: '"That rusty weapon won’t fetch much, but the stallkeeper will take it. Choose Sell goods, then choose the old weapon and review the sale. You’ll keep whatever you’re wearing or holding."' },
+    { id: 'sell', ob: 'Sell the old weapon at the stall', at: () => off(entAt(x => x.kind === 'stallkeep' && x.r === 1), 1, 1), arrow: () => entAt(x => x.kind === 'stallkeep' && x.r === 1), say: '"Your old weapon won’t fetch much, but the stallkeeper will take it. Choose Sell goods, then choose the old weapon and review the sale. You’ll keep whatever you’re wearing or holding."' },
     { id: 'page', ob: 'Complete Odalys’s free technique training', at: () => off(odAt(), 1, 1), arrow: odAt, say: ['"Your basic attack will always be available. Dojo training teaches special techniques that you keep in your Technique Book. Each needs enough skill in its discipline before you can equip it."','"Go back to Odalys and complete a free mixed teaching bout. You’ll learn techniques for swords, fencing, archery and Magery, even if you haven’t trained those skills yet. You can equip four techniques at a time."'] },
     { id: 'bank', ob: 'Talk to the banker and deposit your gold', at: () => off(entAt(x => x.kind === 'banker' && x.r === 1), -1, 0), arrow: () => entAt(x => x.kind === 'banker' && x.r === 1), say: '"See the banker before we go any farther. You can leave your gold in the bank while we look around the vaults."' },
     { id: 'tower', ob: 'Climb the harbor tower by the pier', at: () => off(SP('tower'), 1, 1), arrow: () => SP('tower'), say: '"Come up the harbor tower with me. From there I can show you where the road goes when it leaves town."' },

@@ -1,8 +1,16 @@
 # Verified release history
 
-Dates below are UTC. Earlier entries were reconciled on 2026-11-23 from existing receipts and successful Actions runs; their evidence was not rerun during that documentation cleanup. New release entries identify checks performed for that release. The latest confirmed hosted source is the visible intro-controls correction, `d3b1f682d6ddac82abe9806fa5527daab8be8aff`, preserving the complete fitted character/equipment rollout and all preceding releases.
+Dates below are UTC. Earlier entries were reconciled on 2026-11-23 from existing receipts and successful Actions runs; their evidence was not rerun during that documentation cleanup. New release entries identify checks performed for that release. The latest confirmed hosted source is the character-guidance/vendor-sales and Suno-restoration release, `b0a40676e2dd39dcae306de44094e0033640ff3d`.
 
 Keep the released source commit distinct from any later documentation-only commit. Each entry preserves completion, verification and limitations without requiring local logs. Detailed receipts, screenshots and traces under ignored `work/` or test-results folders remain supplementary. A newer deployment supersedes the hosted version; earlier completed releases stay complete.
+
+## Character guidance, vendor sales and restored Suno music
+
+- Classification: simple; complete. Released source `b0a40676e2dd39dcae306de44094e0033640ff3d`, [Actions 45935569351](https://github.com/caseyschindler123/Brasswake/actions/runs/45935569351). The bottom Hero control owns the character menu; skill results show before → after and signed gains; Tamsin explains ability pages; vendors offer reviewed individual sales; the Journal leads with an actionable next step and separates optional records. The same release restores 11 former Suno music contexts while retaining 17 other themes/cues and all 72 effects. Character artwork and locomotion remain assigned to a separate task.
+- Verification: full core, all 642 browser cases (214 each in phone Chromium/WebKit at 390×720 and desktop Chromium at 1280×800), aggregate, Pages and all six hosted flows passed with zero framework retries. Hosted verification finished `2026-11-27T04:45:23.762Z`, including ordinary arrival, SQL combat, complete offline download/cold reopen and save-file restoration.
+- Identity: CI verified source/HTML at `2026-11-27T04:42:49.870Z`; independent verification passed `2026-11-27T08:47:27.053Z`. HTML SHA-256: `24d7f60b6d5e82f9a7cd99bb5cc727d255c8f8f1b3642aff43b58b4199992903`. Opened affected local phone/desktop captures, WebKit menu/skill captures, and hosted menu, arrival and offline-readiness captures. Reused the successful CI hosted flows.
+- Audio evidence: reused the music task’s 16 Python audio checks, 28 Node music tests and 41 browser cases. All 11 served Suno files returned HTTP 200 with catalog-exact SHA-256 and byte lengths at `2026-11-27T08:47:27.114Z`; other music/effect hashes remain intact.
+- Superseded UI/audio candidates were cancelled before publication. Ending fixtures now expand Ilva’s story; the pursuit fixture records the leash boundary and waits for actual inward motion before the unchanged exact-anchor deadline. Assertions, deadlines, coverage and art baselines remain intact. Subjective listening and physical-iPhone/Home Screen checks remain unverified. Closure changes Markdown only and requires no redeployment.
 
 ## Visible Tamsin intro controls
 

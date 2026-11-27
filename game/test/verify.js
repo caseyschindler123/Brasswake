@@ -17,7 +17,7 @@ const groups=new Set(selected.coreGroups);
 const entries=[
   ['Packed art', ['../arttools/check_packed_art.js']],
   ['Engine and content', ['test/test.js']],
-  ['Character skills, attributes and professional actions', ['--test', 'test/progression.test.js', 'test/battle-rules.test.js', 'test/live-combat.test.js', 'test/techniques.test.js', 'test/combat-controller.test.js', 'test/skill-actions.test.js', 'test/backstab.test.js', 'test/npc-appearance.test.js','test/equipment-rules.test.js','test/equipment-view.test.js','test/resource-equipment.test.js']],
+  ['Character skills, attributes and professional actions', ['--test', 'test/progression.test.js', 'test/battle-rules.test.js', 'test/creature-loot.test.js', 'test/live-combat.test.js', 'test/techniques.test.js', 'test/combat-controller.test.js', 'test/skill-actions.test.js', 'test/backstab.test.js', 'test/npc-appearance.test.js','test/equipment-rules.test.js','test/equipment-view.test.js','test/resource-equipment.test.js']],
   ['Arrival, first-day teaching and companion routing', ['--test', 'test/first-day.test.js', 'test/prologue.test.js', 'test/learning.test.js', 'test/advanced-sql.test.js']],
   ['Narrative continuity', ['test/narrative_test.js']],
   ['World geography, construction and migration', ['--test', 'test/geography.test.js', 'test/buildings.test.js', 'test/building-cache.test.js', 'test/world-progress.test.js', 'test/world-services.test.js', 'test/cartography.test.js', 'test/navigation.test.js', 'test/water-depth.test.js', 'test/interiors.test.js', 'test/home-restoration.test.js','test/settlements.test.js']],
