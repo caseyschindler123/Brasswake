@@ -59,7 +59,7 @@ test('SQL command and field insertion use the selected range without changing re
 test('Technique Book equips exactly four stable slots across weapon and spell disciplines',async({page},info)=>{
   const errors=observeErrors(page);await page.setViewportSize({width:1280,height:800});await openDev(page);
   // Prepare learned knowledge; earned dojo learning is covered by the gameplay suite.
-  await page.evaluate(()=>{Dev.skills({swords:70,magery:70});Techniques.teach(__bw.S,1);Techniques.teach(__bw.S,2);__bw.render();});
+  await page.evaluate(()=>{Dev.skills({swords:70,magery:70});Techniques.teach(__bw.S,1);Techniques.teach(__bw.S,2);__bw.S.scr['tech:magery.unwrite']=1;__bw.render();});
   await page.locator('#nav [data-t=hero]').click();if(await page.locator('[data-a=coachok]').isVisible())await page.locator('[data-a=coachok]').click();
   await page.locator('#view [data-a=combatbook]').click();await expect(page.locator('.technique-position')).toHaveCount(4);
   const ids=await page.evaluate(()=>__bw.Combat.snapshot().techniques.filter(t=>t.learned&&t.requirement<=70&&['swords','magery'].includes(t.discipline)).slice(0,4).map(t=>t.id));
@@ -76,7 +76,17 @@ test('Technique Book equips exactly four stable slots across weapon and spell di
   await expect(page.locator('.combat-techniques .combat-action')).toHaveCount(4);await screenshot(page,info,'desktop-four-techniques');
   await expect(page.locator('#combat-bar .combat-action:not([data-id=""]) .ico.none')).toHaveCount(0);
   await page.setViewportSize({width:844,height:390});await expect(page.locator('.combat-techniques .combat-action')).toHaveCount(4);await screenshot(page,info,'landscape-four-techniques');
-  expect(errors).toEqual([]);
+  // Prepare a rare teaching document; its random earning path is gameplay-owned.
+  await page.setViewportSize({width:390,height:720});await page.locator('#nav [data-t=bag]').click();
+  await page.locator('[data-a=scroll][data-id="tech:magery.unwrite"]').click();
+  await expect(page.locator('#sheet')).toContainText('Magery 95');await expect(page.locator('#sheet')).toContainText('+2 Circles above the opponent');
+  await expect(page.locator('#sheet')).not.toContainText('VIII Circle');
+  await page.getByRole('button',{name:'Add to the Technique Book',exact:true}).click();
+  expect(await page.evaluate(()=>!!__bw.S.techniques.learned['magery.unwrite'])).toBe(true);
+  await page.locator('#nav [data-t=hero]').click();await page.locator('#view [data-a=combatbook]').click();
+  const rare=page.locator('[data-technique="magery.unwrite"]');await rare.scrollIntoViewIfNeeded();await expect(rare.locator('[data-a=combatequip]')).toBeDisabled();
+  expect(await page.evaluate(()=>__bw.Combat.snapshot().loadout.map(t=>t?.id))).toEqual(mixed);
+  await screenshot(page,info,'rare-technique-book-phone');expect(errors).toEqual([]);
 });
 
 test('rotation releases held movement instead of replaying the old input on the new layout',async({page})=>{

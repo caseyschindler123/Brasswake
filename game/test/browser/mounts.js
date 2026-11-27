@@ -220,7 +220,10 @@ test('mounts · the stable sells one horse, outdoor riding is faster and obstacl
   });
   await drivePath(page, encounter.approach, false);
   await actor(page, encounter.xy);
-  await expect(page.locator('#fight')).toBeVisible();
+  await expect(page.locator('#combat-bar')).toBeVisible();
+  await expect(page.locator('#combat-bar [data-id="basic.magery"]')).toBeEnabled();
+  await page.locator('#combat-bar [data-id="basic.magery"]').click();
+  await expect(page.locator('#fight #sql')).toBeVisible();
   expect(await horse(page)).toMatchObject({ owned: true, mounted: false });
   expect(errors).toEqual([]);
 });

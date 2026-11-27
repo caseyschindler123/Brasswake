@@ -316,26 +316,46 @@ test('first-day boundaries · Journal leads with the guide and separates optiona
   await expect(page.locator('#toast [role=status]')).toHaveCount(0);
   await page.evaluate(()=>{__bw.S.gd=8;__bw.S.met['1.0']=1;__bw.S.seen['intro.practice']=1;__bw.SH.journal();});
   await expect(sheet(page).getByRole('heading',{name:'Your next step',exact:true})).toBeVisible();
-  await expect(sheet(page).locator('.journal-next')).toContainText('Visit Odalys and buy another ability');
+  await expect(sheet(page).locator('.journal-next')).toContainText('Complete Odalys’s free technique training');
   await expect(sheet(page).locator('details[open]')).toHaveCount(0);
   await expect(sheet(page).locator('summary').first()).toContainText('Optional SQL practice');
   await screenshot(page,info,'journal-next-step');
   await sheet(page).locator('summary').filter({hasText:'Ilva’s story'}).click();
-  await expect(sheet(page)).toContainText('separate from the ability pages');
+  await expect(sheet(page)).toContainText('separate from your Technique Book');
   await sheet(page).getByRole('button',{name:'Close',exact:true}).click();
   await page.evaluate(()=>{const e=Scene.guideEnt()||{name:'Tamsin'};__bw.SH.guide(e);});
   await page.locator('#say').click();
-  await expect(page.locator('#say-text')).toContainText('We call an ability a page');
-  await screenshot(page,info,'tamsin-explains-ability-pages');
+  await expect(page.locator('#say-text')).toContainText('Dojo training teaches special techniques');
+  await screenshot(page,info,'tamsin-explains-techniques');
   await speech(page);
   await page.evaluate(()=>Dev.resources({gold:1000}));
   await openVendor(page,'npc',0);
-  await speech(page,'#say [data-a=pages]');
-  const coach=page.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
-  await sheet(page).locator('[data-a=buypage]:not([disabled])').first().click();
-  expect(await page.evaluate(()=>__bw.S.gd)).toBe(9);
-  await sheet(page).locator('[data-a=buypage]:not([disabled])').first().click();
-  expect(await page.evaluate(()=>__bw.S.gd)).toBe(9);
+  await expect(page.locator('#say [data-a=learnpractice]')).toHaveCount(0);
+  await page.locator('#say-text').click();
+  await expect(page.locator('#say-text')).toContainText('inside the dojo');
+  await speech(page);
+  await openVendor(page,'dojo');
+  await expect.poll(()=>page.evaluate(()=>!!Scene.inHall())).toBe(true);
+  await openVendor(page,'odalys');
+  await speech(page,'#say [data-a=learnpractice]');
+  await expect(page.locator('#enc #sql')).toBeVisible();
+  const before=await page.evaluate(()=>({gold:__bw.S.gold,hp:__bw.S.hp,mana:__bw.S.mana,stamina:__bw.S.stamina,sk:JSON.stringify(__bw.S.sk),attr:JSON.stringify(__bw.S.attr)}));
+  let learned;
+  for(let bout=0;bout<2;bout++){
+    for(let i=0;i<3;i++){
+      await page.locator('#enc #sql').fill(await page.evaluate(()=>__bw.Q.task.sql));
+      await page.locator('#enc #kb [data-fn=run]').click();
+      await expect(page.locator('#enc')).toContainText('Your query gives the requested result.');
+      expect(await page.evaluate(()=>__bw.Q.practiceScore[0])).toBe(i+1);
+      if(i<2){await page.waitForTimeout(350);await page.locator('#enc [data-a=learnnext]').click();}
+    }
+    expect(await page.evaluate(()=>__bw.S.gd)).toBe(9);
+    const knowledge=await page.evaluate(()=>Object.keys(__bw.S.techniques.learned));
+    expect(knowledge).toEqual(expect.arrayContaining(['swords.cross-cut','fencing.stop-thrust','archery.true-shot','magery.frost-dart']));
+    if(bout===0){learned=knowledge;await page.waitForTimeout(350);await page.locator('#enc [data-a=learnnext]').click();}else expect(knowledge).toEqual(learned);
+  }
+  expect(await page.evaluate(()=>({gold:__bw.S.gold,hp:__bw.S.hp,mana:__bw.S.mana,stamina:__bw.S.stamina,sk:JSON.stringify(__bw.S.sk),attr:JSON.stringify(__bw.S.attr)}))).toEqual(before);
+  await page.locator('#enc .q-head [data-a=qleave]').click();
   await page.evaluate(()=>{__bw.S.gd=99;__bw.S.done={};__bw.SH.journal();});
   await expect(sheet(page).locator('.journal-next h3')).toContainText('Speak to Odalys Brine about');
   await expect(page.locator('#toast [role=status]')).toHaveCount(0);
