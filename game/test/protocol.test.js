@@ -328,20 +328,20 @@ test('required browser shards cross all profiles and keep independent evidence a
   const profiles=require('../playwright.config').projects.map(p=>({project:p.name,browser:p.use.browserName}));
   assert.deepEqual(Object.keys(matrix).sort(),['include','project','shard']);
   assert.deepEqual(matrix.project,profiles.map(p=>p.project));
-  assert.deepEqual(matrix.shard,[1,2]);assert.deepEqual(matrix.include,profiles);
+  assert.deepEqual(matrix.shard,[1,2,3,4]);assert.deepEqual(matrix.include,profiles);
   // Include only adds the correct browser to each project/shard combination;
   // it must not replace the Cartesian axes with standalone profile rows.
   const rows=matrix.project.flatMap(project=>matrix.shard.map(shard=>({...matrix.include.find(p=>p.project===project),shard})));
-  assert.equal(rows.length,6);assert.ok(rows.every(row=>row.browser));
+  assert.equal(rows.length,12);assert.ok(rows.every(row=>row.browser));
   assert.equal(browser.strategy['fail-fast'],false);assert.equal(browser['timeout-minutes'],90);
   assert.equal(browser.env.BW_UI_WORKERS,'1');
   assert.equal(browser.if,"needs.core.outputs.ui == 'true'");assert.equal(browser.needs,'core');
   const verify=browser.steps.find(s=>s.name==='Verify every selected suite in this profile');
-  assert.equal(verify.run,'npx playwright test --project=${{ matrix.project }} --shard=${{ matrix.shard }}/2');
+  assert.equal(verify.run,'npx playwright test --project=${{ matrix.project }} --shard=${{ matrix.shard }}/4');
   const evidence=browser.steps.find(s=>s.name==='Retain profile evidence');
   assert.equal(evidence.if,'always()');assert.equal(evidence.with.name,'browser-${{ matrix.project }}-${{ matrix.shard }}');
   const names=rows.map(row=>evidence.with.name.replace('${{ matrix.project }}',row.project).replace('${{ matrix.shard }}',row.shard));
-  assert.equal(new Set(names).size,6);
+  assert.equal(new Set(names).size,12);
   assert.deepEqual(build.needs,['core','browser']);
   const gate=build.steps.find(s=>s.run==='node game/test/release-gate.js');
   assert.equal(gate.env.BW_BROWSER_RESULT,'${{ needs.browser.result }}');
@@ -524,7 +524,8 @@ test('actual required shard discovery is disjoint and exactly preserves the full
     const discovered=matrix.shard.map(shard=>listSuites(ALL_SUITES,{project,shard:shard+'/'+matrix.shard.length,workers}));
     const sets=discovered.map(cases=>new Set(cases.map(key)));
     assert.ok(sets.every(set=>set.size>0));
-    assert.equal([...sets[0]].filter(id=>sets[1].has(id)).length,0,project+' shards overlap');
+    for(let i=0;i<sets.length;i++)for(let j=i+1;j<sets.length;j++)
+      assert.equal([...sets[i]].filter(id=>sets[j].has(id)).length,0,project+' shards '+(i+1)+' and '+(j+1)+' overlap');
     const union=discovered.flat().map(key).sort();
     assert.deepEqual(union,full.filter(c=>c.project===project).map(key).sort(),project+' has missing or extra cases');
     combined.push(...union);
