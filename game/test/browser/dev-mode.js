@@ -33,7 +33,7 @@ test('creature loot follows species through real victories and collection',async
   const errors=observeErrors(page);await open(page);
   for(const scenario of ['gull','wolf-leader','bandit','dungeon-rat']){
     await page.evaluate(async scenario=>{
-      await Dev.reset(17);__bw.S.pages.h1=1;Dev.skills({swords:100,tactics:100,anatomy:100});Dev.attributes({str:100,dex:100,int:25});Dev.resources({hp:Progression.maxHp(__bw.S)});Dev.grant({weapon:'swords',rarity:'legendary',tier:8});
+      await Dev.reset(17);__bw.A.cmds=Object.fromEntries(Object.keys(Content.CMDS).map(k=>[k,2]));__bw.S.pages.h1=1;Dev.skills({swords:100,tactics:100,anatomy:100});Dev.attributes({str:100,dex:100,int:25});Dev.resources({hp:Progression.maxHp(__bw.S)});Dev.grant({weapon:'swords',rarity:'legendary',tier:8});
       if(scenario==='dungeon-rat'){
         Dev.teleport({region:1,dungeon:0});const e=Scene.find(e=>e.species==='d11'&&e.kind==='mon');if(!e)throw Error('Missing dungeon rat');__bw.DP.fight(e);
       }else{
