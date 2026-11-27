@@ -197,36 +197,59 @@ test('first-day boundaries · Recover requires a resource deficit and restores m
     Dev.resources({ mana: Progression.maxMana(s), stamina: Progression.maxStamina(s) });
     return { meditation: s.sk.meditation, mana: s.mana, stamina: s.stamina };
   });
-  const recover = page.locator('#hud [data-a="outrecover"]');
-  await recover.click();
-  await expect(page.locator('#toast')).toContainText('Mana and stamina are full.');
+  const recover = page.locator('#combat-bar [data-a="combatbegin"][data-id="recover"]');
+  await expect(recover).toHaveAttribute('aria-disabled', 'true');
+  expect(await page.evaluate(() => __bw.Combat.begin('recover'))).toBe(false);
+  await expect(page.locator('#toast')).toContainText('Mana and stamina are already full.');
   await expect(page.locator('#enc')).toBeHidden();
-  expect(await page.evaluate(() => ({ query: __bw.Q, meditation: __bw.S.sk.meditation })))
-    .toEqual({ query: null, meditation: before.meditation });
+  expect(await page.evaluate(() => ({ query: __bw.Q, fight: __bw.F, meditation: __bw.S.sk.meditation })))
+    .toEqual({ query: null, fight: null, meditation: before.meditation });
 
   const deficit = await page.evaluate(() => {
     Dev.resources({ stamina: Progression.maxStamina(__bw.S) - 15 });
+    // Keep fixture setup time out of the exact restoration delta. Opening the
+    // real action resumes Scene into its own authoritative SQL pause.
+    Scene.pause();
     return __bw.S.stamina;
   });
+  await expect(recover).toHaveAttribute('aria-disabled', 'false');
   await recover.click();
-  await expect(page.locator('#enc')).toBeVisible();
+  await expect(page.locator('#fight #sql')).toBeVisible();
   const task = await page.evaluate(() => {
-    const { kind, work, csk, task } = __bw.Q;
-    return { kind, work, csk, sql: task.sql };
+    const f = __bw.F;
+    return { live: f.live, action: f.actionId, discipline: f.definition.discipline, effect: f.definition.effect, sql: f.task.sql };
   });
-  expect(task).toMatchObject({ kind: 'skillwork', work: 'recover', csk: 'meditation' });
-  await page.locator('#sql').fill(task.sql);
+  expect(task).toMatchObject({ live: true, action: 'recover', discipline: 'support', effect: 'recover' });
+  await page.locator('#fight #sql').fill(task.sql);
+  await page.locator('#kb [data-fn="run"]').evaluate(button => {
+    const read = () => ({ meditation: __bw.S.sk.meditation, mana: __bw.S.mana, stamina: __bw.S.stamina,
+      q: __bw.S.stats.q, ok: __bw.S.stats.ok, sqlPractice: Object.values(__bw.S.skills).reduce((n, s) => n + (s.n || 0), 0) });
+    // The keyboard commits on pointerdown and can replace its Run button before
+    // click. Observe the real handler synchronously; do not substitute a result.
+    const run = __bw.ACT.run;
+    __bw.ACT.run = function(...args) {
+      const before = read();
+      try {
+        const result = run.apply(this, args);
+        window.recoverCommit = { before, after: read(), action: __bw.F.actionId, grade: __bw.F.res.grade };
+        return result;
+      } finally { __bw.ACT.run = run; }
+    };
+  });
   await page.locator('#kb [data-fn="run"]').click();
-  await expect(page.locator('#enc h2')).toHaveText('Success');
-  await expect(page.locator('#enc .q-body')).toContainText('Recovered 0 mana and 12 stamina.');
-  await expect(page.locator('#enc .practice-gains')).toContainText('Meditation');
-  await expect(page.locator('#enc .practice-gains')).toContainText(/\d+\.\d → \d+\.\d \(\+\d+\.\d\)/);
-  const after = await page.evaluate(() => ({
-    meditation: __bw.S.sk.meditation, mana: __bw.S.mana, stamina: __bw.S.stamina
-  }));
-  expect(after.mana).toBe(before.mana);
-  expect(after.stamina).toBe(deficit + 12);
-  expect(after.meditation).toBeGreaterThan(before.meditation);
+  const result = await page.evaluate(() => window.recoverCommit);
+  expect(result.action).toBe('recover'); expect(result.grade).toBe('correct');
+  expect(result.before.stamina).toBe(deficit);
+  expect(result.after.mana).toBe(before.mana);
+  expect(result.after.stamina).toBe(deficit + 12);
+  expect(result.after.meditation).toBeGreaterThan(before.meditation);
+  expect(result.after.q).toBe(result.before.q + 1);
+  expect(result.after.ok).toBe(result.before.ok + 1);
+  expect(result.after.sqlPractice).toBeGreaterThan(result.before.sqlPractice);
+  await expect(page.locator('#combat-result')).toContainText('Recovered 0 mana and 12 stamina.');
+  await page.locator('[data-a="combatdetails"]').click();
+  await expect(sheet(page).locator('.practice-gains')).toContainText('Meditation');
+  await expect(sheet(page).locator('.practice-gains')).toContainText(/\d+\.\d → \d+\.\d \(\+\d+\.\d\)/);
   expect(errors).toEqual([]);
 });
 

@@ -104,7 +104,7 @@ test('live combat: bag draught respects prepared supplies, shared recovery and S
 
 test('live combat: a real victory creates loot and leaves no corpse aggression',async({page})=>{
   const errors=observeErrors(page);await open(page);
-  const gold=await page.evaluate(()=>{Dev.skills({magery:100,eval:100});Dev.attributes({int:100});Dev.resources({mana:100});Dev.grant({weapon:'magery',rarity:'epic',tier:8});const[id]=Dev.spawn({monster:'b101'});__bw.Combat.selectTarget(Scene.find(e=>e.id===id));__bw.Combat.begin('basic.magery');window.testRandom=Math.random;Math.random=()=>.01;return __bw.S.gold;});
+  const gold=await page.evaluate(()=>{Dev.skills({magery:100,eval:100});Dev.attributes({int:100});Dev.resources({mana:100});Dev.grant({weapon:'magery',rarity:'epic',tier:8});const[id]=Dev.spawn({monster:'b104'});const e=Scene.find(e=>e.id===id);if(!CreatureLoot.carries(e))throw Error('Victory fixture must carry earned loot');__bw.Combat.selectTarget(e);__bw.Combat.begin('basic.magery');window.testRandom=Math.random;Math.random=()=>.01;return __bw.S.gold;});
   await run(page,await page.evaluate(()=>__bw.F.task.sql));
   expect(await page.evaluate(()=>__bw.F.over)).toBe(true);expect(await page.evaluate(()=>__bw.S.stats.kills)).toBe(1);expect(await page.evaluate(()=>__bw.Combat.active())).toBe(false);
   await page.evaluate(()=>Math.random=window.testRandom);await page.locator('[data-a=floot]').click();await page.locator('[data-a=lootall]').click();expect(await page.evaluate(()=>__bw.S.gold)).toBeGreaterThan(gold);expect(errors).toEqual([]);

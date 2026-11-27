@@ -106,9 +106,28 @@ test('a gesture starts actual music, contexts crossfade, and music mute persists
     expect(await f.evaluate(() => Sound.status())).toMatchObject({ wanted: 'm_cards', playing: 'm_cards', pending: null });
     await f.evaluate(() => __bw.ACT.closesheet());
     await f.waitForFunction(() => Sound.playing() === 'm_brackwater', null, { timeout: 20000 });
-    await f.evaluate(() => { __bw.ACT.closesheet(); const e = Scene.find(e => e.kind === 'mon' && e.r === 2); Scene.warp(e.x + 1, e.y); __bw.HOST.interact(e); });
+    const beginMusicFight = async boss => {
+      const state = await f.evaluate(boss => {
+        __bw.ACT.closesheet(); __bw.ACT.tab({ t: 'world' });
+        const { map } = Scene.debug(), e = Scene.find(e => e.kind === (boss ? 'boss' : 'mon') && e.r === 2 && !e.dead && !e.dying);
+        if (!e) throw Error('Missing music combat target');
+        const at = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => [e.x + dx, e.y + dy])
+          .find(([x, y]) => !map.solid[y * map.w + x] && !map.occ.has(y * map.w + x) && map.t[y * map.w + x] !== 4);
+        if (!at) throw Error('No clear music combat approach');
+        Scene.hop(...at);
+        if (boss) { __bw.setCE(e); __bw.START.boss(); }
+        else __bw.HOST.interact(e);
+        const action = __bw.Combat.snapshot().actions.find(a => a.id.startsWith('basic.') && a.ready);
+        if (!action || !__bw.Combat.begin(action.id)) throw Error('Music fixture did not begin a ready live action');
+        return { live: __bw.F.live, action: __bw.F.actionId, boss: !!__bw.F.boss };
+      }, boss);
+      expect(state).toMatchObject({ live: true, boss });
+      expect(state.action).toMatch(/^basic\./);
+    };
+    await beginMusicFight(false);
     await f.waitForFunction(() => Sound.playing() === 'm_combat', null, { timeout: 20000 });
-    await f.evaluate(() => { __bw.ACT.fdone(); const e = Scene.find(e => e.kind === 'boss' && e.r === 2); __bw.setCE(e); __bw.START.boss(); });
+    await f.evaluate(() => __bw.ACT.fdone());
+    await beginMusicFight(true);
     await f.waitForFunction(() => Sound.playing() === 'm_examiner', null, { timeout: 20000 });
     expect(await f.evaluate(() => Sound.status().cached.length)).toBeLessThanOrEqual(2);
     await f.evaluate(() => { __bw.ACT.fdone(); Sound.setFx(false); Sound.sfx('win'); });
