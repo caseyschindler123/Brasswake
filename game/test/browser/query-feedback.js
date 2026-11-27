@@ -2,18 +2,21 @@ const { test, expect } = require('@playwright/test');
 const { observeErrors, screenshot } = require('./flow');
 
 async function dismiss(f) { const b = f.locator('[data-a=coachok]'); if (await b.isVisible()) await b.click(); }
-async function choosePage(f, { needsMultiRowLimit = false } = {}) {
+async function choosePage(f, { needsMultiRowLimit = false, newConcept = false } = {}) {
   await f.waitForFunction(()=>__bw.Combat.descriptor('basic.swords').ready,null,{timeout:15000});
   await f.locator('#combat-bar [data-id="basic.swords"]').click();
   await dismiss(f);
   // Prepare an actual seeded curriculum question at the relevant boundary.
   // Actions still grade and resolve through the real SQL/combat controller.
-  await f.evaluate(needsMultiRowLimit=>{
+  await f.evaluate(({needsMultiRowLimit,newConcept})=>{
+    // The syntax/scroll case deliberately starts with an unseen concept.
+    // Opening the initial random action may already have introduced LIMIT.
+    if(newConcept)__bw.A.learning=Learning.fresh();
     const task=Array.from({length:64},(_,i)=>Learning.next(__bw.A.learning,{circle:1,family:window.feedbackFamily,seed:i+1})).find(t=>!needsMultiRowLimit||Number(/\bLIMIT\s+(\d+)$/i.exec(t?.sql||'')?.[1])>=3);
     if(!task)throw Error('No suitable real curriculum task');
     Object.keys(__bw.F.task).forEach(k=>delete __bw.F.task[k]);Object.assign(__bw.F.task,window.feedbackTip||task);
     __bw.Combat.cancel();__bw.Combat.begin('basic.swords');
-  },needsMultiRowLimit);
+  },{needsMultiRowLimit,newConcept});
   await dismiss(f);
 }
 async function game(page) {
@@ -81,7 +84,7 @@ async function finish(f) {
 for (const scenario of ['sorting', 'partial', 'extra', 'syntax']) test(`query feedback · played battle with ${scenario} correction`, async ({ page }, info) => {
   test.setTimeout(180000);
   const errors = observeErrors(page), f = await fixture(page, scenario === 'sorting' ? 'b101' : 'b102', false, {
-    needsMultiRowLimit: scenario === 'partial' || scenario === 'extra'
+    needsMultiRowLimit: scenario === 'partial' || scenario === 'extra', newConcept: scenario === 'syntax'
   });
   const correct = await f.evaluate(() => __bw.F.task.sql);
   let wrong;

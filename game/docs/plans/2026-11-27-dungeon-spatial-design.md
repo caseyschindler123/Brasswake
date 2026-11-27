@@ -1,6 +1,6 @@
 # Dungeon spatial redesign
 
-Status: implemented and locally verified on the isolated branch; combined integration/release owned by Discuss iPhone landscape mode. No independent push/publication.
+Status: implemented, integrated and locally verified; combined exact-commit verification/release owned by Discuss iPhone landscape mode. No independent dungeon publication.
 
 ## Scope and acceptance
 

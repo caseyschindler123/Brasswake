@@ -1,6 +1,6 @@
 # Live spatial combat and learned Techniques
 
-Status: implementation in progress; not released. Classification: complex because live action timing replaces the shared exchange contract and learned knowledge/four ordered slots require persistent migration.
+Status: implementation, integration and focused verification complete; combined exact-commit verification and hosted release pending. Classification: complex because live action timing replaces the shared exchange contract and learned knowledge/four ordered slots require persistent migration.
 
 Casey authorized the full build on 2026-11-27. The landscape/UI chat owns presentation, combined integration, authoritative full verification and sole publication. This branch owns gameplay and focused evidence. Dungeon floor redesign is independent and owned by the dungeon chat.
 

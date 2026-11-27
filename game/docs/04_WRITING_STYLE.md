@@ -1,6 +1,6 @@
 # Brasswake writing rules
 
-Last updated 2026-11-25. Keep `game/STYLE.md` byte-for-byte identical to this file. The [story bible](/game/docs/STORY_BIBLE.md) owns continuity, character briefs, and what each scene can assume. The [coverage register](/game/docs/STORY_COVERAGE.md) records the content families reviewed in the current pass. Repository-root links work from both copies.
+Last updated 2026-11-27. Keep `game/STYLE.md` byte-for-byte identical to this file. The [story bible](/game/docs/STORY_BIBLE.md) owns continuity, character briefs, and what each scene can assume. The [coverage register](/game/docs/STORY_COVERAGE.md) records the content families reviewed in the current pass. Repository-root links work from both copies.
 
 ## Write a connected thought
 
