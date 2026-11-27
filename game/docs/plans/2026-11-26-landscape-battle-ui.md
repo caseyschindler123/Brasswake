@@ -196,12 +196,14 @@ Before publishing, review the cumulative intended diff against this plan, not on
 
 Evidence to fill during implementation/release:
 
-- Implemented source commit and integrated gameplay source: pending.
-- Selected core/browser plan and actual local check results: pending.
-- Opened landscape/portrait/desktop captures and remaining layout issues: pending.
+- Integrated source: `codex/landscape-battle-ui` through b11dcb1, including all gameplay/dungeon checkpoints and current main creature-loot changes. Publication commit will be recorded after the authoritative gate.
+- Local checks: full core/build verification passed with UI explicitly deferred; final protocol suite 58/58; additional merged creature/controller rules 17/17. Landscape/canary 18/18, arrival rendering/Hero pause/scene rechecks 9/9, fight/sound 9/9 across all three profiles; focused feedback/public import/live gains/Dev 5/5 and species/theft 4/4 phone Chromium. Worker evidence includes 36/36 risk, 21/21 boundary plus 3/3 strengthened cancellation; changed Backstab diagnoses and all retained registrations; 18 migrated player/skill/arming scenarios in focused phone runs; eight dungeon components plus death; and the complete earned warrior journey. Exact-commit full CI remains required; these are focused development results, not a substitute.
+- Opened representative landscape, short-height, 390×720 portrait and desktop SQL/reference/action-bar/Technique Book/results/world captures. Inspection found and repaired frozen arrival fading, overlapping paused-activity controls and notifications, and narrow baseline labels. Final rendered arrival regression passes all three profiles.
 - Exact-commit Actions link, publication and hosted flow results: pending.
 - Verification date and available published HTML SHA-256: pending.
-- Save/legacy-page migration verification from gameplay owner: pending.
-- Physical iPhone/browser/Home Screen/native-keyboard evidence and limitations: pending; discussion mockups do not supply it.
+- Save/legacy conversion: gameplay focused SQL/save/controller rules and earned dojo/reload passed; dungeon all-floor masks and legacy layout/corpse reload passed all profiles. Existing account-v9/character-v8 envelope retained; dungeon layout revision 2 is local and additive.
+- Limitations: Chromium/WebKit emulation and automated native-input toggling are not a physical iPhone/Home Screen keyboard test. No human balance/fun judgment or newly earned complete 28-floor expedition is claimed.
 
 The original planning task completed wording/link/scope review and `git diff --check` with documentation-only commit/push b07f61f. That was not a game release. The 2026-11-27 authorization now activates P1-P7; keep their actual progress, verification and eventual publication evidence current.
+
+Final integration review (2026-11-27): all three owned implementations and retained consumer migrations are committed locally. No artwork, dependency, release gate, assertion deadline or retry policy was changed. Full browser discovery contains 702 cases; the exact-commit workflow must execute its selected full inventory and hosted checks before publication is complete. P2–P6 remain open through that combined acceptance gate, and P7 remains open until live identity/hash verification.
