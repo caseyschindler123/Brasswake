@@ -771,9 +771,9 @@
     const at=Scene.pos(),distance=Math.hypot(e.fx-at[0],e.fy-at[1]);
     const approached=CONCEAL.steps<CONCEAL.max&&Math.hypot(at[0]-CONCEAL.sx,at[1]-CONCEAL.sy)>=.9&&Math.hypot(e.x-CONCEAL.sx,e.y-CONCEAL.sy)>distance+.5;
     const weapon=itemById(S.eq.weapon);
-    return Backstab.readiness({weapon:weapon&&weapon.w,shadow:!!bestPage('shadow'),arms:!!bestPage('arms'),stealth:rv('stealth'),stamina:S.stamina,hidden:CONCEAL.hidden,approached:captured||approached,rear:captured||Scene.behind(e),distance,visible:Scene.sight(e)});
+    return Backstab.readiness({weapon:weapon&&weapon.w,shadow:!!bestPage('shadow'),arms:!!Techniques.basic('fencing'),stealth:rv('stealth'),stamina:S.stamina,hidden:CONCEAL.hidden,approached:captured||approached,rear:captured||Scene.behind(e),distance,visible:Scene.sight(e)});
   }
-  const backstabNotes={weapon:'Equip a Fencing weapon.',books:'Learn an Arms page and a Shadows page.',stealth:'Train Stealth to 10.',stamina:'Backstab needs 8 stamina.',hidden:'Hide before approaching.',approach:'Walk closer while concealed.',rear:'Approach from behind.',distance:'Move beside the target.',sight:'The target is behind an obstacle.',target:'This target cannot be backstabbed.',trial:'Earn the required marks with your main character.'};
+  const backstabNotes={weapon:'Equip a Fencing weapon.',books:'Learn a Shadows page.',stealth:'Train Stealth to 10.',stamina:'Backstab needs 8 stamina.',hidden:'Hide before approaching.',approach:'Walk closer while concealed.',rear:'Approach from behind.',distance:'Move beside the target.',sight:'The target is behind an obstacle.',target:'This target cannot be backstabbed.',trial:'Earn the required marks with your main character.'};
   function pickBackstab() {
     if(!F||F.busy||F.over||F.act!=='fight')return;
     const same=F.ambush&&F.ambush.owner===S&&F.ambush.at.every((v,i)=>v===Scene.pos()[i]);

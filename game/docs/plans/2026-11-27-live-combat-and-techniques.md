@@ -53,3 +53,5 @@ Integrated consumer review also restored one defensive-practice budget per usefu
 Native Backstab migration exposed a live preparation regression: the legacy SQL opener faced/snapped the target, invalidating an otherwise valid rear opening before commit. Live SQL now preserves actor facing and fractional position; legacy duel/theft presentation remains unchanged. Native rear-walk/Run coverage remains the acceptance check against the next integrated snapshot.
 
 Earned full-day integration reached the retained page objective but found Odalys absent from the revisited hall. Tallyport now populates her at both the original lesson and technique-training checkpoints; objective indices/rewards stay intact. The dungeon/journey owner validates the native return and three scored teaching answers.
+
+New-character covert review removes obsolete Arms-page ownership from Backstab: basic Fencing satisfies the combat half; Shadows ownership, Stealth/Fencing gear/stamina/concealed rear approach remain. The native Backstab fixture now owns only h1 and explicitly asserts no Arms page, so migration knowledge cannot mask availability.
