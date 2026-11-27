@@ -92,4 +92,30 @@ test('live combat: real dungeon walls block targeting and enemy awareness',async
   expect(await page.evaluate(()=>Scene.find(e=>e.id===window.testWallEnemy).combat.awareness)).toBe(0);expect(errors).toEqual([]);
 });
 
+test('live combat: bag draught respects prepared supplies, shared recovery and SQL commitment',async({page})=>{
+  const errors=observeErrors(page);await open(page);
+  await page.evaluate(()=>{Dev.resources({hp:40});__bw.Combat.setSupply('draught');const[id]=Dev.spawn({monster:'b104'});__bw.Combat.selectTarget(Scene.find(e=>e.id===id));__bw.Combat.begin('basic.magery');});
+  await run(page,'SELECT 999 AS wrong');
+  const before=await page.evaluate(()=>{const data={hp:__bw.S.hp,mana:__bw.S.mana,tonics:__bw.S.tonics};__bw.ACT.tonic();return data;});
+  expect(await page.evaluate(()=>({hp:__bw.S.hp,mana:__bw.S.mana,tonics:__bw.S.tonics}))).toEqual(before);
+  await ready(page,'supply');await page.evaluate(()=>__bw.ACT.tonic());expect(await page.evaluate(()=>__bw.F.definition.effect)).toBe('draught');
+  await run(page,await page.evaluate(()=>__bw.F.task.sql));expect(await page.evaluate(()=>__bw.S.tonics)).toBe(before.tonics-1);expect(await page.evaluate(()=>__bw.S.mana)).toBe(before.mana);expect(await page.evaluate(()=>__bw.S.hp)).toBe(before.hp+30);expect(errors).toEqual([]);
+});
+
+test('live combat: a real victory creates loot and leaves no corpse aggression',async({page})=>{
+  const errors=observeErrors(page);await open(page);
+  const gold=await page.evaluate(()=>{Dev.skills({magery:100,eval:100});Dev.attributes({int:100});Dev.resources({mana:100});Dev.grant({weapon:'magery',rarity:'epic',tier:8});const[id]=Dev.spawn({monster:'b101'});__bw.Combat.selectTarget(Scene.find(e=>e.id===id));__bw.Combat.begin('basic.magery');window.testRandom=Math.random;Math.random=()=>.01;return __bw.S.gold;});
+  await run(page,await page.evaluate(()=>__bw.F.task.sql));
+  expect(await page.evaluate(()=>__bw.F.over)).toBe(true);expect(await page.evaluate(()=>__bw.S.stats.kills)).toBe(1);expect(await page.evaluate(()=>__bw.Combat.active())).toBe(false);
+  await page.evaluate(()=>Math.random=window.testRandom);await page.locator('[data-a=floot]').click();await page.locator('[data-a=lootall]').click();expect(await page.evaluate(()=>__bw.S.gold)).toBeGreaterThan(gold);expect(errors).toEqual([]);
+});
+
+test('live combat: live enemy damage retains death recovery and corpse belongings',async({page})=>{
+  const errors=observeErrors(page);await open(page);
+  await page.evaluate(()=>{const wild=Scene.ents().find(e=>e.kind==='mon'&&e.r===1&&!Geography.inTown(e.x,e.y)),at=Scene.safePosition([wild.x,wild.y+2],1);Dev.teleport({region:1,x:at[0],y:at[1]});for(const e of Scene.ents())if(e.kind==='mon')e.agg=0;Dev.resources({hp:1});const[id]=Dev.spawn({monster:'b104'});const e=Scene.find(e=>e.id===id);__bw.Combat.selectTarget(e);Scene.combatEngage(e);e.combat.cooldown=0;window.testRandom=Math.random;Math.random=()=>.01;});
+  await page.waitForFunction(()=>__bw.F?.kick===true,null,{timeout:15000});
+  expect(await page.evaluate(()=>!!__bw.S.remains)).toBe(true);expect(await page.evaluate(()=>__bw.S.remains.loot.gold)).toBeGreaterThan(0);
+  await page.evaluate(()=>Math.random=window.testRandom);await page.locator('[data-a=fdone]').click();expect(await page.evaluate(()=>__bw.S.hp)).toBe(await page.evaluate(()=>__bw.maxHp()));expect(await page.evaluate(()=>__bw.S.deathPending)).toBeNull();expect(errors).toEqual([]);
+});
+
 module.exports={open,ready,run};
