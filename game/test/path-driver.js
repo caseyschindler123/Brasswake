@@ -116,24 +116,51 @@ window.installPathAudit = function ({ path, seed, mistakeEvery=0 }) {
     }
     equip();Scene.pause();
   }
-  function fight(e,{boss=false,utilitySample=false,active=false}={}) {
-    if(!active)rest();const start=snapshot();B.setCE(e);
-    if(!active)seeded(()=>boss?B.START.boss():B.START.monster(e));else boss=B.F.kind==='boss';
-    let n=0;
-    while(B.F&&!B.F.over&&n++<60) {
-      if(B.F.st==='after')act('fchoose');
-      if(B.S.hp<Progression.maxHp(B.S)*.7&&B.S.tonics>0){const before=snapshot();act('tonic');record('combat-draught',before);continue;}
-      const spell=path==='mage',pages=Content.PAGES.filter(p=>B.S.pages[p.id]&&p.book===(spell?'spell':'arms')).sort((a,b)=>b.c-a.c||b.rare-a.rare);
-      const page=pages[0];if(!page)throw Error('No attack page');
-      let utility=null;
-      if(spell&&B.S.mana<Progression.castCost(page.c))utility='recover';
-      else if(B.S.hp<Progression.maxHp(B.S)*.55)utility=spell&&B.S.mana>=Progression.castCost(page.c)?'healspell':B.S.bandages>0?'bandage':null;
-      else if(utilitySample&&n===1)utility=spell?'ward':'study';
-      const intent=BattleRules.intent({role:B.F.drole,boss:!!B.F.boss,magic:false,circle:B.F.r},B.F.round);if(!utility&&['heavy-blow','crushing-blow'].includes(intent.id)&&!B.F.defense)utility=spell&&B.S.mana>=Progression.castCost(page.c)?'ward':'guard';
-      if(utility) {act('futility',{id:utility});answer('combat-'+utility);}
-      else {act('fpage',{id:page.id,stance:!spell&&B.S.stamina>=8?(n%3===0?'feint':'cleave'):'strike'});if(spell&&B.S.prepared>0)act('fscroll');answer('attack');}
+  // Campaign travel/approach is compressed; recovery and enemy attacks use real
+  // active-world time. Never advance clocks or refill resources from this helper.
+  async function fight(e,{boss=false,utilitySample=false,active=false}={}) {
+    if(!e)throw Error('Missing campaign combat target');
+    if(!active&&!B.Combat.active())rest();const start=snapshot();B.setCE(e);
+    if(active)boss=B.F?.kind==='boss'||e.kind==='boss';
+    else {
+      // Keep the existing encounter-approach shortcut, now checked against real
+      // range/LOS. It grants no skill, gear, knowledge or combat resources.
+      const facts=Scene.combatFacts(e);
+      if(!facts?.melee){
+        const {map}=Scene.debug(),at=[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>[e.x+dx,e.y+dy])
+          .find(([x,y])=>x>0&&y>0&&x<map.w&&y<map.h&&!map.solid[y*map.w+x]&&!map.occ.has(y*map.w+x)&&map.t[y*map.w+x]!==4);
+        if(!at)throw Error('No clear campaign approach to '+e.name);
+        Scene.hop(...at);counters.encounterApproachShortcuts=(counters.encounterApproachShortcuts||0)+1;
+      }
+      if(!B.Combat.active())B.Combat.setSupply(B.S.tonics>0?'draught':'bandage');
+      seeded(()=>boss?B.START.boss():B.START.monster(e));
     }
-    if(B.F&&!B.F.over){warnings.push('Combat stalled after 60 actions: '+e.name);act('flee');}
+    dismiss();Scene.resume();let n=0;
+    while(B.S.hp>0&&!e.dead&&!B.F?.over&&n<60) {
+      if(B.F?.live&&B.F.st==='after')B.Combat.cancel();
+      if(B.F?.st==='prompt') {
+        if(!B.F.live)throw Error('Unexpected non-live campaign fight');
+        answer(B.F.actionId==='backstab'?'backstab':'attack');n++;continue;
+      }
+      const deadline=performance.now()+15000;
+      while(!B.Combat.snapshot().recovery.ready&&!B.F?.over&&B.S.hp>0) {
+        if(performance.now()>deadline)throw Error('Live campaign recovery did not finish');
+        await new Promise(resolve=>requestAnimationFrame(resolve));
+      }
+      if(B.F?.over||B.S.hp<=0||e.dead)break;
+      B.Combat.selectTarget(e);
+      const view=B.Combat.snapshot(),slots=view.loadout.filter(a=>a?.ready),basic=view.actions.find(a=>a.id==='basic.'+({warrior:'swords',mage:'magery',thief:'fencing'}[path]));
+      let choice=null;
+      if(B.S.hp<Progression.maxHp(B.S)*.55)choice=slots.find(a=>a.effect==='heal')||view.actions.find(a=>a.id==='supply'&&a.ready);
+      if(!choice&&(!basic?.ready&&/mana|stamina/i.test(basic?.reason||'')||utilitySample&&n===0))
+        choice=view.actions.find(a=>a.id==='recover'&&a.ready);
+      if(!choice&&utilitySample&&n===0)choice=slots.find(a=>a.target==='self');
+      if(!choice)choice=slots.find(a=>a.target==='enemy')||(basic?.ready?basic:null);
+      if(!choice?.ready)throw Error('No ready campaign action: '+(basic?.reason||'target/loadout unavailable'));
+      if(!seeded(()=>B.Combat.begin(choice.id)))throw Error('Campaign action rejected: '+choice.id);
+      answer(choice.id.startsWith('basic.')||choice.target==='enemy'?'attack':'combat-'+choice.effect);n++;
+    }
+    if(!B.F?.over&&!e.dead&&B.S.hp>0){warnings.push('Combat stalled after 60 actions: '+e.name);throw Error(warnings.at(-1));}
     const won=boss?!!B.S.boss[e.r]:B.F?.foe?.hp<=0;
     record(boss?'examiner':'encounter',start,{won,actions:n,title:e.name});closeFight();return won;
   }
@@ -162,9 +189,9 @@ window.installPathAudit = function ({ path, seed, mistakeEvery=0 }) {
       if(!B.CONCEAL.hidden)return {fallback:true};Scene.resume();return {path:cells.slice(1)};
     }return {fallback:true};
   }
-  function strikePendingTarget(boss=false) {
+  async function strikePendingTarget(boss=false) {
     const e=strikePending;if(!e)return {done:true};
-    if(B.F){resolveIntercept();if(e.dead||boss&&B.S.boss[e.r])return {done:true,won:true};return {fallback:true};}
+    if(B.F){await resolveIntercept();if(e.dead||boss&&B.S.boss[e.r])return {done:true,won:true};return {fallback:true};}
     const before=snapshot();B.setCE(e);seeded(()=>boss?B.START.boss():B.START.monster(e));
     if(!B.F?.ambush){const reason=document.querySelector('.backstab-choice .cap2')?.textContent;record('backstab-unavailable',before,{reason});act('flee');counters.backstabFallbacks=(counters.backstabFallbacks||0)+1;return {fallback:true};}
     act('fbackstab');if(!B.F?.backstab){act('flee');return {fallback:true};}
@@ -190,7 +217,7 @@ window.installPathAudit = function ({ path, seed, mistakeEvery=0 }) {
     if(!path){warnings.push('No concealed return route within current Stealth budget');act('conceal');return null;}dismiss();Scene.resume();return path;
   }
   function resolveIntercept(){if(!B.F)return;warnings.push('A patrol intercepted the approach');return fight(B.F.ent,{active:true});}
-  function fallbackStrike(boss=false) {const e=strikePending;if(B.F)resolveIntercept();if(e?.dead||boss&&e&&B.S.boss[e.r])return true;return e?fight(e,{boss}):false;}
+  async function fallbackStrike(boss=false) {const e=strikePending;if(B.F)await resolveIntercept();if(e?.dead||boss&&e&&B.S.boss[e.r])return true;return e?fight(e,{boss}):false;}
   function continueApproach() {const e=strikePending;if(!e||B.F||!B.CONCEAL.hidden)return null;const [x,y]=Scene.pos();if(Math.abs(e.x-x)+Math.abs(e.y-y)===1&&Scene.behind(e)&&Scene.sight(e))return [];return route((x,y,map)=>Math.abs(e.x-x)+Math.abs(e.y-y)===1&&Backstab.rear(x-e.fx,y-e.fy,facing(e))&&line(map,e.fx,e.fy,x,y),B.CONCEAL.steps);}
   function prepareTheft(r) {
     dismiss();Scene.pause();const {map}=Scene.debug();
@@ -207,9 +234,9 @@ window.installPathAudit = function ({ path, seed, mistakeEvery=0 }) {
       }
     }return null;
   }
-  function steal(id,prize=false) {
+  async function steal(id,prize=false) {
     const e=theftPending;if(!e||!Scene.ents().includes(e))throw Error('Theft target disappeared');
-    if(B.F){resolveIntercept();return;}if(e.dead||!B.CONCEAL.hidden){warnings.push('Concealment lost before theft in Circle '+e.r);return;}
+    if(B.F){await resolveIntercept();return;}if(e.dead||!B.CONCEAL.hidden){warnings.push('Concealment lost before theft in Circle '+e.r);return;}
     theftTargets.add(e);const before=snapshot();seeded(()=>B.START.monster(e));act('fsteal');
     if(B.F?.act!=='steal'){act('flee');warnings.push('Concealment lost before theft in Circle '+e.r);return;}
     if(prize)act('fprize',{id:'prize'});answer(prize?'steal-prize':'steal-purse');
