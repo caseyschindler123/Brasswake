@@ -1,6 +1,6 @@
 # Automatic coding and release workflow
 
-Last updated: 2026-11-26. Scope-based testing and local development scenarios are implemented. The [implementation plan](plans/2026-11-25-scope-based-testing-and-dev-mode.md) records evidence and limitations. Current code owns executable behavior; historical decisions below describe earlier gates.
+Last updated: 2026-11-27. Scope-based testing and local development scenarios are implemented. The [implementation plan](plans/2026-11-25-scope-based-testing-and-dev-mode.md) records evidence and limitations. Current code owns executable behavior; historical decisions below describe earlier gates.
 
 ## Classify and scope
 
@@ -36,9 +36,11 @@ From game/, install locked dependencies with npm ci only when needed.
 - npm run test:ui -- --full runs the complete inventory. Existing test:paths/test:dungeons remain separate earned/compressed campaign tools with their own evidence limits.
 - npm run dev serves the existing built game and /__dev on the loopback test server. Run npm run build first when needed. The panel and command scripts are never copied into dist.
 
-These commands select different things: an explicit `test:ui -- --suites=...` adds the short canary; `verify` uses the automatic suite list, which can contain legacy smoke instead. `--scenes` chooses only named visual scenes, and `--capture-profiles` filters only those visual cases. It does not narrow feature tests or canaries. All three browser-profile jobs remain required when current CI selects UI. Local `--project=<name>` is useful during diagnosis; it does not establish the other required release-profile results. Running `test:ui` without suites/environment selection defaults to the full inventory, so choose a focused command deliberately during iteration.
+These commands select different things: an explicit `test:ui -- --suites=...` adds the short canary; `verify` uses the automatic suite list, which can contain legacy smoke instead. `--scenes` chooses only named visual scenes, and `--capture-profiles` filters only those visual cases. It does not narrow feature tests or canaries. All three browser profiles and both shards of each remain required when current CI selects UI. Local `--project=<name>` is useful during diagnosis; it does not establish the other required release-profile results. Running `test:ui` without suites/environment selection defaults to the full inventory, so choose a focused command deliberately during iteration.
 
 select-tests.js records selected suites, core groups, scenes and capture profiles. ui-suites.js validates scope metadata and complete full inventory; the aggregate rejects malformed plans and failed/cancelled/skipped selected browser jobs. Current canary covers public character setup, actual SQL and device save/reload in all three profiles. Legacy smoke and every existing scenario remain in full coverage.
+
+Actions runs two required Playwright shards per selected browser profile, using the same suites, scenes and profile selection in all six jobs. Each passes `--shard=1/2` or `--shard=2/2`, runs one worker (`BW_UI_WORKERS=1`) on its own runner, and retains a distinct `browser-<project>-<shard>` artifact. This keeps two workers per profile across runners while avoiding concurrent heavy journeys on one runner. The aggregate still requires the browser matrix result to succeed before publication. Discovery checks prove that the shards are disjoint and their union retains the complete full inventory. The 90-minute browser-job limit and zero retries remain unchanged. This tooling candidate awaits the coordinator's exact-commit verification.
 
 Actions passes the verification plan between jobs using lossless bounded compression from `selection-transport.js`. The raw `work/test-selection.json` receipt retains every selected path and scope field. Aggregate and hosted consumers accept both legacy JSON and the encoded form, reject malformed/oversize payloads, and apply the same scope and exact-commit validation after decoding. Transport size never justifies dropping file coverage.
 
@@ -96,6 +98,8 @@ For releases, monitor the exact commit through deployment/live verification; a g
 Report classification, outcome, actual checks, commit/local status, applicable deployment status and material limitations. No routine cost attribution. Discuss costs only when requested or needed for paid-action approval; existing paid-image/settings approval boundaries remain unchanged. Never expose credentials, overwrite unrelated work, force-push or bypass sandbox controls. Delegate only bounded independent work when the benefit warrants it; prefer one agent for coupled/simple work.
 
 ## Decision log
+
+- 2026-11-27: The failed combined release completed 211 of 235 WebKit cases before the unchanged 90-minute job limit, with ongoing progress through cancellation. Split each of the three browser profiles into two deterministic required shards to address cumulative runtime. Each shard uses one worker to avoid heavy journeys competing on the same runner; the thief/mage journeys reached their unchanged test timeout in the two-worker failed run. Preserve every selected case, profession journey, retry/deadline setting, fail-closed aggregate and publication guard; verify actual shard discovery against the unsharded inventory. The coordinated landscape/UI plan owns integration and release status.
 
 - 2026-11-26: Casey approved expedited publication of the intro-control fix before takeoff, with full checks afterward. The [intro hotfix plan](plans/2026-11-26-intro-controls-hotfix.md) owns a short-lived baseline/path-bound profile: affected core groups, nine exact cases in all three profiles, all known relevant failures, zero retries and all hosted flows. Remove activation after verified publication and run non-publishing full coverage; normal fallback remains unchanged.
 

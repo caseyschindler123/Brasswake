@@ -294,6 +294,7 @@ test('Actions retains all profiles, validates the plan and isolates nightly queu
   assert.match(browser,/BW_UI_SUITES: \$\{\{ needs\.core\.outputs\.suites \}\}/);assert.match(browser,/fail-fast: false/);
   const aggregate=workflow.split('\n  build:\n')[1]?.split('\n  deploy:\n')[0];
   assert.match(aggregate,/needs: \[core, browser\]/);assert.match(aggregate,/always\(\) && !cancelled\(\)/);
+  assert.match(aggregate,/BW_BROWSER_RESULT: \$\{\{ needs\.browser\.result \}\}/);
   assert.match(aggregate,/BW_SELECTION: \$\{\{ needs\.core\.outputs\.plan \}\}/);assert.match(aggregate,/node game\/test\/release-gate\.js/);
   const deploy=workflow.split('\n  deploy:\n')[1];assert.match(deploy,/needs: \[core, build\]/);
   assert.match(deploy,/needs\.build\.result == 'success'/);assert.match(deploy,/needs\.core\.outputs\.live == 'true'/);
@@ -321,6 +322,38 @@ test('workflow YAML rejects duplicate keys and preserves baseline/publication wi
   assert.equal(jobs.core.steps.find(s=>s.id==='select').run,'node test/select-tests.js');
   assert.equal(jobs.deploy.steps.find(s=>s.run==='node test/live.js').env.BW_SELECTION,'${{ needs.core.outputs.plan }}');
 });
+test('required browser shards cross all profiles and keep independent evidence and fail-closed aggregation',()=>{
+  const {jobs}=require('yaml').parse(fs.readFileSync(path.join(__dirname,'../../.github/workflows/pages.yml'),'utf8'));
+  const {browser,build}=jobs,{matrix}=browser.strategy;
+  const profiles=require('../playwright.config').projects.map(p=>({project:p.name,browser:p.use.browserName}));
+  assert.deepEqual(Object.keys(matrix).sort(),['include','project','shard']);
+  assert.deepEqual(matrix.project,profiles.map(p=>p.project));
+  assert.deepEqual(matrix.shard,[1,2]);assert.deepEqual(matrix.include,profiles);
+  // Include only adds the correct browser to each project/shard combination;
+  // it must not replace the Cartesian axes with standalone profile rows.
+  const rows=matrix.project.flatMap(project=>matrix.shard.map(shard=>({...matrix.include.find(p=>p.project===project),shard})));
+  assert.equal(rows.length,6);assert.ok(rows.every(row=>row.browser));
+  assert.equal(browser.strategy['fail-fast'],false);assert.equal(browser['timeout-minutes'],90);
+  assert.equal(browser.env.BW_UI_WORKERS,'1');
+  assert.equal(browser.if,"needs.core.outputs.ui == 'true'");assert.equal(browser.needs,'core');
+  const verify=browser.steps.find(s=>s.name==='Verify every selected suite in this profile');
+  assert.equal(verify.run,'npx playwright test --project=${{ matrix.project }} --shard=${{ matrix.shard }}/2');
+  const evidence=browser.steps.find(s=>s.name==='Retain profile evidence');
+  assert.equal(evidence.if,'always()');assert.equal(evidence.with.name,'browser-${{ matrix.project }}-${{ matrix.shard }}');
+  const names=rows.map(row=>evidence.with.name.replace('${{ matrix.project }}',row.project).replace('${{ matrix.shard }}',row.shard));
+  assert.equal(new Set(names).size,6);
+  assert.deepEqual(build.needs,['core','browser']);
+  const gate=build.steps.find(s=>s.run==='node game/test/release-gate.js');
+  assert.equal(gate.env.BW_BROWSER_RESULT,'${{ needs.browser.result }}');
+  assert.equal(gate.env.BW_CORE_RESULT,'${{ needs.core.result }}');
+  assert.equal(gate.env.BW_SELECTION,'${{ needs.core.outputs.plan }}');
+  assert.equal(require('../playwright.config').retries,0);
+  for(const job of Object.values(jobs)){
+    assert.ok(!job['continue-on-error']);
+    assert.ok(job.steps.every(step=>!step['continue-on-error']));
+  }
+});
+
 test('painted session requires a matching active main push and retains full core/hosted gates',()=>{
   const active=loadSession(),record=active?.id==='painted-characters-2026-11-26'?active:null,candidate='e'.repeat(40),previous='d'.repeat(40);
   const productionBody='game/art/painted-release/body-30-crossbow.webp';
@@ -438,13 +471,17 @@ test('intro hotfix binds baseline, expiry, paths, all profiles and every relevan
   }
 });
 
-function listSuites(suites,{live=false,session}={}){
+function listSuites(suites,{live=false,session,project,shard,workers}={}){
   const env={...process.env,[live?'BW_LIVE_SUITES':'BW_UI_SUITES']:JSON.stringify(suites)};
+  if(workers)env.BW_UI_WORKERS=String(workers);
   if(live)env.BW_LIVE='1';else delete env.BW_LIVE;
   if(session)env.BW_UI_SESSION_PROFILE=session;else delete env.BW_UI_SESSION_PROFILE;
-  const result=spawnSync(process.execPath,[require.resolve('@playwright/test/cli'),'test','--list','--reporter=json'],{
+  const args=['test','--list','--reporter=json'];
+  if(project)args.push('--project='+project);if(shard)args.push('--shard='+shard);
+  const result=spawnSync(process.execPath,[require.resolve('@playwright/test/cli'),...args],{
     cwd:path.resolve(__dirname,'..'),encoding:'utf8',env,maxBuffer:16*1024*1024});
   assert.equal(result.status,0,result.stderr);const report=JSON.parse(result.stdout);assert.deepEqual(report.errors,[]);
+  if(workers)assert.equal(report.config.workers,Number(workers),'discovery must use the workflow worker limit');
   const cases=[];function visit(s){for(const spec of s.specs||[])for(const t of spec.tests)cases.push({title:spec.title,file:spec.file,project:t.projectName});for(const child of s.suites||[])visit(child);}visit(report);return cases;
 }
 test('session real discovery keeps each exact WebKit critical case and complete selected Chromium suites',()=>{
@@ -475,6 +512,26 @@ test('actual discovery retains full long flows and all projects; smoke stays bou
   for(const name of MODULES)assert.ok(full.some(t=>t.file.replace(/\\/g,'/').endsWith(name+'.js')),name+' is registered');
   assert.ok(music.length>smoke.length);assert.ok(music.every(t=>smoke.some(s=>s.title===t.title)||t.file.replace(/\\/g,'/').endsWith('music.js')));
   assert.ok(full.length>music.length);assert.ok(full.every(t=>full.filter(c=>c.project===t.project).length===full.length/3));
+});
+
+test('actual required shard discovery is disjoint and exactly preserves the full inventory',t=>{
+  const browser=require('yaml').parse(fs.readFileSync(path.join(__dirname,'../../.github/workflows/pages.yml'),'utf8')).jobs.browser;
+  const {matrix}=browser.strategy,workers=browser.env.BW_UI_WORKERS;
+  const full=listSuites(ALL_SUITES,{workers}),key=c=>JSON.stringify([c.project,c.file,c.title]);
+  const expected=full.map(key).sort();assert.equal(new Set(expected).size,expected.length);
+  const combined=[];
+  for(const project of matrix.project){
+    const discovered=matrix.shard.map(shard=>listSuites(ALL_SUITES,{project,shard:shard+'/'+matrix.shard.length,workers}));
+    const sets=discovered.map(cases=>new Set(cases.map(key)));
+    assert.ok(sets.every(set=>set.size>0));
+    assert.equal([...sets[0]].filter(id=>sets[1].has(id)).length,0,project+' shards overlap');
+    const union=discovered.flat().map(key).sort();
+    assert.deepEqual(union,full.filter(c=>c.project===project).map(key).sort(),project+' has missing or extra cases');
+    combined.push(...union);
+    t.diagnostic(project+': '+discovered.map(cases=>cases.length).join(' + ')+' = '+union.length);
+  }
+  assert.deepEqual(combined.sort(),expected);
+  t.diagnostic('All required shards preserve '+expected.length+' full cases, including all profession journeys.');
 });
 
 test('real discovery separates the four profession days without losing targeted first-day regressions',()=>{
