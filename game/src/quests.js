@@ -21,7 +21,7 @@ const Content = (() => {
     { id: 'write', name: 'Scribing', what: 'INSERT, UPDATE, DELETE, CREATE' }
   ];
 
-  const CIRCLE = ['', 'First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth'];
+  const CIRCLE = ['', 'First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 'Ninth', 'Tenth'];
   const REGIONS = [
     { id: 1, name: 'Tallyport', sub: 'The harbor town', teaches: 'SELECT, ORDER BY, LIMIT, DISTINCT', skills: ["select","sort"], npc: 'Odalys Brine', role: 'Quartermaster', x: 78, y: 84, blurb: 'The guildhall serves the warehouses along the pier. Odalys teaches the First Circle here and Wex Carrow runs the harbor.', circle: CIRCLE[1] },
     { id: 2, name: 'Brackwater', sub: 'The marsh', teaches: 'WHERE, AND/OR, IN, BETWEEN, LIKE, NULL', skills: ["filter"], npc: 'Ilse Fenn', role: 'Sales Factor', x: 212, y: 168, blurb: 'Boardwalks connect the houses at high water. Ilse uses the guild’s delivery lists to teach people how to pick out the rows they need.', circle: CIRCLE[2] },

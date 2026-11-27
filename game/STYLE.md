@@ -48,7 +48,7 @@ Use the names **SQL**, **query**, **table**, **column**, **row**, and **result**
 
 Teach in this order when a concept is new. Give the player a practical reason to use it. Explain what it does, show a small example, then let the player try it and read the result. A later exercise can assume earlier knowledge where the progression supplies it. Repeat a brief explanation or point to the relevant lesson where optional routes may have skipped it. Make a practice copy explicit before adding, changing, or deleting data. Historical restoration is a story act with its own source evidence.
 
-Useful game terms still need a first-use explanation. A **page** is an ability you learn from one of four books. A **Circle** is one level of SQL in the eight-town course. The **Ledger** is also the name of the player's interface for looking at records. Name the company books, a practice copy, and the historical archive when a distinction matters to the player.
+Useful game terms still need a first-use explanation. A **Technique** is a learned combat action kept in the **Technique Book**; character skill separately determines whether it can be equipped and used. Crafting patterns and covert notes belong to their own books. A **Circle** is a level of SQL; the eight-town course has advanced mixed practice beyond its regional levels. The **Ledger** is also the name of the player's interface for looking at records. Name the company books, a practice copy, and the historical archive when a distinction matters to the player.
 
 ## Review in context
 
@@ -63,6 +63,8 @@ During the prose pass, restore omitted grammar wherever brevity has made a line 
 Bly's request identifies both records and why he is comparing them. When the result comes back, he can check the missing invoices against delivery slips. The player gets a reason to learn the join before seeing its syntax.
 
 ## Decision log
+
+- 2026-11-27: Explain permanent Technique knowledge separately from skill eligibility, and distinguish combat Techniques from crafting/covert books. The coordinated candidate includes advanced SQL beyond the regional course.
 
 - 2026-11-24: Casey found the boat explanation too narrowly about bookkeeping. Tamsin establishes SQL’s role in skilled actions; Odalys explains the practice records and demonstrates the connection. Preserve actual SQL terminology and the practical teaching example.
 

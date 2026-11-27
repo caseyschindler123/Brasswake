@@ -1,7 +1,7 @@
 /* ===== GAME: state, progression, loot, encounters, screens ===== */
 (() => {
   const { CMDS, HOUSES, HMAT, PAINT, LAIRS, LAIRMON, SKILLS, REGIONS, CONTRACTS, BOUNTIES, BOSSES, RUMORS, UNIQUES, MATS, MONSTERS, WILD, DUNGEONS, RIVALS, ROLES, RECIPES, HUES, FOLK, TAVERNS, SAY, GOSSIP, CIRCLE, JOURNAL, BOOKS, PAGES, FOLKN, HAB, HUNT, TALK, FOOD, SETTLE, HOMES, ROAMERS, FIRST, STOCK, STOCKSAY, PLACES, TALES, FISH, JUNK, CASTS, FISHNEED, ERR, LOST } = Content;
-  const KEY = 'brasswake.save.v4', ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
+  const KEY = 'brasswake.save.v4', ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
   const $ = (s, r = document) => r.querySelector(s);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const now = () => Date.now(), rnd = () => Math.random(), rid = () => Math.floor(rnd() * 2147483647) + 1;
@@ -14,8 +14,8 @@
   let GearScreen,deletionEpoch=0;
   let S, tab = 'world', sceneUp = false, sceneOwner = null, interiorSaveTimer = 0, sub = 'work', lsub = 'sandbox', sel = null, ready = false, engineErr = '', COLS = {}, benchSlot = 'weapon', con = { sql: '', res: null };
   // Keep the additive v8 envelope readable by older account-v9 clients.
-  const fresh = () => ({ v: 8, uid:'c'+rid(), horse: {owned:false,mounted:false}, wv: WorldProgress.revision, cartography: Cartography.create(), prologue:null, interior: null, dungeon: null, dungeons: {}, deathPending: null, seen: {}, gd: -1, gn: 0, bank: { gold: 0, items: [] }, homes: [], runes: 0, tabs: {}, tw: {}, vault: {}, letter: 0, archive: 0, cache: {}, campT: 0, meat: 0, met: {}, pk: { n: 0, net: 0 }, food: {}, er: { a: {}, d: {}, n: 0 }, poi: {}, fishd: {}, fishlog: {}, cs: {}, known: {}, name: '', tut: 0, pages: {}, scr: {}, jr: {}, hints: 1, page: null, gold: 30, path: null, look: null, hp: 50, sk: {}, wsk: null, been: { 1: 1 }, skills: {}, done: {}, seen: {}, boss: {}, rum: {}, inv: [], eq: {}, codex: {}, mats: {}, tonics: 1, bandages: 4, streak: 0, best: 0, stats: { q: 0, ok: 0, kills: 0, steals: 0, dungeons: 0, falls: 0 }, region: 1, pos: null, intro: 0, mv: 0, talked: 0, rival: {}, dpity: {}, rounds: null, stall: null, won: 0, rev: 0, at: 0 });
-  const migrate = o => { if (!o || ![5,6,7,8,9].includes(o.v)) return fresh(); const f = fresh(), s = Object.assign(f, o, {v:8}); if(typeof s.uid!=='string'||!s.uid)s.uid='c'+rid();if(s.app&&typeof s.app==='object'&&!Array.isArray(s.app))s.app.build=CharacterProfiles.normalize(s.app.build);equipmentTree(s);s.horse=Mounts.normalize(s.horse);if(s.dungeon||s.interior||s.prologue&&s.prologue.phase!=='done')s.horse=Mounts.dismount(s.horse);s.prologue=Prologue.normalize(s.prologue); if (!o.cartography) delete s.cartography; if (!o.seen && o.tut >= 3) s.seen = { fight: 1, fprompt: 1, bag: 1, hero: 1, map: 1, ledger: 1, shop: 1 }; if (!o.g && o.tut >= 3) s.g = 'done'; if (s.casino) { s.gold += s.casino.stack || 0; s.casino = null; } s.stats = Object.assign(fresh().stats, s.stats || {}); return Progression.normalize(s); };
+  const fresh = () => ({ v: 8, uid:'c'+rid(), horse: {owned:false,mounted:false}, wv: WorldProgress.revision, cartography: Cartography.create(), prologue:null, interior: null, dungeon: null, dungeons: {}, deathPending: null, seen: {}, gd: -1, gn: 0, bank: { gold: 0, items: [] }, homes: [], runes: 0, tabs: {}, tw: {}, vault: {}, letter: 0, archive: 0, cache: {}, campT: 0, meat: 0, met: {}, pk: { n: 0, net: 0 }, food: {}, er: { a: {}, d: {}, n: 0 }, poi: {}, fishd: {}, fishlog: {}, cs: {}, known: {}, name: '', tut: 0, pages: {}, techniques:{v:1,legacyMigrated:true,learned:{},equipped:[null,null,null,null],dojo:{},supply:'bandage'}, scr: {}, jr: {}, hints: 1, page: null, gold: 30, path: null, look: null, hp: 50, sk: {}, wsk: null, been: { 1: 1 }, skills: {}, done: {}, seen: {}, boss: {}, rum: {}, inv: [], eq: {}, codex: {}, mats: {}, tonics: 1, bandages: 4, streak: 0, best: 0, stats: { q: 0, ok: 0, kills: 0, steals: 0, dungeons: 0, falls: 0 }, region: 1, pos: null, intro: 0, mv: 0, talked: 0, rival: {}, dpity: {}, rounds: null, stall: null, won: 0, rev: 0, at: 0 });
+  const migrate = o => { if (!o || ![5,6,7,8,9].includes(o.v)) return fresh(); const f = fresh(), s = Object.assign(f, o, {v:8}); if(typeof s.uid!=='string'||!s.uid)s.uid='c'+rid();if(s.app&&typeof s.app==='object'&&!Array.isArray(s.app))s.app.build=CharacterProfiles.normalize(s.app.build);equipmentTree(s);s.horse=Mounts.normalize(s.horse);if(s.dungeon||s.interior||s.prologue&&s.prologue.phase!=='done')s.horse=Mounts.dismount(s.horse);s.prologue=Prologue.normalize(s.prologue); if (!o.cartography) delete s.cartography; if (!o.seen && o.tut >= 3) s.seen = { fight: 1, fprompt: 1, bag: 1, hero: 1, map: 1, ledger: 1, shop: 1 }; if (!o.g && o.tut >= 3) s.g = 'done'; if (s.casino) { s.gold += s.casino.stack || 0; s.casino = null; } s.stats = Object.assign(fresh().stats, s.stats || {}); if(!o.techniques)delete s.techniques;Techniques.normalize(s);return Progression.normalize(s); };
 
   /* ---------- saving: this device first, then the player's Claude account when available ---------- */
   const Cloud = { ref: null, state: 'device', busy: false, dirty: false, timer: 0 };
@@ -99,7 +99,7 @@
     for(const child of Object.values(value))if(child&&typeof child==='object')equipmentTree(child,seen);
     return value;
   }
-  const activePursuit=()=>sceneUp&&Scene.find(e=>e.chase>0||e.engaged);
+  const activePursuit=()=>sceneUp&&Scene.find(e=>!e.dead&&(e.combat?.phase==='chase'||e.chase>0||e.engaged));
   const heal = (n, quiet) => { const b = S.hp; S.hp = Math.max(0, Math.min(maxHp(), Math.round(S.hp + n))); if (!quiet && S.hp > b && typeof Scene !== 'undefined') Scene.FX.heal(); return S.hp - b; };
   const diffOf = (t, elite, boss) => Math.min(100, (t - 1) * 12 + 8 + (elite ? 8 : 0) + (boss ? 14 : 0));
   const bestWeapon = () => Object.keys(WEAP).reduce((a, b) => rv(b) > rv(a) ? b : a, 'swords');
@@ -264,11 +264,11 @@
 
 
   /* ---------- books, pages and scrolls: what you can do is what is written in your books ---------- */
-  const pageById = id => PAGES.find(p => p.id === id), owned = id => !!S.pages[id];
+  const pageById = id => {const technique=typeof id==='string'&&id.startsWith('tech:')&&Techniques.get(id.slice(5));return technique?{id,technique:technique.id,book:technique.discipline==='magery'?'spell':'arms',c:8,rare:true,name:technique.name,note:technique.description,src:'An exceptional technique carried by a dangerous creature.'}:PAGES.find(p=>p.id===id);}, owned = id => id?.startsWith('tech:')?!!S.techniques?.learned[id.slice(5)]:!!S.pages[id];
   const myPages = book => PAGES.filter(p => p.book === book && owned(p.id)).sort((a, b) => a.c - b.c || a.rare - b.rare);
   const bestPage = book => myPages(book).pop() || null;
   const addScroll = id => { S.scr[id] = (S.scr[id] || 0) + 1; };
-  function inscribe(id) { if (!S.scr[id] || owned(id)) return false; S.scr[id]--; if (!S.scr[id]) delete S.scr[id]; S.pages[id] = 1; return true; }
+  function inscribe(id) { if (!S.scr[id] || owned(id)) return false; S.scr[id]--; if (!S.scr[id]) delete S.scr[id]; if(id.startsWith('tech:'))Techniques.learn(S,id.slice(5));else{S.pages[id]=1;for(const learned of Techniques.legacyIds(id))Techniques.learn(S,learned);} return true; }
   const scrollHTML = p => `<div class="loot rar-${p.rare ? 'epic' : 'uncommon'}">${ico('scroll')}<div><small>scroll · ${BOOKS[p.book].name} · ${CIRCLE[p.c]} Circle${p.rare ? ' · rare' : ''}</small><b>${esc(p.name)}</b>${p.note ? `<span class="stats">${esc(p.note)}</span>` : ''}</div></div>`;
   const armsSkill = () => { const it = itemById(S.eq.weapon); if (it && it.w && it.w !== 'magery') return it.w; return ['swords', 'fencing', 'archery'].reduce((a, b) => rv(b) > rv(a) ? b : a, 'swords'); };
   const pageSkill = p => p.book === 'spell' ? 'magery' : p.book === 'arms' ? armsSkill() : p.book === 'shadow' ? 'stealing' : 'smith';
@@ -439,7 +439,7 @@
     return `<p class="learning-summary">${known.length} of ${ids.length} regional techniques ready. Readiness reflects varied answers without help. Your weapon, magic and defensive skills still determine how well you fight.</p>`;
   }
   function learningHub(r=here()) {
-    sheet(`<p class="eyebrow">${esc(tName(r))} dojo</p><h2>Learn and practise SQL</h2><p>Teaching bouts are free and untimed. Losing costs no gear, health, supplies or gold. The tournament is a separate competition.</p>${learningSummary(r)}${Learning.specialists(r).map((sp,i)=>`<section class="sec"><h3>${esc(Dojo.STUDENTS(r)[i].name)} · ${esc(sp.title)}</h3><p>${sp.concepts.map(id=>esc(concept(id)?.title||id)).join(' · ')}</p><button class="btn sm" data-a="learnspecialist" data-id="${sp.id}" data-r="${r}">Meet this specialist</button></section>`).join('')}${Learning.regionConcepts(r).filter(id=>!Learning.specialists(r).some(sp=>sp.concepts.includes(id))).map(id=>`<section class="sec"><h3>${esc(Dojo.MASTERS[r-1].name)} · ${esc(concept(id).title)}</h3><button class="btn sm" data-a="learnconcept" data-id="${id}" data-r="${r}">Explain and try it</button></section>`).join('')}<button class="btn" data-a="learnpractice" data-r="${r}">Mixed practice bout</button><p>When these techniques feel familiar, try the nearby wilderness or dungeon. You can explore earlier too; a correct query gives full power even while your character is still building combat skill.</p>`);
+    sheet(`<p class="eyebrow">${esc(tName(r))} dojo</p><h2>Learn and practise SQL</h2>${r===8?'<p>Advanced techniques can require SQL beyond the eight regional Circles. These free lessons combine familiar forms.</p><button class="btn" data-a="learnpractice" data-r="8" data-advanced="9">Ninth Circle practice</button><button class="btn" data-a="learnpractice" data-r="8" data-advanced="10">Tenth Circle practice</button>':''}<p>Teaching bouts are free and untimed. Losing costs no gear, health, supplies or gold. The tournament is a separate competition.</p>${learningSummary(r)}${Learning.specialists(r).map((sp,i)=>`<section class="sec"><h3>${esc(Dojo.STUDENTS(r)[i].name)} · ${esc(sp.title)}</h3><p>${sp.concepts.map(id=>esc(concept(id)?.title||id)).join(' · ')}</p><button class="btn sm" data-a="learnspecialist" data-id="${sp.id}" data-r="${r}">Meet this specialist</button></section>`).join('')}${Learning.regionConcepts(r).filter(id=>!Learning.specialists(r).some(sp=>sp.concepts.includes(id))).map(id=>`<section class="sec"><h3>${esc(Dojo.MASTERS[r-1].name)} · ${esc(concept(id).title)}</h3><button class="btn sm" data-a="learnconcept" data-id="${id}" data-r="${r}">Explain and try it</button></section>`).join('')}<p>Win a mixed teaching bout to learn this dojo’s combat techniques for swords, fencing, archery and Magery. Knowledge stays with this character, even before they have the skill to equip it.</p><button class="btn" data-a="learnpractice" data-r="${r}">Technique training · mixed bout</button><p>When these techniques feel familiar, try the nearby wilderness or dungeon. You can explore earlier too; a correct query gives full power even while your character is still building combat skill.</p>`);
   }
   function specialistMenu(r,id) {
     const sp=Learning.specialists(r).find(s=>s.id===id);if(!sp)return;
@@ -450,7 +450,7 @@
     if(F||DU||Q&&Q.kind!=='learning')return toast('Finish or leave the current activity before starting dojo practice.');
     const old=d.continue&&Q?.kind==='learning'?Q:null,r=+d.r||old?.r||here(),sp=d.spec||old?.specialist||null;
     if(!Scene.inHall()||Scene.region()!==r)return toast('Visit this town’s dojo to practise with its specialists. You can review explanations in Ledger → Lessons.');
-    const selection=old?.practiceSelection||{circle:r,specialist:sp},task=Learning.next(learningState(),{...selection,seed:rid()});if(!task)return toast('No practice question is available for that technique.');
+    const selection=old?.practiceSelection||{circle:[9,10].includes(+d.advanced)?+d.advanced:r,specialist:sp},task=selection.circle>8?AdvancedSQL.next(selection.circle,rid()):Learning.next(learningState(),{...selection,seed:rid()});if(!task)return toast('No practice question is available for that technique.');
     openQ({kind:'learning',owner:S,world:A.world,r,specialist:sp,practiceSelection:selection,task:prepareLearning(task),title:sp?Learning.specialists(r).find(s=>s.id===sp)?.title:'Mixed dojo practice',step:'turn',practiceScore:old?.practiceScore||[0,0],assisted:false,first:true});
   }
   function learnConcept(d) {
@@ -475,11 +475,12 @@
     const res=Engine.grade(Q.task,sql),o=$('#q-out');Q.draft=sql;
     if(res.err){Q.first=false;o.innerHTML=`<div class="verdict err"><h3>That query did not run</h3><p>${esc(res.err)}</p><p>Fix it and try again. Practice costs no resources.</p></div>`;return showOut();}
     const assisted=!!Q.assisted,first=Q.first;recordLearning(Q.task,{ok:res.ok,assisted,first,sql});
-    if(res.ok&&!assisted)trainSql(res.used||[],Q.r,sql,{practice:true});
+    if(res.ok&&!assisted)trainSql(res.used||[],Q.task.r||Q.r,sql,{practice:true});
     if(!assisted&&first){Q.practiceScore[res.ok?0:1]++;}
     Q.first=false;
     const done=Q.practiceScore.some(n=>n>=3),message=assisted?'You worked through that with help. Try a fresh question independently.':res.ok?'Your query gives the requested result.':`The specialist takes this exchange. ${res.msg||'Compare what was requested with your result.'}`;
     Q.result=`<h2>${res.ok?'That worked':'Keep practising'}</h2><p>${esc(message)}</p>${res.got?tableHTML(res.got,6):''}${!res.ok?`<details class="lesson"><summary>Study one correct solution</summary><div class="lb"><pre class="code">${codeHL(Q.task.sql)}</pre></div></details>`:''}<p>You ${Q.practiceScore[0]} · specialist ${Q.practiceScore[1]}. ${done?'The bout is finished. You can start another whenever you like.':'First to three scored exchanges; there is no time limit.'}</p><p>No health, supplies, gold or equipment were spent. RPG skills were unchanged.</p>${learningSummary(Q.r)}<button class="btn solid" data-a="learnnext">${done?'Start another bout':'Next question'}</button>`;
+    if(done&&Q.practiceScore[0]>=3&&!Q.specialist){const learned=Techniques.teach(S,Q.r);if(gid()==='page'&&Q.r===1)gDone('page');if(learned.length){Q.result+=`<p>You learned ${learned.map(id=>esc(Techniques.get(id).name)).join(', ')}. They are kept in your Technique Book; each requires its discipline’s skill before you can equip it.</p>`;toast('Dojo training completed. Techniques added to your book.');}}
     Q.boutDone=done;Q.step='result';save();drawQ();
   }
 
@@ -662,7 +663,7 @@
   function finishSkillWork(res) {
     if(!Q||Q.owner!==S)return;const q=queryQuality(res),sid=Q.csk,practiced=rv(sid),g=q&&(Q.work!=='recover'||S.mana<Progression.maxMana(S)||S.stamina<maxStamina())?gain(sid,Q.diff,q):null,gl=g?[g]:[],o=Q.options;let ok=false,note='';
     if(Q.work==='hide') {
-      const pos=Scene.pos(),heavy=heavyArmor();
+      Combat.utilityCommitted(2);const pos=Scene.pos(),heavy=heavyArmor();
       ok=Sneaking.conceal(CONCEAL,{hiding:practiced,bonus:bonus('quieting'),stealth:rv('stealth'),diff:Q.diff,quality:q,heavy,x:pos[0],y:pos[1],random:rnd});
       note=ok?`You are concealed. Walk up to ${CONCEAL.steps} steps. Running or an offensive action reveals you. Observers can still detect you nearby.`:'You cannot find enough cover. Move away from watching enemies and try again.';
     } else if(Q.work==='recover') {ok=q>0;if(ok){const mana=S.mana,stamina=S.stamina;Progression.recover(S);note=`Recovered ${S.mana-mana} mana and ${S.stamina-stamina} stamina.`;}else note='The query gives no useful result.';
@@ -687,6 +688,80 @@
 
   /* ---------- on the map: fights, thefts and duels. A panel along the bottom, one question at a time. ---------- */
   let F = null, CE = null, DG = null;
+  function livePaused(){return !ready||!S?.path||document.hidden||!!Q||!!DU||!!SB||tab!=='world'||!$('#title').hidden||!$('#sheet').hidden||!$('#say').hidden||!$('#enc').hidden||!$('#coach').hidden||!!F&&(!F.live||F.st==='prompt'||F.busy||F.over);}
+  function liveEncounter(e){
+    const inst=e.inst||{},animal=inst.tpl?.[0]==='a',r=animal?1:inst.c||e.r||here(),boss=e.kind==='boss'?BOSSES[r-1]:null;
+    const dungeon=!!inst.dungeon||['guard','keeper'].includes(e.kind),role=e.role||Dungeons.species?.[e.species]?.role||'',keeper=e.kind==='keeper';
+    const diff=animal?4:Math.min(100,diffOf(r,!!inst.elite||e.lieutenant||keeper,!!boss)+(dungeon?(DG?.f||0)*2+(keeper?6:0):0));
+    const mult=boss?3.5:keeper?2.4:e.lieutenant?1.8:inst.elite?2:({armored:1.35,caster:.95,brute:1.6,skirmisher:1.1}[role]||1);
+    const foe=animal?{hp:18,max:18,diff,swings:1}:mkFoe(r,diff,mult,!!boss);
+    if(gOn()&&(gid()==='fight'||e.tutorial))foe.hp=foe.max=18;
+    return {kind:boss?'boss':dungeon?'dungeon':'monster',act:'fight',r,diff,ent:e,inst,sig:inst.tpl,title:e.name||inst.nm||'Creature',boss,
+      animal,keeper:keeper?1:0,drole:role,noHint:!!boss||!!inst.elite||!!e.lieutenant||keeper,foe,tutorialSafe:!!e.tutorial};
+  }
+  function retireLiveFight(){
+    if(!F?.live)return;const old=F;F=null;if(old.ent)Scene.FX.free(old.ent);
+    $('#fight').hidden=true;$('#fight').innerHTML='';$('#nav').hidden=false;$('#app').classList.remove('infight');Scene.FX.lock(false);Scene.FX.bars([]);Scene.FX.inset(0);
+  }
+  const Combat=CombatController.create({state:()=>S,weapon:()=>itemById(S.eq.weapon),entities:()=>sceneUp?Scene.ents():[],facts:e=>sceneUp?Scene.combatFacts(e):null,
+    fight:()=>F,paused:livePaused,pausedForLoadout:()=>!!Q||!!DU||!!SB,retire:retireLiveFight,resume:()=>{closeSay();closeSheet();if(sceneUp)Scene.resume();},
+    message:toast,save,changed:()=>{if(typeof renderCombatUI==='function')renderCombatUI();},circle:()=>here(),difficulty:diffOf,maxHp,maxMana:()=>Progression.maxMana(S),maxStamina,
+    manaCost:n=>EquipmentRules.castCost(n,bonus('focus')),encounter:liveEncounter,challenge:e=>{CE=e;bossCard(e);},
+    backstab:e=>{const why=backstabReason(e);return why?(backstabNotes[why]||'Approach from behind.'):'';},draft:()=>$('#fight #sql')?.value||'',
+    targetReason:e=>e.kind==='boss'?bossAccess(e):e.kind==='keeper'&&gOn()?'Finish the starter cellar before challenging this keeper.':gid()==='odalys'&&S.met['1.0']&&!S.seen['intro.practice']?'Practise with Odalys’s training dummy first.':'',
+    lungeClear:e=>Scene.combatLunge(e),
+    hidden:()=>CONCEAL.hidden,hideUnlocked:()=>S.tut>=1,hideReason:()=>S.tut<1?'Complete the first SQL lesson.':CONCEAL.hidden?'':mounted()?'Dismount before hiding.':Scene.observed()?'Break their line of sight or gain distance before hiding.':'',
+    hide:()=>{ACT.conceal();return !!Q||CONCEAL.hidden===false;},
+    covert:e=>!e||e.kind!=='mon'||e.inst?.dungeon||!bestPage('shadow')||e.pocketsEmpty||e.combat?.phase==='chase'?'No theft opening.':!e.unseen&&!CONCEAL.hidden?'Hide before approaching.':'',
+    steal:e=>{openF({...liveEncounter(e),legacy:true});pickSteal();return F?.act==='steal';},
+    open:cfg=>openF(cfg),
+    task:(circle,e,cfg)=>{
+      if(circle>8)return prepareLearning(AdvancedSQL.next(circle,rid()));
+      if((S.tut<2||gOn())&&circle===1)return tutTask();
+      if(cfg.boss&&circle===cfg.r)return prepareLearning(Object.assign({kind:'read',r:circle,title:cfg.title},cfg.boss.phases[(e?.combat?.round||0)%cfg.boss.phases.length](RNG(rid()))));
+      const tpl=circle===cfg.r&&cfg.sig?cfg.sig:pick(BOUNTIES.filter(b=>b.r===circle)).id;
+      return prepareLearning(Learning.next(learningState(),{circle,seed:rid()})||makeTask({tpl,seed:rid()}));
+    },
+    practice:(id,diff,q,list)=>{const g=gain(id,diff,q);if(g)list.push(g);},
+    engage:e=>Scene.combatEngage(e),reveal:()=>{Sneaking.reveal(CONCEAL);AMBUSH=null;},push:(e,n)=>Scene.combatPush(e,n),
+    recover:()=>Progression.recover(S),bandage:()=>Progression.bandage(S),heal,
+    attack:(d,e,q,f)=>{
+      if(d.effect==='lunge')Scene.combatLunge(e,true);
+      const skill=rv(d.discipline),spell=d.discipline==='magery',es=e.combat,W=WEAP[d.discipline],acc=Math.min(95,odds(skill,f.diff,'correct').p-(f.hint===1?15:0)+(d.effect==='precision'?20:0));
+      const intent=BattleRules.intent({role:f.drole,boss:!!f.boss,magic:es.profile.magic,circle:f.r},es.round),armor=spell?1:(f.drole==='armored'?.8:1)*intent.physicalArmor;
+      const physical=['pierce','expose'].includes(d.effect)||es.exposed>0?1:spell?(es.profile.magic?.85:1):armor;
+      const strike=EquipmentRules.attack({weapon:itemById(S.eq.weapon),skillId:d.discipline,skill,damageBonus:bonus('xp'),accuracy:acc,range:W.dmg,swings:W.swings,
+        pageCircle:1,targetCircle:1,queryPower:q,attributeFactor:spell?Progression.spellFactor(S):Progression.physicalFactor(S),physicalFactor:physical*(es.exposed>0?1.2:1)*(d.power||1)*(d.effect==='backstab'?Backstab.factor(rv('stealth')):1),target:EquipmentRules.creatureProfile(e.name)});
+      es.exposed=0;let damage=0;for(let k=0;k<(d.effect==='backstab'?2:W.swings);k++)if(rnd()*100<strike.accuracy)damage+=strike.damage(rint(...W.dmg));
+      return {damage,accuracy:strike.accuracy};
+    },
+    present:(e,d,n)=>{Scene.FX.swing('me',e,d.discipline==='magery'?'spell':d.discipline==='archery'?'archery':d.discipline==='fencing'?'fencing':'swords',d.discipline==='magery'?Effects.spell(({'magery.frost-dart':2,'magery.sunlance':3,'magery.fireball':5,'magery.force-wave':4,'magery.crystal-shard':6,'magery.rewrite':8,'magery.unwrite':8})[d.id]||1,!!d.rare):null);Scene.FX.hit(e,n>0?'−'+n:'miss',n>0?'#ffe9a0':'#cfd6d8');},
+    settled:e=>{if(e?.combat&&e.inst?.dungeon){e.battleRound=e.combat.round;/* Stable entity retains wounds until its ordinary death/reset. */}},
+    enemyDamage:(e,es,accuracy,defended,intent)=>{
+      const spell=es.profile.magic,shield=!!itemById(S.eq.shield);Scene.FX.swing(e,'me',spell?'spell':es.profile.ranged?'archery':'hit');
+      if(rnd()*100>=accuracy){Scene.FX.hit('me','miss','#cfd6d8');return 0;}
+      if(!spell&&shield&&rnd()<Progression.parryChance(S)){Scene.FX.hit('me','blocked','#9be0da');return 0;}
+      const protection=(1-EquipmentRules.mitigation(bonus('def'),bonus('warding'),spell)/100)*(spell?Progression.resistFactor(S):1)*(1-defended);
+      const damage=Math.max(1,Math.round((rint(3,6)+2*es.config.r+(es.config.boss?2:0))*intent.damage*protection));
+      S.hp=Math.max(0,S.hp-damage);if(intent.manaDrain)S.mana=Math.max(0,S.mana-intent.manaDrain);
+      Scene.FX.hit('me','−'+damage,'#f08070');const gs=[];supportGains(spell?['resisting']:shield?['parrying']:[],es.config.diff,.35,gs);renderHud();return damage;
+    },
+    defeat:(e,es)=>{retireLiveFight();openF({...es.config,live:true,ent:e,st:'after',foe:{hp:es.hp,max:es.max,diff:es.config.diff},res:{grade:'wrong'},queryPower:0});loseF({grade:'wrong'},[]);},
+    victory:(res,gains)=>{winF(res,gains);},
+    finish:(note,gains)=>{if(!F)return;F.after=`<p>${esc(note)}</p>${gainLine(gains)}<div class="row end"><button class="btn solid" data-a="livecontinue">Continue moving</button></div>`;if(F.ent)Scene.FX.free(F.ent);Scene.FX.lock(false);Scene.FX.bars([]);drawF();renderHud();},
+  });
+  const combatUiState=()=>Combat.snapshot();
+  function runLiveSQL(){
+    if(!ready||!F?.live||F.st!=='prompt'||F.busy)return;
+    const sql=$('#fight #sql')?.value||'';if(!sql.trim())return toast('Write a query first.');
+    const res=Engine.grade(F.task,sql);S.stats.q++;F.compareOpen=false;F.comparison=res.ok?null:QueryFeedback.prepare(F.task,sql,res,Engine);
+    if(res.err&&!F.fixed){F.fixed=1;F.syntaxError=true;return drawFightRepair();}
+    const result=res.err?{ok:false,grade:'wrong',quality:0,share:0,used:[],msg:res.err}:res;
+    recordLearning(F.task,{ok:result.ok,assisted:!!F.hint||!!F.shown||!!F.syntaxError||!!F.readinessHelp,first:true,sql});
+    if(result.ok){S.stats.ok++;S.streak++;if(!F.shown)trainSql(result.used||[],F.kc,sql);}else S.streak=0;
+    F.queryPower=F.definition.target==='self'?(F.shown?0:QueryFeedback.power(result,{hint:F.hint})*(F.hint===1?.6:1)):QueryFeedback.power(result,{shown:F.shown,hint:F.hint});
+    F.res=result;F.round++;F.st='after';Combat.resolve(F,result);
+  }
   function bossAccess(e){return !isMain()?'Only the main character is entered in the Trials.':e.r===8&&[1,2,3,4,5,6,7].some(r=>!S.boss[r])?'The Council requires the other seven marks.':null;}
   function backstabReason(e, captured = false) {
     if(!e||!['mon','boss','guard','keeper'].includes(e.kind)||e.dead)return 'target';
@@ -719,6 +794,7 @@
   }
   window.addEventListener('resize',fitPanel);
   function openF(cfg) {
+    if(cfg.act==='fight'&&!cfg.live&&!cfg.legacy&&cfg.ent&&['mon','boss','guard','keeper'].includes(cfg.ent.kind))return Combat.prepare(cfg);
     if(S.horse?.mounted){S.horse=Mounts.dismount(S.horse);}
     closeSay();closeSheet();
     if(cfg.act==='fight'&&cfg.foe&&gOn()&&(gid()==='fight'||cfg.ent&&cfg.ent.tutorial)){cfg.foe.hp=cfg.foe.max=18;cfg.tutorialSafe=true;}
@@ -771,10 +847,11 @@
     $('#fight').hidden=true;$('#fight').innerHTML='';$('#enc').hidden=true;$('#enc').innerHTML='';$('#nav').hidden=false;$('#app').classList.remove('infight');Scene.FX.lock(false);Scene.FX.bars([]);Scene.FX.inset(0);
   }
   function closeF() {
+    if(F?.live&&F.over&&F.kind==='boss'&&F.foe?.hp<=0&&F.ent?.combat){F.ent.combat.hp=F.ent.combat.max;F.ent.combat.phase='idle';F.ent.combat.awareness=0;F.ent.combatAuthorized=false;}
     if(F&&F.act==='fight'&&F.ent){if(F.engaged)F.ent.battleRound=F.round;if(!F.over&&!F.busy&&F.foe.hp>0){if(F.round>F.startRound)Backstab.remember(WOUNDS,F.ent,S,{kind:F.kind,hp:F.foe.hp,max:F.foe.max,round:F.round},Scene.tacticalTime());}else Backstab.forget(WOUNDS,F.ent);if(F.over||F.kick)Scene.endChase(F.ent);}
     unCoach('fight', 'fprompt', 'stealth'); const f = F; if (!f) return; F = null; $('#fight').hidden = true; $('#fight').innerHTML = ''; $('#nav').hidden = false; $('#app').classList.remove('infight'); Scene.FX.lock(false); Scene.FX.bars([]); Scene.FX.inset(0); if (f.ent) { Scene.FX.free(f.ent); f.ent.calm = 12; } closeSheet();
     if (f.kick) { wakeFromDeath(); toast(S.remains ? 'You wake at the healer’s. Belongings from upper rooms wait at their stairs, and dungeon belongings at the entrance. Other belongings stay where you fell.' : 'You wake at the healer’s, patched up'); deathNote(); }
-    if (f.caughtStealing) Scene.chase(f.ent);
+    if (f.caughtStealing) {if(f.ent?.kind==='mon')Scene.combatEngage(f.ent);else Scene.chase(f.ent);}
     Scene.refresh(); render(); if (f.kind === 'boss' && f.r === 8 && S.won && !S.ended) { S.ended = 1; save(); setTimeout(ending, 500); }
   }
   function taskFor(page) {
@@ -860,6 +937,7 @@
     fitPanel();
   }
   function runF() {
+    if(F?.live)return runLiveSQL();
     if (!ready || !F || F.st !== 'prompt' || F.busy) return; const sql = $('#sql').value; if (!sql.trim()) return toast('Write a query first');
     if(F.backstab&&(!F.ambush||F.ambush.owner!==S||!F.ambush.at.every((v,i)=>v===Scene.pos()[i])||backstabReason(F.ent,true))){F.backstab=false;F.st='choose';toast('The opening is gone. Hide and approach from behind again.');drawF();return;}
     if(F.act==='fight'&&F.page.book==='spell'&&!['guard','recover','bandage','study','draught'].includes(F.utility)&&S.mana<castingCost(F.page.c)&&!(S.prepared>0)){F.st='choose';toast('Not enough mana. Meditate, use a prepared scroll, or choose another ability.');drawF();return;}
@@ -925,6 +1003,7 @@
     F.after=`${note?'<p>'+esc(note)+'</p>':''}${gainLine(gl)}<div class="row end"><button class="btn solid" data-a="fchoose">Choose next action</button></div>`;save();renderHud();drawF();
   }
   function resolveF(res) {
+    if(F?.live)return Combat.resolve(F,res);
     const q=F.act==='fight'?(res.quality??queryQuality(res)):queryQuality(res),gl=[]; F.defenseTrained=false;
     if(F.act==='steal'){Sneaking.reveal(CONCEAL);renderHud();}
     if(F.act!=='fight') {const sid=F.act==='steal'?'stealing':bestWeapon(),o=odds(rv(sid)+(F.bonus||0),F.diff,res.grade,res.share),g=gain(sid,F.diff,q);if(g)gl.push(g);F.pline=`${o.p}% chance`;F.st='after';F.busy=true;drawF();const encounter=F,owner=S,win=rnd()*100<o.p,end=()=>{if(F!==encounter||S!==owner)return;F.busy=false;chip(win?'hit':'ouch',win?'success':'failed','You');win?winF(res,gl):loseF(res,gl);};return FAST()?end():setTimeout(end,500);}
@@ -975,11 +1054,12 @@
     const t = F.r, lk = luck(), k = F.kind, o = { gold: 0, mats: {}, items: [], scrolls: [] }; let head, note = '', band = '', body = false;
     if (k === 'monster' || k === 'dungeon') { const st = F.act === 'steal', el = !!(F.inst && F.inst.elite), dn = k === 'dungeon'; if (st) S.stats.steals++; else S.stats.kills++;
       if (F.animal) { o.meat = 1 + (rnd() < .3 ? 1 : 0); o.hide = rnd() < .5 ? 1 : 0; } else {
-      o.gold = (st ? 12 * t + 8 : 6 * t + 4) * (el ? 2 : 1) * (dn ? 1.4 : 1) * (.8 + rnd() * .4); o.mats[t] = (1 + (el ? 2 : 0)) * (st ? 2 : 1); if (el) { o.sigils = 1; if (rnd() < .5) o.scrolls.push('a' + t + 'r'); if (rnd() < .015) o.bless = 1; if (rnd() < .06) o.gscr = 1; }
+      o.gold = (st ? 12 * t + 8 : 6 * t + 4) * (el ? 2 : 1) * (dn ? 1.4 : 1) * (.8 + rnd() * .4); o.mats[t] = (1 + (el ? 2 : 0)) * (st ? 2 : 1); if (el) { o.sigils = 1; if (rnd() < .015) o.bless = 1; if (rnd() < .06) o.gscr = 1; }
       if ((!st && (el || rnd() < (dn ? .5 : .35))) || (st && F.prize==='prize')) o.items.push(st&&F.prizeItem?F.prizeItem:makeItem(rollRarity(lk, el ? 1 : 0), t));
       if (F.inst && F.inst.lead && !st) { S.lairday = S.lairday || {}; if (S.lairday[F.inst.lair] !== dayKey()) { S.lairday[F.inst.lair] = dayKey(); o.gold += 40 * t; o.items.push(makeItem(rollRarity(lk, 2), t)); if (rnd() < .2) o.gscr = 1; if (t >= 6 && rnd() < .05) o.pscr = [makePscr(t)]; if (rnd() < (F.inst.lk === 'l14' ? .5 : .12 + t * .02)) o.runes = 1; } }
       }
       if (gid() === 'fight' && k === 'monster' && !st) { const rw = makeItem('common', 1, 'weapon', pick(['swords', 'fencing']),{source:'starter'}); rw.name = 'Rusty ' + WEAP[rw.w].n; o.items = [rw]; }
+      if(!st&&F.live&&!F.animal&&t>=5&&rnd()<.003){const rare=pick(Techniques.catalog.filter(d=>d.rare));o.scrolls.push('tech:'+rare.id);}
       if (!st) maybeDye(F.kind === 'boss' ? .35 : F.keeper ? .3 : F.kind === 'dungeon' ? .04 : .015 + luck() / 4000);
       if(st&&F.prize==='prize')o.gold=Math.round(o.gold*.5); head = st ? 'Clean lift' : F.title + ' falls';
       if (st) {
@@ -1003,6 +1083,7 @@
     F.after = `<h3 class="lost">${head}</h3><p>${esc(msg)}</p>${gainLine(gl)}<div class="row end"><button class="btn solid" data-a="fdone">${F.kick ? 'Wake up' : 'Continue'}</button></div>`; F.st = 'after'; drawF();
   }
   function flee() {
+    if(F?.live)return Combat.cancel();
     if(!F||F.busy||F.over)return;
     const e=F.ent,live=F.act==='fight'&&e&&F.kind!=='rival';
     if(!live||!F.engaged){closeF();return;}
@@ -1362,7 +1443,7 @@
     { id: 'loot', ob: 'Tap the body to take what it dropped', arrow: () => nearest(e => e.kind === 'corpse' && e.r === 1 && e.loot), say: '"You won. Tap the body to see what it dropped, then choose what to take. I have a spare weapon for you once you’ve finished."' },
     { id: 'bag', ob: 'Open your Bag and equip the weapon Tamsin gave you', tabs: ['bag', 'hero'], say: ['"We had a spare weapon aboard the Marigold, so I brought it for you. Open your Bag, tap the weapon, and choose Equip. The Hero screen shows what you’re wearing and holding."','"I brought two pieces of dark bread as well. Each restores 12 health. Tap the bread under Supplies and choose Eat if you’re hurt. Save the Healing Draught for when you need up to 30 health back."'] },
     { id: 'sell', ob: 'Sell the old weapon at the stall', at: () => off(entAt(x => x.kind === 'stallkeep' && x.r === 1), 1, 1), arrow: () => entAt(x => x.kind === 'stallkeep' && x.r === 1), say: '"That rusty weapon won’t fetch much, but the stallkeeper will take it. Choose Sell goods, then choose the old weapon and review the sale. You’ll keep whatever you’re wearing or holding."' },
-    { id: 'page', ob: 'Visit Odalys and buy another ability from Pages for sale', at: () => off(odAt(), 1, 1), arrow: odAt, say: ['"You used your first ability in that fight. We call an ability a page because you learn it in a book. The Hero screen keeps your Book of Arms, Spellbook, Book of Shadows and Pattern Book, along with the pages you know."','"Odalys sells more abilities. Go back to her, choose Pages for sale, and buy one you’d like to try. It goes straight into its book, ready to choose when you act."'] },
+    { id: 'page', ob: 'Complete Odalys’s free technique training', at: () => off(odAt(), 1, 1), arrow: odAt, say: ['"Your basic attack will always be available. Dojo training teaches special techniques that you keep in your Technique Book. Each needs enough skill in its discipline before you can equip it."','"Go back to Odalys and complete a free mixed teaching bout. You’ll learn techniques for swords, fencing, archery and Magery, even if you haven’t trained those skills yet. You can equip four techniques at a time."'] },
     { id: 'bank', ob: 'Talk to the banker and deposit your gold', at: () => off(entAt(x => x.kind === 'banker' && x.r === 1), -1, 0), arrow: () => entAt(x => x.kind === 'banker' && x.r === 1), say: '"See the banker before we go any farther. You can leave your gold in the bank while we look around the vaults."' },
     { id: 'tower', ob: 'Climb the harbor tower by the pier', at: () => off(SP('tower'), 1, 1), arrow: () => SP('tower'), say: '"Come up the harbor tower with me. From there I can show you where the road goes when it leaves town."' },
     { id: 'fish', ob: 'Cast a line off the end of the pier, or tap Tamsin to skip', tabs: ['map'], at: () => off(SP('pierfish'), 2, 0), arrow: () => SP('pierfish'), say: '"Everyone in Tallyport fishes. Cast a line off the end of the pier if you like, or tap me and we’ll skip it."' },
@@ -1695,7 +1776,7 @@
     if (rnd() * 100 >= o.p) { const junk = !res.ok && rnd() < .35 ? pick(JUNK) : ''; t = res.ok ? 'Right answer, but nothing’s biting. Try another cast.' : junk ? `You pull up ${junk}.` : 'Nothing bites.'; if (junk) ic = /boot/.test(junk) ? 'boot' : /weed|reed/.test(junk) ? 'weed' : /key/.test(junk) ? 'rustkey' : ''; }
     else if (deep === 2 && fs >= FISHNEED.treasure && u < .24) { const k = pick(['chest', 'pearl', 'coin', 'bottle']); ic = { chest: 'sunkchest', pearl: 'pearl', coin: 'oldcoin', bottle: 'bottle' }[k];
       if (k === 'chest') { G.items.push(makeItem(rollRarity(luck(), 2), r)); G.gold = rint(10, 25) * r; t = 'The line snags, then gives. Up comes a small locked chest, streaming water.'; } else if (k === 'pearl') { G.gold = 40 * r; t = 'An oyster with a pearl inside. You sell it on the spot.'; } else if (k === 'coin') { G.gold = 26 * r; t = 'An old gold coin, crusted with barnacles.'; }
-      else { const left = PAGES.filter(p => p.c === Math.min(8, r) && !owned(p.id) && !S.scr[p.id]); if (left.length) G.scrolls.push(pick(left).id); else S.hints++; t = 'A corked bottle with a scroll inside.'; } }
+      else { const left = PAGES.filter(p => ['craft','shadow'].includes(p.book) && p.c === Math.min(8, r) && !owned(p.id) && !S.scr[p.id]); if (left.length) G.scrolls.push(pick(left).id); else S.hints++; t = 'A corked bottle with a scroll inside.'; } }
     else if (deep >= 1 && fs >= FISHNEED.rare && u < .2) { sp = F4[3]; ic = ['glowfish', 'eel', 'carp', 'crab'][r % 4]; G.gold = 34 * r; S.fishlog[sp] = (S.fishlog[sp] || 0) + 1; t = `${sp}. People fish this water all their lives and never see one. A collector pays you on the spot.`; }
     else if (deep >= 1 && fs >= FISHNEED.good && u < .62) { sp = F4[2]; ic = r % 2 ? 'bigfish' : 'pike'; G.food.bigfish = 1; S.fishlog[sp] = (S.fishlog[sp] || 0) + 1; t = `A ${sp}, and a good one.`; }
     else { sp = F4[u < .5 ? 0 : 1]; ic = u < .5 ? 'fish' : 'perch'; G.food.fish = 1; S.fishlog[sp] = (S.fishlog[sp] || 0) + 1; t = `A ${sp}.`; }
@@ -1759,7 +1840,7 @@
   }
 
   const goodHTML = g => `<li class="good">${g.item ? itemIcon(g.item) : ico(g.ic)}<div><b class="${g.cls || ''}">${esc(g.name)}</b><small>${g.meta || ''}</small></div>${g.pill ? `<span class="pill ok">${g.pill}</span>` : `<button class="btn sm" data-a="${g.a}"${Object.keys(g.d || {}).map(k => ` data-${k}="${esc(g.d[k])}"`).join('')}${g.off ? ' disabled' : ''}>${g.price}</button>`}</li>`;
-  const pageGoods = r => PAGES.filter(p => p.c === r && !p.rare).map(p => {
+  const pageGoods = r => PAGES.filter(p => p.c === r && !p.rare && ['craft','shadow'].includes(p.book)).map(p => {
     const book = BOOKS[p.book], base = { ic: 'scroll_' + p.book, name: p.name };
     return owned(p.id) ? { ...base, meta: book.name, pill: 'in your book' } :
       { ...base, meta: book.name + ' · ' + book.what, price: p.price + ' gold', a: 'buypage', d: { id: p.id }, off: S.gold < p.price };
@@ -1894,7 +1975,7 @@
       if (t === 1 && e.i === 0 && S.tabs && S.tabs[1] && !S.letter) return dlg(e, '"Is that the ships register? Corin went looking for it." Odalys turns the scroll over before she hands it back. "Come up to my study. Ilva Thorne left a letter I’d like you to read."', [{ t: 'Go up to her study', a: 'letter' }, bye]);
       if (t === 1 && e.i === 0 && gid() === 'odalys') return dlg(e, '"Not out here. Meet me in the dojo, north-east of the square."', [bye]);
       if (t === 1 && e.i === 0 && S.odp === 1) { S.odp = 2; save(); return dlg(e, '"I heard you used WITH, RANK and a join in the same query. That’s how I’d have done it. Bring me your next one and we’ll see what else you can do with it."', [bye]); }
-      if (t === 1 && e.i === 0 && gid() === 'page') return dlg(e, '"If Tamsin sent you for another ability, have a look through these pages. You can learn a different strike or spell, or try a page for stealing or crafting if you want work outside a fight."', [{ t: 'Pages for sale', a: 'pages' }, bye]);
+      if (t === 1 && e.i === 0 && gid() === 'page') return dlg(e, '"I can teach you special techniques for swords, fencing, archery and Magery. Win a free mixed teaching bout to learn them. You can keep the knowledge while you develop the skill to use it."', [{t:'Begin technique training',a:'learnpractice',d:{r:1}},bye]);
       const mine = jobsOf(e), next = mine.find(c => !S.done[c.id]), nd = mine.filter(c => S.done[c.id]).length, key = t + '.' + e.i, first = !S.met[key]; S.met[key] = 1;
       const line = e.i === 0 ? (!next ? TALK.m[t - 1][3] : first ? TALK.m[t - 1][0] : TALK.m[t - 1][1 + (nd % 2)]) : first ? TALK.s[t - 1][e.i - 1] : next ? TALK.again[nd % 3] : '"That’s everything I had for you. Thanks for the help."';
       dlg(e, line, [next && { t: next.title, n: `exercise · ${15 * t + 10} gold`, a: 'offer', d: { id: next.id } }, e.i === 0 && { t: 'Pages for sale', n: `${CIRCLE[t]} Circle`, a: 'pages' }, nd && { t: 'Past exercises', n: nd + ' done', a: 'jobs' }, e.i !== 1 && { t: 'Ilva Thorne', a: 'ask', d: { k: 'story' } }, { t: 'This place', a: 'ask', d: { k: 'place' } }, bye]);
@@ -1907,7 +1988,7 @@
     cache(e) {
       if (S.cache[e.cid] !== dayKey() && lockOffer(e,()=>SH.cache(e))) return;
       if (S.cache[e.cid] === dayKey()) return toast('Empty. Come back another day.'); const t = e.r, o = { gold: rint(10, 20) * t, mats: { [t]: rint(1, 3) }, items: rnd() < .3 ? [makeItem(rollRarity(luck()), t)] : [], scrolls: [] };
-      if (rnd() < .35) { const left = PAGES.filter(p => p.c === t && !p.rare && !owned(p.id) && !S.scr[p.id]); if (left.length) o.scrolls.push(pick(left).id); }
+      if (rnd() < .35) { const left = PAGES.filter(p => ['craft','shadow'].includes(p.book) && p.c === t && !p.rare && !owned(p.id) && !S.scr[p.id]); if (left.length) o.scrolls.push(pick(left).id); }
       S.cache[e.cid] = dayKey(); Scene.FX.treasure(e.x, e.y); const g = grant(o); save(); renderHud(); Scene.refresh(); sheet(`<p class="eyebrow">${esc(region(t).name)} · in the wilds</p><h2>An old chest</h2>${spoilsHTML(g)}<div class="row end"><button class="btn solid" data-a="closesheet">Take it</button></div>`);
     },
     tavern(e) { const t = e.r, rm = RUMORS[t - 1], nd = doneIn(t), cost = 4 * t, well = S.hp >= maxHp(); shopSheet(e, TALK.tav[t - 1], [{ ic: 'stew', name: 'A meal and a bed', meta: well ? 'You are well' : 'Back to full health', price: cost + ' gold', a: 'rest', d: { c: cost }, off: well || S.gold < cost },
@@ -1937,7 +2018,7 @@
       if (kind === 'tale') extra += `<p class="story">${esc(TALES[hsh(e.pid) % TALES.length])}</p>`;
       else if (seen) extra += `<p class="cap2">${daily ? 'You have rested here today.' : 'There is nothing more here.'}</p>`;
       else { S.poi[e.pid] = daily ? dayKey() : 1;
-        if (kind === 'gold') G = grant({ gold: rint(14, 30) * r }); else if (kind === 'loot') { const o = { gold: rint(12, 26) * r, items: [makeItem(rollRarity(luck(), e.pk === 'ruin' ? 2 : 1), r)], scrolls: [] }; if (rnd() < .3) { const left = PAGES.filter(p => p.c === r && !p.rare && !owned(p.id) && !S.scr[p.id]); if (left.length) o.scrolls.push(pick(left).id); } G = grant(o); }
+        if (kind === 'gold') G = grant({ gold: rint(14, 30) * r }); else if (kind === 'loot') { const o = { gold: rint(12, 26) * r, items: [makeItem(rollRarity(luck(), e.pk === 'ruin' ? 2 : 1), r)], scrolls: [] }; if (rnd() < .3) { const left = PAGES.filter(p => ['craft','shadow'].includes(p.book) && p.c === r && !p.rare && !owned(p.id) && !S.scr[p.id]); if (left.length) o.scrolls.push(pick(left).id); } G = grant(o); }
         else if (kind === 'food') { const o = { food: {} }; o.food[pick(['cheese', 'loaf', 'apple', 'honey'])] = 2; G = grant(o); } else if (kind === 'key') { S.hints++; extra += '<p class="spoils">+1 Hint Key</p>'; }
         else if (kind === 'skill') { const id = bestWeapon(), gn = gain(id, rv(id), 2); extra += gn ? gainsHTML([gn]) : '<p class="cap2">The stones have nothing left to teach you.</p>'; }
         else if (kind === 'heal') { const n = heal(maxHp()); extra += `<p class="spoils">+${n} health</p>`; } else if (kind === 'view') { S.known[r] = 1; extra += `<p class="spoils">Your map now marks the homesteads, fishing spots, and places to explore in ${esc(region(r).name)}.</p>`; }
@@ -1975,7 +2056,7 @@
     traveler(e) { dlg(e, TRVL[e.i] || '"See you in the bracket."', [bye]); },
     sorrel(e) { if (!isMain()) return dlg(e, '"I’m Sorrel Ashby. If you’ve put your name down for the tournament, I hope I’ll see you in the final."', [bye]); const line=Dojo.sorrelLine({met:!!S.djs,wonHere:!!DJ(e.r).sorrel,lostHere:!!DJ(e.r).sorrelLost,wonFinal:!!DJ(8).sorrel,wins:Object.values(S.dj||{}).filter(d=>d.sorrel).length}); S.djs=(S.djs||0)+1;save();dlg(e,line,[bye]); },
     foe(e) { dlg(e, '"Good bout."', [bye]); },
-    odalys(e) { if (gid()==='odalys' && S.met['1.0'] && !S.seen['intro.practice']) return introAfter(); if (!isMain()) return dlg(e, '"If you’re training for the tournament, take a turn at the dummy first. The people in the bracket will be quicker to answer back."', [bye]); if (gid() !== 'odalys') return dlg(e, '"Go on, Tamsin’s waiting for you."', [bye]); dlg(e, ['"I’m Odalys Brine. Tamsin tells me the porter could use some help with the cargo. I teach SQL, the language we use to give our abilities power. The first lesson’s free."','"We’ll start with a small copy of the ship’s manifest, so you can see what a query does before trying an ability. Then you can practise on that training dummy without getting hurt."'], [{t:'Learn SQL first',a:'start',d:{k:'intro'}},{t:'Watch the demonstration',a:'odx',d:{n:1}}]); },
+    odalys(e) { if(gid()==='page')return dlg(e,'"Win a free mixed teaching bout to learn this dojo’s techniques. You will keep that knowledge while you develop the skill to equip them."',[{t:'Begin technique training',a:'learnpractice',d:{r:1}},bye]);if (gid()==='odalys' && S.met['1.0'] && !S.seen['intro.practice']) return introAfter(); if (!isMain()) return dlg(e, '"If you’re training for the tournament, take a turn at the dummy first. The people in the bracket will be quicker to answer back."', [bye]); if (gid() !== 'odalys') return dlg(e, '"Go on, Tamsin’s waiting for you."', [bye]); dlg(e, ['"I’m Odalys Brine. Tamsin tells me the porter could use some help with the cargo. I teach SQL, the language we use to give our abilities power. The first lesson’s free."','"We’ll start with a small copy of the ship’s manifest, so you can see what a query does before trying an ability. Then you can practise on that training dummy without getting hurt."'], [{t:'Learn SQL first',a:'start',d:{k:'intro'}},{t:'Watch the demonstration',a:'odx',d:{n:1}}]); },
     dummy(e) { if (e.i === 9) { const o = Scene.find(x => x.kind === 'odalys'); return gid() === 'odalys' && o ? SH.odalys(o) : null; } Scene.FX.face(e); duOpen({ mode: 'practice', r: e.r, c: e.r, dummy: e }); },
     bracket(e) { djBoard(e.r); },
     rnote(e) { if (!isMain()) return toast(`A note pinned with a dagger. It’s addressed to ${mainName()}.`); const r = e.r; S.djn = S.djn || {}; S.djn[r] = 1; save(); sheet(`<p class="eyebrow">Pinned to a post with a dagger</p><h2>A note</h2>${ART && ArtData.dojo ? '<img class="scene" alt="" src="art/bg/DJ03.jpg">' : ''}<p class="story">${esc(Dojo.NOTES[r - 2])}</p><div class="row end"><button class="btn quiet" data-a="closesheet">Leave it</button></div>`); },
@@ -1995,12 +2076,13 @@
         <details class="lesson"><summary>The Trials · ${marks.length} of 8 marks</summary><div class="lb"><p>${isMain()?marks.length?'You represent Tallyport in the Trials.':'Tallyport needs a new champion after Corin Hale’s death in the Bilge Vaults. Odalys can prepare you for the Trials.':esc(mainName())+' is Tallyport’s candidate for the Trials.'}</p><p>The first seven marks come from Examiners at stone rings outside their towns. The council in Aldermoot awards the eighth at the Grand Audit, after you earn the other seven.</p>${marks.length?`<p>Marks held: ${marks.map(k=>CIRCLE[k]).join(', ')}.</p>`:''}${S.won?'<p>The council has entered your name on the roll of masters.</p>':''}</div></details>
         <details class="lesson"><summary>Ilva’s story · ${pages.length} of 8 journal pages</summary><div class="lb"><p>These are Ilva’s personal notes. They are separate from the ability pages in your books. Look beside old signposts away from the main paths; a gold mark appears on the corner map.</p>${pages.map(k=>`<h3>Page ${k} · ${esc(region(k).name)}</h3><p class="story">${esc(JOURNAL[k-1])}</p>`).join('')}${S.archive&&S.boss[8]?'<h3>The reopened archive</h3><p>Petra presented Ilva’s removal log and the restored records at a public council session. Maren required the admission to be entered in the minutes. The archive is now open to inspection, and Tallyport has its seat again.</p>':''}</div></details>
         <details class="lesson"><summary>Completed exercises · ${finished.length} in ${esc(r.name)}</summary><div class="lb">${finished.length?`<ul class="tale plain">${finished.map(exercise).join('')}</ul>`:'<p>You have not completed a local exercise yet.</p>'}</div></details>
-        <details class="lesson"><summary>How to play</summary><div class="lb"><ul class="tale plain"><li>Use the joystick at the bottom right to move. Push gently to walk or farther to run, and release to stop. Tap a nearby person or object to interact.</li><li>A ! over a master marks an exercise that teaches SQL.</li><li>A page is an ability learned in one of your four books. The Hero screen keeps your books. Masters sell abilities under Pages for sale; rare pages are found, won or stolen.</li><li>Using an ability asks you to write a query. A correct result gives full power; character skills and equipment also affect the outcome.</li><li>A Circle is a level in the eight-town SQL course. Higher Circle abilities ask harder questions and have more power against stronger creatures.</li><li>In combat, your first query that cannot run gets one free repair. Another execution error spends the turn. A query that runs but gives the wrong result can spend resources and gives reduced or zero power.</li><li>Sell unwanted gear to a stallkeeper or travelling trader. Choose Sell goods and review the items before confirming.</li><li>The road is open the whole way north.</li></ul></div></details>`);
+        <details class="lesson"><summary>How to play</summary><div class="lb"><ul class="tale plain"><li>Use the joystick at the bottom right to move. Push gently to walk or farther to run, and release to stop. Tap a nearby person or object to interact.</li><li>A ! over a master marks an exercise that teaches SQL.</li><li>Dojos teach combat techniques. Your Technique Book keeps what this character knows, and you can equip four techniques when your skills meet their requirements. Crafting patterns and covert notes are separate.</li><li>Choose a ready action to pause the world and write SQL. The answer resolves your action, then movement and enemy attacks resume. Run away to escape; lose your pursuers before resting.</li><li>A Circle is a level of SQL. Basic attacks use the opponent’s Circle; ordinary techniques ask one Circle above it, and exceptional rare techniques ask two above. Ninth and Tenth Circle questions combine advanced SQL.</li><li>In combat, your first query that cannot run gets one free repair. Another execution error spends the turn. A query that runs but gives the wrong result can spend resources and gives reduced or zero power.</li><li>Sell unwanted gear to a stallkeeper or travelling trader. Choose Sell goods and review the items before confirming.</li><li>The road is open the whole way north.</li></ul></div></details>`);
     }
   };
   const BRASS = '#f3c95a';
   const HOST = {
     combatUi:()=>renderCombatUI(),
+    combatEnabled:()=>ready&&!!S.path&&S.tut>=1,combatRunning:()=>!livePaused(),combatResolving:()=>!!F?.live&&F.busy,combatEnemy:e=>Combat.enemy(e),combatSelect:(e,auto)=>Combat.selectTarget(e,auto),combatTick:(dt,moving)=>Combat.tick(dt,moving),combatHit:(e,s)=>Combat.hit(e,s),combatBleed:(e,n)=>Combat.bleed(e,n),combatReset:e=>Combat.reset(e),
     inputBlocked: () => boatActive()&&!['walk','arrival'].includes(S.prologue.phase) || !$('#sheet').hidden || !$('#say').hidden || !$('#enc').hidden || !$('#coach').hidden || !$('#title').hidden,
     moveCloser: () => toast('Move closer to interact.'),
     cartography: () => CMap.visual(), waypoint: () => CMap.guide(), revealSurface: (x,y) => CMap.moved(x,y),
@@ -2219,7 +2301,7 @@
     ask: d => { const t = CE.r, r = region(t), sp = Scene.spots(), tw = Scene.towns()[t], dir = p => p ? (Math.abs(p[1] - tw[1]) > Math.abs(p[0] - tw[0]) ? (p[1] < tw[1] ? 'north' : 'south') : (p[0] < tw[0] ? 'west' : 'east')) : 'out'; dlg(CE, d.k === 'place' ? `${TALK.place[t - 1].slice(0, -1)} The examiner’s ring is ${dir(sp['boss' + t])} of town, and ${DUNGEONS[t - 1].name} lies to the ${dir(sp['dun' + t])}."` : SAY[t - 1][CE.i], [back]); },
     gossip: () => dlg(CE, pick(GOSSIP), [{ t: 'More', a: 'gossip' }, back]),
     pages: () => { coach('shop'); const t = here(); sheet(`<p class="eyebrow">${CIRCLE[t]} Circle</p><h2>Pages for sale ${qm('shop')}</h2><ul class="goods">${pageGoods(t).map(goodHTML).join('')}</ul>`); },
-    buypage: d => { const p = pageById(d.id); if (!p || owned(p.id) || S.gold < p.price) return; S.gold -= p.price; S.pages[p.id] = 1; if (gid() === 'page') gDone('page'); save(); renderHud(); toast(`${p.name} added to your ${BOOKS[p.book].name}`); if (marketSpecialty(CE) && marketSpecialty(CE).pages) countryStock(CE); else ACT.pages(); },
+    buypage: d => { const p = pageById(d.id); if (!p || owned(p.id) || S.gold < p.price) return; S.gold -= p.price; S.pages[p.id] = 1;Techniques.normalize(S); save(); renderHud(); toast(`${p.name} added to your ${BOOKS[p.book].name}`); if (marketSpecialty(CE) && marketSpecialty(CE).pages) countryStock(CE); else ACT.pages(); },
     scroll: d => { const p = pageById(d.id); if (!p || !S.scr[p.id]) return; sheet(`${scrollHTML(p)}<p class="cap2">${esc(p.src)}.</p><div class="row end">${owned(p.id) ? '<p class="cap2">You already know this ability. A stallkeeper or travelling trader will buy the spare scroll.</p>' : `<button class="btn solid" data-a="inscribe" data-id="${p.id}">Add to the ${BOOKS[p.book].name}</button>`}</div>`); },
     inscribe: d => { const p = pageById(d.id); if (p && inscribe(p.id)) { save(); toast(`${p.name} added to your ${BOOKS[p.book].name}`); } closeSheet(); render(); },
     sellscroll: d => previewCommonSale('scroll:'+d.id),
@@ -2307,7 +2389,7 @@
     fbackstab: () => pickBackstab(),
     fprize: d => {if(F&&F.act==='steal'&&!F.busy){const old=F.prize==='prize'?15:0;F.prize=d.id==='prize'?'prize':'purse';F.bonus=(F.bonus||0)+old-(F.prize==='prize'?15:0);drawF();}}, fstance: d => {if(F&&!F.busy){const p=bestPage('arms');if(p)pickPage(p.id,d.id);}}, futility: d => combatUtility(d.id), fscroll: () => {if(F&&!F.busy){F.scroll=!F.scroll;drawF();}}, fmaneuver:d=>pickPage(d.id,d.stance), fpage: d => pickPage(d.id,d.stance||'strike'), fsteal: () => pickSteal(),
     fcompare: () => { if(!F)return;F.compareOpen=!F.compareOpen;if(F.st==='prompt')drawFightRepair();else drawF(); },
-    fchoose: () => { if (F && !F.busy && !F.over) { stashFightDraft();F.st = 'choose'; drawF(); } }, fdone: () => closeF(), floot: () => { const b = F && F.body; closeF(); if (b) lootOpen(b); }, flee: () => flee(),
+    livecontinue:()=>Combat.cancel(),fchoose: () => { if(F?.live)return Combat.cancel();if (F && !F.busy && !F.over) { stashFightDraft();F.st = 'choose'; drawF(); } }, fdone: () => closeF(), floot: () => { const b = F && F.body; closeF(); if (b) lootOpen(b); }, flee: () => flee(),
     cardno: () => { closeCard(); render(); },
     atlas: () => sheet('<h2>Tables of the Great Ledger</h2>' + atlasHTML()),
     peek: d => { const r = Engine.peek(d.t); sheet(`<h2>${d.t}</h2><p class="cap2">First four rows.</p>${tableHTML(r)}<div class="row end"><button class="btn sm quiet" data-a="atlas">All tables</button></div>`); },
@@ -2325,9 +2407,9 @@
     studyshelf: d => {const h=homeById(d.h);if(!h||!h.shelf||!CE||CE.kind!=='myhome')return;if((h.studyUntil||0)>now())return toast('The shelf is already helping your study.');h.studyUntil=now()+10*60000;S.boost=Math.max(S.boost||0,h.studyUntil);save();homeSheet(h);toast('Double skill gains for ten minutes');},
     bench: () => SH.bench(),
     buy: d => { const st = stall(), it = st.stock[+d.i]; if (!it || S.gold < price(it)) return; if (S.inv.length >= 60) return toast('Your bag is full'); S.gold -= price(it); st.stock.splice(+d.i, 1); give(it); save(); renderHud(); if (CE) SH.stallkeep(CE); toast('Bought ' + it.name); },
-    equip: d => { const it = itemById(d.id); if (it) { S.eq[it.slot] = it.id;Progression.normalize(S);save(); closeSheet(); render(); if (gid() === 'bag' && it.id === S.gk) { ACT.tab({ t: 'world' }); gDone('bag'); } } },
+    equip: d => { if(activePursuit()||F)return toast('Find safety before changing equipment.');const it = itemById(d.id); if (it) { S.eq[it.slot] = it.id;Progression.normalize(S);save(); closeSheet(); render(); if (gid() === 'bag' && it.id === S.gk) { ACT.tab({ t: 'world' }); gDone('bag'); } } },
     item: d => { const it = itemById(d.id); if (!it) return; const on = S.eq[it.slot] === it.id; sheet(`${lootHTML(it)}${GearScreen.details(it)}<div class="row end">${on ? `<button class="btn" data-a="unequip" data-s="${it.slot}">Take off</button>` : `<button class="btn solid" data-a="equip" data-id="${it.id}">${it.slot==='weapon'?'Equip':'Wear'}</button>`}${it.unique ? '' : '<p class="cap2">A stallkeeper or travelling trader can buy this piece after you unequip it.</p>'}</div>${it.unique || it.bless ? '' : `<div class="row end">${S.blessd ? `<button class="btn sm quiet" data-a="bless" data-id="${it.id}">Bless · ${S.blessd} deed${S.blessd > 1 ? 's' : ''}</button>` : ''}<button class="btn sm quiet" data-a="insure" data-id="${it.id}">${it.ins ? 'Stop insuring' : `Insure · ${insFee(it)} a fall`}</button></div>`}`); },
-    unequip: d => { delete S.eq[d.s];Progression.normalize(S);save(); closeSheet(); render(); },
+    unequip: d => { if(activePursuit()||F)return toast('Find safety before changing equipment.');delete S.eq[d.s];Progression.normalize(S);save(); closeSheet(); render(); },
     progressmode: d => {const stat=d.stat==='1',m=Progression.mode(S,d.id,stat);Progression.setMode(S,d.id,{up:'down',down:'lock',lock:'up'}[m],stat);save();render();},
     progresstarget: d => {const stat=d.stat==='1',el=document.querySelector(`input[data-target="${d.id}"][data-stat="${stat?1:0}"]`);if(!el)return;const bag=stat?S.attrTargets:S.skillTargets;if(!el.value.trim())delete bag[d.id];else Progression.setTarget(S,d.id,Number(el.value),stat);save();render();},
     djtrain: () => trainSheet(),
@@ -2384,7 +2466,7 @@
   document.addEventListener('visibilitychange',()=>{if(document.hidden&&A){if(S?.path)save();void flush();}});
   function start(hot) { purgeOld(); const device=loadA(),snapshot=hot?.acct&&CharacterWorlds.normalize(hot.acct);A=!snapshot?device||freshA():!device?snapshot:device.rev>snapshot.rev||device.rev===snapshot.rev&&device.at>snapshot.at?device:snapshot; loadCur(); cmdBackfill();learningBackfill(); deviceSave.at=A.at||0; title(); if(!new URLSearchParams(location.search).has('visual_test'))Offline.init(); artLoad(); if (A===snapshot&&hot&&hot.tab) tab=hot.tab; sel = S.region; render(); setTimeout(bootEngine, 30); cloudInit(); }
   GearScreen=EquipmentScreen.create({state:()=>S,item:itemById,bonus,page:bestPage,defs:WEAP,skill:rv,physicalFactor:()=>Progression.physicalFactor(S),spellFactor:()=>Progression.spellFactor(S),circle:here,difficulty:()=>diffOf(here()),sheet,escape:esc,icon:ico,itemIcon,stats:statLine,save,render,toast,service:()=>({entity:CE,valid:liveService('bench')||liveService('enchanter')}),materialName:key=>MATS[key]||key,showItem:id=>ACT.item({id}),skillName:rpgName,accuracy:(skill,diff)=>odds(skill,diff,'correct').p,sync:()=>{Progression.normalize(S);if(sceneUp)Scene.refresh();}});
-  if (location.protocol === 'file:' || location.hostname === 'localhost') window.__bw = { CMap, CONCEAL, beginSkillWork, combatUtility, maxHp, get A() { return A; }, makeItem, gain, odds, dropBody, insFee, trainCost, makePscr, maybeDye, homeSheet, get DU() { return DU; }, get FI() { return FI; }, errandFor, get PK() { return PK; }, get WH() { return WH; }, get BJ() { return BJ; }, get Q() { return Q; }, get F() { return F; }, KB, get S() { return S; }, get DG() { return DG; }, DP, get SB() { return SB; }, get TR() { return TR; }, setCE: e => { CE = e; }, HOST, SH, START, ACT, render, save, odds, gain, diffOf };
+  if (location.protocol === 'file:' || location.hostname === 'localhost') window.__bw = { Combat,LiveCombat,Techniques,runLiveSQL,CMap, CONCEAL, beginSkillWork, combatUtility, maxHp, get A() { return A; }, makeItem, gain, odds, dropBody, insFee, trainCost, makePscr, maybeDye, homeSheet, get DU() { return DU; }, get FI() { return FI; }, errandFor, get PK() { return PK; }, get WH() { return WH; }, get BJ() { return BJ; }, get Q() { return Q; }, get F() { return F; }, KB, get S() { return S; }, get DG() { return DG; }, DP, get SB() { return SB; }, get TR() { return TR; }, setCE: e => { CE = e; }, HOST, SH, START, ACT, render, save, odds, gain, diffOf };
   // speech and story use curly quotes; SQL, code and table data keep straight ones
   const cq = t => t.replace(/"/g, (m, i) => (i === 0 || /[\s(\[\u2014\u2013-]/.test(t[i - 1])) ? '\u201c' : '\u201d'), RAW = 'pre,code,textarea,input,script,style,td,th,.qbox,.code,.sqlhl,[data-raw]';
   function curl(n) { if (n.nodeType === 3) { if (n.data.indexOf('"') < 0) return; const p = n.parentElement; if (!p || p.closest(RAW)) return; const v = cq(n.data); if (v !== n.data) n.data = v; } else if (n.nodeType === 1 && !n.matches(RAW)) for (const c of n.childNodes) curl(c); }

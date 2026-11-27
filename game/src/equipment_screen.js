@@ -63,8 +63,7 @@ const EquipmentScreen = (() => {
     function weaponComparison(item) {
       if (item.slot !== 'weapon' || !Object.hasOwn(host.defs, item.w)) return '';
       const book = item.w === 'magery' ? 'spell' : 'arms';
-      const page = host.page(book);
-      if (!page) return `<section class="sec"><h3>Combat comparison</h3><p class="cap2">Learn a page from the Book of ${book === 'spell' ? 'Spells' : 'Arms'} to compare damage with this weapon.</p></section>`;
+      const page = {name:item.w==='magery'?'Basic Spark':'Basic attack'};
       const worn = host.item(host.state().eq.weapon);
       const arms = ['swords', 'fencing', 'archery'];
       const unarmed = arms.reduce((a, b) => host.skill(b) > host.skill(a) ? b : a);
@@ -78,10 +77,11 @@ const EquipmentScreen = (() => {
         const skill = host.skill(skillId);
         const definition = host.defs[skillId];
         const damageBonus = bonus('xp') - (worn?.stats?.xp || 0) + (weapon?.stats?.xp || 0);
-        return G.attack({ weapon, skillId, skill, damageBonus, accuracy: accuracy(skill, difficulty),
-          range: definition.dmg, swings: definition.swings + (page.rare && book === 'arms' ? 1 : 0),
-          pageCircle: page.c, targetCircle: circle, queryPower: 1, attributeFactor: factor,
-          target: foe, responseSlots: page.rare && book === 'spell' ? 1 : 2 });
+        const result=G.attack({ weapon, skillId, skill, damageBonus, accuracy: accuracy(skill, difficulty),
+          range: definition.dmg, swings: definition.swings,
+          pageCircle: 1, targetCircle: 1, queryPower: 1, attributeFactor: factor,target: foe });
+        result.seconds=LiveCombat.recovery(Techniques.basic(skillId).recovery,skillId,host.state().attr.dex).total;
+        result.dps=result.expectedDamage/result.seconds;return result;
       };
       const before = getAttack(worn, currentSkill), next = getAttack(item, item.w);
       const row = (label, a, b) => `<span>${label}</span><span>${a} → ${b}</span>`;
@@ -99,7 +99,7 @@ const EquipmentScreen = (() => {
         `${row('Combat DPS', number(before.dps), number(next.dps))}${row('Chance per strike', `${number(before.accuracy)}%`, `${number(next.accuracy)}%`)}` +
         `${row('Strikes per query', before.swings, next.swings)}</div>` +
         `<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px" role="group" aria-label="Compare against">${choices.join('')}</div>` +
-        '<p class="cap2">Your worn weapon comes first. This assumes a regular attack, a correct query without hints, a full exchange against an unarmoured foe, and no time spent writing SQL. Slaying helps against undead. Embers deals more fire damage to frost creatures and less to fire creatures.</p></section>';
+        '<p class="cap2">Your worn weapon comes first. This assumes stationary basic attacks, correct SQL without hints, and active recovery time against an unarmoured foe. SQL pauses the world. Slaying helps against undead. Embers deals more fire damage to frost creatures and less to fire creatures.</p></section>';
     }
 
     function details(item) {

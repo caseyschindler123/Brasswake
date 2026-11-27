@@ -998,6 +998,7 @@
         break;
       }
     }
+    if(label&&combatEntity(label)&&host.combatEnabled?.()&&sight(label))return combatTarget(label);
     if (label && Number.isFinite(interactionDistance(label))) return interactNear(label);
     if (!label && inspectServiceSign(px, py)) return;
     let best = null, closest = 1.1;
@@ -1007,11 +1008,13 @@
       for (const [x, y] of InteractionRules.faces(e) || []) d = Math.min(d, Math.hypot(x + .5 - wx, y + .5 - wy));
       if (d < closest) { closest = d; best = e; }
     }
+    if(best&&combatEntity(best)&&host.combatEnabled?.()&&sight(best))return combatTarget(best);
     // A distant label can overlap the visible body of a reachable fixture.
     if (best && (!label || Number.isFinite(interactionDistance(best)))) interactNear(best);
     else if (label) interactNear(label);
   }
   function interactNear(e) {
+    if(host.combatEnabled?.()&&combatEntity(e)&&e.kind!=='boss'&&sight(e))return combatTarget(e);
     if (!interactionAvailable() || !map.ents.includes(e) || !visibleTarget(e) || e.empty) return;
     if (interactionDistance(e) === Infinity) { if (host.moveCloser) host.moveCloser(); return; }
     if(host.beforeInteract)host.beforeInteract(e);
@@ -1030,7 +1033,7 @@
   const HUMAN_STEPS = [[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]];
   const heroOverlaps=(x,y)=>!!P&&Math.abs(P.fx-x)<.5+Movement.radius&&Math.abs(P.fy-y)<.5+Movement.radius;
   const npcStepClear = (e,dx,dy) => !heroOverlaps(e.x+dx,e.y+dy) && !blocked(e.x+dx,e.y+dy) && (!dx||!dy||(!blocked(e.x+dx,e.y)&&!blocked(e.x,e.y+dy)));
-  function clearSight(ax,ay,bx,by) {const n=Math.ceil(Math.max(Math.abs(bx-ax),Math.abs(by-ay))*2);for(let k=1;k<n;k++){const x=Math.floor(ax+(bx-ax)*k/n+.5),y=Math.floor(ay+(by-ay)*k/n+.5);if(x<0||y<0||x>=map.w||y>=map.h||map.solid[y*map.w+x])return false;}return true;}
+  function clearSight(ax,ay,bx,by) {return LiveCombat.clearLine(ax,ay,bx,by,combatOpaque);}
   const CHASE_SECONDS=20,CHASE_LEAD=1.3,CHASE_LEASH=8,HIDE_OBSERVATION=6.5;
   const hostile = e => ['mon','rival','boss','guard','keeper'].includes(e.kind);
   const behind = e => !!(e&&P)&&Backstab.rear(P.fx-e.fx,P.fy-e.fy,e.npcLook?npcPose(e).direction:(CARDINAL_D8[e.dir]??0));
@@ -1038,6 +1041,7 @@
   const observed = () => !!(map&&P)&&map.ents.some(e=>hostile(e)&&!e.dead&&!e.dying&&(e.alert>0||e.chase>0)&&Math.hypot(e.fx-P.fx,e.fy-P.fy)<HIDE_OBSERVATION&&sight(e));
   function endChase(e) {
     if(!e)return;e.chase=0;e.alert=0;e.hunt=false;e.wait=0;e.engaged=false;e.forced=false;e.battleRound=0;e.lastSeen=null;
+    if(e.combat){e.combat.phase='idle';e.combat.awareness=0;e.combat.windup=0;if(!e.dead)e.combat.hp=e.combat.max;}
     if(e.pursuitAnchor&&!e.dead&&['boss','guard','keeper'].includes(e.kind))e.returning=e.x!==e.pursuitAnchor[0]||e.y!==e.pursuitAnchor[1];
   }
   function pursue(e,secs=CHASE_SECONDS) {
@@ -1045,6 +1049,7 @@
   }
   let tacticalClock=0;
   function step(dt) {
+    if(host.combatEnabled?.()&&(locked||map.pending||document.hidden||!host.combatRunning?.())){if(host.combatResolving?.()){if(P.atk>0)P.atk-=dt;advanceEffects(dt);}return;}
     if (map.ship) shipTick(dt);
     if(inputAvailable()&&!map.pending&&!document.hidden)tacticalClock+=dt*1000;
     clock = (clock + dt / 600) % 1;
@@ -1082,9 +1087,10 @@
       }
     } else P.walk = 0;
     guideStep(dt);
-    for (const e of map.ents) { if(e.hidden)continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy); if (e.dead && e.dying == null && (e.decay -= dt) <= 0) e.dying = 1; if (e.dying != null) { e.dying -= dt * 2.4; continue; } if(e.chase>0&&!locked&&host.chasing()&&d>26){e.chase=Math.max(0,e.chase-dt);if(!e.chase)endChase(e);} if ((!e.wander && !(e.chase>0) && !e.returning && !['boss','guard','keeper'].includes(e.kind)) || e.busy || (d > 26 && !e.returning)) continue; e.t -= dt; if (e.tired > 0) e.tired -= dt; else if (d < 4.4 && e.kind === 'mon' && PREY[e.inst.tpl]) e.t = 0;   // prey reacts at once
+    combatStep(dt);
+    for (const e of map.ents) { if(e.hidden)continue;if(host.combatEnabled?.()&&combatEntity(e)&&(e.combat?.phase==='chase'||e.combat?.phase==='return'))continue; const d = Math.hypot(e.fx - P.fx, e.fy - P.fy); if (e.dead && e.dying == null && (e.decay -= dt) <= 0) e.dying = 1; if (e.dying != null) { e.dying -= dt * 2.4; continue; } if(e.chase>0&&!locked&&host.chasing()&&d>26){e.chase=Math.max(0,e.chase-dt);if(!e.chase)endChase(e);} if ((!e.wander && !(e.chase>0) && !e.returning && !['boss','guard','keeper'].includes(e.kind)) || e.busy || (d > 26 && !e.returning)) continue; e.t -= dt; if (e.tired > 0) e.tired -= dt; else if (d < 4.4 && e.kind === 'mon' && PREY[e.inst.tpl]) e.t = 0;   // prey reacts at once
       const safeGround=hostile(e)&&host.safeGround&&host.safeGround(e);if(safeGround&&(e.chase>0||e.engaged))endChase(e);
-      if (hostile(e) && !locked && !safeGround && (host.chasing()||host.aggro())) { const v = DIRV[e.dir] || [0, 1], facing = (P.fx - e.fx) * v[0] + (P.fy - e.fy) * v[1] > 0; if (clearSight(e.fx,e.fy,P.fx,P.fy) && (host.detects ? host.detects(d,facing,e.agg) : (d < 3.2 && facing) || (e.agg && d < 6.5))) {e.alert = 4;if(host.noticed)host.noticed();} else if(host.visibility && host.visibility().hidden) {endChase(e);} else if (e.alert > 0) e.alert = Math.max(0, e.alert - dt); if (e.calm > 0) e.calm -= dt;
+      if (hostile(e) && !host.combatEnabled?.() && !locked && !safeGround && (host.chasing()||host.aggro())) { const v = DIRV[e.dir] || [0, 1], facing = (P.fx - e.fx) * v[0] + (P.fy - e.fy) * v[1] > 0; if (clearSight(e.fx,e.fy,P.fx,P.fy) && (host.detects ? host.detects(d,facing,e.agg) : (d < 3.2 && facing) || (e.agg && d < 6.5))) {e.alert = 4;if(host.noticed)host.noticed();} else if(host.visibility && host.visibility().hidden) {endChase(e);} else if (e.alert > 0) e.alert = Math.max(0, e.alert - dt); if (e.calm > 0) e.calm -= dt;
         if(e.pursuitAnchor && ['boss','guard','keeper'].includes(e.kind) && Math.hypot(e.x-e.pursuitAnchor[0],e.y-e.pursuitAnchor[1])>=CHASE_LEASH)endChase(e);if(e.chase>0){if(sight(e)&&d<16)e.lastSeen=[P.x,P.y];else e.chase=Math.max(0,e.chase-dt);if(!e.chase)endChase(e);} if (e.wait > 0) e.wait -= dt; e.hunt = !(e.wait > 0) && (e.chase > 0 && d < 16 && !locked && host.chasing()) || (e.agg && e.alert > 0 && !(e.calm > 0) && d < 8 && sight(e) && !locked && host.aggro());
         if (e.hunt && interactionAvailable() && d <= InteractionRules.reach && interactionDistance(e) < Infinity) {
           e.hunt = 0; e.engaged = true; e.calm = 0; host.ambush(e); break;
@@ -1283,6 +1289,7 @@
     }
     if(map.dungeonFloor && !locked){ const area=map.layout.rooms.find(R=>P.x>=R.x&&P.y>=R.y&&P.x<R.x+R.w&&P.y<R.y+R.h);o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const label='Floor '+(map.f+1)+' · '+(area?area.name:map.layout.name);const tw=o.measureText(label).width;o.fillStyle='rgba(8,15,22,.85)';o.fillRect(8*dpr,84*dpr,Math.min(tw+16*dpr,ov.width-16*dpr),23*dpr);o.fillStyle='#f4dfac';o.fillText(label,16*dpr,100*dpr,ov.width-36*dpr);o.textAlign='center';}
     if(map.venue && !locked){o.save();o.textAlign='left';o.font=`600 ${12*dpr}px 'Alegreya Sans',sans-serif`;const width=Math.min(ov.width-112*dpr,o.measureText('Upper floor · '+map.venue.name).width+16*dpr);o.fillStyle='rgba(12,24,28,.9)';o.fillRect(8*dpr,84*dpr,width,23*dpr);o.fillStyle='#f4dfac';o.fillText('Upper floor · '+map.venue.name,16*dpr,100*dpr,width-16*dpr);o.restore();}
+    combatLabels(o,ox0,oy0,z);
     host.hud(locked ? null : near);host.combatUi?.();
     } finally { WORLD_BUILDING_CACHE.endFrame(); }
   }
@@ -1497,7 +1504,7 @@
     return { region: r, town: !!Geography.inTown(P.x,P.y) || !!map.publicVenueDistrict?.has(P.y*map.w+P.x) || !!(map.districts&&map.districts.some(d=>P.x>=d.box[0]&&P.x<=d.box[2]&&P.y>=d.box[1]&&P.y<=d.box[3])),
       venue: room && room.slot === 'tavern' ? 'tavern' : null };
   }
-  return { preload, init, load, resetWorld, previewHuman, location:locationFacts, safePosition, restoreHomes, clearRemains: () => { if(world)world.ents=world.ents.filter(e=>!e.mine);if(map && map!==world)map.ents=map.ents.filter(e=>!e.mine); }, remains, emptied, musicContext, tacticalTime:()=>tacticalClock, chase: pursue, endChase, clearPursuits:()=>{for(const e of new Set([...(world?world.ents:[]),...(map?map.ents:[])]))if(e.chase>0||e.returning||e.engaged)endChase(e);}, behind, sight, observed, inDungeonMap: () => !!(map && map.dungeon && !map.ship), mapRegion: () => map ? (map.dungeon ? map.r : 0) : 0, enterDungeon, dungeonRefresh: p => { if(map && map.dungeonFloor)dungeonApply(map,p); }, backdrop, kill, corpse, refresh, resume, pause, portrait, act, FX, towns: () => TOWN, terr: () => world ? world.terr : [], sites: () => world ? world.sites : [], spots: () => world ? world.spots : {}, mini: () => world && world.mini, size: [WW, WH], ferries: () => world ? world.ferries : [], districts: () => world ? world.districts : [],
+  return { combatFacts,combatTarget,combatEngage,combatPush,combatLunge,preload, init, load, resetWorld, previewHuman, location:locationFacts, safePosition, restoreHomes, clearRemains: () => { if(world)world.ents=world.ents.filter(e=>!e.mine);if(map && map!==world)map.ents=map.ents.filter(e=>!e.mine); }, remains, emptied, musicContext, tacticalTime:()=>tacticalClock, chase: pursue, endChase, clearPursuits:()=>{for(const e of new Set([...(world?world.ents:[]),...(map?map.ents:[])]))if(e.chase>0||e.returning||e.engaged)endChase(e);}, behind, sight, observed, inDungeonMap: () => !!(map && map.dungeon && !map.ship), mapRegion: () => map ? (map.dungeon ? map.r : 0) : 0, enterDungeon, dungeonRefresh: p => { if(map && map.dungeonFloor)dungeonApply(map,p); }, backdrop, kill, corpse, refresh, resume, pause, portrait, act, FX, towns: () => TOWN, terr: () => world ? world.terr : [], sites: () => world ? world.sites : [], spots: () => world ? world.spots : {}, mini: () => world && world.mini, size: [WW, WH], ferries: () => world ? world.ferries : [], districts: () => world ? world.districts : [],
     enterShip, shipStage, inShip: () => !!(map && map.ship),
     enterVenue, exitVenue, venueState, restoreVenue, inInterior: () => !!(map && map.venue), outdoors:()=>!!(P&&map===world&&!world.blds.some(b=>b.enter&&buildingContains(b,P.x,P.y))), venues: () => world && world.venues ? Array.from(world.venues.values()) : [],
     traveling: () => !!(P && (P.moving||P.path.length)),

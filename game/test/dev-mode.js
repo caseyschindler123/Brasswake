@@ -63,7 +63,7 @@
       if(Math.max(Math.abs(dx),Math.abs(dy))!==radius)continue;const x=p[0]+dx,y=p[1]+dy,k=y*map.w+x;
       if(x>0&&y>0&&x<map.w&&y<map.h&&!map.solid[k]&&!map.occ.has(k)&&map.t[k]!==4)spots.push([x,y]);}
     if(spots.length<count)throw Error('Not enough safe arena space');
-    for(let i=0;i<count;i++){const[x,y]=spots[i],id='dev-'+(++serial);const template=Scene.debug().world.ents.find(e=>e.kind==='mon'&&e.inst?.tpl===monster)||Scene.find(e=>e.kind==='mon');if(!template)throw Error('Monster art is not ready');const e={...template,id,dev:true,kind:'mon',dead:0,dying:undefined,x,y,fx:x,fy:y,r:bw().S.region,inst:{tpl:monster,elite:false},name:Content.MONSTERS[monster][0],solid:0,wander:0,agg:0,unseen:true,tx:null};map.ents.push(e);created.push(id);}
+    for(let i=0;i<count;i++){const[x,y]=spots[i],id='dev-'+(++serial);const template=Scene.debug().world.ents.find(e=>e.kind==='mon'&&e.inst?.tpl===monster)||Scene.find(e=>e.kind==='mon');if(!template)throw Error('Monster art is not ready');const e={...template,id,dev:true,kind:'mon',dead:0,dying:undefined,x,y,fx:x,fy:y,r:bw().S.region,inst:{tpl:monster,elite:false},name:Content.MONSTERS[monster][0],solid:0,wander:0,agg:0,unseen:true,tx:null,ty:null,combat:undefined,combatConfig:undefined,pursuitAnchor:null,engaged:false,chase:0,alert:0,home:[x,y]};map.ents.push(e);created.push(id);}
     return created;
   }
   function battle(id){idle();const e=Scene.find(e=>e.dev&&e.id===id);if(!e)throw Error('Unknown spawned monster');bw().HOST.interact(e);return snapshot();}

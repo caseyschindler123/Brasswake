@@ -30,7 +30,7 @@ function runtime(storage, revision) {
   const code = source('game', revision);
   const dependencies = ['geography', 'world_progress', 'cartography', 'progression',
     'prologue', 'character_worlds', 'dungeon_progress', 'interiors'];
-  if (!revision) dependencies.push('equipment_rules', 'mounts', 'character_profiles');
+  if (!revision) dependencies.push('equipment_rules', 'mounts', 'character_profiles', 'techniques');
   const timers = new Map();
   let timerId = 0, itemId = 99;
   const quiet = () => {};
@@ -92,6 +92,7 @@ function currentSave() {
       inv: [{ id: sword, slot: 'weapon', w: 'swords', name: 'Iron short sword',
         tier: 2, rarity: 'common', stats: { dmg: 27 } }],
       eq: { weapon: sword }, done: { storyMilestone: true }, boss: { 1: 1 },
+      techniques:{v:1,legacyMigrated:true,learned:{'swords.cross-cut':true},equipped:[null,'swords.cross-cut',null,null],dojo:{1:true},supply:'draught'},
     });
     world.codex['world-keepsake-' + worldIndex] = 1;
     world.learning={v:1,rev:7+worldIndex,introduced:{select:true,sort:true},evidence:{},ready:{},recent:[]};
@@ -122,8 +123,8 @@ function persistentData(account) {
     cur, main, codex,
     slots: slots.map(rider => {
       if (!rider) return null;
-      const { v, uid, name, path, horse, app, bank, inv, eq, done, boss } = rider;
-      return { v, uid, name, path, horse, app, bank, inv, eq, done, boss };
+      const { v, uid, name, path, horse, app, bank, inv, eq, done, boss, techniques } = rider;
+      return { v, uid, name, path, horse, app, bank, inv, eq, done, boss, techniques };
     }),
   }));
 }
