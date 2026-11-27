@@ -36,9 +36,39 @@ test('live combat: real spell effects use opponent-relative SQL and current skil
 
 test('live combat: aggression warns, ranged enemies hit, and separation ends pursuit',async({page})=>{
   const errors=observeErrors(page);await open(page);
-  await page.evaluate(()=>{const wild=Scene.ents().find(e=>e.kind==='mon'&&e.r===1&&!Geography.inTown(e.x,e.y));if(!wild)throw Error('No wilderness encounter');const at=Scene.safePosition([wild.x,wild.y+2],1);Dev.teleport({region:1,x:at[0],y:at[1]});for(const other of Scene.ents())if(other.kind==='mon')other.agg=0;
-    const [id]=Dev.spawn({monster:'b104'});const e=Scene.find(e=>e.id===id),m=Scene.debug().map,p=Scene.pos(),directions=[[1,0],[-1,0],[0,1],[0,-1]],direction=directions.find(([dx,dy])=>[1,2,3].every(n=>!m.solid[(p[1]+dy*n)*m.w+p[0]+dx*n]&&!m.occ.has((p[1]+dy*n)*m.w+p[0]+dx*n)));
-    if(!direction)throw Error('No clear ranged approach');Scene.hallMove(e,p[0]+direction[0]*3,p[1]+direction[1]*3);e.home=[e.x,e.y];e.agg=1;e.wander=0;e.combat=undefined;window.testEnemy=id;});
+  const setup=await page.evaluate(()=>{
+    const map=Scene.debug().map,directions=[[1,0],[-1,0],[0,1],[0,-1]];
+    const free=(x,y,ignore)=>{
+      if(x<2||y<2||x>=map.w-2||y>=map.h-2)return false;
+      const i=y*map.w+x,occupant=map.occ.get(i);
+      return map.reg[i]===1&&map.seen[i]&&!map.solid[i]&&map.t[i]!==4&&
+        (!occupant||occupant===ignore)&&!Geography.inTown(x,y);
+    };
+    // Find the entire legal lane before teleport/spawn. A safe single tile beside
+    // an arbitrary creature does not guarantee three open cells or sight.
+    let lane;
+    for(let y=2;y<map.h-2&&!lane;y++)for(let x=2;x<map.w-2&&!lane;x++){
+      if(!free(x,y)||Geography.inTown(x,y,LiveCombat.RULES.noticeRange+1))continue;
+      // Dev may choose any adjacent spawn cell; keep that whole patch legal,
+      // rather than letting its first free neighbor cross a regional shoreline.
+      if(![-1,0,1].every(dx=>[-1,0,1].every(dy=>free(x+dx,y+dy))))continue;
+      const direction=directions.find(([dx,dy])=>[1,2,3].every(n=>free(x+dx*n,y+dy*n)));
+      if(direction)lane={x,y,dx:direction[0],dy:direction[1]};
+    }
+    if(!lane)throw Error('No legal wilderness lane for the ranged fixture');
+    Dev.teleport({region:1,x:lane.x,y:lane.y});
+    if(Scene.pos()[0]!==lane.x||Scene.pos()[1]!==lane.y)throw Error('Ranged fixture destination moved');
+    for(const other of Scene.ents())if(other.kind==='mon')other.agg=0;
+    const[id]=Dev.spawn({monster:'b104'}),e=Scene.find(e=>e.id===id);
+    if(!free(e.x,e.y,e))throw Error('Ranged fixture spawned on illegal terrain');
+    Scene.hallMove(e,lane.x+lane.dx*3,lane.y+lane.dy*3);
+    if(!free(e.x,e.y,e))throw Error('Ranged fixture endpoint is not legal ground');
+    e.home=[e.x,e.y];e.agg=1;e.wander=0;e.combat=undefined;window.testEnemy=id;
+    const facts=Scene.combatFacts(e);
+    return {distance:facts.distance,lineOfFire:facts.lineOfFire,melee:facts.melee,ranged:e.combat.profile.ranged,range:e.combat.profile.range};
+  });
+  expect(setup).toMatchObject({distance:3,lineOfFire:true,melee:false,ranged:true});
+  expect(setup.range).toBeGreaterThanOrEqual(setup.distance);
   await page.waitForFunction(()=>{const e=Scene.find(e=>e.id===window.testEnemy);return e.combat?.awareness>0&&e.combat.phase==='alert';});
   const hp=await page.evaluate(()=>__bw.S.hp);
   await page.waitForFunction(()=>Scene.find(e=>e.id===window.testEnemy)?.combat?.phase==='chase');
