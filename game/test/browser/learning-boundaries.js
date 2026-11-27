@@ -336,6 +336,10 @@ test('first-day boundaries · Journal leads with the guide and separates optiona
   expect(await page.evaluate(()=>__bw.S.gd)).toBe(9);
   await sheet(page).locator('[data-a=buypage]:not([disabled])').first().click();
   expect(await page.evaluate(()=>__bw.S.gd)).toBe(9);
+  await page.evaluate(()=>{__bw.S.gd=99;__bw.S.done={};__bw.SH.journal();});
+  await expect(sheet(page).locator('.journal-next h3')).toContainText('Speak to Odalys Brine about');
+  await expect(page.locator('#toast [role=status]')).toHaveCount(0);
+  await screenshot(page,info,'journal-after-the-guide');
 });
 
 test('first-day boundaries · paid skill training shows the before, after and gain',async({page},info)=>{

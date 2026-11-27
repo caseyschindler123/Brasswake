@@ -122,6 +122,7 @@ for(const choice of ['stay','gohome']) test('the recovered history leads to the 
   if(info.project.use.hasTouch)await journal.tap();else await journal.click();
   await expect(f.locator('#sheet')).toBeVisible();
   await expect(f.locator('#sheet')).toContainText('The reopened archive');
+  await f.locator('#sheet summary').filter({hasText:'Ilva’s story'}).click();
   await f.getByRole('heading',{name:'The reopened archive',exact:true}).scrollIntoViewIfNeeded();
   await screenshot(page,info,'journal-'+choice);expect(errors).toEqual([]);
 });

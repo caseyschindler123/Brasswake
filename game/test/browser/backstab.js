@@ -384,11 +384,25 @@ test('Backstab · Examiner pursuit, escape and re-entry keep wounds and the next
     const e = window.backstabFixtureTarget;
     return Math.hypot(e.x - e.pursuitAnchor[0], e.y - e.pursuitAnchor[1]);
   })).toBeGreaterThan(0);
-  await frame.waitForFunction(() => window.backstabFixtureTarget.returning, null, { timeout: 10000 });
-  expect(await frame.evaluate(() => {
-    const e = window.backstabFixtureTarget;
-    return Math.hypot(e.x - e.pursuitAnchor[0], e.y - e.pursuitAnchor[1]);
-  })).toBeLessThanOrEqual(8);
+  // The leash reserves its last outward tile before the sprite reaches it.
+  // Record that boundary, then wait for an actual inward leg. The returning
+  // flag alone still includes the unfinished outward interpolation.
+  await frame.waitForFunction(() => {
+    const e = window.backstabFixtureTarget, [ax, ay] = e.pursuitAnchor;
+    if (e.returning && !window.examinerReturnTransition) {
+      window.examinerReturnTransition = {
+        distance: Math.hypot(e.x - ax, e.y - ay), x: e.x, y: e.y,
+        fx: e.fx, fy: e.fy, tx: e.tx, ty: e.ty, clock: Scene.tacticalTime(),
+      };
+    }
+    return e.returning && e.tx != null &&
+      (e.tx - e.fx) * (ax - e.fx) + (e.ty - e.fy) * (ay - e.fy) > 0;
+  }, null, { timeout: 10000 });
+  expect(await frame.evaluate(() => window.examinerReturnTransition.distance)).toBeLessThanOrEqual(8);
+  await info.attach('examiner-return-transition', {
+    body: JSON.stringify(await frame.evaluate(() => window.examinerReturnTransition)),
+    contentType: 'application/json',
+  });
   await frame.waitForFunction(({ x, y }) => {
     const e = window.backstabFixtureTarget;
     return e.x === x && e.y === y && e.tx == null && !e.returning && e.chase === 0;
