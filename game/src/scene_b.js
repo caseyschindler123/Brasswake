@@ -1049,6 +1049,7 @@
   }
   let tacticalClock=0;
   function step(dt) {
+    if (!map.pending) fade = Math.max(0, fade - dt * 2.2);
     if(host.combatEnabled?.()&&(locked||map.pending||document.hidden||!host.combatRunning?.())){if(host.combatResolving?.()){if(P.atk>0)P.atk-=dt;advanceEffects(dt);}return;}
     if (map.ship) shipTick(dt);
     if(inputAvailable()&&!map.pending&&!document.hidden)tacticalClock+=dt*1000;
@@ -1128,7 +1129,6 @@
       for (const f of flies) { f.l -= dt; if (f.bird) { f.x += f.vx * dt; f.y += f.vy * dt; } else { f.vx += (Math.random() - .5) * 9 * dt; f.vy += (Math.random() - .5) * 9 * dt; const v = Math.hypot(f.vx, f.vy); if (v > 1.3) { f.vx *= 1.3 / v; f.vy *= 1.3 / v; } f.x += f.vx * dt; f.y += f.vy * dt; } }
       flies = flies.filter(f => f.l > 0 && f.x > cam.x / T - 6 && f.y > cam.y / T - 6 && f.x < (cam.x + vw) / T + 6 && f.y < (cam.y + vh) / T + 6); } else if (flies.length) flies = [];
     if (banner) { banner.t -= dt; if (banner.t <= 0) banner = null; }
-    if (!map.pending) fade = Math.max(0, fade - dt * 2.2);
   }
   function advanceGait(actor,distance,running) {
     const contacts=ActorRig.advance(actor,distance,running);

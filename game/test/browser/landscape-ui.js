@@ -106,3 +106,15 @@ test('the paused side panel frames both actors without changing their world posi
   }
   await screenshot(page,info,'landscape-paused-world');expect(errors).toEqual([]);
 });
+
+// A query may open immediately after entering a scene while its visual fade is
+// still black. Presentation must finish without advancing the paused world.
+test('scene arrival becomes visible while SQL keeps both actors paused',async({page},info)=>{
+  const errors=observeErrors(page);await page.setViewportSize({width:844,height:390});await openDev(page);
+  await page.evaluate(()=>{Dev.teleport({region:1});Dev.resources({mana:1,stamina:1});__bw.Combat.begin('recover');});
+  await expect(page.locator('#sql')).toBeVisible();
+  const before=await page.evaluate(()=>({p:[Scene.debug().P.fx,Scene.debug().P.fy],clock:Scene.tacticalTime()}));
+  await expect.poll(()=>page.locator('#stage canvas.game').evaluate(cv=>{const d=cv.getContext('2d').getImageData(0,0,cv.width,cv.height).data;let bright=0,total=0;for(let i=0;i<d.length;i+=64){total++;if(d[i]+d[i+1]+d[i+2]>90)bright++;}return bright/total;}),{timeout:15000}).toBeGreaterThan(.2);
+  expect(await page.evaluate(()=>({p:[Scene.debug().P.fx,Scene.debug().P.fy],clock:Scene.tacticalTime()}))).toEqual(before);
+  await screenshot(page,info,'paused-arrival-visible');expect(errors).toEqual([]);
+});
