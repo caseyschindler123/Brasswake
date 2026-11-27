@@ -804,7 +804,7 @@
     const ambush=AMBUSH&&AMBUSH.e===cfg.ent&&AMBUSH.owner===S?AMBUSH:backstabReason(cfg.ent)===null?{e:cfg.ent,owner:S,at:Scene.pos()}:null;AMBUSH=null;
     F=Object.assign({st:'choose',round:0,busy:false,hint:0,hints:[],tries:0,chips:'',after:'',ambush},cfg);
     if(F.act==='fight'&&F.foe){F.engaged=!!(cfg.forced||F.ent&&(F.ent.forced||F.ent.engaged||F.ent.chase>0));if(F.engaged&&F.ent)F.ent.engaged=true;const old=Backstab.recall(WOUNDS,F.ent,S,F.kind,F.foe.max,Scene.tacticalTime());if(old){F.foe.hp=old.hp;F.round=old.round;}else if(F.engaged&&Number.isInteger(F.ent.battleRound))F.round=F.ent.battleRound;F.startRound=F.round;}
-    Scene.FX.lock(true);if(F.ent)Scene.FX.face(F.ent);$('#fight').hidden=false;$('#nav').hidden=true;$('#ctx').hidden=true;$('#app').classList.add('infight');Scene.resume();barsF();drawF();if(F.act==='fight'&&S.tut>=1)coach('fight');
+    Scene.FX.lock(true);if(F.ent&&!cfg.live)Scene.FX.face(F.ent);$('#fight').hidden=false;$('#nav').hidden=true;$('#ctx').hidden=true;$('#app').classList.add('infight');Scene.resume();barsF();drawF();if(F.act==='fight'&&S.tut>=1)coach('fight');
   }
   const BODY_MS0 = 10 * 60 * 1000; let BODY_MS = BODY_MS0;
   function dropBody() {
