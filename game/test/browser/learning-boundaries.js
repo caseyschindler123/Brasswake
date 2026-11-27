@@ -8,7 +8,7 @@ const sheet = page => page.locator('#sheet');
 const state = page => page.evaluate(() => {
   const s = __bw.S;
   return { gold: s.gold, hides: s.mats.hide || 0, equipment: { ...s.eq }, keys: s.hints,
-    sigils: s.mats.sigil, items: s.inv.map(item => item.id) };
+    sigils: s.mats.sigil, items: s.inv.map(item => item.id), scrolls: { ...s.scr } };
 });
 
 test('first-day boundaries · damage labels expire while the Hero view pauses Adventure', async ({ page }) => {
@@ -97,7 +97,7 @@ test('first-day boundaries · guided Deposit all keeps the bank open and advance
   expect(errors).toEqual([]);
 });
 
-test('first-day boundaries · Bag explains currencies and confirms exactly the previewed common sale', async ({ page }, info) => {
+test('first-day boundaries · selling requires a nearby vendor and preserves unselected goods', async ({ page }, info) => {
   const errors = observeErrors(page);
   await openDev(page);
   const fixtures = await page.evaluate(() => {
@@ -106,6 +106,7 @@ test('first-day boundaries · Bag explains currencies and confirms exactly the p
     s.hints = 4;
     s.mats.sigil = 2;
     s.mats.hide = 3;
+    s.pages.a1=1;s.scr.a1=2;
     // Loot generation may promote a nominal common piece when it rolls an
     // enchantment. Create this fixture without loot enchantments.
     const item = (rarity, slot) => __bw.makeItem(rarity, 1, slot, 'swords', { source: 'starter' });
@@ -133,34 +134,57 @@ test('first-day boundaries · Bag explains currencies and confirms exactly the p
   }
 
   const before = await state(page);
-  const price = fixtures.armorGold + fixtures.ringGold + 9;
-  const preview = page.locator('#view [data-a="sellcommon"]');
-  await preview.click();
-  await expect(sheet(page).getByRole('heading', { name: 'Review this sale', exact: true })).toBeVisible();
-  const lines = sheet(page).locator('li');
-  await expect(lines).toHaveText([
-    fixtures.armor.name + ' · ' + fixtures.armorGold + ' gold',
-    fixtures.ring.name + ' · ' + fixtures.ringGold + ' gold',
-    'Hides ×3 · 9 gold'
-  ]);
-  const confirm = sheet(page).getByRole('button', { name: 'Sell for ' + price + ' gold', exact: true });
-  await expect(confirm).toBeVisible();
-  expect(await state(page)).toEqual(before);
-  await sheet(page).getByRole('button', { name: 'Keep my items', exact: true }).click();
+  await expect(page.locator('#view [data-a="sellcommon"]')).toHaveCount(0);
+  await page.locator('#view [data-a=item][data-id="'+fixtures.ring.id+'"]').click();
+  await expect(sheet(page).locator('[data-a=sell]')).toHaveCount(0);
+  await sheet(page).getByRole('button',{name:'Close',exact:true}).click();
+  await page.evaluate(()=>__bw.ACT.sellcommon());
+  await page.evaluate(id=>__bw.ACT.sell({id}),fixtures.ring.id);
+  await page.evaluate(()=>__bw.ACT.sellscroll({id:'a1'}));
   await expect(sheet(page)).toBeHidden();
   expect(await state(page)).toEqual(before);
-
-  await preview.click();
+  await nav(page,'world').click();
+  const vendor=await page.evaluate(()=>{
+    const {map:m}=Scene.debug(),e=m.ents.find(e=>e.kind==='stallkeep'&&e.r===1);
+    for(const [dx,dy]of [[0,1],[1,0],[-1,0],[0,-1]]){
+      const x=e.x+dx,y=e.y+dy,i=y*m.w+x;
+      if(m.solid[i]||m.occ.has(i))continue;
+      Scene.hop(x,y);return e.name;
+    }
+    throw Error('No vendor approach');
+  });
+  await expect(page.locator('#ctx')).toContainText(vendor);
+  await page.locator('#ctx').click();
+  const coach=page.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
+  await sheet(page).locator('[data-a=sellcommon]').click();
+  await expect(sheet(page)).toContainText('Choose goods to sell');
+  await expect(sheet(page).locator('[data-a=sellpick][data-id="'+fixtures.worn.id+'"]')).toHaveCount(0);
+  await sheet(page).locator('[data-a=sellpick][data-id="'+fixtures.armor.id+'"]').click();
+  await expect(sheet(page).locator('li')).toHaveText([fixtures.armor.name+' · '+fixtures.armorGold+' gold']);
+  await screenshot(page,info,'individual-vendor-sale');
+  const confirm=sheet(page).getByRole('button',{name:'Sell for '+fixtures.armorGold+' gold',exact:true});
+  expect(await state(page)).toEqual(before);
+  await sheet(page).getByRole('button',{name:'Keep my items',exact:true}).click();
+  expect(await state(page)).toEqual(before);
+  await page.evaluate(()=>__bw.ACT.sellcommon());
+  await sheet(page).locator('[data-a=sellpick][data-id="'+fixtures.armor.id+'"]').click();
   await confirm.click();
   await expect(sheet(page)).toBeHidden();
-  await expect(nav(page, 'bag')).toHaveAttribute('aria-current', 'page');
-  await expect(page.locator('#toast')).toContainText('Sold for ' + price + ' gold');
-  const sold = [fixtures.armor.id, fixtures.ring.id];
-  expect(await state(page)).toEqual({ ...before, gold: before.gold + price, hides: 0,
-    items: before.items.filter(id => !sold.includes(id)) });
-  for (const item of [fixtures.worn, fixtures.rare]) {
-    await expect(page.locator('#view [data-a="item"][data-id="' + item.id + '"]')).toBeVisible();
-  }
+  expect(await state(page)).toEqual({...before,gold:before.gold+fixtures.armorGold,items:before.items.filter(id=>id!==fixtures.armor.id)});
+
+  await page.evaluate(()=>__bw.ACT.sellcommon());
+  await sheet(page).locator('[data-a=sellpick][data-id="scroll:a1"]').click();
+  await expect(sheet(page).locator('li')).toContainText('scroll ×1');
+  await sheet(page).locator('[data-a=sellconfirm]').click();
+  expect((await state(page)).scrolls.a1).toBe(1);
+
+  // A review cannot be reused after moving away from the vendor.
+  await page.evaluate(()=>__bw.ACT.sellcommon());
+  await sheet(page).locator('[data-a=sellpick][data-id="'+fixtures.ring.id+'"]').click();
+  await page.evaluate(()=>{const p=Scene.pos();Scene.hop(p[0]+8,p[1]+8);});
+  const after=await state(page);
+  await sheet(page).locator('[data-a=sellconfirm]').click();
+  expect(await state(page)).toEqual(after);
   expect(errors).toEqual([]);
 });
 
@@ -195,7 +219,8 @@ test('first-day boundaries · Recover requires a resource deficit and restores m
   await page.locator('#kb [data-fn="run"]').click();
   await expect(page.locator('#enc h2')).toHaveText('Success');
   await expect(page.locator('#enc .q-body')).toContainText('Recovered 0 mana and 12 stamina.');
-  await expect(page.locator('#enc .gain')).toContainText('Meditation');
+  await expect(page.locator('#enc .practice-gains')).toContainText('Meditation');
+  await expect(page.locator('#enc .practice-gains')).toContainText(/\d+\.\d → \d+\.\d \(\+\d+\.\d\)/);
   const after = await page.evaluate(() => ({
     meditation: __bw.S.sk.meditation, mana: __bw.S.mana, stamina: __bw.S.stamina
   }));
@@ -283,4 +308,70 @@ test('first-day boundaries · stall gear and Odalys’s pages show loaded item i
     { source: 'material', painted: true }
   ]);
   expect(errors).toEqual([]);
+});
+
+
+test('first-day boundaries · Journal leads with the guide and separates optional records',async({page},info)=>{
+  await openDev(page);
+  await expect(page.locator('#toast [role=status]')).toHaveCount(0);
+  await page.evaluate(()=>{__bw.S.gd=8;__bw.S.met['1.0']=1;__bw.S.seen['intro.practice']=1;__bw.SH.journal();});
+  await expect(sheet(page).getByRole('heading',{name:'Your next step',exact:true})).toBeVisible();
+  await expect(sheet(page).locator('.journal-next')).toContainText('Visit Odalys and buy another ability');
+  await expect(sheet(page).locator('details[open]')).toHaveCount(0);
+  await expect(sheet(page).locator('summary').first()).toContainText('Optional SQL practice');
+  await screenshot(page,info,'journal-next-step');
+  await sheet(page).locator('summary').filter({hasText:'Ilva’s story'}).click();
+  await expect(sheet(page)).toContainText('separate from the ability pages');
+  await sheet(page).getByRole('button',{name:'Close',exact:true}).click();
+  await page.evaluate(()=>{const e=Scene.guideEnt()||{name:'Tamsin'};__bw.SH.guide(e);});
+  await page.locator('#say').click();
+  await expect(page.locator('#say-text')).toContainText('We call an ability a page');
+  await screenshot(page,info,'tamsin-explains-ability-pages');
+  await speech(page);
+  await page.evaluate(()=>Dev.resources({gold:1000}));
+  await openVendor(page,'npc',0);
+  await speech(page,'#say [data-a=pages]');
+  const coach=page.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
+  await sheet(page).locator('[data-a=buypage]:not([disabled])').first().click();
+  expect(await page.evaluate(()=>__bw.S.gd)).toBe(9);
+  await sheet(page).locator('[data-a=buypage]:not([disabled])').first().click();
+  expect(await page.evaluate(()=>__bw.S.gd)).toBe(9);
+});
+
+test('first-day boundaries · paid skill training shows the before, after and gain',async({page},info)=>{
+  await openDev(page);
+  await expect(page.locator('#toast [role=status]')).toHaveCount(0);
+  await page.evaluate(()=>{Dev.skills({swords:12});Dev.resources({gold:10000});__bw.ACT.djtrain();});
+  await sheet(page).locator('[data-a=train][data-id=swords][data-n="1"]').click();
+  const gain=sheet(page).locator('.practice-gains');
+  await expect(gain).toContainText('Swordsmanship');
+  await expect(gain).toContainText('12.0 → 13.0 (+1.0)');
+  await expect.poll(()=>page.evaluate(()=>__bw.S.sk.swords)).toBe(13);
+  await screenshot(page,info,'visible-skill-training-gain');
+});
+
+test('first-day boundaries · battle gains stay visible after an exchange and victory',async({page},info)=>{
+  await openDev(page);
+  await expect(page.locator('#toast [role=status]')).toHaveCount(0);
+  await page.evaluate(()=>{Dev.skills({swords:40});const ids=Dev.spawn({monster:'b102'});Dev.battle(ids[0]);__bw.F.foe.hp=__bw.F.foe.max=10000;});
+  const submit=async()=>{
+    await page.locator('[data-a=fpage][data-id=a1]').click();
+    const coach=page.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
+    const before=await page.evaluate(()=>__bw.S.sk.swords);
+    await page.locator('#sql').fill(await page.evaluate(()=>__bw.F.task.sql));
+    await page.evaluate(()=>{window.gainTestRandom=Math.random;Math.random=()=>.01;});
+    try{await page.locator('#kb [data-fn=run]').click();await page.waitForFunction(()=>__bw.F&&!__bw.F.busy);}finally{await page.evaluate(()=>{Math.random=window.gainTestRandom;});}
+    const after=await page.evaluate(()=>__bw.S.sk.swords);
+    expect(after).toBeGreaterThan(before);
+    const gain=page.locator('#fight .practice-gains');
+    await expect(gain).toBeVisible();
+    await expect(gain).toContainText(`${before.toFixed(1)} → ${after.toFixed(1)} (+${(after-before).toFixed(1)})`);
+  };
+  await submit();
+  await screenshot(page,info,'battle-exchange-skill-gain');
+  await page.locator('[data-a=fchoose]').click();
+  await page.evaluate(()=>{__bw.F.foe.hp=1;});
+  await submit();
+  expect(await page.evaluate(()=>__bw.F.over)).toBeTruthy();
+  await screenshot(page,info,'battle-victory-skill-gain');
 });

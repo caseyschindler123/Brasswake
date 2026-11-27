@@ -143,7 +143,8 @@ async function orientAboard(page,info,screenshot,reopen){
   const review=!/reduced frame throughput|120 ms bursts/.test(info.title);
   for(const [phase,tab]of [['chart','map'],['kit','bag'],['hero','hero'],['ledger','ledger']]){
     await expect(page.locator('#onboard')).toHaveAttribute('data-phase',phase);
-    await expect(page.locator('#nav [data-a=tab]')).toHaveCount(5);
+    await expect(page.locator('#nav button[data-t]')).toHaveCount(5);
+    await expect(page.locator('#hud .hud-face')).toHaveCount(0);
     if(review){
       await expect(page.locator('#onboard [data-a=boatnext]')).toBeInViewport({ratio:1});
       await expect(page.locator('#onboard [data-a=tab]')).toBeInViewport({ratio:1});
@@ -155,6 +156,7 @@ async function orientAboard(page,info,screenshot,reopen){
       await expect(page.locator('#onboard [data-a=tab]')).toBeInViewport({ratio:1});
     }
     await page.locator(`#nav [data-t=${tab}]`).click();
+    if(tab==='hero')await page.locator('#sheet [data-a=tab][data-t=hero]').click();
     await expect(page.locator('#view')).toBeVisible();
     await expect(page.locator('.boat-tool-note')).toContainText('Tamsin');
     if(tab==='map'){await expect(page.locator('.boat-chart svg')).toBeVisible();await expect(page.locator('#view')).toContainText('not your explored land map');}
