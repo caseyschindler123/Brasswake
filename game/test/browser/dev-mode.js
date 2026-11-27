@@ -35,22 +35,26 @@ test('creature loot follows species through real victories and collection',async
     await page.evaluate(async scenario=>{
       await Dev.reset(17);__bw.A.cmds=Object.fromEntries(Object.keys(Content.CMDS).map(k=>[k,2]));__bw.S.pages.h1=1;Dev.skills({swords:100,tactics:100,anatomy:100});Dev.attributes({str:100,dex:100,int:25});Dev.resources({hp:Progression.maxHp(__bw.S)});Dev.grant({weapon:'swords',rarity:'legendary',tier:8});
       if(scenario==='dungeon-rat'){
-        Dev.teleport({region:1,dungeon:0});const e=Scene.find(e=>e.species==='d11'&&e.kind==='mon');if(!e)throw Error('Missing dungeon rat');__bw.DP.fight(e);
+        Dev.teleport({region:1,dungeon:0});const e=Scene.find(e=>e.species==='d11'&&e.kind==='mon');if(!e)throw Error('Missing dungeon rat');window.lootTarget=e;__bw.DP.fight(e);
       }else{
         const id=Dev.spawn({monster:scenario==='gull'?'b102':scenario==='bandit'?'b401':'b403'})[0];
         if(scenario==='wolf-leader'){const e=Scene.find(e=>e.id===id);Object.assign(e.inst,{lk:'l24',lead:1,lair:'loot-regression',elite:true});}
-        Dev.battle(id);
+        window.lootTarget=Scene.find(e=>e.id===id);Dev.battle(id);
       }
+      const e=window.lootTarget,m=Scene.debug().map;const at=[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>[e.x+dx,e.y+dy]).find(([x,y])=>!m.solid[y*m.w+x]&&!m.occ.has(y*m.w+x));if(!at)throw Error('No clear loot-test approach');Scene.hop(...at);__bw.Combat.selectTarget(e);
     },scenario);
-    if(scenario==='bandit')await expect(page.locator('[data-a=fsteal]')).toBeVisible();else {
-      await expect(page.locator('[data-a=fsteal]')).toHaveCount(0);
-      expect(await page.evaluate(()=>{__bw.ACT.fsteal();return __bw.F.act;})).toBe('fight');
+    if(scenario==='bandit')await expect(page.locator('#combat-context [data-id=steal]')).toBeVisible();else {
+      await expect(page.locator('#combat-context [data-id=steal]')).toHaveCount(0);
+      expect(await page.evaluate(()=>__bw.Combat.begin('steal'))).toBe(false);
+      expect(await page.evaluate(()=>__bw.F)).toBeNull();
     }
-    for(let n=0;n<20&&!await page.evaluate(()=>__bw.F.over);n++){
+    for(let n=0;n<20&&!await page.evaluate(()=>__bw.F?.over);n++){
+      await page.waitForFunction(()=>__bw.Combat.descriptor('basic.swords').ready);
+      await page.locator('#combat-bar [data-id="basic.swords"]').click();
       const coach=page.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
-      const choose=page.locator('[data-a=fchoose]');if(await choose.isVisible())await choose.click();
-      await page.locator('[data-a=fpage]').first().click();if(await coach.isVisible())await coach.click();
-      await page.locator('#sql').fill(await page.evaluate(()=>__bw.F.task.sql));await page.locator('#kb [data-fn=run]').click();await page.waitForFunction(()=>__bw.F&&!__bw.F.busy);
+      await page.locator('#sql').fill(await page.evaluate(()=>__bw.F.task.sql));
+      await page.evaluate(()=>{window.lootRoll=Math.random;Math.random=()=>.01;});
+      try{await page.locator('#kb [data-fn=run]').click();await page.waitForFunction(()=>__bw.F&&!__bw.F.busy);}finally{await page.evaluate(()=>{Math.random=window.lootRoll;});}
     }
     expect(await page.evaluate(()=>!!__bw.F.body)).toBe(true);
     const result=await page.evaluate(()=>({loot:__bw.F.body.loot,gold:__bw.S.gold,meat:__bw.S.meat||0,hide:__bw.S.mats.hide||0}));
