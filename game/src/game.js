@@ -803,7 +803,7 @@
     if(cfg.act==='fight'&&cfg.foe&&gOn()&&(gid()==='fight'||cfg.ent&&cfg.ent.tutorial)){cfg.foe.hp=cfg.foe.max=18;cfg.tutorialSafe=true;}
     const ambush=AMBUSH&&AMBUSH.e===cfg.ent&&AMBUSH.owner===S?AMBUSH:backstabReason(cfg.ent)===null?{e:cfg.ent,owner:S,at:Scene.pos()}:null;AMBUSH=null;
     F=Object.assign({st:'choose',round:0,busy:false,hint:0,hints:[],tries:0,chips:'',after:'',ambush},cfg);
-    if(F.act==='fight'&&F.foe){F.engaged=!!(cfg.forced||F.ent&&(F.ent.forced||F.ent.engaged||F.ent.chase>0));if(F.engaged&&F.ent)F.ent.engaged=true;const old=Backstab.recall(WOUNDS,F.ent,S,F.kind,F.foe.max,Scene.tacticalTime());if(old){F.foe.hp=old.hp;F.round=old.round;}else if(F.engaged&&Number.isInteger(F.ent.battleRound))F.round=F.ent.battleRound;F.startRound=F.round;}
+    if(F.act==='fight'&&F.foe){F.engaged=!!(cfg.forced||F.ent&&(F.ent.forced||F.ent.engaged||F.ent.chase>0));if(F.engaged&&F.ent)F.ent.engaged=true;const old=!F.live&&Backstab.recall(WOUNDS,F.ent,S,F.kind,F.foe.max,Scene.tacticalTime());if(old){F.foe.hp=old.hp;F.round=old.round;}else if(!F.live&&F.engaged&&Number.isInteger(F.ent.battleRound))F.round=F.ent.battleRound;F.startRound=F.round;}
     Scene.FX.lock(true);if(F.ent&&!cfg.live)Scene.FX.face(F.ent);$('#fight').hidden=false;$('#nav').hidden=true;$('#ctx').hidden=true;$('#app').classList.add('infight');Scene.resume();barsF();drawF();if(F.act==='fight'&&S.tut>=1)coach('fight');
   }
   const BODY_MS0 = 10 * 60 * 1000; let BODY_MS = BODY_MS0;
@@ -1107,7 +1107,7 @@
   }
   function bossCard(e) {
     const t = e.r, b = BOSSES[t - 1], d = diffOf(t, false, true), lack = t === 8 ? [1, 2, 3, 4, 5, 6, 7].filter(k => !S.boss[k]).length : 0, pt = Scene.bossPortrait(t); closeSay(); Scene.pause(); $('#nav').hidden = true; const el = $('#enc'); el.hidden = false; el.className = 'bcard';
-    el.innerHTML = `<div class="card-bg" style="background-image:url(${Scene.backdrop(t)})"></div><div class="card-in">${pt ? `<img class="card-port" alt="" src="${pt}">` : ''}<p class="eyebrow">${esc(b.epithet)}</p><h1>${esc(b.name)}</h1><p class="story">${esc(b.intro)}</p><p class="cap2">${(Backstab.recall(WOUNDS,e,S,'boss',mkFoe(t,d,3.5,true).max,Scene.tacticalTime())||mkFoe(t,d,3.5,true)).hp} health · difficulty ${d} · no hints · the examiner sets every question</p>${lack ? `<p class="cap2">The council will hear you once you have the other seven marks. You still need ${lack}.</p>` : ''}<div class="row end"><button class="btn quiet" data-a="cardno">Not yet</button><button class="btn solid" data-a="start" data-k="boss"${lack ? ' disabled' : ''}>${S.boss[t] ? 'Stand again' : 'Stand the examination'}</button></div></div>`;
+    el.innerHTML = `<div class="card-bg" style="background-image:url(${Scene.backdrop(t)})"></div><div class="card-in">${pt ? `<img class="card-port" alt="" src="${pt}">` : ''}<p class="eyebrow">${esc(b.epithet)}</p><h1>${esc(b.name)}</h1><p class="story">${esc(b.intro)}</p><p class="cap2">${Combat.enemy(e).hp} health · difficulty ${d} · no hints · the examiner sets every question</p>${lack ? `<p class="cap2">The council will hear you once you have the other seven marks. You still need ${lack}.</p>` : ''}<div class="row end"><button class="btn quiet" data-a="cardno">Not yet</button><button class="btn solid" data-a="start" data-k="boss"${lack ? ' disabled' : ''}>${S.boss[t] ? 'Stand again' : 'Stand the examination'}</button></div></div>`;
   }
   const closeCard = () => { $('#enc').hidden = true; $('#enc').innerHTML = ''; $('#nav').hidden = false; };
 

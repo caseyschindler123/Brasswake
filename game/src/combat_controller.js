@@ -166,7 +166,7 @@ const CombatController = (() => {
       h.changed();if(s.hp<=0)h.defeat(e,es);
     }
     function bleed(e,amount){const es=enemy(e);if(!es||es.hp<=0)return;es.hp=Math.max(1,es.hp-amount);h.present(e,{discipline:'swords'},amount);h.settled(e);}
-    function reset(e){if(e.combat){e.combat.hp=e.combat.max;e.combat.round=0;e.combat.queries=0;}h.settled(e);}
+    function reset(e){if(e.combat)Object.assign(e.combat,LiveCombat.enemy(),{phase:e.combat.phase,queries:0,hp:e.combat.max});h.settled(e);}
     function commitEligibility(){
       const f=h.fight(),d=f?.definition,s=state();if(!f?.live||!d)return {ok:false,reason:'No live action is prepared.'};
       let reason='';const facts=f.ent&&h.facts(f.ent);

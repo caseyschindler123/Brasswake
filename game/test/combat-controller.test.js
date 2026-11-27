@@ -57,3 +57,7 @@ test('defensive practice is budgeted once per useful committed SQL action, inclu
   const x=setup(),qualities=[];x.host.enemyDamage=(e,s,a,b,i,q)=>{qualities.push(q);return 0;};x.c.begin('basic.magery');x.f.queryPower=1;x.c.resolve(x.f,{quality:1});x.e.combat.round=1;x.c.hit(x.e,x.e.combat);x.c.hit(x.e,x.e.combat);assert.deepEqual(qualities,[1,0]);
   x.c.tick(2,false);x.c.cancel();x.c.begin('basic.magery');x.f.queryPower=0;x.c.resolve(x.f,{quality:0});x.c.hit(x.e,x.e.combat);assert.equal(qualities.at(-1),0);
 });
+
+test('full return clears encounter effects and phases while retaining return attack exclusion',()=>{
+  const x=setup(),es=x.e.combat;Object.assign(es,{phase:'return',hp:1,queries:4,round:7,bleed:4,bleedTime:3,slow:.4,slowTime:3,controlImmune:4,exposed:2,windup:.5});x.c.reset(x.e);assert.equal(es.phase,'return');assert.equal(es.hp,es.max);for(const k of ['queries','round','bleed','bleedTime','slow','slowTime','controlImmune','exposed','windup'])assert.equal(es[k],0,k);
+});

@@ -1041,7 +1041,7 @@
   const observed = () => !!(map&&P)&&map.ents.some(e=>hostile(e)&&!e.dead&&!e.dying&&(e.alert>0||e.chase>0)&&Math.hypot(e.fx-P.fx,e.fy-P.fy)<HIDE_OBSERVATION&&sight(e));
   function endChase(e) {
     if(!e)return;e.chase=0;e.alert=0;e.hunt=false;e.wait=0;e.engaged=false;e.forced=false;e.battleRound=0;e.lastSeen=null;
-    if(e.combat){e.combat.phase='idle';e.combat.awareness=0;e.combat.windup=0;if(!e.dead)e.combat.hp=e.combat.max;}
+    if(e.combat)Object.assign(e.combat,LiveCombat.enemy(),{queries:0,hp:e.combat.max});
     if(e.pursuitAnchor&&!e.dead&&['boss','guard','keeper'].includes(e.kind))e.returning=e.x!==e.pursuitAnchor[0]||e.y!==e.pursuitAnchor[1];
   }
   function pursue(e,secs=CHASE_SECONDS) {
