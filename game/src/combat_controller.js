@@ -1,10 +1,10 @@
 /* Gameplay adapter: presentation consumes snapshots; all mutations revalidate here. */
 const CombatController = (() => {
   function create(h) {
-    let owner=null,target=null,cooldown=LiveCombat.recovery(),protection=null,prepared=null,serial=0;
+    let owner=null,target=null,cooldown=LiveCombat.recovery(),protection=null,prepared=null,serial=0,defensePractice=0;
     const preparations=new Map();let assistance={hint:0,shown:0,fixed:0};
     const state=()=>h.state();
-    const sync=()=>{if(owner!==state()){owner=state();target=null;cooldown=LiveCombat.recovery();protection=null;prepared=null;preparations.clear();assistance={hint:0,shown:0,fixed:0};Techniques.normalize(state());}else if(!state().techniques)Techniques.normalize(state());};
+    const sync=()=>{if(owner!==state()){owner=state();target=null;cooldown=LiveCombat.recovery();protection=null;prepared=null;defensePractice=0;preparations.clear();assistance={hint:0,shown:0,fixed:0};Techniques.normalize(state());}else if(!state().techniques)Techniques.normalize(state());};
     const active=()=>h.entities().some(e=>!e.dead&&e.combat?.phase==='chase'&&e.combat.hp>0);
     const weapon=()=>h.weapon()?.w||'swords', equippedWeapon=()=>h.weapon()?.w||null;
     function enemy(e,cfg) {
@@ -108,6 +108,7 @@ const CombatController = (() => {
     function setSupply(kind){sync();if(!['bandage','draught'].includes(kind)||active()||h.fight())return false;state().techniques.supply=kind;h.save();h.changed();return true;}
     function tick(dt,moving) {
       sync();LiveCombat.advanceRecovery(cooldown,dt,moving);
+      if(!active())defensePractice=0;
       if(protection){protection.left-=dt;if(protection.left<=0)protection=null;}
       const s=state();s.stamina=Math.min(h.maxStamina(),s.stamina+dt*LiveCombat.RULES.staminaRecovery);
     }
@@ -123,6 +124,7 @@ const CombatController = (() => {
       if(d.effect!=='draught')h.practice(skill,f.diff,quality,gains);
       let note=q>0?'The action succeeds.':'The query gives no useful effect.';
       if(e&&d.target==='enemy'){h.engage(e);h.reveal();}
+      defensePractice=quality;f.strikes=[];
       if(d.effect==='bandage'||d.effect==='draught'){
         s[d.effect==='draught'?'tonics':'bandages']--;
         if(q>0){const healed=h.heal(d.effect==='draught'?30:h.bandage()*q);note=`Restored ${healed} health.`;}
@@ -131,10 +133,10 @@ const CombatController = (() => {
       }else if(d.target==='self'){
         if(q>0){
           if(d.effect==='heal'){note=`Restored ${h.heal((8+(s.sk.magery||0)*.4)*q)} health.`;}
-          else {const strength=Math.min(.7,.25+(d.power||10)*.01+(d.effect==='ward'?(s.sk.inscription||0)*.002:0));protection={left:5,physical:strength*q,magic:(d.effect==='ward'?strength:.15)*q,riposte:d.effect==='riposte'?(d.power||10)/20*q:0};note='Protection holds for five seconds of active combat.';if(d.effect==='ward')h.practice('inscription',f.diff,quality*.35,gains);}
+          else {const strength=Math.min(.7,.25+(d.power||10)*.01+(d.effect==='ward'?(s.sk.inscription||0)*.002:0));protection={left:5,physical:strength*q,magic:(d.effect==='ward'?strength:.15)*q,riposte:d.effect==='riposte'?(d.power||10)/20*q:0};note='Protection holds for five seconds of active combat.';if(d.effect==='ward')h.practice('inscription',f.diff,quality*.35,gains,true);}
         }
       }else if(es&&q>0){
-        const strike=h.attack(d,e,q,f),landed=strike.damage;
+        const strike=h.attack(d,e,q,f),landed=strike.damage;f.strikes=strike.hits||[];
         es.hp=Math.max(0,es.hp-landed);f.foe.hp=es.hp;h.present(e,d,landed);
         if(landed>0){
           if(d.effect==='slow'){es.slow=LiveCombat.RULES.maxSlow*q;es.slowTime=4*q;}
@@ -143,8 +145,8 @@ const CombatController = (() => {
           if(d.effect==='push')h.push(e,Math.ceil(2*q));
           if(d.effect==='expose')es.exposed=4*q;
           if(d.effect==='siphon'&&es.profile.magic){const restored=Math.min(h.maxMana()-s.mana,Math.round(10*q));s.mana+=restored;note=`Drained ${restored} mana from the caster.`;}
-          h.practice(d.discipline==='magery'?'eval':'tactics',f.diff,quality*.35,gains);
-          if(d.discipline!=='magery')h.practice('anatomy',f.diff,quality*.35,gains);
+          h.practice(d.discipline==='magery'?'eval':'tactics',f.diff,quality*.35,gains,true);
+          if(d.discipline!=='magery')h.practice('anatomy',f.diff,quality*.35,gains,true);
         }
         note=landed>0?`${d.name} dealt ${landed} damage. ${d.effect==='siphon'?note:''}`:'The attack missed.';
       }
@@ -159,7 +161,7 @@ const CombatController = (() => {
       if(intent.swings===0){h.changed();return;}
       const skill=s.sk[weapon()]||0,accuracy=BattleRules.enemyHit(skill,es.config.diff,intent.accuracy);
       const blocked=protection?(p.magic?protection.magic:protection.physical):0;
-      const damage=h.enemyDamage(e,es,accuracy,blocked,intent);
+      const damage=h.enemyDamage(e,es,accuracy,blocked,intent,defensePractice);defensePractice=0;
       if(damage>0&&protection?.riposte){const counter=Math.max(1,Math.round(damage*.6*protection.riposte));es.hp=Math.max(1,es.hp-counter);protection.riposte=0;}
       h.changed();if(s.hp<=0)h.defeat(e,es);
     }

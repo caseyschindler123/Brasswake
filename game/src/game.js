@@ -722,7 +722,7 @@
       const tpl=circle===cfg.r&&cfg.sig?cfg.sig:pick(BOUNTIES.filter(b=>b.r===circle)).id;
       return prepareLearning(Learning.next(learningState(),{circle,seed:rid()})||makeTask({tpl,seed:rid()}));
     },
-    practice:(id,diff,q,list)=>{const g=gain(id,diff,q);if(g)list.push(g);},
+    practice:(id,diff,q,list,support=false)=>{const g=gain(id,diff,q,support);if(g)list.push(g);},
     engage:e=>Scene.combatEngage(e),reveal:()=>{Sneaking.reveal(CONCEAL);AMBUSH=null;},push:(e,n)=>Scene.combatPush(e,n),
     recover:()=>Progression.recover(S),bandage:()=>Progression.bandage(S),heal,
     attack:(d,e,q,f)=>{
@@ -732,21 +732,22 @@
       const physical=['pierce','expose'].includes(d.effect)||es.exposed>0?1:spell?(es.profile.magic?.85:1):armor;
       const strike=EquipmentRules.attack({weapon:itemById(S.eq.weapon),skillId:d.discipline,skill,damageBonus:bonus('xp'),accuracy:acc,range:W.dmg,swings:W.swings,
         pageCircle:1,targetCircle:1,queryPower:q,attributeFactor:spell?Progression.spellFactor(S):Progression.physicalFactor(S),physicalFactor:physical*(es.exposed>0?1.2:1)*(d.power||1)*(d.effect==='backstab'?1+(Backstab.factor(rv('stealth'))-1)*(f.shown?0:q):1),target:EquipmentRules.creatureProfile(e.name)});
-      es.exposed=0;let damage=0;for(let k=0;k<(d.effect==='backstab'?2:W.swings);k++)if(rnd()*100<strike.accuracy)damage+=strike.damage(rint(...W.dmg));
-      return {damage,accuracy:strike.accuracy};
+      es.exposed=0;let damage=0;const hits=[];for(let k=0;k<(d.effect==='backstab'?2:W.swings);k++){const hit=rnd()*100<strike.accuracy?strike.damage(rint(...W.dmg)):0;hits.push(hit);damage+=hit;}
+      return {damage,hits,accuracy:strike.accuracy};
     },
     present:(e,d,n)=>{Scene.FX.swing('me',e,d.discipline==='magery'?'spell':d.discipline==='archery'?'archery':d.discipline==='fencing'?'fencing':'swords',d.discipline==='magery'?Effects.spell(({'magery.frost-dart':2,'magery.sunlance':3,'magery.fireball':5,'magery.force-wave':4,'magery.crystal-shard':6,'magery.rewrite':8,'magery.unwrite':8})[d.id]||1,!!d.rare):null);Scene.FX.hit(e,n>0?'−'+n:'miss',n>0?'#ffe9a0':'#cfd6d8');},
     settled:e=>{if(e?.combat&&e.inst?.dungeon){e.battleRound=e.combat.round;/* Stable entity retains wounds until its ordinary death/reset. */}},
-    enemyDamage:(e,es,accuracy,defended,intent)=>{
+    enemyDamage:(e,es,accuracy,defended,intent,practiceQuality=0)=>{
       const spell=es.profile.magic,shield=!!itemById(S.eq.shield);Scene.FX.swing(e,'me',spell?'spell':es.profile.ranged?'archery':'hit');
+      if(practiceQuality>0){const gs=[];supportGains(spell?['resisting']:shield?['parrying']:[],es.config.diff,practiceQuality,gs);}
       if(rnd()*100>=accuracy){Scene.FX.hit('me','miss','#cfd6d8');return 0;}
       if(!spell&&shield&&rnd()<Progression.parryChance(S)){Scene.FX.hit('me','blocked','#9be0da');return 0;}
       const protection=(1-EquipmentRules.mitigation(bonus('def'),bonus('warding'),spell)/100)*(spell?Progression.resistFactor(S):1)*(1-defended);
       const damage=Math.max(1,Math.round((rint(3,6)+2*es.config.r+(es.config.boss?2:0))*intent.damage*protection));
       S.hp=Math.max(0,S.hp-damage);if(intent.manaDrain)S.mana=Math.max(0,S.mana-intent.manaDrain);
-      Scene.FX.hit('me','−'+damage,'#f08070');const gs=[];supportGains(spell?['resisting']:shield?['parrying']:[],es.config.diff,.35,gs);renderHud();return damage;
+      Scene.FX.hit('me','−'+damage,'#f08070');renderHud();return damage;
     },
-    defeat:(e,es)=>{retireLiveFight();openF({...es.config,live:true,ent:e,st:'after',foe:{hp:es.hp,max:es.max,diff:es.config.diff},res:{grade:'wrong'},queryPower:0});loseF({grade:'wrong'},[]);},
+    defeat:(e,es)=>{retireLiveFight();openF({...es.config,live:true,ent:e,st:'after',instant:true,pline:'The enemy landed a lethal attack.',foe:{hp:es.hp,max:es.max,diff:es.config.diff},res:{grade:'wrong'},queryPower:0});loseF({grade:'wrong'},[]);},
     victory:(res,gains)=>{winF(res,gains);},
     finish:(note,gains)=>{if(!F)return;F.after=`<p>${esc(note)}</p>${gainLine(gains)}<div class="row end"><button class="btn solid" data-a="livecontinue">Continue moving</button></div>`;if(F.ent)Scene.FX.free(F.ent);Scene.FX.lock(false);Scene.FX.bars([]);drawF();renderHud();},
   });

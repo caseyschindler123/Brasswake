@@ -53,3 +53,7 @@ test('brute preparation causes no damage while its following live attack does',(
 test('committed query phases are independent of timed enemy attacks and reset at a full leash reset',()=>{
   const x=setup();x.e.combat.round=3;x.c.begin('basic.magery');x.f.queryPower=1;x.f.round=1;x.c.resolve(x.f,{quality:1});assert.equal(x.e.combat.queries,1);assert.equal(x.e.combat.round,3);x.c.reset(x.e);assert.equal(x.e.combat.queries,0);assert.equal(x.e.combat.round,0);
 });
+test('defensive practice is budgeted once per useful committed SQL action, including a blocked or missed attack',()=>{
+  const x=setup(),qualities=[];x.host.enemyDamage=(e,s,a,b,i,q)=>{qualities.push(q);return 0;};x.c.begin('basic.magery');x.f.queryPower=1;x.c.resolve(x.f,{quality:1});x.e.combat.round=1;x.c.hit(x.e,x.e.combat);x.c.hit(x.e,x.e.combat);assert.deepEqual(qualities,[1,0]);
+  x.c.tick(2,false);x.c.cancel();x.c.begin('basic.magery');x.f.queryPower=0;x.c.resolve(x.f,{quality:0});x.c.hit(x.e,x.e.combat);assert.equal(qualities.at(-1),0);
+});
