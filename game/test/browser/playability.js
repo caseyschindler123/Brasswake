@@ -15,15 +15,29 @@ async function run(frame, sql) {
   // Let the game's protection against touch clicks after a redraw expire.
   await frame.waitForTimeout(500);
 }
+async function basicAttack(frame) {
+  await coach(frame);
+  const attack = frame.locator('#combat-bar [data-id="basic.swords"]');
+  await expect(attack).toBeEnabled({ timeout: 15000 });
+  await attack.click();
+  await coach(frame);
+}
+async function correctAttack(frame) {
+  const sql = await frame.evaluate(() => __bw.F.task.sql);
+  const original = await frame.evaluateHandle(() => Math.random);
+  try {
+    await frame.evaluate(() => { Math.random = () => .02; });
+    await run(frame, sql);
+    await frame.waitForFunction(() => __bw.F && !__bw.F.busy, null, { timeout: 20000 });
+  } finally {
+    await frame.evaluate(random => { Math.random = random; }, original);
+    await original.dispose();
+  }
+}
 async function winFight(frame) {
   for (let i = 0; i < 6; i++) {
-    await coach(frame);
-    const next = frame.locator('[data-a=fchoose]');
-    if (await next.isVisible()) await next.click();
-    await frame.locator('[data-a=fpage]').first().click();
-    await coach(frame);
-    await run(frame, await frame.evaluate(() => __bw.F.task.sql));
-    await frame.waitForFunction(() => __bw.F && !__bw.F.busy, null, { timeout: 20000 });
+    await basicAttack(frame);
+    await correctAttack(frame);
     if (await frame.evaluate(() => !!__bw.F.over)) return;
   }
   throw new Error('Fight did not end after six correct queries');
@@ -44,6 +58,7 @@ test('commented queries survive Format, grading, and sandbox execution', async (
   await f.locator('[data-a=qleave]').last().click();
   const paidGold = await f.evaluate(() => __bw.S.gold);
   await f.evaluate(() => __bw.START.contract({ id: 'c103' }));
+  await expect(f.locator('#combat-bar')).toBeHidden();
   await run(f, sql);
   await expect(f.locator('#enc')).toContainText('Still sharp');
   expect(await f.evaluate(() => __bw.S.gold)).toBe(paidGold);
@@ -60,11 +75,22 @@ test('combat errors remain readable, correct attacks win, and loot can be banked
   test.setTimeout(120000);
   const errors = observeErrors(page), f = await game(page);
   await f.evaluate(() => {
-    __bw.S.sk.swords = __bw.S.sk.magery = 80;
+    __bw.S.sk.swords = 100;
+    const sword = __bw.makeItem('rare', 1, 'weapon', 'swords');
+    __bw.S.inv.push(sword);
+    __bw.S.eq.weapon = sword.id;
     const e = Scene.find(e => e.kind === 'mon' && e.r === 1 && e.inst.tpl === 'b102' && !e.inst.elite);
-    Scene.warp(e.x + 1, e.y); __bw.HOST.interact(e);
+    e.wander = 0;
+    for (const other of Scene.ents()) if (other.kind === 'mon') other.agg = 0;
+    const { map } = Scene.debug();
+    const next = [[1, 0], [0, 1], [-1, 0], [0, -1]].map(([dx, dy]) => [e.x + dx, e.y + dy])
+      .find(([x, y]) => !map.solid[y * map.w + x] && !map.occ.has(y * map.w + x));
+    if (!next) throw Error('No clear tile beside the creature');
+    Scene.hop(...next);
+    __bw.Combat.selectTarget(e);
   });
-  await coach(f); await f.locator('[data-a=fpage]').first().click(); await coach(f);
+  await basicAttack(f);
+  for (const id of ['hp', 'mana', 'stamina']) await expect(f.locator(`#hud [data-resource=${id}] [role=meter]`)).toBeVisible();
   await run(f, 'SELECT missing FROM vendors');
   await expect(f.locator('#f-out')).toContainText('One free fix');
   expect(await f.evaluate(() => __bw.F.round)).toBe(0);
@@ -79,8 +105,7 @@ test('combat errors remain readable, correct attacks win, and loot can be banked
   const runBox = await f.locator('#kb [data-fn=run]').boundingBox();
   expect(runBox.y + runBox.height).toBeLessThanOrEqual(page.viewportSize().height);
   await screenshot(page, info, 'combat-error-layout');
-  await run(f, await f.evaluate(() => __bw.F.task.sql));
-  await f.waitForFunction(() => __bw.F && !__bw.F.busy, null, { timeout: 20000 });
+  await correctAttack(f);
   if (!await f.evaluate(() => !!__bw.F.over)) await winFight(f);
   await expect(f.locator('[data-a=floot]')).toBeVisible();
   await f.locator('[data-a=floot]').click(); await coach(f);
@@ -142,14 +167,26 @@ test('fishing, dungeon keys and chest, and dojo practice remain playable', async
   await screenshot(page, info, 'fishing-result');
   await f.locator('.pk-dock [data-a=fileave]').click(); await expect(f.locator('#enc')).toBeHidden();
   await f.evaluate(() => {
-    __bw.S.gd = 12; __bw.S.sk.swords = __bw.S.sk.magery = 80;
+    __bw.S.gd = 12; __bw.S.sk.swords = 100;
+    const sword = __bw.makeItem('rare', 1, 'weapon', 'swords');
+    __bw.S.inv.push(sword);
+    __bw.S.eq.weapon = sword.id;
     const e = Scene.find(e => e.kind === 'stairs' && e.r === 1); Scene.warp(e.x, e.y + 1); __bw.setCE(e); __bw.START.dungeon();
   });
   await f.waitForTimeout(900);
   await f.evaluate(() => { __bw.ACT.closesheet(); __bw.HOST.interact(Scene.find(e => e.kind === 'chest')); });
   expect(await f.evaluate(() => __bw.DG.done)).toBe(false);
   expect(await f.evaluate(() => __bw.DG.left)).toBe(1);
-  await f.evaluate(() => { __bw.ACT.closesheet(); __bw.HOST.interact(Scene.find(e => e.kind === 'guard')); });
+  await f.evaluate(() => {
+    __bw.ACT.closesheet();
+    const guard = Scene.find(e => e.kind === 'guard');
+    const { map } = Scene.debug();
+    const next = [[1, 0], [0, 1], [-1, 0], [0, -1]].map(([dx, dy]) => [guard.x + dx, guard.y + dy])
+      .find(([x, y]) => !map.solid[y * map.w + x] && !map.occ.has(y * map.w + x));
+    if (!next) throw Error('No clear tile beside the cellar guard');
+    Scene.hop(...next);
+    __bw.HOST.interact(guard);
+  });
   await winFight(f);
   expect(await f.evaluate(() => __bw.DG.left)).toBe(0);
   await f.locator('[data-a=fdone]').click();

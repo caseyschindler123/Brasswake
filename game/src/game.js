@@ -688,7 +688,7 @@
 
   /* ---------- on the map: fights, thefts and duels. A panel along the bottom, one question at a time. ---------- */
   let F = null, CE = null, DG = null;
-  function livePaused(){return !ready||!S?.path||document.hidden||!!Q||!!DU||!!SB||tab!=='world'||!$('#title').hidden||!$('#sheet').hidden||!$('#say').hidden||!$('#enc').hidden||!$('#coach').hidden||!!F&&(!F.live||F.st==='prompt'||F.busy||F.over);}
+  function livePaused(){return !ready||!S?.path||document.hidden||!!Q||!!DU||!!SB||tab!=='world'||!$('#title').hidden||!$('#sheet').hidden||!$('#say').hidden||!$('#enc').hidden||!$('#coach').hidden||!!F&&(!F.live||F.st==='prompt'||!!F.busy||!!F.over);}
   function liveEncounter(e){
     const inst=e.inst||{},animal=inst.tpl?.[0]==='a',r=animal?1:inst.c||e.r||here(),boss=e.kind==='boss'?BOSSES[r-1]:null;
     const dungeon=!!inst.dungeon||['guard','keeper'].includes(e.kind),role=e.role||Dungeons.species?.[e.species]?.role||'',keeper=e.kind==='keeper';

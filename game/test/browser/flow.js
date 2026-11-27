@@ -71,7 +71,9 @@ async function playerFlow(page, info) {
   await dismissCoach(page);
   await expect(page.locator('input[data-target][data-stat="0"]')).toHaveCount(20);
   await expect(page.locator('input[data-target][data-stat="1"]')).toHaveCount(3);
-  await expect(page.locator('#hud .resource-line')).toContainText('Mana');
+  for (const [id, name] of [['hp', 'HP'], ['mana', 'Mana'], ['stamina', 'Stamina']]) {
+    await expect(page.locator(`#hud [data-resource=${id}]`).getByRole('meter', { name })).toBeVisible();
+  }
   await page.locator('input[data-target="magery"]').fill('55');
   await page.locator('[data-a="progresstarget"][data-id="magery"]').click();
   await page.locator('[data-a="progressmode"][data-id="inscription"]').click();

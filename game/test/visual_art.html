@@ -47,6 +47,8 @@ frame.onload = async () => {
         const e=sc.find(e=>e.kind==='mon' && e.r===1 && !e.inst.elite && e.inst.tpl!=='b101');
         if(!e) throw new Error('No region-one fight fixture');
         sc.warp(e.x+1,e.y); e.unseen=true; bw.HOST.interact(e);
+        bw.S.seen.fight=1;bw.S.seen.fprompt=1;
+        if(!bw.Combat.begin('basic.magery'))throw Error('Visual fight action unavailable');
       }
       if (scene==='dungeon') {
         bw.S.hp=60;
