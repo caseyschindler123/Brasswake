@@ -373,7 +373,7 @@ test('cartography · the Grand Atlas is a single installed household feature gat
     const [cx, cy] = Scene.towns()[1], {world:m} = Scene.debug();
     const width = 6, height = 4, lairs = Scene.sites().filter(s => s.kind === 'lair');
     const plots = [];
-    for (let y = cy-60; y <= cy+45; y++) for (let x = cx+32; x <= cx+76; x++) {
+    for (let y = Math.max(6,cy-160); y <= Math.min(m.h-height-3,cy+160); y++) for (let x = Math.max(2,cx-160); x <= Math.min(m.w-width-3,cx+160); x++) {
       if (m.reg[y*m.w+x] !== 1 || lairs.some(s => Math.hypot(s.x-x-width/2,s.y-y-height/2) < 15)) continue;
       plots.push({x,y,score:Math.abs(x-(cx+55))+Math.abs(y-(cy-38))});
     }

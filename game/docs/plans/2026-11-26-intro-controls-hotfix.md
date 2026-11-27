@@ -1,6 +1,6 @@
 # Visible intro controls: expedited release
 
-Status: released and verified at `d3b1f682d6ddac82abe9806fa5527daab8be8aff`; full non-publishing follow-up running. [Release evidence](../RELEASE_HISTORY.md#visible-tamsin-intro-controls).
+Status: released and verified at `d3b1f682d6ddac82abe9806fa5527daab8be8aff`; full non-publishing follow-up requires revalidation after fixture repairs. [Release evidence](../RELEASE_HISTORY.md#visible-tamsin-intro-controls).
 
 The intro layout fix is simple. Classification becomes complex solely for the consequential release-check exception: a reduced gate can miss unrelated regressions. Casey explicitly approved a targeted release now and full checks afterward before takeoff.
 
@@ -19,6 +19,8 @@ Three pre-existing full-check failures were reproduced and repaired: safely labe
 - [x] Start full non-publishing checks after publication. Source `72ebc09`, [Actions 45911144303](https://github.com/caseyschindler123/Brasswake/actions/runs/45911144303), selects every core group and all 33 browser suites with publication disabled. Game source/art/build/runtime package files are unchanged from the published source.
 - [x] Record verified release evidence in RELEASE_HISTORY.md.
 - [ ] Monitor the full follow-up through completion, repair actual failures without weakening assertions, record its result and close this plan.
+
+Full follow-up `72ebc09`, Actions 45911144303, passed core and 631/633 browser cases, including every intro check and all four profession journeys in each profile. Two fixture failures remained: the Atlas Cottage search exhausted its small fixed parcel window on desktop, and WebKit's business-reload fixture unloaded a queued `s_hurt.wav` fetch. Expanded only the fixture's candidate search while preserving every legality/lair/entry assertion, and drained the real queued/loading effects before intentional navigation. Both repaired cases passed all three profiles locally (6/6); opened the desktop Atlas and WebKit map captures. All 58 protocol checks passed. Keep normal full coverage, strict errors and unchanged deadlines; these test-only repairs do not republish the live game.
 
 No art regeneration, save format change or paid action is involved. Browser emulation does not establish physical iPhone testing.
 
