@@ -33,7 +33,8 @@ Casey authorized the full build on 2026-11-27. The landscape/UI chat owns presen
 - [x] Distinct Magery and physical effects/resources, finite support/supplies, dojo teaching and legacy shops/drops/onboarding transition.
 - [x] Actual browser integration evidence: native movement/recovery, actual SQL/actions/HP/mana, enemy LOS/ranged/chase, learned/equipped persistence and ordinary dojo completion. Open phone/desktop captures.
 - [x] Gameplay diff/master-doc review, focused checks and implementation checkpoints supplied to the UI/release coordinator.
-- [ ] Complete migrated consumer evidence and combined full gate/publication. The coordinator owns release; do not call this released before exact commit/hash/hosted evidence exists.
+- [x] Complete owned migrated combat-consumer evidence and supply final test checkpoints.
+- [ ] Combined exact-commit full gate/publication. The coordinator owns release; do not call this released before exact commit/hash/hosted evidence exists.
 
 ## Acceptance and evidence
 
@@ -62,3 +63,7 @@ Independent consumer review restores native target selection, actual no-hint Hel
 Battle-risk consumer migration retains eleven original cases and adds assistance carryover, using real shared recovery/live blows/SQL transactions instead of fixed retaliation/Flee/page menus. All twelve cases passed three supported profiles (36/36) against frozen1d0026c; actual phone/desktop captures were opened. The fixture preserves upstream optional species selection and unchanged real starter stats; independent species filtering remains coordinator-owned. Boundary seven cases passed three profiles (21/21) against05df217; review adds a resumed rare-cancel blow check, pending its bounded follow-up. No release claim.
 
 Boundary follow-up: strengthened rare-cancel capture now checks exact paused windup/cooldown and a deterministic real resumed enemy hit for full5HP damage, with mana/scroll/HP protection unchanged by cancelling. That case passed all three profiles (3/3) on exact frozen0f4d24e. The other six boundary cases retain the completed21/21 run; native Backstab acceptance is the remaining local consumer work.
+
+Backstab consumer migration retains all twelve cases. Seven changed/previously failing phone-Chromium diagnoses pass individually against frozen0f4d24e (six in the focused run, then the final shown-kill corpse-result capture). These include new-character h1-only/no-Arms native two-thrust Run, actual no-hint Help, wrong/shown/depleted practice/credit/resource protections, wounded Examiner card/authored next-phase/no early reward, and full native keeper escape/return. Earlier diagnostic run passed unchanged armor-odds, wrong-result, Council gate and distinct-owner cases. The route driver receives all real cells; no timeout/retry increases. Native target selection has no programmatic fallback. Phone390×720 and desktop1280×800 captures were actually opened. Full exact-source profile verification remains with coordinator CI; no physical iPhone claim.
+
+Gameplay branch work is complete and handed off for combined integration. Final deployment status remains pending with the sole UI/release coordinator; this plan is deliberately open until exact commit/Actions/published HTML hash and hosted checks are recorded.
