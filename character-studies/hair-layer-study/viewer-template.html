@@ -123,7 +123,7 @@ function head(actor, angle, fitting, selections) {
   const x = cx - data.origin[0] * scale;
   const y = cy - data.origin[1] * scale;
   const skin = data.slices['skin/' + actor + '/0/' + angle];
-  g.drawImage(layers, ...skin, data.head, data.head, x, y, size, size);
+  if (skin) g.drawImage(layers, ...skin, data.head, data.head, x, y, size, size);
   const beard = 'beard/' + actor + '/' + selections.beard + '/' + angle;
   if (data.slices[beard]) g.drawImage(pigmented(beard, selections.beardColor), x, y, size, size);
   const hair = 'hair/' + actor + '/' + selections.hair + '/' + angle;

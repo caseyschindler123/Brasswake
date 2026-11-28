@@ -23,7 +23,7 @@ SKULL = 142
 ORIGIN = (96, 24)
 PAPER = "#e8e1d2"
 INK = "#383229"
-WORLD_HEIGHT = ((27, 27, 25, 25, 25), (25, 25, 25, 26, 25))
+WORLD_HEIGHT = ((27, 27, 25, 25, 25), (23, 23, 22, 23, 23))
 # Top offset, width relative to the scalp, bottom height, horizontal shift.
 HAIR_FIT = (
     (-.052, 1.13, .609, .00),
@@ -138,6 +138,26 @@ HEAD_CUT = (
 )
 # Relative regions of the original woman's ponytail by native heading.
 TAIL = (None, (-18, -2, 12, 30), (-24, -3, 12, 36), (-15, 4, 17, 42), (-10, 10, 16, 41))
+# Keep the visible painted face and neck through all scalp and hairstyle changes.
+WORLD_FACE = (
+    ((-3, 7), (3, 7), (6, 10), (7, 15), (6, 20), (5, 24), (-5, 24), (-7, 18), (-7, 13), (-5, 10)),
+    ((1, 8), (8, 6), (16, 7), (16, 18), (11, 24), (2, 25), (-2, 18), (-2, 13)),
+    ((4, 6), (15, 5), (20, 6), (20, 20), (14, 22), (10, 24), (0, 25), (-1, 18), (1, 13)),
+    ((8, 8), (16, 8), (17, 17), (12, 23), (5, 26), (-5, 26), (-5, 21), (6, 18)),
+    ((-6, 17), (6, 17), (8, 22), (8, 26), (-8, 26), (-8, 22)),
+)
+
+
+def keep_face(base, original, scalp, fitting, points, softness):
+    cx, cy, height = fitting
+    scale = height / SKULL
+    extent = round(HEAD * scale)
+    scalp = scalp.resize((extent, extent), Image.Resampling.LANCZOS)
+    base.alpha_composite(scalp, (round(cx - ORIGIN[0] * scale), round(cy - ORIGIN[1] * scale)))
+    mask = Image.new("L", original.size)
+    ImageDraw.Draw(mask).polygon(points, fill=255)
+    return Image.composite(original, base, mask.filter(ImageFilter.GaussianBlur(softness)))
+
 
 
 def remove_tail(frame, actor, angle, cx, cy, donor):
@@ -195,7 +215,7 @@ def clean_world(frame, actor, angle, cx, cy, donor):
     return frame
 
 
-def pack_bodies():
+def pack_bodies(layers):
     source = (
         rgba(STUDY / "eight-way-painted/tunics.webp"),
         rgba(STUDY / "plate-set-study/plate.webp"),
@@ -222,8 +242,12 @@ def pack_bodies():
                             assert used[donor_index] == (0, angle)
                             donor = (sheet_patch(banks, outfit, donor_index), anchors[donor_index][outfit])
                         part = clean_world(frame, actor, angle, cx, cy, donor)
+                        fitting = (cx, cy + 1, WORLD_HEIGHT[actor][angle])
+                        if actor == 1:
+                            face = [(cx + dx, cy + dy) for dx, dy in WORLD_FACE[angle]]
+                            part = keep_face(part, frame, layers["skin", actor, 0, angle], fitting, face, .55)
                         banks[outfit].paste(part, (x, y))
-                        anchors.setdefault(index, []).append((cx, cy + 1, WORLD_HEIGHT[actor][angle]))
+                        anchors.setdefault(index, []).append(fitting)
     assert len(anchors) == 128
     return banks, anchors
 
@@ -231,22 +255,42 @@ def pack_bodies():
 # Frontal crown locations and skull lengths at the original paper-doll resolutions.
 PAPER_FIT = (((206, 44, 149), (522, 83, 150)),
              ((323, 66, 227), (814, 128, 229)))
+FEMALE_PAPER_HEIGHT = (126, 194)
+# Trace the approved skin boundary in the frontal study. Scale the shape to
+# the larger original plate painting. Eyes, nose, lips and chin stay inside.
+PAPER_FACE = (
+    (-10, 34), (-2, 28), (8, 30), (17, 34), (24, 40), (28, 49),
+    (30, 59), (30, 70), (26, 81), (22, 90), (13, 100), (9, 105),
+    (10, 116), (21, 125), (-23, 125), (-10, 115), (-10, 104), (-17, 98),
+    (-24, 90), (-28, 80), (-31, 69), (-31, 57), (-27, 49), (-22, 42),
+)
 
 
 def clean_doll(img, actor, spec):
     cx, cy, height = spec
-    original = np.array(img)
-    output = original.copy()
+    frame = img.copy()
     if actor == 1:
-        for y in range(cy + round(height * .57), cy + round(height * 1.025)):
-            for x in range(cx + round(height * .19), cx + round(height * .49)):
-                r, g, b, a = original[y, x].astype(float)
-                if a and r * .3 + g * .6 + b * .1 < 119 and (r - b) / max(r, 25) > .29:
-                    output[y, x] = original[y, 2 * cx - x]
-    frame = Image.fromarray(output)
+        # The original ponytail rests on the right side of the collar.
+        # The opposite side restores the silhouette behind it.
+        scale = height / 150
+        tail = ((24, 91), (41, 89), (48, 105), (46, 122),
+                (38, 130), (22, 124), (19, 112), (21, 101))
+        left, top = cx + round(14 * scale), cy + round(84 * scale)
+        right, bottom = cx + round(53 * scale), cy + round(135 * scale)
+        mirrored = img.crop((2 * cx - right + 1, top, 2 * cx - left + 1, bottom))
+        mirrored = mirrored.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+        cutout = Image.new("L", mirrored.size)
+        ImageDraw.Draw(cutout).polygon([(cx + round(dx * scale) - left, cy + round(dy * scale) - top)
+                                       for dx, dy in tail], fill=255)
+        frame.paste(mirrored, (left, top), cutout.filter(ImageFilter.GaussianBlur(1.4 * scale)))
     mask = Image.new("L", img.size)
-    path = [(-.45, -.1), (-.43, .58), (-.31, .68), (-.24, .77), (-.17, .85),
-            (.17, .85), (.24, .77), (.31, .68), (.43, .58), (.45, -.1)]
+    if actor == 1:
+        # The repainted scalp ends above the approved neck and collar.
+        path = [(-.45, -.1), (-.43, .57), (-.34, .65), (-.23, .70),
+                (.23, .70), (.34, .65), (.43, .57), (.45, -.1)]
+    else:
+        path = [(-.45, -.1), (-.43, .58), (-.31, .68), (-.24, .77), (-.17, .85),
+                (.17, .85), (.24, .77), (.31, .68), (.43, .58), (.45, -.1)]
     ImageDraw.Draw(mask).polygon([(round(cx + x * height), round(cy + y * height)) for x, y in path], fill=255)
     opacity = np.asarray(frame.getchannel("A"), dtype=float)
     fade = np.asarray(mask.filter(ImageFilter.GaussianBlur(1.1)), dtype=float)
@@ -254,12 +298,12 @@ def clean_doll(img, actor, spec):
     return frame
 
 
-def pack_dolls():
+def pack_dolls(layers):
     source = (
         rgba(STUDY / "painted-female-fit/standard-height-front-study.png"),
         rgba(STUDY / "plate-set-study/paper-dolls.png"),
     )
-    banks, fittings = [], []
+    banks, fittings, originals = [], [], []
     for outfit, img in enumerate(source):
         if outfit == 0:
             pixels = np.asarray(img, dtype=int)
@@ -271,20 +315,32 @@ def pack_dolls():
         male = box(img.crop((0, 0, img.width // 2, img.height)))
         scale = 332 / (male[3] - male[1])
         page = Image.new("RGBA", (390, 375))
+        original_page = Image.new("RGBA", page.size)
         outfit_fit = []
         for actor, (cx, cy, height) in enumerate(specs):
             cleaned = clean_doll(img, actor, (cx, cy, height))
+            if actor == 1:
+                face_scale = (1, 1.55)[outfit]
+                face = [(round(cx + dx * face_scale), round(cy + dy * face_scale))
+                        for dx, dy in PAPER_FACE]
+                height = FEMALE_PAPER_HEIGHT[outfit]
+                cy += round(2 * face_scale)
+                cleaned = keep_face(cleaned, img, layers["skin", actor, 0, 5], (cx, cy, height), face, 1.5)
+            else:
+                cy += height * .04
             x0 = actor * (img.width // 2)
             x1 = (actor + 1) * (img.width // 2)
-            tile = cleaned.crop((x0, 0, x1, img.height))
-            tile = tile.resize(tuple(round(n * scale) for n in tile.size), Image.Resampling.LANCZOS)
+            tile_box = (x0, 0, x1, img.height)
+            size = (round((x1 - x0) * scale), round(img.height * scale))
             tx = round(110 + 170 * actor - (cx - x0) * scale)
             ty = round(350 - region[3] * scale)
-            page.alpha_composite(tile, (tx, ty))
-            outfit_fit.append((tx + (cx - x0) * scale, ty + (cy + height * .04) * scale, height * scale))
+            page.alpha_composite(cleaned.crop(tile_box).resize(size, Image.Resampling.LANCZOS), (tx, ty))
+            original_page.alpha_composite(img.crop(tile_box).resize(size, Image.Resampling.LANCZOS), (tx, ty))
+            outfit_fit.append((tx + (cx - x0) * scale, ty + cy * scale, height * scale))
         banks.append(page)
         fittings.append(outfit_fit)
-    return banks, fittings
+        originals.append(original_page)
+    return banks, fittings, originals
 
 
 def tint(image, name):
@@ -309,7 +365,8 @@ def sheet_patch(banks, outfit, index):
 
 
 def chosen_layers(layers, actor, angle, hair, beard, color, beard_color):
-    yield layers["skin", actor, 0, angle]
+    if actor == 0:
+        yield layers["skin", actor, 0, angle]
     if beard is not None and ("beard", actor, beard, angle) in layers:
         yield tint(layers["beard", actor, beard, angle], beard_color)
     if hair is not None:
@@ -379,11 +436,41 @@ def write_gallery(banks, layers, anchors, dolls, fittings):
     grid.save(HERE / "paper-dolls.png")
 
 
+def verify_doll_face(dolls, layers, fittings, originals):
+    for outfit, original in enumerate(originals):
+        cx, cy, height = fittings[outfit][1]
+        features = (round(cx) - 5, round(cy + height * .45),
+                    round(cx) + 6, round(cy + height * .72))
+        approved = np.asarray(original.crop(features))
+        for hairstyle in (None, 0, 1):
+            state = (hairstyle, None, "Chestnut", "Chestnut")
+            painted = paper_image(dolls, layers, fittings, state, outfit)
+            matching_pixels = np.all(np.asarray(painted.crop(features)) == approved, axis=2)
+            assert np.mean(matching_pixels) >= .98, (outfit, hairstyle, "approved facial details")
+
+
+def write_face_comparison(dolls, layers, fittings, originals):
+    page = Image.new("RGB", (390, 600), PAPER)
+    pen = ImageDraw.Draw(page)
+    for outfit, look in enumerate(((0, None, "Chestnut", "Chestnut"), (1, None, "Black", "Chestnut"))):
+        y = outfit * 300
+        title = ("Tunic · swept crop", "Plate · high knot")[outfit]
+        pen.text((14, y + 8), title, font=label_font(16), fill=INK)
+        variants = (originals[outfit], paper_image(dolls, layers, fittings, look, outfit))
+        for x, label, image in zip((20, 206), ("Approved original", "New hair · same face"), variants):
+            pen.text((x, y + 36), label, font=label_font(13), fill=INK)
+            body = image.crop((218, 6, 342, 352)).resize((89, 248), Image.Resampling.LANCZOS)
+            face = image.crop((254, 8, 309, 91)).resize((81, 122), Image.Resampling.LANCZOS)
+            page.paste(body, (x, y + 49), body)
+            page.paste(face, (x + 86, y + 68), face)
+    page.save(HERE / "female-fit.png")
+
+
 def main():
     layers = fit_layers()
-    bodies, anchors = pack_bodies()
-    dolls, fittings = pack_dolls()
-    ordered = list(layers)
+    bodies, anchors = pack_bodies(layers)
+    dolls, fittings, originals = pack_dolls(layers)
+    ordered = [key for key in layers if key[:2] != ("skin", 1)]
     layer_sheet = Image.new("RGBA", (8 * HEAD, ((len(ordered) + 7) // 8) * HEAD))
     slices = {}
     for index, key in enumerate(ordered):
@@ -400,6 +487,8 @@ def main():
     (HERE / "hair.html").write_text(template.replace("__PAYLOAD__", json.dumps(data, separators=(",", ":"))),
                                    encoding="utf-8", newline="\n")
     write_gallery(bodies, layers, anchors, dolls, fittings)
+    verify_doll_face(dolls, layers, fittings, originals)
+    write_face_comparison(dolls, layers, fittings, originals)
 
 
 if __name__ == "__main__":
