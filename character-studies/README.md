@@ -1,5 +1,7 @@
 # Brasswake character handoff
 
+**Hair and facial-hair preview.** Open the [offline hair proof](hair-layer-study/hair.html) from a clone. [Side walk](hair-layer-study/walk.gif) · [side run](hair-layer-study/run.gif) · [frontal dolls](hair-layer-study/paper-dolls.png) · [sources and method](hair-layer-study/README.md).
+
 **Outfit and material preview.** Open the [side wardrobe](outfit-material-study/wardrobe.html) from a clone. [Side walk](outfit-material-study/side-walk.gif) · [side run](outfit-material-study/side-run.gif) · [frontal paper dolls](outfit-material-study/paper-dolls.png).
 
 **Open [the wardrobe](plate-set-study/wardrobe.html) in a browser after cloning Brasswake.** It is a self-contained offline file. Both characters appear enlarged and at town scale. Pause mid-stride, switch between tunic and plate, turn the sword on or off, change heading, or select Paper doll. GitHub's file page shows the HTML source. The GIFs and paper-doll still below can be viewed directly on GitHub.

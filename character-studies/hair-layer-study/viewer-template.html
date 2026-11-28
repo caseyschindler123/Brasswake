@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brasswake hair and beard proof</title>
+<style>
+:root { color-scheme: light; background: #e8e1d2; color: #383229; font: 16px system-ui, sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 420px; margin: auto; padding: 0 0 16px; }
+h1 { margin: 13px 14px 10px; font: bold 1.55rem Georgia, serif; }
+.controls { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px 9px; margin: 9px 14px; }
+label { display: grid; gap: 3px; font-size: .87rem; }
+select,button { color: inherit; font: 1rem system-ui, sans-serif; min-height: 40px; border: 1px solid #8c7a61;
+  background: #f5efe3; border-radius: 5px; padding: 4px 8px; }
+button[aria-pressed="true"] { background: #4c4131; color: #fff9eb; }
+button:disabled { opacity: .55; }
+:focus-visible { outline: 2px solid #325675; outline-offset: 2px; }
+canvas { display: block; width: min(100%,390px); height: auto; margin: auto; }
+.inline { display: flex; gap: 7px; align-items: center; margin: 8px 14px; flex-wrap: wrap; }
+#phase { font-size: .9rem; font-variant-numeric: tabular-nums; }
+[hidden] { display: none !important; }
+</style>
+<main>
+  <h1>Hair and beard proof</h1>
+  <div class="controls">
+    <label>Hairstyle<select id="hair"><option value="0">Swept crop</option><option value="1">High knot</option><option value="">Shaved</option></select></label>
+    <label>Facial hair · man<select id="beard"><option value="0">Short beard</option><option value="1">Full beard</option><option value="">Clean-shaven</option></select></label>
+    <label>Hair color<select id="hairColor"></select></label>
+    <label>Beard color<select id="beardColor"></select></label>
+    <label>Outfit<select id="outfit"><option value="0">Tunic</option><option value="1">Plate</option></select></label>
+    <label id="heading-label">Direction<select id="heading"><option value="E">East</option><option value="SE">Southeast</option><option value="S">South</option><option value="SW">Southwest</option><option value="W">West</option><option value="NW">Northwest</option><option value="N">North</option><option value="NE">Northeast</option></select></label>
+  </div>
+  <div class="inline"><button id="doll" aria-pressed="false">Paper dolls</button></div>
+  <canvas id="stage" width="390" height="278" aria-label="Paired painted characters"></canvas>
+  <div class="inline" id="motion">
+    <button data-gait="walk" aria-pressed="true">Walk</button>
+    <button data-gait="run" aria-pressed="false">Run</button>
+    <button id="pause">Pause</button>
+    <button id="step" disabled>Next frame</button>
+    <output id="phase" aria-label="Stride phase"></output>
+  </div>
+</main>
+<script>
+const data = __PAYLOAD__;
+const names = ['man', 'woman'];
+const {cell, ground, delays, frames} = data.mapping;
+const alternate = {W:'E', SW:'SE', NW:'NE'};
+const stage = document.querySelector('#stage');
+const g = stage.getContext('2d');
+function input(id) { return document.querySelector('#' + id); }
+function image(src) {
+  const tile = new Image();
+  tile.src = src;
+  return tile;
+}
+const [street, layers] = [image(data.street), image(data.layers)];
+const bodies = data.bodies.map(image);
+const dolls = data.dolls.map(image);
+const palettes = Object.fromEntries(Object.entries(data.palettes).map(([name, colors]) =>
+  [name, colors.map(color => color.slice(1).match(/../g).map(hex => parseInt(hex, 16)))]));
+const state = {gait:'walk', phase:0, elapsed:0, playing:true, paper:false};
+let previous = 0;
+
+for (const name of ['hairColor', 'beardColor']) {
+  for (const color of Object.keys(palettes)) input(name).add(new Option(color, color));
+}
+
+for (const button of document.querySelectorAll('[data-gait]')) {
+  button.onclick = () => {
+    state.gait = button.dataset.gait;
+    state.elapsed = 0;
+    document.querySelectorAll('[data-gait]').forEach(item => item.setAttribute('aria-pressed', item === button));
+  };
+}
+input('doll').onclick = event => {
+  state.paper = !state.paper;
+  event.currentTarget.setAttribute('aria-pressed', state.paper);
+  input('heading-label').hidden = state.paper;
+  input('motion').hidden = state.paper;
+  stage.height = state.paper ? 375 : 278;
+};
+input('pause').onclick = () => {
+  state.playing = !state.playing;
+  input('pause').textContent = state.playing ? 'Pause' : 'Play';
+  input('step').disabled = state.playing;
+};
+input('step').onclick = () => {
+  state.phase = (state.phase + 1) % 8;
+  state.elapsed = 0;
+};
+
+const cache = new Map();
+function pigmented(key, color) {
+  if (cache.has(key + ':' + color)) return cache.get(key + ':' + color);
+  const part = document.createElement('canvas');
+  part.width = part.height = data.head;
+  const context = part.getContext('2d', {willReadFrequently:true});
+  context.drawImage(layers, ...data.slices[key], data.head, data.head, 0, 0, data.head, data.head);
+  const image = context.getImageData(0, 0, data.head, data.head);
+  const pixels = image.data;
+  const [shadow, mid, highlight] = palettes[color];
+  for (let i = 0; i < pixels.length; i += 4) {
+    if (!pixels[i + 3]) continue;
+    const luma = .2126 * pixels[i] + .7152 * pixels[i + 1] + .0722 * pixels[i + 2];
+    const [start, end, percent] = luma < 104
+      ? [shadow, mid, (luma - 16) / 88] : [mid, highlight, (luma - 104) / 94];
+    const blend = Math.min(1, Math.max(0, percent));
+    for (let channel = 0; channel < 3; channel++) {
+      pixels[i + channel] = start[channel] + (end[channel] - start[channel]) * blend;
+    }
+  }
+  context.putImageData(image, 0, 0);
+  if (cache.size >= 48) cache.delete(cache.keys().next().value);
+  cache.set(key + ':' + color, part);
+  return part;
+}
+
+function head(actor, angle, fitting, selections) {
+  const [cx, cy, height] = fitting;
+  const scale = height / data.skull;
+  const size = data.head * scale;
+  const x = cx - data.origin[0] * scale;
+  const y = cy - data.origin[1] * scale;
+  const skin = data.slices['skin/' + actor + '/0/' + angle];
+  g.drawImage(layers, ...skin, data.head, data.head, x, y, size, size);
+  const beard = 'beard/' + actor + '/' + selections.beard + '/' + angle;
+  if (data.slices[beard]) g.drawImage(pigmented(beard, selections.beardColor), x, y, size, size);
+  const hair = 'hair/' + actor + '/' + selections.hair + '/' + angle;
+  if (data.slices[hair]) g.drawImage(pigmented(hair, selections.hairColor), x, y, size, size);
+}
+
+function actorAt(actor, x, y, scale, selections) {
+  const {heading, outfit} = selections;
+  const [index, flip] = frames[names[actor] + '/' + state.gait + '/' + heading][state.phase];
+  const angle = data.directions.indexOf(alternate[heading] || heading);
+  g.save();
+  g.translate(x - scale * cell / 2, y - scale * ground);
+  g.scale(scale, scale);
+  if (flip) { g.translate(cell, 0); g.scale(-1, 1); }
+  g.drawImage(bodies[outfit], index % 16 * cell, Math.floor(index / 16) * cell, cell, cell, 0, 0, cell, cell);
+  head(actor, angle, data.anchors[index][outfit], selections);
+  g.restore();
+}
+
+function render(now) {
+  if (state.playing && !state.paper && previous) state.elapsed += Math.min(now - previous, 100);
+  previous = now;
+  const time = delays[state.gait];
+  while (state.elapsed >= time[state.phase]) {
+    state.elapsed -= time[state.phase];
+    state.phase = (state.phase + 1) % 8;
+  }
+  const selections = Object.fromEntries(['hair','beard','hairColor','beardColor','outfit','heading']
+    .map(id => [id, input(id).value]));
+  g.fillStyle = '#e8e1d2';
+  g.fillRect(0, 0, stage.width, stage.height);
+  if (state.paper) {
+    g.drawImage(dolls[selections.outfit], 0, 0);
+    data.fittings[selections.outfit].forEach((fit, actor) => head(actor, 5, fit, selections));
+  } else {
+    g.drawImage(street, 0, 162);
+    actorAt(0, 116, 153, .99, selections);
+    actorAt(1, 270, 153, .99, selections);
+    actorAt(0, 146, 263, 43 / 133, selections);
+    actorAt(1, 245, 263, 41 / 126, selections);
+    input('phase').value = (state.phase + 1) + ' / 8';
+  }
+  requestAnimationFrame(render);
+}
+
+Promise.all([street, layers, ...bodies, ...dolls].map(asset => asset.decode()))
+  .then(() => requestAnimationFrame(render));
+</script>
+</html>
