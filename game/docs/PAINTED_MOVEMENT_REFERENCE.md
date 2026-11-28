@@ -4,6 +4,8 @@ On 2026-11-27 Casey approved two in-place loops of the unarmed woman in a tan tu
 
 ## 1. Prepare the two references
 
+For the subsequent male and female studies, including all eight headings, mirrored stride phases, sword carry and the plate set, follow the [directional movement and equipment guide](PAINTED_DIRECTIONAL_EQUIPMENT.md).
+
 | Input to the painter, in order | What it controlled | How it was made |
 | --- | --- | --- |
 | `side-guide.png` | Camera, joint positions, foot contacts and which arm and leg are nearest the viewer in each phase | Take the exact side row from each of the existing Mixamo Walk and Run pose sheets. Stack walk above run. |
