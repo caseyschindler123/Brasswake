@@ -12,10 +12,19 @@ const PaintedCharacterView = (() => {
     if(ramps.size>=32)ramps.delete(ramps.keys().next().value);ramps.set(key,result);return result;
   }
   function dye(color){if(!valid(color))return null;const c=rgb(color);return{shadow:hex(c.map(n=>n*.38)),mid:color,light:hex(mix(c,[255,255,255],.48))};}
+  function paintedHair(colors) {
+    if (!Array.isArray(colors) || colors.length!==2 || !colors.every(valid) || colors[0]==='#2e1c10'&&colors[1]==='#8f5e34') return null;
+    return colors.map(rgb);
+  }
+  function tintHair(pixels,i,colors) {
+    const shade=Math.max(0,Math.min(1,(pixels[i]*.2126+pixels[i+1]*.7152+pixels[i+2]*.0722-22)/126));
+    for(let c=0;c<3;c++) pixels[i+c]=pixels[i+c]*.18+(colors[0][c]+(colors[1][c]-colors[0][c])*shade)*.82;
+  }
   function tintPixels(pixels,masks,a){
     if(pixels.length!==masks.length)throw Error('Painted color/mask dimensions differ');
+    const hair=paintedHair(a.hc);
     const outfit=(a.combo-1)%5,mat=a.armorMaterial,cloth=ramp(a.cloth?dye(a.cloth):mat?.family==='cloth'?mat.palette:null),leather=ramp(mat?.family==='leather'?mat.palette:null),metal=ramp(mat?.family==='metal'?mat.palette:a.metal?dye(a.metal):null),gloves=ramp(a.handMaterial?.palette),boots=ramp(a.footMaterial?.palette),skinTone=skin[a.skin]||skin[1];
-    for(let i=0;i<pixels.length;i+=4){if(!pixels[i+3]||masks[i+3]<64)continue;const id=Math.round(masks[i]/24),part=component(masks,i);if(part===11&&pixels[i]-pixels[i+2]>28&&pixels[i]>pixels[i+1])continue;if(id===4||id===8&&!gloves&&outfit<3){for(let c=0;c<3;c++)pixels[i+c]*=skinTone[c];continue;}const colors=id===1?cloth:id===2?leather:id===3?metal:id===8?gloves||(outfit===4?metal:null):id===9||id===6&&part===9?boots||(outfit===4?metal:null):null;if(!colors)continue;
+    for(let i=0;i<pixels.length;i+=4){if(!pixels[i+3]||masks[i+3]<64)continue;const id=Math.round(masks[i]/24),part=component(masks,i);if(id===10&&part===7&&hair){tintHair(pixels,i,hair);continue;}if(part===11&&pixels[i]-pixels[i+2]>28&&pixels[i]>pixels[i+1])continue;if(id===4||id===8&&!gloves&&outfit<3){for(let c=0;c<3;c++)pixels[i+c]*=skinTone[c];continue;}const colors=id===1?cloth:id===2?leather:id===3?metal:id===8?gloves||(outfit===4?metal:null):id===9||id===6&&part===9?boots||(outfit===4?metal:null):null;if(!colors)continue;
       const light=Math.max(0,Math.min(255,Math.round(pixels[i]*.2126+pixels[i+1]*.7152+pixels[i+2]*.0722))),mapped=colors[light];for(let c=0;c<3;c++)pixels[i+c]=pixels[i+c]*.08+mapped[c]*.92;
     }return pixels;
   }

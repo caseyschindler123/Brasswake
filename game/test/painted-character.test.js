@@ -1,5 +1,6 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const Profiles=require('../src/character_profiles'),NPC=require('../src/npc_appearance'),View=require('../src/painted_character_view');
+const TwoBody=require('../src/painted_two_body');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),crypto=require('node:crypto');
 const root=path.resolve(__dirname,'../..'),read=name=>fs.readFileSync(path.join(root,name)),hash=b=>crypto.createHash('sha256').update(b).digest('hex');
 
@@ -38,6 +39,51 @@ test('equipment selects complete coordinated action poses',()=>{
   assert.equal(View.state({wkind:'crossbow',wpn:27},13),'crossbow');assert.equal(View.state({wkind:'bow'},13),'bow');assert.equal(View.state({wkind:'book'},16),'book');
   assert.equal(View.state({wkind:'long'},10),'swingtwo');assert.equal(View.state({wkind:'staff'},13),'thrusttwo');
   assert.equal(View.state({},23),'sit');assert.equal(View.state({},22),'block');assert.equal(View.state({},20),'hit');assert.equal(View.state({},19),'fall');
+});
+
+test('the two approved fittings cover every outfit, gait and heading at the approved phase and grip',()=>{
+  const {painted,twoBodyMovement:art}=vm.runInNewContext(
+    read('game/src/artpainted.js').toString()+read('game/src/artpaintedtwo.js').toString()+';ArtData;',
+    {ArtData:{},atob}
+  );
+  for(const gait of ['walk','run']){
+    const delays=art.delays[gait],duration=delays.reduce((sum,ms)=>sum+ms,0);
+    let elapsed=0;
+    for(const [phase,ms]of delays.entries()){
+      assert.equal(TwoBody.indexFor(art,gait,(elapsed+.01)/duration),phase);
+      assert.equal(TwoBody.indexFor(art,gait,(elapsed+ms-.01)/duration),phase);
+      elapsed+=ms;
+    }
+  }
+  const families=['tunic','robe','leather','mail','plate','knight'];
+  for(const [outfit,family]of families.entries()){
+    assert.equal(Object.keys(art.banks[family]).length,128);
+    assert.equal(Object.keys(art.static[family].sit).length,10);
+    assert.equal(art.dolls[family].length,2);
+    for(const [sex,actor]of ['man','woman'].entries()){
+      const combo=sex*5+Math.min(5,outfit+1);
+      const look={combo,headStyle:TwoBody.headStyle(sex),armorGear:family==='knight'?'armor-knights-plate':null};
+      assert.ok(TwoBody.supports(look));
+      const fit=painted.combos[Profiles.index(look)];
+      for(const gait of ['walk','run'])for(const [direction,heading]of art.heading.entries()){
+        const legacy=fit.states[gait].frames[View.sourceDirection(direction,painted)][0];
+        for(let phase=0;phase<8;phase++){
+          const [index,mirror]=art.frames[actor+'/'+gait+'/'+heading][phase];
+          const original=art.banks[family][index],frame=TwoBody.motion(art,look,gait,direction,phase,legacy);
+          const [x,y]=original.palms[Number(mirror)];
+          const sign=mirror?-1:1;
+          assert.equal(frame.file,original.file);
+          assert.equal(frame.mirror,mirror);
+          assert.equal(frame.sockets.rightPalm.p[0],art.origin[0]+(x-art.cell/2)*art.scale*sign);
+          assert.equal(frame.sockets.rightPalm.p[1],art.origin[1]+(y-art.ground)*art.scale);
+          assert.ok(Number.isFinite(frame.carry.angle)&&frame.carry.length>0);
+        }
+      }
+      for(let direction=0;direction<8;direction++)assert.ok(TwoBody.actionHead(art,look,direction)?.file);
+      assert.equal(TwoBody.supports({...look,headStyle:sex?'f-bun':'m-long-beard'}),false);
+      assert.equal(TwoBody.supports({...look,build:2}),false);
+    }
+  }
 });
 
 test('painted body and equipment banks match logical world headings',()=>{

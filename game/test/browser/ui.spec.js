@@ -13,7 +13,7 @@ if(selected.has('canary'))test('release canary: boot, real SQL and device persis
   await page.locator('[data-a=lsub][data-s=sandbox]').click();await page.locator('#con-sql').fill('SELECT 42 AS canary');await page.locator('[data-a=conrun]').click();
   await expect(page.locator('#con-out td').first()).toHaveText('42');
   await page.locator('#nav [data-t=hero]').click();if(await coach.isVisible())await coach.click();
-  await page.locator('[data-a=savenow]').click();await page.reload();await expect(page.locator('[data-a=playslot]').first()).toContainText('Canary');expect(errors).toEqual([]);
+  await page.locator('[data-a=charactersettings]').click();await page.locator('[data-a=savenow]').click();await page.reload();await expect(page.locator('[data-a=playslot]').first()).toContainText('Canary');expect(errors).toEqual([]);
 });
 
 // Local tests use the installed SQL engine and local game fonts. The live test
@@ -49,9 +49,18 @@ for (const scene of scenes) {
     expect(layout.scrollWidth).toBeLessThanOrEqual(layout.width);
     expect(layout.scrollHeight).toBeLessThanOrEqual(layout.height);
     if (scene === 'title') await expect(frame.locator('#title h1')).toHaveText('Brasswake');
-    else await expect(frame.locator('#stage canvas').first()).toBeAttached();
+    else await expect(frame.locator('#stage canvas.game').first()).toBeAttached();
     if (scene === 'fight') await expect(frame.locator('#fight')).toBeVisible();
-    if (scene === 'bag') await expect(frame.locator('#nav [data-t="bag"]')).toHaveAttribute('aria-current', 'page');
+    if (scene === 'bag') {
+      const bag = frame.getByRole('button', { name: 'Bag', exact: true });
+      await expect(bag).toHaveAttribute('aria-current', 'page');
+      await expect(frame.locator('#coach')).toBeVisible();
+      await frame.locator('#view').getByRole('button', { name: 'Close', exact: true }).click();
+      await expect(frame.locator('#stage')).toBeVisible();
+      await expect(frame.locator('#coach')).toBeHidden();
+      await bag.click();
+      await expect(frame.locator('#view')).toBeVisible();
+    }
     if (scene === 'paperdoll') await expect(frame.locator('#sheet')).toBeVisible();
     if (scene === 'dungeon') expect(await frame.evaluate(() => Scene.inDungeon())).toBeTruthy();
     if (scene === 'dojo') expect(await frame.evaluate(() => Scene.inHall())).toBeTruthy();

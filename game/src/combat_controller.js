@@ -78,7 +78,7 @@ const CombatController = (() => {
       return {version:1,active:active(),locked:active()||h.paused(),worldPaused:h.paused(),
         target:facts?{...facts,entity:undefined,id:e.id||'target',sqlCircle:enemy(e).config.r}:null,
         recovery:LiveCombat.recoveryView(cooldown),resources:{hp:s.hp,maxHp:h.maxHp(),mana:s.mana,maxMana:h.maxMana(),stamina:s.stamina,maxStamina:h.maxStamina()},
-        actions,loadout:s.techniques.equipped.map(id=>id?descriptor(id):null),supply:s.techniques.supply,
+        actions,loadout:s.techniques.equipped.map((id,slot)=>slot===Techniques.hideSlot(s)?descriptor('hide'):id?descriptor(id):null),supply:s.techniques.supply,
         techniques:definitions.map(d=>({...descriptor(d.id),learned:!!s.techniques.learned[d.id],equipped:s.techniques.equipped.indexOf(d.id),source:d.source}))};
     }
     function begin(id) {

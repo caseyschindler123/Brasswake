@@ -37,7 +37,7 @@ async function holdTravelKey(page, key, ms, label) {
 
 async function townChartPosition(page) {
   await dismissTravelTalk(page);
-  await page.locator('#nav [data-t=map]').click();
+  await page.locator('#minimap').click();
   const town = page.getByRole('button', { name: 'Town', exact: true });
   if (await town.getAttribute('aria-pressed') !== 'true') await town.click();
   await dismissTravelTalk(page);
@@ -46,7 +46,7 @@ async function townChartPosition(page) {
     return [marker.style.left, marker.style.top].map((percent, axis) =>
       Math.round(parseFloat(percent) * (axis ? height : width) / 100));
   });
-  await page.locator('#nav [data-t=world]').click();
+  await page.locator('#view .pclose').click();
   return position;
 }
 

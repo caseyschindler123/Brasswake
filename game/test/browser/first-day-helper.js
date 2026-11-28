@@ -132,7 +132,7 @@ async function earnedDojoReadiness(f,info,stats){
   expect(await f.evaluate(()=>Learning.regionConcepts(1).every(id=>Learning.ready(__bw.A.learning,id)))).toBe(true);
   await f.locator('#nav [data-t=ledger]').click();const coach=f.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
   await f.locator('[data-a=lsub][data-s=grimoire]').click();await expect(f.locator('#view')).toContainText('5 of 5 regional techniques ready');
-  await screenshot(f,info,'earned-dojo-readiness-and-review');await f.locator('#nav [data-t=world]').click();
+  await screenshot(f,info,'earned-dojo-readiness-and-review');await f.locator('#view .pclose').click();
 }
 async function finishGuidedDay(f,info,stats,fish=false,study=false){
   await f.locator('[data-a=qleave]').last().click();await speech(f);if(study)await earnedDojoReadiness(f,info,stats);await visit(f,'hallexit',stats);await speech(f);
@@ -140,7 +140,8 @@ async function finishGuidedDay(f,info,stats,fish=false,study=false){
   await speech(f);await f.locator('#nav [data-t=bag]').click();
   const coach=f.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();
   const gift=await f.evaluate(()=>__bw.S.gk);await f.locator(`[data-a=item][data-id="${gift}"]`).click();await f.locator('[data-a=equip]').click();await speech(f);
-  await f.locator('#nav [data-t=hero]').click();if(await coach.isVisible())await coach.click();await expect(f.locator('#doll')).toBeVisible();await expect(f.getByRole('heading',{name:'New arrival',exact:true})).toBeVisible();await screenshot(f,info,'equipped-weapon-after-first-fight');await f.locator('#nav [data-t=world]').click();
+  await f.locator('#nav [data-t=hero]').click();if(await coach.isVisible())await coach.click();await f.locator('[data-a=skilltab][data-id=stats]').click();await expect(f.getByRole('heading',{name:'New arrival',exact:true})).toBeVisible();
+  await f.locator('#nav [data-t=bag]').click();if(await coach.isVisible())await coach.click();await expect(f.locator('#doll')).toBeVisible();await expect(f.locator('.bag-worn [data-a=item]').first()).toBeVisible();await screenshot(f,info,'equipped-weapon-after-first-fight');await f.locator('#view .pclose').click();
   await visit(f,'stallkeep',stats,{r:1});await f.locator('#sheet [data-a=sellcommon]').click();await expect(f.locator('#sheet')).toContainText('Choose goods to sell');await f.locator('#sheet [data-a=sellallcommon]').click();await expect(f.locator('#sheet')).toContainText('Review this sale');await f.locator('#sheet [data-a=sellconfirm]').click();await expect.poll(()=>f.evaluate(()=>__bw.S.gd)).toBe(8);await speech(f);
   await person(f,'dojo',stats);await person(f,'odalys',stats);await speech(f,'#say [data-a=learnpractice]');
   const trainingBefore=await f.evaluate(()=>({gold:__bw.S.gold,hp:__bw.S.hp,mana:__bw.S.mana,skills:JSON.stringify(__bw.S.sk)}));

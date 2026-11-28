@@ -5,7 +5,7 @@ const Worlds=require('../../src/character_worlds');
 test.beforeEach(async({page})=>{await page.route('https://fonts.googleapis.com/**',route=>route.fulfill({contentType:'text/css',body:''}));});
 
 async function ready(page){await expect(page.locator('#artload')).toBeHidden({timeout:45000});}
-async function returnCharacters(page){await page.locator('#nav [data-t=hero]').click();const coach=page.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();await page.locator('[data-a=reset]').click();}
+async function returnCharacters(page){await page.locator('#nav [data-t=hero]').click();const coach=page.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();await page.locator('[data-a=charactersettings]').click();await page.locator('[data-a=reset]').click();}
 async function chooseWorld(page,index){await page.locator(`[data-a=worldpick][data-i="${index}"]`).click();await expect(page.locator(`[data-a=worldpick][data-i="${index}"]`)).toHaveAttribute('aria-pressed','true');}
 
 test('free creation controls change the real turning and walking preview and persist appearance',async({page},info)=>{

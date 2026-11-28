@@ -76,6 +76,7 @@ test('a gesture starts actual music, contexts crossfade, and music mute persists
   test.setTimeout(120000);
   let f = await fixture(page);
   await f.locator('#nav [data-t=hero]').click(); await dismissCoach(f);
+  await f.locator('[data-a=charactersettings]').click();
   await expect(f.locator('[data-a=snd][data-k=mu]')).toHaveText('Music: on');
   const available = await f.evaluate(() => !!(window.AudioContext || window.webkitAudioContext));
   if (available) {

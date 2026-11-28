@@ -13,6 +13,7 @@ async function audioRelease(page, info, url) {
   await skipArrival(page, 'Audio Traveller');
   await page.locator('#nav [data-t=hero]').click();
   if (await page.locator('[data-a=coachok]').isVisible()) await page.locator('[data-a=coachok]').click();
+  await page.locator('[data-a=charactersettings]').click();
   expect(await page.evaluate(() => typeof window.__bw)).toBe('undefined');
   const available = await page.evaluate(() => !!(window.AudioContext || window.webkitAudioContext));
   if (available) {
@@ -39,6 +40,7 @@ async function audioRelease(page, info, url) {
   await expect(page.locator('#artload')).toBeHidden({ timeout: 45000 });
   await page.locator('[data-a=playslot]').click();
   await page.locator('#nav [data-t=hero]').click();
+  await page.locator('[data-a=charactersettings]').click();
   await expect(page.locator('[data-a=snd][data-k=mu]')).toHaveText('Music: on');
   await expect(page.locator('[data-a=snd][data-k=fx]')).toHaveText('Effects: off');
   expect(await page.evaluate(() => typeof window.__bw)).toBe('undefined');

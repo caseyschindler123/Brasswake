@@ -134,6 +134,8 @@ const Techniques = (() => {
 
   const ready = Object.freeze({ ok: true, reason: '' });
   const denied = reason => ({ ok: false, reason });
+  const slotValid = slot => Number.isInteger(slot) && slot >= 0 && slot < 4;
+  const hideSlot = s => slotValid(s.hideSlot) && !state(s).equipped[s.hideSlot] ? s.hideSlot : null;
 
   function eligibility(s, id, context = {}) {
     const def = get(id);
@@ -152,11 +154,17 @@ const Techniques = (() => {
   }
 
   function equip(s, id, slot, context = {}) {
-    if (context.combat) return denied('Find safety to change your techniques.');
-    if (!Number.isInteger(slot) || slot < 0 || slot >= 4) return denied('Choose one of the four slots.');
+    if (context.combat) return denied('Find safety to change your action slots.');
+    if (!slotValid(slot)) return denied('Choose one of the four slots.');
     const { equipped } = state(s);
+    if (id === 'hide') {
+      equipped[slot] = null;
+      s.hideSlot = slot;
+      return ready;
+    }
     if (id === null) {
       equipped[slot] = null;
+      if (s.hideSlot === slot) delete s.hideSlot;
       return ready;
     }
     if (!get(id)?.source) return denied('Choose a learned technique.');
@@ -165,9 +173,10 @@ const Techniques = (() => {
     if (equipped.some((other, i) => i !== slot && other === id))
       return denied('This technique is already equipped.');
     equipped[slot] = id;
+    if (s.hideSlot === slot) delete s.hideSlot;
     return ready;
   }
 
-  return { catalog, get, normalize, learn, teach, eligibility, equip, basic, legacyIds };
+  return { catalog, get, normalize, learn, teach, eligibility, equip, hideSlot, basic, legacyIds };
 })();
 if (typeof module !== 'undefined') module.exports = Techniques;

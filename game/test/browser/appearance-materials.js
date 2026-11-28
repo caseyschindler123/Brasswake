@@ -24,7 +24,7 @@ test('appearance · facial attachments and five visibly distinct material finish
  });
  expect(result.unique).toEqual({metal:5,wood:5,leather:5,cloth:5});
  if(info.project.name!=='phone-webkit')for(const[name,data]of result.sheets){const path=info.outputPath(name+'.png');await fs.writeFile(path,Buffer.from(data.split(',')[1],'base64'));await info.attach(name,{path,contentType:'image/png'});}
- await page.locator('#nav [data-t=hero]').click();await screenshot(page,info,'equipped-hero-material');expect(errors).toEqual([]);
+ await page.locator('#nav [data-t=bag]').click();await screenshot(page,info,'equipped-hero-material');expect(errors).toEqual([]);
 });
 
 

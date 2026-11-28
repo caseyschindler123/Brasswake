@@ -25,13 +25,13 @@ async function battleRelease(page, info, { hosted = true } = {}) {
   });
   await page.locator('#nav [data-t=hero]').click();
   const coach = page.locator('[data-a=coachok]'); if (await coach.isVisible()) await coach.click();
-  await page.locator('[data-a=export]').click();
+  await page.locator('[data-a=charactersettings]').click();await page.locator('[data-a=export]').click();
   const account = JSON.parse(Buffer.from(await page.locator('#savebox').inputValue(), 'base64').toString('utf8'));
   const world = account.worlds[account.world], hero = world.slots[world.cur]; hero.pos = at; hero.region = 1; hero.gd = 99; hero.tut = 2; hero.pages.a1 = 1;
   await page.locator('.sheet-x').click(); await page.locator('[data-a=import]').click();
   await page.locator('#savebox').fill(Buffer.from(JSON.stringify(account)).toString('base64'));
   await page.locator('[data-a=doimport]').click();
-  await page.locator('#nav [data-t=world]').click();
+  await page.locator('#view .pclose').click();
   if (await coach.isVisible()) await coach.click();
   await page.waitForFunction(at => Scene.pos()?.every((v, i) => v === at[i]), at);
   await expect(page.locator('.movement-joystick')).toHaveAttribute('aria-disabled', 'false');

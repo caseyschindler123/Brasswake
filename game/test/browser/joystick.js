@@ -80,11 +80,11 @@ test('joystick · dead zone, walking and diagonal running use the stage control'
   const errors = observeErrors(page), { frame, stick } = await adventure(page);
   const start = await emptyLane(frame), box = await stick.boundingBox();
   const stage = await frame.locator('#stage').boundingBox();
-  const nav = await frame.locator('#nav').boundingBox();
+  const map = await frame.locator('#minimap').boundingBox();
   expect(box.x).toBeGreaterThanOrEqual(stage.x);
   expect(box.x + box.width).toBeLessThan(stage.x + stage.width / 2);
-  expect(box.y - stage.y).toBeGreaterThan(stage.height / 2);
-  expect(box.y + box.height).toBeLessThanOrEqual(nav.y);
+  expect(Math.abs(box.y + box.height / 2 - (stage.y + stage.height / 2))).toBeLessThanOrEqual(1);
+  expect(box.y).toBeGreaterThan(map.y + map.height);
   const pointer = await pointerDriver(page, box, info.project.name);
 
   try {

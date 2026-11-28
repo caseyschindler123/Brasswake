@@ -15591,6 +15591,256 @@
     "sha256": "a52b4587dc81a5fec5c2ba5bb49edb9aab9422776419a823d652e6b5cdcf8f63"
   },
   {
+    "path": "art/painted-two-body/doll-knight-0.webp",
+    "size": 71160,
+    "sha256": "650c7ac7765b77d100547447f882dcd916454a626c536474c28a3391ae9f4cd5"
+  },
+  {
+    "path": "art/painted-two-body/doll-knight-1.webp",
+    "size": 63710,
+    "sha256": "54e8162142321083cd6a81fde9b6eaf948e8f052c97a0de17c07c8d1bbee3f85"
+  },
+  {
+    "path": "art/painted-two-body/doll-leather-0.webp",
+    "size": 68274,
+    "sha256": "6baa8b62e0d54d74a0fd1638f76679e24f85ecaf19254e1c13ebe72e9a26e235"
+  },
+  {
+    "path": "art/painted-two-body/doll-leather-1.webp",
+    "size": 58138,
+    "sha256": "dcc1122ecb40d87a0c6dbb8619c4b98679ba0654ba1446307103f09fedf92b69"
+  },
+  {
+    "path": "art/painted-two-body/doll-mail-0.webp",
+    "size": 62928,
+    "sha256": "48b32ec3fbb958b92c551a12e6eec19a1fbe136bbca72ee936a316a1b8bfd313"
+  },
+  {
+    "path": "art/painted-two-body/doll-mail-1.webp",
+    "size": 55274,
+    "sha256": "b4f9262af7003a0d20ee524a5474b5feb47de3a69f065734df4b183211f23057"
+  },
+  {
+    "path": "art/painted-two-body/doll-plate-0.webp",
+    "size": 74042,
+    "sha256": "276ece194ea58d278666a95c4a39cfd8adfcb76c0537705401a7cd2243f6b7bf"
+  },
+  {
+    "path": "art/painted-two-body/doll-plate-1.webp",
+    "size": 64900,
+    "sha256": "9ee792c0d13c2c365e4e4b2a3f8802237693db207c0a2f786425ce3ed28e34ec"
+  },
+  {
+    "path": "art/painted-two-body/doll-robe-0.webp",
+    "size": 70322,
+    "sha256": "980df077ff5e42ebd1e95ad097efd2081cf6f6d6ccb7495d79cb469040fed9fe"
+  },
+  {
+    "path": "art/painted-two-body/doll-robe-1.webp",
+    "size": 59186,
+    "sha256": "cbaf691d6fa9dd34640aa89b453898dec4371e13e7bbedb7a83c2af371b498c6"
+  },
+  {
+    "path": "art/painted-two-body/doll-tunic-0.webp",
+    "size": 64958,
+    "sha256": "05e35cca3c7f5176d083c892325f5d8ffbd95c27909e99e53ceb6fe0d399e3c5"
+  },
+  {
+    "path": "art/painted-two-body/doll-tunic-1.webp",
+    "size": 56972,
+    "sha256": "449b64b3cc6a4e4f7b028ce66e59e55364ecb4bf765731fb20e326b92d52930d"
+  },
+  {
+    "path": "art/painted-two-body/knight-0-0.webp",
+    "size": 283968,
+    "sha256": "0f720c5af63873db33055eada18b648d879c40f8c392a1d246896a02314127e9"
+  },
+  {
+    "path": "art/painted-two-body/knight-1-0.webp",
+    "size": 250210,
+    "sha256": "81f5c3c0422e129e71acb2050a4e801457347d4b4489ae19a45dbabf0611eba0"
+  },
+  {
+    "path": "art/painted-two-body/knight-idle-0-0.webp",
+    "size": 21284,
+    "sha256": "d74b3a94fe566ad5095fb0deb637f882f2548d8f8c939bb834f9f82458e4c245"
+  },
+  {
+    "path": "art/painted-two-body/knight-idle-1-0.webp",
+    "size": 19022,
+    "sha256": "5e064880bdaa5613a4659671ebfabd54fb23968416bfe069e641bac9474e987b"
+  },
+  {
+    "path": "art/painted-two-body/knight-sit-0-0.webp",
+    "size": 21492,
+    "sha256": "574549138d3bc353f9082c98725c7e48ec41e611cf7d3720fe9b987708f7a06d"
+  },
+  {
+    "path": "art/painted-two-body/knight-sit-1-0.webp",
+    "size": 17898,
+    "sha256": "faf95a2d4b0a7ef1726e67f35042d198f571c08bb6aa2825ea664b57aaea4971"
+  },
+  {
+    "path": "art/painted-two-body/leather-0-0.webp",
+    "size": 306162,
+    "sha256": "38de1cff9116aa6db878bd7ee9ca54c6f6be4009b968a80a66290bc34d64e854"
+  },
+  {
+    "path": "art/painted-two-body/leather-1-0.webp",
+    "size": 268348,
+    "sha256": "40bc358d0f86539f892c7b411be6346f56a446a6e4cfd758372c526b614633d3"
+  },
+  {
+    "path": "art/painted-two-body/leather-idle-0-0.webp",
+    "size": 21688,
+    "sha256": "6fda4ca8b81943e76d78a90fd553f624cd62cd9393196a0e09405af2e53d4d90"
+  },
+  {
+    "path": "art/painted-two-body/leather-idle-1-0.webp",
+    "size": 19120,
+    "sha256": "fc4bf36c699805682fee60be4d4cb801bf58a5754c8bb08961aeb4da95824336"
+  },
+  {
+    "path": "art/painted-two-body/leather-sit-0-0.webp",
+    "size": 22074,
+    "sha256": "5484f8d754c0d2b757f614b4ea0d4ec3dce8812ed74ea4e892ec7faa781564a8"
+  },
+  {
+    "path": "art/painted-two-body/leather-sit-1-0.webp",
+    "size": 17330,
+    "sha256": "f91389f853529679199f8dd313038e67776f6d5d7b90fcbb42980b687a86d417"
+  },
+  {
+    "path": "art/painted-two-body/mail-0-0.webp",
+    "size": 289530,
+    "sha256": "db33d47c5241d52201c99678105812647a17874c36515b5212a26087f9de6b83"
+  },
+  {
+    "path": "art/painted-two-body/mail-1-0.webp",
+    "size": 253192,
+    "sha256": "950b70432db6b1e7359d5c49385558e5f46cff19ad1f394eec369223bdb64a86"
+  },
+  {
+    "path": "art/painted-two-body/mail-idle-0-0.webp",
+    "size": 20436,
+    "sha256": "9fd8cab5515f8e4fd78aeacd1721c63c8e57c37c5e7b89d9719a7b3c36e482e1"
+  },
+  {
+    "path": "art/painted-two-body/mail-idle-1-0.webp",
+    "size": 18494,
+    "sha256": "0082c01214294037a06a15b35f654344ecadd3e1c060bb74ee64253f60062a43"
+  },
+  {
+    "path": "art/painted-two-body/mail-sit-0-0.webp",
+    "size": 21500,
+    "sha256": "fe7daf1c0264c20b485664cc7c40955e3f0631d2a0b8788e37841153f2986959"
+  },
+  {
+    "path": "art/painted-two-body/mail-sit-1-0.webp",
+    "size": 17000,
+    "sha256": "8f37812c33bbe983e61796432b09f74b8ca1d4f4037e290731377b4f91aa73a8"
+  },
+  {
+    "path": "art/painted-two-body/plate-0-0.webp",
+    "size": 304064,
+    "sha256": "f315dc82b1e912af18404d24c3c5a39680089ead5799c71aebca2870688a0b68"
+  },
+  {
+    "path": "art/painted-two-body/plate-1-0.webp",
+    "size": 267464,
+    "sha256": "30180f280f6318e184d6d41a573f1c6655afc6f6a37d28153d5d54109a7bad44"
+  },
+  {
+    "path": "art/painted-two-body/plate-idle-0-0.webp",
+    "size": 20838,
+    "sha256": "baea07fdc6312038603ba395fd6d7f4ac060af7c50bc2bfeb3e0d4e950688b38"
+  },
+  {
+    "path": "art/painted-two-body/plate-idle-1-0.webp",
+    "size": 18896,
+    "sha256": "cc636647facf858d316ac017893e836c3e0bf4b15131e4fbfb275a331e36aa54"
+  },
+  {
+    "path": "art/painted-two-body/plate-sit-0-0.webp",
+    "size": 20386,
+    "sha256": "8301062cefbd702831b4a3abfad983fd47dbb56d874b862a4504b62cb672c6ad"
+  },
+  {
+    "path": "art/painted-two-body/plate-sit-1-0.webp",
+    "size": 17240,
+    "sha256": "fd4fa12bac1c9cd41cbedfe4ac94ff563667699e0258c860d0355970131803b0"
+  },
+  {
+    "path": "art/painted-two-body/robe-0-0.webp",
+    "size": 312872,
+    "sha256": "882419b5f6cecedabdd035712147a5252313b53e5c34a884a79b72bfedb24f72"
+  },
+  {
+    "path": "art/painted-two-body/robe-1-0.webp",
+    "size": 284514,
+    "sha256": "24195cd0407565073971ade5702cee10cedc380c6471dc1df0e0548a99f7cd0d"
+  },
+  {
+    "path": "art/painted-two-body/robe-idle-0-0.webp",
+    "size": 21810,
+    "sha256": "85c7ca72f5333cbedbe2c0754bbae8d4e422882ee69e85abf5b675895951a95c"
+  },
+  {
+    "path": "art/painted-two-body/robe-idle-1-0.webp",
+    "size": 18860,
+    "sha256": "eaf662a5f73877a12a72db4f7c0e6f195cfd15150baf6627dae64f48d510c2b1"
+  },
+  {
+    "path": "art/painted-two-body/robe-sit-0-0.webp",
+    "size": 22264,
+    "sha256": "347bece448d9ca8f6ba2bbbe3e62c974b4b5551cad02752cf0c6e27d5761043d"
+  },
+  {
+    "path": "art/painted-two-body/robe-sit-1-0.webp",
+    "size": 18592,
+    "sha256": "a70daca1ee2598e4a7dae766117ca516a570d5111982e25f89e3f170b23a54da"
+  },
+  {
+    "path": "art/painted-two-body/tunic-0-0.webp",
+    "size": 285042,
+    "sha256": "b60d473e8a930646074ead63d2031351d7ae0f08cb549e6ee14332d06f2bbecf"
+  },
+  {
+    "path": "art/painted-two-body/tunic-1-0.webp",
+    "size": 253552,
+    "sha256": "aad66b1782e97baad486fab66f7835dd0e10f3aebeab14e07f4f55253fabab07"
+  },
+  {
+    "path": "art/painted-two-body/tunic-action-head-0-0.webp",
+    "size": 3170,
+    "sha256": "8b967907e7a290f7a7be50b2404d2faa359a483d71738bf552525de01f6303a2"
+  },
+  {
+    "path": "art/painted-two-body/tunic-action-head-1-0.webp",
+    "size": 3606,
+    "sha256": "a71bfd5d2bb5ac3f480eb6435263a0ec609d69065db74a0461a81f34a0cec8bf"
+  },
+  {
+    "path": "art/painted-two-body/tunic-idle-0-0.webp",
+    "size": 20702,
+    "sha256": "d0167eb4e58e21883bc094b50b5483d7f5d369c7c1d3021b21969b6c537b4269"
+  },
+  {
+    "path": "art/painted-two-body/tunic-idle-1-0.webp",
+    "size": 18506,
+    "sha256": "0dbd4dd090952b61f8667fa30d8447df9bb5bd8405b66910fa7e6a6a175b2afe"
+  },
+  {
+    "path": "art/painted-two-body/tunic-sit-0-0.webp",
+    "size": 21238,
+    "sha256": "6ca25cedfefe18fed7bed65ffeed5106f04118a8bcc49871a336c11ec38f6f91"
+  },
+  {
+    "path": "art/painted-two-body/tunic-sit-1-0.webp",
+    "size": 16888,
+    "sha256": "602779d068253ea62908cdb7cf00111b9a6fab4ab2089df87a82cb3888dbf184"
+  },
+  {
     "path": "art/painted/LICENSE.txt",
     "size": 1742,
     "sha256": "b80d47f5b231510cd754d1457705307f33eab121addae32d4222baf1221aae8c"

@@ -37,8 +37,9 @@ async function adventure(page) {
 }
 
 async function tab(f, name) {
-  await f.locator(`#nav [data-t=${name}]`).click();
+  await f.locator(name==='world'?'#view .pclose':`#nav [data-t=${name}]`).click();
   await coach(f);
+  if(name==='hero')await f.locator('[data-a=skilltab][data-id=skills]').click();
 }
 
 async function standBy(f, kind, fields = {}) {
@@ -115,6 +116,7 @@ async function stopAt(f, label, id, value) {
 }
 
 async function exportCode(f) {
+  await f.locator('[data-a=charactersettings]').click();
   await action(f, 'export').click();
   const code = await f.locator('#savebox').inputValue();
   await f.locator('.sheet-x').click();
@@ -134,17 +136,19 @@ test('skill system · Hero controls govern actual capped fishing and survive rel
   });
   await tab(f, 'hero');
   await expect(action(f, 'progressmode', '[data-stat="0"]')).toHaveCount(20);
-  await expect(action(f, 'progressmode', '[data-stat="1"]')).toHaveCount(3);
   await expect(f.locator('#view h2').filter({ hasText: 'Skills' })).toContainText('700.0 / 700');
   await expect(progressMode(f, 'swords')).toHaveText('↑ Raise');
   await progressMode(f, 'swords').click();
   await expect(progressMode(f, 'swords')).toHaveText('↓ Lower');
+  await f.locator('[data-a=skilltab][data-id=stats]').click();
+  await expect(action(f, 'progressmode', '[data-stat="1"]')).toHaveCount(3);
   await progressMode(f, 'str').click();
   await progressMode(f, 'str').click();
   await expect(progressMode(f, 'str')).toHaveText('Locked');
-  await stopAt(f, 'Fishing', 'fishing', '20.1');
   await stopAt(f, 'Dexterity', 'dex', '40.2');
   await expect(f.getByRole('spinbutton', { name: 'Dexterity stop target' })).toHaveValue('40.2');
+  await f.locator('[data-a=skilltab][data-id=skills]').click();
+  await stopAt(f, 'Fishing', 'fishing', '20.1');
   await screenshot(page, info, 'skill-controls');
 
   await tab(f, 'world');
@@ -191,6 +195,7 @@ test('skill system · Hero controls govern actual capped fishing and survive rel
   await expect(page.locator('#title')).toBeHidden();
   await tab(page, 'hero');
   await expect(progressMode(page, 'fishing')).toHaveText('Locked');
+  await page.locator('[data-a=skilltab][data-id=stats]').click();
   await expect(page.getByRole('spinbutton', { name: 'Dexterity stop target' })).toHaveValue('40.2');
 
   const legacy = { ...structuredClone(world), v: 7, rev: exported.rev, at: exported.at };
@@ -201,6 +206,7 @@ test('skill system · Hero controls govern actual capped fishing and survive rel
     old.v = 6;
     for (const key of ['progression', 'attr', 'mana', 'stamina', 'skillModes', 'skillTargets', 'attrModes', 'attrTargets']) delete old[key];
   }
+  await page.locator('[data-a=charactersettings]').click();
   await action(page, 'import').click();
   await page.locator('#savebox').fill(Buffer.from(JSON.stringify(legacy), 'utf8').toString('base64'));
   await action(page, 'doimport').click();

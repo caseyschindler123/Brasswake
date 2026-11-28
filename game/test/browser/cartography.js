@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { PNG } = require('playwright-core/lib/utilsBundle');
 const { observeErrors, screenshot } = require('./flow');
 
-const nav = (frame, tab) => frame.locator(`#nav [data-t=${tab}]`);
+const nav = (frame, tab) => frame.locator(tab==='map'?'#minimap':tab==='world'?'#view .pclose':`#nav [data-t=${tab}]`);
 const action = (frame, name, scope = '') => frame.locator(`${scope} [data-a=${name}]`.trim());
 const position = frame => frame.evaluate(() => Scene.pos());
 
@@ -165,6 +165,7 @@ test('cartography · walking reveals the actual fog raster and persists by chara
   expect(stillRemote).toEqual(black);
 
   await openTab(frame, 'hero');
+  await action(frame, 'charactersettings').click();
   await action(frame, 'export').click();
   const code = await frame.locator('#savebox').inputValue();
   const exported = JSON.parse(Buffer.from(code, 'base64').toString('utf8'));
@@ -191,6 +192,7 @@ test('cartography · walking reveals the actual fog raster and persists by chara
     __bw.save();
   }, start);
   await openTab(page, 'hero');
+  await action(page, 'charactersettings').click();
   await action(page, 'reset').click();
   await page.getByRole('button', { name: /Supporting Cartographer/ }).click();
   expect(await position(page)).toEqual(start);
@@ -450,6 +452,7 @@ test('cartography · the Grand Atlas is a single installed household feature gat
     __bw.save();
   });
   await openTab(page, 'hero');
+  await action(page, 'charactersettings').click();
   await action(page, 'reset').click();
   await page.getByRole('button', { name: /Supporting Atlas Reader/ }).click();
   await page.evaluate(({ tile, home }) => {

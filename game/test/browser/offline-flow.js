@@ -6,7 +6,7 @@ async function dismissCoach(page){const button=page.locator('[data-a=coachok]');
 const {skipArrival}=require('./intro-helper');
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 async function titleReady(page){await expect(page.locator('#artload')).toBeHidden({timeout:45000});await expect(page.locator('#title [data-a=offlinedownload]')).toBeEnabled({timeout:25000});}
-async function hero(page){await page.locator('#nav [data-t=hero]').click();await dismissCoach(page);}
+async function hero(page){await page.locator('#nav [data-t=hero]').click();await dismissCoach(page);await page.locator('[data-a=skilltab][data-id=skills]').click();}
 async function newHero(page){await page.locator('[data-a=newslot]').first().click();await page.locator('[data-a=pick][data-look="4"]').click();await page.locator('[data-a=begin]').click();await skipArrival(page,'Plane Traveller');}
 async function downloadFile(page){
   await page.getByRole('button',{name:'Back up save',exact:true}).click();
@@ -28,7 +28,7 @@ async function offlineFlow(page,context,info,{url='/Brasswake/',live=false}={}){
   await screenshot(page,info,'offline-ready-title');
   await newHero(page);await hero(page);
   await page.locator('input[data-target=magery]').fill('55');await page.locator('[data-a=progresstarget][data-id=magery]').click();
-  await page.locator('#view [data-a=savenow]').click();await expect(page.locator('#view [data-save-status]')).toContainText('Saved on this device');
+  await page.locator('[data-a=charactersettings]').click();await page.locator('#view [data-a=savenow]').click();await expect(page.locator('#view [data-save-status]')).toContainText('Saved on this device');
   const backup=await downloadFile(page);expect(backup.name).toMatch(/^Brasswake-save-.+\.txt$/);
   const account=JSON.parse(Buffer.from(backup.bytes.toString().trim(),'base64').toString('utf8'));
   expect(account.worlds).toHaveLength(3);expect(account.worlds[account.world].slots[0]).toMatchObject({name:'Plane Traveller',skillTargets:{magery:55}});
@@ -45,7 +45,7 @@ async function offlineFlow(page,context,info,{url='/Brasswake/',live=false}={}){
   await reopened.locator('#nav [data-t=ledger]').click();await dismissCoach(reopened);await reopened.locator('[data-a=lsub][data-s=sandbox]').click();
   await reopened.locator('#con-sql').fill('SELECT 43 AS airplane_check');await reopened.locator('[data-a=conrun]').click();await expect(reopened.locator('#con-out td')).toHaveText('43');
   await hero(reopened);await reopened.locator('input[data-target=magery]').fill('56');await reopened.locator('[data-a=progresstarget][data-id=magery]').click();
-  await reopened.locator('#view [data-a=savenow]').click();await expect(reopened.locator('#view [data-save-status]')).toContainText('Saved on this device');
+  await reopened.locator('[data-a=charactersettings]').click();await reopened.locator('#view [data-a=savenow]').click();await expect(reopened.locator('#view [data-save-status]')).toContainText('Saved on this device');
   const planeBackup=await downloadFile(reopened);
   const planeAccount=JSON.parse(Buffer.from(planeBackup.bytes.toString().trim(),'base64').toString('utf8'));
   expect(planeAccount.worlds[planeAccount.world].slots[0].skillTargets.magery).toBe(56);
@@ -55,7 +55,7 @@ async function offlineFlow(page,context,info,{url='/Brasswake/',live=false}={}){
   await reopened.locator('#save-file').setInputFiles({name:backup.name,mimeType:'text/plain',buffer:backup.bytes});
   await expect(reopened.locator('#save-file-status')).toContainText('Choose Load');
   await screenshot(reopened,info,'offline-load-file');
-  await reopened.locator('[data-a=doimport]').click();await expect(reopened.locator('input[data-target=magery]')).toHaveValue('55');
+  await reopened.locator('[data-a=doimport]').click();await reopened.locator('[data-a=skilltab][data-id=skills]').click();await expect(reopened.locator('input[data-target=magery]')).toHaveValue('55');
   await reopened.waitForLoadState('networkidle');await reopened.reload();
   await expect(reopened.locator('[data-a=playslot]')).toContainText('Plane Traveller');
   if(live)expect(await reopened.evaluate(()=>typeof window.__bw)).toBe('undefined');

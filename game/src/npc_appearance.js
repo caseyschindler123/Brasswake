@@ -125,7 +125,8 @@ const NpcAppearance = (() => {
     const [combo, hair, colour, skin, cloth, beard = -1, hat = -1, carried] = parts;
     const [wpn, wkind, style] = EQUIPMENT[carried] || [-1, '', 'swing'];
     const profile=profiles.npc(e);
-    return { combo, build:profile.build,height:profile.height,hair, hc: HAIR[colour], skin, cloth, beard, hat, wpn, wkind, style, shield: -1 };
+    return { combo, build:profile.build,height:profile.height,hair, hc: HAIR[colour], skin, cloth, beard, hat, wpn, wkind, style, shield: -1,
+      keepPaintedIdentity: Boolean(named(e.name) || e.fs >= 12 && e.fs <= 35 || beard >= 0) };
   }
 
   // Screen coordinates, clockwise from south through west. The legacy cardinal

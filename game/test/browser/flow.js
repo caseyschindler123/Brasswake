@@ -53,7 +53,8 @@ async function playerFlow(page, info) {
   await page.locator('[data-a=blankrun]').click();await expect(page.locator('#enc')).toContainText('The porter has the destinations');
   await screenshot(page, info, 'manifest-query-result');await page.locator('[data-a=qleave]').click();
 
-  await page.locator('#nav [data-t="map"]').click();
+  await page.locator('#view .pclose').click();
+  await page.locator('#minimap').click();
   await dismissCoach(page);
   await expect(page.locator('#view')).toContainText('Walking charts the terrain around you');
   await expect(page.locator('.cmap-frame img')).toBeVisible();
@@ -70,7 +71,6 @@ async function playerFlow(page, info) {
   await page.locator('#nav [data-t="hero"]').click();
   await dismissCoach(page);
   await expect(page.locator('input[data-target][data-stat="0"]')).toHaveCount(20);
-  await expect(page.locator('input[data-target][data-stat="1"]')).toHaveCount(3);
   for (const [id, name] of [['hp', 'HP'], ['mana', 'Mana'], ['stamina', 'Stamina']]) {
     await expect(page.locator(`#hud [data-resource=${id}]`).getByRole('meter', { name })).toBeVisible();
   }
@@ -79,6 +79,9 @@ async function playerFlow(page, info) {
   await page.locator('[data-a="progressmode"][data-id="inscription"]').click();
   await page.locator('[data-a="progressmode"][data-id="inscription"]').click();
   await expect(page.locator('[data-a="progressmode"][data-id="inscription"]')).toHaveText('Locked');
+  await page.locator('[data-a=skilltab][data-id=stats]').click();
+  await expect(page.locator('input[data-target][data-stat="1"]')).toHaveCount(3);
+  await page.locator('[data-a=charactersettings]').click();
   await page.locator('[data-a="export"]').click();
   const code = await page.locator('#savebox').inputValue();
   const account = JSON.parse(Buffer.from(code, 'base64').toString('utf8'));

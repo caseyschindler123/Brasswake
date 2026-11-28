@@ -249,6 +249,17 @@ const PaintedGear = (() => {
     g.stroke();
     g.restore();
   }
+  function paperScale(point,width,height,pivot,angle,flip) {
+    const cos=Math.cos(angle),sin=Math.sin(angle);
+    let scale=1;
+    for(const px of [0,1])for(const py of [0,1]){
+      const x=(px-pivot[0])*width*flip, y=(py-pivot[1])*height;
+      const dx=x*cos-y*sin,dy=x*sin+y*cos;
+      if(dx)scale=Math.min(scale,(dx>0?293-point[0]:7-point[0])/dx);
+      if(dy)scale=Math.min(scale,(dy>0?443-point[1]:7-point[1])/dy);
+    }
+    return Math.max(0,scale);
+  }
   function handsLayer(g,a,frame,options,sockets) {
     const {state,paper,direction,layer,phase} = options;
     const worldScale = pixelsPerMetre(paper);
@@ -273,7 +284,7 @@ const PaintedGear = (() => {
       const part = sample(g,id,off ? a.shieldMaterial : a.weaponMaterial);
       if (!part) return;
       const height=entry.length*worldScale, width=height*part.rect[2]/part.rect[3];
-      let angle=0, pivot=entry.pivot || [.5,.5], point=anchor.p, scaleX=1, flip=1;
+      let angle=0, pivot=entry.pivot || [.5,.5], point=anchor.p, scaleX=1, scaleY=1, flip=1;
       if (family==='shield') {
         scaleX=paper?1:aspect;
         if (stowed) {
@@ -293,7 +304,6 @@ const PaintedGear = (() => {
         const aim=state==='bow' ? .14 : -.31;
         angle=direction>4 ? -aim : aim;
         flip=direction>4 ? -1 : 1;
-        bowString(g,point,width,height,pivot,angle,flip,state==='bow'?right:null,phase);
       } else if (family==='crossbow') {
         const active=state==='crossbow' || state==='bow';
         const across=left.p[0]-right.p[0], vertical=left.p[1]-right.p[1], palm=right.axis;
@@ -301,6 +311,10 @@ const PaintedGear = (() => {
         const valid=palm && Math.abs(across)>=height*.15 && support[0]*palm[0]+support[1]*palm[1]>.28;
         const aim=active ? valid ? support : unit(palm?.[0] || (direction>4?-1:1),palm?.[1] || 0) : unit(paper?-.52:.52,-1);
         angle=Math.atan2(aim[0],-aim[1]);
+      } else if (!off && family==='grip' && frame.carry) {
+        angle=frame.carry.angle;
+        scaleY=frame.carry.length;
+        scaleX=frame.carry.width;
       } else {
         const palmAxis=right?.axis;
         const aim = two && ['swingtwo','thrusttwo'].includes(state)
@@ -309,7 +323,10 @@ const PaintedGear = (() => {
           ? unit(palmAxis[0],palmAxis[1]) : family==='staff' || id==='w7' ? [.09,-1] : [(direction>4?1:-1)*.31,.95];
         angle=Math.atan2(aim[0],-aim[1]);
       }
-      drawPart(g,part,point,width*scaleX,height,{angle,pivot,glow:off?null:a.glow,flip});
+      const fit=paper&&frame.embeddedHead?paperScale(point,width*scaleX,height*scaleY,pivot,angle,flip):1;
+      const displayWidth=width*scaleX*fit,displayHeight=height*scaleY*fit;
+      if(family==='bow')bowString(g,point,displayWidth,displayHeight,pivot,angle,flip,state==='bow'?right:null,phase);
+      drawPart(g,part,point,displayWidth,displayHeight,{angle,pivot,glow:off?null:a.glow,flip});
     };
     draw(a.gear.weapon,primary,false);
     draw(a.gear.shield,secondary,true);

@@ -43,7 +43,7 @@ test('failed device saves stay visible and file backups remain available',async(
   await context.addInitScript(()=>Object.defineProperty(navigator,'canShare',{configurable:true,value:()=>false}));
   await page.goto('/index.html?visual_test=1');await expect(page.locator('#artload')).toBeHidden({timeout:45000});await newHero(page);await hero(page);
   const before=await page.evaluate(()=>{window.originalSet=Storage.prototype.setItem;const saved=localStorage.getItem('brasswake.acct.v9');Storage.prototype.setItem=function(k,v){if(k==='brasswake.acct.v9')throw new DOMException('Full','QuotaExceededError');return originalSet.call(this,k,v);};return saved;});
-  await page.locator('#view [data-a=savenow]').click();await expect(page.locator('#save-warning')).toBeVisible();await expect(page.locator('#view [data-save-status]')).toContainText('could not be saved');
+  await page.locator('[data-a=charactersettings]').click();await page.locator('#view [data-a=savenow]').click();await expect(page.locator('#save-warning')).toBeVisible();await expect(page.locator('#view [data-save-status]')).toContainText('could not be saved');
   expect(await page.evaluate(()=>localStorage.getItem('brasswake.acct.v9'))).toBe(before);
   await screenshot(page,info,'save-storage-warning');
   await page.locator('#save-warning [data-a=backup]').click();const pending=page.waitForEvent('download');await page.locator('[data-a=savefile]').click();
@@ -52,6 +52,7 @@ test('failed device saves stay visible and file backups remain available',async(
 });
 test('save-file import waits for confirmation and native sharing receives the full account',async({page})=>{
   await page.goto('/index.html?visual_test=1');await expect(page.locator('#artload')).toBeHidden({timeout:45000});await newHero(page);await hero(page);
+  await page.locator('[data-a=charactersettings]').click();
   await page.evaluate(()=>{Object.defineProperty(navigator,'canShare',{configurable:true,value:()=>true});navigator.share=async({files})=>{window.sharedSave={name:files[0].name,code:await files[0].text()};};});
   await page.locator('#view [data-a=backup]').click();await page.locator('[data-a=savefile]').click();await expect(page.locator('#backup-status')).toContainText('shared');
   const shared=await page.evaluate(()=>sharedSave);expect(JSON.parse(Buffer.from(shared.code.trim(),'base64')).worlds).toHaveLength(3);

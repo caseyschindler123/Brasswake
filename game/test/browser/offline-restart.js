@@ -36,7 +36,7 @@ test('offline copy survives browser shutdown and a stopped server',async({browse
     expect(await page.locator('#title [data-offline-title]').textContent(),await page.locator('#title [data-offline-note]').textContent()).toBe('Ready for offline play');
     await newHero(page);await hero(page);
     await page.locator('input[data-target=magery]').fill('57');await page.locator('[data-a=progresstarget][data-id=magery]').click();
-    await page.locator('#view [data-a=savenow]').click();await page.waitForLoadState('networkidle');
+    await page.locator('[data-a=charactersettings]').click();await page.locator('#view [data-a=savenow]').click();await page.waitForLoadState('networkidle');
     await context.close();context=null;await stopServer();
     /* The original server is gone, in addition to the browser's offline flag. */
     await expect(async()=>{await fetch(url,{signal:AbortSignal.timeout(2000)});}).rejects.toThrow();

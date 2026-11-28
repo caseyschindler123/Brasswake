@@ -1,14 +1,16 @@
 # Brasswake character handoff
 
+**Outfit and material preview.** Open the [side wardrobe](outfit-material-study/wardrobe.html) from a clone. [Side walk](outfit-material-study/side-walk.gif) · [side run](outfit-material-study/side-run.gif) · [frontal paper dolls](outfit-material-study/paper-dolls.png).
+
 **Open [the wardrobe](plate-set-study/wardrobe.html) in a browser after cloning Brasswake.** It is a self-contained offline file. Both characters appear enlarged and at town scale. Pause mid-stride, switch between tunic and plate, turn the sword on or off, change heading, or select Paper doll. GitHub's file page shows the HTML source. The GIFs and paper-doll still below can be viewed directly on GitHub.
 
 [Plate walk](plate-set-study/plate-walk.gif) · [Plate run](plate-set-study/plate-run.gif) · [Plate paper dolls](plate-set-study/paper-doll-phone.png)
 
 ## Where the project stands
 
-Casey approved the lean athletic male and female proportions, the paired tunic walk and run, all eight unarmed headings, and right-handed longsword carry. The male is taller and broader. The newest review build fits one complete steel plate set to each body and supplies two frontal inventory figures. Its check covers both outfits, both gaits, eight headings and sword on/off. The full plate set awaits Casey's visual review. The published game uses its existing character system.
+Casey approved the lean athletic male and female proportions, the paired tunic walk and run, all eight unarmed headings, right-handed longsword carry and the full plate fit at town and enlarged scale. The [two-body production packet](production/README.md) expands the six outfit families to both standard appearances, with standing and seated poses, directional attachments and frontal dolls. It also records the existing fit used for saved appearance variants. The [production plan](../game/docs/plans/2026-11-27-two-body-painted-character-production.md) tracks publication.
 
-For a new chat, start here and read the [directional movement and equipment guide](../game/docs/PAINTED_DIRECTIONAL_EQUIPMENT.md). The [original gait recipe](../game/docs/PAINTED_MOVEMENT_REFERENCE.md) records the first accepted motion and exact prompt. Preserve the approved silhouettes, timing, heading map and palm positions. The next decision is whether to accept the full plate fit at phone size. The saved robe, leather, seating and combat studies are references for extending this version. Special material colors and cloth dyes still need a pass on the new artwork.
+Read the [directional movement and equipment guide](../game/docs/PAINTED_DIRECTIONAL_EQUIPMENT.md) and the [original gait recipe](../game/docs/PAINTED_MOVEMENT_REFERENCE.md) before extending the production art. Preserve the approved silhouettes, timing, heading map and palm positions. The east-facing proof remains available as an offline comparison. [Source paintings, prompts and replay instructions](outfit-material-study/README.md)
 
 | What to inspect | Starting files |
 | --- | --- |

@@ -114,7 +114,7 @@ test('living world · entering a business records its matching map symbol across
   const service=await f.evaluate(()=>{const p=Scene.cartographyCatalogue().find(p=>p.kind==='service'&&p.type==='shop'&&p.r===1),b=p.building;
     if(!p)throw Error('Missing shop service');for(let i=0;i<b.plan.tiles.length;i++){if(b.plan.tiles[i]!==Buildings.FLOOR)continue;const x=b.x+i%b.w,y=b.y+Math.floor(i/b.w);if(!Scene.debug().world.solid[y*Scene.debug().world.w+x]&&!Scene.debug().world.occ.has(y*Scene.debug().world.w+x)){Scene.hop(x,y);return {id:p.id,name:p.name};}}throw Error('No shop interior');});
   await expect.poll(()=>f.evaluate(id=>!!__bw.S.services?.[id],service.id)).toBe(true);
-  await f.locator('#nav [data-t=map]').click();await f.locator('[data-a=cmapview][data-mode=town]').click();const marker=f.locator('.cmap-service').filter({has:f.locator('svg')});await expect(marker).not.toHaveCount(0);await screenshot(page,info,'remembered-business-map');
+  await f.locator('#minimap').click();await f.locator('[data-a=cmapview][data-mode=town]').click();const marker=f.locator('.cmap-service').filter({has:f.locator('svg')});await expect(marker).not.toHaveCount(0);await screenshot(page,info,'remembered-business-map');
   await f.evaluate(()=>__bw.save());
   await expect.poll(()=>f.evaluate(()=>{const effects=Sound.status().effects;return effects.loading.length+effects.queued.length;})).toBe(0);
   await f.waitForLoadState('networkidle');
@@ -138,7 +138,7 @@ test('living world · returning to characters retires house placement and dojo k
   const errors=observeErrors(page),f=await scene(page);
   await f.evaluate(()=>{__bw.S.deeds=[{shape:0,mat:0}];__bw.ACT.placedeed({k:'0'});});
   await expect(f.locator('#placebar')).toBeVisible();expect(await f.evaluate(()=>!!Scene.ghostNow())).toBe(true);
-  await f.locator('#nav [data-t=hero]').click();const coach=f.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();await f.locator('[data-a=reset]').click();
+  await f.locator('#nav [data-t=hero]').click();const coach=f.locator('[data-a=coachok]');if(await coach.isVisible())await coach.click();await f.locator('[data-a=charactersettings]').click();await f.locator('[data-a=reset]').click();
   await expect(f.locator('#placebar')).toHaveCount(0);expect(await f.evaluate(()=>Scene.ghostNow())).toBeNull();
   await f.locator('[data-a=worldpick][data-i="1"]').click();await expect(f.locator('#placebar')).toHaveCount(0);expect(await f.evaluate(()=>Scene.ghostNow())).toBeNull();
   await f.locator('[data-a=worldpick][data-i="0"]').click();await f.locator('[data-a=playslot]').click();

@@ -83,6 +83,23 @@ test('keeps equipped order across serialization and skill changes and rejects in
   assert.deepEqual(s.techniques.equipped, [spell, null, null, null]);
 });
 
+test('keeps Hide in an optional shortcut while preserving other Technique positions', () => {
+  const sword = 'swords.cross-cut';
+  const character = {sk:{swords:70}};
+  Techniques.teach(character,1);
+  assert.equal(Techniques.equip(character,sword,1,{weapon:'swords'}).ok,true);
+  assert.equal(Techniques.equip(character,'hide',0).ok,true);
+  const restored = JSON.parse(JSON.stringify(character));
+  Techniques.normalize(restored);
+  assert.deepEqual(restored.techniques.equipped,[null,sword,null,null]);
+  assert.equal(Techniques.hideSlot(restored),0);
+  assert.equal(Techniques.equip(restored,'hide',2,{combat:true}).ok,false);
+  assert.equal(Techniques.equip(restored,'hide',2).ok,true);
+  assert.equal(Techniques.hideSlot(restored),2);
+  assert.equal(Techniques.equip(restored,null,2).ok,true);
+  assert.equal(Techniques.hideSlot(restored),null);
+});
+
 test('normalizes malformed slots without moving valid entries or marking unknown IDs learned', () => {
   const frost = 'magery.frost-dart';
   const s = { techniques: { learned: { [frost]: true, fake: true },

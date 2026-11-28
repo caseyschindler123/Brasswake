@@ -18,7 +18,7 @@ async function dismissCoach(frame) {
 }
 
 async function openMap(frame) {
-  await frame.locator('#nav [data-t=map]').click();
+  await frame.locator('#minimap').click();
   await dismissCoach(frame);
 }
 

@@ -17,10 +17,11 @@ async function hero(page) {
 
 async function toggleHorse(page, label) {
   await hero(page);
+  await page.locator('[data-a=skilltab][data-id=stats]').click();
   const toggle = heroAction(page, 'mounttoggle');
   await expect(toggle).toHaveText(label);
   await toggle.click();
-  await page.locator('#nav [data-t=world]').click();
+  await page.locator('#view .pclose').click();
 }
 
 async function stage(page, at) {
@@ -252,6 +253,7 @@ test('mounts · a purchased horse survives device reload and import in its origi
   await stage(page, fixture.road);
   await toggleHorse(page, 'Mount horse');
   await hero(page);
+  await heroAction(page, 'charactersettings').click();
   await heroAction(page, 'savenow').click();
   await heroAction(page, 'backup').click();
   await page.getByRole('button', { name: 'Copy a save code', exact: true }).click();
@@ -268,6 +270,7 @@ test('mounts · a purchased horse survives device reload and import in its origi
   expect(await horse(page)).toEqual({ owned: true, mounted: true, gold: 50 });
   await toggleHorse(page, 'Dismount');
   await hero(page);
+  await heroAction(page, 'charactersettings').click();
   await heroAction(page, 'import').click();
   await page.locator('#savebox').fill(code);
   await named(page, 'doimport').click();
@@ -276,6 +279,7 @@ test('mounts · a purchased horse survives device reload and import in its origi
 
   const returnToSlots = async () => {
     if (!(await page.locator('#view').isVisible())) await hero(page);
+    await heroAction(page, 'charactersettings').click();
     await heroAction(page, 'reset').click();
     await expect(page.locator('#title')).toBeVisible();
   };

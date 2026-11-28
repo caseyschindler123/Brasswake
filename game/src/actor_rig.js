@@ -26,6 +26,7 @@ const ActorRig = (() => {
     const stride=gait(running,profile).stride;
     return Math.floor(Math.max(0,distance)/stride*count)%count;
   }
+  const strideProgress=(distance,running,profile)=>Math.max(0,distance)/gait(running,profile).stride%1;
   const distance=actor=>(actor.wd||0)+(actor.gaitOffset||0);
   function advance(actor,travel,running){
     if(!(travel>0)||!Number.isFinite(travel))return 0;
@@ -67,6 +68,6 @@ const ActorRig = (() => {
     if(!Number.isInteger(look.build)||look.build<0||look.build>2)look.build=0;
     return look;
   }
-  return {headAnchor,headProfile,pose,phase,gait,speed,paceScale,contacts,distance,advance,normalizeLook};
+  return {headAnchor,headProfile,pose,phase,strideProgress,gait,speed,paceScale,contacts,distance,advance,normalizeLook};
 })();
 if(typeof module!=='undefined')module.exports=ActorRig;

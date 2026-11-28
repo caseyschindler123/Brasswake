@@ -65,6 +65,7 @@ async function hero(frame) {
   await frame.locator('#nav [data-t=hero]').click();
   const coach = frame.locator('[data-a=coachok]');
   if (await coach.isVisible()) await coach.click();
+  await frame.locator('[data-a=charactersettings]').click();
 }
 
 async function restoreCharacter(page, name) {

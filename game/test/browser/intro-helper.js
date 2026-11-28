@@ -19,9 +19,17 @@ async function settleTitle(page){
 }
 async function returnToCharacters(page){
   await expect(page.locator('#onboard [data-a=boatmenu]')).toHaveCount(0);
-  await page.getByRole('button',{name:'Character menu',exact:true}).click();
-  await expect(page.locator('#sheet-body')).toContainText('Progress saves automatically');
-  await page.locator('#sheet [data-a=boatmenu]').click();
+  const rescueMenu=page.getByRole('button',{name:'Character menu',exact:true});
+  if(await rescueMenu.isVisible()){
+    await rescueMenu.click();
+    await expect(page.locator('#sheet-body')).toContainText('Progress saves automatically');
+    await page.locator('#sheet [data-a=boatmenu]').click();
+  }else{
+    await page.getByRole('button',{name:'Skills',exact:true}).click();
+    await page.locator('#view [data-a=charactersettings]').click();
+    await expect(page.locator('#view [data-save-status]')).toContainText('Saved on this device');
+    await page.locator('#view [data-a=boatmenu]').click();
+  }
   await expect(page.locator('#title')).toBeVisible();
   await settleTitle(page);
 }
@@ -143,25 +151,25 @@ async function orientAboard(page,info,screenshot,reopen){
   const review=!/reduced frame throughput|120 ms bursts/.test(info.title);
   for(const [phase,tab]of [['chart','map'],['kit','bag'],['hero','hero'],['ledger','ledger']]){
     await expect(page.locator('#onboard')).toHaveAttribute('data-phase',phase);
-    await expect(page.locator('#nav button[data-t]')).toHaveCount(5);
+    await expect(page.locator('#nav button[data-t]')).toHaveCount(3);
     await expect(page.locator('#hud .hud-face')).toHaveCount(0);
+    const control=page.locator(tab==='map'?'#minimap':`#nav [data-t=${tab}]`);
     if(review){
       await expect(page.locator('#onboard [data-a=boatnext]')).toBeInViewport({ratio:1});
-      await expect(page.locator('#onboard [data-a=tab]')).toBeInViewport({ratio:1});
+      await expect(control).toBeInViewport({ratio:1});
     }
     if(review&&screenshot&&phase==='chart')await screenshot(page,info,'boat-chart-controls');
     if(review&&phase==='chart'){
       await page.locator('#onboard .boat-content').evaluate(el=>{el.scrollTop=el.scrollHeight;});
       await expect(page.locator('#onboard [data-a=boatnext]')).toBeInViewport({ratio:1});
-      await expect(page.locator('#onboard [data-a=tab]')).toBeInViewport({ratio:1});
+      await expect(control).toBeInViewport({ratio:1});
     }
-    await page.locator(`#nav [data-t=${tab}]`).click();
-    if(tab==='hero')await page.locator('#sheet [data-a=tab][data-t=hero]').click();
+    await control.click();
     await expect(page.locator('#view')).toBeVisible();
     await expect(page.locator('.boat-tool-note')).toContainText('Tamsin');
-    if(tab==='map'){await expect(page.locator('.boat-chart svg')).toBeVisible();await expect(page.locator('#view')).toContainText('not your explored land map');}
+    if(tab==='map'){await expect(page.locator('#view .boat-chart svg')).toBeVisible();await expect(page.locator('#view')).toContainText('not your explored land map');}
     if(screenshot)await screenshot(page,info,'boat-'+tab);
-    await page.locator('#nav [data-t=world]').click();
+    await page.locator('#view .pclose').click();
     if(reopen)await reopen(phase);
     if(review)await expect(page.locator('#onboard [data-a=boatnext]')).toBeInViewport({ratio:1});
     await page.locator('#onboard [data-a=boatnext]').click();

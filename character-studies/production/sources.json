@@ -1,0 +1,406 @@
+{
+  "man-robe-NE": {
+    "file": "exec-b4faddd1-2e21-446d-a636-f653c2d31434.png",
+    "references": [
+      "guides/man-NE.png",
+      "../outfit-material-study/paintings/exec-4f37a5d2-6b3b-4bfa-9ab3-91173a410e25.png"
+    ],
+    "prompt": "Edit reference image 1, the exact approved painted Brasswake character pose sheet of the lean athletic adult man with curly brown hair. EXACTLY a 4 by 4 arrangement of 16 separate full-body paintings with the same phases and figure layout, rows 1 and 2 walk phases 1–4 and 5–8, rows 3 and 4 run phases 1–4 and 5–8. Preserve the rear three-quarter view pointed toward the upper right, elevated orthographic world camera, entirely visible head/hair, neck, body proportions, supporting foot, individual limb positions and overlap, and original foot lift. Preserve correct right and left limbs in every cell. The only edit is clothing. Take cut and material from reference 2 and paint the neutral ivory linen, fitted long sleeves, narrow warm brown waist belt, and practical vented panels of reference 2. In walking phases its mid-shin panels hang and alternate as one near boot lifts. In running phases both long lower panels lag behind the hip, visibly flowing back-left. On the front of the body the vent passes around the nearer knee, and the back hem moves independently of that knee. Boots show under the hem, heel recovery and unobstructed contacts. The rear view must show real back folds, the plain back of her or his belt, and the natural back of each sleeve. Keep the consistent approved palette and realistic painterly 2D game sprite finish, exact positions for heads and boots, same scale through sheet. All arms and fingers intact. Keep same space and number of silhouettes. True transparent RGBA. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No text, grid, symbols, weapon or props."
+  },
+  "woman-robe-NE": {
+    "file": "exec-9ec59c3a-a04a-472f-892a-389c42cfc444.png",
+    "references": [
+      "guides/woman-NE.png",
+      "../outfit-material-study/paintings/exec-3fb24c74-ee6c-40ef-8b1f-78b35fb3b510.png"
+    ],
+    "prompt": "Edit reference image 1, the exact approved painted Brasswake character pose sheet of the lean athletic adult woman with a natural brown ponytail. EXACTLY a 4 by 4 arrangement of 16 separate full-body paintings with the same phases and figure layout, rows 1 and 2 walk phases 1–4 and 5–8, rows 3 and 4 run phases 1–4 and 5–8. Preserve the rear three-quarter view pointed toward the upper right, elevated orthographic world camera, entirely visible head/hair, neck, body proportions, supporting foot, individual limb positions and overlap, and original foot lift. Preserve correct right and left limbs in every cell. The only edit is clothing. Take cut and material from reference 2 and paint the neutral ivory linen, fitted long sleeves, narrow warm brown waist belt, and practical vented panels of reference 2. In walking phases its mid-shin panels hang and alternate as one near boot lifts. In running phases both long lower panels lag behind the hip, visibly flowing back-left. On the front of the body the vent passes around the nearer knee, and the back hem moves independently of that knee. Boots show under the hem, heel recovery and unobstructed contacts. The rear view must show real back folds, the plain back of her or his belt, and the natural back of each sleeve. Keep the consistent approved palette and realistic painterly 2D game sprite finish, exact positions for heads and boots, same scale through sheet. All arms and fingers intact. Keep same space and number of silhouettes. True transparent RGBA. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No text, grid, symbols, weapon or props."
+  },
+  "man-leather-NE": {
+    "file": "exec-0529245a-5ff4-46a9-9065-e7d8cda2d5ee.png",
+    "references": [
+      "guides/man-NE.png",
+      "../outfit-material-study/paintings/exec-8d2a19a7-5c89-4872-b9ac-68e3498233d1.png"
+    ],
+    "prompt": "Edit reference image 1, the exact approved painted Brasswake character pose sheet of the lean athletic adult man with curly brown hair. EXACTLY a 4 by 4 arrangement of 16 separate full-body paintings with the same phases and figure layout, rows 1 and 2 walk phases 1–4 and 5–8, rows 3 and 4 run phases 1–4 and 5–8. Preserve the rear three-quarter view pointed toward the upper right, elevated orthographic world camera, entirely visible head/hair, neck, body proportions, supporting foot, individual limb positions and overlap, and original foot lift. Preserve correct right and left limbs in every cell. The only edit is clothing. Take cut and material from reference 2 and paint the same weathered brown buckled leather jerkin, two modest close curved shoulder caps and ivory undersleeves to just above the elbow, narrow belt and hip-length vented hem as reference 2. Painted seams and stitches are visible on the plain rear panels, without buckles on the back. Both original bare forearms, hands, pants and boots remain in the same shape and place. Keep the consistent approved palette and realistic painterly 2D game sprite finish, exact positions for heads and boots, same scale through sheet. All arms and fingers intact. Keep same space and number of silhouettes. True transparent RGBA. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No text, grid, symbols, weapon or props."
+  },
+  "woman-leather-NE": {
+    "file": "exec-0e24be9f-aadd-456f-88af-d387ab6f8807.png",
+    "references": [
+      "guides/woman-NE.png",
+      "../outfit-material-study/paintings/exec-4f6ed637-0222-4c7b-93c6-6d31c1bb131a.png"
+    ],
+    "prompt": "Edit reference image 1, the exact approved painted Brasswake character pose sheet of the lean athletic adult woman with a natural brown ponytail. EXACTLY a 4 by 4 arrangement of 16 separate full-body paintings with the same phases and figure layout, rows 1 and 2 walk phases 1–4 and 5–8, rows 3 and 4 run phases 1–4 and 5–8. Preserve the rear three-quarter view pointed toward the upper right, elevated orthographic world camera, entirely visible head/hair, neck, body proportions, supporting foot, individual limb positions and overlap, and original foot lift. Preserve correct right and left limbs in every cell. The only edit is clothing. Take cut and material from reference 2 and paint the same weathered brown buckled leather jerkin, two modest close curved shoulder caps and ivory undersleeves to just above the elbow, narrow belt and hip-length vented hem as reference 2. Painted seams and stitches are visible on the plain rear panels, without buckles on the back. Both original bare forearms, hands, pants and boots remain in the same shape and place. Keep the consistent approved palette and realistic painterly 2D game sprite finish, exact positions for heads and boots, same scale through sheet. All arms and fingers intact. Keep same space and number of silhouettes. True transparent RGBA. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No text, grid, symbols, weapon or props."
+  },
+  "man-tunic-everyday": {
+    "file": "exec-495088af-cab3-4e3f-b157-5e4967bc2929.png",
+    "references": [
+      "guides/man-everyday-guide.png",
+      "../painted-female-fit/standard-height-front-study.png",
+      "../plate-set-study/paper-dolls.png"
+    ],
+    "prompt": "Paint a two-row by five-column continuous sheet of exactly ten isolated FULL-BODY game sprites for Brasswake. Art for a 2D top-down fantasy roleplaying game, warm painterly textures, life-like adult proportions. Reference 1 gives the pose and exact elevated orthographic camera. Five columns face south toward viewer, southeast toward screen right, east in true right profile, northeast away and toward screen right, north straight away. Keep those same five headings in both rows. Top row standing upright at ease on both feet, hands down, shoulders relaxed. Bottom row sitting on an INVISIBLE straight padded tavern stool at the same world ground and knee height, knees bent at right angles, pelvis seated firmly, upright relaxed upper body, hands resting on thighs; place feet naturally in front, use foreshortening and natural limb occlusion in rear views. Keep head lifted with natural neck. Paint ONLY the taller lean athletic adult man with curly brown hair and softer jaw on the left from reference 2, preserving their exact face, body silhouette and relative head size. Keep the approved close tan linen tunic, brown trousers, belt and boots from reference 2. Both rows share ONE scale and relaxed elevated world camera. No item, chair, furniture, weapon or shadows. Whole head, hands and boots remain in frame. Even spacing and broad empty gaps. Actual transparent RGBA. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No text, marks or grid."
+  },
+  "man-plate-everyday": {
+    "file": "exec-bdd38aee-dae9-41a7-be13-6ae764324b61.png",
+    "references": [
+      "guides/man-everyday-guide.png",
+      "../painted-female-fit/standard-height-front-study.png",
+      "../plate-set-study/paper-dolls.png"
+    ],
+    "prompt": "Paint a two-row by five-column continuous sheet of exactly ten isolated FULL-BODY game sprites for Brasswake. Art for a 2D top-down fantasy roleplaying game, warm painterly textures, life-like adult proportions. Reference 1 gives the pose and exact elevated orthographic camera. Five columns face south toward viewer, southeast toward screen right, east in true right profile, northeast away and toward screen right, north straight away. Keep those same five headings in both rows. Top row standing upright at ease on both feet, hands down, shoulders relaxed. Bottom row sitting on an INVISIBLE straight padded tavern stool at the same world ground and knee height, knees bent at right angles, pelvis seated firmly, upright relaxed upper body, hands resting on thighs; place feet naturally in front, use foreshortening and natural limb occlusion in rear views. Keep head lifted with natural neck. Paint ONLY the taller lean athletic adult man with curly brown hair and softer jaw on the left from reference 2, preserving their exact face, body silhouette and relative head size. Wear the approved full steel plate with fitted neckline, small articulated shoulder caps, tassets, gauntlets and sabatons from reference 3; collar follows the original neck and tassets angle over thighs when sitting. Both rows share ONE scale and relaxed elevated world camera. No item, chair, furniture, weapon or shadows. Whole head, hands and boots remain in frame. Even spacing and broad empty gaps. Actual transparent RGBA. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No text, marks or grid."
+  },
+  "woman-tunic-everyday": {
+    "file": "exec-ff6b7629-7091-4edb-9f07-a3f3b3543414.png",
+    "references": [
+      "guides/woman-everyday-guide.png",
+      "../painted-female-fit/standard-height-front-study.png",
+      "../plate-set-study/paper-dolls.png"
+    ],
+    "prompt": "Paint a two-row by five-column continuous sheet of exactly ten isolated FULL-BODY game sprites for Brasswake. Art for a 2D top-down fantasy roleplaying game, warm painterly textures, life-like adult proportions. Reference 1 gives the pose and exact elevated orthographic camera. Five columns face south toward viewer, southeast toward screen right, east in true right profile, northeast away and toward screen right, north straight away. Keep those same five headings in both rows. Top row standing upright at ease on both feet, hands down, shoulders relaxed. Bottom row sitting on an INVISIBLE straight padded tavern stool at the same world ground and knee height, knees bent at right angles, pelvis seated firmly, upright relaxed upper body, hands resting on thighs; place feet naturally in front, use foreshortening and natural limb occlusion in rear views. Keep head lifted with natural neck. Paint ONLY the shorter lean athletic adult woman with brown ponytail on the right from reference 2, preserving their exact face, body silhouette and relative head size. Keep the approved close tan linen tunic, brown trousers, belt and boots from reference 2. Both rows share ONE scale and relaxed elevated world camera. No item, chair, furniture, weapon or shadows. Whole head, hands and boots remain in frame. Even spacing and broad empty gaps. Actual transparent RGBA. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No text, marks or grid."
+  },
+  "woman-plate-everyday": {
+    "file": "exec-12a103c5-71e1-4872-869a-18107babb646.png",
+    "references": [
+      "guides/woman-everyday-guide.png",
+      "../painted-female-fit/standard-height-front-study.png",
+      "../plate-set-study/paper-dolls.png"
+    ],
+    "prompt": "Paint a two-row by five-column continuous sheet of exactly ten isolated FULL-BODY game sprites for Brasswake. Art for a 2D top-down fantasy roleplaying game, warm painterly textures, life-like adult proportions. Reference 1 gives the pose and exact elevated orthographic camera. Five columns face south toward viewer, southeast toward screen right, east in true right profile, northeast away and toward screen right, north straight away. Keep those same five headings in both rows. Top row standing upright at ease on both feet, hands down, shoulders relaxed. Bottom row sitting on an INVISIBLE straight padded tavern stool at the same world ground and knee height, knees bent at right angles, pelvis seated firmly, upright relaxed upper body, hands resting on thighs; place feet naturally in front, use foreshortening and natural limb occlusion in rear views. Keep head lifted with natural neck. Paint ONLY the shorter lean athletic adult woman with brown ponytail on the right from reference 2, preserving their exact face, body silhouette and relative head size. Wear the approved full steel plate with fitted neckline, small articulated shoulder caps, tassets, gauntlets and sabatons from reference 3; collar follows the original neck and tassets angle over thighs when sitting. Both rows share ONE scale and relaxed elevated world camera. No item, chair, furniture, weapon or shadows. Whole head, hands and boots remain in frame. Even spacing and broad empty gaps. Actual transparent RGBA. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No text, marks or grid."
+  },
+  "mail-dolls": {
+    "file": "exec-5b110660-37b6-4c25-b7a3-7e9df7dc0e31.png",
+    "references": [
+      "../painted-female-fit/standard-height-front-study.png",
+      "../plate-set-study/paper-dolls.png"
+    ],
+    "prompt": "Repaint reference 1 into a pair of separately posed front-facing paper dolls for Brasswake, preserving exactly the same height difference and shared floor. Two isolated figures only, man on left and woman on right. Both bodies keep the approved lean athletic proportions and lift their heads. Preserve both exact faces, body shapes, poses, normal shoulders, wrists, hips, knees, feet, original curly hair and ponytail. The outfit is fine mid-grey steel riveted mail shirt with plain split lower hem ending above the mid-thigh and three-quarter mail sleeves, a modest close linen neckline, warm brown leather belt, fitted plain brown trousers and low boots. Readable chain rings on the enlarged drawing and a few distinct tonal masses at tiny scale. Brown leather has a muted color; plain neutral steel chain has painted silver highlights and no golden tint. Reference 2 establishes the painterly medieval material and quality, use reference 1 for identity and form. Entire limbs and feet inside a transparent empty background. No ground, no shadow, no grass, nothing behind the characters. No glow, haze or backdrop. No text or graphics."
+  },
+  "knight-dolls": {
+    "file": "exec-1785c68c-4a12-4ff2-9352-5db5a61d12f8.png",
+    "references": [
+      "../painted-female-fit/standard-height-front-study.png",
+      "../plate-set-study/paper-dolls.png"
+    ],
+    "prompt": "Repaint reference 1 into a pair of separately posed front-facing paper dolls for Brasswake, preserving exactly the same height difference and shared floor. Two isolated figures only, man on left and woman on right. Both bodies keep the approved lean athletic proportions and lift their heads. Preserve both exact faces, body shapes, poses, normal shoulders, wrists, hips, knees, feet, original curly hair and ponytail. The outfit is Knight’s Plate, an elegant distinct articulated knight harness for each body. Ridge down the breastplate, slightly pointed smooth pauldron silhouettes close to the original approved shoulders, narrow elegant symmetrical brass border detail and closed steel gauntlets and boots. Keep the original slim neck collar, waist and shoulder proportions. Painted neutral dark steel with few highlights; brass accents fixed and modest. Show both faces and original hair without helmets. Do not add weapons, capes, badges or scenery. Reference 2 establishes the painterly medieval material and quality, use reference 1 for identity and form. Entire limbs and feet inside a transparent empty background. No ground, no shadow, no grass, nothing behind the characters. No glow, haze or backdrop. No text or graphics."
+  },
+  "man-robe-SE": {
+    "file": "exec-de087d6e-5cae-4af7-93bb-229ca06a80aa.png",
+    "references": [
+      "guides/man-SE.png",
+      "../outfit-material-study/paintings/exec-4f37a5d2-6b3b-4bfa-9ab3-91173a410e25.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Edit approved Brasswake pose sheet reference 1. Exactly 4 columns and 4 rows, 16 complete isolated figures in the original order. Same exact viewpoint in every cell as corresponding reference: front three-quarter view pointed toward the lower right. Rows 1–2 are walk, rows 3–4 are run. Preserve the original character's exact hair, face, silhouette, body build, raised world camera, footprint, head tilt, palm positions, natural gait, and each boot. Keep the same approved finished art style, head proportions and calm expression as reference 3. Only edit their outfit. Paint the same mid-shin split neutral ivory linen robe and narrow leather belt as reference 2. The near leg moves the front drape independently; the back panels lag behind the pelvis on running. Preserve the leg ground contacts and scene camera exactly. Match the body and gait of reference 1 and the garment workmanship of reference 2. Original silhouette proportions and hand/boot locations remain. No scenery or held item. Keep real transparent alpha and full heads and limbs. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No text or grids."
+  },
+  "man-robe-axial": {
+    "file": "exec-99cd2d59-32c4-4ee9-a8fc-81f8a90c5207.png",
+    "references": [
+      "guides/man-axial.png",
+      "../outfit-material-study/paintings/exec-4f37a5d2-6b3b-4bfa-9ab3-91173a410e25.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Edit approved Brasswake pose sheet reference 1. Exactly 4 columns and 4 rows, 16 complete isolated figures in the original order. Same exact viewpoint in every cell as corresponding reference: straight south (first two rows, face toward viewer) and straight north (last two rows, back toward viewer). Row 1: south walk, row 2: south run, row 3: north walk, row 4: north run. Those rows cannot be interchanged. Preserve the original character's exact hair, face, silhouette, body build, raised world camera, footprint, head tilt, palm positions, natural gait, and each boot. Keep the same approved finished art style, head proportions and calm expression as reference 3. Only edit their outfit. Paint the same mid-shin split neutral ivory linen robe and narrow leather belt as reference 2. The near leg moves the front drape independently; the back panels lag behind the pelvis on running. Preserve the leg ground contacts and scene camera exactly. Match the body and gait of reference 1 and the garment workmanship of reference 2. Original silhouette proportions and hand/boot locations remain. No scenery or held item. Keep real transparent alpha and full heads and limbs. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No text or grids."
+  },
+  "woman-robe-SE": {
+    "file": "exec-13b12ed9-2c4a-4ae9-a31b-53277ef8cfc7.png",
+    "references": [
+      "guides/woman-SE.png",
+      "../outfit-material-study/paintings/exec-3fb24c74-ee6c-40ef-8b1f-78b35fb3b510.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Edit approved Brasswake pose sheet reference 1. Exactly 4 columns and 4 rows, 16 complete isolated figures in the original order. Same exact viewpoint in every cell as corresponding reference: front three-quarter view pointed toward the lower right. Rows 1–2 are walk, rows 3–4 are run. Preserve the original character's exact hair, face, silhouette, body build, raised world camera, footprint, head tilt, palm positions, natural gait, and each boot. Keep the same approved finished art style, head proportions and calm expression as reference 3. Only edit their outfit. Paint the same mid-shin split neutral ivory linen robe and narrow leather belt as reference 2. The near leg moves the front drape independently; the back panels lag behind the pelvis on running. Preserve the leg ground contacts and scene camera exactly. Match the body and gait of reference 1 and the garment workmanship of reference 2. Original silhouette proportions and hand/boot locations remain. No scenery or held item. Keep real transparent alpha and full heads and limbs. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No text or grids."
+  },
+  "woman-robe-axial": {
+    "file": "exec-a9debd17-27e3-4634-a257-4d46bacaac1b.png",
+    "references": [
+      "guides/woman-axial.png",
+      "../outfit-material-study/paintings/exec-3fb24c74-ee6c-40ef-8b1f-78b35fb3b510.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Edit approved Brasswake pose sheet reference 1. Exactly 4 columns and 4 rows, 16 complete isolated figures in the original order. Same exact viewpoint in every cell as corresponding reference: straight south (first two rows, face toward viewer) and straight north (last two rows, back toward viewer). Row 1: south walk, row 2: south run, row 3: north walk, row 4: north run. Those rows cannot be interchanged. Preserve the original character's exact hair, face, silhouette, body build, raised world camera, footprint, head tilt, palm positions, natural gait, and each boot. Keep the same approved finished art style, head proportions and calm expression as reference 3. Only edit their outfit. Paint the same mid-shin split neutral ivory linen robe and narrow leather belt as reference 2. The near leg moves the front drape independently; the back panels lag behind the pelvis on running. Preserve the leg ground contacts and scene camera exactly. Match the body and gait of reference 1 and the garment workmanship of reference 2. Original silhouette proportions and hand/boot locations remain. No scenery or held item. Keep real transparent alpha and full heads and limbs. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No text or grids."
+  },
+  "man-leather-SE": {
+    "file": "exec-ed558fc3-272a-44ab-bd85-d6bed06e62c2.png",
+    "references": [
+      "guides/man-SE.png",
+      "../outfit-material-study/paintings/exec-8d2a19a7-5c89-4872-b9ac-68e3498233d1.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Edit approved Brasswake pose sheet reference 1. Exactly 4 columns and 4 rows, 16 complete isolated figures in the original order. Same exact viewpoint in every cell as corresponding reference: front three-quarter view pointed toward the lower right. Rows 1–2 are walk, rows 3–4 are run. Preserve the original character's exact hair, face, silhouette, body build, raised world camera, footprint, head tilt, palm positions, natural gait, and each boot. Keep the same approved finished art style, head proportions and calm expression as reference 3. Only edit their outfit. Paint the exact same fitted short brown leather jerkin with leather shoulder caps, paired small front buckles visible only when facing us, split short hip hem, ivory sleeves and stitched brown edges, bare forearms and original boots and trousers. Match the body and gait of reference 1 and the garment workmanship of reference 2. Original silhouette proportions and hand/boot locations remain. No scenery or held item. Keep real transparent alpha and full heads and limbs. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No text or grids."
+  },
+  "man-leather-axial": {
+    "file": "exec-79e52df9-6687-41c8-aee5-d5936ce8343a.png",
+    "references": [
+      "guides/man-axial.png",
+      "../outfit-material-study/paintings/exec-8d2a19a7-5c89-4872-b9ac-68e3498233d1.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Edit approved Brasswake pose sheet reference 1. Exactly 4 columns and 4 rows, 16 complete isolated figures in the original order. Same exact viewpoint in every cell as corresponding reference: straight south (first two rows, face toward viewer) and straight north (last two rows, back toward viewer). Row 1: south walk, row 2: south run, row 3: north walk, row 4: north run. Those rows cannot be interchanged. Preserve the original character's exact hair, face, silhouette, body build, raised world camera, footprint, head tilt, palm positions, natural gait, and each boot. Keep the same approved finished art style, head proportions and calm expression as reference 3. Only edit their outfit. Paint the exact same fitted short brown leather jerkin with leather shoulder caps, paired small front buckles visible only when facing us, split short hip hem, ivory sleeves and stitched brown edges, bare forearms and original boots and trousers. Match the body and gait of reference 1 and the garment workmanship of reference 2. Original silhouette proportions and hand/boot locations remain. No scenery or held item. Keep real transparent alpha and full heads and limbs. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No text or grids."
+  },
+  "woman-leather-SE": {
+    "file": "exec-2165f83d-c903-49e1-b824-c7b2bf2e0bc0.png",
+    "references": [
+      "guides/woman-SE.png",
+      "../outfit-material-study/paintings/exec-4f6ed637-0222-4c7b-93c6-6d31c1bb131a.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Edit approved Brasswake pose sheet reference 1. Exactly 4 columns and 4 rows, 16 complete isolated figures in the original order. Same exact viewpoint in every cell as corresponding reference: front three-quarter view pointed toward the lower right. Rows 1–2 are walk, rows 3–4 are run. Preserve the original character's exact hair, face, silhouette, body build, raised world camera, footprint, head tilt, palm positions, natural gait, and each boot. Keep the same approved finished art style, head proportions and calm expression as reference 3. Only edit their outfit. Paint the exact same fitted short brown leather jerkin with leather shoulder caps, paired small front buckles visible only when facing us, split short hip hem, ivory sleeves and stitched brown edges, bare forearms and original boots and trousers. Match the body and gait of reference 1 and the garment workmanship of reference 2. Original silhouette proportions and hand/boot locations remain. No scenery or held item. Keep real transparent alpha and full heads and limbs. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No text or grids."
+  },
+  "woman-leather-axial": {
+    "file": "exec-096c0061-c513-4004-9331-aeef21877439.png",
+    "references": [
+      "guides/woman-axial.png",
+      "../outfit-material-study/paintings/exec-4f6ed637-0222-4c7b-93c6-6d31c1bb131a.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Edit approved Brasswake pose sheet reference 1. Exactly 4 columns and 4 rows, 16 complete isolated figures in the original order. Same exact viewpoint in every cell as corresponding reference: straight south (first two rows, face toward viewer) and straight north (last two rows, back toward viewer). Row 1: south walk, row 2: south run, row 3: north walk, row 4: north run. Those rows cannot be interchanged. Preserve the original character's exact hair, face, silhouette, body build, raised world camera, footprint, head tilt, palm positions, natural gait, and each boot. Keep the same approved finished art style, head proportions and calm expression as reference 3. Only edit their outfit. Paint the exact same fitted short brown leather jerkin with leather shoulder caps, paired small front buckles visible only when facing us, split short hip hem, ivory sleeves and stitched brown edges, bare forearms and original boots and trousers. Match the body and gait of reference 1 and the garment workmanship of reference 2. Original silhouette proportions and hand/boot locations remain. No scenery or held item. Keep real transparent alpha and full heads and limbs. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No text or grids."
+  },
+  "man-robe-everyday": {
+    "file": "exec-4bfc2a6b-0081-4cc1-87b8-5918b58a6ab2.png",
+    "references": [
+      "paintings/exec-495088af-cab3-4e3f-b157-5e4967bc2929.png",
+      "../outfit-material-study/paintings/exec-a9975cd8-1392-44c5-8d14-46718e944a58.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Repaint the outfit only in reference 1, a finished painterly Brasswake standing and seated character sheet. Same exact two rows of five isolated complete body figures in the same order. Columns south toward viewer, front quarter right, full right side, rear quarter right, full back. The top row stands naturally on both feet. The bottom row sits upright with legs naturally bent and hands on thighs on an invisible stool. Preserve exact faces, hair, collar fit, knees, ankle contacts, side and rear orientation and original lean body proportions in every cell. Replace only with the fitted neutral split linen robe of reference 2. Cloth sits on the thighs, folds naturally around the visible knee and hangs loose at both sides of the seat. Keep hands visible. Match the approved face, neck and silhouette to reference 3. Whole isolated figures on transparent RGBA. Preserve generous blank gaps and one exact common physical scale for both rows. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No chair, props, symbols, text, grid or items."
+  },
+  "man-leather-everyday": {
+    "file": "exec-dadeef6b-4d81-4144-ba54-554f2ffb4471.png",
+    "references": [
+      "paintings/exec-495088af-cab3-4e3f-b157-5e4967bc2929.png",
+      "../outfit-material-study/paintings/exec-9c89e691-9036-491e-b6b2-4b4061992483.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Repaint the outfit only in reference 1, a finished painterly Brasswake standing and seated character sheet. Same exact two rows of five isolated complete body figures in the same order. Columns south toward viewer, front quarter right, full right side, rear quarter right, full back. The top row stands naturally on both feet. The bottom row sits upright with legs naturally bent and hands on thighs on an invisible stool. Preserve exact faces, hair, collar fit, knees, ankle contacts, side and rear orientation and original lean body proportions in every cell. Replace only with the fitted brown buckled jerkin with small leather shoulders, hip-length vented hem and off-white undersleeves of reference 2. Match the approved face, neck and silhouette to reference 3. Whole isolated figures on transparent RGBA. Preserve generous blank gaps and one exact common physical scale for both rows. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No chair, props, symbols, text, grid or items."
+  },
+  "man-mail-everyday": {
+    "file": "exec-0c0ab65f-e6e3-4d2c-9bcd-f915b026ddca.png",
+    "references": [
+      "paintings/exec-495088af-cab3-4e3f-b157-5e4967bc2929.png",
+      "paintings/exec-5b110660-37b6-4c25-b7a3-7e9df7dc0e31.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Repaint the outfit only in reference 1, a finished painterly Brasswake standing and seated character sheet. Same exact two rows of five isolated complete body figures in the same order. Columns south toward viewer, front quarter right, full right side, rear quarter right, full back. The top row stands naturally on both feet. The bottom row sits upright with legs naturally bent and hands on thighs on an invisible stool. Preserve exact faces, hair, collar fit, knees, ankle contacts, side and rear orientation and original lean body proportions in every cell. Replace only with the fitted fine riveted chain shirt and belt of reference 2; the chain bends under arms and along the forward hips and keeps cloth underneath. Match the approved face, neck and silhouette to reference 3. Whole isolated figures on transparent RGBA. Preserve generous blank gaps and one exact common physical scale for both rows. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No chair, props, symbols, text, grid or items."
+  },
+  "man-knight-everyday": {
+    "file": "exec-84c06ac8-0908-4076-aae1-eba8e0539f66.png",
+    "references": [
+      "paintings/exec-495088af-cab3-4e3f-b157-5e4967bc2929.png",
+      "paintings/exec-1785c68c-4a12-4ff2-9352-5db5a61d12f8.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Repaint the outfit only in reference 1, a finished painterly Brasswake standing and seated character sheet. Same exact two rows of five isolated complete body figures in the same order. Columns south toward viewer, front quarter right, full right side, rear quarter right, full back. The top row stands naturally on both feet. The bottom row sits upright with legs naturally bent and hands on thighs on an invisible stool. Preserve exact faces, hair, collar fit, knees, ankle contacts, side and rear orientation and original lean body proportions in every cell. Replace only with the fitted dark Knight’s Plate from reference 2 with gilded edges, small pointed shoulders, closed gauntlets, and correctly articulated tassets and greaves. Match the approved face, neck and silhouette to reference 3. Whole isolated figures on transparent RGBA. Preserve generous blank gaps and one exact common physical scale for both rows. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No chair, props, symbols, text, grid or items."
+  },
+  "woman-robe-everyday": {
+    "file": "exec-b62500aa-60b5-4c51-84a4-de28cdc05c56.png",
+    "references": [
+      "paintings/exec-ff6b7629-7091-4edb-9f07-a3f3b3543414.png",
+      "../outfit-material-study/paintings/exec-a9975cd8-1392-44c5-8d14-46718e944a58.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Repaint the outfit only in reference 1, a finished painterly Brasswake standing and seated character sheet. Same exact two rows of five isolated complete body figures in the same order. Columns south toward viewer, front quarter right, full right side, rear quarter right, full back. The top row stands naturally on both feet. The bottom row sits upright with legs naturally bent and hands on thighs on an invisible stool. Preserve exact faces, hair, collar fit, knees, ankle contacts, side and rear orientation and original lean body proportions in every cell. Replace only with the fitted neutral split linen robe of reference 2. Cloth sits on the thighs, folds naturally around the visible knee and hangs loose at both sides of the seat. Keep hands visible. Match the approved face, neck and silhouette to reference 3. Whole isolated figures on transparent RGBA. Preserve generous blank gaps and one exact common physical scale for both rows. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No chair, props, symbols, text, grid or items."
+  },
+  "woman-leather-everyday": {
+    "file": "exec-5b526cb6-75ad-4fa2-bb27-56d68579c9e8.png",
+    "references": [
+      "paintings/exec-ff6b7629-7091-4edb-9f07-a3f3b3543414.png",
+      "../outfit-material-study/paintings/exec-9c89e691-9036-491e-b6b2-4b4061992483.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Repaint the outfit only in reference 1, a finished painterly Brasswake standing and seated character sheet. Same exact two rows of five isolated complete body figures in the same order. Columns south toward viewer, front quarter right, full right side, rear quarter right, full back. The top row stands naturally on both feet. The bottom row sits upright with legs naturally bent and hands on thighs on an invisible stool. Preserve exact faces, hair, collar fit, knees, ankle contacts, side and rear orientation and original lean body proportions in every cell. Replace only with the fitted brown buckled jerkin with small leather shoulders, hip-length vented hem and off-white undersleeves of reference 2. Match the approved face, neck and silhouette to reference 3. Whole isolated figures on transparent RGBA. Preserve generous blank gaps and one exact common physical scale for both rows. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No chair, props, symbols, text, grid or items."
+  },
+  "woman-mail-everyday": {
+    "file": "exec-3b8fcd25-4d6b-4d34-a28a-3f11042ed4f6.png",
+    "references": [
+      "paintings/exec-ff6b7629-7091-4edb-9f07-a3f3b3543414.png",
+      "paintings/exec-5b110660-37b6-4c25-b7a3-7e9df7dc0e31.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Repaint the outfit only in reference 1, a finished painterly Brasswake standing and seated character sheet. Same exact two rows of five isolated complete body figures in the same order. Columns south toward viewer, front quarter right, full right side, rear quarter right, full back. The top row stands naturally on both feet. The bottom row sits upright with legs naturally bent and hands on thighs on an invisible stool. Preserve exact faces, hair, collar fit, knees, ankle contacts, side and rear orientation and original lean body proportions in every cell. Replace only with the fitted fine riveted chain shirt and belt of reference 2; the chain bends under arms and along the forward hips and keeps cloth underneath. Match the approved face, neck and silhouette to reference 3. Whole isolated figures on transparent RGBA. Preserve generous blank gaps and one exact common physical scale for both rows. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No chair, props, symbols, text, grid or items."
+  },
+  "woman-knight-everyday": {
+    "file": "exec-44d75bc0-c9d7-4a84-9388-9b6586562184.png",
+    "references": [
+      "paintings/exec-ff6b7629-7091-4edb-9f07-a3f3b3543414.png",
+      "paintings/exec-1785c68c-4a12-4ff2-9352-5db5a61d12f8.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Repaint the outfit only in reference 1, a finished painterly Brasswake standing and seated character sheet. Same exact two rows of five isolated complete body figures in the same order. Columns south toward viewer, front quarter right, full right side, rear quarter right, full back. The top row stands naturally on both feet. The bottom row sits upright with legs naturally bent and hands on thighs on an invisible stool. Preserve exact faces, hair, collar fit, knees, ankle contacts, side and rear orientation and original lean body proportions in every cell. Replace only with the fitted dark Knight’s Plate from reference 2 with gilded edges, small pointed shoulders, closed gauntlets, and correctly articulated tassets and greaves. Match the approved face, neck and silhouette to reference 3. Whole isolated figures on transparent RGBA. Preserve generous blank gaps and one exact common physical scale for both rows. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No chair, props, symbols, text, grid or items."
+  },
+  "man-tunic-melee-E": {
+    "file": "exec-4d5f9f5b-45f6-4b04-b316-6d2a2a3073a2.png",
+    "references": [
+      "guides/man-melee-guide.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Paint a 4-row by 4-column sheet of exactly 16 separate same-scale complete sprites for a painted 2D medieval RPG. Every cell faces screen right in the slightly elevated east world profile. Reference 1 is the guide for specific limb positions, toe ground contact and phase. It is a headless pose mannequin; paint the full head and body using the exact approved lean athletic curly brown-haired man on the left in reference 2, exact identity and scaled head, original tan short sleeve tunic, brown belt, trousers and boots. Match the actual camera and limb order in the guide. Each row is a separate unarmed underlying motion. Row 1 one-hand diagonal cut, row 2 one-hand straight thrust, row 3 two-hand swing, row 4 two-hand thrust. Match four discrete phases per row in the guide. Maintain anatomically right primary hand through the full action, natural swing and weight transfer, left support hand close to the right on two-handed motions. Keep the foot support throughout. In the impact pose distinguish the extended right palm and the opposite bent arm. Keep right hand and left hand anatomy consistent throughout, both in the most visible positions possible in this angle. Hands are EMPTY, with plausible grip space for separately composited gear. Keep whole head, hand and toes, no subjects overlap. Transparent alpha. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No words, props, objects, weapons, chair or grid lines."
+  },
+  "man-tunic-handling-E": {
+    "file": "exec-cc264fe2-56bc-463e-a05f-0239fea89212.png",
+    "references": [
+      "guides/man-handling-guide.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Paint a 4-row by 4-column sheet of exactly 16 separate same-scale complete sprites for a painted 2D medieval RPG. Every cell faces screen right in the slightly elevated east world profile. Reference 1 is the guide for specific limb positions, toe ground contact and phase. It is a headless pose mannequin; paint the full head and body using the exact approved lean athletic curly brown-haired man on the left in reference 2, exact identity and scaled head, original tan short sleeve tunic, brown belt, trousers and boots. Match the actual camera and limb order in the guide. Four underlying motions, rows are bow draw/release, crossbow aim/release, spell casting, reading a book respectively. In bow animation left arm extends forward around the bow grip, and right fingers draw back near cheek, open and settle on release. In crossbow motion both gripping hands extend with distinct front support and back trigger attachment. In the last row cup both hands under an imaginary open book. Keep wrists neutral and stable and clearly show hands at each position. Keep right hand and left hand anatomy consistent throughout, both in the most visible positions possible in this angle. Hands are EMPTY, with plausible grip space for separately composited gear. Keep whole head, hand and toes, no subjects overlap. Transparent alpha. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No words, props, objects, weapons, chair or grid lines."
+  },
+  "man-tunic-reactions-E": {
+    "file": "exec-354057e5-073f-4b08-b33b-d3b5cec1b767.png",
+    "references": [
+      "guides/man-reactions-guide.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Paint a 4-row by 4-column sheet of exactly 16 separate same-scale complete sprites for a painted 2D medieval RPG. Every cell faces screen right in the slightly elevated east world profile. Reference 1 is the guide for specific limb positions, toe ground contact and phase. It is a headless pose mannequin; paint the full head and body using the exact approved lean athletic curly brown-haired man on the left in reference 2, exact identity and scaled head, original tan short sleeve tunic, brown belt, trousers and boots. Match the actual camera and limb order in the guide. Four rows of controlled body reactions. First row brace, left forearm up as if blocking, and settle. Second row recoil from a harmless abstract hit and regain stance. Third row lose balance and fall backwards as in guide, final two cells settled prone; garment, limbs and hair obey gravity. Fourth row stable feet, activity pose with hands near waist in a gentle reach and recovery to represent a working tool. No injury, theatrical effects or props. Keep right hand and left hand anatomy consistent throughout, both in the most visible positions possible in this angle. Hands are EMPTY, with plausible grip space for separately composited gear. Keep whole head, hand and toes, no subjects overlap. Transparent alpha. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No words, props, objects, weapons, chair or grid lines."
+  },
+  "woman-tunic-melee-E": {
+    "file": "exec-2bb8f07a-cf4b-43c9-8f8b-9e933ff97fc4.png",
+    "references": [
+      "guides/woman-melee-guide.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Paint a 4-row by 4-column sheet of exactly 16 separate same-scale complete sprites for a painted 2D medieval RPG. Every cell faces screen right in the slightly elevated east world profile. Reference 1 is the guide for specific limb positions, toe ground contact and phase. It is a headless pose mannequin; paint the full head and body using the exact approved lean athletic ponytailed woman on the right in reference 2, exact identity and scaled head, original tan short sleeve tunic, brown belt, trousers and boots. Match the actual camera and limb order in the guide. Each row is a separate unarmed underlying motion. Row 1 one-hand diagonal cut, row 2 one-hand straight thrust, row 3 two-hand swing, row 4 two-hand thrust. Match four discrete phases per row in the guide. Maintain anatomically right primary hand through the full action, natural swing and weight transfer, left support hand close to the right on two-handed motions. Keep the foot support throughout. In the impact pose distinguish the extended right palm and the opposite bent arm. Keep right hand and left hand anatomy consistent throughout, both in the most visible positions possible in this angle. Hands are EMPTY, with plausible grip space for separately composited gear. Keep whole head, hand and toes, no subjects overlap. Transparent alpha. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No words, props, objects, weapons, chair or grid lines."
+  },
+  "woman-tunic-handling-E": {
+    "file": "exec-1aa2ffcb-1ffa-4401-bee6-3f8e312cf388.png",
+    "references": [
+      "guides/woman-handling-guide.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Paint a 4-row by 4-column sheet of exactly 16 separate same-scale complete sprites for a painted 2D medieval RPG. Every cell faces screen right in the slightly elevated east world profile. Reference 1 is the guide for specific limb positions, toe ground contact and phase. It is a headless pose mannequin; paint the full head and body using the exact approved lean athletic ponytailed woman on the right in reference 2, exact identity and scaled head, original tan short sleeve tunic, brown belt, trousers and boots. Match the actual camera and limb order in the guide. Four underlying motions, rows are bow draw/release, crossbow aim/release, spell casting, reading a book respectively. In bow animation left arm extends forward around the bow grip, and right fingers draw back near cheek, open and settle on release. In crossbow motion both gripping hands extend with distinct front support and back trigger attachment. In the last row cup both hands under an imaginary open book. Keep wrists neutral and stable and clearly show hands at each position. Keep right hand and left hand anatomy consistent throughout, both in the most visible positions possible in this angle. Hands are EMPTY, with plausible grip space for separately composited gear. Keep whole head, hand and toes, no subjects overlap. Transparent alpha. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No words, props, objects, weapons, chair or grid lines."
+  },
+  "woman-tunic-reactions-E": {
+    "file": "exec-0ee9f51c-2541-4b8c-9918-022333aa4987.png",
+    "references": [
+      "guides/woman-reactions-guide.png",
+      "../painted-female-fit/standard-height-front-study.png"
+    ],
+    "prompt": "Paint a 4-row by 4-column sheet of exactly 16 separate same-scale complete sprites for a painted 2D medieval RPG. Every cell faces screen right in the slightly elevated east world profile. Reference 1 is the guide for specific limb positions, toe ground contact and phase. It is a headless pose mannequin; paint the full head and body using the exact approved lean athletic ponytailed woman on the right in reference 2, exact identity and scaled head, original tan short sleeve tunic, brown belt, trousers and boots. Match the actual camera and limb order in the guide. Four rows of controlled body reactions. First row brace, left forearm up as if blocking, and settle. Second row recoil from a harmless abstract hit and regain stance. Third row lose balance and fall backwards as in guide, final two cells settled prone; garment, limbs and hair obey gravity. Fourth row stable feet, activity pose with hands near waist in a gentle reach and recovery to represent a working tool. No injury, theatrical effects or props. Keep right hand and left hand anatomy consistent throughout, both in the most visible positions possible in this angle. Hands are EMPTY, with plausible grip space for separately composited gear. Keep whole head, hand and toes, no subjects overlap. Transparent alpha. No ground, no shadow, no grass, nothing behind the character or object. No glow, haze or backdrop. No words, props, objects, weapons, chair or grid lines."
+  },
+  "man-mail-E": {
+    "file": "exec-89a18adc-81e6-4976-a46c-4ad1a9636de0.png",
+    "references": [
+      "../outfit-material-study/guides/man-side-guide.png",
+      "paintings/exec-5b110660-37b6-4c25-b7a3-7e9df7dc0e31.png"
+    ],
+    "prompt": "Replace only the outfit in reference 1. Exactly 4 columns and 4 rows, 16 individual adult figures, all fully visible head to toes. Rows 1 and 2 are the walk phases, rows 3 and 4 are run phases. Camera is true east-facing profile in all cells. Match the exact corresponding pose and positions of legs, feet and palms. Preserve the head tilt, skull scale, identity, skin and original hair of the lean athletic male hero with curly brown hair. Adopt the garment in reference 2: fine grey chainmail shirt with collar and cuff plackets, warm leather waist belt, three-quarter sleeves and the original brown trousers and boots. Show chain texture as hand-painted fine metallic loops and restrained little gleams. Keep face and bare hands and forearms. The old proportions, shoes, both knees, hip transfer, foreshortening, gait, pose and original foot lift stay recognizable in each cell. Consistent naturalistic original Brasswake hand-painted medieval RPG style. Alpha separation with wide gaps. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No weapons, text or grids."
+  },
+  "man-mail-NE": {
+    "file": "exec-fcf0262c-7056-43c5-bcff-c3d4ff7ce1e9.png",
+    "references": [
+      "guides/man-NE.png",
+      "paintings/exec-5b110660-37b6-4c25-b7a3-7e9df7dc0e31.png"
+    ],
+    "prompt": "Replace only the outfit in reference 1. Exactly 4 columns and 4 rows, 16 individual adult figures, all fully visible head to toes. Rows 1 and 2 are the walk phases, rows 3 and 4 are run phases. Camera is northeast rear quarter in all cells. Match the exact corresponding pose and positions of legs, feet and palms. Preserve the head tilt, skull scale, identity, skin and original hair of the lean athletic male hero with curly brown hair. Adopt the garment in reference 2: fine grey chainmail shirt with collar and cuff plackets, warm leather waist belt, three-quarter sleeves and the original brown trousers and boots. Show chain texture as hand-painted fine metallic loops and restrained little gleams. Keep face and bare hands and forearms. The old proportions, shoes, both knees, hip transfer, foreshortening, gait, pose and original foot lift stay recognizable in each cell. Consistent naturalistic original Brasswake hand-painted medieval RPG style. Alpha separation with wide gaps. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No weapons, text or grids."
+  },
+  "man-mail-SE": {
+    "file": "exec-3637a108-6aa7-4776-879e-923b8246fdd2.png",
+    "references": [
+      "guides/man-SE.png",
+      "paintings/exec-5b110660-37b6-4c25-b7a3-7e9df7dc0e31.png"
+    ],
+    "prompt": "Replace only the outfit in reference 1. Exactly 4 columns and 4 rows, 16 individual adult figures, all fully visible head to toes. Rows 1 and 2 are the walk phases, rows 3 and 4 are run phases. Camera is southeast front quarter in all cells. Match the exact corresponding pose and positions of legs, feet and palms. Preserve the head tilt, skull scale, identity, skin and original hair of the lean athletic male hero with curly brown hair. Adopt the garment in reference 2: fine grey chainmail shirt with collar and cuff plackets, warm leather waist belt, three-quarter sleeves and the original brown trousers and boots. Show chain texture as hand-painted fine metallic loops and restrained little gleams. Keep face and bare hands and forearms. The old proportions, shoes, both knees, hip transfer, foreshortening, gait, pose and original foot lift stay recognizable in each cell. Consistent naturalistic original Brasswake hand-painted medieval RPG style. Alpha separation with wide gaps. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No weapons, text or grids."
+  },
+  "man-mail-axial": {
+    "file": "exec-0cb86901-8d14-4b2b-9f7f-46321e5d91b9.png",
+    "references": [
+      "guides/man-axial.png",
+      "paintings/exec-5b110660-37b6-4c25-b7a3-7e9df7dc0e31.png"
+    ],
+    "prompt": "Replace only the outfit in reference 1. Exactly 4 columns and 4 rows, 16 individual adult figures, all fully visible head to toes. Rows 1 and 2 show the front (walk then run), rows 3 and 4 show the actual back (walk then run). Each row consists of the first four positions in the source. Match the exact corresponding pose and positions of legs, feet and palms. Preserve the head tilt, skull scale, identity, skin and original hair of the lean athletic male hero with curly brown hair. Adopt the garment in reference 2: fine grey chainmail shirt with collar and cuff plackets, warm leather waist belt, three-quarter sleeves and the original brown trousers and boots. Show chain texture as hand-painted fine metallic loops and restrained little gleams. Keep face and bare hands and forearms. The old proportions, shoes, both knees, hip transfer, foreshortening, gait, pose and original foot lift stay recognizable in each cell. Consistent naturalistic original Brasswake hand-painted medieval RPG style. Alpha separation with wide gaps. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No weapons, text or grids."
+  },
+  "man-knight-E": {
+    "file": "exec-47f0d46d-c478-4cd6-910a-a204b843c6c8.png",
+    "references": [
+      "../outfit-material-study/guides/man-side-guide.png",
+      "paintings/exec-1785c68c-4a12-4ff2-9352-5db5a61d12f8.png"
+    ],
+    "prompt": "Replace only the outfit in reference 1. Exactly 4 columns and 4 rows, 16 individual adult figures, all fully visible head to toes. Rows 1 and 2 are the walk phases, rows 3 and 4 are run phases. Camera is true east-facing profile in all cells. Match the exact corresponding pose and positions of legs, feet and palms. Preserve the head tilt, skull scale, identity, skin and original hair of the lean athletic male hero with curly brown hair. Adopt the garment in reference 2: the exact dark steel Knight's Plate harness with a closely fitted collar, slightly pointed shoulders not widened beyond the approved set, articulated tassets and greaves and closed gauntlets. Keep gold edge lines as narrow fixed details. Keep entirely bare head and original hair/readable face. The old proportions, shoes, both knees, hip transfer, foreshortening, gait, pose and original foot lift stay recognizable in each cell. Consistent naturalistic original Brasswake hand-painted medieval RPG style. Alpha separation with wide gaps. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No weapons, text or grids."
+  },
+  "man-knight-NE": {
+    "file": "exec-637b8bab-1a8c-4ea2-bc5f-aa81a3b5c920.png",
+    "references": [
+      "guides/man-NE.png",
+      "paintings/exec-1785c68c-4a12-4ff2-9352-5db5a61d12f8.png"
+    ],
+    "prompt": "Replace only the outfit in reference 1. Exactly 4 columns and 4 rows, 16 individual adult figures, all fully visible head to toes. Rows 1 and 2 are the walk phases, rows 3 and 4 are run phases. Camera is northeast rear quarter in all cells. Match the exact corresponding pose and positions of legs, feet and palms. Preserve the head tilt, skull scale, identity, skin and original hair of the lean athletic male hero with curly brown hair. Adopt the garment in reference 2: the exact dark steel Knight's Plate harness with a closely fitted collar, slightly pointed shoulders not widened beyond the approved set, articulated tassets and greaves and closed gauntlets. Keep gold edge lines as narrow fixed details. Keep entirely bare head and original hair/readable face. The old proportions, shoes, both knees, hip transfer, foreshortening, gait, pose and original foot lift stay recognizable in each cell. Consistent naturalistic original Brasswake hand-painted medieval RPG style. Alpha separation with wide gaps. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No weapons, text or grids."
+  },
+  "man-knight-SE": {
+    "file": "exec-f84be6ce-e20f-4946-aa3d-ba1a1693215a.png",
+    "references": [
+      "guides/man-SE.png",
+      "paintings/exec-1785c68c-4a12-4ff2-9352-5db5a61d12f8.png"
+    ],
+    "prompt": "Replace only the outfit in reference 1. Exactly 4 columns and 4 rows, 16 individual adult figures, all fully visible head to toes. Rows 1 and 2 are the walk phases, rows 3 and 4 are run phases. Camera is southeast front quarter in all cells. Match the exact corresponding pose and positions of legs, feet and palms. Preserve the head tilt, skull scale, identity, skin and original hair of the lean athletic male hero with curly brown hair. Adopt the garment in reference 2: the exact dark steel Knight's Plate harness with a closely fitted collar, slightly pointed shoulders not widened beyond the approved set, articulated tassets and greaves and closed gauntlets. Keep gold edge lines as narrow fixed details. Keep entirely bare head and original hair/readable face. The old proportions, shoes, both knees, hip transfer, foreshortening, gait, pose and original foot lift stay recognizable in each cell. Consistent naturalistic original Brasswake hand-painted medieval RPG style. Alpha separation with wide gaps. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No weapons, text or grids."
+  },
+  "man-knight-axial": {
+    "file": "exec-4583de0f-1250-4c4e-89dd-bb3206019851.png",
+    "references": [
+      "guides/man-axial.png",
+      "paintings/exec-1785c68c-4a12-4ff2-9352-5db5a61d12f8.png"
+    ],
+    "prompt": "Replace only the outfit in reference 1. Exactly 4 columns and 4 rows, 16 individual adult figures, all fully visible head to toes. Rows 1 and 2 show the front (walk then run), rows 3 and 4 show the actual back (walk then run). Each row consists of the first four positions in the source. Match the exact corresponding pose and positions of legs, feet and palms. Preserve the head tilt, skull scale, identity, skin and original hair of the lean athletic male hero with curly brown hair. Adopt the garment in reference 2: the exact dark steel Knight's Plate harness with a closely fitted collar, slightly pointed shoulders not widened beyond the approved set, articulated tassets and greaves and closed gauntlets. Keep gold edge lines as narrow fixed details. Keep entirely bare head and original hair/readable face. The old proportions, shoes, both knees, hip transfer, foreshortening, gait, pose and original foot lift stay recognizable in each cell. Consistent naturalistic original Brasswake hand-painted medieval RPG style. Alpha separation with wide gaps. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No weapons, text or grids."
+  },
+  "woman-mail-E": {
+    "file": "exec-b9d5c584-2365-42f8-a0d4-587aaf1728c6.png",
+    "references": [
+      "../outfit-material-study/guides/woman-side-guide.png",
+      "paintings/exec-5b110660-37b6-4c25-b7a3-7e9df7dc0e31.png"
+    ],
+    "prompt": "Replace only the outfit in reference 1. Exactly 4 columns and 4 rows, 16 individual adult figures, all fully visible head to toes. Rows 1 and 2 are the walk phases, rows 3 and 4 are run phases. Camera is true east-facing profile in all cells. Match the exact corresponding pose and positions of legs, feet and palms. Preserve the head tilt, skull scale, identity, skin and original hair of the lean athletic female hero with brown ponytail. Adopt the garment in reference 2: fine grey chainmail shirt with collar and cuff plackets, warm leather waist belt, three-quarter sleeves and the original brown trousers and boots. Show chain texture as hand-painted fine metallic loops and restrained little gleams. Keep face and bare hands and forearms. The old proportions, shoes, both knees, hip transfer, foreshortening, gait, pose and original foot lift stay recognizable in each cell. Consistent naturalistic original Brasswake hand-painted medieval RPG style. Alpha separation with wide gaps. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No weapons, text or grids."
+  },
+  "woman-mail-NE": {
+    "file": "exec-8f784f61-f3b8-42e3-88ad-91c4baf8fc35.png",
+    "references": [
+      "guides/woman-NE.png",
+      "paintings/exec-5b110660-37b6-4c25-b7a3-7e9df7dc0e31.png"
+    ],
+    "prompt": "Replace only the outfit in reference 1. Exactly 4 columns and 4 rows, 16 individual adult figures, all fully visible head to toes. Rows 1 and 2 are the walk phases, rows 3 and 4 are run phases. Camera is northeast rear quarter in all cells. Match the exact corresponding pose and positions of legs, feet and palms. Preserve the head tilt, skull scale, identity, skin and original hair of the lean athletic female hero with brown ponytail. Adopt the garment in reference 2: fine grey chainmail shirt with collar and cuff plackets, warm leather waist belt, three-quarter sleeves and the original brown trousers and boots. Show chain texture as hand-painted fine metallic loops and restrained little gleams. Keep face and bare hands and forearms. The old proportions, shoes, both knees, hip transfer, foreshortening, gait, pose and original foot lift stay recognizable in each cell. Consistent naturalistic original Brasswake hand-painted medieval RPG style. Alpha separation with wide gaps. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No weapons, text or grids."
+  },
+  "woman-mail-SE": {
+    "file": "exec-85aaa482-486c-4fe1-bddd-5053e3de6385.png",
+    "references": [
+      "guides/woman-SE.png",
+      "paintings/exec-5b110660-37b6-4c25-b7a3-7e9df7dc0e31.png"
+    ],
+    "prompt": "Replace only the outfit in reference 1. Exactly 4 columns and 4 rows, 16 individual adult figures, all fully visible head to toes. Rows 1 and 2 are the walk phases, rows 3 and 4 are run phases. Camera is southeast front quarter in all cells. Match the exact corresponding pose and positions of legs, feet and palms. Preserve the head tilt, skull scale, identity, skin and original hair of the lean athletic female hero with brown ponytail. Adopt the garment in reference 2: fine grey chainmail shirt with collar and cuff plackets, warm leather waist belt, three-quarter sleeves and the original brown trousers and boots. Show chain texture as hand-painted fine metallic loops and restrained little gleams. Keep face and bare hands and forearms. The old proportions, shoes, both knees, hip transfer, foreshortening, gait, pose and original foot lift stay recognizable in each cell. Consistent naturalistic original Brasswake hand-painted medieval RPG style. Alpha separation with wide gaps. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No weapons, text or grids."
+  },
+  "woman-mail-axial": {
+    "file": "exec-4f027886-25a0-4c0c-95a2-ba3264ff7924.png",
+    "references": [
+      "guides/woman-axial.png",
+      "paintings/exec-5b110660-37b6-4c25-b7a3-7e9df7dc0e31.png"
+    ],
+    "prompt": "Replace only the outfit in reference 1. Exactly 4 columns and 4 rows, 16 individual adult figures, all fully visible head to toes. Rows 1 and 2 show the front (walk then run), rows 3 and 4 show the actual back (walk then run). Each row consists of the first four positions in the source. Match the exact corresponding pose and positions of legs, feet and palms. Preserve the head tilt, skull scale, identity, skin and original hair of the lean athletic female hero with brown ponytail. Adopt the garment in reference 2: fine grey chainmail shirt with collar and cuff plackets, warm leather waist belt, three-quarter sleeves and the original brown trousers and boots. Show chain texture as hand-painted fine metallic loops and restrained little gleams. Keep face and bare hands and forearms. The old proportions, shoes, both knees, hip transfer, foreshortening, gait, pose and original foot lift stay recognizable in each cell. Consistent naturalistic original Brasswake hand-painted medieval RPG style. Alpha separation with wide gaps. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No weapons, text or grids."
+  },
+  "woman-knight-E": {
+    "file": "exec-487b8aa3-b848-4a84-8453-1fc74fb94f6c.png",
+    "references": [
+      "../outfit-material-study/guides/woman-side-guide.png",
+      "paintings/exec-1785c68c-4a12-4ff2-9352-5db5a61d12f8.png"
+    ],
+    "prompt": "Replace only the outfit in reference 1. Exactly 4 columns and 4 rows, 16 individual adult figures, all fully visible head to toes. Rows 1 and 2 are the walk phases, rows 3 and 4 are run phases. Camera is true east-facing profile in all cells. Match the exact corresponding pose and positions of legs, feet and palms. Preserve the head tilt, skull scale, identity, skin and original hair of the lean athletic female hero with brown ponytail. Adopt the garment in reference 2: the exact dark steel Knight's Plate harness with a closely fitted collar, slightly pointed shoulders not widened beyond the approved set, articulated tassets and greaves and closed gauntlets. Keep gold edge lines as narrow fixed details. Keep entirely bare head and original hair/readable face. The old proportions, shoes, both knees, hip transfer, foreshortening, gait, pose and original foot lift stay recognizable in each cell. Consistent naturalistic original Brasswake hand-painted medieval RPG style. Alpha separation with wide gaps. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No weapons, text or grids."
+  },
+  "woman-knight-NE": {
+    "file": "exec-c98df113-f68b-441c-94ab-e8315ec31706.png",
+    "references": [
+      "guides/woman-NE.png",
+      "paintings/exec-1785c68c-4a12-4ff2-9352-5db5a61d12f8.png"
+    ],
+    "prompt": "Replace only the outfit in reference 1. Exactly 4 columns and 4 rows, 16 individual adult figures, all fully visible head to toes. Rows 1 and 2 are the walk phases, rows 3 and 4 are run phases. Camera is northeast rear quarter in all cells. Match the exact corresponding pose and positions of legs, feet and palms. Preserve the head tilt, skull scale, identity, skin and original hair of the lean athletic female hero with brown ponytail. Adopt the garment in reference 2: the exact dark steel Knight's Plate harness with a closely fitted collar, slightly pointed shoulders not widened beyond the approved set, articulated tassets and greaves and closed gauntlets. Keep gold edge lines as narrow fixed details. Keep entirely bare head and original hair/readable face. The old proportions, shoes, both knees, hip transfer, foreshortening, gait, pose and original foot lift stay recognizable in each cell. Consistent naturalistic original Brasswake hand-painted medieval RPG style. Alpha separation with wide gaps. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No weapons, text or grids."
+  },
+  "woman-knight-SE": {
+    "file": "exec-35ae765a-7be9-49bf-a512-177a6aefe128.png",
+    "references": [
+      "guides/woman-SE.png",
+      "paintings/exec-1785c68c-4a12-4ff2-9352-5db5a61d12f8.png"
+    ],
+    "prompt": "Replace only the outfit in reference 1. Exactly 4 columns and 4 rows, 16 individual adult figures, all fully visible head to toes. Rows 1 and 2 are the walk phases, rows 3 and 4 are run phases. Camera is southeast front quarter in all cells. Match the exact corresponding pose and positions of legs, feet and palms. Preserve the head tilt, skull scale, identity, skin and original hair of the lean athletic female hero with brown ponytail. Adopt the garment in reference 2: the exact dark steel Knight's Plate harness with a closely fitted collar, slightly pointed shoulders not widened beyond the approved set, articulated tassets and greaves and closed gauntlets. Keep gold edge lines as narrow fixed details. Keep entirely bare head and original hair/readable face. The old proportions, shoes, both knees, hip transfer, foreshortening, gait, pose and original foot lift stay recognizable in each cell. Consistent naturalistic original Brasswake hand-painted medieval RPG style. Alpha separation with wide gaps. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No weapons, text or grids."
+  },
+  "woman-knight-axial": {
+    "file": "exec-8eaefa17-f5a5-47df-b38e-556bfe1285ac.png",
+    "references": [
+      "guides/woman-axial.png",
+      "paintings/exec-1785c68c-4a12-4ff2-9352-5db5a61d12f8.png"
+    ],
+    "prompt": "Replace only the outfit in reference 1. Exactly 4 columns and 4 rows, 16 individual adult figures, all fully visible head to toes. Rows 1 and 2 show the front (walk then run), rows 3 and 4 show the actual back (walk then run). Each row consists of the first four positions in the source. Match the exact corresponding pose and positions of legs, feet and palms. Preserve the head tilt, skull scale, identity, skin and original hair of the lean athletic female hero with brown ponytail. Adopt the garment in reference 2: the exact dark steel Knight's Plate harness with a closely fitted collar, slightly pointed shoulders not widened beyond the approved set, articulated tassets and greaves and closed gauntlets. Keep gold edge lines as narrow fixed details. Keep entirely bare head and original hair/readable face. The old proportions, shoes, both knees, hip transfer, foreshortening, gait, pose and original foot lift stay recognizable in each cell. Consistent naturalistic original Brasswake hand-painted medieval RPG style. Alpha separation with wide gaps. No ground, no shadow, no grass, nothing behind the subject. No glow, haze or backdrop. No weapons, text or grids."
+  }
+}

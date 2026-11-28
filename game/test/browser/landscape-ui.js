@@ -17,6 +17,64 @@ async function resourcesVisible(page){
   if(run){expect(run.y+run.height).toBeLessThanOrEqual(viewport.height+1);expect(run.y).toBeGreaterThan(box.y+box.height);}
 }
 
+async function heroVisible(page){
+  await expect.poll(()=>page.evaluate(()=>{
+    const {P,cam,zoom}=Scene.debug(), stage=document.querySelector('#stage'), rect=stage.getBoundingClientRect();
+    const x=rect.left+(P.fx*16+8-cam.x)*zoom, foot=rect.top+(P.fy*16+15-cam.y)*zoom;
+    return [foot-6,foot-24,foot-40].every(y=>document.elementFromPoint(x,y)?.matches('#stage canvas'));
+  })).toBe(true);
+}
+
+test('the landscape arrival keeps the player beside readable dialogue',async({page},info)=>{
+  const errors=observeErrors(page);
+  if(info.project.use.hasTouch)await page.setViewportSize({width:740,height:320});
+  await page.goto('/index.html?visual_test=1');
+  await expect(page.locator('#artload')).toBeHidden({timeout:45000});
+  await page.locator('[data-a=newslot]').first().click();
+  await page.locator('[data-a=pick][data-look="4"]').click();
+  await page.locator('[data-a=begin]').click();
+  await expect(page.locator('#onboard')).toBeVisible();
+  await heroVisible(page);
+  await page.locator('[data-a=boatskiprescue]').click();
+  await expect(page.locator('#boat-name')).toBeVisible();
+  await heroVisible(page);
+  expect(await page.locator('.boat-paragraph').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(17);
+  await screenshot(page,info,'landscape-arrival-character');
+  await page.locator('#boat-name').fill('Landscape Reader');
+  await page.locator('[data-a=boatname]').click();
+  await expect(page.locator('[data-a=boathome]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('an optional Hide shortcut survives a device reload beside an existing Technique',async({page},info)=>{
+  const errors=observeErrors(page);
+  await page.goto('/index.html?visual_test=1');
+  await expect(page.locator('#artload')).toBeHidden({timeout:45000});
+  await page.locator('[data-a=newslot]').first().click();
+  await page.locator('[data-a=pick][data-look="0"]').click();
+  await page.locator('[data-a=begin]').click();
+  await require('./intro-helper').skipArrival(page,'Shortcut Reader');
+  await page.evaluate(()=>{
+    __bw.S.sk.swords=70;
+    Techniques.teach(__bw.S,1);
+    if(!__bw.Combat.equip('swords.cross-cut',2).ok)throw Error('Could not prepare the existing Technique');
+  });
+  await expect(page.locator('#combat-bar [data-id=hide]')).toHaveCount(0);
+  await page.locator('#combat-bar [data-slot="0"]').click();
+  await page.locator('#sheet [data-a=combatequip][data-id=hide]').click();
+  await page.locator('#sheet .sheet-x').click();
+  await expect(page.locator('#combat-bar [data-slot="0"][data-id=hide]')).toBeVisible();
+  await expect(page.locator('#combat-bar [data-slot="2"][data-id="swords.cross-cut"]')).toBeVisible();
+  await page.waitForLoadState('networkidle');
+  await page.reload();
+  await expect(page.locator('#artload')).toBeHidden({timeout:45000});
+  await page.getByRole('button',{name:/Shortcut Reader/}).click();
+  await expect(page.locator('#combat-bar [data-slot="0"][data-id=hide]')).toBeVisible();
+  await expect(page.locator('#combat-bar [data-slot="2"][data-id="swords.cross-cut"]')).toBeVisible();
+  await screenshot(page,info,'retained-action-slots');
+  expect(errors).toEqual([]);
+});
+
 test('landscape SQL reference views replace letters and preserve the selected draft through rotation',async({page},info)=>{
   const errors=observeErrors(page);await page.setViewportSize({width:844,height:390});await openDev(page);
   await page.evaluate(()=>Dev.resources({mana:1,stamina:1}));
@@ -32,8 +90,22 @@ test('landscape SQL reference views replace letters and preserve the selected dr
     if(view==='tables'||view==='help')await screenshot(page,info,'landscape-'+view);
     await page.locator('#kb [data-fn=ldone]').click();await expect(page.locator('#kb')).toHaveAttribute('data-view','keyboard');
   }
-  for(const size of [{width:390,height:720},{width:812,height:375},{width:740,height:320},{width:844,height:390}]){
+  if(info.project.use.hasTouch){
+    await page.setViewportSize({width:390,height:720});
+    await expect(page.getByText('Turn your device sideways to play.')).toBeVisible();
+    await expect(page.locator('#app')).toHaveAttribute('inert','');
+    await page.keyboard.press('Control+Enter');
+    await expect(page.locator('#sql')).toHaveValue(draft);
+    expect(await page.evaluate(()=>__bw.F.st)).toBe('prompt');
+    await screenshot(page,info,'portrait-turn-device');
+  }
+  for(const size of [{width:812,height:375},{width:740,height:320},{width:844,height:390}]){
     await page.setViewportSize(size);await expect(page.locator('#sql')).toHaveValue(draft);await resourcesVisible(page);
+    await expect(page.locator('#rotate-device')).toBeHidden();
+    await expect(page.locator('#app')).not.toHaveAttribute('inert','');
+    await heroVisible(page);
+    expect(await page.locator('#fight .battle-question .ask').evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(17);
+    if(size.height===320)await screenshot(page,info,'landscape-short-sql');
     expect(await page.evaluate(()=>({task:__bw.F.task.sql,hint:__bw.F.hint,fixed:__bw.F.fixed}))).toEqual(context);
   }
   await page.locator('[data-a=combatback]').click();await expect(page.locator('#fight')).toBeHidden();
@@ -61,7 +133,7 @@ test('Technique Book equips exactly four stable slots across weapon and spell di
   // Prepare learned knowledge; earned dojo learning is covered by the gameplay suite.
   await page.evaluate(()=>{Dev.skills({swords:70,magery:70});Techniques.teach(__bw.S,1);Techniques.teach(__bw.S,2);__bw.S.scr['tech:magery.unwrite']=1;__bw.render();});
   await page.locator('#nav [data-t=hero]').click();if(await page.locator('[data-a=coachok]').isVisible())await page.locator('[data-a=coachok]').click();
-  await page.locator('#view [data-a=combatbook]').click();await expect(page.locator('.technique-position')).toHaveCount(4);
+  await page.locator('#view [data-a=skilltab][data-id=techniques]').click();await expect(page.locator('.technique-position')).toHaveCount(4);
   const ids=await page.evaluate(()=>__bw.Combat.snapshot().techniques.filter(t=>t.learned&&t.requirement<=70&&['swords','magery'].includes(t.discipline)).slice(0,4).map(t=>t.id));
   // Choose two weapon techniques and two spells, rather than relying on catalog ordering.
   const mixed=await page.evaluate(()=>['swords','magery'].flatMap(d=>__bw.Combat.snapshot().techniques.filter(t=>t.learned&&t.requirement<=70&&t.discipline===d).slice(0,2).map(t=>t.id)));
@@ -72,18 +144,18 @@ test('Technique Book equips exactly four stable slots across weapon and spell di
   }
   expect(await page.evaluate(()=>__bw.Combat.snapshot().loadout.map(t=>t?.id))).toEqual(mixed);
   await expect(page.locator('.technique-entry.equipped')).toHaveCount(4);await screenshot(page,info,'technique-book-mixed');
-  await page.locator('#sheet .sheet-x').click();await page.locator('#nav [data-t=world]').click();
+  await page.locator('#view .pclose').click();
   await expect(page.locator('.combat-techniques .combat-action')).toHaveCount(4);await screenshot(page,info,'desktop-four-techniques');
   await expect(page.locator('#combat-bar .combat-action:not([data-id=""]) .ico.none')).toHaveCount(0);
   await page.setViewportSize({width:844,height:390});await expect(page.locator('.combat-techniques .combat-action')).toHaveCount(4);await screenshot(page,info,'landscape-four-techniques');
   // Prepare a rare teaching document; its random earning path is gameplay-owned.
-  await page.setViewportSize({width:390,height:720});await page.locator('#nav [data-t=bag]').click();
+  await page.setViewportSize({width:812,height:375});await page.locator('#nav [data-t=bag]').click();
   await page.locator('[data-a=scroll][data-id="tech:magery.unwrite"]').click();
   await expect(page.locator('#sheet')).toContainText('Magery 95');await expect(page.locator('#sheet')).toContainText('+2 Circles above the opponent');
   await expect(page.locator('#sheet')).not.toContainText('VIII Circle');
   await page.getByRole('button',{name:'Add to the Technique Book',exact:true}).click();
   expect(await page.evaluate(()=>!!__bw.S.techniques.learned['magery.unwrite'])).toBe(true);
-  await page.locator('#nav [data-t=hero]').click();await page.locator('#view [data-a=combatbook]').click();
+  await page.locator('#nav [data-t=hero]').click();await page.locator('#view [data-a=skilltab][data-id=techniques]').click();
   const rare=page.locator('[data-technique="magery.unwrite"]');await rare.scrollIntoViewIfNeeded();await expect(rare.locator('[data-a=combatequip]')).toBeDisabled();
   expect(await page.evaluate(()=>__bw.Combat.snapshot().loadout.map(t=>t?.id))).toEqual(mixed);
   await screenshot(page,info,'rare-technique-book-phone');expect(errors).toEqual([]);
@@ -109,7 +181,7 @@ test('the paused side panel frames both actors without changing their world posi
   await page.locator('#combat-bar [data-id="basic.magery"]').click();await expect(page.locator('#sql')).toBeVisible();
   const actors=()=>page.evaluate(()=>{const d=Scene.debug(),e=__bw.F.ent;return [[d.P.fx,d.P.fy],[e.fx??e.x,e.fy??e.y]];});
   const initial=await actors();
-  for(const size of [{width:844,height:390},{width:812,height:375}]){
+  for(const size of [{width:844,height:390},{width:812,height:375},{width:740,height:320}]){
     await page.setViewportSize(size);
     await expect.poll(()=>page.evaluate(()=>{const d=Scene.debug(),sr=document.querySelector('#stage').getBoundingClientRect(),pr=document.querySelector('#fight').getBoundingClientRect(),e=__bw.F.ent;return [d.P,e].every(a=>{const x=sr.left+((a.fx??a.x)*16+8-d.cam.x)*d.zoom,y=sr.top+((a.fy??a.y)*16+8-d.cam.y)*d.zoom;return x>sr.left&&x<pr.left&&y>sr.top&&y<sr.bottom;});})).toBe(true);
     expect(await actors()).toEqual(initial);await resourcesVisible(page);
@@ -136,7 +208,7 @@ test('resolved support actions leave menus and nearby dialogue usable without re
   await recover();expect(await page.evaluate(()=>__bw.Combat.snapshot().recovery.remaining)).toBeGreaterThan(0);
   await page.locator('#nav [data-t=hero]').click();await expect(page.locator('#nav [data-t=hero]')).toHaveAttribute('aria-current','page');expect(await page.evaluate(()=>__bw.F)).toBeNull();
   const paused=await page.evaluate(()=>__bw.Combat.snapshot().recovery.remaining);expect(paused).toBeGreaterThan(0);await page.waitForTimeout(300);expect(await page.evaluate(()=>__bw.Combat.snapshot().recovery.remaining)).toBe(paused);
-  await page.locator('#nav [data-t=world]').click();await recover();await expect(page.locator('#ctx')).toContainText('Odalys');await page.locator('#ctx').click();await expect(page.locator('#say')).toBeVisible();expect(await page.evaluate(()=>__bw.F)).toBeNull();
+  await page.locator('#view .pclose').click();await recover();await expect(page.locator('#ctx')).toContainText('Odalys');await page.locator('#ctx').click();await expect(page.locator('#say')).toBeVisible();expect(await page.evaluate(()=>__bw.F)).toBeNull();
   for(const id of ['hp','mana','stamina'])await expect(page.locator('#hud [data-resource='+id+'] [role=meter]')).toBeVisible();
   await screenshot(page,info,'resolved-action-dialogue');expect(errors).toEqual([]);
 });

@@ -3,7 +3,7 @@ const { open: openDev } = require('./dev-helper');
 const { observeErrors, screenshot } = require('./flow');
 const { speech } = require('./first-day-helper');
 
-const nav = (page, tab) => page.locator('#nav [data-t="' + tab + '"]');
+const nav = (page, tab) => page.locator(tab==='world'?'#view .pclose':'#nav [data-t="' + tab + '"]');
 const sheet = page => page.locator('#sheet');
 const state = page => page.evaluate(() => {
   const s = __bw.S;
@@ -91,7 +91,8 @@ test('first-day boundaries · guided Deposit all keeps the bank open and advance
   await expect(deposit).toBeDisabled();
   await expect(sheet(page).getByRole('button', { name: 'Take 50', exact: true })).toBeEnabled();
   await expect(page.locator('#say')).toBeHidden();
-  await expect(nav(page, 'world')).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('#stage')).toBeVisible();
+  await expect(page.locator('#view')).toBeHidden();
   expect(await page.evaluate(() => ({ gd: __bw.S.gd, gold: __bw.S.gold, bank: __bw.S.bank.gold, at: Scene.pos() })))
     .toEqual({ gd: 10, gold: 0, bank: 84, at: prepared.at });
   expect(errors).toEqual([]);

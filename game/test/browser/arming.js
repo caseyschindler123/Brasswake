@@ -44,7 +44,7 @@ test('paper doll grips preserve the fingers and fit every weapon and offhand on 
     }
     const failures = [], plates = [];
     for (let build = 0; build < 3; build++) for (let combo = 1; combo <= 10; combo++) {
-      const appearance = { ...look, combo, build };
+      const appearance = { ...look, combo, build, headStyle:PaintedTwoBody.headStyle(Math.floor((combo-1)/5)) };
       const deadline = performance.now() + 5000;
       let ready=Scene.drawDoll(bare, appearance);
       while (!ready && performance.now() < deadline) {
@@ -55,7 +55,8 @@ test('paper doll grips preserve the fingers and fit every weapon and offhand on 
         failures.push({ combo, build, issue: 'base figure never loaded' });
         continue;
       }
-      const {sockets}=ArtData.painted.combos[CharacterProfiles.index(appearance)].doll;
+      const {sockets,embeddedHead}=Scene.debug().paintedDollFitting(appearance);
+      if(Boolean(embeddedHead)!==(build===0))failures.push({combo,build,issue:'unexpected figure fitting'});
       const base = b.getImageData(0, 0, 300, 450).data;
       b.clearRect(0, 0, 300, 450);
       for (const [index, { name, wpn=-1, shieldItem }] of items.entries()) {
@@ -187,7 +188,7 @@ test('paper doll in hero and appearance reflects equip, unequip, legacy gear and
   await expect(frame.locator('#artload')).toBeHidden({ timeout: 45000 });
   await frame.locator('[data-a=playslot]').click();
   await expect(frame.locator('#title')).toBeHidden();
-  await frame.evaluate(() => { __bw.ACT.tab({ t: 'hero' }); __bw.ACT.looks(); });
+  await frame.evaluate(() => { __bw.ACT.tab({ t: 'bag' }); __bw.ACT.looks(); });
   await waitForDolls(frame);
   expect((await current('#doll2')) === sword).toBe(true);
   expect(errors).toEqual([]);

@@ -61,7 +61,7 @@ async function main(){
     browser=await chromium.launch({headless:true});
     const results=[];
     for(const seed of seeds)for(const role of paths){
-      const context=await browser.newContext({viewport:{width:390,height:720},isMobile:true,hasTouch:true});const page=await context.newPage();
+      const context=await browser.newContext({viewport:{width:844,height:390},isMobile:true,hasTouch:true});const page=await context.newPage();
       const errors=[];page.on('pageerror',e=>errors.push(String(e)));
       const checkpoints=[];let report;
       try {

@@ -54,6 +54,7 @@ async function fixture(page, { kind = 'mon', region = 1, elite = true, fencing =
     s.eq = { weapon: blade.id };
     s.pages = { h1: 1 };
     s.sk = { fencing, hiding: 40, stealth: 10 };
+    if (!__bw.Combat.equip('hide',0).ok) throw Error('Could not assign Hide');
     s.skillModes = { stealth: 'lock' };
     s.stamina = 35;
     s.hp = __bw.maxHp();
@@ -289,6 +290,6 @@ test('Backstab · pursuit entry cannot bypass the Council marks or main-characte
 
 test('Backstab · switching character clears pursuit and wounds from the previous owner',async({page},info)=>{
   const errors=observeErrors(page),{frame,lane}=await fixture(page);const reserve=await frame.evaluate(({x,y,length})=>{__bw.save();const a=__bw.A,slot=(a.cur+1)%a.slots.length;a.slots[slot]={...structuredClone(a.slots[a.cur]),uid:'reserve-owner',name:'Reserve tester',pos:[x+length-1,y]};return slot;},lane);await hideAndApproach(frame,lane);await engage(frame);const initial=await combatState(frame);await beginBackstab(frame);await finishAction(frame);expect((await combatState(frame)).foe).toBeLessThan(initial.max);await frame.evaluate(()=>__bw.Combat.cancel());expect(await frame.evaluate(()=>__bw.Combat.active())).toBe(true);
-  await frame.locator('#nav [data-t=hero]').click();await dismiss(frame);await action(frame,'reset').click();await action(frame,'playslot','[data-i="'+reserve+'"]').click();await expect(frame.locator('#title')).toBeHidden();expect(await frame.evaluate(()=>__bw.S.name)).toBe('Reserve tester');expect(await frame.evaluate(()=>({chase:backstabFixtureTarget.chase,hunt:!!backstabFixtureTarget.hunt}))).toEqual({chase:0,hunt:false});
+  await frame.locator('#nav [data-t=hero]').click();await dismiss(frame);await frame.locator('[data-a=charactersettings]').click();await action(frame,'reset').click();await action(frame,'playslot','[data-i="'+reserve+'"]').click();await expect(frame.locator('#title')).toBeHidden();expect(await frame.evaluate(()=>__bw.S.name)).toBe('Reserve tester');expect(await frame.evaluate(()=>({chase:backstabFixtureTarget.chase,hunt:!!backstabFixtureTarget.hunt}))).toEqual({chase:0,hunt:false});
   await frame.evaluate(()=>{const e=backstabFixtureTarget;Scene.hallMove(e,e.x,e.y);Scene.hop(e.x+1,e.y);__bw.Combat.selectTarget(e);});const clean=await combatState(frame);expect(clean.foe).toBe(initial.max);expect(clean.round).toBe(0);expect(await frame.evaluate(()=>__bw.CONCEAL.hidden)).toBe(false);await screenshot(page,info,'backstab-live-owner-clean');expect(errors).toEqual([]);
 });

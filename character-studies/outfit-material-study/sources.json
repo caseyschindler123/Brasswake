@@ -1,0 +1,52 @@
+{
+  "man-leather": {
+    "file": "exec-8d2a19a7-5c89-4872-b9ac-68e3498233d1.png",
+    "references": [
+      "guides/man-side-guide.png",
+      "../earlier-studies/wardrobe/paper-leather.png"
+    ],
+    "prompt": "Edit image 1, the exact approved Brasswake side stride as a sprite sheet. Keep the exact 4 by 4 layout, 16 isolated full-body figures, same right-facing slightly elevated orthographic side camera. Rows 1 and 2 are walk phases 1–4 and 5–8. Rows 3 and 4 are run phases 1–4 and 5–8. A cell's exact pose, identity, head shape, hair, neck angle, anatomical limbs, contact foot, boot tip, and spacing must survive, including the end of each stride. Every hand stays bare, each existing brown boot and trouser leg stays exactly in its original pose whenever visible. Preserve subtle hand-painted 2D finish and dark edges. No weapons, shadows, labels, divider lines, terrain or scenery. Transparent background with ample gap everywhere. Image 2 supplies only outfit construction and garment materials. Ignore its model's anatomy and camera. Maintain identical clothing design throughout. Do not render the front of the body as a three-quarter angle. Fit the approved lean adult curly brown-haired man in a close brown goatskin coat with rounded leather shoulder pieces, visible light linen sleeves just to the elbow, three short transverse closure straps with small buckles on the front only, one waist belt, panel seams with fine stitches, a hip-length double vent, and worn warm-brown edges. It should read as flexible leather. Keep the original hands, forearms, boots, build and silhouette closely aligned to the reference. Match the existing boots exactly."
+  },
+  "woman-robe": {
+    "file": "exec-3fb24c74-ee6c-40ef-8b1f-78b35fb3b510.png",
+    "references": [
+      "guides/woman-side-guide.png",
+      "../earlier-studies/wardrobe/paper-robe.png"
+    ],
+    "prompt": "Edit image 1, the exact approved Brasswake side stride as a sprite sheet. Keep the exact 4 by 4 layout, 16 isolated full-body figures, same right-facing slightly elevated orthographic side camera. Rows 1 and 2 are walk phases 1–4 and 5–8. Rows 3 and 4 are run phases 1–4 and 5–8. A cell's exact pose, identity, head shape, hair, neck angle, anatomical limbs, contact foot, boot tip, and spacing must survive, including the end of each stride. Every hand stays bare, each existing brown boot and trouser leg stays exactly in its original pose whenever visible. Preserve subtle hand-painted 2D finish and dark edges. No weapons, shadows, labels, divider lines, terrain or scenery. Transparent background with ample gap everywhere. Image 2 supplies only outfit construction and garment materials. Ignore its model's anatomy and camera. Maintain identical clothing design throughout. Do not render the front of the body as a three-quarter angle. Fit the approved lean athletic adult woman with the brown ponytail in a warm off-white linen robe with a belted natural waist, fitted sleeves to the wrist, a practical front split and two independent panels falling to mid-shin at rest. Original brown belt, small brass buckle and boots. Threadbare seams and painterly folds. The hem must lag behind the hips and fall on the way down during the walk. During the run the back panel catches air and trails left. The visible front panel is displaced only by the nearer thigh when that thigh advances. Alternate which leg is exposed, keep the boots and most ankle contacts visible, and keep arms layered correctly. The fabric should settle under its own weight during the passing phase. Never hide the lifted boot or make the folds trace both knees at once. Keep the approved head and upper pose."
+  },
+  "woman-leather": {
+    "file": "exec-4f6ed637-0222-4c7b-93c6-6d31c1bb131a.png",
+    "references": [
+      "guides/woman-side-guide.png",
+      "paintings/exec-8d2a19a7-5c89-4872-b9ac-68e3498233d1.png"
+    ],
+    "prompt": "Repaint reference 1 as a game sprite sheet. Reference 1 controls the exact head, neck, hair, anatomical limb positions, side camera and boot coordinates. Keep its exact four columns by four rows with 16 isolated characters facing RIGHT. Rows 1 and 2 are walk phases 1–4 and 5–8. Rows 3 and 4 are run phases 1–4 and 5–8. Reference 2 is ONLY the construction and material of the fitted outfit. Copy its small crafted details and color, never its head or body. Keep the reference 1 hands, contact boot placement, heights, lean proportions, weakly elevated camera, and wide clear gaps. Pure empty true transparent RGBA between figures. Absolutely no light backdrop, rim glow, ambient occlusion outside the silhouette, shadow underneath, dividers, text or weapons. Show no floor. Fine classic painted 2D finish. Paint the approved lean athletic woman with her low brown ponytail, in the fitted warm brown leather coat shown. Small rounded shoulder pieces, stitched panel seams and warm worn edge, muted ivory linen sleeves to elbow, front closure straps with small buckles, single fitted waist belt and two hip-length vents. The palms and forearms stay bare. Leave the boot geometry and trousers in place."
+  },
+  "man-robe": {
+    "file": "exec-4f37a5d2-6b3b-4bfa-9ab3-91173a410e25.png",
+    "references": [
+      "guides/man-side-guide.png",
+      "paintings/exec-3fb24c74-ee6c-40ef-8b1f-78b35fb3b510.png"
+    ],
+    "prompt": "Repaint reference 1 as a game sprite sheet. Reference 1 controls the exact head, neck, hair, anatomical limb positions, side camera and boot coordinates. Keep its exact four columns by four rows with 16 isolated characters facing RIGHT. Rows 1 and 2 are walk phases 1–4 and 5–8. Rows 3 and 4 are run phases 1–4 and 5–8. Reference 2 is ONLY the construction and material of the fitted outfit. Copy its small crafted details and color, never its head or body. Keep the reference 1 hands, contact boot placement, heights, lean proportions, weakly elevated camera, and wide clear gaps. Pure empty true transparent RGBA between figures. Absolutely no light backdrop, rim glow, ambient occlusion outside the silhouette, shadow underneath, dividers, text or weapons. Show no floor. Fine classic painted 2D finish. Paint the approved lean athletic curly-haired man in the same warm off-white linen robe with warm brown belt and tiny brass buckle, vented at front, fitted sleeves to wrist, simple topstitched edges, hem mid-shin at rest. On walking contact the cloth falls down with weight. Paint genuinely independent panels lagging behind his hip in the run, lifting at the back and exposing the near boot as the weight transfers. Keep boot recovery, toe-off, original knee bend and anatomical overlap. Keep the rear of the robe around the original calves during the walk and clearly airborne during the run. The silhouette follows the original shoulder joint and hands."
+  },
+  "leather-dolls": {
+    "file": "exec-9c89e691-9036-491e-b6b2-4b4061992483.png",
+    "references": [
+      "../painted-female-fit/standard-height-front-study.png",
+      "paintings/exec-8d2a19a7-5c89-4872-b9ac-68e3498233d1.png",
+      "../earlier-studies/wardrobe/paper-leather.png"
+    ],
+    "prompt": "Repaint reference 1 as exactly two standing full-body separate inventory figures, looking straight at the viewer, male left, female right. Exact same pose, head and expressive face, hairstyles, natural waist, shoulders, limb lengths, athletic silhouettes and relative heights on one shared floor baseline. Keep the lean body underneath, including head size and hairline. Both arms fall naturally to sides. Entire crown, boots and every finger inside frame. Reference 2 is the approved outfit construction ONLY. Translate the same materials and details into front-facing outfits on both bodies, matching the hand-painted 2D finish of reference 1. Transparent RGBA with clear gap between figures. No backdrop, edges, shadows, text, floor lines, equipment or weapons. Reference 3 shows the same front closure. Fit the pictured warm brown leather coat, with rounded leather caps, stitched edge, short ivory linen sleeves, two upper small strap buckles and a waist belt, matching double vents, brown trousers and low brown boots. Preserve both reference 1 faces exactly. Visible forearms and hands bare. The coat is shaped to each body's natural waist."
+  },
+  "robe-dolls": {
+    "file": "exec-a9975cd8-1392-44c5-8d14-46718e944a58.png",
+    "references": [
+      "../painted-female-fit/standard-height-front-study.png",
+      "paintings/exec-3fb24c74-ee6c-40ef-8b1f-78b35fb3b510.png",
+      "../earlier-studies/wardrobe/paper-robe.png"
+    ],
+    "prompt": "Repaint reference 1 as exactly two standing full-body separate inventory figures, looking straight at the viewer, male left, female right. Exact same pose, head and expressive face, hairstyles, natural waist, shoulders, limb lengths, athletic silhouettes and relative heights on one shared floor baseline. Keep the lean body underneath, including head size and hairline. Both arms fall naturally to sides. Entire crown, boots and every finger inside frame. Reference 2 is the approved outfit construction ONLY. Translate the same materials and details into front-facing outfits on both bodies, matching the hand-painted 2D finish of reference 1. Transparent RGBA with clear gap between figures. No backdrop, edges, shadows, text, floor lines, equipment or weapons. Reference 3 supplies the front of the robe. Use muted pale neutral flax linen, simple collar, soft long sleeves to wrists, narrow brown waist belt with small brass buckle, small front split that opens below the waist down to mid-shin so the brown trousers and boots are visible. Threadbare seams, restrained linen grain, hanging panels settled into vertical folds. No colored decoration. Match the robe's construction and fabric on both bodies."
+  }
+}

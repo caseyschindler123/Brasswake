@@ -2,7 +2,7 @@ require('./test/browser-path');
 const { defineConfig } = require('@playwright/test');
 const live = process.env.BW_LIVE === '1';
 const localURL = 'http://localhost:' + (process.env.BW_TEST_PORT || 8781);
-const phone = { viewport: { width: 390, height: 720 }, deviceScaleFactor: 1,
+const phone = { viewport: { width: 844, height: 390 }, deviceScaleFactor: 1,
   isMobile: true, hasTouch: true };
 const sceneProfiles=process.env.BW_SCENE_PROFILES?JSON.parse(process.env.BW_SCENE_PROFILES):require('./test/scope-policy').PROFILES;
 if(!Array.isArray(sceneProfiles)||!sceneProfiles.length||sceneProfiles.some(p=>!require('./test/scope-policy').PROFILES.includes(p)))throw Error('Invalid capture profiles');

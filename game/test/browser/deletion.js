@@ -209,7 +209,7 @@ test('deletion · the device persists deletion before attempting scene restorati
   await page.waitForFunction(() => Scene.pos() && Scene.debug().map === Scene.debug().world);
   await page.locator('#nav [data-t=hero]').click();
   if (await page.locator('[data-a=coachok]').isVisible()) await page.locator('[data-a=coachok]').click();
-  await page.locator('#view [data-a=reset]').click();
+  await page.locator('[data-a=charactersettings]').click();await page.locator('#view [data-a=reset]').click();
   await characterWarning(page);
   await enterVerification(page, 'Ada');
   await page.evaluate(message => {

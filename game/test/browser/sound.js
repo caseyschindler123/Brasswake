@@ -92,6 +92,7 @@ test('generated effects play on the effects bus and stop independently of music'
   const f = await fixture(page);
   await f.locator('#nav [data-t=hero]').click();
   if (await f.locator('[data-a=coachok]').isVisible()) await f.locator('[data-a=coachok]').click();
+  await f.locator('[data-a=charactersettings]').click();
   const available = await f.evaluate(() => !!(window.AudioContext || window.webkitAudioContext));
   if (available) {
     await f.waitForFunction(() => Sound.status().effects.cached.includes('s_hit'), null, { timeout: 20000 });
@@ -117,6 +118,7 @@ test('sound controls unlock supported audio and persist effects mute across relo
   let f = await fixture(page);
   await f.locator('#nav [data-t=hero]').click();
   if (await f.locator('[data-a=coachok]').isVisible()) await f.locator('[data-a=coachok]').click();
+  await f.locator('[data-a=charactersettings]').click();
   await f.locator('[data-a=snd][data-k=fx]').click();
   await expect(f.locator('[data-a=snd][data-k=fx]')).toHaveText('Effects: off');
   const state = await f.evaluate(() => ({ available: !!(window.AudioContext || window.webkitAudioContext), state: Sound.state() }));

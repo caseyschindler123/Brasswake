@@ -267,7 +267,7 @@ for(let r=1;r<=8;r++){
         if(!await f.locator('#sheet').isVisible())await interact(f,cache.id,stats);
       }
       await expect(f.locator('#sheet')).toContainText('A hidden cache');await closeSheet(f);
-      if(floor===0){await f.locator('#nav [data-t=map]').click();await expect(f.locator('.dungeon-map img')).toBeVisible();await expect(f.locator('#coach')).toBeHidden();await screenshot(page,info,'dungeon-'+r+'-map');await f.locator('[data-a=tab][data-t=world]').filter({hasText:'Return to dungeon'}).click();}
+      if(floor===0){await f.locator('#minimap').click();await expect(f.locator('.dungeon-map img')).toBeVisible();await expect(f.locator('#coach')).toBeHidden();await screenshot(page,info,'dungeon-'+r+'-map');await f.locator('[data-a=tab][data-t=world]').filter({hasText:'Return to dungeon'}).click();}
       await screenshot(page,info,'dungeon-'+r+'-floor-'+(floor+1));
       const lieutenant=entities.find(e=>e.lieutenant);
       if(lieutenant)await engage(f,lieutenant.id,stats);

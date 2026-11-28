@@ -3,6 +3,7 @@
   const [WW, WH] = Geography.size, CS = 8, TOWN = Geography.towns;
   let world = null, curReg = 1, curB = 1, curT = null, tcheck = 0, inset = 0, locked = false, ambNow = 0, anims = [], floats = [], slashes = [], shots = [], bars = [];
   let viewportInsets={top:0,right:0,bottom:0,left:0},viewportFocus=null;
+  let miniCanvas, miniContext;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   Object.assign(ART, { s1: ['wolf', '#8a5a3a'], s2: ['bird', '#b0703a'], s3: ['wolf', '#e0a0a0'], s4: ['wolf', '#7a4a2a'], s5: ['wolf', '#2a2a2a'], s6: ['bird', '#f0f0f0'], s7: ['bird', '#1a1a1a'], s8: ['wolf', '#8a8a8a'], a1: ['rat', '#9a7a5a'], a2: ['wolf', '#b08a5a'], a3: ['wolf', '#4a3a32'], a4: ['wolf', '#c9703a'], a5: ['bird', '#8a5a3a'], a6: ['wolf', '#d8d4c8'], a7: ['wolf', '#e6e0d0'], a8: ['rat', '#f0f0f0'] });
   const FB = { bank: 'guild', work: 'shop', house: 'healer', cottage: 'house', hall: 'tavern', casino: 'hall', farm: 'house', barn: 'work', mill: 'hall', cottage2: 'cottage', shack: 'cottage', cabin: 'house', hut: 'cottage', way: 'tavern', tower: 'guild', ruin: 'work', shrine: 'healer', stable: 'work', adobe: 'house', lodge: 'house', stilt: 'cottage', mine: 'work' };
@@ -154,29 +155,95 @@
   function paintedLayer(file,frame,a,only,covered){
     const raw=paintedPixels(file,frame),c=mk(frame.r[2],frame.r[3]),g=c.getContext('2d'),data=g.createImageData(c.width,c.height);data.data.set(raw.color);PaintedCharacterView.tintPixels(data.data,raw.mask,a);
     for(let i=0;i<data.data.length;i+=4){const component=PaintedCharacterView.component(raw.mask,i);if(only!=null&&component!==only||covered?.has(component))data.data[i+3]=0;}
-    g.putImageData(data,0,0);return c;
+    g.putImageData(data,0,0);
+    if(!frame.mirror)return c;
+    const flipped=flipC(c);c.width=c.height=0;return flipped;
+  }
+  function paintedSlot(g,image,source,body,id,offset) {
+    if(!body.embeddedHead||!source.sockets){g.drawImage(image,...offset);return;}
+    if(id===10){
+      const old=source.sockets.collar.p,fit=body.sockets.collar.p;
+      g.drawImage(image,offset[0]+fit[0]-old[0],offset[1]+fit[1]-old[1]);return;
+    }
+    const attachment=id===8?'Palm':'Foot';
+    const left='left'+attachment,right='right'+attachment;
+    const [l,r]=[source.sockets[left].p,source.sockets[right].p];
+    const [mx,my]=[(l[0]+r[0])/2,(l[1]+r[1])/2];
+    const distance=Math.hypot(l[0]-r[0],l[1]-r[1]);
+    if(distance<.5){
+      const fit=body.sockets[right].p;
+      g.drawImage(image,offset[0]+fit[0]-r[0],offset[1]+fit[1]-r[1]);return;
+    }
+    for(const side of [left,right]){
+      const [x,y]=source.sockets[side].p,fit=body.sockets[side].p;
+      const dx=fit[0]-x,dy=fit[1]-y,nx=(x-mx)/distance*2,ny=(y-my)/distance*2;
+      const extent=640,tx=mx+dx,ty=my+dy;
+      g.save();g.beginPath();
+      g.moveTo(tx-ny*extent,ty+nx*extent);g.lineTo(tx+ny*extent,ty-nx*extent);
+      g.lineTo(tx+(ny+nx)*extent,ty+(ny-nx)*extent);
+      g.lineTo(tx+(nx-ny)*extent,ty+(ny+nx)*extent);
+      g.closePath();g.clip();
+      g.drawImage(image,offset[0]+dx,offset[1]+dy);g.restore();
+    }
+  }
+  function fitPaintedSlot(bodyImage,body,slotImage,slot,id,offset){
+    const g=bodyImage.getContext('2d');
+    g.save();g.globalCompositeOperation='source-atop';
+    const x=body.offset?.[0]||0,y=body.offset?.[1]||0;
+    paintedSlot(g,slotImage,slot,body,id,[offset[0]-x,offset[1]-y]);
+    g.restore();
   }
   function paintedHead(g,a,frame,sex,direction,paper=false){
     const pair=paper?[5,0]:DSRC[direction],an=frame.head;
     PaintedGear.withHead(g,a,frame,{direction,paper},()=>{g.save();if(pair[1]){g.translate(an[1]*2,0);g.scale(-1,1);}HeadPortraits.draw(g,{body:sex,style:a.headStyle,hair:a.hair,beard:a.beard,skin:a.skin,hc:a.hc,direction:pair[0],angle:(frame.angle||0)*(pair[1]?-1:1)},an);g.restore();});
   }
-  function paintedFrame(a,row,k,sr){
+  function paintedActionHead(g,a,frame,head){
+    const image=paintedLayer(head.file,head,a);
+    g.save();g.translate(frame.head[1],frame.head[0]);g.rotate(frame.angle||0);
+    g.drawImage(image,...head.headOffset);g.restore();
+    image.width=image.height=0;
+  }
+  function paintedFrame(a,row,k,sr,fitIndex=0){
     const H=AD.painted,body=paintedBody(a),state=PaintedCharacterView.state(a,row),bank=body.states[state],source=PaintedCharacterView.sourceDirection(sr,H);
     if(!paintedAsset(bank.file).ok)return state==='idle'?null:paintedFrame(a,-1,0,sr);
     const layers=PaintedCharacterView.slotSources(a).map(slot=>{const b=paintedSlotBank(slot).states[state];return{...slot,file:b.file,frame:b.frames[source][k%b.frames[source].length],ready:paintedAsset(b.file).ok};}),covered=new Set(layers.filter(l=>l.ready&&l.id!==10).map(l=>l.id));
-    const frame=bank.frames[source][k%bank.frames[source].length],raw=paintedPixels(bank.file,frame),bodyImage=paintedLayer(bank.file,frame,a,null,covered),c=mk(H.width,H.height),g=c.getContext('2d'),gearOptions={direction:sr,state,phase:k/Math.max(1,bank.frames[source].length-1)};
-    PaintedGear.drawWorld(g,a,frame,{...gearOptions,layer:'back'});g.drawImage(bodyImage,...frame.offset);
-    for(const layer of layers.filter(l=>l.ready)){const image=paintedLayer(layer.file,layer.frame,paintedLayerLook(a,layer),layer.id);g.drawImage(image,...layer.frame.offset);image.width=image.height=0;}
-    paintedHead(g,a,frame,body.sex,sr);PaintedGear.drawWorld(g,a,frame,{...gearOptions,layer:'front'});
+    const legacy=bank.frames[source][k%bank.frames[source].length];
+    const approved=PaintedTwoBody.supports(a);
+    const authored=approved
+      ? PaintedTwoBody.motion(AD.twoBodyMovement,a,state,sr,fitIndex,legacy) : null;
+    const head=approved&&!authored?PaintedTwoBody.actionHead(AD.twoBodyMovement,a,sr):null;
+    const pendingBody=authored&&!paintedAsset(authored.file).ok;
+    const pendingHead=head&&!paintedAsset(head.file).ok;
+    const frame=authored&&!pendingBody?authored:legacy,file=frame.file||bank.file;
+    const raw=paintedPixels(file,frame),bodyImage=paintedLayer(file,frame,a,null,frame.embeddedHead?null:covered),c=mk(H.width,H.height),g=c.getContext('2d'),gearOptions={direction:sr,state,phase:k/Math.max(1,bank.frames[source].length-1)};
+    PaintedGear.drawWorld(g,a,frame,{...gearOptions,layer:'back'});
+    const readyLayers=layers.filter(l=>l.ready);
+    if(frame.embeddedHead){
+      for(const layer of readyLayers.filter(l=>l.id!==10)){
+        const image=paintedLayer(layer.file,layer.frame,paintedLayerLook(a,layer),layer.id);
+        fitPaintedSlot(bodyImage,frame,image,layer.frame,layer.id,layer.frame.offset);image.width=image.height=0;
+      }
+    }
+    const drawLayer=layer=>{
+      const image=paintedLayer(layer.file,layer.frame,paintedLayerLook(a,layer),layer.id);
+      paintedSlot(g,image,layer.frame,frame,layer.id,layer.frame.offset);image.width=image.height=0;
+    };
+    const rear=[3,4,5].includes(sr);
+    if(frame.embeddedHead&&!rear)readyLayers.filter(l=>l.id===10).forEach(drawLayer);
+    g.drawImage(bodyImage,...frame.offset);
+    readyLayers.filter(l=>!frame.embeddedHead||rear&&l.id===10).forEach(drawLayer);
+    if(head&&!pendingHead)paintedActionHead(g,a,frame,head);
+    else if(!frame.embeddedHead)paintedHead(g,a,frame,body.sex,sr);
+    PaintedGear.drawWorld(g,a,frame,{...gearOptions,layer:'front'});
     // The right fingers wrap the handle; shields retain their solid front face.
-    for(const side of (a.wpn>=0?[a.wpn===25||a.wpn===26?'leftPalm':'rightPalm']:[]).concat(a.gear?.shield==='off-orb'||a.gear?.shield==='off-book'?['leftPalm']:[])){if(!frame.sockets?.[side])continue;const hand=frame.sockets[side].p;g.save();g.beginPath();g.arc(...hand,2.1,0,Math.PI*2);g.clip();g.drawImage(bodyImage,...frame.offset);for(const layer of layers.filter(l=>l.ready&&l.id===8)){const im=paintedLayer(layer.file,layer.frame,paintedLayerLook(a,layer),8);g.drawImage(im,...layer.frame.offset);im.width=im.height=0;}g.restore();}
+    for(const side of (a.wpn>=0?[a.wpn===25||a.wpn===26?'leftPalm':'rightPalm']:[]).concat(a.gear?.shield==='off-orb'||a.gear?.shield==='off-book'?['leftPalm']:[])){if(!frame.sockets?.[side]||frame.sockets[side].visible===false)continue;const hand=frame.sockets[side].p;g.save();g.beginPath();g.arc(...hand,2.1,0,Math.PI*2);g.clip();g.drawImage(bodyImage,...frame.offset);if(!frame.embeddedHead)readyLayers.filter(l=>l.id===8).forEach(drawLayer);g.restore();}
     const bounds=actorBounds(c),left=Math.max(0,bounds.left-1),top=Math.max(0,bounds.top-1),out=mk(bounds.right-left+2,bounds.bottom-top+2);out.getContext('2d').drawImage(c,-left,-top);out.hr=out.human=1;
-    const origin=frame.origin||H.origin;out.originX=origin[0]-left;out.originY=origin[1]-top;out.anchor=[frame.head[0]-top,frame.head[1]-left,frame.head[2]];out.gait=state;out.gaitFrame=k;out.supports=(frame.supports||[]).map(([x,y])=>[x-left,y-top]);out.flight=frame.flight;out.feet=(frame.feet||[]).map(([x,y,floor,height])=>[x-left,y-top,floor-top,height]);
-    if(a.fx){const [,,w,h]=frame.r,m=mk(w,h),mg=m.getContext('2d'),md=mg.createImageData(w,h);for(let i=0;i<raw.mask.length;i+=4)if(Math.round(raw.mask[i]/24)===1){const v=Math.round((raw.color[i]+raw.color[i+1]+raw.color[i+2])/3);md.data[i]=md.data[i+1]=md.data[i+2]=v;md.data[i+3]=raw.color[i+3];}mg.putImageData(md,0,0);out.mask=mk(out.width,out.height);out.mask.getContext('2d').drawImage(m,frame.offset[0]-left,frame.offset[1]-top);out.mask.hr=1;m.width=m.height=0;}
-    out.pendingParts=layers.some(l=>!l.ready);c.width=c.height=bodyImage.width=bodyImage.height=0;return out;
+    const origin=frame.origin||H.origin;out.originX=origin[0]-left;out.originY=origin[1]-top;out.anchor=[frame.head[0]-top,frame.head[1]-left,frame.head[2]];out.gait=state;out.gaitFrame=k;out.paintedTwoBody=frame.embeddedHead===true||Boolean(head&&!pendingHead);out.supports=(frame.supports||[]).map(([x,y])=>[x-left,y-top]);out.flight=frame.flight;out.feet=(frame.feet||[]).map(([x,y,floor,height])=>[x-left,y-top,floor-top,height]);
+    if(a.fx){const [,,w,h]=frame.r,m=mk(w,h),mg=m.getContext('2d'),md=mg.createImageData(w,h);for(let i=0;i<raw.mask.length;i+=4)if(Math.round(raw.mask[i]/24)===1){const v=Math.round((raw.color[i]+raw.color[i+1]+raw.color[i+2])/3);md.data[i]=md.data[i+1]=md.data[i+2]=v;md.data[i+3]=raw.color[i+3];}mg.putImageData(md,0,0);out.mask=mk(out.width,out.height);const effect=out.mask.getContext('2d');effect.translate(frame.offset[0]-left,frame.offset[1]-top);if(frame.mirror){effect.translate(m.width,0);effect.scale(-1,1);}effect.drawImage(m,0,0);out.mask.hr=1;m.width=m.height=0;}
+    out.pendingParts=Boolean(pendingBody||pendingHead)||layers.some(l=>!l.ready);c.width=c.height=bodyImage.width=bodyImage.height=0;return out;
   }
-  function anatomicalFrame(a,row,k,sr){
-    if(AD.painted)return paintedFrame(a,row,k,sr);
+  function anatomicalFrame(a,row,k,sr,fitIndex){
+    if(AD.painted)return paintedFrame(a,row,k,sr,fitIndex);
     const H=AD.human,combo=H.combos[a.combo],state=row<0?'idle':row<5?'walk':row<10?'run':row===19?'fall':row===20?'hit':row<13?'swing':row<16?'thrust':'cast';
     const frame=state==='idle'?combo.idle[sr]:state==='walk'||state==='run'?combo[state][sr][k%H.frames]:combo[state][sr===0?0:sr>=3?2:1][k%4];
     const c=mk(H.width,H.height),g=c.getContext('2d'),[x,y,w,h]=frame.r,scratch=mk(w,h),q=scratch.getContext('2d');
@@ -264,6 +331,8 @@
       const s={art:1,doll:1,fx:a.fx},look={...a,key:'hero:'+key};
       const lazy=(row,n,sources=AD.painted?.directions===8?Array.from({length:8},(_,i)=>[i,0]):DSRC)=>sources.map(([source,flip])=>{const frames=Array(n);for(let frame=0;frame<n;frame++)Object.defineProperty(frames,frame,{get(){const c=npcFrame(look,{row:AD.painted?.directions===8?row:row<0?-1:row<10?row+source:row,frame,source});return flip?mirroredHuman(c):c;},enumerable:true});return frames;});
       const count=(AD.painted||AD.human).frames;s.w8=lazy(0,count);s.r8=lazy(5,count);s.idle8=lazy(-1,1);
+      if(AD.painted?.directions===8&&PaintedTwoBody.supports(a))
+        s.moveFrame=(source,frame,running,progress)=>npcFrame(look,{row:running?5:0,source,frame,progress});
       const ar={swing:10,thrust:13,cast:16}[a.style]||10,attacks=lazy(ar,AD.painted?.actions||4,AD.painted?.directions===8?[[0,0],[6,0],[4,0],[2,0]]:[[0,0],[2,0],[4,0],[2,1]]);[s.af,s.as,s.ab,s.al]=attacks;
       if(AD.painted){s.attack8=lazy(ar,AD.painted.actions||4);s.recoil8=lazy(20,AD.painted.actions||4);s.block8=lazy(22,AD.painted.actions||4);s.seated8=lazy(23,1);}
       s.f=s.idle8[0];s.s=s.idle8[6];s.l=s.idle8[2];s.b=s.idle8[4];s.fall=lazy(19,AD.painted?.actions||4,[[0,0]])[0];return DOLL['s'+key]=s;
@@ -287,7 +356,9 @@
     const direction = moving ? NpcAppearance.direction(e.tx - e.fx, e.ty - e.fy, still) : still;
     if (moving) e.npcFacing = direction;e.gaitProfile=paintedProfile(e.npcLook);
     const [source, flip] = AD.painted?.directions===8?[direction,0]:DSRC[direction];
-    let row = !moving&&AD.human?-1:(AD.painted?.directions===8?0:source)+(moving&&e.npcRun?5:0), frame = moving ? ActorRig.phase(ActorRig.distance(e)/(AD.painted?e.npcLook.height||1:1),!!e.npcRun,(AD.painted||AD.human)?.frames||8,paintedProfile(e.npcLook)) : AD.human?0:2;
+    const distance=ActorRig.distance(e)/(AD.painted?e.npcLook?.height||1:1);
+    let row = !moving&&AD.human?-1:(AD.painted?.directions===8?0:source)+(moving&&e.npcRun?5:0),
+      frame = moving ? ActorRig.phase(distance,!!e.npcRun,(AD.painted||AD.human)?.frames||8,e.gaitProfile) : AD.human?0:2;
     let scale = AD.painted?e.npcLook.height||1:1, lean = 0;
     if(AD.painted){if(e.dead)return{direction,row:19,frame:Math.min((AD.painted.actions||4)-1,Math.floor((performance.now()-(e.fallenAt||0))/450*(AD.painted.actions||4))),source,flip,scale,lean};if(e.react&&e.react.until>performance.now())return{direction,row:e.react.row,frame:Math.min((AD.painted.actions||4)-1,Math.floor((1-(e.react.until-performance.now())/e.react.duration)*(AD.painted.actions||4))),source,flip,scale,lean};if(e.attack&&e.attack.until>performance.now())return{direction,row:e.attack.row,frame:Math.min((AD.painted.actions||4)-1,Math.floor((1-(e.attack.until-performance.now())/e.attack.duration)*(AD.painted.actions||4))),source,flip,scale,lean};if(e.venueSeated&&!moving)row=23;}
     if (!moving && e.fs != null && e.ff >= 2 && e.ff <= 5) {
@@ -298,14 +369,17 @@
     }
     if (!moving && e.fs != null && e.ff === 6){lean=flip?2:-2;if(AD.painted){row=22;frame=Math.floor((AD.painted.actions||4)/2);}}
     if (!moving && e.fs != null && e.ff === 7) { if(AD.human){row=20;frame=Math.floor((AD.painted?.actions||4)/2);}else{scale=.94;row+=5;frame=3;} }
-    return { direction, row, frame, source, flip, scale, lean };
+    return { direction, row, frame, source, flip, scale, lean,
+      progress: moving ? ActorRig.strideProgress(distance,!!e.npcRun,e.gaitProfile) : undefined };
   }
-  function npcFrame(a, { row, frame, source }) {
-    const key = [a.key, row, frame, source].join('|'), cached = NPC_FRAMES.get(key);
+  function npcFrame(a, { row, frame, source, progress }) {
+    const fitIndex=AD.painted&&PaintedTwoBody.supports(a)
+      ? PaintedTwoBody.indexFor(AD.twoBodyMovement,PaintedCharacterView.state(a,row),progress??frame/AD.painted.frames) : 0;
+    const key = [a.key, row, frame, source, fitIndex].join('|'), cached = NPC_FRAMES.get(key);
     if (cached) { NPC_FRAMES.delete(key); NPC_FRAMES.set(key, cached); return cached; }
     if(!dollReady(a))return null;
     if(AD.painted&&!paintedAsset(paintedBody(a).states[PaintedCharacterView.state(a,row)].file).ok)return row<0?null:npcFrame(a,{row:-1,frame:0,source});
-    if(AD.human){const image=anatomicalFrame(a,row,frame,source);if(image.pendingParts){if(drawingNpcFrames)npcRetired.push(image);return image;}NPC_FRAMES.set(key,image);retireNpcFrames();return image;}
+    if(AD.human){const image=anatomicalFrame(a,row,frame,source,fitIndex);if(image?.pendingParts){if(drawingNpcFrames)npcRetired.push(image);return image;}if(!image)return null;NPC_FRAMES.set(key,image);retireNpcFrames();return image;}
     const cloth = hexRGB(a.cloth), head = IMG['hb/hair.webp'].im;
     const L = {
       profiles:bodyProfiles(a.combo),
@@ -423,21 +497,35 @@
   }
   const DOLL_PAINT = new WeakMap();
   const PAINTED_DOLLS=new Map();
+  function paintedDollFitting(a,legacy=paintedBody(a)?.doll){
+    return (PaintedTwoBody.supports(a)&&PaintedTwoBody.doll(AD.twoBodyMovement,a,legacy))||legacy;
+  }
   function drawPaintedDoll(cv,a){
-    const body=paintedBody(a),pd=body?.doll;if(!pd)return false;const entry=paintedAsset(pd.file),sex=body.sex,layers=PaintedCharacterView.slotSources(a).map(slot=>({...slot,pd:paintedSlotBank(slot).doll,entry:paintedAsset(paintedSlotBank(slot).doll.file)}));
+    const body=paintedBody(a),legacy=body?.doll;if(!legacy)return false;
+    const layers=PaintedCharacterView.slotSources(a).map(slot=>({...slot,pd:paintedSlotBank(slot).doll,entry:paintedAsset(paintedSlotBank(slot).doll.file)}));
+    const pd=paintedDollFitting(a,legacy);
+    const entry=paintedAsset(pd.file),sex=body.sex;
     if(!entry.ok||layers.some(l=>!l.entry.ok)||!HeadPortraits.ready(sex)||!PaintedGear.ready()){
       if(DOLL_PAINT.get(cv)?.a===a)return false;const request={a};DOLL_PAINT.set(cv,request);
       Promise.all([entry.p,...layers.map(l=>l.entry.p),HeadPortraits.preload(sex),PaintedGear.preload()]).then(ok=>{if(ok.every(Boolean)&&cv.isConnected&&DOLL_PAINT.get(cv)===request){DOLL_PAINT.delete(cv);drawPaintedDoll(cv,a);}});return false;
     }
-    DOLL_PAINT.delete(cv);const key=[pd.file,CharacterProfiles.index(a),a.cloth,a.skin,a.metal,a.armorMaterial?.id,a.handMaterial?.id,a.footMaterial?.id,a.cloakMaterial?.id,a.gear?.hands,a.gear?.feet,a.gear?.cloak,!!a.fx].join('|');let image=PAINTED_DOLLS.get(key);
+    DOLL_PAINT.delete(cv);const key=[pd.file,CharacterProfiles.index(a),a.cloth,a.skin,a.hc,a.metal,a.armorMaterial?.id,a.handMaterial?.id,a.footMaterial?.id,a.cloakMaterial?.id,a.gear?.hands,a.gear?.feet,a.gear?.cloak,!!a.fx].join('|');let image=PAINTED_DOLLS.get(key);
     if(!image){
-      image=mk(300,450);image.painted=1;const q=image.getContext('2d'),frame={r:[0,0,300,450],m:[0,450,300,450]},covered=new Set(layers.filter(l=>l.id!==10).map(l=>l.id)),base=paintedLayer(pd.file,frame,a,null,covered);q.drawImage(base,0,0);base.width=base.height=0;
-      for(const layer of layers){const im=paintedLayer(layer.pd.file,{r:[0,0,300,450],m:[0,450,300,450]},paintedLayerLook(a,layer),layer.id);q.drawImage(im,0,0);im.width=im.height=0;}
+      image=mk(300,450);image.painted=1;const q=image.getContext('2d'),frame={r:[0,0,300,450],m:[0,450,300,450]},covered=new Set(layers.filter(l=>l.id!==10).map(l=>l.id)),base=paintedLayer(pd.file,frame,a,null,pd.embeddedHead?null:covered);
+      if(!pd.embeddedHead)q.drawImage(base,0,0);
+      for(const layer of layers){
+        const im=paintedLayer(layer.pd.file,frame,paintedLayerLook(a,layer),layer.id);
+        if(pd.embeddedHead&&layer.id!==10)fitPaintedSlot(base,pd,im,layer.pd,layer.id,[0,0]);
+        else paintedSlot(q,im,layer.pd,pd,layer.id,[0,0]);
+        im.width=im.height=0;
+      }
+      if(pd.embeddedHead)q.drawImage(base,0,0);
+      base.width=base.height=0;
       if(a.fx){const raw=paintedPixels(pd.file,frame),m=mk(300,450),mg=m.getContext('2d'),d=mg.createImageData(300,450);for(let i=0;i<d.data.length;i+=4)if(Math.round(raw.mask[i]/24)===1){const v=Math.round((raw.color[i]+raw.color[i+1]+raw.color[i+2])/3);d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=raw.color[i+3];}mg.putImageData(d,0,0);image.mask=m;}
       PAINTED_DOLLS.set(key,image);if(PAINTED_DOLLS.size>24)PAINTED_DOLLS.delete(PAINTED_DOLLS.keys().next().value);
     }
     const g=cv.getContext('2d'),scale=Math.min(cv.width/300,cv.height/450);g.clearRect(0,0,cv.width,cv.height);g.save();g.translate((cv.width-300*scale)/2,(cv.height-450*scale)/2);g.scale(scale,scale);
-    PaintedGear.drawPaper(g,a,pd,{layer:'back'});g.drawImage(image,0,0);if(a.fx&&image.mask)dollFx(g,a.fx,image.mask,0,0,300,450,false,performance.now());paintedHead(g,a,pd,sex,0,true);PaintedGear.drawPaper(g,a,pd,{layer:'front'});
+    PaintedGear.drawPaper(g,a,pd,{layer:'back'});g.drawImage(image,0,0);if(a.fx&&image.mask)dollFx(g,a.fx,image.mask,0,0,300,450,false,performance.now());if(!pd.embeddedHead)paintedHead(g,a,pd,sex,0,true);PaintedGear.drawPaper(g,a,pd,{layer:'front'});
     for(const side of (a.wpn>=0?[a.wpn===25||a.wpn===26?'leftPalm':'rightPalm']:[]).concat(a.gear?.shield==='off-orb'||a.gear?.shield==='off-book'?['leftPalm']:[])){if(!pd.sockets?.[side])continue;g.save();g.beginPath();g.arc(...pd.sockets[side].p,8,0,Math.PI*2);g.clip();g.drawImage(image,0,0);g.restore();}g.restore();return true;
   }
   function drawDoll(cv, a) {
@@ -482,7 +570,10 @@
   function previewHuman(canvas,a,direction,movingTime,running=false){
     const sprite=dollSprite(a);if(!sprite)return false;
     const moving=Number.isFinite(movingTime),distance=moving?movingTime/1000*ActorRig.speed(running):0,frame=moving?ActorRig.phase(distance,running,(AD.painted||AD.human)?.frames||8,paintedProfile(a)):2;
-    const image=!moving&&sprite.idle8?sprite.idle8[(direction||0)%8][0]:(running?sprite.r8:sprite.w8)[(direction||0)%8][frame],g=canvas.getContext('2d');
+    const facing=(direction||0)%8;
+    const image=!moving&&sprite.idle8?sprite.idle8[facing][0]:sprite.moveFrame&&moving
+      ? sprite.moveFrame(facing,frame,running,ActorRig.strideProgress(distance,running,paintedProfile(a)))
+      : (running?sprite.r8:sprite.w8)[facing][frame],g=canvas.getContext('2d');
     if(!image)return false;g.clearRect(0,0,canvas.width,canvas.height);g.imageSmoothingEnabled=true;
     const size=Math.min(canvas.width,canvas.height)*.95;
     if(image.originX!=null){const scale=size/80;g.drawImage(image,canvas.width/2-image.originX*scale,canvas.height-5-image.originY*scale,image.width*scale,image.height*scale);}else g.drawImage(image,(canvas.width-size)/2,canvas.height-size,size,size);return true;
@@ -525,7 +616,7 @@
     const place=locationFacts();if(!place||locked)return;
     o.save();o.font=`600 ${13*dpr}px 'Alegreya Sans',sans-serif`;o.textAlign='left';
     const w=Math.min(o.measureText(place.name).width+18*dpr,ov.width-112*dpr);
-    o.fillStyle='rgba(18,29,27,.94)';o.fillRect(8*dpr,8*dpr,w,24*dpr);o.fillStyle='#fff0ce';o.fillText(place.name,17*dpr,25*dpr,w-12*dpr);o.restore();
+    o.fillStyle='rgba(18,29,27,.94)';o.fillRect(84*dpr,8*dpr,w,24*dpr);o.fillStyle='#fff0ce';o.fillText(place.name,93*dpr,25*dpr,w-12*dpr);o.restore();
   }
   function resetWorld(){
     pause();clearSceneControls();
@@ -1049,6 +1140,7 @@
   }
   let tacticalClock=0;
   function step(dt) {
+    if(host.orientationBlocked?.()){syncSceneControls(false);return;}
     if (!map.pending) fade = Math.max(0, fade - dt * 2.2);
     if(host.combatEnabled?.()&&(locked||map.pending||document.hidden||!host.combatRunning?.())){syncSceneControls(false);if(host.combatResolving?.()){if(P.atk>0)P.atk-=dt;advanceEffects(dt);}return;}
     if (map.ship) shipTick(dt);
@@ -1201,7 +1293,7 @@
       if(e.npcLook){npcDraw(e,bx,by,by+(bars.some(b=>b.e===e)?4000:0),list);return;}
       if (e.fs != null) { const c = fsCut(e.fs, e.ff | 0); if (c) list.push([by, c, bx - lw(c) / 2 + (e.ox || 0), by - lh(c) + 2, !!e.flip]); else if (e.spr) list.push([by, (e.spr.f || e.spr)[0], bx - 8, by - 15]); return; }
       if (!e.spr) return;
-      const s = e.spr, moving = me ? (P.moving||P.path.length) && !locked : e.tx != null, left = e.dir === 'l', fl = me && s.w8 && !(P.atk > 0) ? (P.run && moving && s.r8 ? s.r8 : s.w8)[P.d8 || 0] : me && P.dg && s[P.dg] && !(P.atk > 0) ? s[P.dg] : left && s.l ? s.l : s[left ? 's' : (e.dir || 'f')], f = s.beast ? fr : (moving ? (me && s.w8 && !(P.atk > 0) ? ActorRig.phase(ActorRig.distance(P),P.run,fl.length,P.gaitProfile) : ((me ? P.walk : e.walk) | 0) % fl.length) : me && s.w8 && fl.length === 8 ? 2 : 0), ak = me && P.atk > 0 && s.af ? s.attack8?s.attack8[P.d8||0]:s['a' + (left ? 'l' : (e.dir || 'f'))] : null, reaction=me&&P.react&&P.react.until>performance.now()?(P.react.row===22?s.block8:s.recoil8)?.[P.d8||0]:null, baseImage = reaction?reaction[Math.min(reaction.length-1,Math.floor((1-(P.react.until-performance.now())/P.react.duration)*reaction.length))]:ak ? ak[Math.min(ak.length-1,Math.floor((1-P.atk/(P.atkDuration||.3))*ak.length))] : me && !moving && s.idle8 ? s.idle8[P.d8 || 0][0] : fl[f], im = me && baseImage && host.mounted&&host.mounted()?MountView.frame((s.idle8?s.idle8[P.d8||0][0]:null)||baseImage,{direction:P.d8||0,distance:P.wd||0,moving,running:P.run})||baseImage:me && baseImage && map.ship && map.ship.phase === 'rescue' && map.ship.time < 3.7 ? shipWaterFrame(baseImage) : baseImage, sc = e.big && !s.art ? 2 : s.msc || 1;
+      const s = e.spr, moving = me ? (P.moving||P.path.length) && !locked : e.tx != null, left = e.dir === 'l', fl = me && s.w8 && !(P.atk > 0) ? (P.run && moving && s.r8 ? s.r8 : s.w8)[P.d8 || 0] : me && P.dg && s[P.dg] && !(P.atk > 0) ? s[P.dg] : left && s.l ? s.l : s[left ? 's' : (e.dir || 'f')], f = s.beast ? fr : (moving ? (me && s.w8 && !(P.atk > 0) ? ActorRig.phase(ActorRig.distance(P),P.run,fl.length,P.gaitProfile) : ((me ? P.walk : e.walk) | 0) % fl.length) : me && s.w8 && fl.length === 8 ? 2 : 0), ak = me && P.atk > 0 && s.af ? s.attack8?s.attack8[P.d8||0]:s['a' + (left ? 'l' : (e.dir || 'f'))] : null, reaction=me&&P.react&&P.react.until>performance.now()?(P.react.row===22?s.block8:s.recoil8)?.[P.d8||0]:null, baseImage = reaction?reaction[Math.min(reaction.length-1,Math.floor((1-(P.react.until-performance.now())/P.react.duration)*reaction.length))]:ak ? ak[Math.min(ak.length-1,Math.floor((1-P.atk/(P.atkDuration||.3))*ak.length))] : me && !moving && s.idle8 ? s.idle8[P.d8 || 0][0] : me && moving && s.moveFrame ? s.moveFrame(P.d8||0,f,P.run,ActorRig.strideProgress(ActorRig.distance(P),P.run,P.gaitProfile)) : fl[f], im = me && baseImage && host.mounted&&host.mounted()?MountView.frame((s.idle8?s.idle8[P.d8||0][0]:null)||baseImage,{direction:P.d8||0,distance:P.wd||0,moving,running:P.run})||baseImage:me && baseImage && map.ship && map.ship.phase === 'rescue' && map.ship.time < 3.7 ? shipWaterFrame(baseImage) : baseImage, sc = e.big && !s.art ? 2 : s.msc || 1;
       if(!im)return;
       if (e.dead) { const da = artDead(e.inst ? (e.inst.art || e.inst.tpl) : e.tpl); if (da) { const ds = s.msc || 1; list.push([by - 8, da, bx - lw(da) * ds / 2, by - lh(da) * ds + 3, false, ds, 0, e.dying != null ? Math.max(0, e.dying) : 1]); return; } const di = (s.s || s.f)[0]; list.push([by - 8, di, bx - lw(di) * sc / 2, by - lh(di) * sc + 1, false, sc, 0, e.dying != null ? Math.max(0, e.dying) : 1, 1]); return; }
       const flip = me && s.w8 && (!(P.atk > 0)||s.attack8) ? false : s.left ? (e.dir === 's' && !e.flip) : ((left && !s.l) || e.flip), bob = s.bob ? (moving && !(e.inst && FLY[e.inst.tpl]) ? -Math.round(Math.abs(Math.sin(now / 105 + e.x)) * 3) / K : Math.round(Math.sin(now / 320 + e.x * 2) * 2) / K) : (s.one && moving ? Math.round(Math.abs(Math.sin(now / 90)) * 3) / K : 0);
@@ -1268,14 +1360,24 @@
       o.strokeText(f.txt, sx, sy); o.fillStyle = f.col; o.fillText(f.txt, sx, sy);
     }
     o.globalAlpha = 1; o.font = `600 ${12 * dpr}px 'Alegreya Sans', sans-serif`;
-    if (!locked && !map.ship) { const MS = 44, ms = 1.5 * dpr, sz = MS * ms, mx = ov.width - sz - 8 * dpr, my = 8 * dpr, sx0 = clamp(P.x - MS / 2, 0, Math.max(0, map.w - MS)), sy0 = clamp(P.y - MS / 2, 0, Math.max(0, map.h - MS)), mw = Math.min(MS, map.w), mh = Math.min(MS, map.h); o.globalAlpha = .9; o.imageSmoothingEnabled = false; o.fillStyle = '#0a0c0e'; o.fillRect(mx - 2 * dpr, my - 2 * dpr, mw * ms + 4 * dpr, mh * ms + 4 * dpr); const cd = map === world && host.cartography ? host.cartography() : null; const chart = cd ? cartographyMap(cd.mask, cd.maps, 0, cd.revision) : map.mini; o.drawImage(chart, sx0, sy0, mw, mh, mx, my, mw * ms, mh * ms); o.globalAlpha = 1;
+    if (!locked && !map.ship && miniCanvas && !miniCanvas.parentElement.hidden) {
+      const o = miniContext, MS = 44, ms = miniCanvas.width/MS;
+      const sx0 = clamp(P.x-MS/2,0,Math.max(0,map.w-MS)), sy0 = clamp(P.y-MS/2,0,Math.max(0,map.h-MS));
+      const mw = Math.min(MS,map.w), mh = Math.min(MS,map.h), mx=(MS-mw)*ms/2, my=(MS-mh)*ms/2;
+      const cd = map===world && host.cartography ? host.cartography() : null;
+      const chart = cd ? cartographyMap(cd.mask,cd.maps,0,cd.revision) : map.mini;
+      o.imageSmoothingEnabled = false;
+      o.fillStyle = '#0a0c0e';
+      o.fillRect(0,0,miniCanvas.width,miniCanvas.height);
+      o.drawImage(chart,sx0,sy0,mw,mh,mx,my,mw*ms,mh*ms);
       for (const e of map.ents) { if (cd && !Cartography.exploredAt(cd.mask,e.x,e.y) && !cd.maps[e.r]) continue; if (e.x < sx0 || e.y < sy0 || e.x >= sx0 + mw || e.y >= sy0 + mh) continue; const c = e.kind === 'mon' || e.kind === 'guard' ? '#e06a50' : e.kind === 'npc' ? (host.mark(e) ? '#f3c95a' : '#d8d0c0') : e.kind === 'boss' ? '#ff5a3a' : e.kind === 'stairs' || e.kind === 'chest' ? '#a98be6' : e.kind === 'page' || e.kind === 'corpse' ? '#f3c95a' : e.kind === 'cache' && e.ok === 'chest' ? '#a98be6' : e.kind === 'camp' ? '#ff9a4a' : e.kind === 'node' ? host.hue(e.r) : null; if (!c) continue; o.fillStyle = c; o.fillRect(mx + (e.fx - sx0) * ms, my + (e.fy - sy0) * ms, 2 * dpr, 2 * dpr); }
       serviceMini(o,mx,my,sx0,sy0,ms,mw,mh);
-      const marker = 3 * dpr;
-      o.fillStyle = '#fff'; o.fillRect(clamp(mx + (P.fx - sx0) * ms - dpr, mx, mx + mw * ms - marker),
-        clamp(my + (P.fy - sy0) * ms - dpr, my, my + mh * ms - marker), marker, marker); }
+      const marker = 6;
+      o.fillStyle = '#fff'; o.fillRect(clamp(mx + (P.fx - sx0) * ms - 2, mx, mx + mw * ms - marker),
+        clamp(my + (P.fy - sy0) * ms - 2, my, my + mh * ms - marker), marker, marker); }
     drawLocation(o);
-    if (banner) {
+    // Short landscape screens already have the location label in the corner.
+    if (banner && !viewportInsets.right && (ov.height/dpr>=400||ov.width<=ov.height)) {
       const a = Math.min(1, banner.t, (3.2 - banner.t) * 2), by = Math.max(142*dpr,ov.height*.24);
       o.save();o.globalAlpha=Math.max(0,a);
       o.font=`400 ${30*dpr}px 'IM Fell English',Georgia,serif`;const titleWidth=o.measureText(banner.a).width;
@@ -1299,6 +1401,8 @@
   /* ---------- public ---------- */
   function init(el, h) {
     host = h; wrap = el; cv = mk(1, 1); ov = mk(1, 1); cv.className = 'game'; ov.className = 'over'; el.prepend(ov); el.prepend(cv); cx = cv.getContext('2d'); ox = ov.getContext('2d');
+    miniCanvas = el.querySelector('#minimap canvas');
+    miniContext = miniCanvas?.getContext('2d');
     initSceneControls(el);
     el.addEventListener('pointerdown', e => {
       if (e.button !== 0 || (e.target !== ov && e.target !== cv)) return;
@@ -1509,6 +1613,6 @@
     enterVenue, exitVenue, venueState, restoreVenue, inInterior: () => !!(map && map.venue), outdoors:()=>!!(P&&map===world&&!world.blds.some(b=>b.enter&&buildingContains(b,P.x,P.y))), venues: () => world && world.venues ? Array.from(world.venues.values()) : [],
     traveling: () => !!(P && (P.moving||P.path.length)),
     cartographyCatalogue, cartographyBounds, cartographyRoute, cartographyGuide, cartographyMap, cartographyAtlas, cartographyInsideHome, cartographySign,
-    pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon && !map.ship), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ landscape: {piece:landscapePiece,entry:landscapeEntry,actors:landscapeActors,images:LANDSCAPE_IMAGES}, buildingCache: WORLD_BUILDING_CACHE.stats, map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, groundKinds, paintGround, humanSprite:dollSprite, bldSpr, effects: { shots, slashes, floats }, interactionDistance, interactionTarget: near, labels: labelTargets, advanceEffects, draw, npcPose, npcFrame, npcCache: () => ({ frames: NPC_FRAMES.size, limit: NPC_FRAME_LIMIT, materials:AD.painted?PAINTED_PIXELS.size:HUMAN_PIXELS.size, materialLimit:AD.painted?PAINTED_PIXEL_LIMIT:HUMAN_PIXEL_LIMIT,assetBytes:[...PAINTED_ASSETS.values()].reduce((a,b)=>a+b,0),assetLimit:PAINTED_ASSET_LIMIT }) }),
+    pos: () => P ? [P.x, P.y] : null, inDungeon: () => !!(map && map.dungeon && !map.ship), region: () => curReg, bossPortrait: r => portrait({ spr: bossSprite(r) }), find: f => map ? map.ents.find(f) : null, showBlocked: v => { SHOWB = !!v; }, homeFits, addHome, dropHome, clearHomes, homeDoor, ghost, ghostNow: () => GHOST, homeSpr, debug: () => ({ landscape: {piece:landscapePiece,entry:landscapeEntry,actors:landscapeActors,images:LANDSCAPE_IMAGES}, buildingCache: WORLD_BUILDING_CACHE.stats, map, P, world, cam, zoom, spr, CS, TS, GCL, gpat, gclass, groundKinds, paintGround, humanSprite:dollSprite, paintedDollFitting, bldSpr, effects: { shots, slashes, floats }, interactionDistance, interactionTarget: near, labels: labelTargets, advanceEffects, draw, npcPose, npcFrame, npcCache: () => ({ frames: NPC_FRAMES.size, limit: NPC_FRAME_LIMIT, materials:AD.painted?PAINTED_PIXELS.size:HUMAN_PIXELS.size, materialLimit:AD.painted?PAINTED_PIXEL_LIMIT:HUMAN_PIXEL_LIMIT,assetBytes:[...PAINTED_ASSETS.values()].reduce((a,b)=>a+b,0),assetLimit:PAINTED_ASSET_LIMIT }) }),
     warp(x, y) { load([x, y]); }, hop(x, y) { go(map, x, y); }, guidePut, guideOff, guideEnt: () => GUIDE, drawDoll,equipmentIcon, dollKey: () => artVer, enterHall, inHall: () => map && map.hall ? map.r : 0, hallAdd: o => map ? addEnt(map, Object.assign({ r: map.r }, o)) : null, hallMove: (e, x, y) => { if (!map || !e) return; const k = e.y * map.w + e.x; if (map.occ.get(k) === e) map.occ.delete(k); e.x = e.fx = x; e.y = e.fy = y; e.tx = null; map.occ.set(y * map.w + x, e); }, ents: () => map ? map.ents : [], fsReady: () => !!(AD && AD.dojo && (IMG['dj/fs.webp'] || img('dj/fs.webp')) && have('dj/fs.webp')) };
 })();
