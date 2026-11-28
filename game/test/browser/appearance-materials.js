@@ -30,6 +30,8 @@ test('appearance · facial attachments and five visibly distinct material finish
 
 for(let sex=0;sex<2;sex++)for(let build=0;build<3;build++)test(`painted fit · ${sex?'woman':'man'} · ${['average','muscular','heavy'][build]} · full wardrobe and actions`,async({page},info)=>{
  const errors=observeErrors(page);await open(page);
+ // Audit offscreen character frames without the unrelated world animation competing for rendering work.
+ await page.evaluate(()=>Scene.pause());
  const result=await page.evaluate(async({sex,build})=>{
   const make=(w,h)=>Object.assign(document.createElement('canvas'),{width:w,height:h}),plate=make(800,1800),g=plate.getContext('2d'),failures=[];
   g.fillStyle='#eadbbd';g.fillRect(0,0,plate.width,plate.height);g.font='13px sans-serif';
