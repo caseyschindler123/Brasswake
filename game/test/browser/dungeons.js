@@ -141,22 +141,55 @@ test('five fully mapped characters compact local and cloud saves and reload an i
   })).toBe(true);
 });
 
-test('a dungeon death survives reload before Wake up and its belongings survive a second dungeon reload',async({page})=>{
+test('a dungeon death survives reload before Wake up and its belongings survive a second dungeon reload',async({page},info)=>{
   test.setTimeout(120000);const stats={steps:0,fights:0,queries:0};
   await page.goto('/__visual?scene=tallyport');await expect(page.locator('body')).toHaveAttribute('data-ready','tallyport',{timeout:45000});
   let f=page.frames().find(f=>f.url().includes('visual_test=1'));
   await f.evaluate(()=>{window.__bwFast=true;__bw.S.gold=77;__bw.S.sk={magery:0};__bw.S.hp=1;const e=Scene.find(e=>e.kind==='stairs'&&e.r===1);Scene.warp(e.x+1,e.y);});
   await f.waitForTimeout(250);await f.locator('#ctx').click();await f.locator('[data-a=start][data-k=dungeon]').click();
-  const setup=await f.evaluate(()=>{const e=Scene.find(e=>e.kind==='mon'&&e.inst.role==='armored');Scene.hop(e.x+1,e.y);return {id:e.id,x:e.x,y:e.y,back:__bw.DG.back};});
-  await f.waitForTimeout(450);await dismiss(f);
-  if(!await f.locator('#fight').isVisible())await canvasClick(f,setup.x,setup.y);
-  // Enemy attacks advance in live world time; death no longer requires a
-  // submitted player action to trigger the opponent's response round.
-  await f.waitForFunction(()=>__bw.F?.kick===true,null,{timeout:15000});
-  expect(await f.evaluate(()=>__bw.F.ent.id)).toBe(setup.id);
+  let setup;
+  try{
+    setup=await f.evaluate(()=>{
+      const e=Scene.find(e=>e.kind==='mon'&&e.inst.role==='armored');
+      const hook={swing:Scene.FX.swing,random:Math.random,attempts:[]};window.__dungeonDeathStrike=hook;
+      Scene.FX.swing=function(from,to,...rest){
+        const result=hook.swing.call(this,from,to,...rest);
+        if(from===e&&to==='me'){
+          const attempt={id:e.id,clock:Scene.tacticalTime(),beforeHp:__bw.S.hp,beforeKick:!!__bw.F?.kick,rolls:[]};
+          hook.attempts.push(attempt);const random=Math.random;
+          // Pin only this naturally scheduled strike's accuracy/parry/damage
+          // rolls. The real enemy damage and defeat transactions still run.
+          Math.random=()=>{const roll=attempt.rolls.length===0?.01:.99;attempt.rolls.push(roll);return roll;};
+          queueMicrotask(()=>{Math.random=random;attempt.afterHp=__bw.S.hp;attempt.afterKick=!!__bw.F?.kick;});
+        }
+        return result;
+      };
+      Scene.hop(e.x+1,e.y);return {id:e.id,x:e.x,y:e.y,back:__bw.DG.back};
+    });
+    await f.waitForTimeout(450);await dismiss(f);
+    if(!await f.locator('#fight').isVisible())await canvasClick(f,setup.x,setup.y);
+    // Enemy attacks advance in live world time; death no longer requires a
+    // submitted player action to trigger the opponent's response round.
+    await f.waitForFunction(()=>__bw.F?.kick===true,null,{timeout:15000});
+    expect(await f.evaluate(()=>__bw.F.ent.id)).toBe(setup.id);
+    const attempts=await f.evaluate(()=>window.__dungeonDeathStrike.attempts);
+    expect(attempts.length).toBeGreaterThan(0);
+    const fatal=attempts.find(a=>a.id===setup.id&&a.beforeHp>0&&!a.beforeKick&&a.afterHp===0&&a.afterKick);
+    expect(fatal,'the selected enemy really struck before the death transaction').toBeTruthy();
+    expect(fatal.rolls[0]).toBe(.01);expect(fatal.rolls.slice(1).every(roll=>roll===.99)).toBe(true);
+    await info.attach('enemy-caused-death',{body:JSON.stringify(attempts,null,2),contentType:'application/json'});
+  }finally{
+    const restored=await f.evaluate(()=>{
+      const hook=window.__dungeonDeathStrike;if(!hook)return false;
+      Math.random=hook.random;Scene.FX.swing=hook.swing;
+      const restored=Math.random===hook.random&&Scene.FX.swing===hook.swing;delete window.__dungeonDeathStrike;return restored;
+    });
+    expect(restored,'the death fixture restores both temporary hooks').toBe(true);
+  }
   await expect(f.locator('[data-a=fdone]')).toContainText('Wake up');
   const dropped=await f.evaluate(()=>({pending:!!__bw.S.deathPending,dungeon:__bw.S.dungeon,gold:__bw.S.gold,body:[__bw.S.remains.x,__bw.S.remains.y]}));
   expect(dropped).toEqual({pending:true,dungeon:null,gold:0,body:setup.back});
+  await screenshot(page,info,'dungeon-death-before-reload');
   async function reload(){await page.waitForLoadState('networkidle');
   await page.goto('/index.html?visual_test=1');await expect(page.locator('#artload')).toBeHidden({timeout:45000});await page.locator('[data-a=playslot]').first().click();f=page.mainFrame();await f.waitForFunction(()=>!!Scene.debug().map);}
   await reload();expect(await f.evaluate(()=>Scene.inDungeon())).toBe(false);expect(await f.evaluate(()=>__bw.S.hp)).toBeGreaterThan(0);
