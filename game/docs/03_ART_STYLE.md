@@ -44,6 +44,8 @@ Missing or loading art must not silently reveal a crude production fallback. Pre
 
 ## People
 
+For new painted movement studies, use the [approved female side walk and run](PAINTED_MOVEMENT_REFERENCE.md) as the reference for pose, timing and character proportions. The guide records the two source images, exact painting prompt, frame placement, GIF export and town-scale review. Approval covers the unarmed east-facing tunic previews.
+
 The continuous fitted-model replacement is released at `0090c89`. Its earlier assembled-part prototype remains rejected. Shared body measurements drive painted clothing/armor, frontal paper dolls and the elevated game camera. The renderer and motion inputs are offline art tooling; the game displays 2D painted sprites. Source provenance and replay are recorded in the [pipeline guide](../../arttools/PAINTED_CHARACTERS.md).
 
 - **Proportions and finish:** adult humans about seven heads tall, with natural shoulders, hands and feet. Use subdued painted pigment, readable contours, worn cloth, stitched leather, practical straps and controlled plate reflections. Keep the world camera, door/furniture dimensions and painted environmental style.
@@ -292,6 +294,8 @@ The stable and casino fittings use a new curated painted sheet, packed by `artto
 Casey requested complete generated paperdoll heads whose hair and beard are painted together. The final selection is a smaller curated set of complete styles for each body, with skin/hair colour choices retained and legacy appearances mapped to a close style. This replaces independent hair/beard selection in the paperdoll. Production follows a same-face proof, transparent isolated heads/neck, fixed skull landmarks, source receipts and reproducible packing. Headwear stays separately fitted. Existing tiny directional actors use matching curated hair/beard recipes and their calibrated attachments. The twenty-four selected heads are packed into two 1152×768 transparent atlases by `arttools/head_art.py`; `head_art_inputs.json` and `head_art_prompts.json` preserve exact source hashes, prompts, crops and skull landmarks, and `src/artheads.js` is generated. `HeadPortraits` uses bounded tinted complete-head canvases with one coherent face/hair/beard image; no beard or hairstyle bitmap is placed separately on the large paperdoll. The original generated horse/head filenames and receipts are archived in `C:/Users/caseys/source/SQL Game/brasswake_equipment_towns_2026_11_25/`. Replay with the pinned art environment and that directory as `--raw-dir`. Opened same-face, palette, full-body/collar, hat and material captures at 390×720 and 1280×800; source replays were byte-identical. Published source and verification evidence are in [release history](RELEASE_HISTORY.md#equipment-horses-and-lived-in-towns) and the closed coordinated plan.
 
 ## Decision log
+
+- 2026-11-27 — Casey approved the painted female side walk and run as a reference for future movement studies. Reuse the method of pairing a phase-by-phase motion guide with an approved character drawing, then review the loop at town scale. These two GIFs are local previews. [Production recipe](PAINTED_MOVEMENT_REFERENCE.md)
 
 - 2026-11-26: Casey prefers the original Suno music, including battles. Restore its 11 former contexts, retaining the other 17 newer themes/cues and the existing effects/quiet footstep mix. Reuse existing source bytes and keep provenance and technical loop/level checks. Released and verified at `b0a4067`; release history owns exact evidence and limitations.
 
