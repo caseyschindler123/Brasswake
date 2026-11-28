@@ -1,8 +1,13 @@
 const {test,expect}=require('@playwright/test');
 const {screenshot,observeErrors}=require('./flow');
 const {speech,clickWorld,learnMovement,person,query,visit,beginnerFight,roadFarewell,finishGuidedDay,beginnerAnswer}=require('./first-day-helper');
-for (const [path,look] of [['warrior',0],['thief',2],['mage',4],['crafter',6]]) test('a new player meets Tamsin, learns SQL and completes the guided day without skipping · '+path,async({page},info)=>{
-  test.setTimeout(750000);const errors=observeErrors(page),stats={fixture:false,steps:0,queries:0,solveVisibleFight:beginnerFight};
+
+// Retain action traces, DOM snapshots and named screenshots without
+// encoding gameplay frames throughout a multi-minute real-time journey.
+const journey = test.extend({ trace: { mode: 'retain-on-failure', screenshots: false } });
+
+for (const [path,look] of [['warrior',0],['thief',2],['mage',4],['crafter',6]]) journey('a new player meets Tamsin, learns SQL and completes the guided day without skipping · '+path,async({page},info)=>{
+  journey.setTimeout(750000);const errors=observeErrors(page),stats={fixture:false,steps:0,queries:0,solveVisibleFight:beginnerFight};
   await page.waitForLoadState('networkidle');
   await page.goto('/index.html?visual_test=1');await expect(page.locator('#artload')).toBeHidden({timeout:45000});
   await page.locator('[data-a=newslot]').first().click();await page.locator(`[data-a=pick][data-look="${look}"]`).click();await page.locator('[data-a=begin]').click();

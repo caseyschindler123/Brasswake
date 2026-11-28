@@ -77,6 +77,16 @@ test('the two approved fittings cover every outfit, gait and heading at the appr
           assert.equal(frame.sockets.rightPalm.p[0],art.origin[0]+(x-art.cell/2)*art.scale*sign);
           assert.equal(frame.sockets.rightPalm.p[1],art.origin[1]+(y-art.ground)*art.scale);
           assert.ok(Number.isFinite(frame.carry.angle)&&frame.carry.length>0);
+          assert.equal(frame.supports.length,legacy.supports.length);
+          assert.equal(frame.flight,legacy.flight);
+          const visibleSoles=mirror?original.soles.toReversed():original.soles;
+          for(const [foot,[soleX,soleY]]of visibleSoles.entries()){
+            const point=frame.feet[foot];
+            assert.equal(point[0],art.origin[0]+(soleX-art.cell/2)*art.scale*sign);
+            assert.equal(point[1],art.origin[1]+(soleY-art.ground)*art.scale);
+            assert.ok(Math.abs((point[2]-point[1])-(legacy.feet[foot][2]-legacy.feet[foot][1]))<1e-9);
+            assert.equal(point[3],legacy.feet[foot][3]);
+          }
         }
       }
       for(let direction=0;direction<8;direction++)assert.ok(TwoBody.actionHead(art,look,direction)?.file);

@@ -156,6 +156,7 @@ test('regional town travel and a home pad save arrivals immediately and reject r
   const beforeRemote = await frame.evaluate(() => Scene.pos());
   await frame.evaluate(() => __bw.ACT.travel({r:2}));
   expect(await frame.evaluate(() => Scene.pos())).toEqual(beforeRemote);
+  await frame.locator('#view').getByRole('button', { name: 'Close', exact: true }).click();
   await frame.evaluate(() => { const t=Scene.towns()[2]; Scene.load([t[0]+10,t[1]+18],2); __bw.S.pos=Scene.pos(); });
   await openMap(frame);
   await frame.locator('[data-a=cmaptravel][data-id=town2]').click();

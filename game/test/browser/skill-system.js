@@ -460,6 +460,7 @@ test('skill system · SQL concealment spends steps on a real approach and runnin
     const { map } = Scene.debug();
     const s = __bw.S;
     s.sk.hiding = 45; s.sk.stealth = 25;
+    if (!__bw.Combat.equip('hide', 0).ok) throw Error('Could not assign Hide');
     const dirs = [[1, 0, 's', 'ArrowRight'], [-1, 0, 'l', 'ArrowLeft'], [0, 1, 'f', 'ArrowDown'], [0, -1, 'b', 'ArrowUp']];
     for (const target of map.ents) {
       if (target.kind !== 'mon' || target.r !== 1 || target.inst.tpl !== 'b102') continue;
@@ -477,12 +478,14 @@ test('skill system · SQL concealment spends steps on a real approach and runnin
     }
     throw Error('No clear approach to a Tallyport gull');
   });
-  await expect(combat(f, 'hide')).toHaveText('Hide');
-  await combat(f, 'hide').click();
+  const hide = combat(f, 'hide');
+  await expect(hide.locator('.action-label')).toHaveText('Hide');
+  await hide.click();
   await submit(f, 'Q');
   await expect(f.locator('#enc')).toContainText('You are concealed');
   await continueQuery(f);
-  await expect(combat(f, 'hide')).toHaveText('Reveal · 6 steps');
+  await expect(hide.locator('.action-label')).toHaveText('Reveal');
+  await expect(hide.locator('.action-meta')).toHaveText('6 steps');
   expect(await f.evaluate(() => __bw.CONCEAL.steps)).toBe(6);
   await f.waitForTimeout(650);
   expect(await f.evaluate(() => [Scene.pos(), __bw.S.sk.stealth])).toEqual([route.cells[0], 25]);
@@ -494,7 +497,8 @@ test('skill system · SQL concealment spends steps on a real approach and runnin
     finally { await page.keyboard.up(route.key); }
     await expect.poll(() => f.evaluate(() => Scene.pos())).toEqual(route.cells[1]);
   });
-  await expect(combat(f, 'hide')).toHaveText('Reveal · 5 steps');
+  await expect(hide.locator('.action-label')).toHaveText('Reveal');
+  await expect(hide.locator('.action-meta')).toHaveText('5 steps');
   expect(await f.evaluate(() => __bw.CONCEAL.steps)).toBe(5);
   const trained = await f.evaluate(() => __bw.S.sk.stealth);
   expect(trained).toBeGreaterThan(25);
@@ -510,7 +514,7 @@ test('skill system · SQL concealment spends steps on a real approach and runnin
   try {
     await page.mouse.move(x + route.dx * radius, y + route.dy * radius);
     await expect(stick).toHaveAttribute('data-mode', 'run');
-    await expect(combat(f, 'hide')).toHaveText('Hide');
+    await expect(hide.locator('.action-label')).toHaveText('Hide');
     await f.waitForFunction(at=>Scene.pos().every((n,i)=>n===at[i]),route.cells[2]);
   } finally { await page.mouse.up(); }
   expect(await f.evaluate(() => [Scene.pos(), __bw.S.sk.stealth])).toEqual([route.cells[2], trained]);

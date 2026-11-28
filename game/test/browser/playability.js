@@ -117,7 +117,7 @@ test('combat errors remain readable, correct attacks win, and loot can be banked
   await f.evaluate(() => __bw.maybeDye(1));
   await f.waitForTimeout(1100);
   await expect(f.locator('#sheet')).toContainText('Your account');
-  await expect(f.locator('#toast')).toContainText('dye. Use it from Hero');
+  await expect(f.locator('#toast')).toContainText('dye. Use it from Bag → Appearance');
   expect(await f.evaluate(() => __bw.S.dyeU.length)).toBeGreaterThan(0);
   await screenshot(page, info, 'dye-keeps-bank-open');
   const money = await f.evaluate(() => __bw.S.gold + __bw.S.bank.gold);

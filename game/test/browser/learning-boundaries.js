@@ -11,11 +11,11 @@ const state = page => page.evaluate(() => {
     sigils: s.mats.sigil, items: s.inv.map(item => item.id), scrolls: { ...s.scr } };
 });
 
-test('first-day boundaries · damage labels expire while the Hero view pauses Adventure', async ({ page }) => {
+test('first-day boundaries · damage labels expire while Skills pauses the world', async ({ page }) => {
   const errors = observeErrors(page);
   await openDev(page);
   await expect(page.locator('#movement-joystick')).toHaveAttribute('aria-disabled', 'false');
-  const hero = nav(page, 'hero'), adventure = nav(page, 'world');
+  const hero = nav(page, 'hero'), close = page.locator('#view').getByRole('button', { name: 'Close', exact: true });
   await hero.evaluate(button => button.addEventListener('click', () => {
     const marker = '−913';
     Scene.FX.hit('me', marker);
@@ -32,7 +32,7 @@ test('first-day boundaries · damage labels expire while the Hero view pauses Ad
     paused: Scene.tacticalTime() === window.__pausedLabel.clock
   }))).toEqual({ recorded: true, paused: true });
 
-  await adventure.evaluate(button => button.addEventListener('click', () => {
+  await close.evaluate(button => button.addEventListener('click', () => {
     // Inspect the first returned scene frames, before active animation time
     // could expire a label that survived the pause.
     requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -41,8 +41,9 @@ test('first-day boundaries · damage labels expire while the Hero view pauses Ad
         present: effects.floats.some(float => float.txt === before.marker) };
     }));
   }, { once: true }));
-  await adventure.click();
-  await expect(adventure).toHaveAttribute('aria-current', 'page');
+  await close.click();
+  await expect(page.locator('#view')).toBeHidden();
+  await expect(page.locator('#stage')).toBeVisible();
   await page.waitForFunction(() => !!window.__returnedLabel, null, { timeout: 3000 });
   expect(await page.evaluate(() => window.__returnedLabel)).toEqual({ sameScene: true, present: false });
   expect(errors).toEqual([]);

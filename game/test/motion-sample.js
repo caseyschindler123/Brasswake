@@ -3,9 +3,9 @@ module.exports=function motionSample(result){return `<!doctype html>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Brasswake rebuilt walk and run</title>
 <style>body{background:#343b32;color:#f1ead7;font:17px system-ui;margin:20px}h1{font:28px Georgia}button{font:inherit;padding:9px;margin:4px}section{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;max-width:1080px}article{background:#858c75;padding:10px;color:#152016;max-width:320px}canvas{display:block;width:100%;height:auto}canvas.small{width:128px;height:128px;margin:auto}small{display:block;max-width:60em}a{color:#ead49e}@media(max-width:410px){body{margin:12px}}</style>
-<h1>Rebuilt walk and run</h1><p>Walk: ${result.gaits.walk.cadence} steps/min · Run: ${result.gaits.run.cadence} steps/min. Ground motion matches the feet.</p>
+<h1>Rebuilt walk and run</h1><p>Walk ${result.gaits.walk.cadence.toFixed(1)} steps/min · Run ${result.gaits.run.cadence.toFixed(1)} steps/min</p>
 <button id="pause">Pause</button><button id="slow">Slow motion</button><section id="sample"></section>
-<p><small>Large and game-scale side, diagonal and front views, rendered by the game. The new anatomical rig uses motion from the <a href="https://mocap.cs.cmu.edu/">CMU Graphics Lab / NSF EIA-0196217</a> and <a href="https://www.makehumancommunity.org/about/license.html">MakeHuman CC0 core mesh</a>.</small></p>
+<p><small>Painted game frames shown enlarged and at game scale. The fitted contact guide uses motion from the <a href="https://mocap.cs.cmu.edu/">CMU Graphics Lab / NSF EIA-0196217</a> and the <a href="https://www.makehumancommunity.org/about/license.html">MakeHuman CC0 core mesh</a>.</small></p>
 <script>
 const rows=${JSON.stringify(result.sample)},scale=${result.scale},gaits=${JSON.stringify(result.gaits)};
 let paused=false,slow=false,time=0,last=performance.now();const scenes=[];
@@ -14,7 +14,16 @@ document.getElementById('slow').onclick=()=>{slow=!slow;document.getElementById(
 for(const row of rows)for(const gait of ['walk','run']){
  const a=document.createElement('article');a.innerHTML='<b>'+({6:'Side',7:'Diagonal',0:'Front'}[row.direction])+' · '+gait+'</b>';
  const images=row[gait].map(frame=>{const image=new Image();image.src=frame.src;return {...frame,image};});
- for(const small of [false,true]){const c=document.createElement('canvas');c.width=small?128:320;c.height=small?128:260;if(small)c.className='small';a.append(c);scenes.push({c,gait,images,direction:row.direction,scale:small?scale:2.5,origin:small?[64,92]:[160,174]});}
+ for(const small of [false,true]){
+  const c=document.createElement('canvas');c.width=small?128:320;c.height=small?128:260;if(small)c.className='small';a.append(c);
+  const origin=small?[64,92]:[160,218];
+  const enlarged=Math.min(2.5,...images.map(frame=>Math.min(
+    152/Math.max(1,frame.x,frame.width-frame.x),
+    210/Math.max(1,frame.y),
+    34/Math.max(1,frame.height-frame.y)
+  )));
+  scenes.push({c,gait,images,direction:row.direction,scale:small?scale:enlarged,origin});
+ }
  document.getElementById('sample').append(a);
 }
 function paint(now){

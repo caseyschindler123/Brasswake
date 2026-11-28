@@ -148,8 +148,9 @@ test('living world · returning to characters retires house placement and dojo k
 test('living world · rebuilt walk and run preserve adult heads, planted feet and flight in every outfit and direction',async({page},info)=>{
   const errors=observeErrors(page),f=await scene(page);
   const result=await f.evaluate(async()=>{
-    // Clear fitted gear as well as legacy indices for the head-only comparison.
-    Scene.pause();const debug=Scene.debug(),base={...__bw.HOST.app(),hair:-1,hat:-1,beard:-1,wpn:-1,shield:-1,gear:null,fx:null},failures=[],sample=[];
+    Scene.pause();const debug=Scene.debug(),base={...__bw.HOST.app(),build:0,hair:-1,hat:-1,beard:-1,wpn:-1,shield:-1,gear:null,fx:null},failures=[],sample=[];
+    // Alternate head layers are compared against their matching saved fitting.
+    const attachmentBase={...base,headStyle:null,keepPaintedIdentity:true};
     // Warm only the fitting under review so the bounded asset cache can retire
     // prior outfits without substituting an idle frame into a motion check.
     const readySprite=async a=>{let s;while(!(s=debug.humanSprite(a))||s.w8[0][0]?.gait!=='walk'||s.r8[0][0]?.gait!=='run')await new Promise(requestAnimationFrame);return s;};
@@ -160,11 +161,24 @@ test('living world · rebuilt walk and run preserve adult heads, planted feet an
       return {bottom:bottom-im.originY,headWidth:im.anchor[2],supports:im.supports.length,flight:im.flight,grounded:im.supports.every(inkAt),feet:im.feet.map(p=>({height:p[3],lift:p[2]-p[1],visible:inkAt(p)}))};
     };
     const encoded=im=>({src:im.toDataURL(),x:im.originX,y:im.originY,width:im.width,height:im.height});
-    for(let combo=1;combo<=10;combo++){
-      const sprite=await readySprite({...base,combo});
+    const outfits=Array.from({length:10},(_,i)=>({combo:i+1,armorGear:null}));
+    for(const combo of [5,10])outfits.push({combo,armorGear:'armor-knights-plate'});
+    for(const {combo,armorGear} of outfits){
+      const headStyle=PaintedTwoBody.headStyle(Number(combo>5));
+      const sprite=await readySprite({...base,combo,armorGear,headStyle});
       const profile=Math.floor((combo-1)/5)*3+(base.build||0),heightScale=ActorRig.gait(true,profile).stride/ActorRig.gait(true,0).stride;
       for(let direction=0;direction<8;direction++){
-        const run=sprite.r8[direction].map(bounds),walk=sprite.w8[direction].map(bounds);
+        const runFrames=sprite.r8[direction].map(image=>image),walkFrames=sprite.w8[direction].map(image=>image);
+        const ready=()=>[...runFrames,...walkFrames].every(image=>image?.paintedTwoBody&&!image.pendingParts);
+        const timeout=performance.now()+5000;
+        while(!ready()&&performance.now()<timeout){
+          await new Promise(requestAnimationFrame);
+          for(let k=0;k<runFrames.length;k++){
+            runFrames[k]=sprite.r8[direction][k];walkFrames[k]=sprite.w8[direction][k];
+          }
+        }
+        if(!ready())throw Error('Painted movement did not load for '+combo+'/'+direction);
+        const run=runFrames.map(bounds),walk=walkFrames.map(bounds);
         const widths=run.map(b=>b.headWidth);
         if(Math.max(...widths)-Math.min(...widths)>2)failures.push({combo,direction,issue:'changing skull width',widths});
         if(!run.some(b=>b.flight)||run.some(b=>b.supports>1))failures.push({combo,direction,issue:'missing running flight or unexpected double support'});
@@ -175,17 +189,16 @@ test('living world · rebuilt walk and run preserve adult heads, planted feet an
         // Keep the same normalized clearance and actual visible-pixel minimum.
         for(const phase of flights)if(phase<0||run[phase].feet.some(f=>f.height/heightScale<.06||f.lift<2||!f.visible))failures.push({combo,direction,issue:'no visible sole clearance during flight',phase,feet:run[phase]?.feet});
         if(combo===1&&[6,7,0].includes(direction)){
-          const dressed=debug.humanSprite({...base,combo,hair:0});
-          sample.push({direction,walk:dressed.w8[direction].map(encoded),run:dressed.r8[direction].map(encoded)});
+          sample.push({direction,walk:walkFrames.map(encoded),run:runFrames.map(encoded)});
         }
         const still=sprite.idle8[direction][0];if(still.gait!=='idle'||!still.width||!still.height)failures.push({combo,direction,issue:'missing coherent standing pose'});
       }
     }
     for(const combo of [1,6])for(const gear of [{hair:0},{hair:5},{hat:0},{hat:3},{beard:2}]){
-      const s=await readySprite({...base,combo,...gear});
+      const s=await readySprite({...attachmentBase,combo,...gear});
       for(const direction of [0,6,7]){
         const width=(running,k)=>{
-          const dressed=(running?s.r8:s.w8)[direction][k],plain=(running?debug.humanSprite({...base,combo}).r8:debug.humanSprite({...base,combo}).w8)[direction][k];
+          const dressed=(running?s.r8:s.w8)[direction][k],plain=(running?debug.humanSprite({...attachmentBase,combo}).r8:debug.humanSprite({...attachmentBase,combo}).w8)[direction][k];
           const canvases=[dressed,plain].map(im=>{const c=document.createElement('canvas');c.width=c.height=128;c.getContext('2d').drawImage(im,64-im.originX,96-im.originY);return c.getContext('2d').getImageData(0,0,128,128).data;});
           const end=Math.min(128,Math.ceil(96-dressed.originY+dressed.anchor[0]+13));let left=128,right=0;
           for(let y=0;y<end;y++)for(let x=0;x<128;x++){const i=(y*128+x)*4,a=canvases[0],b=canvases[1];if(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2])+Math.abs(a[i+3]-b[i+3])>16){left=Math.min(left,x);right=Math.max(right,x);}}

@@ -169,6 +169,19 @@ async function assertPortalArt(f, target, r, direction) {
     const index=e.y*map.w+e.x;
     const down=direction==='down';
     const scale=Math.min((down?50:44)*3/width,(down?34:44)*3/height);
+    const stage=document.querySelector('#stage').getBoundingClientRect();
+    const tile=TS/3;
+    const objectScale=e.objectScale||1;
+    const left=stage.left+((e.fx+(e.ax||0))*tile+tile/2-ax*objectScale-cam.x)*zoom;
+    const top=stage.top+((e.fy+(e.ay||0))*tile+tile-ay*objectScale-cam.y)*zoom;
+    const right=left+c.width/3*objectScale*zoom;
+    const bottom=top+c.height/3*objectScale*zoom;
+    const coversPortal = node => {
+      const b=node.getBoundingClientRect();
+      return b.width>0&&b.height>0&&left<b.right&&right>b.left&&top<b.bottom&&bottom>b.top;
+    };
+    const hudClear=left>=stage.left&&right<=stage.right&&top>=stage.top&&bottom<=stage.bottom
+      &&![...document.querySelectorAll('#top,#minimap,#combat-bar,#movement-joystick')].some(coversPortal);
     const masonry=down||[['dungeon_face',faceSource],['dungeon_coping',copingSource]].every(([name,actual])=>{
       if(!actual)return false;const entry=ArchitectureArt.at['architecture_'+r+'_'+name],a=document.createElement('canvas');
       a.width=entry.r[2];a.height=entry.r[3];a.getContext('2d').drawImage(im,...entry.r,0,0,a.width,a.height);
@@ -176,7 +189,7 @@ async function assertPortalArt(f, target, r, direction) {
     });
     return {
       masonry,
-      hudClear:down||(e.y*16+16-ay-cam.y)*zoom>=108,
+      hudClear:down||hudClear,
       painted:source.width===width&&source.height===height&&pixels.every((value,i)=>actual[i]===value),
       size:(down?c.width===Math.round(width*scale)&&c.height===Math.round(height*scale):c.width===144&&c.height===144&&supported===true&&!!faceSource&&!!copingSource)
         && c.width>=TS*2 && c.height>=TS*1.5,

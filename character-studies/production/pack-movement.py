@@ -4,6 +4,7 @@ from collections import defaultdict
 import json
 from pathlib import Path
 import re
+import subprocess
 
 import numpy as np
 from PIL import Image
@@ -92,6 +93,57 @@ def shade_mask(frame, outfit, actor, pins, height=None, rear=False):
     return Image.fromarray(result)
 
 
+def gait_feet_guides():
+    script = """
+      const fs=require('node:fs'),vm=require('node:vm');
+      const ctx=vm.createContext({ArtData:{},atob});
+      vm.runInContext(fs.readFileSync(process.argv[1],'utf8'),ctx);
+      const p=ctx.ArtData.painted;
+      const headings=['S','SE','E','NE','N'],directions=[0,7,6,5,4];
+      const result={};
+      for(const [actor,combo] of [['man',1],['woman',16]])for(const state of ['walk','run']){
+        const bank=p.combos[combo].states[state].frames;
+        for(const [i,heading] of headings.entries()){
+          result[actor+'/'+state+'/'+heading]=bank[p.sourceDirections.indexOf(directions[i])]
+            .map(frame=>frame.feet.map(foot=>foot.slice(0,2)));
+        }
+      }
+      console.log(JSON.stringify(result));
+    """
+    source = STUDIES.parent / "game/src/artpainted.js"
+    projected = json.loads(subprocess.check_output(["node", "-e", script, str(source)], encoding="utf8"))
+    guides = {}
+    for route, frames in projected.items():
+        delays = MAPPING["delays"][route.split("/")[1]]
+        first = 0
+        for (index, mirrored), duration in zip(MAPPING["frames"][route], delays, strict=True):
+            if not mirrored:
+                sample = int((first + duration / 2) * len(frames) / sum(delays))
+                guides[index] = frames[sample]
+            first += duration
+    assert len(guides) == 128
+    return guides
+
+
+def register_soles(frame, guide, actor):
+    """Use the anatomical projection to locate the two painted sole contours."""
+    ink = np.asarray(frame.getchannel("A")) > 165
+    _, top = crown(frame)
+    down = np.arange(frame.height)[:, None] > top + SUBJECT_HEIGHTS[actor] * .60
+    contour = ink & down & ~np.roll(ink, -2, axis=0)
+    y, x = np.nonzero(contour)
+    assert len(x) > 5
+    projection = (np.asarray(guide) - ORIGIN) / SCALE + (CELL / 2, GROUND)
+    projection[:, 1] += (.7 * (np.max(y) - np.max(projection[:, 1])))
+    left, right = [(x - px) ** 2 + .70 * (y - py) ** 2 for px, py in projection]
+    separation = np.clip(np.linalg.norm(projection[0] - projection[1]) * .64, 12, 23)
+    distance = np.hypot(x[:, None] - x[None, :], y[:, None] - y[None, :])
+    overlap = np.maximum(0, separation - distance) ** 2 * 9
+    matches = left[:, None] + right[None, :] + overlap
+    feet = np.unravel_index(np.argmin(matches), matches.shape)
+    return [(int(x[i]), int(y[i])) for i in feet]
+
+
 def shelf(items, width=832, height_limit=1024):
     pages = []
     pending = []
@@ -111,7 +163,7 @@ def shelf(items, width=832, height_limit=1024):
     return pages
 
 
-def pack_family(outfit, bank, palms, dest, state=None):
+def pack_family(outfit, bank, palms, dest, state=None, foot_guides=None):
     groups = defaultdict(list)
     for index, frame in bank.items():
         actor = index // 64
@@ -138,6 +190,8 @@ def pack_family(outfit, bank, palms, dest, state=None):
                 frames[index] = dict(file=f"painted-two-body/{name}", r=(x, y, w, h),
                                      m=(x, y + height, w, h), offset=offset,
                                      crown=crown(bank[index]), palms=palms[index])
+                if foot_guides:
+                    frames[index]["soles"] = register_soles(bank[index], foot_guides[index], actor)
             pack.save(dest / name, lossless=True, method=3)
     return frames
 
@@ -169,7 +223,9 @@ def pack(output, strict):
     banks = load_fittings(strict=strict)
     output.mkdir(parents=True, exist_ok=True)
     original, steel = load_palms()
-    frames = {outfit: pack_family(outfit, bank, steel if outfit in ("plate", "knight") else original, output)
+    foot_guides = gait_feet_guides()
+    frames = {outfit: pack_family(outfit, bank, steel if outfit in ("plate", "knight") else original, output,
+                                  foot_guides=foot_guides)
               for outfit, bank in banks.items() if bank}
     everyday, pins = load_everyday(SCALE, ORIGIN, strict)
     static = {}

@@ -48,6 +48,20 @@ const PaintedTwoBody = (() => {
     return {angle: Math.atan2(x, -y), length: Math.hypot(x, y), width: .72 + .28 * Math.abs(dx)};
   }
 
+  function fittedFeet(soles, mirror, x, y, legacy) {
+    const points = mirror ? soles.toReversed() : soles;
+    const feet = points.map(([px, py], i) => {
+      const [, fromY, floor, height] = legacy.feet[i], reach = y(py);
+      return [x(px), reach, reach + (floor - fromY), height];
+    });
+    const distance = ([px, py], [qx, qy]) => (px-qx)**2+(py-qy)**2;
+    const supports = legacy.supports.map(support => {
+      const index = distance(support, legacy.feet[0]) <= distance(support, legacy.feet[1]) ? 0 : 1;
+      return feet[index].slice(0, 2);
+    });
+    return {feet, supports};
+  }
+
   function newFrame(art, raw, mirror, family, state, heading, index, legacy) {
     const {scale, cell, ground, origin} = art;
     const x = value => origin[0] + (value - cell / 2) * scale * (mirror ? -1 : 1);
@@ -66,6 +80,7 @@ const PaintedTwoBody = (() => {
     const [right, left] = mirror ? hands.toReversed() : hands;
     if (heading === 'W' || heading === 'NW' || heading === 'SW' && [0, 4, 5, 6, 7].includes(index) ||
         heading === 'N' && index <= 4) right.depth -= 1;
+    const footing = raw.soles ? fittedFeet(raw.soles, mirror, x, y, legacy) : null;
     const sockets = {
       ...legacy.sockets, torso,
       collar: {...legacy.sockets.collar, p: [head[1], head[0] + 11]},
@@ -74,9 +89,13 @@ const PaintedTwoBody = (() => {
       rightForearm: {...right, p: [right.p[0], right.p[1] - 4]},
       leftForearm: {...left, p: [left.p[0], left.p[1] - 4]},
     };
+    if (footing) {
+      sockets.leftFoot = {...sockets.leftFoot, p: footing.feet[0].slice(0, 2)};
+      sockets.rightFoot = {...sockets.rightFoot, p: footing.feet[1].slice(0, 2)};
+    }
     const offset = mirror ? [origin[0] * 2 - raw.offset[0] - raw.r[2], raw.offset[1]] : raw.offset;
     return {
-      ...legacy, file: raw.file, r: raw.r, m: raw.m, offset, head, origin, sockets, mirror,
+      ...legacy, ...footing, file: raw.file, r: raw.r, m: raw.m, offset, head, origin, sockets, mirror,
       embeddedHead: true, carry: pitches[state] ? carry(state, heading, index, ['plate', 'knight'].includes(family)) : null,
     };
   }
