@@ -1,6 +1,6 @@
 # Painted characters in eight directions
 
-The original [side walk and run recipe](PAINTED_MOVEMENT_REFERENCE.md) establishes the elevated camera, approved proportions and timing. This guide records the subsequent local previews through 2026-11-27. Casey accepted the paired tunic gaits and the sword-carry preview. The full plate wardrobe is available for review. The [art master](03_ART_STYLE.md#people) records the published game separately.
+The original [side walk and run recipe](PAINTED_MOVEMENT_REFERENCE.md) establishes the elevated camera, approved proportions and timing. This guide records the subsequent local previews through 2026-11-27. Casey accepted the paired tunic gaits and the sword-carry preview. Casey approved the full plate fit. The side wardrobe proof extends the same two bodies to leather, a dyed split robe and Tempered Steel. The [art master](03_ART_STYLE.md#people) records the published game separately.
 
 ## Start with the movement and the character
 
@@ -49,7 +49,7 @@ Use the corresponding tunic poses as the first painting reference and the existi
 
 The full plate study adds 120 movement paintings and reuses those eight. Six new motion sheets group the remaining poses by character and view. A seventh sheet contains both inventory figures. For packing, take the median ratio of matching tunic and plate silhouette heights over each sheet. Use that one scale for the sheet. In each phase, align the top of the head and the mean x of opaque pixels in its first seven rows with the registered tunic head. This lets shoulder and hip armor add width without moving the character's head when the outfit changes. Carry over the two palm landmarks, bring exposed pins inside the gauntlet silhouette, then inspect both color-coded hand boards. The far-side return swing has a lower blade angle in plate to keep the tip clear of the neck.
 
-Draw inventory figures directly from the approved **frontal standing pair** and the plate reference. Preserve the shared floor and height difference. In the wardrobe viewer, switch between tunic and plate while paused, then inspect the same characters in the frontal paper-doll view. This build covers one fixed steel appearance. Additional materials, cloth dye masks, attacks, seating and in-game equipment behavior require their own passes.
+Draw inventory figures directly from the approved **frontal standing pair** and the plate reference. Preserve the shared floor and height difference. In the wardrobe viewer, switch between tunic and plate while paused, then inspect the same characters in the frontal paper-doll view. The original wardrobe covers fixed steel in eight directions. The [side proof](../../character-studies/outfit-material-study/README.md) applies the game’s Tempered Steel palette to those approved side frames and dolls. It fits separate painted leather and split-robe poses to the original crown and gait phases, with frontal dolls and ivory and indigo cloth. The new looks are available in preview for east-facing walk and run. Other headings, attacks, seating and in-game equipment behavior require their own passes.
 
 ## Replay and verification
 
