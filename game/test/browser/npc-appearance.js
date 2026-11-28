@@ -45,17 +45,25 @@ test('directional NPCs walk, differ in appearance, and turn to the player', asyn
   expect(motion.frames).toBeGreaterThanOrEqual(3);
   expect(motion.maxDistanceError).toBeLessThan(1e-8);expect(motion.phaseMatches).toBe(true);
 
-  await frame.waitForFunction(() => {
-    const { npcFrame } = Scene.debug(), odalys = Scene.find(e => e.kind === 'npc' && e.r === 1 && e.i === 0);
-    const guide = Scene.guideEnt() || Scene.guidePut(odalys.x, odalys.y + 2);
-    const initial = { row: 0, source: 0, frame: 0 };
-    const headings=Array.from({length:8},(_,i)=>i);
-    return [odalys,guide,{npcLook:{...odalys.npcLook,combo:6,key:'cloth-reference'}}].every(e=>headings.every(source=>[0,5].every(row=>npcFrame(e.npcLook,{...initial,source,row})?.gait===(row?'run':'walk'))));
-  });
-  const sprites = await frame.evaluate(() => {
+  const sprites = await frame.evaluate(async () => {
+    // The audit samples poses offscreen. Pause ambient draws so a different
+    // resident cannot retire a fitted atlas between samples.
+    Scene.pause();
     const { npcPose, npcFrame, npcCache } = Scene.debug(), count=ArtData.painted.frames;
     const actor = Scene.find(e => e.kind === 'npc' && e.r === 1 && e.i === 0);
-    const guide = Scene.guideEnt(), look = actor.npcLook;
+    const guide = Scene.guideEnt() || Scene.guidePut(actor.x, actor.y + 2), look = actor.npcLook;
+    const tunic = { ...look, combo: 6, key: 'cloth-reference' };
+    async function readyPose(appearance, pose) {
+      const state=PaintedCharacterView.state(appearance,pose.row),deadline=performance.now()+5000;
+      do {
+        const image=npcFrame(appearance,pose);
+        if(image?.gait===state&&image.gaitFrame===pose.frame&&!image.pendingParts)return image;
+        await new Promise(requestAnimationFrame);
+      } while(performance.now()<deadline);
+      throw Error('NPC frame did not load: '+[appearance.key,state,pose.source,pose.frame].join('/'));
+    }
+    for(const appearance of [look,guide.npcLook,tunic])for(let source=0;source<8;source++)
+      for(const row of [0,5])await readyPose(appearance,{row,source,frame:0});
     const vectors = [[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0],[1,1]];
     const sheet = document.createElement('canvas');
     const size = 128, rootX = 64, rootY = 96;
@@ -72,30 +80,32 @@ test('directional NPCs walk, differ in appearance, and turn to the player', asyn
     }
     for (const [dx, dy] of vectors) {
       const pose = npcPose({ ...actor, fx: 0, fy: 0, tx: dx, ty: dy, wd: 0, gaitOffset: 0, npcRun: false });
-      const display = aligned(npcFrame(look, pose));
+      const display = aligned(await readyPose(look, pose));
       views.push(display.toDataURL());
       frames.push(pose);
       strip.drawImage(display, (pose.direction % 4) * size, 24 + (pose.direction >> 2) * size);
     }
-    const south = frames[0], southFrame = npcFrame(look, south), base = aligned(southFrame);
+    const south = frames[0], southFrame = await readyPose(look, south), base = aligned(southFrame);
+    const headTop = rootY - southFrame.originY + southFrame.anchor[0];
     const pixelDiff = (image, x, y, w, h, reference=base) => {
       const a = reference.getContext('2d').getImageData(x, y, w, h).data;
       const b = image.getContext('2d').getImageData(x, y, w, h).data;
       return a.reduce((n, value, i) => n + Math.abs(value - b[i]), 0);
     };
-    const tone = aligned(npcFrame({ ...look, skin: 4, key: 'tone-sample' }, south));
-    const clothReference=aligned(npcFrame({...look,combo:6,key:'cloth-reference'},south));
-    const cloth = aligned(npcFrame({ ...look,combo:6,cloth: '#5592ba', key: 'cloth-sample' }, south));
-    const walkSources = Array.from({ length: 8 }, (_, sample) => npcFrame(look, { ...south, frame: sample * (count / 8) }));
+    const tone = aligned(await readyPose({ ...look, skin: 4, key: 'tone-sample' }, south));
+    const clothReference=aligned(await readyPose(tunic,south));
+    const cloth = aligned(await readyPose({ ...tunic,cloth: '#5592ba', key: 'cloth-sample' }, south));
+    const walkSources = [];
+    for(let sample=0;sample<8;sample++)walkSources.push(await readyPose(look,{...south,frame:sample*(count/8)}));
     const walkFrames = walkSources.map(image => aligned(image).toDataURL());
     const materialY = 24 + size * 2;
     strip.drawImage(base, 0, materialY); strip.drawImage(tone, size, materialY); strip.drawImage(cloth, size * 2, materialY);
-    strip.drawImage(aligned(npcFrame(guide.npcLook, south)), size * 3, materialY);
+    strip.drawImage(aligned(await readyPose(guide.npcLook, south)), size * 3, materialY);
     const side = frames[6];
     // Use the same actor's fitted tunic to measure the boot sole. Odalys's
     // running robe can extend below the boot in this projection.
-    const runLook = { ...look, combo:6, key:'cloth-reference' };
-    const runs = Array.from({ length: count }, (_, frame) => npcFrame(runLook, { ...side, row: 5, frame }));
+    const runs = [];
+    for(let frame=0;frame<count;frame++)runs.push(await readyPose(tunic,{...side,row:5,frame}));
     const headWidths = runs.map(image => image.anchor[2]);
     // Pair each airborne image with the next landing to compare the same lead foot.
     const runGait=ActorRig.gait(true,actor.gaitProfile);
@@ -138,7 +148,6 @@ test('directional NPCs walk, differ in appearance, and turn to the player', asyn
     for (const [i, frame] of [grounded[0],airborne[0],grounded[1],airborne[1]].entries()) {
       strip.drawImage(aligned(runs[frame]), i * size, 24 + size * 3);
     }
-    const headTop = rootY - southFrame.originY + southFrame.anchor[0];
     const skinDelta = pixelDiff(tone, 0, headTop, size, 15);
     const clothDelta = pixelDiff(cloth, 0, headTop + 17, size, 22,clothReference);
     const bootTop = rootY - 12;
@@ -171,7 +180,7 @@ test('directional NPCs walk, differ in appearance, and turn to the player', asyn
     // Walk all active frames in eight independently projected headings so pixel-cache
     // saturation does not depend on which NPCs happened to animate beforehand.
     for (let source = 0; source < 8; source++) for (let frame = 0; frame < count; frame++)
-      npcFrame({ ...look, key: 'eviction-sample-' + source + '-' + frame }, { row: 0, frame, source });
+      await readyPose({ ...look, key: 'eviction-sample-' + source + '-' + frame }, { row: 0, frame, source });
     document.body.append(sheet);
     sheet.id = 'npc-visual-evidence';
     return { directions: frames.map(({direction,row,source,flip})=>[direction,row,source,flip]), painted: new Set(views).size,
@@ -206,7 +215,7 @@ test('directional NPCs walk, differ in appearance, and turn to the player', asyn
   expect(sprites.guideName).toBe('Tamsin');
   expect(sprites.guideLook).not.toEqual(sprites.odalys);
   await screenshot(page, info, 'npc-directions-and-materials');
-  await frame.evaluate(() => { document.querySelector('#npc-visual-evidence').remove(); Scene.guideOff(); });
+  await frame.evaluate(() => { document.querySelector('#npc-visual-evidence').remove(); Scene.guideOff(); Scene.resume(); });
 
   const staff = await frame.evaluate(() => {
     const e = Scene.find(a => a.kind === 'npc' && a.r === 1 && a.i === 0), { map, npcPose } = Scene.debug();
