@@ -21,7 +21,12 @@ function readyLiveAction(beginner){
   const hurt=beginner?hp<=maxHp-30:hp<maxHp*.7;
   const low=mana<attack.mana||stamina<(attack.stamina||0);
   const choice=hurt&&supply.eligible?supply:low&&recover.eligible?recover:attack;
-  return choice.ready?{action:choice.id,resources:view.resources,target:view.target}:false;
+  if(!choice.ready)return false;
+  // The real action bar renders on its own cadence after recovery reaches 0.
+  // Wait for its enabled state too; observing the model must not bypass ARIA.
+  const button=document.querySelector(`#combat-bar [data-a=combatbegin][data-id="${choice.id}"]`);
+  if(!button||button.disabled||button.getAttribute('aria-disabled')==='true')return false;
+  return {action:choice.id,resources:view.resources,target:view.target};
 }
 async function liveFight(f,stats,answer,limit=60){
   await dismiss(f);
@@ -36,16 +41,18 @@ async function liveFight(f,stats,answer,limit=60){
     if(state.over)break;
     if(!state.prompt){
       const deadline=Date.now()+15000;
-      let choice,prepared=false;
+      let choice,prepared=false;const attempts=[];
       try{
-        for(let attempt=0;attempt<3&&Date.now()<deadline;attempt++){
+        while(Date.now()<deadline){
           const handle=await f.waitForFunction(readyLiveAction,!!answer,{timeout:Math.max(1,deadline-Date.now())});
           choice=await handle.jsonValue();await handle.dispose();
           if(choice.over)break;
           if(choice.dead)throw Error('Dungeon traversal character died');
           const button=f.locator(`#combat-bar [data-a=combatbegin][data-id="${choice.action}"]`);
           // Re-read if an enemy hit invalidates this choice before the click.
-          if(!await button.isEnabled()||!await f.evaluate(id=>__bw.Combat.descriptor(id)?.ready,choice.action))continue;
+          const enabled=await button.isEnabled(),ready=await f.evaluate(id=>__bw.Combat.descriptor(id)?.ready,choice.action);
+          attempts.push({elapsed:15000-(deadline-Date.now()),action:choice.action,enabled,ready});
+          if(!enabled||!ready)continue;
           await button.click({timeout:Math.max(1,deadline-Date.now())});
           prepared=await f.evaluate(()=>!!__bw.F?.live&&__bw.F.st==='prompt');
           if(prepared)break;
@@ -54,13 +61,15 @@ async function liveFight(f,stats,answer,limit=60){
       }catch(error){
         const current=await f.evaluate(id=>{
           const view=__bw.Combat.snapshot(),fight=__bw.F;
+          const button=id&&document.querySelector(`#combat-bar [data-a=combatbegin][data-id="${id}"]`);
           return {action:id,descriptor:__bw.Combat.descriptor(id),target:view.target,resources:view.resources,
+            nativeButton:button?{disabled:button.disabled,ariaDisabled:button.getAttribute('aria-disabled'),hidden:!!button.closest('[hidden]'),title:button.title}:null,
             recovery:view.recovery,worldPaused:view.worldPaused,actions:view.actions,
             fight:fight?{id:fight.ent?.id,state:fight.st,live:fight.live,busy:fight.busy,over:fight.over}:null,
             activities:{query:!!__bw.Q,duel:!!__bw.DU,spar:!!__bw.SB},
             panels:Object.fromEntries(['fight','sheet','say','enc','coach'].map(id=>[id,!document.getElementById(id).hidden]))};
         },choice?.action||null);
-        throw new Error('Live dungeon readiness stalled: '+JSON.stringify({before:state,choice,current}),{cause:error});
+        throw new Error('Live dungeon readiness stalled: '+JSON.stringify({before:state,choice,attemptCount:attempts.length,attempts:attempts.slice(-8),current}),{cause:error});
       }
       if(await f.evaluate(()=>!!__bw.F?.over))break;
     }
