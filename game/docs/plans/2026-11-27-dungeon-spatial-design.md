@@ -1,6 +1,6 @@
 # Dungeon spatial redesign
 
-Status: implemented, integrated and locally verified; combined exact-commit verification/release owned by Discuss iPhone landscape mode. No independent dungeon publication.
+Status: complete; integrated, published and verified at `32d5942` on 2026-11-28 UTC under the sole coordinated UI/gameplay/dungeon release. [Release history](../RELEASE_HISTORY.md#landscape-techniques-live-combat-and-dungeon-redesign) owns exact verification and limitations.
 
 ## Scope and acceptance
 
@@ -24,7 +24,7 @@ Each floor must have connected dry terrain, reachable interactions with optional
 - [x] Meaningful all-floor geometry/progression/migration regression checks; retain reward/story/starter contracts.
 - [x] Build isolated output; actual phone 390x720, landscape 844x390 and desktop captures opened; focused browser integration/navigation checks.
 - [x] Reconcile owning docs, inspect diff, commit intended files and hand off integration contract/results.
-- [ ] Combined full exact-commit verification/publication and release closure by coordinator.
+- [x] Combined full exact-commit verification/publication and release closure by coordinator.
 
 ## Validation and evidence
 
@@ -38,6 +38,10 @@ Develop with Node floor/compiler, dungeon progress/play and architecture checks.
 - All-floor real Scene opaque/solid/door regression passed phone Chromium, phone WebKit and desktop Chromium (3/3).
 - Existing phone Chromium flows passed legacy account migration, five-character local/cloud save capacity, dungeon death/reload recovery and the complete three-floor Bilge component scenario with real controls/SQL/seals/keeper/vault/story table/reload/return (4/4). These are explicitly prepared component positions, not a newly earned complete expedition.
 - Additional real legacy-layout account reload/corpse relocation regression passed phone Chromium, phone WebKit and desktop Chromium (3/3), retaining gold, bank, opened gate, read note, seal, keeper/claim and live corpse loot while resetting stale discovery and relocating to the same-floor landing.
-- Full integrated exact-commit CI, combined new combat/UI traversal, hosted identity/hash and publication remain the coordinator's responsibility. No independent main push or release. Landscape captures use the existing baseline UI and do not approve the final combined landscape layout. No real iPhone, subjective combat balance or full earned campaign claim.
+- Combined exact-commit full verification, publication and hosted identity/hash are complete under the coordinator. Earlier isolated captures used baseline UI; the final combined UI/camera/combat checks and opened hosted landscape captures belong to the closed coordinated plan. Prepared component checks still do not establish a newly earned complete expedition or physical iPhone validation.
 
-Integration notes: load `dungeon_layouts.js` immediately before `dungeons.js` (included build.js edit). In the coordinator/gameplay-owned scene_b.js, replace rectangular room-label lookup with `Dungeons.roomAt(map.layout,P.x,P.y)`. Consume `map.opaque || map.solid` for corner-safe sight/fire and movement `solid` plus occupancy for routing. The battlefield adapter and new UI remain owned by their respective chats. Local captures/records are under ignored `work/captures/`.
+Integrated contracts: build.js loads dungeon_layouts.js immediately before dungeons.js. Scene uses Dungeons.roomAt(map.layout,P.x,P.y) for irregular-room labels, map.opaque || map.solid for corner-safe sight/fire, and solid plus occupancy for routing. Gameplay and UI adapters were integrated by their respective owners. Local captures/records under ignored work/ remain supplementary.
+
+## Release closure
+
+All 28 floor components, geometry/migration contracts and their combined live-combat/UI integration are covered by the coordinator's verified `32d5942` release. [Release history](../RELEASE_HISTORY.md#landscape-techniques-live-combat-and-dungeon-redesign) records exact source/Actions/hash, full required checks and hosted evidence. No complete newly earned 28-floor expedition, human balance judgment or physical iPhone test is claimed.

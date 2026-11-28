@@ -1,6 +1,6 @@
 # Live spatial combat and learned Techniques
 
-Status: implementation, integration and focused verification complete; combined exact-commit verification and hosted release pending. Classification: complex because live action timing replaces the shared exchange contract and learned knowledge/four ordered slots require persistent migration.
+Status: complete; integrated, published and verified at `32d5942` on 2026-11-28 UTC. [Release history](../RELEASE_HISTORY.md#landscape-techniques-live-combat-and-dungeon-redesign) records the sole coordinated release. Classification remains complex because live timing changes the shared combat contract and learned knowledge/four ordered slots require compatible persistent migration.
 
 Casey authorized the full build on 2026-11-27. The landscape/UI chat owns presentation, combined integration, authoritative full verification and sole publication. This branch owns gameplay and focused evidence. Dungeon floor redesign is independent and owned by the dungeon chat.
 
@@ -34,9 +34,9 @@ Casey authorized the full build on 2026-11-27. The landscape/UI chat owns presen
 - [x] Actual browser integration evidence: native movement/recovery, actual SQL/actions/HP/mana, enemy LOS/ranged/chase, learned/equipped persistence and ordinary dojo completion. Open phone/desktop captures.
 - [x] Gameplay diff/master-doc review, focused checks and implementation checkpoints supplied to the UI/release coordinator.
 - [x] Complete owned migrated combat-consumer evidence and supply final test checkpoints.
-- [ ] Combined exact-commit full gate/publication. The coordinator owns release; do not call this released before exact commit/hash/hosted evidence exists.
+- [x] Combined exact-commit full gate/publication, hosted identity/hash and release closure completed by the coordinator.
 
-## Acceptance and evidence
+## Historical focused acceptance and evidence
 
 Four ordered slots remain stable across reload/skill changes; no cross-character knowledge leakage. SQL offsets remain opponent-relative at every technique tier including VIII→IX/X. Timers/aggro/projectiles do not advance during SQL or hidden time; moving melee never loses stored progress; archery is slower moving. Enemies cannot see/shoot through solid corners, can attack at range and navigate/chase appropriately, and can be escaped without Flee. Wrong SQL spends the action, free first syntax repair does not duplicate costs, no action switching clears hint penalties. Each technique effect is functional and rare control cannot permanently lock enemies. Earned rewards/death/dungeon progression and craft/covert systems remain valid.
 
@@ -66,10 +66,14 @@ Boundary follow-up: strengthened rare-cancel capture now checks exact paused win
 
 Backstab consumer migration retains all twelve cases. Seven changed/previously failing phone-Chromium diagnoses pass individually against frozen0f4d24e (six in the focused run, then the final shown-kill corpse-result capture). These include new-character h1-only/no-Arms native two-thrust Run, actual no-hint Help, wrong/shown/depleted practice/credit/resource protections, wounded Examiner card/authored next-phase/no early reward, and full native keeper escape/return. Earlier diagnostic run passed unchanged armor-odds, wrong-result, Council gate and distinct-owner cases. The route driver receives all real cells; no timeout/retry increases. Native target selection has no programmatic fallback. Phone390×720 and desktop1280×800 captures were actually opened. Full exact-source profile verification remains with coordinator CI; no physical iPhone claim.
 
-Gameplay branch work is complete and handed off for combined integration. Final deployment status remains pending with the sole UI/release coordinator; this plan is deliberately open until exact commit/Actions/published HTML hash and hosted checks are recorded.
+Gameplay integration and the combined publishing gate are complete. [Release history](../RELEASE_HISTORY.md#landscape-techniques-live-combat-and-dungeon-redesign) records the exact source/Actions/HTML identity and public verification; the focused notes below remain historical evidence.
 
-## Failed-release consumer follow-up (2026-11-27)
+## Historical failed-release consumer follow-up (2026-11-27)
 
 The combined e890934 release gate failed and publication remains blocked. A bounded simple follow-up starts from exact e890934 in codex/live-combat-consumers; only live-combat.js, learning-boundaries.js and music.js consumers change. The real-victory fixture now uses an eligible carrying b104 enemy rather than expecting gold from a beast, preserving actual kill/loot/gold/aggression assertions. Recover uses the finite action bar, rejects full resources through both UI eligibility and the authoritative API, submits real SQL and verifies exact12-stamina restoration at full mana, RPG practice, one query credit, SQL practice and visible gain details. A synchronous pass-through observer measures the native Run commitment before passive regeneration; it restores the original handler and substitutes no outcome. Music begins actual ready normal/Examiner actions, preserving every playback/context/crossfade/cache/mute/reload assertion.
 
 Actual focused checks: all three affected cases passed on phone Chromium, phone WebKit and desktop Chromium (9/9 individual case/profile checks) against immutable integration-snapshot-e890934, commit e890934e90972d162fb0ee2bcb271be90da9f54d, HTML7633e309c7dd5a4bba3a21d0b022389b9dd47456029c0a151bb7a79933deccb6. First phone diagnostic passed victory/music; Recover itself succeeded but its click observer missed the keyboard pointerdown, then its corrected single-case rerun passed. Only the remaining six affected profile executions followed; no full suite or unchanged phone replay. Syntax checks for all three files and git diff --check passed. Actual390×720 and1280×800 music settings captures were opened. No runtime changes, deleted cases/assertions, raised deadlines, retries or release-gate changes. Combined exact-source CI/hosted publication remains solely with the coordinator.
+
+## Release closure
+
+Closed under the coordinator's verified `32d5942` release: full required core/browser gate, publication, six hosted flows and independent landscape/identity checks passed. Canonical evidence and real-device/session/campaign limits are in [release history](../RELEASE_HISTORY.md#landscape-techniques-live-combat-and-dungeon-redesign); no independent gameplay publication or documentation-only redeployment.
