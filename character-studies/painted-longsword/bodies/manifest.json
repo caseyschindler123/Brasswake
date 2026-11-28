@@ -1,0 +1,1840 @@
+{
+  "version": 1,
+  "canvas": [
+    240,
+    256
+  ],
+  "root": [
+    120,
+    227
+  ],
+  "nominalHeight": 205.5,
+  "looks": {
+    "tunic": {
+      "S": {
+        "run": [
+          {
+            "file": "tunic/S/run-0.png",
+            "palm": [
+              99.68,
+              138.93
+            ],
+            "axis": [
+              -0.4392,
+              -0.8984
+            ],
+            "depth": "front",
+            "source": "armed-run-tunic.png",
+            "crop": [
+              69,
+              76,
+              200,
+              335
+            ],
+            "sourceOrigin": [
+              137.0,
+              324.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "tunic/S/run-0-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "tunic/S/run-1.png",
+            "palm": [
+              115.48,
+              131.4
+            ],
+            "axis": [
+              -0.4392,
+              -0.8984
+            ],
+            "depth": "front",
+            "source": "armed-run-tunic.png",
+            "crop": [
+              339,
+              78,
+              471,
+              336
+            ],
+            "sourceOrigin": [
+              407.0,
+              324.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "tunic/S/run-1-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "tunic/S/run-2.png",
+            "palm": [
+              114.73,
+              125.38
+            ],
+            "axis": [
+              -0.4392,
+              -0.8984
+            ],
+            "depth": "front",
+            "source": "armed-run-tunic.png",
+            "crop": [
+              614,
+              75,
+              744,
+              330
+            ],
+            "sourceOrigin": [
+              680.0,
+              324.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "tunic/S/run-2-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "tunic/S/run-3.png",
+            "palm": [
+              115.48,
+              138.18
+            ],
+            "axis": [
+              -0.4392,
+              -0.8984
+            ],
+            "depth": "front",
+            "source": "armed-run-tunic.png",
+            "crop": [
+              882,
+              76,
+              1013,
+              341
+            ],
+            "sourceOrigin": [
+              950.0,
+              324.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "tunic/S/run-3-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "tunic/S/run-4.png",
+            "palm": [
+              89.89,
+              155.49
+            ],
+            "axis": [
+              -0.4392,
+              -0.8984
+            ],
+            "depth": "front",
+            "source": "armed-run-tunic.png",
+            "crop": [
+              1153,
+              88,
+              1287,
+              335
+            ],
+            "sourceOrigin": [
+              1221.0,
+              324.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "tunic/S/run-4-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "tunic/S/run-5.png",
+            "palm": [
+              75.59,
+              132.91
+            ],
+            "axis": [
+              -0.4392,
+              -0.8984
+            ],
+            "depth": "front",
+            "source": "armed-run-tunic.png",
+            "crop": [
+              1421,
+              86,
+              1556,
+              339
+            ],
+            "sourceOrigin": [
+              1494.0,
+              324.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "tunic/S/run-5-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "tunic/S/run-6.png",
+            "palm": [
+              76.34,
+              113.34
+            ],
+            "axis": [
+              -0.4392,
+              -0.8984
+            ],
+            "depth": "front",
+            "source": "armed-run-tunic.png",
+            "crop": [
+              1694,
+              81,
+              1827,
+              329
+            ],
+            "sourceOrigin": [
+              1764.0,
+              324.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "tunic/S/run-6-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "tunic/S/run-7.png",
+            "palm": [
+              77.85,
+              129.9
+            ],
+            "axis": [
+              -0.4392,
+              -0.8984
+            ],
+            "depth": "front",
+            "source": "armed-run-tunic.png",
+            "crop": [
+              1971,
+              84,
+              2100,
+              341
+            ],
+            "sourceOrigin": [
+              2041.0,
+              324.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "tunic/S/run-7-fingers.png",
+            "status": "painted"
+          }
+        ],
+        "cut": [
+          {
+            "file": "tunic/S/cut-0.png",
+            "palm": [
+              91.63,
+              148.47
+            ],
+            "axis": [
+              -0.6112,
+              0.7915
+            ],
+            "depth": "front",
+            "source": "cut-tunic.png",
+            "crop": [
+              75,
+              41,
+              222,
+              333
+            ],
+            "sourceOrigin": [
+              147.79,
+              323.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "tunic/S/cut-0-fingers.png",
+            "status": "painted",
+            "plant": [
+              86.0,
+              232.0
+            ]
+          },
+          {
+            "file": "tunic/S/cut-1.png",
+            "palm": [
+              89.98,
+              71.58
+            ],
+            "axis": [
+              -0.6392,
+              -0.769
+            ],
+            "depth": "front",
+            "source": "cut-tunic.png",
+            "crop": [
+              329,
+              40,
+              491,
+              333
+            ],
+            "sourceOrigin": [
+              418.29,
+              323.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "tunic/S/cut-1-fingers.png",
+            "status": "painted",
+            "plant": [
+              86.0,
+              232.0
+            ]
+          },
+          {
+            "file": "tunic/S/cut-2.png",
+            "palm": [
+              90.31,
+              43.07
+            ],
+            "axis": [
+              -0.14,
+              -0.9901
+            ],
+            "depth": "front",
+            "source": "cut-tunic.png",
+            "crop": [
+              597,
+              36,
+              767,
+              333
+            ],
+            "sourceOrigin": [
+              690.79,
+              323.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "tunic/S/cut-2-fingers.png",
+            "status": "painted",
+            "plant": [
+              86.0,
+              232.0
+            ]
+          },
+          {
+            "file": "tunic/S/cut-3.png",
+            "palm": [
+              98.59,
+              84.17
+            ],
+            "axis": [
+              0.7317,
+              -0.6816
+            ],
+            "depth": "front",
+            "source": "cut-tunic.png",
+            "crop": [
+              874,
+              36,
+              1047,
+              333
+            ],
+            "sourceOrigin": [
+              961.29,
+              323.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "tunic/S/cut-3-fingers.png",
+            "status": "painted",
+            "plant": [
+              86.0,
+              232.0
+            ]
+          },
+          {
+            "file": "tunic/S/cut-4.png",
+            "palm": [
+              138.37,
+              136.54
+            ],
+            "axis": [
+              0.8779,
+              0.4789
+            ],
+            "depth": "front",
+            "source": "cut-tunic.png",
+            "crop": [
+              1165,
+              45,
+              1315,
+              333
+            ],
+            "sourceOrigin": [
+              1232.29,
+              323.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "tunic/S/cut-4-fingers.png",
+            "status": "painted",
+            "plant": [
+              86.0,
+              232.0
+            ]
+          },
+          {
+            "file": "tunic/S/cut-5.png",
+            "palm": [
+              130.08,
+              171.68
+            ],
+            "axis": [
+              0.4789,
+              0.8779
+            ],
+            "depth": "front",
+            "source": "cut-tunic.png",
+            "crop": [
+              1436,
+              55,
+              1581,
+              333
+            ],
+            "sourceOrigin": [
+              1502.79,
+              323.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "tunic/S/cut-5-fingers.png",
+            "status": "painted",
+            "plant": [
+              86.0,
+              232.0
+            ]
+          },
+          {
+            "file": "tunic/S/cut-6.png",
+            "palm": [
+              80.37,
+              129.91
+            ],
+            "axis": [
+              -0.1498,
+              0.9887
+            ],
+            "depth": "front",
+            "source": "cut-tunic.png",
+            "crop": [
+              1684,
+              39,
+              1858,
+              333
+            ],
+            "sourceOrigin": [
+              1774.79,
+              323.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "tunic/S/cut-6-fingers.png",
+            "status": "painted",
+            "plant": [
+              86.0,
+              232.0
+            ]
+          },
+          {
+            "file": "tunic/S/cut-7.png",
+            "palm": [
+              93.62,
+              149.14
+            ],
+            "axis": [
+              -0.6112,
+              0.7915
+            ],
+            "depth": "front",
+            "source": "cut-tunic.png",
+            "crop": [
+              1968,
+              39,
+              2118,
+              333
+            ],
+            "sourceOrigin": [
+              2046.79,
+              323.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "tunic/S/cut-7-fingers.png",
+            "status": "painted",
+            "plant": [
+              86.0,
+              232.0
+            ]
+          }
+        ]
+      },
+      "E": {
+        "run": [
+          {
+            "file": "tunic/E/run-0.png",
+            "palm": [
+              161.4,
+              129.14
+            ],
+            "axis": [
+              0.9207,
+              -0.3903
+            ],
+            "depth": "front",
+            "source": "armed-run-tunic.png",
+            "crop": [
+              51,
+              384,
+              191,
+              667
+            ],
+            "sourceOrigin": [
+              116.0,
+              652.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "tunic/E/run-0-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "tunic/E/run-1.png",
+            "palm": [
+              171.94,
+              99.03
+            ],
+            "axis": [
+              0.9207,
+              -0.3903
+            ],
+            "depth": "front",
+            "source": "armed-run-tunic.png",
+            "crop": [
+              294,
+              379,
+              475,
+              664
+            ],
+            "sourceOrigin": [
+              391.0,
+              652.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "tunic/E/run-1-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "tunic/E/run-2.png",
+            "palm": [
+              183.98,
+              94.52
+            ],
+            "axis": [
+              0.9207,
+              -0.3903
+            ],
+            "depth": "front",
+            "source": "armed-run-tunic.png",
+            "crop": [
+              552,
+              376,
+              781,
+              644
+            ],
+            "sourceOrigin": [
+              660.0,
+              652.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "tunic/E/run-2-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "tunic/E/run-3.png",
+            "palm": [
+              166.67,
+              116.35
+            ],
+            "axis": [
+              0.9207,
+              -0.3903
+            ],
+            "depth": "front",
+            "source": "armed-run-tunic.png",
+            "crop": [
+              842,
+              380,
+              1046,
+              656
+            ],
+            "sourceOrigin": [
+              947.0,
+              652.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "tunic/E/run-3-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "tunic/E/run-4.png",
+            "palm": [
+              153.12,
+              141.19
+            ],
+            "axis": [
+              0.9207,
+              -0.3903
+            ],
+            "depth": "front",
+            "source": "armed-run-tunic.png",
+            "crop": [
+              1136,
+              390,
+              1276,
+              663
+            ],
+            "sourceOrigin": [
+              1201.0,
+              652.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "tunic/E/run-4-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "tunic/E/run-5.png",
+            "palm": [
+              138.82,
+              134.41
+            ],
+            "axis": [
+              0.9207,
+              -0.3903
+            ],
+            "depth": "front",
+            "source": "armed-run-tunic.png",
+            "crop": [
+              1369,
+              387,
+              1566,
+              661
+            ],
+            "sourceOrigin": [
+              1476.0,
+              652.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "tunic/E/run-5-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "tunic/E/run-6.png",
+            "palm": [
+              138.82,
+              127.64
+            ],
+            "axis": [
+              0.9207,
+              -0.3903
+            ],
+            "depth": "front",
+            "source": "armed-run-tunic.png",
+            "crop": [
+              1636,
+              384,
+              1875,
+              657
+            ],
+            "sourceOrigin": [
+              1745.0,
+              652.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "tunic/E/run-6-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "tunic/E/run-7.png",
+            "palm": [
+              143.34,
+              135.16
+            ],
+            "axis": [
+              0.9207,
+              -0.3903
+            ],
+            "depth": "front",
+            "source": "armed-run-tunic.png",
+            "crop": [
+              1933,
+              388,
+              2115,
+              661
+            ],
+            "sourceOrigin": [
+              2027.0,
+              652.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "tunic/E/run-7-fingers.png",
+            "status": "painted"
+          }
+        ],
+        "cut": [
+          {
+            "file": "tunic/E/cut-0.png",
+            "palm": [
+              123.56,
+              138.53
+            ],
+            "axis": [
+              0.8884,
+              0.4592
+            ],
+            "depth": "front",
+            "source": "cut-tunic.png",
+            "crop": [
+              77,
+              392,
+              190,
+              702
+            ],
+            "sourceOrigin": [
+              133.636,
+              692.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "tunic/E/cut-0-fingers.png",
+            "status": "painted",
+            "plant": [
+              104.0,
+              232.0
+            ]
+          },
+          {
+            "file": "tunic/E/cut-1.png",
+            "palm": [
+              114.94,
+              71.58
+            ],
+            "axis": [
+              -0.76,
+              -0.65
+            ],
+            "depth": "front",
+            "source": "cut-tunic.png",
+            "crop": [
+              346,
+              391,
+              465,
+              702
+            ],
+            "sourceOrigin": [
+              407.636,
+              692.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "tunic/E/cut-1-fingers.png",
+            "status": "painted",
+            "plant": [
+              104.0,
+              232.0
+            ]
+          },
+          {
+            "file": "tunic/E/cut-2.png",
+            "palm": [
+              107.98,
+              33.13
+            ],
+            "axis": [
+              0.2307,
+              -0.973
+            ],
+            "depth": "front",
+            "source": "cut-tunic.png",
+            "crop": [
+              616,
+              386,
+              737,
+              702
+            ],
+            "sourceOrigin": [
+              679.136,
+              691.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "tunic/E/cut-2-fingers.png",
+            "status": "painted",
+            "plant": [
+              104.0,
+              232.0
+            ]
+          },
+          {
+            "file": "tunic/E/cut-3.png",
+            "palm": [
+              160.68,
+              67.6
+            ],
+            "axis": [
+              0.9798,
+              -0.2
+            ],
+            "depth": "front",
+            "source": "cut-tunic.png",
+            "crop": [
+              893,
+              392,
+              1019,
+              702
+            ],
+            "sourceOrigin": [
+              950.636,
+              692.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "tunic/E/cut-3-fingers.png",
+            "status": "painted",
+            "plant": [
+              104.0,
+              232.0
+            ]
+          },
+          {
+            "file": "tunic/E/cut-4.png",
+            "palm": [
+              159.35,
+              119.31
+            ],
+            "axis": [
+              0.769,
+              0.6392
+            ],
+            "depth": "front",
+            "source": "cut-tunic.png",
+            "crop": [
+              1161,
+              399,
+              1286,
+              702
+            ],
+            "sourceOrigin": [
+              1221.636,
+              692.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "tunic/E/cut-4-fingers.png",
+            "status": "painted",
+            "plant": [
+              104.0,
+              232.0
+            ]
+          },
+          {
+            "file": "tunic/E/cut-5.png",
+            "palm": [
+              146.43,
+              154.44
+            ],
+            "axis": [
+              0.4512,
+              0.8924
+            ],
+            "depth": "front",
+            "source": "cut-tunic.png",
+            "crop": [
+              1423,
+              410,
+              1552,
+              702
+            ],
+            "sourceOrigin": [
+              1493.136,
+              692.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "tunic/E/cut-5-fingers.png",
+            "status": "painted",
+            "plant": [
+              104.0,
+              232.0
+            ]
+          },
+          {
+            "file": "tunic/E/cut-6.png",
+            "palm": [
+              122.89,
+              119.31
+            ],
+            "axis": [
+              0.6112,
+              0.7915
+            ],
+            "depth": "front",
+            "source": "cut-tunic.png",
+            "crop": [
+              1700,
+              393,
+              1823,
+              702
+            ],
+            "sourceOrigin": [
+              1764.636,
+              692.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "tunic/E/cut-6-fingers.png",
+            "status": "painted",
+            "plant": [
+              104.0,
+              232.0
+            ]
+          },
+          {
+            "file": "tunic/E/cut-7.png",
+            "palm": [
+              127.86,
+              136.54
+            ],
+            "axis": [
+              0.8884,
+              0.4592
+            ],
+            "depth": "front",
+            "source": "cut-tunic.png",
+            "crop": [
+              1978,
+              393,
+              2092,
+              702
+            ],
+            "sourceOrigin": [
+              2035.136,
+              692.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "tunic/E/cut-7-fingers.png",
+            "status": "painted",
+            "plant": [
+              104.0,
+              232.0
+            ]
+          }
+        ]
+      }
+    },
+    "plate": {
+      "S": {
+        "run": [
+          {
+            "file": "plate/S/run-0.png",
+            "palm": [
+              101.18,
+              138.18
+            ],
+            "axis": [
+              -0.4392,
+              -0.8984
+            ],
+            "depth": "front",
+            "source": "armed-run-plate.png",
+            "crop": [
+              62,
+              75,
+              205,
+              339
+            ],
+            "sourceOrigin": [
+              137.0,
+              324.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "plate/S/run-0-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "plate/S/run-1.png",
+            "palm": [
+              115.48,
+              132.15
+            ],
+            "axis": [
+              -0.4392,
+              -0.8984
+            ],
+            "depth": "front",
+            "source": "armed-run-plate.png",
+            "crop": [
+              333,
+              78,
+              475,
+              341
+            ],
+            "sourceOrigin": [
+              407.0,
+              324.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "plate/S/run-1-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "plate/S/run-2.png",
+            "palm": [
+              116.24,
+              126.88
+            ],
+            "axis": [
+              -0.4392,
+              -0.8984
+            ],
+            "depth": "front",
+            "source": "armed-run-plate.png",
+            "crop": [
+              608,
+              74,
+              745,
+              334
+            ],
+            "sourceOrigin": [
+              680.0,
+              324.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "plate/S/run-2-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "plate/S/run-3.png",
+            "palm": [
+              113.98,
+              137.42
+            ],
+            "axis": [
+              -0.4392,
+              -0.8984
+            ],
+            "depth": "front",
+            "source": "armed-run-plate.png",
+            "crop": [
+              877,
+              75,
+              1018,
+              346
+            ],
+            "sourceOrigin": [
+              950.0,
+              324.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "plate/S/run-3-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "plate/S/run-4.png",
+            "palm": [
+              89.89,
+              156.99
+            ],
+            "axis": [
+              -0.4392,
+              -0.8984
+            ],
+            "depth": "front",
+            "source": "armed-run-plate.png",
+            "crop": [
+              1149,
+              87,
+              1293,
+              339
+            ],
+            "sourceOrigin": [
+              1221.0,
+              324.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "plate/S/run-4-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "plate/S/run-5.png",
+            "palm": [
+              78.6,
+              135.16
+            ],
+            "axis": [
+              -0.4392,
+              -0.8984
+            ],
+            "depth": "front",
+            "source": "armed-run-plate.png",
+            "crop": [
+              1416,
+              85,
+              1561,
+              344
+            ],
+            "sourceOrigin": [
+              1494.0,
+              324.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "plate/S/run-5-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "plate/S/run-6.png",
+            "palm": [
+              79.35,
+              117.1
+            ],
+            "axis": [
+              -0.4392,
+              -0.8984
+            ],
+            "depth": "front",
+            "source": "armed-run-plate.png",
+            "crop": [
+              1687,
+              80,
+              1835,
+              335
+            ],
+            "sourceOrigin": [
+              1764.0,
+              324.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "plate/S/run-6-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "plate/S/run-7.png",
+            "palm": [
+              80.86,
+              131.4
+            ],
+            "axis": [
+              -0.4392,
+              -0.8984
+            ],
+            "depth": "front",
+            "source": "armed-run-plate.png",
+            "crop": [
+              1964,
+              85,
+              2107,
+              346
+            ],
+            "sourceOrigin": [
+              2041.0,
+              324.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "plate/S/run-7-fingers.png",
+            "status": "painted"
+          }
+        ],
+        "cut": [
+          {
+            "file": "plate/S/cut-0.png",
+            "palm": [
+              89.31,
+              145.82
+            ],
+            "axis": [
+              -0.6112,
+              0.7915
+            ],
+            "depth": "front",
+            "source": "cut-plate.png",
+            "crop": [
+              69,
+              34,
+              226,
+              335
+            ],
+            "sourceOrigin": [
+              146.29,
+              325.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "plate/S/cut-0-fingers.png",
+            "status": "painted",
+            "plant": [
+              86.0,
+              232.0
+            ]
+          },
+          {
+            "file": "plate/S/cut-1.png",
+            "palm": [
+              95.28,
+              67.6
+            ],
+            "axis": [
+              -0.6392,
+              -0.769
+            ],
+            "depth": "front",
+            "source": "cut-plate.png",
+            "crop": [
+              324,
+              36,
+              495,
+              335
+            ],
+            "sourceOrigin": [
+              415.29,
+              325.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "plate/S/cut-1-fingers.png",
+            "status": "painted",
+            "plant": [
+              86.0,
+              232.0
+            ]
+          },
+          {
+            "file": "plate/S/cut-2.png",
+            "palm": [
+              92.96,
+              43.07
+            ],
+            "axis": [
+              -0.14,
+              -0.9901
+            ],
+            "depth": "front",
+            "source": "cut-plate.png",
+            "crop": [
+              593,
+              34,
+              770,
+              335
+            ],
+            "sourceOrigin": [
+              687.79,
+              325.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "plate/S/cut-2-fingers.png",
+            "status": "painted",
+            "plant": [
+              86.0,
+              232.0
+            ]
+          },
+          {
+            "file": "plate/S/cut-3.png",
+            "palm": [
+              102.9,
+              85.5
+            ],
+            "axis": [
+              0.7317,
+              -0.6816
+            ],
+            "depth": "front",
+            "source": "cut-plate.png",
+            "crop": [
+              867,
+              35,
+              1048,
+              335
+            ],
+            "sourceOrigin": [
+              959.79,
+              325.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "plate/S/cut-3-fingers.png",
+            "status": "painted",
+            "plant": [
+              86.0,
+              232.0
+            ]
+          },
+          {
+            "file": "plate/S/cut-4.png",
+            "palm": [
+              138.04,
+              134.55
+            ],
+            "axis": [
+              0.8779,
+              0.4789
+            ],
+            "depth": "front",
+            "source": "cut-plate.png",
+            "crop": [
+              1162,
+              45,
+              1315,
+              335
+            ],
+            "sourceOrigin": [
+              1231.79,
+              325.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "plate/S/cut-4-fingers.png",
+            "status": "painted",
+            "plant": [
+              86.0,
+              232.0
+            ]
+          },
+          {
+            "file": "plate/S/cut-5.png",
+            "palm": [
+              127.1,
+              171.68
+            ],
+            "axis": [
+              0.4789,
+              0.8779
+            ],
+            "depth": "front",
+            "source": "cut-plate.png",
+            "crop": [
+              1431,
+              55,
+              1582,
+              335
+            ],
+            "sourceOrigin": [
+              1504.29,
+              325.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "plate/S/cut-5-fingers.png",
+            "status": "painted",
+            "plant": [
+              86.0,
+              232.0
+            ]
+          },
+          {
+            "file": "plate/S/cut-6.png",
+            "palm": [
+              81.36,
+              130.58
+            ],
+            "axis": [
+              -0.1498,
+              0.9887
+            ],
+            "depth": "front",
+            "source": "cut-plate.png",
+            "crop": [
+              1684,
+              40,
+              1860,
+              335
+            ],
+            "sourceOrigin": [
+              1772.29,
+              325.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "plate/S/cut-6-fingers.png",
+            "status": "painted",
+            "plant": [
+              86.0,
+              232.0
+            ]
+          },
+          {
+            "file": "plate/S/cut-7.png",
+            "palm": [
+              95.61,
+              146.49
+            ],
+            "axis": [
+              -0.6112,
+              0.7915
+            ],
+            "depth": "front",
+            "source": "cut-plate.png",
+            "crop": [
+              1966,
+              40,
+              2122,
+              335
+            ],
+            "sourceOrigin": [
+              2044.79,
+              325.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "plate/S/cut-7-fingers.png",
+            "status": "painted",
+            "plant": [
+              86.0,
+              232.0
+            ]
+          }
+        ]
+      },
+      "E": {
+        "run": [
+          {
+            "file": "plate/E/run-0.png",
+            "palm": [
+              162.15,
+              129.9
+            ],
+            "axis": [
+              0.9207,
+              -0.3903
+            ],
+            "depth": "front",
+            "source": "armed-run-plate.png",
+            "crop": [
+              49,
+              382,
+              193,
+              670
+            ],
+            "sourceOrigin": [
+              116.0,
+              652.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "plate/E/run-0-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "plate/E/run-1.png",
+            "palm": [
+              174.95,
+              99.03
+            ],
+            "axis": [
+              0.9207,
+              -0.3903
+            ],
+            "depth": "front",
+            "source": "armed-run-plate.png",
+            "crop": [
+              291,
+              377,
+              479,
+              667
+            ],
+            "sourceOrigin": [
+              391.0,
+              652.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "plate/E/run-1-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "plate/E/run-2.png",
+            "palm": [
+              182.48,
+              98.28
+            ],
+            "axis": [
+              0.9207,
+              -0.3903
+            ],
+            "depth": "front",
+            "source": "armed-run-plate.png",
+            "crop": [
+              550,
+              375,
+              785,
+              646
+            ],
+            "sourceOrigin": [
+              660.0,
+              652.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "plate/E/run-2-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "plate/E/run-3.png",
+            "palm": [
+              169.68,
+              114.09
+            ],
+            "axis": [
+              0.9207,
+              -0.3903
+            ],
+            "depth": "front",
+            "source": "armed-run-plate.png",
+            "crop": [
+              839,
+              378,
+              1048,
+              658
+            ],
+            "sourceOrigin": [
+              947.0,
+              652.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "plate/E/run-3-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "plate/E/run-4.png",
+            "palm": [
+              151.62,
+              142.69
+            ],
+            "axis": [
+              0.9207,
+              -0.3903
+            ],
+            "depth": "front",
+            "source": "armed-run-plate.png",
+            "crop": [
+              1133,
+              388,
+              1278,
+              667
+            ],
+            "sourceOrigin": [
+              1201.0,
+              652.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "plate/E/run-4-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "plate/E/run-5.png",
+            "palm": [
+              141.08,
+              138.18
+            ],
+            "axis": [
+              0.9207,
+              -0.3903
+            ],
+            "depth": "front",
+            "source": "armed-run-plate.png",
+            "crop": [
+              1364,
+              385,
+              1568,
+              664
+            ],
+            "sourceOrigin": [
+              1476.0,
+              652.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "plate/E/run-5-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "plate/E/run-6.png",
+            "palm": [
+              138.07,
+              129.9
+            ],
+            "axis": [
+              0.9207,
+              -0.3903
+            ],
+            "depth": "front",
+            "source": "armed-run-plate.png",
+            "crop": [
+              1633,
+              383,
+              1880,
+              660
+            ],
+            "sourceOrigin": [
+              1745.0,
+              652.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "plate/E/run-6-fingers.png",
+            "status": "painted"
+          },
+          {
+            "file": "plate/E/run-7.png",
+            "palm": [
+              143.34,
+              139.68
+            ],
+            "axis": [
+              0.9207,
+              -0.3903
+            ],
+            "depth": "front",
+            "source": "armed-run-plate.png",
+            "crop": [
+              1930,
+              387,
+              2118,
+              665
+            ],
+            "sourceOrigin": [
+              2027.0,
+              652.0
+            ],
+            "scale": 0.752747,
+            "fingerMask": "plate/E/run-7-fingers.png",
+            "status": "painted"
+          }
+        ],
+        "cut": [
+          {
+            "file": "plate/E/cut-0.png",
+            "palm": [
+              117.59,
+              135.88
+            ],
+            "axis": [
+              0.8884,
+              0.4592
+            ],
+            "depth": "front",
+            "source": "cut-plate.png",
+            "crop": [
+              74,
+              392,
+              192,
+              706
+            ],
+            "sourceOrigin": [
+              134.636,
+              696.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "plate/E/cut-0-fingers.png",
+            "status": "painted",
+            "plant": [
+              104.0,
+              232.0
+            ]
+          },
+          {
+            "file": "plate/E/cut-1.png",
+            "palm": [
+              110.3,
+              67.6
+            ],
+            "axis": [
+              -0.76,
+              -0.65
+            ],
+            "depth": "front",
+            "source": "cut-plate.png",
+            "crop": [
+              342,
+              393,
+              467,
+              706
+            ],
+            "sourceOrigin": [
+              408.636,
+              696.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "plate/E/cut-1-fingers.png",
+            "status": "painted",
+            "plant": [
+              104.0,
+              232.0
+            ]
+          },
+          {
+            "file": "plate/E/cut-2.png",
+            "palm": [
+              106.65,
+              31.8
+            ],
+            "axis": [
+              0.2307,
+              -0.973
+            ],
+            "depth": "front",
+            "source": "cut-plate.png",
+            "crop": [
+              611,
+              386,
+              739,
+              706
+            ],
+            "sourceOrigin": [
+              681.136,
+              695.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "plate/E/cut-2-fingers.png",
+            "status": "painted",
+            "plant": [
+              104.0,
+              232.0
+            ]
+          },
+          {
+            "file": "plate/E/cut-3.png",
+            "palm": [
+              159.35,
+              67.6
+            ],
+            "axis": [
+              0.9798,
+              -0.2
+            ],
+            "depth": "front",
+            "source": "cut-plate.png",
+            "crop": [
+              894,
+              392,
+              1021,
+              706
+            ],
+            "sourceOrigin": [
+              954.636,
+              695.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "plate/E/cut-3-fingers.png",
+            "status": "painted",
+            "plant": [
+              104.0,
+              232.0
+            ]
+          },
+          {
+            "file": "plate/E/cut-4.png",
+            "palm": [
+              157.03,
+              117.98
+            ],
+            "axis": [
+              0.769,
+              0.6392
+            ],
+            "depth": "front",
+            "source": "cut-plate.png",
+            "crop": [
+              1163,
+              402,
+              1291,
+              706
+            ],
+            "sourceOrigin": [
+              1224.136,
+              696.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "plate/E/cut-4-fingers.png",
+            "status": "painted",
+            "plant": [
+              104.0,
+              232.0
+            ]
+          },
+          {
+            "file": "plate/E/cut-5.png",
+            "palm": [
+              144.11,
+              152.45
+            ],
+            "axis": [
+              0.4512,
+              0.8924
+            ],
+            "depth": "front",
+            "source": "cut-plate.png",
+            "crop": [
+              1423,
+              411,
+              1553,
+              706
+            ],
+            "sourceOrigin": [
+              1495.636,
+              696.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "plate/E/cut-5-fingers.png",
+            "status": "painted",
+            "plant": [
+              104.0,
+              232.0
+            ]
+          },
+          {
+            "file": "plate/E/cut-6.png",
+            "palm": [
+              121.24,
+              115.99
+            ],
+            "axis": [
+              0.6112,
+              0.7915
+            ],
+            "depth": "front",
+            "source": "cut-plate.png",
+            "crop": [
+              1700,
+              394,
+              1827,
+              706
+            ],
+            "sourceOrigin": [
+              1767.136,
+              696.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "plate/E/cut-6-fingers.png",
+            "status": "painted",
+            "plant": [
+              104.0,
+              232.0
+            ]
+          },
+          {
+            "file": "plate/E/cut-7.png",
+            "palm": [
+              126.21,
+              133.89
+            ],
+            "axis": [
+              0.8884,
+              0.4592
+            ],
+            "depth": "front",
+            "source": "cut-plate.png",
+            "crop": [
+              1977,
+              394,
+              2095,
+              706
+            ],
+            "sourceOrigin": [
+              2038.636,
+              696.457
+            ],
+            "scale": 0.662903,
+            "fingerMask": "plate/E/cut-7-fingers.png",
+            "status": "painted",
+            "plant": [
+              104.0,
+              232.0
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "sourceHashes": {
+    "armed-run-tunic.png": "1e29b158c3ceb18b0babfa544aa9a4e5c98e035932a0592bdfc3ae3bd99e2005",
+    "armed-run-plate.png": "f589d4c983dc608ec0819895b3ea8a86ee1206bb46c86d33ee54097677947367",
+    "cut-tunic.png": "510c3c8ebbbb69782d9c03c7fdaa0570e58f2476810af7fcf9d7b6c46ecf2fc3",
+    "cut-plate.png": "a5fb6bf49e44418f15ce3d8b497d1a8af1c7084f7a22ef2efa26d6fb75de4ac3"
+  }
+}

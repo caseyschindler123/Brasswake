@@ -44,7 +44,7 @@ Missing or loading art must not silently reveal a crude production fallback. Pre
 
 ## People
 
-For new painted movement studies, start with the [approved female side walk and run](PAINTED_MOVEMENT_REFERENCE.md) for the original pose and timing recipe. The [directional movement and equipment guide](PAINTED_DIRECTIONAL_EQUIPMENT.md) extends it to both characters, all eight headings, right-handed sword carry and comparative armor fitting. The tunic and sword-carry studies were accepted in local preview. The full plate set and its frontal inventory drawings are a local review build.
+For new painted movement studies, start with the [approved female side walk and run](PAINTED_MOVEMENT_REFERENCE.md) for the original pose and timing recipe. The [directional movement and equipment guide](PAINTED_DIRECTIONAL_EQUIPMENT.md) extends it to both characters, all eight headings, right-handed sword carry and comparative armor fitting. The tunic and sword-carry studies were accepted in local preview. The full plate set and its frontal inventory drawings are tracked as an offline review build. Open them from any checkout using the [character handoff](../../character-studies/README.md).
 
 The continuous fitted-model replacement is released at `0090c89`. Its earlier assembled-part prototype remains rejected. Shared body measurements drive painted clothing/armor, frontal paper dolls and the elevated game camera. The renderer and motion inputs are offline art tooling; the game displays 2D painted sprites. Source provenance and replay are recorded in the [pipeline guide](../../arttools/PAINTED_CHARACTERS.md).
 

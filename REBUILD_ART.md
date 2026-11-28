@@ -1,6 +1,6 @@
 # Rebuild Brasswake art
 
-The repository owns the game source, packed art, pipeline and master context docs in `game/docs/`. Raw art stays outside the repo and is read-only during rebuilds. Existing art is never regenerated to fix a pipeline defect.
+The repository owns the game source, packed art, pipeline and master context docs in `game/docs/`. This released-game pipeline reads its raw art from an external source archive. The separately tracked [painted character studies](character-studies/README.md) include the authored sheets and offline wardrobe viewer for continuation on another computer. Existing art is never regenerated to fix a pipeline defect.
 
 The commands below verify the art pipeline; they are not the complete release gate or a requirement for every cosmetic edit. Choose current release checks using [05_CODING_WORKFLOW.md](game/docs/05_CODING_WORKFLOW.md). Use the [scope-based implementation](game/docs/plans/2026-11-25-scope-based-testing-and-dev-mode.md) and canonical criteria. A coordinate/anchor change has broader risk than an isolated decorative recolor; retain affected integrity and opened captures.
 

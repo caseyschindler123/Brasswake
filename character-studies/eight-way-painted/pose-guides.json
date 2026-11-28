@@ -1,0 +1,82 @@
+[
+  {
+    "gait": "walk",
+    "duration": 1.0333333015441895,
+    "frameCount": 31,
+    "cadence": 116.1290358306219,
+    "rows": [
+      {
+        "top": 0,
+        "bottom": 341,
+        "originY": 314
+      },
+      {
+        "top": 341,
+        "bottom": 683,
+        "originY": 656
+      },
+      {
+        "top": 683,
+        "bottom": 1024,
+        "originY": 997
+      }
+    ],
+    "scale": 0.889795918367347,
+    "sourceBounds": [
+      178,
+      422
+    ],
+    "rootX": 96,
+    "sourceSha256": "dfb230fc1f942f259dd00281a1186953ad602fc5d69067ce63e24b2aa439736b",
+    "phases": [
+      0,
+      0.125,
+      0.25,
+      0.375,
+      0.5,
+      0.625,
+      0.75,
+      0.875
+    ]
+  },
+  {
+    "gait": "run",
+    "duration": 0.699999988079071,
+    "frameCount": 21,
+    "cadence": 171.42857434798265,
+    "rows": [
+      {
+        "top": 0,
+        "bottom": 341,
+        "originY": 314
+      },
+      {
+        "top": 341,
+        "bottom": 683,
+        "originY": 656
+      },
+      {
+        "top": 683,
+        "bottom": 1024,
+        "originY": 997
+      }
+    ],
+    "scale": 0.897119341563786,
+    "sourceBounds": [
+      175,
+      417
+    ],
+    "rootX": 96,
+    "sourceSha256": "dfb230fc1f942f259dd00281a1186953ad602fc5d69067ce63e24b2aa439736b",
+    "phases": [
+      0,
+      0.125,
+      0.25,
+      0.375,
+      0.5,
+      0.625,
+      0.75,
+      0.875
+    ]
+  }
+]

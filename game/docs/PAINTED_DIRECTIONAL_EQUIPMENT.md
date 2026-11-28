@@ -53,9 +53,9 @@ Draw inventory figures directly from the approved **frontal standing pair** and 
 
 ## Replay and verification
 
-Paths below are relative to the local painted-character-release worktree. The preview folders contain the inputs, scripts and full prompt records. Exact replay uses the saved paintings. Generating again from the same prompts can yield different art.
+The [character handoff](../../character-studies/README.md) is tracked on main and opens directly from a clone. The preview folders contain the saved paintings, inputs, scripts and prompt records. Exact replay uses the saved paintings. Generating again from the same prompts can yield different art.
 
-| Folder under `work/` | Contents |
+| Folder under `character-studies/` | Contents |
 | --- | --- |
 | `simple-female-gaits/`, `paired-side-gaits/` | Original female loops, approved male side sheet, source timing, travel and three-quarter proof |
 | `painted-equipment-proof/` | Female three-quarter run, original male plate side run, corrected gauntlets and sword fit |
@@ -63,11 +63,11 @@ Paths below are relative to the local painted-character-release worktree. The pr
 | `eight-way-carry/` | Both palm coordinates in `sockets.py`, projection and layering in `carry.js`, interactive and GIF reviews |
 | `plate-set-study/` | `layout.py`, `prompts.txt`, saved sheets, registration in `pack.py`, local `wardrobe.html`, and browser checks in `check.cjs` |
 
-For the plate viewer, run `pack.py` with Python, NumPy and Pillow in the populated worktree, then run `node work/plate-set-study/check.cjs` from the worktree root. Open the screenshots and inspect the front, side and rear views with the sword raised and lowered. The browser check exercises all 64 combinations of outfit, gait, heading and sword visibility with both characters on screen. It checks that switching controls while paused preserves phase and that both paper-doll images load. Phone-size Chromium and desktop Chromium were checked. The run and walk GIFs each contain 64 frames, one stride per heading.
+To rebuild both atlases and all three viewers from a clone, run `python character-studies/rebuild.py`. For the plate browser check, install the game browser-test dependencies as described in the handoff and run `node character-studies/plate-set-study/check.cjs` from the repository root. Open the screenshots and inspect the front, side and rear views with the sword raised and lowered. The browser check exercises all 64 combinations of outfit, gait, heading and sword visibility with both characters on screen. It checks that switching controls while paused preserves phase and that both paper-doll images load. Phone-size Chromium and desktop Chromium were checked. The run and walk GIFs each contain 64 frames, one stride per heading.
 
 | Local reference | SHA-256 |
 | --- | --- |
 | Tunic atlas | `108f19e50cf13f7eaacd82e6e5c0bbe9d7f023ea98eaaaaef4638a001a7ddffa` |
-| Direction mapping and timing | `ff83be243dfafaa7cae344ec86bcc04488bd215eb65c72857864af9df4ebed8b` |
+| Direction mapping and timing (tracked LF text) | `c5fe9c49852d0d418a77bbc36456413e391a68e69259018df8a3106b3a18ec0d` |
 | Plate atlas | `945a0f93b837df2e36e8b1f9f0ada5594b9e1bf65e5281c24de4c01d3e00b187` |
 | Frontal plate pair | `1547bf25b1c6a3cd183763bd86a9c686a974a2edcbcd6d8d59de301606478bd4` |

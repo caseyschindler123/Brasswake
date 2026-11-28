@@ -1,0 +1,6 @@
+__pycache__/
+.venv/
+eight-way-carry/run-[0-9]*.png
+eight-way-carry/walk-[0-9]*.png
+plate-set-study/run-[0-9]*.png
+plate-set-study/walk-[0-9]*.png

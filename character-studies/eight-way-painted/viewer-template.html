@@ -1,0 +1,34 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brasswake · Eight-direction movement</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#e8e1d2;color:#383229;font:16px system-ui,sans-serif}main{max-width:490px;padding:16px;margin:auto}h1{font:600 24px Georgia,serif;margin:0 0 14px}canvas{width:100%;height:auto;display:block;background:#e8e1d2}section{display:flex;gap:8px;margin:12px 0}button{font:inherit;border:1px solid #9b907e;background:#f5efe3;color:#383229;border-radius:5px;min-height:42px;padding:6px 14px;cursor:pointer}button[aria-pressed=true]{background:#493e30;color:#fff}nav{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}nav button{padding:4px}button:focus-visible{outline:3px solid #36717c}
+</style>
+<main><h1>Eight-direction movement</h1>
+<canvas width="390" height="280" aria-label="Male and female tunic characters, enlarged and at town scale"></canvas>
+<section aria-label="Gait"><button data-gait="walk" aria-pressed="true">Walk</button><button data-gait="run" aria-pressed="false">Run</button><button id="pause">Pause</button></section>
+<nav aria-label="Facing"><button data-dir="NW">Northwest</button><button data-dir="N">North</button><button data-dir="NE">Northeast</button><button data-dir="W">West</button><span></span><button data-dir="E">East</button><button data-dir="SW">Southwest</button><button data-dir="S">South</button><button data-dir="SE">Southeast</button></nav></main>
+<script>
+const data=__DATA__, atlas=new Image(), street=new Image(), ctx=document.querySelector('canvas').getContext('2d');
+atlas.src='data:image/webp;base64,__ATLAS__';street.src='data:image/jpeg;base64,__STREET__';
+let gait='walk',heading='N',frozen=false,phase=0,elapsed=0,previous;
+function select(dir){heading=dir;document.querySelectorAll('[data-dir]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.dir===heading));}
+select(heading);
+document.querySelector('nav').onclick=e=>{if(e.target.dataset.dir)select(e.target.dataset.dir);};
+document.querySelectorAll('[data-gait]').forEach(b=>b.onclick=()=>{gait=b.dataset.gait;elapsed=0;document.querySelectorAll('[data-gait]').forEach(k=>k.setAttribute('aria-pressed',k===b));});
+document.querySelector('#pause').onclick=e=>{frozen=!frozen;e.target.textContent=frozen?'Play':'Pause';};
+function figure(actor,x,ground,scale){
+ const [idx,mirror]=data.frames[actor+'/'+gait+'/'+heading][phase],c=data.cell;
+ ctx.save();ctx.translate(x,ground);ctx.scale(mirror?-scale:scale,scale);
+ ctx.drawImage(atlas,(idx%16)*c,Math.floor(idx/16)*c,c,c,-c/2,-data.ground,c,c);ctx.restore();
+}
+function paint(t){
+ if(!frozen)elapsed+=previous===undefined?0:Math.min(t-previous,150);
+ previous=t;const delays=data.delays[gait];
+ while(elapsed>=delays[phase]){elapsed-=delays[phase];phase=(phase+1)%8;}
+ ctx.fillStyle='#e8e1d2';ctx.fillRect(0,0,390,280);ctx.drawImage(street,0,166,390,114);
+ figure('man',115,154,1);figure('woman',265,154,1);
+ figure('man',178,265,43/133);figure('woman',244,265,41/126);
+ requestAnimationFrame(paint);
+}
+Promise.all([atlas.decode(),street.decode()]).then(()=>requestAnimationFrame(paint));
+</script></html>

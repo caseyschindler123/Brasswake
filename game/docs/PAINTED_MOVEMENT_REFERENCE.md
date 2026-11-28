@@ -9,11 +9,11 @@ For the subsequent male and female studies, including all eight headings, mirror
 | Input to the painter, in order | What it controlled | How it was made |
 | --- | --- | --- |
 | `side-guide.png` | Camera, joint positions, foot contacts and which arm and leg are nearest the viewer in each phase | Take the exact side row from each of the existing Mixamo Walk and Run pose sheets. Stack walk above run. |
-| `../female-side-stance/approved-woman.png` | Height proportions, face, musculature, hair, clothing and painted finish | Crop the approved front study at `work/painted-female-fit/standard-height-front-study.png` to the woman. The crop was `(375, 52, 670, 851)`, giving 295 × 799 pixels. |
+| `../female-side-stance/approved-woman.png` | Height proportions, face, musculature, hair, clothing and painted finish | Crop the approved front study at `character-studies/painted-female-fit/standard-height-front-study.png` to the woman. The crop was `(375, 52, 670, 851)`, giving 295 × 799 pixels. |
 
 The source sheets came from the `athletic-human-motion` worktree. Its `arttools/painted_locomotion_preview/guides.cjs` sampled the Soldier model's native Walk and Run clips at phases 0/8 through 7/8. The clips last 31/30 s and 21/30 s respectively. The right-facing guide uses heading π/2 and the elevated orthographic world camera. This preserves the visible tops of the shoulders while the nose, chest and belt face along the street. The earlier single-pose female side study was a separate review artifact. The two images in the table were the complete input to this paint pass.
 
-To reconstruct the guide, use the two 1536 × 1024 sheets in `work/painted-locomotion-preview/` in the motion worktree. The crop coordinates below use Pillow's exclusive right and lower bounds.
+To reconstruct the guide, use the two 1536 × 1024 sheets in `character-studies/motion-reference/`. The crop coordinates below use Pillow's exclusive right and lower bounds.
 
 ```python
 board = Image.new("RGB", (1536, 520), "#efe8d8")
@@ -44,14 +44,14 @@ Trimming is only for extraction. Centering each trimmed image independently woul
 
 ## 4. Play the authored poses at the approved timing
 
-The exporter read the delays from the earlier `female-average-walk.gif` and `female-average-run.gif` in the motion worktree's `work/painted-locomotion-preview/` folder. Each row covers one left and one right step. Frame 5 exchanges the lead limbs relative to frame 1. Frame 8 returns directly to frame 1. Playback uses discrete painted poses with no crossfade or synthesized in-betweens.
+The exporter read the delays from the earlier `female-average-walk.gif` and `female-average-run.gif` in the archived `character-studies/motion-reference/` folder. Each row covers one left and one right step. Frame 5 exchanges the lead limbs relative to frame 1. Frame 8 returns directly to frame 1. Playback uses discrete painted poses with no crossfade or synthesized in-betweens.
 
 | Gait | GIF delay for frames 1–8, in milliseconds | Full loop | Approximate steps/min |
 | --- | --- | --- | --- |
 | Walk | 130, 130, 130, 130, 130, 130, 120, 130 | 1.03 s | 117 |
 | Run | 90, 90, 80, 90, 90, 80, 90, 90 | 0.70 s | 171 |
 
-Each preview is a 390 × 284 RGB canvas with background `#e8e1d2`. The enlarged figure has nominal height 148 px and anchor (195, 172). The town figure has nominal height 41 px and anchor (121, 258). Take the street from `work/town-fit-preview/town-e-route.webp`, crop (135, 109, 720, 250), resize to 390 × 94 with Lanczos and paste at (0, 190). Use Segoe UI for the gait label at (12, 9), size 15, color `#383229`, and “Town scale” at (12, 171), size 12, color `#514639`.
+Each preview is a 390 × 284 RGB canvas with background `#e8e1d2`. The enlarged figure has nominal height 148 px and anchor (195, 172). The town figure has nominal height 41 px and anchor (121, 258). Take the street from `character-studies/town-fit-preview/town-e-route.webp`, crop (135, 109, 720, 250), resize to 390 × 94 with Lanczos and paste at (0, 190). Use Segoe UI for the gait label at (12, 9), size 15, color `#383229`, and “Town scale” at (12, 171), size 12, color `#514639`.
 
 For each gait, arrange the eight composited RGB frames in a four-column, two-row contact sheet. Quantize that sheet to 256 colors, then quantize every frame against the same palette with dithering off. This keeps the tunic and street colors stable. Save with Pillow's `loop=0`, `disposal=1` and `optimize=False`, using the per-frame delays above. The exporter reopened each GIF and checked the frame count, size, infinite-loop flag and every delay. It also saved a contact-sheet thumbnail bounded to 800 × 294 for inspection.
 
@@ -63,14 +63,14 @@ For each gait, arrange the eight composited RGB frames in a four-column, two-row
 
 ## Where to find the approved originals
 
-The following are local art-workspace paths. They are outside the tracked documentation. In the `painted-character-release` worktree, most files are in `work/simple-female-gaits/`. Use the saved sheet for an exact re-export with `export.py` (Python, NumPy, SciPy and Pillow). The script resolves its inputs relative to itself and to the sibling `athletic-human-motion` worktree described above. The generation archive basename is `exec-eb9742f5-a06a-411e-89c0-152a0aec5226.png`.
+The [tracked handoff](../../character-studies/README.md) includes the original paintings, approved GIFs, timing clips and portable exporter. For a fresh export of this first study, install SciPy in addition to the standard preview dependencies and run `python character-studies/simple-female-gaits/export.py`. Segoe UI was used for the original labels. Other platforms can use the bundled Pillow font. The generation archive basename was `exec-eb9742f5-a06a-411e-89c0-152a0aec5226.png`.
 
-| File relative to `work/simple-female-gaits/` | SHA-256 |
+| File relative to `character-studies/simple-female-gaits/` | SHA-256 |
 | --- | --- |
 | `side-guide.png` | `ae1e90acfffe16d8590d2a21a46eea218d5ec133d7c79b31117014e767e5664f` |
 | `../female-side-stance/approved-woman.png` | `7b9ec550e1466d56c7e3c89d1447741d220381d4082b2c5862b1a19f7986736f` |
 | `generation.txt` | `34ad9d799afe833f92a7f6e211293337eb43b87d03b9d0813e1e9c3a8def0a36` |
 | `painted-gaits.png` | `e5a88c8cf4e3390101f310947774a4d3ca1ad41edbf374b00c0a8e062649bfc4` |
-| `export.py` | `a96e1323ba00469c6124178365a63fdef8fb9d137e0d9f76d7791c491d6be669` |
+| `export.py` | `7019fba00b40b4b1ad52ae0fc1833aa44b6d851c4c081333b89b3f04560e8b38` |
 | `walk.gif` | `473049529387dd4c03b569c31a61777e65d43f182c2b8f5cbd4b7cf91ccf5d09` |
 | `run.gif` | `6df9cd218522b2678a000da7d1b233007628b5b6d4f3050ae99952f13d9d1eec` |

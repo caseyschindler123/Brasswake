@@ -2,6 +2,8 @@
 
 Mobile SQL-learning RPG.
 
+[Character art handoff for a new computer or chat](character-studies/README.md) · [Eight-direction plate run](character-studies/plate-set-study/plate-run.gif)
+
 [Play Brasswake](https://caseyschindler123.github.io/Brasswake/) · [Deployment runs](https://github.com/caseyschindler123/Brasswake/actions/workflows/pages.yml)
 
 - Build: from `game/`, `npm ci` then `npm run build` writes `game/dist/` (index.html, release.json, and art/).
