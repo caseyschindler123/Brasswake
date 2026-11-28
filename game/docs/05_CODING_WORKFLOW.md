@@ -42,6 +42,8 @@ select-tests.js records selected suites, core groups, scenes and capture profile
 
 Actions runs four required Playwright shards per selected browser profile, using the same suites, scenes and profile selection in all twelve jobs. Each passes `--shard=1/4` through `--shard=4/4`, runs one worker (`BW_UI_WORKERS=1`) on its own runner, and retains a distinct `browser-<project>-<shard>` artifact. Heavy journeys do not compete on the same runner. The aggregate still requires the browser matrix result to succeed before publication. Discovery checks prove that all shard pairs are disjoint and their union retains the complete full inventory. The 90-minute browser-job limit and zero retries remain unchanged. The coordinated exact-commit release passed this distribution; [release history](RELEASE_HISTORY.md#landscape-techniques-live-combat-and-dungeon-redesign) records the source and verification evidence.
 
+Complete profession journeys retain failure traces with action history and DOM snapshots, named checkpoint captures, and failure screenshots. Their traces omit continuous frame images to reduce recording load during real-time movement. Each journey keeps its full path and 750-second deadline.
+
 Actions passes the verification plan between jobs using lossless bounded compression from `selection-transport.js`. The raw `work/test-selection.json` receipt retains every selected path and scope field. Aggregate and hosted consumers accept both legacy JSON and the encoded form, reject malformed/oversize payloads, and apply the same scope and exact-commit validation after decoding. Transport size never justifies dropping file coverage.
 
 Core groups are selected before execution: assets/build/protocol plus affected engine/audio/actors/world/cards/effects groups; full runs all groups, including offline/server checks. Do not repeat passing unchanged full local and CI runs or hosted flows without a concrete unresolved concern.
@@ -98,6 +100,8 @@ For releases, monitor the exact commit through deployment/live verification; a g
 Report classification, outcome, actual checks, commit/local status, applicable deployment status and material limitations. No routine cost attribution. Discuss costs only when requested or needed for paid-action approval; existing paid-image/settings approval boundaries remain unchanged. Never expose credentials, overwrite unrelated work, force-push or bypass sandbox controls. Delegate only bounded independent work when the benefit warrants it; prefer one agent for coupled/simple work.
 
 ## Decision log
+
+- 2026-11-28: Keep the full Playwright action trace and checkpoint images for complete profession journeys. Disable continuous frame images within those journey traces after the WebKit thief journey reached its final checkpoint at the time limit. Coverage, assertions and deadlines stay the same.
 
 - 2026-11-27: The first failed combined release exceeded WebKit's unchanged 90-minute job limit. Two required shards with one worker each then completed every case, but the heavier WebKit shard took about 84 minutes. Use four deterministic required shards per browser profile for more headroom; heavy journeys run without sharing a runner. Preserve every selected case, profession journey, retry/deadline setting, fail-closed aggregate and publication guard; prove every shard pair disjoint and actual discovery equal to the unsharded inventory. The coordinated landscape/UI plan owns integration and release status.
 
