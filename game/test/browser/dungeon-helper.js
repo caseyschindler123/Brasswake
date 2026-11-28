@@ -9,6 +9,20 @@ async function closeSheet(f) {
   for(const selector of ['#sheet [data-a=closesheet]','#say [data-a=closesheet]']){const b=f.locator(selector).last();if(await b.isVisible())await b.click();}
   for(let i=0;i<4&&await f.locator('#say-text').isVisible();i++)await f.locator('#say-text').click();
 }
+function readyLiveAction(beginner){
+  const view=__bw.Combat.snapshot();
+  if(view.resources.hp<=0)return {dead:true};
+  if(__bw.F?.over)return {over:true};
+  if(!view.recovery.ready)return false;
+  // Enemy hits can change resources while recovery advances. Choose from
+  // the current descriptors only after the shared recovery has completed.
+  const {hp,maxHp,mana,stamina}=view.resources,attack=view.actions[0];
+  const supply=view.actions.find(a=>a.id==='supply'),recover=view.actions.find(a=>a.id==='recover');
+  const hurt=beginner?hp<=maxHp-30:hp<maxHp*.7;
+  const low=mana<attack.mana||stamina<(attack.stamina||0);
+  const choice=hurt&&supply.eligible?supply:low&&recover.eligible?recover:attack;
+  return choice.ready?{action:choice.id,resources:view.resources,target:view.target}:false;
+}
 async function liveFight(f,stats,answer,limit=60){
   await dismiss(f);
   const target=await f.evaluate(()=>__bw.F?.ent?.id||__bw.F?.body?.id||__bw.Combat.snapshot().target?.id);
@@ -21,11 +35,34 @@ async function liveFight(f,stats,answer,limit=60){
     if(state.dead)throw Error('Dungeon traversal character died');
     if(state.over)break;
     if(!state.prompt){
-      const hurt=answer?state.hp<=state.maxHp-30:state.hp<state.maxHp*.7;
-      const action=hurt&&state.supply.eligible?'supply':state.mana<state.attack.mana&&state.recover.eligible?'recover':state.weapon;
-      await f.waitForFunction(id=>__bw.F?.over||__bw.Combat.descriptor(id)?.ready,action,{timeout:15000});
+      const deadline=Date.now()+15000;
+      let choice,prepared=false;
+      try{
+        for(let attempt=0;attempt<3&&Date.now()<deadline;attempt++){
+          const handle=await f.waitForFunction(readyLiveAction,!!answer,{timeout:Math.max(1,deadline-Date.now())});
+          choice=await handle.jsonValue();await handle.dispose();
+          if(choice.over)break;
+          if(choice.dead)throw Error('Dungeon traversal character died');
+          const button=f.locator(`#combat-bar [data-a=combatbegin][data-id="${choice.action}"]`);
+          // Re-read if an enemy hit invalidates this choice before the click.
+          if(!await button.isEnabled()||!await f.evaluate(id=>__bw.Combat.descriptor(id)?.ready,choice.action))continue;
+          await button.click({timeout:Math.max(1,deadline-Date.now())});
+          prepared=await f.evaluate(()=>!!__bw.F?.live&&__bw.F.st==='prompt');
+          if(prepared)break;
+        }
+        if(!choice?.over)expect(prepared,'a currently ready native combat action opens SQL').toBe(true);
+      }catch(error){
+        const current=await f.evaluate(id=>{
+          const view=__bw.Combat.snapshot(),fight=__bw.F;
+          return {action:id,descriptor:__bw.Combat.descriptor(id),target:view.target,resources:view.resources,
+            recovery:view.recovery,worldPaused:view.worldPaused,actions:view.actions,
+            fight:fight?{id:fight.ent?.id,state:fight.st,live:fight.live,busy:fight.busy,over:fight.over}:null,
+            activities:{query:!!__bw.Q,duel:!!__bw.DU,spar:!!__bw.SB},
+            panels:Object.fromEntries(['fight','sheet','say','enc','coach'].map(id=>[id,!document.getElementById(id).hidden]))};
+        },choice?.action||null);
+        throw new Error('Live dungeon readiness stalled: '+JSON.stringify({before:state,choice,current}),{cause:error});
+      }
       if(await f.evaluate(()=>!!__bw.F?.over))break;
-      await f.locator(`#combat-bar [data-a=combatbegin][data-id="${action}"]`).click();
     }
     await expect(f.locator('#fight #sql')).toBeVisible();
     const sql=answer?answer(await f.locator('#fight .ask').innerText()):await f.evaluate(()=>__bw.F.task.sql);
